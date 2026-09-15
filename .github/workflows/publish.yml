@@ -1,0 +1,75 @@
+name: Publish Release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "发布已有版本标签，例如 v0.1.0"
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: publish-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - id: version
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then echo '无效的版本标签' >&2; exit 1; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+  build-app:
+    needs: version
+    uses: ./.github/workflows/check.yml
+    with:
+      release: true
+      tag: ${{ needs.version.outputs.tag }}
+    secrets: inherit
+  release:
+    needs: [version, build-app]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: yovoice-*
+          path: packages
+          merge-multiple: true
+      - name: Prepare release assets
+        env:
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir release
+          # 两个平台全部构建成功且 macOS 公证通过后才进入发布任务。
+          for name in yovoice-macos-arm64.zip yovoice-macos-arm64.dmg yovoice-windows-x64.zip yovoice-windows-x64-setup.exe; do
+            test -s "packages/$name"
+            mv "packages/$name" "release/${name/yovoice-/yovoice-$TAG-}"
+          done
+          cd release
+          sha256sum ./*.zip ./*.dmg ./*-setup.exe > SHA256SUMS.txt
+      - name: Publish application release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          # 先在草稿中上传全部文件，避免用户下载到不完整的新版本。
+          if gh release view "$TAG" --json isDraft --jq '.isDraft' > draft.txt 2>/dev/null; then
+            if [[ "$(cat draft.txt)" != true ]]; then echo '该版本已发布，请使用新标签。' >&2; exit 1; fi
+          else
+            gh release create "$TAG" --verify-tag --draft --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" release/* --clobber
+          prerelease=false
+          if [[ "$TAG" == *-* ]]; then prerelease=true; fi
+          gh release edit "$TAG" --draft=false --prerelease="$prerelease"

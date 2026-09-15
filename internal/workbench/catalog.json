@@ -1,0 +1,38 @@
+[
+  {
+    "id": "index-2.5-q8",
+    "name": "IndexTTS 2.5",
+    "version": "2.5",
+    "precision": "Q8",
+    "remotePath": "IndexTTS2.5-GGUF/index-tts2_5-q8_0.gguf",
+    "size": 3502955328,
+    "sha256": "5e827b2072042e4a1b21ccf24a5cb4f71cb1011403067a0a9b039311d8b38628"
+  },
+  {
+    "id": "index-2.5-f16",
+    "name": "IndexTTS 2.5",
+    "version": "2.5",
+    "precision": "F16",
+    "remotePath": "IndexTTS2.5-GGUF/index-tts2_5-f16.gguf",
+    "size": 4547355072,
+    "sha256": "87bed9b82fc8f22119a1a1042332091016c28e37f29b0e93343ccdbfa76ef66a"
+  },
+  {
+    "id": "index-2-q8",
+    "name": "IndexTTS 2.0",
+    "version": "2",
+    "precision": "Q8",
+    "remotePath": "IndexTTS2-GGUF/index-tts2-q8_0.gguf",
+    "size": 3633888608,
+    "sha256": "f9be73ac5b6cbdc5f603f04dcb6c9fe37b3a301a365a1ea8d580d3ef7ba22e8e"
+  },
+  {
+    "id": "index-2-f16",
+    "name": "IndexTTS 2.0",
+    "version": "2",
+    "precision": "F16",
+    "remotePath": "IndexTTS2-GGUF/index-tts2-f16.gguf",
+    "size": 4646898304,
+    "sha256": "0f7b95d3d32e18bf9352912a7b21a0bd4a8406853a0aaa2c9180f77389c21523"
+  }
+]

@@ -1,0 +1,15 @@
+node_modules/
+.vite/
+web/dist/
+**/bin/
+**/obj/
+artifacts/
+test-results/
+playwright-report/
+.DS_Store
+.idea/
+
+*.tsbuildinfo
+
+**/.build/
+**/.swiftpm/

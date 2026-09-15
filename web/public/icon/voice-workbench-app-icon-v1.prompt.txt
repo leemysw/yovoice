@@ -1,0 +1,9 @@
+生成方式：内置 image_gen
+参考：Nexus AppIconSource.png、Astrolabe astrolabe-app-icon-v2.png
+
+Use case: logo-brand.
+Create one finished desktop application icon for 声音工作台 (Voice Workbench), a local voice synthesis and audio creation app.
+The two supplied images are STYLE REFERENCES ONLY: image 1 Nexus supplies the rounded-square sculptural app-icon polish and soft dimensional lighting; image 2 Astrolabe supplies the restrained folded-material elegance, tactile ivory surface and teal interior. Create an original sound-related symbol, do not copy the mascot or the exact Astrolabe mark.
+Subject: one bold, centered sculptural audio waveform, formed by five rounded upright ribbon folds of varying heights, short / medium / tall / medium / short, visually joined along a gently flowing lower fold so it reads as one crafted object. Ivory ceramic-paper front surfaces, rich turquoise-teal inner folds and subtle indigo shaded sides. Immediately recognizable sound-wave silhouette even at small sizes; balanced, calm, beautifully simple.
+Backdrop: deep midnight teal rounded-square tile with softly beveled edges, subtle material texture, subdued studio illumination. Main waveform occupies about 68 percent of icon width, with generous breathing room. Straight-on view, very subtle 3D depth, refined soft contact shadow. Match the reference images' premium macOS icon finish.
+Output exactly one square 1024x1024 icon, tile fills canvas almost edge to edge, transparent outside rounded corners. No lettering, no numbers, no watermark, no microphone, no headphones, no extra symbols, no grid or presentation mockup.

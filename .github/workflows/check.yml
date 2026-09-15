@@ -1,0 +1,137 @@
+name: Check and Package
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      release:
+        type: boolean
+        default: false
+      tag:
+        type: string
+        default: ""
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.workflow }}-${{ inputs.tag || github.ref }}
+  cancel-in-progress: ${{ !inputs.release }}
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            platform: windows-x64
+          - runner: macos-15
+            platform: macos-arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release && format('refs/tags/{0}', inputs.tag) || github.ref }}
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/setup-dotnet@v4
+        if: runner.os == 'Windows'
+        with:
+          dotnet-version: 10.0.x
+      - name: Set application version
+        shell: bash
+        env:
+          RELEASE: ${{ inputs.release }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ "$RELEASE" == true ]]; then
+            if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then echo '无效的版本标签' >&2; exit 1; fi
+            echo "YOVOICE_VERSION=${TAG#v}" >> "$GITHUB_ENV"
+          fi
+          echo "YOVOICE_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+      - run: pnpm --dir web install --frozen-lockfile
+      - run: pnpm --dir web exec playwright install chromium
+      - run: go test -race ./...
+      - run: python3 scripts/desktop/check-signing.py
+        if: runner.os == 'macOS'
+      - run: pnpm --dir web test
+      - name: Cache audio.cpp runtime
+        uses: actions/cache@v4
+        with:
+          path: |
+            artifacts/downloads/audio-*.zip
+            artifacts/downloads/audio-*.tar.gz
+          key: audio-cpp-${{ matrix.platform }}-${{ hashFiles('scripts/desktop/build-windows.ps1', 'scripts/desktop/build-macos.sh') }}
+      - name: Install Inno Setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup 安装失败" }
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/desktop/build-windows.ps1
+      - name: Verify Windows Setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/desktop/check-windows-setup.ps1
+      - name: Import macOS signing certificate
+        if: inputs.release && runner.os == 'macOS'
+        env:
+          MACOS_DEVELOPER_ID_CERTIFICATE_BASE64: ${{ secrets.MACOS_DEVELOPER_ID_CERTIFICATE_BASE64 }}
+          MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        run: |
+          : "${MACOS_DEVELOPER_ID_CERTIFICATE_BASE64:?缺少签名证书}"
+          : "${MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD:?缺少证书密码}"
+          cert_path="$RUNNER_TEMP/yovoice-developer-id.p12"
+          keychain_path="$RUNNER_TEMP/yovoice-signing.keychain-db"
+          keychain_password="$(uuidgen)"
+          echo "::add-mask::$keychain_password"
+          echo "MACOS_CODESIGN_KEYCHAIN_PATH=$keychain_path" >> "$GITHUB_ENV"
+          trap 'rm -f "$cert_path"' EXIT
+          printf '%s' "$MACOS_DEVELOPER_ID_CERTIFICATE_BASE64" | base64 --decode > "$cert_path"
+          security create-keychain -p "$keychain_password" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security import "$cert_path" -k "$keychain_path" -P "$MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_password" "$keychain_path"
+      - name: Package macOS
+        if: runner.os == 'macOS'
+        env:
+          YOVOICE_CODESIGN_IDENTITY: ${{ inputs.release && (vars.MACOS_DEVELOPER_ID_APPLICATION || secrets.MACOS_DEVELOPER_ID_APPLICATION) || '-' }}
+          YOVOICE_NOTARIZE: ${{ inputs.release && '1' || '0' }}
+          APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
+          APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
+          APPLE_NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+        run: make app-build CONFIGURATION=release
+      - name: Delete macOS signing keychain
+        if: always() && runner.os == 'macOS' && env.MACOS_CODESIGN_KEYCHAIN_PATH != ''
+        run: security delete-keychain "$MACOS_CODESIGN_KEYCHAIN_PATH"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yovoice-${{ matrix.platform }}
+          path: |
+            artifacts/yovoice-${{ matrix.platform }}.zip
+            artifacts/yovoice-${{ matrix.platform }}.dmg
+            artifacts/yovoice-${{ matrix.platform }}-setup.exe
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-${{ matrix.platform }}
+          path: web/test-results/
+          retention-days: 7
