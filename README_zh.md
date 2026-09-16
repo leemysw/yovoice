@@ -37,7 +37,9 @@ yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在�
 | macOS 14+ · Apple Silicon | `.dmg` | 打开磁盘映像，将 yovoice 拖入 Applications |
 | Windows 10/11 · x64 | `-setup.exe` | 运行安装向导，安装后从开始菜单打开 |
 
-Windows 安装器会在缺少时联网安装 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。模型在应用内下载。Windows 同时提供 ZIP 便携包；卸载应用保留 `~/.yovoice` 中的作品和模型。
+Windows 安装器会在缺少时联网安装 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。模型在应用内下载。卸载应用保留 `~/.yovoice` 中的作品和模型。
+
+macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查并后台下载；下载完成后可选择重启安装。
 
 ![yovoice macOS 安装界面](docs/images/yovoice-macos-install.png)
 
@@ -61,7 +63,7 @@ make install
 make app-run
 ```
 
-环境要求、浏览器预览、测试和项目结构见[开发指南](docs/development.md)。
+环境要求见[开发指南](docs/development.md)，其中也介绍了浏览器预览、测试和项目结构。
 
 ---
 

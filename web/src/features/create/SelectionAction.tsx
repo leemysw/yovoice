@@ -92,6 +92,9 @@ export function SelectionAction({ editor, onEdit }: { editor: RefObject<HTMLText
   return <HStack as="aside" ref={popup} className="selection-action" aria-label="选中文字操作" style={position}
     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setSelection(null); }}
     onKeyDown={event => { if (event.key === 'Escape' || (event.key === 'Tab' && event.shiftKey)) { event.preventDefault(); setSelection(null); editor.current?.focus(); } }}>
-    <Button label="调整发音" icon={<Type size={16} />} size="sm" variant="ghost" onClick={() => { const target = editor.current; if (target) { const start = target.selectionStart; const end = target.selectionEnd; const word = target.value.slice(start, end); if (word.trim()) onEdit({ start, end, word }); } setSelection(null); }} />
+    {/* WebKit 点击按钮时可能不转移焦点，阻止鼠标按下导致编辑器失焦并提前卸载浮层。 */}
+    <Button label="调整发音" icon={<Type size={16} />} size="sm" variant="ghost"
+      onMouseDown={event => { if (event.button === 0) event.preventDefault(); }}
+      onClick={() => { const { start, end, word } = selection; onEdit({ start, end, word }); setSelection(null); }} />
   </HStack>;
 }

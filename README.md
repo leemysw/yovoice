@@ -38,7 +38,9 @@ Choose the package for your platform from the repository’s [Releases](../../re
 | macOS 14+ · Apple Silicon | `.dmg` | Open the disk image and drag yovoice to Applications |
 | Windows 10/11 · x64 | `-setup.exe` | Run the installer, then open yovoice from the Start menu |
 
-The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. A portable ZIP is also available. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
+The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
+
+Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready.
 
 ![Install yovoice on macOS](docs/images/yovoice-macos-install.png)
 
@@ -62,7 +64,7 @@ make install
 make app-run
 ```
 
-See the [development guide](docs/development.md) for prerequisites, browser preview, tests, and project structure.
+See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure.
 
 ---
 

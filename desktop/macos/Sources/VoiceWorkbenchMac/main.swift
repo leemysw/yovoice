@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     private let token = UUID().uuidString + UUID().uuidString
     private var closing = false
     private var shutdownComplete = false
+    private var updater: AppUpdater?
     private let root = ProcessInfo.processInfo.environment["WORKBENCH_DATA"].map { URL(fileURLWithPath: $0, isDirectory: true) } ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".yovoice", isDirectory: true)
     private var cookieName: String { "vw-" + token.prefix(12) }
 
@@ -45,6 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         do { try startService() } catch { showError(error) }
+        updater?.start()
     }
 
     @objc private func toggleSidebar() {
@@ -52,12 +54,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         web?.evaluateJavaScript("window.dispatchEvent(new Event('workbench-toggle-sidebar'))", completionHandler: nil)
     }
 
+    @objc private func showAbout() {
+        let repository = "https://github.com/leemysw/yovoice"
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let credits = NSMutableAttributedString(
+            string: "如果 yovoice 对你有帮助，欢迎给项目点个 Star。\n\n",
+            attributes: [.font: NSFont.systemFont(ofSize: NSFont.systemFontSize), .paragraphStyle: paragraph]
+        )
+        credits.append(NSAttributedString(
+            string: repository,
+            attributes: [.link: repository, .paragraphStyle: paragraph]
+        ))
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
+    }
+
     private func makeMenu() {
         let menu = NSMenu()
         let appItem = NSMenuItem()
         menu.addItem(appItem)
         appItem.submenu = NSMenu()
-        appItem.submenu?.addItem(withTitle: "关于 yovoice", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        let aboutItem = appItem.submenu?.addItem(withTitle: "关于 yovoice", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem?.target = self
+        let updateItem = NSMenuItem(title: "检查更新…", action: nil, keyEquivalent: "")
+        appItem.submenu?.addItem(updateItem)
+        updater = AppUpdater(menuItem: updateItem, root: root)
         appItem.submenu?.addItem(.separator())
         appItem.submenu?.addItem(withTitle: "退出 yovoice", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let edit = NSMenuItem()
@@ -307,20 +328,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
                         alert.informativeText = "正文与已下载的部分文件会保留。"
                         alert.addButton(withTitle: "退出")
                         alert.addButton(withTitle: "继续操作")
-                        if alert.runModal() != .alertFirstButtonReturn { closing = false; return }
+                        if alert.runModal() != .alertFirstButtonReturn { closing = false; updater?.cancelInstall(); return }
                     }
                     // 读取最新编辑内容，避免自动保存的防抖窗口丢失最后输入。
                     if let draft = try await web.evaluateJavaScript("window.__workbenchDraft ?? null") as? [String: Any] {
                         let saved = try await request("api/call", body: ["id": "exit-save", "method": "draft.save", "data": draft])
                         if let error = saved["error"] as? String { throw failure(error) }
                     }
-                    _ = try await request("shutdown", body: [:])
                 }
+                // 先确认更新助手可启动，再关闭服务；失败时仍可继续使用应用。
+                try updater?.installBeforeTermination()
+                if service.isRunning { _ = try await request("shutdown", body: [:]) }
                 try? input.fileHandleForWriting.close()
                 shutdownComplete = true
                 NSApp.terminate(nil)
             } catch {
                 closing = false
+                updater?.cancelInstall()
                 showError(error)
 
             }

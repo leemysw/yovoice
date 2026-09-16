@@ -30,6 +30,7 @@ mkdir -p "$app/Contents/Resources/service"
 GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 "$GO_BIN" build -trimpath -ldflags="-s -w" -o "$app/Contents/Resources/service/yovoice-service" ./cmd/yovoice-service
 cp "desktop/macos/.build/$configuration/VoiceWorkbenchMac" "$app/Contents/MacOS/VoiceWorkbenchMac"
 cp desktop/macos/Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
+cp desktop/macos/Resources/install-update.sh "$app/Contents/Resources/install-update.sh"
 rm -rf "$app/Contents/Resources/web"
 cp -R web/dist "$app/Contents/Resources/web"
 archive="artifacts/downloads/audio-v0.7.4-bin-macos-$arch-metal.tar.gz"

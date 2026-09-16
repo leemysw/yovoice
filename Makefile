@@ -31,7 +31,7 @@ app-run: app-build ## 构建并打开桌面应用
 else
 app-build: macos ## 构建本机桌面应用
 app-run: app-build ## 构建并打开桌面应用
-	open "artifacts/macos-arm64/yovoice.app"
+	scripts/desktop/run-macos.sh
 endif
 
 macos: ## 构建 macOS 应用、DMG 与 ZIP

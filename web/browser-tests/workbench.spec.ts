@@ -63,6 +63,18 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await page.getByRole('button', { name: '暂停', exact: true }).click();
   const progress = page.getByRole('slider', { name: '播放进度' });
   await expect(progress).toBeVisible();
+  const lane = page.locator('.timeline-lane');
+  const originalWidth = await page.locator('.waveform').evaluate(el => el.getBoundingClientRect().width);
+  await page.getByRole('button', { name: '放大音轨', exact: true }).click();
+  await expect(page.getByRole('button', { name: '适应完整音轨' })).toHaveText('200%');
+  expect(await page.locator('.waveform').evaluate(el => el.getBoundingClientRect().width)).toBeGreaterThan(originalWidth * 1.9);
+  await lane.evaluate(el => { el.scrollLeft = el.scrollWidth; });
+  expect(await lane.evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
+  await progress.fill('1.5');
+  await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.currentTime)).toBeCloseTo(1.5, 1);
+  await page.getByRole('button', { name: '适应完整音轨' }).click();
+  await expect(page.getByRole('button', { name: '缩小音轨' })).toBeDisabled();
+  expect(await lane.evaluate(el => el.scrollLeft)).toBe(0);
   await progress.fill('1');
   await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.currentTime)).toBeCloseTo(1, 1);
   await page.getByRole('button', { name: '回到开头' }).click();
@@ -124,7 +136,7 @@ test('单选与设置标签支持方向键，弹窗错误就地显示', async ({
   await expect(dialog).toHaveCount(0);
 });
 
-test('选中文字显示发音浮层，应用后只修改选区', async ({ page }) => {
+for (const trigger of ['鼠标', '键盘']) test(`选中文字显示发音浮层，${trigger}应用后只修改选区`, async ({ page }) => {
   await page.goto('/');
   const editor = page.getByRole('textbox', { name: '正文', exact: true });
   const action = page.getByRole('button', { name: '调整发音', exact: true });
@@ -134,8 +146,11 @@ test('选中文字显示发音浮层，应用后只修改选区', async ({ page 
   await editor.evaluate((element: HTMLTextAreaElement) => element.setSelectionRange(0, 0));
   await editor.press('Shift+ArrowRight'); await editor.press('Shift+ArrowRight');
   await expect(action).toBeVisible();
-  await editor.press('Tab'); await expect(action).toBeFocused();
-  await action.press('Enter');
+  if (trigger === '鼠标') await action.click();
+  else {
+    await editor.press('Tab'); await expect(action).toBeFocused();
+    await action.press('Enter');
+  }
   await expect(page.getByRole('dialog')).toContainText('银行');
   await page.getByPlaceholder('例如 HANG2').fill('YIN2 HANG2');
   await page.getByRole('button', { name: '应用发音' }).click();

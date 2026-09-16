@@ -65,6 +65,11 @@ jobs:
       - run: go test -race ./...
       - run: python3 scripts/desktop/check-signing.py
         if: runner.os == 'macOS'
+      - name: Verify macOS updater
+        if: runner.os == 'macOS'
+        run: |
+          swift test --package-path desktop/macos
+          python3 scripts/desktop/check-macos-update.py
       - run: pnpm --dir web test
       - name: Cache audio.cpp runtime
         uses: actions/cache@v4
@@ -83,6 +88,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/desktop/build-windows.ps1
+      - name: Verify Windows updater
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          dotnet run --project desktop/windows/UpdateChecks
+          if ($LASTEXITCODE -ne 0) { throw "更新元数据检查失败" }
+          ./scripts/desktop/check-windows-update.ps1
       - name: Verify Windows Setup
         if: runner.os == 'Windows'
         shell: pwsh
@@ -124,9 +136,9 @@ jobs:
         with:
           name: yovoice-${{ matrix.platform }}
           path: |
-            artifacts/yovoice-${{ matrix.platform }}.zip
-            artifacts/yovoice-${{ matrix.platform }}.dmg
-            artifacts/yovoice-${{ matrix.platform }}-setup.exe
+            artifacts/yovoice-macos-arm64.zip
+            artifacts/yovoice-macos-arm64.dmg
+            artifacts/yovoice-windows-x64-setup.exe
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@v4

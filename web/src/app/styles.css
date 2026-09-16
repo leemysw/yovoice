@@ -111,6 +111,8 @@
   .transport-controls { position: absolute; left: 50%; transform: translateX(-50%); }
   .player .play-main { min-width: var(--spacing-8); min-height: var(--spacing-8); border-radius: var(--radius-full); }
   .transport-end { margin-left: auto; }
+  .track-zoom { border-left: 1px solid var(--app-line); padding-left: var(--spacing-2); font-variant-numeric: tabular-nums; }
+  .track-zoom button:nth-child(2) { min-width: var(--spacing-12); }
   .transport .astryx-button svg { stroke-width: 1.5; }
   .transport .astryx-button { color: var(--app-muted); }
   .transport .play-main { color: var(--app-white); }
@@ -124,7 +126,9 @@
   .track-name:has(.astryx-selector) { padding: var(--spacing-3); }
   .track-name strong,.track-name small { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .track-name strong { font-size: var(--app-small-font); }
-  .timeline-lane { flex: 1; min-width: 0; border-left: 1px solid var(--app-line); padding: 0 var(--spacing-3) var(--spacing-3); background: var(--app-surface); }
+  .timeline-lane { flex: 1; min-width: 0; overflow-x: auto; border-left: 1px solid var(--app-line); padding: 0 var(--spacing-3) var(--spacing-3); background: var(--app-surface); }
+  .timeline-content { flex-shrink: 0; min-width: 100%; }
+  @media (max-width: 1100px) { .transport { flex-wrap: wrap; } .transport-controls { position: static; transform: none; margin-left: auto; } .transport-end { width: 100%; justify-content: flex-end; padding-bottom: var(--spacing-2); } }
   .time-ruler { position: relative; height: var(--spacing-7); flex-shrink: 0; }
   .time-ruler small { position: absolute; top: 0; height: var(--spacing-4); border-left: 1px solid var(--app-line); padding-left: var(--spacing-1); font-size: var(--font-size-xs); font-variant-numeric: tabular-nums; }
   .waveform { width: 100%; position: relative; height: var(--spacing-12); background: color-mix(in srgb, var(--app-wave) 12%, var(--app-white)); border: 1px solid color-mix(in srgb, var(--app-wave) 25%, var(--app-white)); border-radius: var(--radius-element); }

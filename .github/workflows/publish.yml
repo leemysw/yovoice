@@ -50,7 +50,7 @@ jobs:
           set -euo pipefail
           mkdir release
           # 两个平台全部构建成功且 macOS 公证通过后才进入发布任务。
-          for name in yovoice-macos-arm64.zip yovoice-macos-arm64.dmg yovoice-windows-x64.zip yovoice-windows-x64-setup.exe; do
+          for name in yovoice-macos-arm64.zip yovoice-macos-arm64.dmg yovoice-windows-x64-setup.exe; do
             test -s "packages/$name"
             mv "packages/$name" "release/${name/yovoice-/yovoice-$TAG-}"
           done

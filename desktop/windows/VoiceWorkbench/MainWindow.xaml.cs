@@ -10,6 +10,7 @@ namespace VoiceWorkbench.Desktop;
 public partial class MainWindow : Window
 {
     private readonly LocalService service = new();
+    private readonly AppUpdater updater;
     private string Origin => service.Origin;
     private WebView2CompositionControl? web;
     private bool recovering;
@@ -19,9 +20,10 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        updater = new AppUpdater(this, CheckUpdatesMenu, service.Root);
         service.StateChanged += json => { if (!closed) _ = Dispatcher.InvokeAsync(() => PostJson(json)); };
         service.Failed += error => { if (!closed && !shuttingDown) _ = Dispatcher.InvokeAsync(() => MessageBox.Show(error, "yovoice")); };
-        Loaded += async (_, _) => await InitializeWebAsync();
+        Loaded += async (_, _) => { await InitializeWebAsync(); updater.Start(); };
         Closing += async (_, e) =>
         {
             if (shutdownComplete) return;
@@ -33,7 +35,7 @@ public partial class MainWindow : Window
                 if (web?.CoreWebView2 is not null)
                 {
                     var result = await service.CallAsync("state.get", new { });
-                    if (result.GetProperty("state").TryGetProperty("activity", out var activity) && activity.ValueKind == JsonValueKind.Object && activity.GetProperty("status").GetString() == "running" && MessageBox.Show("当前操作尚未结束。退出将取消操作，已下载的部分文件和正文会保留。", "退出 yovoice", MessageBoxButton.OKCancel) != MessageBoxResult.OK) { shuttingDown = false; return; }
+                    if (result.GetProperty("state").TryGetProperty("activity", out var activity) && activity.ValueKind == JsonValueKind.Object && activity.GetProperty("status").GetString() == "running" && MessageBox.Show("当前操作尚未结束。退出将取消操作，已下载的部分文件和正文会保留。", "退出 yovoice", MessageBoxButton.OKCancel) != MessageBoxResult.OK) { shuttingDown = false; updater.CancelInstall(); return; }
                 }
                 // 关闭前读取最新正文，避免自动保存的防抖窗口丢字。
                 if (web?.CoreWebView2 is not null)
@@ -41,12 +43,14 @@ public partial class MainWindow : Window
                     string json = await web.CoreWebView2.ExecuteScriptAsync("window.__workbenchDraft ?? null");
                     if (json != "null") await service.CallAsync("draft.save", JsonSerializer.Deserialize<JsonElement>(json));
                 }
+                await updater.PrepareInstallAsync();
                 await service.ShutdownAsync();
+                updater.CommitInstall();
                 shutdownComplete = true; Close();
             }
-            catch (Exception error) { shuttingDown = false; MessageBox.Show(error.Message, "未能安全保存，请重试退出"); }
+            catch (Exception error) { shuttingDown = false; updater.CancelInstall(); MessageBox.Show(error.Message, "未能安全保存，请重试退出"); }
         };
-        Closed += (_, _) => { closed = true; service.Dispose(); web?.Dispose(); };
+        Closed += (_, _) => { closed = true; updater.Dispose(); service.Dispose(); web?.Dispose(); };
     }
     private async Task InitializeWebAsync()
     {
