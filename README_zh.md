@@ -25,6 +25,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在�
 - **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
 - **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 和 2.5，支持模型下载续传与 GGUF 导入。
 - **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
+- **Agent Skill** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
 
 ---
 
@@ -53,6 +54,20 @@ macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查�
 4. **试听与导出。** 预览生成结果，在历史记录中查找以往作品。
 
 作品、音色与设置保存在 `~/.yovoice`。
+
+---
+
+## CLI 与 Agent Skill
+
+将 [yovoice Skill](https://github.com/leemysw/yovoice/tree/main/skills/yovoice) 链接发给 Agent，让它安装 Skill，并准备本地 CLI、引擎和模型：
+
+> 安装这个 Skill，并帮我配置好 yovoice 本地语音生成环境：https://github.com/leemysw/yovoice/tree/main/skills/yovoice
+
+之后直接描述需求：
+
+> 用 voice.wav 的音色朗读 narration.txt，语气平静，保存为 narration.wav。
+
+Agent 通过独立 CLI 完成配音，无需打开桌面应用。详细用法见 [CLI 指南](docs/cli.md)。
 
 ---
 

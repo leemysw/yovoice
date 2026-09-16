@@ -26,6 +26,7 @@ yovoice is an open-source voice creation tool for macOS and Windows that turns t
 - **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
 - **Local models** — run IndexTTS 2.0 and 2.5 through audio.cpp, with resumable model downloads and GGUF import.
 - **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
+- **Agent Skill** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
 
 ---
 
@@ -54,6 +55,20 @@ Check for updates from the app menu on macOS or Windows. Updates are also checke
 4. **Listen and export.** Preview the result and find previous generations in History.
 
 Projects, voices, and settings are saved in `~/.yovoice`.
+
+---
+
+## CLI & Agent Skill
+
+Give your agent the [yovoice Skill](https://github.com/leemysw/yovoice/tree/main/skills/yovoice) link and ask it to install the Skill and set up the local CLI, engine, and model:
+
+> Install this Skill and set up yovoice for local speech generation: https://github.com/leemysw/yovoice/tree/main/skills/yovoice
+
+Then describe what you want:
+
+> Read narration.txt using voice.wav as the reference voice, with a calm delivery, and save it as narration.wav.
+
+The agent runs the standalone CLI without opening the desktop app. See the [CLI guide](docs/cli.md) for details.
 
 ---
 
