@@ -4,10 +4,10 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { Selector } from '@astryxdesign/core/Selector';
-import { Download, FolderOpen, FilePlus, Check, Cpu, ArrowUpRight, ChevronRight } from 'lucide-react';
+import { Download, FolderOpen, FolderCog, FilePlus, Check, Cpu, ArrowUpRight, ChevronRight, Pause, Trash2 } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
 import { formatSize, type ModelPackage, type State, type Draft } from '../../shared/workbench';
-export function Settings({ state, catalog, draft, onModel, run }: { state: State; catalog: ModelPackage[]; draft: Draft; onModel: (id: string) => void; run: (task: () => Promise<unknown>) => void }) {
+export function Settings({ state, catalog, draft, run }: { state: State; catalog: ModelPackage[]; draft: Draft; run: (task: () => Promise<unknown>) => void }) {
   const [license, setLicense] = useState<string | null>(null);
   const [tab, setTab] = useState('models'); const busy = state.activity?.status === 'running';
   const preferences = state.preferences;
@@ -25,9 +25,10 @@ export function Settings({ state, catalog, draft, onModel, run }: { state: State
         const activity = state.activity;
         const download = activity?.kind === 'download' && (activity.modelId === model.id || (!activity.modelId && activity.total === model.size)) && activity.status !== 'completed' ? activity : null;
         const downloading = download?.status === 'running';
+        const removeBlocked = busy && !(activity?.kind === 'download' && activity.modelId && activity.modelId !== model.id);
         return <VStack className="model-row" key={model.id} gap={3}><HStack className="model-summary" gap={5} vAlign="center" wrap="wrap">
-          <VStack className="grow" gap={1}><HStack gap={3} vAlign="center" wrap="wrap"><h3>{model.name}</h3><small className="precision">{model.precision}</small><small className="model-size">{formatSize(model.size)}</small>{installed ? <small className="ready"><Check size={12} />{draft.modelId === model.id ? '正在使用' : '已校验'}</small> : null}</HStack><small>{model.version === '2.5' ? '中文、英语、日语、西班牙语、阿拉伯语' : '中文、英语'}</small>{installed ? <small className="model-path" title={installed.path}>{installed.path}</small> : null}</VStack>
-          {downloading ? <Button size="sm" label="暂停" onClick={() => run(() => call('operation.cancel'))} /> : installed ? <HStack className="model-action" hAlign="end" gap={2}>{draft.modelId !== model.id ? <Button size="sm" label="使用此模型" isDisabled={busy} onClick={() => onModel(model.id)} /> : null}<Button className="model-remove" size="sm" label="移除模型" variant="ghost" isDisabled={busy} onClick={() => run(() => call('model.forget', { id: model.id }))} /></HStack> : <Button size="sm" label={download ? '继续下载' : '下载模型'} icon={<Download size={16} />} isDisabled={busy} onClick={() => run(() => call('model.download', { id: model.id }))} />}
+          <VStack className="grow" gap={1}><HStack gap={3} vAlign="center" wrap="wrap"><h3>{model.name}</h3><small className="precision">{model.precision}</small><small className="model-size">{formatSize(model.size)}</small>{installed ? <small className="ready"><Check size={12} />{draft.modelId === model.id ? '正在使用' : '已校验'}</small> : null}</HStack><small>{model.family === 'voxcpm2' ? '30 种语言 · 48 kHz · 声音设计与音色克隆' : model.version === '2.5' ? '中文、英语、日语、西班牙语、阿拉伯语' : '中文、英语'}</small>{installed ? <small className="model-path" title={installed.path}>{installed.path}</small> : null}</VStack>
+          {downloading ? <Button size="sm" label="暂停" icon={<Pause size={16} />} onClick={() => run(() => call('operation.cancel'))} /> : installed ? <Button size="sm" label="移除模型" icon={<Trash2 size={16} />} isDisabled={removeBlocked} tooltip={removeBlocked ? '请先结束相关操作，再移除此模型。' : '解除模型登记，保留本地文件'} onClick={() => run(() => call('model.forget', { id: model.id }))} /> : <Button size="sm" label={download ? '继续下载' : '下载模型'} icon={<Download size={16} />} isDisabled={busy} onClick={() => run(() => call('model.download', { id: model.id }))} />}
         </HStack>
         {download ? <VStack className="model-download" gap={2} role="status" aria-label={`${model.name} ${model.precision} 下载进度`}>
           <HStack hAlign="between" gap={3}><small>{downloading ? (download.received >= model.size ? '正在校验' : '正在下载') : download.status === 'failed' ? '下载未完成' : '已暂停'}</small><small>{formatSize(download.received)} / {formatSize(model.size)}</small></HStack>
@@ -36,10 +37,10 @@ export function Settings({ state, catalog, draft, onModel, run }: { state: State
         </VStack>;
       })}</section>
       <VStack gap={2}>
-      <HStack className="settings-directory" hAlign="between" gap={4} vAlign="center"><VStack className="grow" gap={1}><h3>模型保存位置</h3><small className="model-path">{preferences.modelDirectory ?? '应用数据目录 / models'}</small></VStack><HStack className="directory-actions" gap={1}><Button size="sm" label="打开文件夹" icon={<FolderOpen size={15} />} variant="ghost" onClick={() => run(() => call('model.directory.open'))} /><Button size="sm" label="更改位置" variant="ghost" isDisabled={busy} onClick={() => run(() => call('model.directory'))} /></HStack></HStack>
+      <HStack className="settings-directory" hAlign="between" gap={4} vAlign="center"><VStack className="grow" gap={1}><h3>模型保存位置</h3><small className="model-path">{preferences.modelDirectory ?? '应用数据目录 / models'}</small></VStack><HStack className="directory-actions" gap={2}><Button size="sm" label="打开文件夹" icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} /><Button size="sm" label="更改位置" icon={<FolderCog size={16} />} isDisabled={busy} onClick={() => run(() => call('model.directory'))} /></HStack></HStack>
       <details className="settings-help"><summary><ChevronRight size={16} aria-hidden="true" />模型与文件说明</summary><p className="helper muted">支持上述 audio.cpp GGUF 包，导入后自动校验。移除模型仅解除登记，保留本地文件；更改保存位置仅影响后续下载。</p></details>
       </VStack>
-      <p className="helper muted">下载和使用模型须遵守随应用提供的 bilibili 模型使用协议。<Button size="sm" label="查看协议" variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new Error('无法读取协议'); setLicense(await response.text()); })} /></p>
+      <p className="helper muted">IndexTTS 遵循 bilibili 模型使用协议；VoxCPM2 使用 Apache-2.0 许可。<Button size="sm" label="IndexTTS 协议" variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new Error('无法读取协议'); setLicense(await response.text()); })} /></p>
     </VStack> : <VStack className="engine-settings" gap={5} id="engine-panel" role="tabpanel" aria-label="推理引擎">
       <HStack className="runtime-heading" gap={3} vAlign="center"><Cpu size={22} strokeWidth={1.5} /><h2>audio.cpp</h2><small>v0.7.4</small></HStack>
       <VStack gap={0}>

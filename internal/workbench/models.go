@@ -23,6 +23,11 @@ func value(s *string) string {
 }
 
 type Draft struct {
+	VoxMode           string    `json:"voxMode"`
+	VoiceDescription  string    `json:"voiceDescription"`
+	ReferenceText     string    `json:"referenceText"`
+	GuidanceScale     float64   `json:"guidanceScale"`
+	InferenceSteps    int       `json:"inferenceSteps"`
 	ID                string    `json:"id"`
 	Title             string    `json:"title"`
 	Text              string    `json:"text"`

@@ -4,7 +4,7 @@
 <h1 align="center">yovoice</h1>
 <p align="center">让文字拥有你的声音。</p>
 <p align="center">
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.0-blue?style=flat-square" alt="Version 0.1.0" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.1-blue?style=flat-square" alt="Version 0.1.1" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
@@ -23,7 +23,8 @@ yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在�
 
 - **音色与表达** — 跟随参考音色、模仿参考演绎、调整情绪，或用文字描述想要的表达方式。
 - **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
-- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 和 2.5，支持模型下载续传与 GGUF 导入。
+- **声音设计与克隆** — VoxCPM2 支持文字设计音色、带风格指导的克隆及参考原文辅助的精细克隆，自动多语言、48 kHz 输出。
+- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5 和 VoxCPM2，支持模型下载续传与 GGUF 导入。
 - **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
 - **Agent Skill** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
 
@@ -48,8 +49,8 @@ macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查�
 
 ## 快速上手
 
-1. **准备模型。** 在设置中下载 IndexTTS 模型，Windows 已内置 CPU 内核，可在设置中下载 CUDA 内核以使用 NVIDIA GPU 加速。
-2. **添加音色。** 导入或录制一段 1–60 秒的参考音频。
+1. **准备模型。** 在设置中下载 IndexTTS 或 VoxCPM2 模型，Windows 已内置 CPU 内核，可在设置中下载 CUDA 内核以使用 NVIDIA GPU 加速。
+2. **添加音色。** 导入或录制一段 1–60 秒的参考音频，或使用 VoxCPM2 无参考音频的声音设计。
 3. **生成语音。** 输入正文，选择表达方式，点击生成。
 4. **试听与导出。** 预览生成结果，在历史记录中查找以往作品。
 
@@ -91,6 +92,7 @@ make app-run
 ## 鸣谢
 
 - [audio.cpp](https://github.com/0xShug0/audio.cpp) — ShugoAI 开发的本地音频推理引擎。
+- [VoxCPM](https://github.com/OpenBMB/VoxCPM) — 声音设计与克隆模型，Apache-2.0 许可。
 - [IndexTTS](https://github.com/index-tts/index-tts) — 为 yovoice 提供语音合成模型。
 
 ---

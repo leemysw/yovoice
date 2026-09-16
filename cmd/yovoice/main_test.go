@@ -69,7 +69,7 @@ func TestStandalone(t *testing.T) {
 		s.RuntimePath = &exe
 		b := "cpu"
 		s.RuntimeBackend = &b
-		s.Models = []workbench.InstalledModel{{ID: "index-2.5-q8", Path: model}}
+		s.Models = []workbench.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}}
 	}, true)
 	if e != nil {
 		t.Fatal(e)
@@ -114,6 +114,28 @@ func TestStandalone(t *testing.T) {
 	if _, e = os.Stat(args[6]); !os.IsNotExist(e) {
 		t.Fatal("取消仍导出音频")
 	}
+
+	for _, mode := range []string{"design", "clone", "continuation"} {
+		voxArgs := []string{"generate", "--model", "voxcpm2-q8", "--text", "你好", "--vox-mode", mode, "--output", filepath.Join(root, mode+".wav"), "--data-dir", root}
+		if mode != "design" {
+			voxArgs = append(voxArgs, "--reference", ref)
+		}
+		if mode == "continuation" {
+			voxArgs = append(voxArgs, "--reference-text", "原文")
+		}
+		out.Reset()
+		if err := run(ctx, voxArgs, &out, &progress); err != nil {
+			t.Fatal(mode, err)
+		}
+		var generated map[string]any
+		if err := json.Unmarshal(out.Bytes(), &generated); err != nil || generated["model"] != "voxcpm2-q8" {
+			t.Fatal(out.String(), err)
+		}
+		config, err := os.ReadFile(filepath.Join(root, "runtime", "server.json"))
+		if err != nil || !bytes.Contains(config, []byte(`"family":"voxcpm2"`)) {
+			t.Fatal(string(config), err)
+		}
+	}
 	lock, e := workbench.Lock(filepath.Join(root, "service.lock"))
 	if e != nil {
 		t.Fatal(e)
@@ -125,5 +147,22 @@ func TestStandalone(t *testing.T) {
 	out.Reset()
 	if e = run(ctx, []string{"voices", "list", "--data-dir", root}, &out, &progress); e != nil || !json.Valid(out.Bytes()) {
 		t.Fatal(e, out.String())
+	}
+}
+
+func TestModelSpecificFlags(t *testing.T) {
+	for _, flags := range [][]string{
+		{"--model", "voxcpm2-q8", "--language", "zh"},
+		{"--model", "index-2.5-q8", "--voice-description", "温柔"},
+		{"--model", "voxcpm2-q8", "--vox-mode", "clone"},
+		{"--model", "voxcpm2-q8", "--vox-mode", "design", "--reference", "unused.wav"},
+		{"--model", "voxcpm2-q8", "--reference", "unused.wav", "--voice", "unused"},
+		{"--model", "voxcpm2-q8", "--inference-steps", "0"},
+	} {
+		var out bytes.Buffer
+		args := append([]string{"generate", "--text", "你好", "--output", "unused.wav"}, flags...)
+		if err := run(context.Background(), args, &out, &out); err == nil {
+			t.Fatal("应在访问文件或启动引擎前拒绝不匹配的参数", flags)
+		}
 	}
 }

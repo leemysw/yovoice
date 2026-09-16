@@ -13,6 +13,7 @@ const EngineVersion = "v0.7.4"
 type ModelPackage struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
+	Family     string `json:"family"`
 	Version    string `json:"version"`
 	Precision  string `json:"precision"`
 	RemotePath string `json:"remotePath"`

@@ -42,8 +42,8 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(4);
-  await page.getByRole('button', { name: '查看协议' }).click();
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(6);
+  await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
   await page.getByRole('button', { name: '关闭协议' }).click();
   expect(errors).toEqual([]);
@@ -188,6 +188,7 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
   }).toBeTruthy();
   await page.keyboard.press('Escape');
   await page.evaluate(state => {
+    state.models = [{ id: 'index-2.5-q8', path: '/models/index.gguf', managed: false }];
     state.activity = { error: null, kind: 'download', modelId: 'index-2-q8', label: '正在校验模型', status: 'running', received: 3633888608, total: 3633888608 };
     localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
   }, emptyState());
@@ -195,6 +196,7 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
   await page.getByRole('button', { name: '设置', exact: true }).click();
   const row = page.locator('.model-row').filter({ has: page.getByRole('progressbar', { name: 'IndexTTS 2.0 Q8 下载进度' }) });
   await expect(row).toContainText('正在校验');
+  await expect(page.getByRole('button', { name: '移除模型', exact: true })).toBeEnabled();
   await expect(row.getByRole('button', { name: '暂停' })).toBeVisible();
   await expect(page.locator('.activity')).toHaveCount(0);
   await expect(page.getByRole('progressbar')).toHaveCount(1);
@@ -397,4 +399,28 @@ test('桌面导入将压缩音频原样交给后端转换', async ({ page }) => 
   const uploaded = JSON.parse((await page.evaluate(() => localStorage.getItem('uploaded-audio')))!);
   expect(uploaded.name).toBe('参考');
   expect(uploaded.base64).toBe(bytes.toString('base64'));
+});
+
+
+test('VoxCPM2 模式切换与草稿保存', async ({ page }) => {
+  await page.goto('/');
+  const model = page.getByRole('combobox', { name: '模型', exact: true });
+  await model.click();
+  await page.getByRole('option', { name: /VoxCPM2 · Q8/ }).click();
+  await expect(page.getByRole('radio', { name: '声音设计', exact: true })).toBeChecked();
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('radio', { name: '情绪调节', exact: true })).toHaveCount(0);
+  await page.getByLabel('声音描述', { exact: true }).fill('清澈温柔的年轻女性');
+  await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toBeVisible();
+  await expect(page.getByLabel('风格指导（可选）')).toHaveValue('清澈温柔的年轻女性');
+  await page.getByRole('radio', { name: '精细克隆', exact: true }).click();
+  await page.getByLabel('参考音频原文').fill('这是参考音频中的原文。');
+  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel('参考音频原文')).toHaveValue('这是参考音频中的原文。');
+  await model.click();
+  await page.getByRole('option', { name: /IndexTTS 2.5 · Q8/ }).click();
+  await expect(page.getByRole('radio', { name: '跟随音色', exact: true })).toBeVisible();
+  await expect(page.getByLabel('参考音频原文')).toHaveCount(0);
 });

@@ -30,7 +30,10 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
   yovoice voices import FILE [--name NAME]
   yovoice generate --text-file FILE --reference AUDIO --output WAV
 生成选项：--text TEXT（与 --text-file 二选一）、--voice ID（与 --reference 二选一）、
-  --model ID、--language zh|en|ja|es|ar、--speed 1、--emotion-text TEXT。
+  --model ID、--seed N；IndexTTS：--language zh|en|ja|es|ar、--speed 1、--emotion-text TEXT。
+VoxCPM2：--vox-mode design|clone|continuation、--voice-description TEXT、
+  --reference-text TEXT、--guidance-scale 2、--inference-steps 10。
+VoxCPM2 无参考音频默认声音设计；有参考音频默认克隆，有原文默认精细克隆。
 所有命令支持 --data-dir DIR、--json。stdout 输出 JSON，进度写 stderr。
 生成与下载阻塞至完成；Ctrl-C 取消并清理推理进程。已有输出文件不会被覆盖。
 `
@@ -84,6 +87,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	d.Text = ""
 	d.Mode = "speaker"
 	d.EmotionText = ""
+	seed := int64(-1)
 	textFile, reference, voice, output := "", "", "", ""
 	switch command {
 	case "setup":
@@ -105,7 +109,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.StringVar(&d.ModelID, "model", d.ModelID, "模型 ID")
 		fs.StringVar(&d.Language, "language", "zh", "语言")
 		fs.Float64Var(&d.Speed, "speed", 1, "语速 0.5–2")
-		fs.StringVar(&d.EmotionText, "emotion-text", "", "文字情绪指导")
+		fs.StringVar(&d.EmotionText, "emotion-text", "", "IndexTTS 文字情绪指导")
+		fs.StringVar(&d.VoxMode, "vox-mode", "", "VoxCPM2：design、clone 或 continuation")
+		fs.StringVar(&d.VoiceDescription, "voice-description", "", "VoxCPM2 声音或风格描述")
+		fs.StringVar(&d.ReferenceText, "reference-text", "", "VoxCPM2 参考音频原文")
+		fs.Float64Var(&d.GuidanceScale, "guidance-scale", 2, "VoxCPM2 引导强度")
+		fs.IntVar(&d.InferenceSteps, "inference-steps", 10, "VoxCPM2 推理步数")
+		fs.Int64Var(&seed, "seed", -1, "随机种子，-1 为自动")
 	}
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -123,8 +133,49 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if (d.Text == "") == (textFile == "") {
 			return fmt.Errorf("--text 和 --text-file 必须且只能指定一个")
 		}
-		if (reference == "") == (voice == "") {
-			return fmt.Errorf("--reference 和 --voice 必须且只能指定一个")
+		vox := strings.HasPrefix(d.ModelID, "voxcpm2-")
+		var unsupported string
+		fs.Visit(func(f *flag.Flag) {
+			if vox && (f.Name == "language" || f.Name == "speed" || f.Name == "emotion-text") || !vox && (f.Name == "vox-mode" || f.Name == "voice-description" || f.Name == "reference-text" || f.Name == "guidance-scale" || f.Name == "inference-steps") {
+				unsupported = f.Name
+			}
+		})
+		if unsupported != "" {
+			return fmt.Errorf("当前模型不支持 --%s", unsupported)
+		}
+		if vox && (d.GuidanceScale < 0.5 || d.InferenceSteps < 1) {
+			return fmt.Errorf("引导强度需为 0.5–5，推理步数需为 1–50")
+		}
+		if vox && d.VoxMode == "" {
+			d.VoxMode = "design"
+			if reference != "" || voice != "" {
+				d.VoxMode = "clone"
+			}
+			if d.ReferenceText != "" {
+				d.VoxMode = "continuation"
+			}
+		}
+		if reference != "" && voice != "" {
+			return fmt.Errorf("--reference 和 --voice 只能指定一个")
+		}
+		if d.RequiresVoice() && reference == "" && voice == "" {
+			return fmt.Errorf("当前模式需要 --reference 或 --voice")
+		}
+		if !d.RequiresVoice() && (reference != "" || voice != "") {
+			return fmt.Errorf("声音设计不使用参考音频，请选择 clone 或 continuation")
+		}
+		if vox && d.VoxMode != "continuation" && d.ReferenceText != "" {
+			return fmt.Errorf("--reference-text 需要 continuation 模式")
+		}
+		if vox && d.VoxMode == "continuation" && d.VoiceDescription != "" {
+			return fmt.Errorf("精细克隆不使用 --voice-description")
+		}
+		if seed < -1 || seed > 2147483647 {
+			return fmt.Errorf("随机种子必须在 0–2147483647 之间，或 -1 自动")
+		}
+		if seed >= 0 {
+			n := int(seed)
+			d.Seed = &n
 		}
 		if textFile != "" {
 			b, e := os.ReadFile(textFile)
@@ -221,7 +272,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			}
 			voice = v.ID
 		}
-		d.VoiceID = &voice
+		if voice != "" {
+			d.VoiceID = &voice
+		}
 		if err = wait("generation.start", d); err != nil {
 			return err
 		}

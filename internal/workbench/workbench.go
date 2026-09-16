@@ -58,7 +58,7 @@ func (w *Workbench) UseBundledCPU(path string) error {
 	}, true)
 }
 func (w *Workbench) SaveDraft(d Draft) error {
-	if !validID(d.ID) || textLen(d.Text) > 12000 || textLen(d.Title) > 120 || textLen(d.EmotionText) > 500 {
+	if !validID(d.ID) || textLen(d.Text) > 12000 || textLen(d.Title) > 120 || textLen(d.EmotionText) > 500 || textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
 		return fmt.Errorf("作品内容超出限制。")
 	}
 	return w.Store.Update(func(s *State) {
@@ -362,7 +362,7 @@ func (w *Workbench) importModel(path string) error {
 			}
 		}
 		if count == 0 {
-			return fmt.Errorf("没有识别到兼容的 IndexTTS GGUF。当前支持 audio.cpp 发布的 2.0 / 2.5 Q8 和 F16 包。")
+			return fmt.Errorf("没有识别到兼容的 GGUF，请选择模型列表中列出的 audio.cpp 模型包。")
 		}
 		return nil
 	})
@@ -517,9 +517,13 @@ func (w *Workbench) generate(d Draft) error {
 	if i < 0 {
 		return fmt.Errorf("请先在设置中下载或导入模型。")
 	}
-	voice, e := w.MediaFile("voices", value(d.VoiceID))
-	if e != nil {
-		return fmt.Errorf("请先添加音色参考音频。")
+	voice := ""
+	var e error
+	if d.RequiresVoice() {
+		voice, e = w.MediaFile("voices", value(d.VoiceID))
+		if e != nil {
+			return fmt.Errorf("请先添加音色参考音频。")
+		}
 	}
 	emotion := ""
 	if d.EmotionVoiceID != nil {
@@ -628,8 +632,10 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 	case "model.forget":
 		w.mu.Lock()
 		defer w.mu.Unlock()
-		if w.cancel != nil {
-			return nil, fmt.Errorf("请先结束当前操作。")
+		activity := w.Store.Read().Activity
+		// 下载其他模型不占用推理引擎，也不会改写当前模型的登记。
+		if w.cancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == p.ID) {
+			return nil, fmt.Errorf("此模型暂不可移除，请先结束相关操作。")
 		}
 		w.engine.Stop()
 		err = w.Store.Update(func(s *State) {

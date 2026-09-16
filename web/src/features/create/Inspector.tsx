@@ -7,7 +7,8 @@ import { Slider } from '@astryxdesign/core/Slider';
 import { Selector, SelectorOption } from '@astryxdesign/core/Selector';
 import { Switch } from '@astryxdesign/core/Switch';
 import { AudioLines, ChevronUp, ChevronRight, Play, LoaderCircle } from 'lucide-react';
-import { formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
+import { VoxControls } from './VoxControls';
+import { isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 const modes: [Mode, string][] = [['speaker', '跟随音色'], ['reference', '参考演绎'], ['vector', '情绪调节'], ['text', '文字指导']];
 const emotions = ['高兴', '愤怒', '悲伤', '恐惧', '厌恶', '低落', '惊讶', '平静'];
@@ -63,6 +64,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
 
     </VStack>
     <HStack className="inspector-heading" hAlign="between" vAlign="center"><h2 className="inspector-section-title">声音设置</h2><Button label="返回正文" className="inspector-toggle" variant="ghost" onClick={close} /></HStack>
+      {isVoxModel(draft.modelId) ? <VoxControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} advanced={advanced} setAdvanced={setAdvanced} /> : <>
       <VStack gap={3}>
         <h3>参考音色</h3>
         <HStack className="voice-selected" gap={3} vAlign="center">
@@ -107,6 +109,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
         ] as const).map(([key, label, min, max, step]) => <label key={key} className="number-field">{label}<input type="number" min={min} max={max} step={step} value={draft[key]} onChange={e => { if (e.target.value !== '') change({ [key]: Number(e.target.value) }); }} /></label>)}
         <label className="number-field">随机种子<input type="number" min={0} max={2147483647} value={draft.seed ?? ''} placeholder="自动" onChange={e => change({ seed: e.target.value ? Number(e.target.value) : null })} /></label>
       </VStack></details>
+      </>}
     </VStack>
 
   </VStack>;

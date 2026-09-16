@@ -417,21 +417,33 @@ func TestEngineLifecycle(t *testing.T) {
 	out := filepath.Join(root, "outputs", "test.wav")
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	must(t, engine.Generate(ctx, executable, InstalledModel{Path: model}, "cpu", d, "voice.wav", "", out, func(string) {}))
+	must(t, engine.Generate(ctx, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(string) {}))
 	pid := engine.process.Process.Pid
 	if seconds, e := Duration(out); e != nil || seconds != 1 {
 		t.Fatal(seconds, e)
 	}
 	must(t, os.Remove(out))
-	must(t, engine.Generate(ctx, executable, InstalledModel{Path: model}, "cpu", d, "voice.wav", "", out, func(string) {}))
+	must(t, engine.Generate(ctx, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(string) {}))
 	if engine.process.Process.Pid != pid {
 		t.Fatal("引擎未复用")
+	}
+
+	// 旧草稿中的流式标记应被忽略，始终使用完整生成。
+	must(t, json.Unmarshal([]byte(`{"modelId":"voxcpm2-q8","streaming":true}`), &d))
+	must(t, engine.Generate(ctx, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "", "", out, func(string) {}))
+	if engine.process.Process.Pid == pid {
+		t.Fatal("切换模型类型后必须重新启动引擎")
+	}
+	config, err := os.ReadFile(filepath.Join(root, "runtime", "server.json"))
+	must(t, err)
+	if !bytes.Contains(config, []byte(`"family":"voxcpm2"`)) || !bytes.Contains(config, []byte(`"mode":"offline"`)) {
+		t.Fatal(string(config))
 	}
 	d.Text = "等待取消"
 	cancelled, stop := context.WithCancel(ctx)
 	timer := time.AfterFunc(200*time.Millisecond, stop)
 	defer timer.Stop()
-	if e = engine.Generate(cancelled, executable, InstalledModel{Path: model}, "cpu", d, "voice.wav", "", out, func(string) {}); e == nil {
+	if e = engine.Generate(cancelled, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(string) {}); e == nil {
 		t.Fatal("未取消")
 	}
 	if engine.process != nil {
@@ -455,5 +467,34 @@ func TestEngineLifecycle(t *testing.T) {
 		if _, err := runtimeArchives("metal"); err == nil {
 			t.Fatal("Linux 不应接受 Metal 后端")
 		}
+	}
+}
+
+func TestForgetModelDuringDownload(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	path := filepath.Join(w.Store.Root, "model.gguf")
+	must(t, os.WriteFile(path, []byte("model"), 0600))
+	must(t, w.Store.Update(func(s *State) {
+		s.Models = []InstalledModel{{ID: "index-2-q8", Path: path}, {ID: "voxcpm2-q8", Path: path}}
+	}, true))
+	must(t, w.begin("download", "测试下载", ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	_, err = w.Call("model.forget", json.RawMessage(`{"id":"index-2-q8"}`))
+	must(t, err)
+	if len(w.Store.Read().Models) != 1 || w.Store.Read().Activity.Status != "running" {
+		t.Fatal("移除其他模型不能影响下载")
+	}
+	if _, err = os.Stat(path); err != nil {
+		t.Fatal("移除登记不能删除原文件", err)
+	}
+	if _, err = w.Call("model.forget", json.RawMessage(`{"id":"voxcpm2-q8"}`)); err == nil {
+		t.Fatal("不能移除正在下载的模型")
+	}
+	w.Cancel()
+	<-w.done
+	must(t, w.begin("generate", "测试生成", nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	if _, err = w.Call("model.forget", json.RawMessage(`{"id":"voxcpm2-q8"}`)); err == nil {
+		t.Fatal("生成期间应保护模型")
 	}
 }

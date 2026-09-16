@@ -5,7 +5,7 @@
 <h1 align="center">yovoice</h1>
 <p align="center">Give your words a voice.</p>
 <p align="center">
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.0-blue?style=flat-square" alt="Version 0.1.0" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.1-blue?style=flat-square" alt="Version 0.1.1" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
@@ -24,7 +24,8 @@ yovoice is an open-source voice creation tool for macOS and Windows that turns t
 
 - **Voice and expression** — use a reference voice, match a reference performance, adjust emotions, or describe the delivery in words.
 - **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
-- **Local models** — run IndexTTS 2.0 and 2.5 through audio.cpp, with resumable model downloads and GGUF import.
+- **Voice design and cloning** — VoxCPM2 offers text-guided voice design, controllable cloning, and transcript-assisted cloning with automatic multilingual handling, and 48 kHz output.
+- **Local models** — run IndexTTS 2.0 / 2.5 and VoxCPM2 through audio.cpp, with resumable model downloads and GGUF import.
 - **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
 - **Agent Skill** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
 
@@ -49,8 +50,8 @@ Check for updates from the app menu on macOS or Windows. Updates are also checke
 
 ## Quick Start
 
-1. **Set up a model.** Open Settings and download an IndexTTS model. The CPU engine is bundled on Windows; CUDA can be downloaded from Settings for NVIDIA GPU acceleration.
-2. **Add a voice.** Import or record a 1–60 second reference clip.
+1. **Set up a model.** Open Settings and download an IndexTTS or VoxCPM2 model. The CPU engine is bundled on Windows; CUDA can be downloaded from Settings for NVIDIA GPU acceleration.
+2. **Add a voice.** Import or record a 1–60 second reference clip, or use VoxCPM2 voice design without one.
 3. **Create speech.** Enter your text, choose an expression mode, and select Generate.
 4. **Listen and export.** Preview the result and find previous generations in History.
 
@@ -92,6 +93,7 @@ Bug reports, feature suggestions, and pull requests are welcome. Include your pl
 ## Acknowledgements
 
 - [audio.cpp](https://github.com/0xShug0/audio.cpp) by ShugoAI — the local audio inference engine.
+- [VoxCPM](https://github.com/OpenBMB/VoxCPM) — voice design and cloning models, licensed under Apache-2.0.
 - [IndexTTS](https://github.com/index-tts/index-tts) — the speech synthesis models behind yovoice.
 
 ---

@@ -8,7 +8,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { AudioLines, PanelLeft, Plus, Pencil, Clock3, Settings2, Check, Play, X, Trash2, Mic, SlidersHorizontal } from 'lucide-react';
 import { call, subscribe, isDesktop, isMac } from '../shared/lib/client';
-import { createDraft, emptyState, formatTime, formatSize, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { isVoxModel, requiresVoice, createDraft, emptyState, formatTime, formatSize, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { MediaActions } from '../features/media/MediaActions';
 import { Inspector } from '../features/create/Inspector';
 const Settings = lazy(() => import('../features/settings/Settings').then(module => ({ default: module.Settings })));
@@ -98,7 +98,7 @@ export function App() {
   const change = (patch: Partial<Draft>) => setDraft(current => ({ ...current, ...patch }));
   const generate = () => {
     if (state.activity?.status === 'running') return;
-    if (!state.voices.some(voice => voice.id === draft.voiceId)) { setVoicePicker('voice'); return; }
+    if (requiresVoice(draft) && !state.voices.some(voice => voice.id === draft.voiceId)) { setVoicePicker('voice'); return; }
     if (!state.runtimePath || state.runtimeBackend !== state.preferences.backend || !state.models.some(m => m.id === draft.modelId)) {
       setPage('settings'); setError('开始生成前，请准备模型与推理运行时。'); return;
     }
@@ -156,7 +156,7 @@ export function App() {
 
             </VStack>
           </VStack>{inspector}
-        </HStack> : page === 'settings' ? <Suspense fallback={<p role="status">正在加载设置…</p>}><Settings state={state} catalog={catalog} draft={draft} run={run} onModel={id => { change({ modelId: id, language: id.startsWith('index-2.5') ? draft.language : ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); setPage('create'); }} /></Suspense> : <VStack className={`library-page ${page === 'voices' ? 'voices-page' : 'history-page'}`} gap={6}>
+        </HStack> : page === 'settings' ? <Suspense fallback={<p role="status">正在加载设置…</p>}><Settings state={state} catalog={catalog} draft={draft} run={run} /></Suspense> : <VStack className={`library-page ${page === 'voices' ? 'voices-page' : 'history-page'}`} gap={6}>
           <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}><header><h1>{page === 'voices' ? '声音库' : '历史记录'}</h1><p className="subtitle">{page === 'voices' ? `${state.voices.length} 个音色` : `${state.history.length} 条生成记录`}</p></header>{page === 'voices' && state.voices.length > 0 ? <Button label="添加声音" size="sm" icon={<Plus size={16} />} onClick={() => setVoicePicker('add')} /> : null}</HStack>
           {page === 'voices' ? state.voices.length ? <VStack gap={0} className="voice-library-list">{state.voices.map(voice => <VStack key={voice.id} className="voice-library-item" gap={0}>
             <HStack className="voice-library-row" gap={3} vAlign="center"><AudioLines className="voice-mark" size={20} /><h3 className="grow" title={voice.name}>{voice.name}</h3><small className="time">{formatTime(voice.duration)}</small><Button label={previewTrack?.id === voice.id ? `收起试听${voice.name}` : `试听${voice.name}`} size="sm" variant="ghost" isIconOnly icon={previewTrack?.id === voice.id ? <X size={16} /> : <Play size={16} />} onClick={() => audition({ ...voice, kind: 'voices', subtitle: '参考音频' })} /><MediaActions item={{ ...voice, kind: 'voices' }} beforeDelete={() => setPreviewTrack(null)} onError={onError} /></HStack>
@@ -165,7 +165,7 @@ export function App() {
         </VStack>}
       </VStack>} />
     </AppShell>
-    {ready && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <SelectionAction key={draft.id} editor={editor} onEdit={annotate} /> : null}
+    {ready && !isVoxModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <SelectionAction key={draft.id} editor={editor} onEdit={annotate} /> : null}
 
     {deleteTarget ? <Dialog isOpen onOpenChange={open => { if (!open && !deleting) setDeleteTarget(null); }} width={400} padding={6}><VStack gap={4}><h2>删除作品？</h2><p className="helper">“{deleteTarget.title}”的草稿将被删除，已生成的音频仍保留在历史记录中。</p><HStack hAlign="end" gap={2}><Button label="取消" size="sm" isDisabled={deleting} onClick={() => setDeleteTarget(null)} /><Button label="删除作品" size="sm" variant="primary" isLoading={deleting} onClick={() => void deleteDraft()} /></HStack></VStack></Dialog> : null}
     {voicePicker ? <Suspense fallback={<p role="status">正在加载声音选择…</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={selectVoice} /></Suspense> : null}

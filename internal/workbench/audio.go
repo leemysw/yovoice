@@ -78,6 +78,21 @@ func Validate(d Draft) error {
 	if e != nil {
 		return e
 	}
+	if m.Family == "voxcpm2" {
+		if d.VoxMode != "" && d.VoxMode != "design" && d.VoxMode != "clone" && d.VoxMode != "continuation" {
+			return fmt.Errorf("VoxCPM2 生成方式无效。")
+		}
+		if textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
+			return fmt.Errorf("声音描述或参考原文超出限制。")
+		}
+		if d.VoxMode == "continuation" && strings.TrimSpace(d.ReferenceText) == "" {
+			return fmt.Errorf("精细克隆需要参考音频的原文。")
+		}
+		if (d.GuidanceScale != 0 && !inRange(d.GuidanceScale, .5, 5)) || d.InferenceSteps < 0 || d.InferenceSteps > 50 || (d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647)) {
+			return fmt.Errorf("VoxCPM2 生成参数超出范围。")
+		}
+		return nil
+	}
 	languages := []string{"zh", "en"}
 	if m.Version != "2" {
 		languages = append(languages, "ja", "es", "ar")
@@ -107,7 +122,7 @@ func Validate(d Draft) error {
 			return fmt.Errorf("生成参数超出范围。")
 		}
 	}
-	if d.TopK < 1 || d.TopK > 200 || d.MaxTokens < 50 || d.MaxTokens > 4000 || d.NumBeams < 1 || d.NumBeams > 10 || d.IntervalSilenceMs < 0 || d.IntervalSilenceMs > 2000 || (d.Seed != nil && *d.Seed < 0) {
+	if d.TopK < 1 || d.TopK > 200 || d.MaxTokens < 50 || d.MaxTokens > 4000 || d.NumBeams < 1 || d.NumBeams > 10 || d.IntervalSilenceMs < 0 || d.IntervalSilenceMs > 2000 || (d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647)) {
 		return fmt.Errorf("高级生成参数超出范围。")
 	}
 	return nil
@@ -118,6 +133,36 @@ func inRange(v, min, max float64) bool {
 func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 	if e := Validate(d); e != nil {
 		return nil, e
+	}
+	m, _ := model(d.ModelID)
+	if m.Family == "voxcpm2" {
+		guidance, steps := d.GuidanceScale, d.InferenceSteps
+		if guidance == 0 {
+			guidance = 2
+		}
+		if steps == 0 {
+			steps = 10
+		}
+		o := map[string]any{"guidance_scale": guidance, "num_inference_steps": steps}
+		if d.Seed != nil {
+			o["seed"] = *d.Seed
+		}
+		text := d.Text
+		// 精细克隆沿用参考音频的演绎，其他模式可通过前缀控制音色和风格。
+		if description := strings.TrimSpace(d.VoiceDescription); description != "" && d.VoxMode != "continuation" {
+			text = "(" + description + ")" + text
+		}
+		r := map[string]any{"text": text, "options": o}
+		if d.RequiresVoice() {
+			if voice == "" {
+				return nil, fmt.Errorf("音色克隆需要参考音频。")
+			}
+			r["voice_ref"] = voice
+		}
+		if d.VoxMode == "continuation" {
+			r["reference_text"] = strings.TrimSpace(d.ReferenceText)
+		}
+		return map[string]any{"model": "index", "request": r}, nil
 	}
 	o := map[string]any{"language": d.Language, "duration_factor": 1 / d.Speed, "temperature": d.Temperature, "top_p": d.TopP, "top_k": d.TopK, "repetition_penalty": d.RepetitionPenalty, "max_tokens": d.MaxTokens, "interval_silence_ms": d.IntervalSilenceMs, "do_sample": d.DoSample, "num_beams": d.NumBeams, "length_penalty": d.LengthPenalty}
 	if d.Seed != nil {
@@ -159,4 +204,9 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		}
 	}
 	return map[string]any{"model": "index", "request": r}, nil
+}
+
+func (d Draft) RequiresVoice() bool {
+	m, err := model(d.ModelID)
+	return err != nil || m.Family != "voxcpm2" || d.VoxMode == "clone" || d.VoxMode == "continuation"
 }

@@ -1,6 +1,6 @@
 ---
 name: yovoice
-description: 使用独立 yovoice CLI 在本地将文字生成语音，支持参考音色、语速和文字情绪指导。适用于配音、旁白、朗读和音色复用，无需桌面 App。
+description: 使用独立 yovoice CLI 在本地将文字生成语音，支持 IndexTTS 配音和 VoxCPM2 声音设计、音色克隆。适用于配音、旁白、朗读和音色复用，无需桌面 App。
 ---
 
 # yovoice 本地配音
@@ -25,7 +25,7 @@ description: 使用独立 yovoice CLI 在本地将文字生成语音，支持参
 - 默认数据目录 `~/.yovoice`。如果被 App 或另一个 CLI 占用，不终止用户任务；使用用户指定的独立 `--data-dir`，所有后续命令保持同一路径。新目录需要独立准备运行时和登记模型。
 - `yovoice models list --json` 查看真实模型 ID 和安装状态；`yovoice voices list --json` 查看可用音色 ID。
 - 安装引擎、选择 CPU/GPU、下载或登记模型时，阅读[引擎与模型参考](references/setup.md)。
-- 用户提供参考文件时用 `--reference`。常见音频格式内部自动转换；格式、时长限制和复用方式见[音频参考](references/audio.md)。没有参考文件或已有音色时，请用户提供或选择，不虚构音色。
+- 用户提供参考文件时用 `--reference`。常见音频格式内部自动转换；格式、时长限制和复用方式见[音频参考](references/audio.md)。IndexTTS 需要参考音色；VoxCPM2 可无需参考音频进行声音设计，模式与参数见同一参考文档。
 
 ## 生成
 
@@ -35,7 +35,7 @@ description: 使用独立 yovoice CLI 在本地将文字生成语音，支持参
 yovoice generate --text-file narration.txt --reference voice.wav --model index-2.5-q8 --language zh --speed 1 --output narration.wav --json
 ```
 
-已有音色改用 `--voice ID`，与 `--reference` 互斥。需要情绪指导时添加 `--emotion-text "温柔、平静"`；效果受模型、文本和参考音频影响，不承诺固定效果。仅在用户需要时调节参数，默认沿用参考音色。不要使用不存在的预设参数。
+已有音色改用 `--voice ID`，与 `--reference` 互斥。IndexTTS 需要情绪指导时添加 `--emotion-text "温柔、平静"`；效果受模型、文本和参考音频影响，不承诺固定效果。仅在用户需要时调节参数，默认沿用参考音色。不要使用不存在的预设参数。
 
 命令阻塞到完成，进度在 stderr，stdout 只有最终 JSON；失败返回非零退出码，错误 JSON 在 stderr。Ctrl-C 取消当前命令并清理引擎，不提供跨进程取消命令。不要因首次模型加载慢反复启动任务。
 

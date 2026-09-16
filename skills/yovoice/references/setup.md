@@ -34,6 +34,8 @@ yovoice models download index-2.5-q8
 | `index-2.5-f16` | 4.55 GB | 同上 |
 | `index-2-q8` | 3.63 GB | 中文、英语 |
 | `index-2-f16` | 4.65 GB | 中文、英语 |
+| `voxcpm2-q8` | 2.96 GB | 自动识别 30 种语言，48 kHz 输出 |
+| `voxcpm2-bf16` | 4.77 GB | 同上 |
 
 默认使用 ModelScope；可指定下载来源：
 
@@ -56,3 +58,5 @@ yovoice models import /absolute/index-tts2_5-q8_0.gguf
 ## 音频转换器
 
 App 与 CLI 安装包均内置由 FFmpeg 8.1.2 源码裁剪构建的转换器，只保留音频解码、重采样和 WAV 输出，不包含视频编解码、网络协议或播放器。转换完全离线，不需要下载额外组件或安装系统 FFmpeg。CLI 解压时保留可执行文件同级的 `tools/` 目录。
+
+VoxCPM2 可在无参考音频时进行声音设计，也支持克隆及参考原文辅助的精细克隆，详见[音频与生成模式](audio.md#voxcpm2)。IndexTTS 遵循应用提供的模型协议；VoxCPM2 遵循 [Apache-2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE)。

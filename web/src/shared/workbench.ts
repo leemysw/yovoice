@@ -1,5 +1,6 @@
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface Draft {
+  voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
   id: string; title: string; text: string; modelId: string; voiceId: string | null;
   mode: Mode; emotionVoiceId: string | null; emotionText: string; inferEmotion: boolean;
   emotionStrength: number; emotions: number[]; randomEmotion: boolean; language: string;
@@ -7,7 +8,7 @@ export interface Draft {
   maxTokens: number; intervalSilenceMs: number; doSample: boolean; numBeams: number; lengthPenalty: number; seed: number | null;
 }
 export interface Voice { id: string; name: string; fileName: string; duration: number }
-export interface ModelPackage { id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
+export interface ModelPackage { family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
 export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface Generation { id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft }
 export interface Activity { startedAt?: string | null; modelId?: string | null; kind: string; label: string; status: string; received: number; total: number; error: string | null }
@@ -29,3 +30,6 @@ export const emptyState = (): State => ({ drafts: [createDraft(true)], voices: [
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }
+
+export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
+export const requiresVoice = (draft: Draft) => !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');

@@ -240,8 +240,7 @@
   .model-size { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .model-row { padding-block: var(--spacing-4); }
   .model-row:last-child { border-bottom: 0; }
-  .model-row > .model-summary > .astryx-button,.model-action { min-width: calc(var(--spacing-10) * 2.5); }
-  .model-remove.astryx-button { min-height: var(--spacing-6); font-size: var(--app-small-font); color: var(--app-muted); }
+  .model-row > .model-summary > .astryx-button { min-width: calc(var(--spacing-10) * 2.5); }
   .directory-actions .astryx-button { font-size: var(--app-small-font); flex-shrink: 0; }
   .settings-directory { flex-wrap: wrap; }
   .directory-actions { flex-shrink: 0; }
