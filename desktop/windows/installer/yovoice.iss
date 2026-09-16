@@ -63,4 +63,4 @@ begin
   else if not IsWebView2Installed() then
     Result := 'WebView2 installation failed. Please check your network connection and retry. Exit code: ' + IntToStr(ResultCode);
 end;
-; 卸载只移除安装文件，保留用户目录中的 .yovoice 数据。
+// 卸载只移除安装文件，保留用户目录中的 .yovoice 数据。
