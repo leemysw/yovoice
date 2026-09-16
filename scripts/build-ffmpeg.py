@@ -57,7 +57,7 @@ if not executable.exists() or not stamp.exists() or json.loads(stamp.read_text()
     log = work / 'build.log'
     print(f'构建精简 FFmpeg {version}，日志：{log}', flush=True)
     with log.open('w') as stream:
-        for command in [ ['bash', f'../ffmpeg-{version}/configure', *flags], ['make', '-j', str(min(os.cpu_count() or 2, 8)), 'ffmpeg'] ]:
+        for command in [ ['bash', f'../ffmpeg-{version}/configure', *flags], ['make', '-j', str(min(os.cpu_count() or 2, 8)), executable.name] ]:
             # Windows 默认先搜索系统目录，显式解析 PATH，避免误启动 WSL 的 bash。
             command[0] = shutil.which(command[0]) or command[0]
             result = subprocess.run(command, cwd=build, stdout=stream, stderr=subprocess.STDOUT)

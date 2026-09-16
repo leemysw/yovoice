@@ -90,7 +90,7 @@ jobs:
         if: runner.os == 'Windows'
         with:
           msystem: MINGW64
-          install: make curl mingw-w64-x86_64-gcc mingw-w64-x86_64-python
+          install: make curl diffutils mingw-w64-x86_64-gcc mingw-w64-x86_64-python
       - name: Build Windows audio converter
         if: runner.os == 'Windows'
         shell: msys2 {0}
