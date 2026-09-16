@@ -18,6 +18,8 @@ make app-run
 
 On macOS, `app-run` runs in the foreground and streams host and inference logs to the terminal. Logs remain in `~/.yovoice/logs` (or `$WORKBENCH_DATA/logs`). Closing the window keeps the app and background tasks running; click its Dock icon to reopen it. Use Command-Q or the Quit menu to exit and finish the command.
 
+`app-run` builds and starts the app without running tests or creating installers. Run `make install` after dependency changes, `make check` for tests, and `make app-package` for distribution packages.
+
 For browser-only development:
 
 ```sh
@@ -63,7 +65,9 @@ On Windows without GNU Make:
 ./scripts/desktop/build-windows.ps1
 ```
 
-Packages are written to `artifacts/`: macOS DMG and ZIP, Windows Setup EXE.
+`app-build` produces the runnable app in `artifacts/macos-arm64/` or `artifacts/windows-x64/`.
+
+To also create installers, run `make app-package` (or `./scripts/desktop/build-windows.ps1 -Package` on Windows). Packages are written to `artifacts/`: macOS DMG and ZIP, Windows Setup EXE.
 The macOS DMG uses a Retina background and a fixed Finder drag-to-install layout. A logged-in macOS desktop session with Finder automation permission is required to create the layout (as on GitHub macOS runners).
 Exit the local macOS app before rebuilding; the build refuses to replace a running bundle.
 

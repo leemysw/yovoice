@@ -107,7 +107,7 @@ jobs:
       - name: Package Windows
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/desktop/build-windows.ps1
+        run: ./scripts/desktop/build-windows.ps1 -Package
       - name: Verify Windows updater
         if: ${{ !inputs.release && runner.os == 'Windows' }}
         shell: powershell
@@ -167,7 +167,7 @@ jobs:
           APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
           APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
           APPLE_NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
-        run: make app-build CONFIGURATION=release
+        run: make app-package CONFIGURATION=release
       - name: Delete macOS signing keychain
         if: always() && runner.os == 'macOS' && env.MACOS_CODESIGN_KEYCHAIN_PATH != ''
         run: security delete-keychain "$MACOS_CODESIGN_KEYCHAIN_PATH"

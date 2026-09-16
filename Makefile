@@ -2,7 +2,7 @@ PNPM ?= pnpm
 GO ?= go
 CONFIGURATION ?= debug
 
-.PHONY: help install dev build check check-web check-core app-build app-run macos windows
+.PHONY: help install dev build check check-web check-core app-build app-run app-package macos windows
 
 help: ## 查看常用命令
 	@awk 'BEGIN {FS = ":.*## "} /^[a-z-]+:.*## / && !seen[$$1]++ {printf "  %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -28,16 +28,20 @@ ifeq ($(OS),Windows_NT)
 app-build: windows ## 构建本机桌面应用
 app-run: app-build ## 构建并打开桌面应用
 	powershell -NoProfile -Command "Start-Process artifacts/windows-x64/yovoice.exe"
+app-package: ## 构建桌面应用和发布安装包
+	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/desktop/build-windows.ps1 -Package
 else
 app-build: macos ## 构建本机桌面应用
 app-run: app-build ## 构建并打开桌面应用
 	scripts/desktop/run-macos.sh
+app-package: ## 构建桌面应用和发布安装包
+	YOVOICE_PACKAGE=1 GO_BIN="$(GO)" CONFIGURATION="$(CONFIGURATION)" scripts/desktop/build-macos.sh
 endif
 
-macos: ## 构建 macOS 应用、DMG 与 ZIP
+macos: ## 构建 macOS 应用
 	GO_BIN="$(GO)" CONFIGURATION="$(CONFIGURATION)" scripts/desktop/build-macos.sh
 
-windows: ## 构建 Windows Setup 与便携包（在 Windows 运行）
+windows: ## 构建 Windows 应用（在 Windows 运行）
 	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/desktop/build-windows.ps1
 
 .PHONY: cli-build cli-package

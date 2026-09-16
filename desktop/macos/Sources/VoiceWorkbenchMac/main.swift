@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import WebKit
 import UniformTypeIdentifiers
 
@@ -232,7 +233,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { webView.reload() }
     func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
-        decisionHandler(trusted(frame.request.url) && type == .microphone ? .prompt : .deny)
+        guard frame.isMainFrame, trusted(frame.request.url), type == .microphone,
+              let localOrigin = self.origin, origin.protocol == localOrigin.scheme,
+              origin.host == localOrigin.host, origin.port == localOrigin.port else {
+            decisionHandler(.deny)
+            return
+        }
+        // 由系统请求 App 麦克风权限，避免再显示本地网页的授权弹窗。
+        Task { @MainActor in
+            let allowed = await AVCaptureDevice.requestAccess(for: .audio)
+            decisionHandler(allowed && trusted(webView.url) ? .grant : .deny)
+        }
     }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard message.frameInfo.isMainFrame, trusted(message.frameInfo.request.url), let body = message.body as? [String: Any], let id = body["id"] as? String else { return }

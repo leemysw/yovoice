@@ -16,9 +16,7 @@ ensure_app_stopped() {
 }
 ensure_app_stopped
 digest=639926715b1cb537f82aa31656aabbae5d9a85ac36568c402026968f3072e2b3
-pnpm --dir web install --frozen-lockfile
 pnpm --dir web run build
-"$GO_BIN" test ./...
 configuration="${CONFIGURATION:-debug}"
 swift build --package-path desktop/macos -c "$configuration" --arch arm64
 mkdir -p artifacts
@@ -72,8 +70,10 @@ info.update(CFBundleShortVersionString=version, CFBundleVersion=build, LSArchite
 with open(sys.argv[1], 'wb') as file: plistlib.dump(info, file)
 PYVERSION
 scripts/desktop/sign-macos.sh "$app"
-ditto -c -k --keepParent "$app" "artifacts/yovoice-macos-arm64.zip"
-scripts/desktop/package-macos-dmg.sh "$app"
+if [[ "${YOVOICE_PACKAGE:-0}" == 1 ]]; then
+    ditto -c -k --keepParent "$app" "artifacts/yovoice-macos-arm64.zip"
+    scripts/desktop/package-macos-dmg.sh "$app"
+fi
 
 # 安装前再次检查，避免构建期间启动应用后被替换。
 ensure_app_stopped

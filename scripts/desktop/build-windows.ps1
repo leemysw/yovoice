@@ -1,13 +1,9 @@
-param([string]$Configuration = "Release")
+param([string]$Configuration = "Release", [switch]$Package)
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 # 所有外部命令显式检查退出码，避免生成不完整的发布包。
-pnpm --dir web install --frozen-lockfile
-if ($LASTEXITCODE -ne 0) { throw "依赖安装失败" }
 pnpm --dir web run build
 if ($LASTEXITCODE -ne 0) { throw "界面构建失败" }
-go test ./...
-if ($LASTEXITCODE -ne 0) { throw "核心检查失败" }
 $version = if ($env:YOVOICE_VERSION) { $env:YOVOICE_VERSION } else { (Get-Content web/package.json | ConvertFrom-Json).version }
 if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "版本号无效" }
 $destination = Join-Path (Get-Location) "artifacts/windows-x64"
@@ -42,4 +38,4 @@ Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md $destination
 # Windows 仅分发 Setup，清除旧构建遗留的便携包。
 Remove-Item "artifacts/yovoice-windows-x64.zip" -ErrorAction SilentlyContinue
 
-& "$PSScriptRoot/package-windows.ps1" -Version $version
+if ($Package) { & "$PSScriptRoot/package-windows.ps1" -Version $version }
