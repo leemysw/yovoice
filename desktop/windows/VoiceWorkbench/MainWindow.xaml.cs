@@ -158,7 +158,7 @@ public partial class MainWindow : Window
                     explorer.ArgumentList.Add("/select,"); explorer.ArgumentList.Add(path);
                     Process.Start(explorer); result = true; break;
                 case "voice.import":
-                    var audio = new OpenFileDialog { Filter = "WAV 音频|*.wav", Title = "选择 1–60 秒的音色参考" };
+                    var audio = new OpenFileDialog { Filter = "音频文件|*.wav;*.mp3;*.m4a;*.aac;*.flac;*.ogg;*.opus;*.aiff;*.aif;*.wma;*.webm", Title = "选择 1–60 秒的音色参考" };
                     result = audio.ShowDialog(this) == true ? await service.CallAsync(method, new { path = audio.FileName }) : null; break;
                 case "model.import":
                 case "model.directory":

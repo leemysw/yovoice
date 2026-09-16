@@ -8,7 +8,7 @@ import { Upload, Mic, Square, Play, X, AudioLines } from 'lucide-react';
 import { call, importVoiceFile, mediaUrl, isMac } from '../../shared/lib/client';
 import { encodeWav, toBase64 } from '../../shared/lib/sound';
 import { formatTime, type Voice } from '../../shared/workbench';
-export function VoicePicker({ voices, onClose, onSelect }: { voices: Voice[]; onClose: () => void; onSelect: (v: Voice) => void }) {
+export function VoicePicker({ voices, onClose, onSelect, adding = false }: { adding?: boolean; voices: Voice[]; onClose: () => void; onSelect: (v: Voice) => void }) {
   const input = useRef<HTMLInputElement>(null); const recorder = useRef<MediaRecorder | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [error, onError] = useState(''); const [showRecording, setShowRecording] = useState(false);
@@ -70,17 +70,17 @@ export function VoicePicker({ voices, onClose, onSelect }: { voices: Voice[]; on
   }
   return <Dialog className="voice-picker" isOpen onOpenChange={open => { if (!open && !recording && !busy) onClose(); }} width={560} purpose="form" padding={6}>
     <VStack gap={5}>
-      <HStack hAlign="between" vAlign="center"><VStack gap={2}><h2>选择声音</h2><small>1–60 秒清晰人声，避免背景音乐。</small></VStack><Button label="关闭声音选择" className="voice-close" size="sm" isIconOnly icon={<X size={17} />} variant="ghost" isDisabled={recording || busy} onClick={onClose} /></HStack>
+      <HStack hAlign="between" vAlign="center"><VStack gap={2}><h2>{adding ? '添加声音' : '选择声音'}</h2><small>1–60 秒清晰人声，避免背景音乐。</small></VStack><Button label={adding ? '关闭添加声音' : '关闭声音选择'} className="voice-close" size="sm" isIconOnly icon={<X size={17} />} variant="ghost" isDisabled={recording || busy} onClick={onClose} /></HStack>
       {error ? <p className="dialog-error" role="alert">{error}</p> : null}
       <HStack gap={2} wrap="wrap"><Button label="导入参考音频" size="sm" icon={<Upload size={16} />} isLoading={busy} isDisabled={recording} onClick={() => input.current?.click()} /><Button label="录制声音" size="sm" variant="ghost" icon={<Mic size={16} />} isDisabled={busy || recording} aria-expanded={showRecording} onClick={() => { setShowRecording(value => !value); setCrop(null); }} /></HStack>
-      <input type="file" hidden ref={input} accept="audio/*,.aac,.m4a,.mp3,.wav,.flac" onChange={e => { const file = e.target.files?.[0]; if (file) void importing(file); e.target.value = ''; }} />
+      <input type="file" hidden ref={input} accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={e => { const file = e.target.files?.[0]; if (file) void importing(file); e.target.value = ''; }} />
       {showRecording ? <VStack className="recording-form" gap={3}><TextInput label="录音名称" value={name} onChange={setName} /><Button label={recording ? '停止并保存' : '开始录音'} icon={recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} /></VStack> : null}
       {recording ? <p role="status" className="recording">正在录音，最长 60 秒…</p> : null}
-      <VStack className="voice-list" gap={0}>{voices.length ? voices.map(voice => <HStack key={voice.id} className="voice-row" gap={3} vAlign="center">
+      {!adding ? <VStack className="voice-list" gap={0}>{voices.length ? voices.map(voice => <HStack key={voice.id} className="voice-row" gap={3} vAlign="center">
         <AudioLines className="muted" size={18} strokeWidth={1.5} /><Button label={voice.name} variant="ghost" className="grow text-left" isDisabled={busy || recording} onClick={() => onSelect(voice)} /><small>{formatTime(voice.duration)}</small>
         <Button label={`试听${voice.name}`} size="sm" icon={<Play size={16} />} isIconOnly variant="ghost" isDisabled={recording || busy} onClick={() => void audition(voice)} />
         <Button label="裁剪" size="sm" variant="ghost" isDisabled={recording || busy} onClick={() => { setCrop(voice); setShowRecording(false); setRange([0, voice.duration]); }} />
-      </HStack>) : null}</VStack>
+      </HStack>) : null}</VStack> : null}
       {preview ? <VStack gap={2}><small>{preview.name}</small><audio className="voice-preview" aria-label={`试听${preview.name}`} src={preview.url} controls autoPlay /></VStack> : null}
       {crop ? <VStack gap={3}><h3>裁剪 · {crop.name}</h3><Slider label="保留范围" value={range} min={0} max={crop.duration} step={0.1} onChange={(value: [number, number]) => setRange(value)} formatValue={formatTime} valueDisplay="text" /><Button label="另存为新音色" variant="primary" isLoading={busy} onClick={() => void trim()} /></VStack> : null}
     </VStack>

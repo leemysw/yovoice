@@ -2,7 +2,8 @@
 
 ## Requirements
 
-- Node.js 22+, pnpm 9.15.2, Go 1.26+.
+- Node.js 22+, pnpm 9.15.2, Go 1.26+, Python 3.12+.
+- The bundled audio converter is built from FFmpeg source; Make, Bash, curl, and a C compiler are required. Windows builds use MSYS2 MinGW64 (GCC, Make, Python, curl).
 - macOS: Apple Silicon, macOS 14+, Xcode Command Line Tools.
 - Windows: Windows 10/11 x64, .NET SDK 10, WebView2 Runtime, Inno Setup 6 (`winget install JRSoftware.InnoSetup`). Make targets require GNU Make.
 
@@ -24,6 +25,20 @@ make dev
 ```
 
 The preview runs at http://127.0.0.1:5173. Model downloads and speech generation require the desktop app.
+
+## Standalone CLI
+
+The CLI uses Go 1.26+. Full packages also build a minimal FFmpeg from pinned source and require Python 3.12+, Make, Bash, curl, and a C compiler (Xcode Command Line Tools on macOS; GCC on Linux; MSYS2 MinGW64 GCC on Windows). To obtain and build the source:
+
+```sh
+git clone https://github.com/leemysw/yovoice.git
+cd yovoice
+make cli-build
+```
+
+Keep the generated `artifacts/tools/` directory next to the CLI. The executable is `artifacts/yovoice` on macOS/Linux or `artifacts/yovoice.exe` on Windows. Run `make cli-package` on macOS, or `python scripts/package-cli.py` on Windows, to create the standalone ZIP. The archive includes the CLI, minimal FFmpeg, Skill, licenses, and usage guide. CI builds packages natively for each target. FFmpeg is cached by the build script fingerprint, signed and notarized with the macOS packages, and its corresponding source archive is attached to Releases. Engines and models are downloaded separately.
+
+CI artifacts use `yovoice-cli-macos-arm64.zip`, `yovoice-cli-windows-x64.zip`, and `yovoice-cli-linux-x64.zip`. The release workflow adds the version tag, producing `yovoice-<version>-cli-<platform>.zip`. End-user installation is documented in the [CLI guide](cli.md).
 
 ## Test
 

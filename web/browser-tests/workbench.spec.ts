@@ -91,6 +91,16 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(page.getByRole('button', { name: '测试音色 · 裁剪', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '声音库', exact: true }).click();
   await expect(page.locator('footer.player')).toHaveCount(0);
+  await page.getByRole('button', { name: '添加声音', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('heading', { name: '添加声音' })).toBeVisible();
+  await expect(page.getByRole('dialog').locator('.voice-list')).toHaveCount(0);
+  await page.locator('input[type=file]').setInputFiles({ name: '新增音色.wav', mimeType: 'audio/wav', buffer: wav });
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '新增音色', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '创作', exact: true }).click();
+  await expect(page.getByRole('button', { name: '测试音色 · 裁剪', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '声音库', exact: true }).click();
+
   await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
   const preview = page.locator('audio.library-preview');
   await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => !audio.paused && audio.currentTime > 0)).toBeTruthy();
@@ -360,4 +370,31 @@ test('录音权限拒绝时给出可操作提示', async ({ page }) => {
   await page.getByRole('button', { name: '开始录音', exact: true }).click();
   await expect(page.getByText('无法访问麦克风，请在浏览器的网站权限和系统设置中允许使用麦克风后重试。', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '开始录音', exact: true })).toBeEnabled();
+});
+
+test('桌面导入将压缩音频原样交给后端转换', async ({ page }) => {
+  await page.addInitScript(state => {
+    let receive: (event: { data: unknown }) => void;
+    Object.assign(window, { chrome: { webview: {
+      addEventListener: (_name: string, listener: typeof receive) => { receive = listener; },
+      postMessage: (message: { id: string; method: string; data: { base64?: string; name?: string } }) => {
+        let result: unknown = true;
+        if (message.method === 'state.get') result = { state, catalog: [], desktop: true };
+        if (message.method === 'voice.record') {
+          localStorage.setItem('uploaded-audio', JSON.stringify(message.data));
+          result = { id: 'imported', name: message.data.name, fileName: 'imported.wav', duration: 2 };
+        }
+        queueMicrotask(() => receive({ data: { id: message.id, result } }));
+      },
+    } } });
+  }, emptyState());
+  await page.goto('/');
+  await page.getByRole('button', { name: '声音库', exact: true }).click();
+  await page.getByRole('button', { name: '添加第一个声音', exact: true }).click();
+  const bytes = Buffer.from('compressed audio handled by the desktop service');
+  await page.locator('input[type=file]').setInputFiles({ name: '参考.mp3', mimeType: 'audio/mpeg', buffer: bytes });
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('uploaded-audio'))).not.toBeNull();
+  const uploaded = JSON.parse((await page.evaluate(() => localStorage.getItem('uploaded-audio')))!);
+  expect(uploaded.name).toBe('参考');
+  expect(uploaded.base64).toBe(bytes.toString('base64'));
 });

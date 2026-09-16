@@ -47,10 +47,11 @@ if name == 'xcrun' and args[:2] == ['notarytool', 'submit']:
     result, calls = run(YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1')
     assert result.returncode == 0, result.stderr
     signed = [call for call in calls if call[0] == 'codesign' and '--sign' in call]
-    assert len(signed) == 3 and all('--timestamp' in call and 'runtime' in call for call in signed)
+    assert len(signed) == 4 and all('--timestamp' in call and 'runtime' in call for call in signed)
     assert signed[0][-1].endswith('/service/yovoice-service')
     assert signed[1][-1].endswith('/engine/audiocpp_server')
-    assert signed[2][-1] == str(app)
+    assert signed[2][-1].endswith("/tools/ffmpeg")
+    assert signed[3][-1] == str(app)
     submit = next(i for i, call in enumerate(calls) if call[:3] == ['xcrun', 'notarytool', 'submit'])
     staple = next(i for i, call in enumerate(calls) if call[:3] == ['xcrun', 'stapler', 'staple'])
     assert submit < staple and calls[-1][0] == 'spctl'
@@ -63,6 +64,17 @@ if name == 'xcrun' and args[:2] == ['notarytool', 'submit']:
     assert any(call[:3] == ['xcrun', 'stapler', 'validate'] for call in calls)
     result, calls = run(CHECK_ARCH='x86_64')
     assert result.returncode != 0 and not any(call[0] == 'codesign' for call in calls)
+    cli = root / 'yovoice'
+    cli.touch()
+    result, calls = run(cli, YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1')
+    assert result.returncode == 0, result.stderr
+    signed = [call for call in calls if call[0] == 'codesign' and '--sign' in call]
+    assert len(signed) == 2 and all('--timestamp' in call and 'runtime' in call for call in signed)
+    assert signed[0][-1].endswith('/tools/ffmpeg')
+    assert any(call[:3] == ['xcrun', 'notarytool', 'submit'] for call in calls)
+    assert not any(call[:2] == ['xcrun', 'stapler'] for call in calls)
+    result, calls = run(cli, YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1', CHECK_STATUS='Invalid')
+    assert result.returncode != 0, 'CLI 公证失败必须阻止打包'
     # 只执行构建脚本的进程门禁，确认运行中不允许覆盖 App。
     build = (repo / 'scripts/desktop/build-macos.sh').read_text()
     guard = build[build.index('ensure_app_stopped() {'):build.index('\nensure_app_stopped\n')]

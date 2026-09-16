@@ -52,11 +52,13 @@ func (m ModelPackage) URL(source string) (string, error) {
 type runtimeArchive struct{ Name, Hash string }
 
 var archives = map[string]string{
-	"audio-v0.7.4-bin-macos-arm64-metal.tar.gz":     "639926715b1cb537f82aa31656aabbae5d9a85ac36568c402026968f3072e2b3",
-	"audio-v0.7.4-bin-windows-x64-cpu-portable.zip": "d241c56ba78fd3c1b28bf289792fb8ec258d36586b4e0c8d667080ec248c0d2f",
-	"audio-v0.7.4-bin-windows-x64-vulkan.zip":       "057332f9e3fb37706a8ecb5075ac1797efcd85fdccd739f7b65761a5920f2828",
-	"audio-v0.7.4-bin-windows-x64-cuda12.4.zip":     "83fdd5b6e7bd4362604c10cc88d7d3564ef82030dc1d21c693a62cdcbe2e5e38",
-	"audio-v0.7.4-cudart-windows-x64-cuda12.4.zip":  "88d8943a2a8011f02c2a4efa7dbbe258608362615cce51e7f0e0e3a0c62f5a43",
+	"audio-v0.7.4-bin-ubuntu-x64-cpu-portable.tar.gz":    "8a93751b832c533e3261e760b4fd24af2397af3a193c862315653afd0dccc6ad",
+	"audio-v0.7.4-bin-ubuntu-x64-vulkan-portable.tar.gz": "34a46387c4151bf8bd0bbbaac46fc6de57df539a177ab23d52ecd5aa940173b1",
+	"audio-v0.7.4-bin-macos-arm64-metal.tar.gz":          "639926715b1cb537f82aa31656aabbae5d9a85ac36568c402026968f3072e2b3",
+	"audio-v0.7.4-bin-windows-x64-cpu-portable.zip":      "d241c56ba78fd3c1b28bf289792fb8ec258d36586b4e0c8d667080ec248c0d2f",
+	"audio-v0.7.4-bin-windows-x64-vulkan.zip":            "057332f9e3fb37706a8ecb5075ac1797efcd85fdccd739f7b65761a5920f2828",
+	"audio-v0.7.4-bin-windows-x64-cuda12.4.zip":          "83fdd5b6e7bd4362604c10cc88d7d3564ef82030dc1d21c693a62cdcbe2e5e38",
+	"audio-v0.7.4-cudart-windows-x64-cuda12.4.zip":       "88d8943a2a8011f02c2a4efa7dbbe258608362615cce51e7f0e0e3a0c62f5a43",
 }
 
 func runtimeArchives(backend string) ([]runtimeArchive, error) {
@@ -77,6 +79,12 @@ func runtimeArchives(backend string) ([]runtimeArchive, error) {
 			names = []string{"audio-v0.7.4-bin-windows-x64-vulkan.zip"}
 		case "cuda":
 			names = []string{"audio-v0.7.4-bin-windows-x64-cuda12.4.zip", "audio-v0.7.4-cudart-windows-x64-cuda12.4.zip"}
+		}
+	}
+	if runtime.GOOS == "linux" && runtime.GOARCH == "amd64" {
+		switch backend {
+		case "cpu", "vulkan":
+			names = []string{"audio-v0.7.4-bin-ubuntu-x64-" + backend + "-portable.tar.gz"}
 		}
 	}
 	if len(names) == 0 {

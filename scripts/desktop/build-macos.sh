@@ -40,6 +40,7 @@ if [[ "$actual" != "$digest" ]]; then echo 'audio.cpp 校验失败，请删除�
 # 仅携带推理服务、模型描述和许可证，不打包 Python 工具或模型权重。
 tar -xzf "$archive" -C "$app/Contents/Resources/engine" ./audiocpp_server ./model_specs ./LICENSE
 chmod +x "$app/Contents/Resources/engine/audiocpp_server"
+python3 scripts/build-ffmpeg.py "$app/Contents/Resources/tools"
 cp LICENSE THIRD_PARTY_NOTICES.md "$app/Contents/Resources/"
 cat > "$app/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>

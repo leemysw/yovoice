@@ -39,3 +39,11 @@ macos: ## 构建 macOS 应用、DMG 与 ZIP
 
 windows: ## 构建 Windows Setup 与便携包（在 Windows 运行）
 	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/desktop/build-windows.ps1
+
+.PHONY: cli-build cli-package
+cli-build: ## 构建独立 CLI，无需前端或桌面 App
+	python3 scripts/build-ffmpeg.py artifacts/tools
+	$(GO) build -o artifacts/yovoice$(if $(filter Windows_NT,$(OS)),.exe,) ./cmd/yovoice
+
+cli-package: ## 打包独立 CLI 与 Skill
+	GO="$(GO)" python3 scripts/package-cli.py

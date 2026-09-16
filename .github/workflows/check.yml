@@ -78,6 +78,21 @@ jobs:
             artifacts/downloads/audio-*.zip
             artifacts/downloads/audio-*.tar.gz
           key: audio-cpp-${{ matrix.platform }}-${{ hashFiles('scripts/desktop/build-windows.ps1', 'scripts/desktop/build-macos.sh') }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            artifacts/ffmpeg/
+            artifacts/downloads/ffmpeg-*.tar.xz
+          key: ffmpeg-${{ matrix.platform }}-${{ hashFiles('scripts/build-ffmpeg.py') }}
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: MINGW64
+          install: make curl mingw-w64-x86_64-gcc mingw-w64-x86_64-python
+      - name: Build Windows audio converter
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: python scripts/build-ffmpeg.py
       - name: Install Inno Setup
         if: runner.os == 'Windows'
         shell: pwsh
@@ -119,6 +134,14 @@ jobs:
           security unlock-keychain -p "$keychain_password" "$keychain_path"
           security import "$cert_path" -k "$keychain_path" -P "$MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_password" "$keychain_path"
+      - name: Package standalone CLI
+        env:
+          YOVOICE_CODESIGN_IDENTITY: ${{ inputs.release && (vars.MACOS_DEVELOPER_ID_APPLICATION || secrets.MACOS_DEVELOPER_ID_APPLICATION) || '-' }}
+          YOVOICE_NOTARIZE: ${{ inputs.release && '1' || '0' }}
+          APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
+          APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
+          APPLE_NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+        run: python3 scripts/package-cli.py
       - name: Package macOS
         if: runner.os == 'macOS'
         env:
@@ -136,14 +159,59 @@ jobs:
         with:
           name: yovoice-${{ matrix.platform }}
           path: |
+            artifacts/yovoice-cli-${{ matrix.platform }}.zip
             artifacts/yovoice-macos-arm64.zip
             artifacts/yovoice-macos-arm64.dmg
             artifacts/yovoice-windows-x64-setup.exe
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: yovoice-ffmpeg-source
+          path: artifacts/yovoice-ffmpeg-source.tar.gz
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test-results-${{ matrix.platform }}
           path: web/test-results/
           retention-days: 7
+
+  linux-cli:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release && format('refs/tags/{0}', inputs.tag) || github.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: go test -race ./...
+      - uses: actions/cache@v4
+        with:
+          path: |
+            artifacts/ffmpeg/
+            artifacts/downloads/ffmpeg-*.tar.xz
+          key: ffmpeg-linux-x64-${{ hashFiles('scripts/build-ffmpeg.py') }}
+      - name: Package Linux CLI
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ -n "$TAG" ]]; then export YOVOICE_VERSION="${TAG#v}"; fi
+          python3 scripts/package-cli.py
+      - name: Verify Linux runtime
+        run: |
+          unzip artifacts/yovoice-cli-linux-x64.zip -d "$RUNNER_TEMP/cli"
+          "$RUNNER_TEMP/cli/yovoice" --version
+          "$RUNNER_TEMP/cli/yovoice" setup --data-dir "$RUNNER_TEMP/yovoice-data"
+          engine=$(find "$RUNNER_TEMP/yovoice-data/runtime" -type f -name audiocpp_server)
+          "$engine" --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yovoice-cli-linux-x64
+          path: artifacts/yovoice-cli-linux-x64.zip
+          if-no-files-found: error
+          retention-days: 14

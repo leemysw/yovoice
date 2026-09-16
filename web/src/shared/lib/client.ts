@@ -76,12 +76,12 @@ async function blobStore(key: string, value?: Blob): Promise<Blob | undefined> {
 }
 export async function importVoiceFile(file: File): Promise<Voice> {
   if (file.size > 20 * 1024 * 1024) throw new Error('参考音频需小于 20 MB。');
+  if (native) return call<Voice>('voice.record', { name: file.name.replace(/\.[^.]+$/, ''), base64: await toBase64(file) });
   const context = new AudioContext();
   try {
     const decoded = await context.decodeAudioData(await file.arrayBuffer());
     if (decoded.duration < 1 || decoded.duration > 60) throw new Error('请选择 1–60 秒的参考音频。');
     const wav = encodeWav(decoded);
-    if (native) return await call<Voice>('voice.record', { name: file.name.replace(/\.[^.]+$/, ''), base64: await toBase64(wav) });
     const id = crypto.randomUUID().replaceAll('-', '');
     const voice = { id, name: file.name.replace(/\.[^.]+$/, ''), fileName: id + '.wav', duration: decoded.duration };
     await blobStore(voice.fileName, wav); preview.voices.push(voice); publish(); return voice;

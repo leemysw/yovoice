@@ -118,7 +118,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	defer w.Close()
 	file := filepath.Join(root, "input.wav")
 	must(t, os.WriteFile(file, wav(), 0600))
-	v, e := w.ImportVoice(file, "参考音色")
+	v, e := w.ImportVoice(context.Background(), file, "参考音色")
 	must(t, e)
 	d := DefaultDraft()
 	d.VoiceID = &v.ID
@@ -357,7 +357,7 @@ func TestHTTPBoundaryAndEvents(t *testing.T) {
 	}
 	file := filepath.Join(w.Store.Root, "input.wav")
 	must(t, os.WriteFile(file, wav(), 0600))
-	v, e := w.ImportVoice(file, "")
+	v, e := w.ImportVoice(context.Background(), file, "")
 	must(t, e)
 	r = request("/media/voices/"+v.FileName, "", true)
 	r.Header.Set("Range", "bytes=0-43")
@@ -442,6 +442,18 @@ func TestEngineLifecycle(t *testing.T) {
 		must(t, e)
 		if len(a) != 1 || !strings.Contains(a[0].Name, "macos") {
 			t.Fatal(a)
+		}
+	}
+	if runtime.GOOS == "linux" && runtime.GOARCH == "amd64" {
+		for _, backend := range []string{"cpu", "vulkan"} {
+			a, err := runtimeArchives(backend)
+			must(t, err)
+			if len(a) != 1 || a[0].Name != "audio-v0.7.4-bin-ubuntu-x64-"+backend+"-portable.tar.gz" || len(a[0].Hash) != 64 {
+				t.Fatal(a)
+			}
+		}
+		if _, err := runtimeArchives("metal"); err == nil {
+			t.Fatal("Linux 不应接受 Metal 后端")
 		}
 	}
 }

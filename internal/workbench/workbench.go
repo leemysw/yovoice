@@ -442,27 +442,49 @@ func (w *Workbench) install() error {
 		return w.Store.Update(func(s *State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true)
 	})
 }
-func (w *Workbench) ImportVoice(path, name string) (Voice, error) {
+func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, error) {
 	info, e := os.Stat(path)
 	if e != nil {
 		return Voice{}, e
 	}
-	if info.Size() > 20<<20 {
+	if !info.Mode().IsRegular() || info.Size() > 20<<20 {
 		return Voice{}, fmt.Errorf("参考音频需小于 20 MB。")
 	}
+	originalPath := path
+	ctx, cancel := context.WithTimeout(ctx, 90*time.Second)
+	defer cancel()
 	duration, e := Duration(path)
 	if e != nil {
-		return Voice{}, e
+		temporary, err := os.MkdirTemp(filepath.Join(w.Store.Root, "downloads"), "audio-")
+		if err != nil {
+			return Voice{}, err
+		}
+		defer os.RemoveAll(temporary)
+		executable, err := w.audioConverter()
+		if err != nil {
+			return Voice{}, err
+		}
+		path = filepath.Join(temporary, "reference.wav")
+		if err = convertAudio(ctx, executable, originalPath, path); err != nil {
+			return Voice{}, err
+		}
+		duration, e = Duration(path)
+		if e != nil {
+			return Voice{}, e
+		}
 	}
 	if duration < 1 || duration > 60 {
 		return Voice{}, fmt.Errorf("请选择 1–60 秒的参考音频。")
 	}
 	if strings.TrimSpace(name) == "" {
-		name = strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+		name = strings.TrimSuffix(filepath.Base(originalPath), filepath.Ext(originalPath))
 	}
 	r := []rune(name)
 	if len(r) > 100 {
 		name = string(r[:100])
+	}
+	if err := ctx.Err(); err != nil {
+		return Voice{}, err
 	}
 	id := newID()
 	v := Voice{id, name, id + ".wav", duration}
@@ -580,7 +602,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 		}
 		err = w.preferences(preferences)
 	case "voice.import":
-		return w.ImportVoice(p.Path, "")
+		return w.ImportVoice(context.Background(), p.Path, "")
 	case "voice.record":
 		b, e := base64.StdEncoding.DecodeString(p.Base64)
 		if e != nil {
@@ -594,7 +616,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 		if e = os.WriteFile(path, b, 0600); e != nil {
 			return nil, e
 		}
-		return w.ImportVoice(path, p.Name)
+		return w.ImportVoice(context.Background(), path, p.Name)
 	case "model.import":
 		err = w.importModel(p.Path)
 	case "model.directory":

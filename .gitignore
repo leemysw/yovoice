@@ -13,3 +13,4 @@ playwright-report/
 
 **/.build/
 **/.swiftpm/
+__pycache__/

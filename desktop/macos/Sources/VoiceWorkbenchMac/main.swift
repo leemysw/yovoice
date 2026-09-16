@@ -167,6 +167,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         if (savedSidebar) localStorage.setItem('astryx-resizable:workbench-sidebar', savedSidebar);
         window.__workbenchPlatform = 'macos';
         window.__workbenchMediaBase = '/media/';
+        // 桌面应用不显示浏览器默认右键菜单。
+        window.addEventListener('contextmenu', event => event.preventDefault(), true);
         const callbacks = new Set();
         window.__workbenchReceive = data => callbacks.forEach(fn => fn({data}));
         window.chrome = {webview: {postMessage: data => window.webkit.messageHandlers.workbench.postMessage(data), addEventListener: (name, fn) => callbacks.add(fn)}};
@@ -262,7 +264,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             panel.canChooseDirectories = method == "model.directory" || (data["directory"] as? Bool == true)
             panel.canChooseFiles = !panel.canChooseDirectories
             panel.allowsMultipleSelection = false
-            if panel.canChooseFiles { panel.allowedContentTypes = method == "voice.import" ? [.wav] : [UTType(filenameExtension: "gguf") ?? .data] }
+            if panel.canChooseFiles { panel.allowedContentTypes = method == "voice.import" ? [.audio] : [UTType(filenameExtension: "gguf") ?? .data] }
             let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
             guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": NSNull()] }
             data["path"] = url.path

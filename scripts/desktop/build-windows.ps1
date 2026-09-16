@@ -36,6 +36,8 @@ if (!(Test-Path "$runtime/audiocpp_server.exe") -or !(Test-Path "$runtime/model_
 }
 # 保留服务、DLL、模型描述和许可证，不分发转换工具与其他命令行程序。
 Get-ChildItem $runtime | Where-Object { $_.Name -notin @('audiocpp_server.exe', 'model_specs', 'LICENSE') -and $_.Extension -ne '.dll' } | Remove-Item -Recurse -Force
+python scripts/build-ffmpeg.py "$destination/tools"
+if ($LASTEXITCODE -ne 0) { throw "音频转换器构建失败" }
 Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md $destination
 # Windows 仅分发 Setup，清除旧构建遗留的便携包。
 Remove-Item "artifacts/yovoice-windows-x64.zip" -ErrorAction SilentlyContinue
