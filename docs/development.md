@@ -40,6 +40,8 @@ Keep the generated `artifacts/tools/` directory next to the CLI. The executable 
 
 CI artifacts use `yovoice-cli-macos-arm64.zip`, `yovoice-cli-windows-x64.zip`, and `yovoice-cli-linux-x64.zip`. The release workflow adds the version tag, producing `yovoice-<version>-cli-<platform>.zip`. End-user installation is documented in the [CLI guide](cli.md).
 
+Push and pull-request checks run the Go, browser, signing, updater, and installation tests. Release builds skip those tests and their test-only dependencies; they compile and package the tagged source, sign and notarize macOS binaries, and verify the release asset list and checksums before publishing.
+
 ## Test
 
 ```sh

@@ -64,15 +64,18 @@ jobs:
           echo "YOVOICE_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
       - run: pnpm --dir web install --frozen-lockfile
       - run: pnpm --dir web exec playwright install chromium
+        if: ${{ !inputs.release }}
       - run: go test -race ./...
+        if: ${{ !inputs.release }}
       - run: python3 scripts/desktop/check-signing.py
-        if: runner.os == 'macOS'
+        if: ${{ !inputs.release && runner.os == 'macOS' }}
       - name: Verify macOS updater
-        if: runner.os == 'macOS'
+        if: ${{ !inputs.release && runner.os == 'macOS' }}
         run: |
           swift test --package-path desktop/macos
           python3 scripts/desktop/check-macos-update.py
       - run: pnpm --dir web test
+        if: ${{ !inputs.release }}
       - name: Cache audio.cpp runtime
         uses: actions/cache@v4
         with:
@@ -106,14 +109,14 @@ jobs:
         shell: pwsh
         run: ./scripts/desktop/build-windows.ps1
       - name: Verify Windows updater
-        if: runner.os == 'Windows'
+        if: ${{ !inputs.release && runner.os == 'Windows' }}
         shell: powershell
         run: |
           dotnet run --project desktop/windows/UpdateChecks
           if ($LASTEXITCODE -ne 0) { throw "更新元数据检查失败" }
           ./scripts/desktop/check-windows-update.ps1
       - name: Verify Windows Setup
-        if: runner.os == 'Windows'
+        if: ${{ !inputs.release && runner.os == 'Windows' }}
         shell: pwsh
         run: ./scripts/desktop/check-windows-setup.ps1
       - name: Import macOS signing certificate
@@ -204,6 +207,7 @@ jobs:
           go-version-file: go.mod
           cache: false
       - run: go test -race ./...
+        if: ${{ !inputs.release }}
       - uses: actions/cache@v4
         with:
           path: |
@@ -217,6 +221,7 @@ jobs:
           if [[ -n "$TAG" ]]; then export YOVOICE_VERSION="${TAG#v}"; fi
           python3 scripts/package-cli.py
       - name: Verify Linux runtime
+        if: ${{ !inputs.release }}
         run: |
           unzip artifacts/yovoice-cli-linux-x64.zip -d "$RUNNER_TEMP/cli"
           "$RUNNER_TEMP/cli/yovoice" --version
