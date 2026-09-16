@@ -309,8 +309,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         alert.informativeText = error.localizedDescription
         alert.beginSheetModal(for: window)
     }
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
-    func windowShouldClose(_ sender: NSWindow) -> Bool { NSApp.terminate(nil); return false }
+    // 关闭窗口后保留应用和后台任务，退出仍由菜单或 Command-Q 触发。
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { window.makeKeyAndOrderFront(nil); return true }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if shutdownComplete { return .terminateNow }

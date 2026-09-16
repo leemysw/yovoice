@@ -5,6 +5,7 @@ using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Win32;
+using Forms = System.Windows.Forms;
 
 namespace VoiceWorkbench.Desktop;
 public partial class MainWindow : Window
@@ -17,9 +18,20 @@ public partial class MainWindow : Window
     private bool closed;
     private bool shuttingDown;
     private bool shutdownComplete;
+    private bool exitRequested;
+    private readonly Forms.NotifyIcon tray;
+    private readonly Forms.ContextMenuStrip trayMenu;
+    private readonly System.Drawing.Icon trayIcon;
     public MainWindow()
     {
         InitializeComponent();
+        using (var stream = System.Windows.Application.GetResourceStream(new Uri("Resources/AppIcon.ico", UriKind.Relative)).Stream)
+            trayIcon = new System.Drawing.Icon(stream);
+        trayMenu = new Forms.ContextMenuStrip();
+        trayMenu.Items.Add("打开 yovoice", null, (_, _) => RestoreWindow());
+        trayMenu.Items.Add("退出 yovoice", null, (_, _) => RequestExit());
+        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "yovoice", ContextMenuStrip = trayMenu, Visible = true };
+        tray.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) RestoreWindow(); };
         updater = new AppUpdater(this, CheckUpdatesMenu, service.Root);
         service.StateChanged += json => { if (!closed) _ = Dispatcher.InvokeAsync(() => PostJson(json)); };
         service.Failed += error => { if (!closed && !shuttingDown) _ = Dispatcher.InvokeAsync(() => MessageBox.Show(error, "yovoice")); };
@@ -28,6 +40,9 @@ public partial class MainWindow : Window
         {
             if (shutdownComplete) return;
             e.Cancel = true;
+            // 普通关闭只隐藏窗口；显式退出和更新安装才进入保存、停止服务流程。
+            if (!exitRequested && !updater.InstallRequested) { Hide(); return; }
+            exitRequested = false;
             if (shuttingDown) return;
             shuttingDown = true;
             try
@@ -50,8 +65,22 @@ public partial class MainWindow : Window
             }
             catch (Exception error) { shuttingDown = false; updater.CancelInstall(); MessageBox.Show(error.Message, "未能安全保存，请重试退出"); }
         };
-        Closed += (_, _) => { closed = true; updater.Dispose(); service.Dispose(); web?.Dispose(); };
+        Closed += (_, _) => { closed = true; tray.Visible = false; tray.Dispose(); trayMenu.Dispose(); trayIcon.Dispose(); updater.Dispose(); service.Dispose(); web?.Dispose(); };
     }
+    private void RestoreWindow()
+    {
+        Show();
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        Activate();
+    }
+    public void RequestExit()
+    {
+        if (shuttingDown) return;
+        RestoreWindow();
+        exitRequested = true;
+        Close();
+    }
+    private void ExitMenu_Click(object sender, RoutedEventArgs e) => RequestExit();
     private async Task InitializeWebAsync()
     {
         if (recovering || closed) return;

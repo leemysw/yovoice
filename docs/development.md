@@ -15,6 +15,8 @@ make install
 make app-run
 ```
 
+On macOS, `app-run` runs in the foreground and streams host and inference logs to the terminal. Logs remain in `~/.yovoice/logs` (or `$WORKBENCH_DATA/logs`). Closing the window keeps the app and background tasks running; click its Dock icon to reopen it. Use Command-Q or the Quit menu to exit and finish the command.
+
 For browser-only development:
 
 ```sh
