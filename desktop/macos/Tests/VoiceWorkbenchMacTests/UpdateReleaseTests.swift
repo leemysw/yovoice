@@ -26,6 +26,15 @@ final class UpdateReleaseTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: directory.appendingPathComponent("yovoice.app").path))
     }
 
+    func testArchitectureCheckUsesRealLipo() throws {
+        let executable = try XCTUnwrap(Bundle(for: UpdateReleaseTests.self).executableURL)
+        try AppUpdater.verifyArchitecture(executable)
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("invalid binary \(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: file) }
+        try Data("not a Mach-O binary".utf8).write(to: file)
+        XCTAssertThrowsError(try AppUpdater.verifyArchitecture(file))
+    }
+
     func testChecksumMustMatchExactFilenameOnce() throws {
         let hash = String(repeating: "a", count: 64)
         let other = String(repeating: "b", count: 64)

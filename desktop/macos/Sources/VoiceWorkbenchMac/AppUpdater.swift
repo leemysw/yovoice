@@ -206,10 +206,15 @@ final class AppUpdater {
               bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == version else {
             throw UpdateRelease.failure("更新包的应用标识或版本不匹配。")
         }
-        _ = try run("/usr/bin/lipo", ["-verify_arch", "arm64", app.appendingPathComponent("Contents/MacOS/VoiceWorkbenchMac").path])
+        try verifyArchitecture(app.appendingPathComponent("Contents/MacOS/VoiceWorkbenchMac"))
         _ = try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", "-R", "anchor apple generic and certificate leaf[subject.OU] = \"\(team)\"", app.path])
         _ = try run("/usr/sbin/spctl", ["--assess", "--type", "execute", app.path])
         return app
+    }
+
+    nonisolated static func verifyArchitecture(_ executable: URL) throws {
+        // 架构列表必须放在最后，否则 lipo 会把文件路径解析为架构名称。
+        _ = try run("/usr/bin/lipo", [executable.path, "-verify_arch", "arm64"])
     }
 
     nonisolated private static func run(_ executable: String, _ arguments: [String]) throws -> String {
