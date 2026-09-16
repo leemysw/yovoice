@@ -14,6 +14,8 @@ on:
         default: ""
 permissions:
   contents: read
+env:
+  PYTHONUTF8: "1"
 concurrency:
   group: build-${{ github.workflow }}-${{ inputs.tag || github.ref }}
   cancel-in-progress: ${{ !inputs.release }}
@@ -119,6 +121,7 @@ jobs:
         env:
           MACOS_DEVELOPER_ID_CERTIFICATE_BASE64: ${{ secrets.MACOS_DEVELOPER_ID_CERTIFICATE_BASE64 }}
           MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+          APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
         run: |
           : "${MACOS_DEVELOPER_ID_CERTIFICATE_BASE64:?缺少签名证书}"
           : "${MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD:?缺少证书密码}"
@@ -134,9 +137,20 @@ jobs:
           security unlock-keychain -p "$keychain_password" "$keychain_path"
           security import "$cert_path" -k "$keychain_path" -P "$MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_password" "$keychain_path"
+          security list-keychains -d user -s "$keychain_path" "$HOME/Library/Keychains/login.keychain-db"
+          # 从已导入证书解析签名名称，并核对开发者团队，避免手填名称不一致。
+          python3 - <<'PY'
+          import os, re, subprocess
+          identities = subprocess.check_output(['security', 'find-identity', '-v', '-p', 'codesigning', os.environ['RUNNER_TEMP'] + '/yovoice-signing.keychain-db'], text=True)
+          matches = [name for name in re.findall(r'"(Developer ID Application: [^"\n]+)"', identities) if name.endswith('(' + os.environ['APPLE_NOTARY_TEAM_ID'] + ')')]
+          if len(matches) != 1:
+              raise SystemExit('导入的证书中必须有且仅有一个属于公证团队的有效 Developer ID Application 身份')
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write('YOVOICE_RELEASE_IDENTITY=' + matches[0] + '\n')
+          PY
       - name: Package standalone CLI
         env:
-          YOVOICE_CODESIGN_IDENTITY: ${{ inputs.release && (vars.MACOS_DEVELOPER_ID_APPLICATION || secrets.MACOS_DEVELOPER_ID_APPLICATION) || '-' }}
+          YOVOICE_CODESIGN_IDENTITY: ${{ inputs.release && env.YOVOICE_RELEASE_IDENTITY || '-' }}
           YOVOICE_NOTARIZE: ${{ inputs.release && '1' || '0' }}
           APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
           APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
@@ -145,7 +159,7 @@ jobs:
       - name: Package macOS
         if: runner.os == 'macOS'
         env:
-          YOVOICE_CODESIGN_IDENTITY: ${{ inputs.release && (vars.MACOS_DEVELOPER_ID_APPLICATION || secrets.MACOS_DEVELOPER_ID_APPLICATION) || '-' }}
+          YOVOICE_CODESIGN_IDENTITY: ${{ inputs.release && env.YOVOICE_RELEASE_IDENTITY || '-' }}
           YOVOICE_NOTARIZE: ${{ inputs.release && '1' || '0' }}
           APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
           APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
