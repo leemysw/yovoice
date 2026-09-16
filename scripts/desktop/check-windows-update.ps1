@@ -60,3 +60,5 @@ exit $LASTEXITCODE
     Write-Host 'Windows 更新成功、安装失败、重启失败、未确认退出、退出取消及校验失败检查通过。'
 }
 finally { Remove-Item -LiteralPath $temporary -Recurse -Force }
+# 模拟失败的子进程退出码已逐项验证，不应成为测试脚本的最终退出码。
+exit 0
