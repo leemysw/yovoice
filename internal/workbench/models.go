@@ -3,6 +3,7 @@ package workbench
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"time"
 )
 
@@ -87,10 +88,28 @@ type Activity struct {
 	ModelID   *string   `json:"modelId"`
 	StartedAt time.Time `json:"startedAt"`
 }
+// UiLocale is the persisted interface language. Distinct from Draft.Language (TTS).
+type UiLocale string
+
+const (
+	UiLocaleZhCN UiLocale = "zh-CN"
+	UiLocaleEn   UiLocale = "en"
+)
+
+func ParseUiLocale(raw string) (UiLocale, error) {
+	switch UiLocale(raw) {
+	case UiLocaleZhCN, UiLocaleEn:
+		return UiLocale(raw), nil
+	default:
+		return "", fmt.Errorf("unsupported uiLocale %q", raw)
+	}
+}
+
 type Preferences struct {
-	DownloadSource string  `json:"downloadSource"`
-	Backend        string  `json:"backend"`
-	ModelDirectory *string `json:"modelDirectory"`
+	DownloadSource string   `json:"downloadSource"`
+	Backend        string   `json:"backend"`
+	ModelDirectory *string  `json:"modelDirectory"`
+	UiLocale       UiLocale `json:"uiLocale"`
 }
 type State struct {
 	Drafts         []Draft          `json:"drafts"`

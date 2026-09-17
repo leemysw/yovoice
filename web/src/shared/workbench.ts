@@ -11,8 +11,13 @@ export interface Voice { id: string; name: string; fileName: string; duration: n
 export interface ModelPackage { family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
 export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface Generation { id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft }
+/** UI chrome locale. Distinct from Draft.language (TTS). */
+export type UiLocale = 'zh-CN' | 'en';
+/** Stable product message key. Catalogs and Go constants share this spelling. */
+export type MessageCode = `@yovoice.${string}`;
+export type MessageParams = Record<string, unknown>;
 export interface Activity { startedAt?: string | null; modelId?: string | null; kind: string; label: string; status: string; received: number; total: number; error: string | null }
-export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null }
+export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale }
 export interface State {
   drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; activity: Activity | null;
@@ -26,7 +31,7 @@ export const createDraft = (example = false): Draft => ({
   temperature: 0.8, topP: 0.8, topK: 30, repetitionPenalty: 10, maxTokens: 1500,
   intervalSilenceMs: 200, doSample: true, numBeams: 3, lengthPenalty: 0, seed: null,
 });
-export const emptyState = (): State => ({ drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null }, runtimePath: null, runtimeBackend: null, activity: null });
+export const emptyState = (): State => ({ drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: 'zh-CN' }, runtimePath: null, runtimeBackend: null, activity: null });
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }

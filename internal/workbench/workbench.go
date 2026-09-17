@@ -179,6 +179,9 @@ func (w *Workbench) preferences(p Preferences) error {
 	if p.ModelDirectory != nil && !filepath.IsAbs(*p.ModelDirectory) {
 		return fmt.Errorf("模型目录必须是绝对路径。")
 	}
+	if _, e := ParseUiLocale(string(p.UiLocale)); e != nil {
+		return e
+	}
 	return w.Store.Update(func(s *State) {
 		s.Preferences = p
 		if p.Backend == "cpu" && w.bundledCPU != "" {
@@ -600,7 +603,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 			err = w.generate(d)
 		}
 	case "preferences.save":
-		preferences := Preferences{DownloadSource: "modelscope", Backend: "cpu"}
+		preferences := Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {
 			return nil, e
 		}

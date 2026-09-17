@@ -16,7 +16,13 @@ native?.addEventListener('message', ({ data }) => {
   if (data.error) callback.reject(new Error(data.error)); else callback.resolve(data.result);
 });
 let preview: State;
-try { preview = JSON.parse(localStorage.getItem('voice-workbench-v1') ?? 'null') ?? emptyState(); } catch { preview = emptyState(); }
+try {
+  const stored = JSON.parse(localStorage.getItem('voice-workbench-v1') ?? 'null');
+  preview = stored ?? emptyState();
+  if (!preview.preferences?.uiLocale || (preview.preferences.uiLocale !== 'zh-CN' && preview.preferences.uiLocale !== 'en')) {
+    preview = { ...preview, preferences: { ...preview.preferences, uiLocale: 'zh-CN' } };
+  }
+} catch { preview = emptyState(); }
 function publish() { localStorage.setItem('voice-workbench-v1', JSON.stringify(preview)); listeners.forEach(fn => fn(structuredClone(preview))); }
 export function subscribe(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
 export async function call<T = unknown>(method: string, data: unknown = {}): Promise<T> {

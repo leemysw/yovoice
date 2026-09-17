@@ -15,6 +15,8 @@ const Settings = lazy(() => import('../features/settings/Settings').then(module 
 import { Player } from '../features/media/Player';
 const VoicePicker = lazy(() => import('../features/media/VoicePicker').then(module => ({ default: module.VoicePicker })));
 import { SelectionAction, type TextSelection } from '../features/create/SelectionAction';
+import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './LocaleShell';
+import { isUiLocale } from '../shared/i18n/locale';
 const destinations = [{ id: 'create', name: '创作', icon: Pencil }, { id: 'voices', name: '声音库', icon: AudioLines }, { id: 'history', name: '历史记录', icon: Clock3 }, { id: 'settings', name: '设置', icon: Settings2 }];
 export function App() {
   const navigation = useResizable({ defaultSize: 224, minSize: 180, maxSize: 360, collapsible: true, autoSaveId: 'workbench-sidebar' });
@@ -46,8 +48,15 @@ export function App() {
   const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(e.message)); }, []);
   useEffect(() => {
     const unsubscribe = subscribe(setState);
-    void call<{ state: State; catalog: ModelPackage[] }>('state.get').then(result => {
-      setState(result.state); setCatalog(result.catalog); setDraft(result.state.drafts[0] ?? createDraft(true));
+    void call<{ state: State; catalog: ModelPackage[] }>('state.get').then(async result => {
+      let next = result.state;
+      if (!isUiLocale(next.preferences.uiLocale)) {
+        try {
+          await ensureUiLocalePersisted(next.preferences, bootLocale);
+          next = { ...next, preferences: { ...next.preferences, uiLocale: bootLocale } };
+        } catch (e) { setError((e as Error).message); }
+      }
+      setState(next); setCatalog(result.catalog); setDraft(next.drafts[0] ?? createDraft(true));
       setReady(true);
     }).catch(e => setError(e.message));
     return unsubscribe;
@@ -140,7 +149,8 @@ export function App() {
     <ResizeHandle label="调整侧栏宽度" direction="horizontal" resizable={navigation.props} isAlwaysVisible={false} hasDivider />
   </VStack>;
   const inspector = <Inspector catalog={catalog} close={() => setShowInspector(false)} draft={draft} state={state} change={change} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => setPage('settings')} advanced={advanced} setAdvanced={setAdvanced} />;
-  return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
+  return <LocaleShell preferencesLocale={state.preferences.uiLocale}>
+  <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
     {!isMac ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? '展开侧栏' : '收起侧栏'} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b>{!isDesktop ? <small>桌面界面预览</small> : null}</HStack> : null}
     <AppShell variant="surface" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill">
       <Layout height="fill" footer={page === 'create' ? <Player suspended={voicePicker !== null} track={track} onError={onError} historyControl={generations.length ? <Selector label="当前作品历史" isLabelHidden placement="above" size="sm" variant="ghost" width="100%" isDisabled={busy} value={track?.kind === 'outputs' ? track.id : undefined} placeholder="历史版本" options={generations.map((item, index) => ({ value: item.id, label: `版本 ${generations.length - index}`, description: new Date(item.createdAt).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }))} renderValue={option => option.label} onChange={id => { const item = generations.find(item => item.id === id); if (item) selectGeneration(item); }} /> : undefined} /> : undefined} content={<VStack className="content-frame" gap={0}>
@@ -170,5 +180,6 @@ export function App() {
     {deleteTarget ? <Dialog isOpen onOpenChange={open => { if (!open && !deleting) setDeleteTarget(null); }} width={400} padding={6}><VStack gap={4}><h2>删除作品？</h2><p className="helper">“{deleteTarget.title}”的草稿将被删除，已生成的音频仍保留在历史记录中。</p><HStack hAlign="end" gap={2}><Button label="取消" size="sm" isDisabled={deleting} onClick={() => setDeleteTarget(null)} /><Button label="删除作品" size="sm" variant="primary" isLoading={deleting} onClick={() => void deleteDraft()} /></HStack></VStack></Dialog> : null}
     {voicePicker ? <Suspense fallback={<p role="status">正在加载声音选择…</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={selectVoice} /></Suspense> : null}
     {pronunciation ? <Dialog isOpen onOpenChange={open => { if (!open) setPronunciation(null); }} width={480} purpose="form" padding={6}><VStack gap={5}><h2>调整发音</h2><p>为“{pronunciation.word}”指定读法。</p><TextInput label={draft.modelId.startsWith('index-2.5') ? '拼音 / 英文音素 / 日语假名' : '拼音'} value={pronunciation.sound} onChange={sound => setPronunciation({ ...pronunciation, sound })} placeholder="例如 HANG2" /><HStack hAlign="end" gap={3}><Button label="取消" onClick={() => setPronunciation(null)} /><Button label="应用发音" variant="primary" isDisabled={!pronunciation.sound.trim()} onClick={() => { const { start, end, word, sound } = pronunciation; const replacement = draft.modelId.startsWith('index-2.5') ? `<${word}|${sound.trim()}>` : sound.trim(); change({ text: draft.text.slice(0, start) + replacement + draft.text.slice(end) }); setPronunciation(null); requestAnimationFrame(() => { editor.current?.focus(); editor.current?.setSelectionRange(start + replacement.length, start + replacement.length); }); }} /></HStack></VStack></Dialog> : null}
-  </VStack>;
+  </VStack>
+  </LocaleShell>;
 }

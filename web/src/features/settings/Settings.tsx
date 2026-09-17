@@ -4,10 +4,12 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { Selector } from '@astryxdesign/core/Selector';
+import { useTranslator } from '@astryxdesign/core/i18n';
 import { Download, FolderOpen, FolderCog, FilePlus, Check, Cpu, ArrowUpRight, ChevronRight, Pause, Trash2 } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
-import { formatSize, type ModelPackage, type State, type Draft } from '../../shared/workbench';
+import { formatSize, type ModelPackage, type State, type Draft, type UiLocale } from '../../shared/workbench';
 export function Settings({ state, catalog, draft, run }: { state: State; catalog: ModelPackage[]; draft: Draft; run: (task: () => Promise<unknown>) => void }) {
+  const t = useTranslator();
   const [license, setLicense] = useState<string | null>(null);
   const [tab, setTab] = useState('models'); const busy = state.activity?.status === 'running';
   const preferences = state.preferences;
@@ -17,7 +19,23 @@ export function Settings({ state, catalog, draft, run }: { state: State; catalog
     <TabList value={tab} onChange={setTab} role="tablist" hasDivider><Tab value="models" label="模型" panelId="models-panel" /><Tab value="engine" label="推理引擎" panelId="engine-panel" /></TabList>
     {tab === 'models' ? <VStack gap={5} id="models-panel" role="tabpanel" aria-label="模型">
       <HStack className="settings-toolbar" hAlign="between" vAlign="center" gap={4} wrap="wrap">
-        <HStack gap={3} vAlign="center"><p className="muted">下载来源</p><Selector size="sm" placement="below" label="下载来源" isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: 'ModelScope 魔搭' }, { value: 'huggingface', label: 'Hugging Face' }, { value: 'mirror', label: 'HF Mirror · 第三方镜像' }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 6)" className="download-source" /></HStack>
+        <HStack gap={3} vAlign="center" wrap="wrap">
+          <p className="muted">下载来源</p>
+          <Selector size="sm" placement="below" label="下载来源" isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: 'ModelScope 魔搭' }, { value: 'huggingface', label: 'Hugging Face' }, { value: 'mirror', label: 'HF Mirror · 第三方镜像' }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 6)" className="download-source" />
+          <Selector
+            data-testid="ui-locale"
+            size="sm"
+            placement="below"
+            label={t('@yovoice.settings.uiLocale')}
+            value={preferences.uiLocale}
+            options={[
+              { value: 'zh-CN', label: t('@yovoice.settings.uiLocale.zhCN') },
+              { value: 'en', label: t('@yovoice.settings.uiLocale.en') },
+            ]}
+            onChange={uiLocale => run(() => call('preferences.save', { ...preferences, uiLocale: uiLocale as UiLocale }))}
+            width="calc(var(--spacing-10) * 5)"
+          />
+        </HStack>
         <HStack gap={2}><Button size="sm" label="导入 GGUF" icon={<FilePlus size={16} />} isDisabled={busy} onClick={() => run(() => call('model.import'))} /><Button size="sm" label="指定目录" icon={<FolderOpen size={16} />} isDisabled={busy} onClick={() => run(() => call('model.import', { directory: true }))} /></HStack>
       </HStack>
       <section className="model-list">{catalog.map(model => {

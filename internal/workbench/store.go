@@ -25,7 +25,9 @@ func NewStore(root string) (*Store, error) {
 	}
 	s := &Store{Root: root, state: defaultState(), subscribers: map[chan struct{}]bool{}}
 	b, e := os.ReadFile(filepath.Join(root, "state.json"))
+	fromFile := false
 	if e == nil {
+		fromFile = true
 		if string(b) == "null" {
 			return nil, fmt.Errorf("本地记录无法读取。")
 		}
@@ -38,6 +40,10 @@ func NewStore(root string) (*Store, error) {
 	if s.state.Activity != nil && s.state.Activity.Status == "running" {
 		s.state.Activity.Status = "interrupted"
 		s.state.Activity.Label = "上次操作已中断，可重新开始"
+	}
+	// Legacy state.json without uiLocale defaults to zh-CN. Brand-new installs stay empty so the web can persist navigator.language.
+	if s.state.Preferences.UiLocale == "" && fromFile {
+		s.state.Preferences.UiLocale = UiLocaleZhCN
 	}
 	return s, nil
 }

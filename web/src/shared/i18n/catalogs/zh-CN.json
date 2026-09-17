@@ -1,0 +1,18 @@
+{
+  "@yovoice.settings.uiLocale": {
+    "defaultMessage": "界面语言",
+    "description": "Settings selector label for product UI locale."
+  },
+  "@yovoice.settings.uiLocale.zhCN": {
+    "defaultMessage": "简体中文",
+    "description": "Chinese option label in the UI locale selector."
+  },
+  "@yovoice.settings.uiLocale.en": {
+    "defaultMessage": "English",
+    "description": "English option label in the UI locale selector."
+  },
+  "@yovoice.error.unknown": {
+    "defaultMessage": "出了点问题，请重试。",
+    "description": "Fallback when a message code is missing from the catalog."
+  }
+}
