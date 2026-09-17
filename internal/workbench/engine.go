@@ -35,7 +35,7 @@ func (e *Engine) Stop() {
 		e.key = ""
 	}
 }
-func (e *Engine) start(ctx context.Context, executable, model, family, backend string, progress func(string)) error {
+func (e *Engine) start(ctx context.Context, executable, model, family, backend string, progress func(MessageCode, MessageParams)) error {
 	key := executable + "|" + model + "|" + family + "|" + backend
 	if e.process != nil && e.key == key {
 		select {
@@ -47,12 +47,12 @@ func (e *Engine) start(ctx context.Context, executable, model, family, backend s
 	}
 	e.Stop()
 	if _, err := os.Stat(executable); err != nil {
-		return fmt.Errorf("请先在设置中安装推理引擎。")
+		return Err(MsgErrRuntimeMissing, nil)
 	}
 	if _, err := os.Stat(model); err != nil {
-		return fmt.Errorf("模型文件已移动，请重新导入。")
+		return Err(MsgErrModelMoved, nil)
 	}
-	progress("正在启动 audio.cpp")
+	progress(MsgActivityEngineStart, nil)
 	l, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (e *Engine) start(ctx context.Context, executable, model, family, backend s
 		select {
 		case <-e.done:
 			e.process = nil
-			return fmt.Errorf("引擎启动失败，请检查运行库或更换计算设备。")
+			return Err(MsgErrEngineStartFailed, nil)
 		default:
 		}
 		probe, cancel := context.WithTimeout(ctx, 1500*time.Millisecond)
@@ -119,9 +119,9 @@ func (e *Engine) start(ctx context.Context, executable, model, family, backend s
 		case <-time.After(250 * time.Millisecond):
 		}
 	}
-	return fmt.Errorf("引擎启动超时，请打开日志查看详情。")
+	return Err(MsgErrEngineStartTimeout, nil)
 }
-func (e *Engine) Generate(ctx context.Context, executable string, m InstalledModel, backend string, d Draft, voice, emotion, output string, progress func(string)) (err error) {
+func (e *Engine) Generate(ctx context.Context, executable string, m InstalledModel, backend string, d Draft, voice, emotion, output string, progress func(MessageCode, MessageParams)) (err error) {
 	defer func() {
 		if err != nil {
 			e.Stop()
@@ -139,7 +139,7 @@ func (e *Engine) Generate(ctx context.Context, executable string, m InstalledMod
 	if err = e.start(ctx, executable, m.Path, definition.Family, backend, progress); err != nil {
 		return err
 	}
-	progress("正在加载模型或合成语音")
+	progress(MsgActivitySynthesizing, nil)
 	b, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -157,7 +157,7 @@ func (e *Engine) Generate(ctx context.Context, executable string, m InstalledMod
 	if res.StatusCode != 200 {
 		b, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
 		_ = os.WriteFile(filepath.Join(e.root, "logs", "last-inference-error.txt"), b, 0600)
-		return fmt.Errorf("生成失败，请检查模型、显存和参考音频。可在设置中打开日志。")
+		return Err(MsgErrGenerateFailed, nil)
 	}
 	var result struct {
 		Audio string `json:"audio"`
@@ -166,9 +166,9 @@ func (e *Engine) Generate(ctx context.Context, executable string, m InstalledMod
 		return err
 	}
 	if result.Audio == "" {
-		return fmt.Errorf("引擎没有返回音频。")
+		return Err(MsgErrEngineNoAudio, nil)
 	}
-	progress("正在保存音频")
+	progress(MsgActivitySavingAudio, nil)
 	audio, err := base64.StdEncoding.DecodeString(result.Audio)
 	if err != nil {
 		return err

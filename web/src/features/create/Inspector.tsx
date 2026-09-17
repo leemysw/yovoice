@@ -6,10 +6,12 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { Slider } from '@astryxdesign/core/Slider';
 import { Selector, SelectorOption } from '@astryxdesign/core/Selector';
 import { Switch } from '@astryxdesign/core/Switch';
+import { useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, ChevronUp, ChevronRight, Play, LoaderCircle } from 'lucide-react';
 import { VoxControls } from './VoxControls';
 import { isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
+import { formatActivity } from '../../shared/i18n/format';
 const modes: [Mode, string][] = [['speaker', '跟随音色'], ['reference', '参考演绎'], ['vector', '情绪调节'], ['text', '文字指导']];
 const emotions = ['高兴', '愤怒', '悲伤', '恐惧', '厌恶', '低落', '惊讶', '平静'];
 // 预设是可继续微调的情绪组合，不代表模型保证的演绎效果。
@@ -31,6 +33,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
   draft: Draft; state: State; catalog: ModelPackage[]; change: (patch: Partial<Draft>) => void; chooseVoice: () => void; chooseEmotion: () => void;
   play: (track: Track) => void; generate: () => void; cancel: () => void; settings: () => void; close: () => void; advanced: boolean; setAdvanced: (v: boolean) => void;
 }) {
+  const t = useTranslator();
   const voice = state.voices.find(v => v.id === draft.voiceId); const emotion = state.voices.find(v => v.id === draft.emotionVoiceId);
   const selectedPreset = emotionPresets.find(preset => preset.values.every((value, i) => Math.abs(value - draft.emotions[i]) < 0.001));
   const busy = state.activity?.status === 'running';
@@ -51,7 +54,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
       {busy && state.activity?.kind === 'generate' ? <Button label="取消生成" onClick={cancel} width="100%" /> : <Button label="生成语音" variant="primary" width="100%" size="lg" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim()} onClick={generate} />}
       {generating ? <HStack className="generation-status" gap={2} vAlign="center">
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
-        <small className="grow" role="status">{state.activity?.label}</small>
+        <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
         <small className="generation-elapsed" aria-label="已用时间">{formatTime(elapsed)}</small>
       </HStack> : null}
     </VStack>

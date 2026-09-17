@@ -6,9 +6,10 @@ import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { Selector } from '@astryxdesign/core/Selector';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Dialog } from '@astryxdesign/core/Dialog';
+import { useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, PanelLeft, Plus, Pencil, Clock3, Settings2, Check, Play, X, Trash2, Mic, SlidersHorizontal } from 'lucide-react';
 import { call, subscribe, isDesktop, isMac } from '../shared/lib/client';
-import { isVoxModel, requiresVoice, createDraft, emptyState, formatTime, formatSize, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { isVoxModel, requiresVoice, createDraft, emptyState, formatTime, formatSize, type Activity, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { MediaActions } from '../features/media/MediaActions';
 import { Inspector } from '../features/create/Inspector';
 const Settings = lazy(() => import('../features/settings/Settings').then(module => ({ default: module.Settings })));
@@ -17,7 +18,50 @@ const VoicePicker = lazy(() => import('../features/media/VoicePicker').then(modu
 import { SelectionAction, type TextSelection } from '../features/create/SelectionAction';
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './LocaleShell';
 import { isUiLocale } from '../shared/i18n/locale';
-const destinations = [{ id: 'create', name: '创作', icon: Pencil }, { id: 'voices', name: '声音库', icon: AudioLines }, { id: 'history', name: '历史记录', icon: Clock3 }, { id: 'settings', name: '设置', icon: Settings2 }];
+import { formatActivity, formatActivityError, formatCallError } from '../shared/i18n/format';
+
+const destinationIds = [
+  { id: 'create', key: '@yovoice.nav.create', icon: Pencil },
+  { id: 'voices', key: '@yovoice.nav.voices', icon: AudioLines },
+  { id: 'history', key: '@yovoice.nav.history', icon: Clock3 },
+  { id: 'settings', key: '@yovoice.nav.settings', icon: Settings2 },
+] as const;
+
+function NoticeText({ error, activity }: { error: string; activity: Activity | null | undefined }) {
+  const t = useTranslator();
+  if (error.startsWith('@yovoice.')) return <>{t(error)}</>;
+  if (error) return <>{error}</>;
+  return <>{formatActivityError(t, activity) ?? t('@yovoice.error.unknown')}</>;
+}
+
+function ActivityLabel({ activity }: { activity: Activity }) {
+  const t = useTranslator();
+  return <strong data-testid="activity-label">{formatActivity(t, activity)}</strong>;
+}
+
+
+function SidebarNav(props: {
+  page: string;
+  setPage: (id: string) => void;
+  newDraft: () => void;
+  state: State;
+  draft: Draft;
+  selectDraft: (item: Draft) => void;
+  setDeleteTarget: (item: Draft) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  navigation: { props: any };
+}) {
+  const t = useTranslator();
+  const { page, setPage, newDraft, state, draft, selectDraft, setDeleteTarget, navigation } = props;
+  return <VStack as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
+    <Button data-testid="nav-new" label={t('@yovoice.nav.newProject')} icon={<Plus size={18} />} className="new-project" width="100%" onClick={newDraft} />
+    <VStack gap={2}>{destinationIds.slice(0, 3).map(({ id, key, icon: Icon }) => <Button key={id} data-testid={`nav-${id}`} label={t(key)} variant="ghost" icon={<Icon size={18} />} className={`nav-item ${page === id ? 'selected' : ''}`} aria-current={page === id ? 'page' : undefined} onClick={() => setPage(id)} />)}</VStack>
+    <VStack className="recent-projects" gap={2}><small>{t('@yovoice.nav.recent')}</small><VStack className="project-list" gap={1}>{state.drafts.map(item => <HStack key={item.id} className={`project-row ${item.id === draft.id && page === 'create' ? 'current' : ''}`} gap={0} vAlign="center"><Button label={item.id === draft.id ? draft.title : item.title} variant="ghost" size="sm" className="project-link grow" aria-current={item.id === draft.id && page === 'create' ? 'page' : undefined} onClick={() => selectDraft(item)} /><Button label={t('@yovoice.nav.deleteProject', { title: item.id === draft.id ? draft.title : item.title })} className="project-delete" size="sm" variant="ghost" isIconOnly icon={<Trash2 size={14} />} onClick={() => setDeleteTarget(item.id === draft.id ? draft : item)} /></HStack>)}</VStack></VStack>
+    <VStack className="sidebar-bottom" gap={3}><Button data-testid="nav-settings" label={t('@yovoice.nav.settings')} icon={<Settings2 size={18} />} variant="ghost" className={`nav-item ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')} /></VStack>
+    <ResizeHandle label={t('@yovoice.nav.resize')} direction="horizontal" resizable={navigation.props} isAlwaysVisible={false} hasDivider />
+  </VStack>;
+}
+
 export function App() {
   const navigation = useResizable({ defaultSize: 224, minSize: 180, maxSize: 360, collapsible: true, autoSaveId: 'workbench-sidebar' });
   const toggleSidebar = useCallback(() => { if (navigation.isCollapsed) navigation.expand(); else navigation.collapse(); }, [navigation.isCollapsed, navigation.expand, navigation.collapse]);
@@ -45,7 +89,7 @@ export function App() {
     const saved = localStorage.getItem('astryx-resizable:workbench-sidebar');
     if (saved) void call('sidebar.save', JSON.parse(saved)).catch(error => setError(error.message));
   }, [navigation.size, navigation.isCollapsed]);
-  const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(e.message)); }, []);
+  const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(e instanceof Error && e.name === 'CallError' ? e.message : (e as Error).message)); }, []);
   useEffect(() => {
     const unsubscribe = subscribe(setState);
     void call<{ state: State; catalog: ModelPackage[] }>('state.get').then(async result => {
@@ -109,7 +153,7 @@ export function App() {
     if (state.activity?.status === 'running') return;
     if (requiresVoice(draft) && !state.voices.some(voice => voice.id === draft.voiceId)) { setVoicePicker('voice'); return; }
     if (!state.runtimePath || state.runtimeBackend !== state.preferences.backend || !state.models.some(m => m.id === draft.modelId)) {
-      setPage('settings'); setError('开始生成前，请准备模型与推理运行时。'); return;
+      setPage('settings'); setError('@yovoice.error.needRuntime'); return;
     }
     run(() => call('generation.start', draft));
   };
@@ -141,21 +185,15 @@ export function App() {
   }
   const generations = state.history.filter(item => item.settings.id === draft.id);
   const activity = state.activity; const busy = activity?.status === 'running';
-  const sidebar = <VStack as="nav" className="sidebar" aria-label="主导航" gap={6}>
-    <Button label="新建作品" icon={<Plus size={18} />} className="new-project" width="100%" onClick={newDraft} />
-    <VStack gap={2}>{destinations.slice(0, 3).map(({ id, name, icon: Icon }) => <Button key={id} label={name} variant="ghost" icon={<Icon size={18} />} className={`nav-item ${page === id ? 'selected' : ''}`} aria-current={page === id ? 'page' : undefined} onClick={() => setPage(id)} />)}</VStack>
-    <VStack className="recent-projects" gap={2}><small>最近作品</small><VStack className="project-list" gap={1}>{state.drafts.map(item => <HStack key={item.id} className={`project-row ${item.id === draft.id && page === 'create' ? 'current' : ''}`} gap={0} vAlign="center"><Button label={item.id === draft.id ? draft.title : item.title} variant="ghost" size="sm" className="project-link grow" aria-current={item.id === draft.id && page === 'create' ? 'page' : undefined} onClick={() => selectDraft(item)} /><Button label={`删除作品：${item.id === draft.id ? draft.title : item.title}`} className="project-delete" size="sm" variant="ghost" isIconOnly icon={<Trash2 size={14} />} onClick={() => setDeleteTarget(item.id === draft.id ? draft : item)} /></HStack>)}</VStack></VStack>
-    <VStack className="sidebar-bottom" gap={3}><Button label="设置" icon={<Settings2 size={18} />} variant="ghost" className={`nav-item ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')} /></VStack>
-    <ResizeHandle label="调整侧栏宽度" direction="horizontal" resizable={navigation.props} isAlwaysVisible={false} hasDivider />
-  </VStack>;
+  const sidebar = <SidebarNav page={page} setPage={setPage} newDraft={newDraft} state={state} draft={draft} selectDraft={selectDraft} setDeleteTarget={setDeleteTarget} navigation={navigation} />;
   const inspector = <Inspector catalog={catalog} close={() => setShowInspector(false)} draft={draft} state={state} change={change} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => setPage('settings')} advanced={advanced} setAdvanced={setAdvanced} />;
   return <LocaleShell preferencesLocale={state.preferences.uiLocale}>
   <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
     {!isMac ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? '展开侧栏' : '收起侧栏'} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b>{!isDesktop ? <small>桌面界面预览</small> : null}</HStack> : null}
     <AppShell variant="surface" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill">
       <Layout height="fill" footer={page === 'create' ? <Player suspended={voicePicker !== null} track={track} onError={onError} historyControl={generations.length ? <Selector label="当前作品历史" isLabelHidden placement="above" size="sm" variant="ghost" width="100%" isDisabled={busy} value={track?.kind === 'outputs' ? track.id : undefined} placeholder="历史版本" options={generations.map((item, index) => ({ value: item.id, label: `版本 ${generations.length - index}`, description: new Date(item.createdAt).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }))} renderValue={option => option.label} onChange={id => { const item = generations.find(item => item.id === id); if (item) selectGeneration(item); }} /> : undefined} /> : undefined} content={<VStack className="content-frame" gap={0}>
-        {error || activity?.status === 'failed' ? <HStack className="notice" role="alert" gap={3} hAlign="between" vAlign="center"><p>{error || activity?.error}</p><Button label="关闭提示" variant="ghost" isIconOnly icon={<X size={16} />} onClick={() => { setError(''); if (activity?.status === 'failed') setState(s => ({ ...s, activity: null })); }} /></HStack> : null}
-        {busy && !['download', 'generate'].includes(activity.kind) ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><HStack hAlign="between"><strong>{activity.label}</strong>{activity.total > 0 ? <small>{formatSize(activity.received)} / {formatSize(activity.total)}</small> : null}</HStack><progress value={activity.total > 0 ? activity.received : undefined} max={activity.total || 1} /></VStack><Button label={activity.kind === 'download' ? '暂停' : '取消'} size="sm" onClick={() => run(() => call('operation.cancel'))} /></HStack> : null}
+        {error || activity?.status === 'failed' ? <HStack className="notice" role="alert" gap={3} hAlign="between" vAlign="center"><p><NoticeText error={error} activity={activity} /></p><Button label="关闭提示" variant="ghost" isIconOnly icon={<X size={16} />} onClick={() => { setError(''); if (activity?.status === 'failed') setState(s => ({ ...s, activity: null })); }} /></HStack> : null}
+        {busy && !['download', 'generate'].includes(activity.kind) ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><HStack hAlign="between"><ActivityLabel activity={activity} />{activity.total > 0 ? <small>{formatSize(activity.received)} / {formatSize(activity.total)}</small> : null}</HStack><progress value={activity.total > 0 ? activity.received : undefined} max={activity.total || 1} /></VStack><Button label={activity.kind === 'download' ? '暂停' : '取消'} size="sm" onClick={() => run(() => call('operation.cancel'))} /></HStack> : null}
         {!ready ? <p className="loading" role="status">正在打开工作台…</p> : page === 'create' ? <HStack className={`studio ${showInspector ? 'show-inspector' : ''}`} gap={0}>
           <VStack as="section" className="document" gap={0}>
 

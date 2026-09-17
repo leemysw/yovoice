@@ -319,7 +319,7 @@ func waitOperation(ctx context.Context, w *workbench.Workbench, out io.Writer) e
 		if a == nil {
 			return fmt.Errorf("操作未启动")
 		}
-		message := fmt.Sprintf("%s (%d/%d)", a.Label, a.Received, a.Total)
+		message := fmt.Sprintf("%s (%d/%d)", a.Code, a.Received, a.Total)
 		if message != last {
 			fmt.Fprintln(out, message)
 			last = message
@@ -328,8 +328,8 @@ func waitOperation(ctx context.Context, w *workbench.Workbench, out io.Writer) e
 		case "completed":
 			return nil
 		case "failed":
-			if a.Error != nil {
-				return errors.New(*a.Error)
+			if a.ErrorCode != nil {
+				return errors.New(string(*a.ErrorCode))
 			}
 			return fmt.Errorf("操作失败")
 		case "cancelled":

@@ -16,7 +16,18 @@ export type UiLocale = 'zh-CN' | 'en';
 /** Stable product message key. Catalogs and Go constants share this spelling. */
 export type MessageCode = `@yovoice.${string}`;
 export type MessageParams = Record<string, unknown>;
-export interface Activity { startedAt?: string | null; modelId?: string | null; kind: string; label: string; status: string; received: number; total: number; error: string | null }
+export interface Activity {
+  startedAt?: string | null;
+  modelId?: string | null;
+  kind: string;
+  code: MessageCode;
+  params: MessageParams | null;
+  status: string;
+  received: number;
+  total: number;
+  errorCode: MessageCode | null;
+  errorParams: MessageParams | null;
+}
 export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale }
 export interface State {
   drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];

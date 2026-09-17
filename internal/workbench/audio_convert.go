@@ -2,7 +2,6 @@ package workbench
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,7 +34,7 @@ func (w *Workbench) audioConverter() (string, error) {
 			return path, nil
 		}
 	}
-	return "", fmt.Errorf("安装包缺少音频转换器，请重新安装完整的 yovoice 安装包。")
+	return "", Err(MsgErrAudioConverterMissing, nil)
 }
 
 func convertAudio(ctx context.Context, executable, input, output string) error {
@@ -53,7 +52,7 @@ func convertAudio(ctx context.Context, executable, input, output string) error {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-		return fmt.Errorf("无法解码音频，请检查文件是否损坏、加密或缺少音轨：%w", err)
+		return Err(MsgErrAudioDecode, MessageParams{"detail": err.Error()})
 	}
 	return nil
 }

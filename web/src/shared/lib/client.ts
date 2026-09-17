@@ -1,6 +1,9 @@
 import catalog from './catalog.json';
 import { emptyState, type Draft, type State, type Voice, type Preferences } from '../workbench';
 import { encodeWav, toBase64 } from './sound';
+import { CallError, parseCallError } from './callError';
+
+export { CallError, parseCallError };
 
 declare global { interface Window { __workbenchPlatform?: 'macos'; __workbenchMediaBase?: string; __workbenchDraft?: Draft; chrome?: { webview?: { postMessage: (data: unknown) => void; addEventListener: (name: string, listener: (event: MessageEvent) => void) => void } } } }
 const native = window.chrome?.webview;
@@ -13,7 +16,7 @@ native?.addEventListener('message', ({ data }) => {
   const callback = pending.get(data.id);
   if (!callback) return;
   clearTimeout(callback.timer); pending.delete(data.id);
-  if (data.error) callback.reject(new Error(data.error)); else callback.resolve(data.result);
+  if (data.error) callback.reject(parseCallError(data.error)); else callback.resolve(data.result);
 });
 let preview: State;
 try {
@@ -28,7 +31,7 @@ export function subscribe(listener: (state: State) => void) { listeners.add(list
 export async function call<T = unknown>(method: string, data: unknown = {}): Promise<T> {
   if (native) return new Promise<T>((resolve, reject) => {
     const id = crypto.randomUUID();
-    const timer = setTimeout(() => { pending.delete(id); reject(new Error('桌面服务没有响应，请重试。')); }, 120000);
+    const timer = setTimeout(() => { pending.delete(id); reject(new CallError('@yovoice.error.unknown', { detail: 'desktop timeout' })); }, 120000);
     pending.set(id, { resolve: value => resolve(value as T), reject, timer }); native.postMessage({ id, method, data });
   });
   // 浏览器预览只保存编辑和音频数据，不模拟桌面推理或模型安装。

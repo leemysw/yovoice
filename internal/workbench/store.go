@@ -29,17 +29,22 @@ func NewStore(root string) (*Store, error) {
 	if e == nil {
 		fromFile = true
 		if string(b) == "null" {
-			return nil, fmt.Errorf("本地记录无法读取。")
+			return nil, Err(MsgErrStateCorrupt, nil)
 		}
 		if e = json.Unmarshal(b, &s.state); e != nil {
-			return nil, fmt.Errorf("本地记录无法读取，请保留 state.json 并恢复备份：%w", e)
+			return nil, Err(MsgErrStateCorrupt, MessageParams{"detail": e.Error()})
 		}
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
 	if s.state.Activity != nil && s.state.Activity.Status == "running" {
 		s.state.Activity.Status = "interrupted"
-		s.state.Activity.Label = "上次操作已中断，可重新开始"
+		s.state.Activity.Code = MsgActivityInterrupted
+		s.state.Activity.Params = nil
+		s.state.Activity.ErrorCode = nil
+		s.state.Activity.ErrorParams = nil
+	} else if s.state.Activity != nil && s.state.Activity.Code == "" {
+		s.state.Activity = nil
 	}
 	// Legacy state.json without uiLocale defaults to zh-CN. Brand-new installs stay empty so the web can persist navigator.language.
 	if s.state.Preferences.UiLocale == "" && fromFile {
@@ -100,11 +105,11 @@ func (s *Store) Subscribe() (chan struct{}, func()) {
 }
 func (s *Store) MediaPath(kind, name string) (string, error) {
 	if (kind != "voices" && kind != "outputs") || name == "" || name == "." || name == ".." || strings.ContainsAny(name, "/\\:\x00") {
-		return "", fmt.Errorf("音频路径无效。")
+		return "", Err(MsgErrAudioPathInvalid, nil)
 	}
 	path := filepath.Join(s.Root, kind, name)
 	if info, e := os.Lstat(path); e == nil && info.Mode()&os.ModeSymlink != 0 {
-		return "", fmt.Errorf("音频路径不能是符号链接。")
+		return "", Err(MsgErrAudioPathSymlink, nil)
 	}
 	return path, nil
 }
@@ -151,7 +156,7 @@ func Migrate(legacy, target string) error {
 	}
 	if hasState {
 		if string(b) == "null" {
-			return fmt.Errorf("旧数据无法读取。")
+			return Err(MsgErrLegacyRestore, nil)
 		}
 		if e = json.Unmarshal(b, &state); e != nil {
 			return e
@@ -182,7 +187,7 @@ func Migrate(legacy, target string) error {
 	if hasState {
 		if e = writeState(filepath.Join(target, "state.json"), state); e != nil {
 			if rollback := os.Rename(target, legacy); rollback != nil {
-				return fmt.Errorf("%w；恢复目录失败：%v", e, rollback)
+				return Err(MsgErrUnknown, MessageParams{"detail": fmt.Sprintf("%v; rollback failed: %v", e, rollback)})
 			}
 			return e
 		}

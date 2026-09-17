@@ -1,18 +1,302 @@
 {
-  "@yovoice.settings.uiLocale": {
-    "defaultMessage": "Interface language",
-    "description": "Settings selector label for product UI locale."
+  "@yovoice.action.cancel": {
+    "defaultMessage": "Cancel"
   },
-  "@yovoice.settings.uiLocale.zhCN": {
-    "defaultMessage": "简体中文",
-    "description": "Chinese option label in the UI locale selector."
+  "@yovoice.action.closeNotice": {
+    "defaultMessage": "Dismiss"
   },
-  "@yovoice.settings.uiLocale.en": {
-    "defaultMessage": "English",
-    "description": "English option label in the UI locale selector."
+  "@yovoice.action.pause": {
+    "defaultMessage": "Pause"
+  },
+  "@yovoice.activity.cancelled": {
+    "defaultMessage": "Cancelled. You can start again."
+  },
+  "@yovoice.activity.completed": {
+    "defaultMessage": "Completed"
+  },
+  "@yovoice.activity.download": {
+    "defaultMessage": "Download {name}"
+  },
+  "@yovoice.activity.downloading": {
+    "defaultMessage": "Downloading {name}"
+  },
+  "@yovoice.activity.engineStart": {
+    "defaultMessage": "Starting audio.cpp"
+  },
+  "@yovoice.activity.failed": {
+    "defaultMessage": "Operation did not finish"
+  },
+  "@yovoice.activity.generate": {
+    "defaultMessage": "Preparing generation"
+  },
+  "@yovoice.activity.import": {
+    "defaultMessage": "Identifying and verifying model"
+  },
+  "@yovoice.activity.interrupted": {
+    "defaultMessage": "Previous operation was interrupted. You can start again."
+  },
+  "@yovoice.activity.paused": {
+    "defaultMessage": "Paused"
+  },
+  "@yovoice.activity.runtimeDownload": {
+    "defaultMessage": "Downloading inference runtime"
+  },
+  "@yovoice.activity.runtimeExtract": {
+    "defaultMessage": "Extracting runtime"
+  },
+  "@yovoice.activity.savingAudio": {
+    "defaultMessage": "Saving audio"
+  },
+  "@yovoice.activity.synthesizing": {
+    "defaultMessage": "Loading model or synthesizing speech"
+  },
+  "@yovoice.activity.verifying": {
+    "defaultMessage": "Verifying model"
+  },
+  "@yovoice.error.audioConverterMissing": {
+    "defaultMessage": "The installer is missing the audio converter. Reinstall the full yovoice package."
+  },
+  "@yovoice.error.audioDecode": {
+    "defaultMessage": "Could not decode audio. Check whether the file is damaged, encrypted, or missing a track."
+  },
+  "@yovoice.error.audioDuration": {
+    "defaultMessage": "Choose reference audio between 1 and 60 seconds."
+  },
+  "@yovoice.error.audioFormat": {
+    "defaultMessage": "Choose a valid mono or stereo PCM / Float WAV file."
+  },
+  "@yovoice.error.audioIDInvalid": {
+    "defaultMessage": "Invalid audio id."
+  },
+  "@yovoice.error.audioKindInvalid": {
+    "defaultMessage": "Invalid audio kind."
+  },
+  "@yovoice.error.audioMissing": {
+    "defaultMessage": "Audio not found."
+  },
+  "@yovoice.error.audioPathInvalid": {
+    "defaultMessage": "Invalid audio path."
+  },
+  "@yovoice.error.audioPathSymlink": {
+    "defaultMessage": "Audio path must not be a symbolic link."
+  },
+  "@yovoice.error.audioTooLarge": {
+    "defaultMessage": "Reference audio must be smaller than 20 MB."
+  },
+  "@yovoice.error.backendUnsupported": {
+    "defaultMessage": "Unsupported compute device or platform."
+  },
+  "@yovoice.error.busy": {
+    "defaultMessage": "Wait for the current operation to finish, or cancel it first."
+  },
+  "@yovoice.error.cpuBundleInvalid": {
+    "defaultMessage": "Bundled CPU runtime is not a valid file."
+  },
+  "@yovoice.error.downloadChecksum": {
+    "defaultMessage": "Checksum failed. Switch download source and retry."
+  },
+  "@yovoice.error.downloadHTTP": {
+    "defaultMessage": "Download failed (HTTP {status}). Check the network or switch source."
+  },
+  "@yovoice.error.downloadIncomplete": {
+    "defaultMessage": "Download incomplete. You can resume."
+  },
+  "@yovoice.error.downloadOversized": {
+    "defaultMessage": "Downloaded file exceeds the declared size."
+  },
+  "@yovoice.error.downloadRange": {
+    "defaultMessage": "The download source returned an invalid resume range."
+  },
+  "@yovoice.error.downloadSize": {
+    "defaultMessage": "The download source file size does not match."
+  },
+  "@yovoice.error.downloadSource": {
+    "defaultMessage": "Choose a valid download source."
+  },
+  "@yovoice.error.downloadStale": {
+    "defaultMessage": "Resume data is stale. Retry the download."
+  },
+  "@yovoice.error.draftIDInvalid": {
+    "defaultMessage": "Invalid draft id."
+  },
+  "@yovoice.error.draftLimits": {
+    "defaultMessage": "Draft content exceeds the limit."
+  },
+  "@yovoice.error.emotionInvalid": {
+    "defaultMessage": "Invalid emotion parameters."
+  },
+  "@yovoice.error.emotionStrength": {
+    "defaultMessage": "Emotion strength must be between 0 and 1."
+  },
+  "@yovoice.error.emotionTextRequired": {
+    "defaultMessage": "Enter an emotion description, or choose understand-script."
+  },
+  "@yovoice.error.emotionVoiceRequired": {
+    "defaultMessage": "Add emotion reference audio."
+  },
+  "@yovoice.error.engineNoAudio": {
+    "defaultMessage": "The engine returned no audio."
+  },
+  "@yovoice.error.engineStartFailed": {
+    "defaultMessage": "Engine failed to start. Check the runtime or switch compute device."
+  },
+  "@yovoice.error.engineStartTimeout": {
+    "defaultMessage": "Engine start timed out. Open the logs for details."
+  },
+  "@yovoice.error.generateFailed": {
+    "defaultMessage": "Generation failed. Check the model, VRAM, and reference audio. Open logs in Settings."
+  },
+  "@yovoice.error.languageUnsupported": {
+    "defaultMessage": "This model does not support that language."
+  },
+  "@yovoice.error.legacyRestore": {
+    "defaultMessage": "Legacy data could not be read."
+  },
+  "@yovoice.error.macAppleSilicon": {
+    "defaultMessage": "Only Apple Silicon (arm64) Macs are supported."
+  },
+  "@yovoice.error.macBackend": {
+    "defaultMessage": "macOS supports CPU or Metal."
+  },
+  "@yovoice.error.methodUnsupported": {
+    "defaultMessage": "Unsupported operation."
+  },
+  "@yovoice.error.modeInvalid": {
+    "defaultMessage": "Invalid expression mode."
+  },
+  "@yovoice.error.modelDirAbsolute": {
+    "defaultMessage": "The model directory must be an absolute path."
+  },
+  "@yovoice.error.modelDirSpace": {
+    "defaultMessage": "Not enough disk space in the model directory."
+  },
+  "@yovoice.error.modelForgetBlocked": {
+    "defaultMessage": "This model cannot be removed yet. Finish related operations first."
+  },
+  "@yovoice.error.modelImportNone": {
+    "defaultMessage": "No compatible GGUF found. Choose an audio.cpp package listed in the model catalog."
+  },
+  "@yovoice.error.modelMoved": {
+    "defaultMessage": "The model file was moved. Import it again."
+  },
+  "@yovoice.error.modelRequired": {
+    "defaultMessage": "Download or import a model in Settings first."
+  },
+  "@yovoice.error.modelUnsupported": {
+    "defaultMessage": "Unsupported model."
+  },
+  "@yovoice.error.nameLength": {
+    "defaultMessage": "Name must be 1–120 characters."
+  },
+  "@yovoice.error.needRuntime": {
+    "defaultMessage": "Install a model and runtime before generating."
+  },
+  "@yovoice.error.paramsOutOfRange": {
+    "defaultMessage": "Generation parameters are out of range."
+  },
+  "@yovoice.error.platformArch": {
+    "defaultMessage": "Unsupported platform architecture."
+  },
+  "@yovoice.error.requestInvalid": {
+    "defaultMessage": "Invalid request parameters."
+  },
+  "@yovoice.error.runtimeArchiveLink": {
+    "defaultMessage": "The runtime contains unsupported links or special files."
+  },
+  "@yovoice.error.runtimeArchivePath": {
+    "defaultMessage": "The archive contains an illegal path."
+  },
+  "@yovoice.error.runtimeArchiveSize": {
+    "defaultMessage": "Runtime extraction size is abnormal."
+  },
+  "@yovoice.error.runtimeMissing": {
+    "defaultMessage": "Install the inference engine in Settings first."
+  },
+  "@yovoice.error.runtimeRequired": {
+    "defaultMessage": "Install the inference runtime for the selected device first."
+  },
+  "@yovoice.error.runtimeUnique": {
+    "defaultMessage": "The runtime archive did not contain exactly one inference server."
+  },
+  "@yovoice.error.stateCorrupt": {
+    "defaultMessage": "Local records could not be read."
+  },
+  "@yovoice.error.stateSaveFailed": {
+    "defaultMessage": "Failed to save state."
+  },
+  "@yovoice.error.textRequired": {
+    "defaultMessage": "Enter 1–12000 characters of script text."
+  },
+  "@yovoice.error.titleLength": {
+    "defaultMessage": "Title must be 1–120 characters."
   },
   "@yovoice.error.unknown": {
-    "defaultMessage": "Something went wrong. Please try again.",
-    "description": "Fallback when a message code is missing from the catalog."
+    "defaultMessage": "Something went wrong. Please try again."
+  },
+  "@yovoice.error.voiceBusyDelete": {
+    "defaultMessage": "Wait until generation finishes before deleting a voice."
+  },
+  "@yovoice.error.voiceRequired": {
+    "defaultMessage": "Add voice reference audio first."
+  },
+  "@yovoice.error.voxModeInvalid": {
+    "defaultMessage": "Invalid VoxCPM2 generation mode."
+  },
+  "@yovoice.error.voxParams": {
+    "defaultMessage": "VoxCPM2 parameters are out of range."
+  },
+  "@yovoice.error.voxReferenceRequired": {
+    "defaultMessage": "Fine cloning requires the reference audio transcript."
+  },
+  "@yovoice.error.voxTextLimits": {
+    "defaultMessage": "Voice description or reference transcript exceeds the limit."
+  },
+  "@yovoice.nav.create": {
+    "defaultMessage": "Create"
+  },
+  "@yovoice.nav.deleteProject": {
+    "defaultMessage": "Delete project: {title}"
+  },
+  "@yovoice.nav.history": {
+    "defaultMessage": "History"
+  },
+  "@yovoice.nav.main": {
+    "defaultMessage": "Main navigation"
+  },
+  "@yovoice.nav.newProject": {
+    "defaultMessage": "New project"
+  },
+  "@yovoice.nav.recent": {
+    "defaultMessage": "Recent"
+  },
+  "@yovoice.nav.resize": {
+    "defaultMessage": "Resize sidebar"
+  },
+  "@yovoice.nav.settings": {
+    "defaultMessage": "Settings"
+  },
+  "@yovoice.nav.voices": {
+    "defaultMessage": "Voices"
+  },
+  "@yovoice.settings.download.failed": {
+    "defaultMessage": "Download incomplete"
+  },
+  "@yovoice.settings.download.paused": {
+    "defaultMessage": "Paused"
+  },
+  "@yovoice.settings.download.running": {
+    "defaultMessage": "Downloading"
+  },
+  "@yovoice.settings.download.verifying": {
+    "defaultMessage": "Verifying"
+  },
+  "@yovoice.settings.uiLocale": {
+    "defaultMessage": "Interface language"
+  },
+  "@yovoice.settings.uiLocale.en": {
+    "defaultMessage": "English"
+  },
+  "@yovoice.settings.uiLocale.zhCN": {
+    "defaultMessage": "简体中文"
   }
 }

@@ -3,7 +3,6 @@ package workbench
 import (
 	_ "embed"
 	"encoding/json"
-	"fmt"
 	"runtime"
 )
 
@@ -36,7 +35,7 @@ func model(id string) (ModelPackage, error) {
 			return m, nil
 		}
 	}
-	return ModelPackage{}, fmt.Errorf("不支持的模型。")
+	return ModelPackage{}, Err(MsgErrModelUnsupported, nil)
 }
 func (m ModelPackage) URL(source string) (string, error) {
 	switch source {
@@ -47,7 +46,7 @@ func (m ModelPackage) URL(source string) (string, error) {
 	case "modelscope":
 		return "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/" + m.RemotePath, nil
 	}
-	return "", fmt.Errorf("请选择有效的下载来源。")
+	return "", Err(MsgErrDownloadSource, nil)
 }
 
 type runtimeArchive struct{ Name, Hash string }
@@ -66,10 +65,10 @@ func runtimeArchives(backend string) ([]runtimeArchive, error) {
 	var names []string
 	if runtime.GOOS == "darwin" {
 		if backend != "cpu" && backend != "metal" {
-			return nil, fmt.Errorf("macOS 支持 CPU 或 Metal。")
+			return nil, Err(MsgErrMacBackend, nil)
 		}
 		if runtime.GOARCH != "arm64" {
-			return nil, fmt.Errorf("仅支持 M 系列 Mac（Apple Silicon arm64）。")
+			return nil, Err(MsgErrMacAppleSilicon, nil)
 		}
 		names = []string{"audio-v0.7.4-bin-macos-arm64-metal.tar.gz"}
 	} else if runtime.GOOS == "windows" && runtime.GOARCH == "amd64" {
@@ -89,13 +88,13 @@ func runtimeArchives(backend string) ([]runtimeArchive, error) {
 		}
 	}
 	if len(names) == 0 {
-		return nil, fmt.Errorf("不支持的计算设备或平台。")
+		return nil, Err(MsgErrBackendUnsupported, nil)
 	}
 	result := []runtimeArchive{}
 	for _, n := range names {
 		h, ok := archives[n]
 		if !ok {
-			return nil, fmt.Errorf("不支持的平台架构。")
+			return nil, Err(MsgErrPlatformArch, nil)
 		}
 		result = append(result, runtimeArchive{n, h})
 	}

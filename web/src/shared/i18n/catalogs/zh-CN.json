@@ -1,18 +1,302 @@
 {
-  "@yovoice.settings.uiLocale": {
-    "defaultMessage": "界面语言",
-    "description": "Settings selector label for product UI locale."
+  "@yovoice.action.cancel": {
+    "defaultMessage": "取消"
   },
-  "@yovoice.settings.uiLocale.zhCN": {
-    "defaultMessage": "简体中文",
-    "description": "Chinese option label in the UI locale selector."
+  "@yovoice.action.closeNotice": {
+    "defaultMessage": "关闭提示"
   },
-  "@yovoice.settings.uiLocale.en": {
-    "defaultMessage": "English",
-    "description": "English option label in the UI locale selector."
+  "@yovoice.action.pause": {
+    "defaultMessage": "暂停"
+  },
+  "@yovoice.activity.cancelled": {
+    "defaultMessage": "已取消，可重新开始"
+  },
+  "@yovoice.activity.completed": {
+    "defaultMessage": "已完成"
+  },
+  "@yovoice.activity.download": {
+    "defaultMessage": "下载 {name}"
+  },
+  "@yovoice.activity.downloading": {
+    "defaultMessage": "下载 {name}"
+  },
+  "@yovoice.activity.engineStart": {
+    "defaultMessage": "正在启动 audio.cpp"
+  },
+  "@yovoice.activity.failed": {
+    "defaultMessage": "操作未完成"
+  },
+  "@yovoice.activity.generate": {
+    "defaultMessage": "准备生成"
+  },
+  "@yovoice.activity.import": {
+    "defaultMessage": "正在识别并校验模型"
+  },
+  "@yovoice.activity.interrupted": {
+    "defaultMessage": "上次操作已中断，可重新开始"
+  },
+  "@yovoice.activity.paused": {
+    "defaultMessage": "已暂停"
+  },
+  "@yovoice.activity.runtimeDownload": {
+    "defaultMessage": "下载推理运行库"
+  },
+  "@yovoice.activity.runtimeExtract": {
+    "defaultMessage": "正在解压运行库"
+  },
+  "@yovoice.activity.savingAudio": {
+    "defaultMessage": "正在保存音频"
+  },
+  "@yovoice.activity.synthesizing": {
+    "defaultMessage": "正在加载模型或合成语音"
+  },
+  "@yovoice.activity.verifying": {
+    "defaultMessage": "正在校验模型"
+  },
+  "@yovoice.error.audioConverterMissing": {
+    "defaultMessage": "安装包缺少音频转换器，请重新安装完整的 yovoice 安装包。"
+  },
+  "@yovoice.error.audioDecode": {
+    "defaultMessage": "无法解码音频，请检查文件是否损坏、加密或缺少音轨。"
+  },
+  "@yovoice.error.audioDuration": {
+    "defaultMessage": "请选择 1–60 秒的参考音频。"
+  },
+  "@yovoice.error.audioFormat": {
+    "defaultMessage": "请选择有效的单声道或双声道 PCM / Float WAV 音频。"
+  },
+  "@yovoice.error.audioIDInvalid": {
+    "defaultMessage": "音频编号无效。"
+  },
+  "@yovoice.error.audioKindInvalid": {
+    "defaultMessage": "音频类型无效。"
+  },
+  "@yovoice.error.audioMissing": {
+    "defaultMessage": "没有找到音频。"
+  },
+  "@yovoice.error.audioPathInvalid": {
+    "defaultMessage": "音频路径无效。"
+  },
+  "@yovoice.error.audioPathSymlink": {
+    "defaultMessage": "音频路径不能是符号链接。"
+  },
+  "@yovoice.error.audioTooLarge": {
+    "defaultMessage": "参考音频需小于 20 MB。"
+  },
+  "@yovoice.error.backendUnsupported": {
+    "defaultMessage": "不支持的计算设备或平台。"
+  },
+  "@yovoice.error.busy": {
+    "defaultMessage": "请等待当前操作结束，或先取消。"
+  },
+  "@yovoice.error.cpuBundleInvalid": {
+    "defaultMessage": "内置 CPU 内核不是有效文件。"
+  },
+  "@yovoice.error.downloadChecksum": {
+    "defaultMessage": "文件校验未通过，请更换下载来源后重试。"
+  },
+  "@yovoice.error.downloadHTTP": {
+    "defaultMessage": "下载失败（HTTP {status}），请检查网络或更换来源。"
+  },
+  "@yovoice.error.downloadIncomplete": {
+    "defaultMessage": "下载未完成，可重试续传。"
+  },
+  "@yovoice.error.downloadOversized": {
+    "defaultMessage": "下载文件超出声明大小。"
+  },
+  "@yovoice.error.downloadRange": {
+    "defaultMessage": "下载源返回了错误的断点范围。"
+  },
+  "@yovoice.error.downloadSize": {
+    "defaultMessage": "下载源的文件大小不匹配。"
+  },
+  "@yovoice.error.downloadSource": {
+    "defaultMessage": "请选择有效的下载来源。"
+  },
+  "@yovoice.error.downloadStale": {
+    "defaultMessage": "断点已失效，请重试下载。"
+  },
+  "@yovoice.error.draftIDInvalid": {
+    "defaultMessage": "作品编号无效。"
+  },
+  "@yovoice.error.draftLimits": {
+    "defaultMessage": "作品内容超出限制。"
+  },
+  "@yovoice.error.emotionInvalid": {
+    "defaultMessage": "情绪参数无效。"
+  },
+  "@yovoice.error.emotionStrength": {
+    "defaultMessage": "情绪强度需为 0–1。"
+  },
+  "@yovoice.error.emotionTextRequired": {
+    "defaultMessage": "请输入情绪描述，或选择理解正文。"
+  },
+  "@yovoice.error.emotionVoiceRequired": {
+    "defaultMessage": "请添加情绪参考音频。"
+  },
+  "@yovoice.error.engineNoAudio": {
+    "defaultMessage": "引擎没有返回音频。"
+  },
+  "@yovoice.error.engineStartFailed": {
+    "defaultMessage": "引擎启动失败，请检查运行库或更换计算设备。"
+  },
+  "@yovoice.error.engineStartTimeout": {
+    "defaultMessage": "引擎启动超时，请打开日志查看详情。"
+  },
+  "@yovoice.error.generateFailed": {
+    "defaultMessage": "生成失败，请检查模型、显存和参考音频。可在设置中打开日志。"
+  },
+  "@yovoice.error.languageUnsupported": {
+    "defaultMessage": "当前模型不支持此语言。"
+  },
+  "@yovoice.error.legacyRestore": {
+    "defaultMessage": "旧数据无法读取。"
+  },
+  "@yovoice.error.macAppleSilicon": {
+    "defaultMessage": "仅支持 M 系列 Mac（Apple Silicon arm64）。"
+  },
+  "@yovoice.error.macBackend": {
+    "defaultMessage": "macOS 支持 CPU 或 Metal。"
+  },
+  "@yovoice.error.methodUnsupported": {
+    "defaultMessage": "不支持的操作。"
+  },
+  "@yovoice.error.modeInvalid": {
+    "defaultMessage": "表达方式无效。"
+  },
+  "@yovoice.error.modelDirAbsolute": {
+    "defaultMessage": "模型目录必须是绝对路径。"
+  },
+  "@yovoice.error.modelDirSpace": {
+    "defaultMessage": "模型目录磁盘空间不足。"
+  },
+  "@yovoice.error.modelForgetBlocked": {
+    "defaultMessage": "此模型暂不可移除，请先结束相关操作。"
+  },
+  "@yovoice.error.modelImportNone": {
+    "defaultMessage": "没有识别到兼容的 GGUF，请选择模型列表中列出的 audio.cpp 模型包。"
+  },
+  "@yovoice.error.modelMoved": {
+    "defaultMessage": "模型文件已移动，请重新导入。"
+  },
+  "@yovoice.error.modelRequired": {
+    "defaultMessage": "请先在设置中下载或导入模型。"
+  },
+  "@yovoice.error.modelUnsupported": {
+    "defaultMessage": "不支持的模型。"
+  },
+  "@yovoice.error.nameLength": {
+    "defaultMessage": "名称需为 1–120 个字符。"
+  },
+  "@yovoice.error.needRuntime": {
+    "defaultMessage": "开始生成前，请准备模型与推理运行时。"
+  },
+  "@yovoice.error.paramsOutOfRange": {
+    "defaultMessage": "生成参数超出范围。"
+  },
+  "@yovoice.error.platformArch": {
+    "defaultMessage": "不支持的平台架构。"
+  },
+  "@yovoice.error.requestInvalid": {
+    "defaultMessage": "请求参数无效。"
+  },
+  "@yovoice.error.runtimeArchiveLink": {
+    "defaultMessage": "运行库包含不支持的链接或特殊文件。"
+  },
+  "@yovoice.error.runtimeArchivePath": {
+    "defaultMessage": "压缩包包含非法路径。"
+  },
+  "@yovoice.error.runtimeArchiveSize": {
+    "defaultMessage": "运行时解压体积异常。"
+  },
+  "@yovoice.error.runtimeMissing": {
+    "defaultMessage": "请先在设置中安装推理引擎。"
+  },
+  "@yovoice.error.runtimeRequired": {
+    "defaultMessage": "请先安装当前设备对应的推理运行时。"
+  },
+  "@yovoice.error.runtimeUnique": {
+    "defaultMessage": "运行库未包含唯一的推理服务。"
+  },
+  "@yovoice.error.stateCorrupt": {
+    "defaultMessage": "本地记录无法读取。"
+  },
+  "@yovoice.error.stateSaveFailed": {
+    "defaultMessage": "状态保存失败。"
+  },
+  "@yovoice.error.textRequired": {
+    "defaultMessage": "请输入 1–12000 字的正文。"
+  },
+  "@yovoice.error.titleLength": {
+    "defaultMessage": "作品名称需为 1–120 字。"
   },
   "@yovoice.error.unknown": {
-    "defaultMessage": "出了点问题，请重试。",
-    "description": "Fallback when a message code is missing from the catalog."
+    "defaultMessage": "出了点问题，请重试。"
+  },
+  "@yovoice.error.voiceBusyDelete": {
+    "defaultMessage": "请等待生成结束后再删除声音。"
+  },
+  "@yovoice.error.voiceRequired": {
+    "defaultMessage": "请先添加音色参考音频。"
+  },
+  "@yovoice.error.voxModeInvalid": {
+    "defaultMessage": "VoxCPM2 生成方式无效。"
+  },
+  "@yovoice.error.voxParams": {
+    "defaultMessage": "VoxCPM2 生成参数超出范围。"
+  },
+  "@yovoice.error.voxReferenceRequired": {
+    "defaultMessage": "精细克隆需要参考音频的原文。"
+  },
+  "@yovoice.error.voxTextLimits": {
+    "defaultMessage": "声音描述或参考原文超出限制。"
+  },
+  "@yovoice.nav.create": {
+    "defaultMessage": "创作"
+  },
+  "@yovoice.nav.deleteProject": {
+    "defaultMessage": "删除作品：{title}"
+  },
+  "@yovoice.nav.history": {
+    "defaultMessage": "历史记录"
+  },
+  "@yovoice.nav.main": {
+    "defaultMessage": "主导航"
+  },
+  "@yovoice.nav.newProject": {
+    "defaultMessage": "新建作品"
+  },
+  "@yovoice.nav.recent": {
+    "defaultMessage": "最近作品"
+  },
+  "@yovoice.nav.resize": {
+    "defaultMessage": "调整侧栏宽度"
+  },
+  "@yovoice.nav.settings": {
+    "defaultMessage": "设置"
+  },
+  "@yovoice.nav.voices": {
+    "defaultMessage": "声音库"
+  },
+  "@yovoice.settings.download.failed": {
+    "defaultMessage": "下载未完成"
+  },
+  "@yovoice.settings.download.paused": {
+    "defaultMessage": "已暂停"
+  },
+  "@yovoice.settings.download.running": {
+    "defaultMessage": "正在下载"
+  },
+  "@yovoice.settings.download.verifying": {
+    "defaultMessage": "正在校验"
+  },
+  "@yovoice.settings.uiLocale": {
+    "defaultMessage": "界面语言"
+  },
+  "@yovoice.settings.uiLocale.en": {
+    "defaultMessage": "English"
+  },
+  "@yovoice.settings.uiLocale.zhCN": {
+    "defaultMessage": "简体中文"
   }
 }

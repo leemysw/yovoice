@@ -79,14 +79,16 @@ type Generation struct {
 	Settings  Draft     `json:"settings"`
 }
 type Activity struct {
-	Kind      string    `json:"kind"`
-	Label     string    `json:"label"`
-	Status    string    `json:"status"`
-	Received  int64     `json:"received"`
-	Total     int64     `json:"total"`
-	Error     *string   `json:"error"`
-	ModelID   *string   `json:"modelId"`
-	StartedAt time.Time `json:"startedAt"`
+	Kind        string         `json:"kind"`
+	Code        MessageCode    `json:"code"`
+	Params      MessageParams  `json:"params"`
+	Status      string         `json:"status"`
+	Received    int64          `json:"received"`
+	Total       int64          `json:"total"`
+	ErrorCode   *MessageCode   `json:"errorCode"`
+	ErrorParams MessageParams  `json:"errorParams"`
+	ModelID     *string        `json:"modelId"`
+	StartedAt   time.Time      `json:"startedAt"`
 }
 // UiLocale is the persisted interface language. Distinct from Draft.Language (TTS).
 type UiLocale string

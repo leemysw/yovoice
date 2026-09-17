@@ -2,7 +2,6 @@ package workbench
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 	"math"
 	"os"
@@ -22,7 +21,7 @@ func Duration(path string) (float64, error) {
 	if e != nil {
 		return 0, e
 	}
-	bad := fmt.Errorf("请选择有效的单声道或双声道 PCM / Float WAV 音频。")
+	bad := Err(MsgErrAudioFormat, nil)
 	header := make([]byte, 12)
 	if _, e = io.ReadFull(f, header); e != nil || string(header[:4]) != "RIFF" || string(header[8:]) != "WAVE" {
 		return 0, bad
@@ -69,10 +68,10 @@ func Duration(path string) (float64, error) {
 }
 func Validate(d Draft) error {
 	if strings.TrimSpace(d.Text) == "" || textLen(d.Text) > 12000 {
-		return fmt.Errorf("请输入 1–12000 字的正文。")
+		return Err(MsgErrTextRequired, nil)
 	}
 	if strings.TrimSpace(d.Title) == "" || textLen(d.Title) > 120 {
-		return fmt.Errorf("作品名称需为 1–120 字。")
+		return Err(MsgErrTitleLength, nil)
 	}
 	m, e := model(d.ModelID)
 	if e != nil {
@@ -80,16 +79,16 @@ func Validate(d Draft) error {
 	}
 	if m.Family == "voxcpm2" {
 		if d.VoxMode != "" && d.VoxMode != "design" && d.VoxMode != "clone" && d.VoxMode != "continuation" {
-			return fmt.Errorf("VoxCPM2 生成方式无效。")
+			return Err(MsgErrVoxModeInvalid, nil)
 		}
 		if textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
-			return fmt.Errorf("声音描述或参考原文超出限制。")
+			return Err(MsgErrVoxTextLimits, nil)
 		}
 		if d.VoxMode == "continuation" && strings.TrimSpace(d.ReferenceText) == "" {
-			return fmt.Errorf("精细克隆需要参考音频的原文。")
+			return Err(MsgErrVoxReferenceRequired, nil)
 		}
 		if (d.GuidanceScale != 0 && !inRange(d.GuidanceScale, .5, 5)) || d.InferenceSteps < 0 || d.InferenceSteps > 50 || (d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647)) {
-			return fmt.Errorf("VoxCPM2 生成参数超出范围。")
+			return Err(MsgErrVoxParams, nil)
 		}
 		return nil
 	}
@@ -102,28 +101,28 @@ func Validate(d Draft) error {
 		ok = ok || l == d.Language
 	}
 	if !ok {
-		return fmt.Errorf("当前模型不支持此语言。")
+		return Err(MsgErrLanguageUnsupported, nil)
 	}
 	switch d.Mode {
 	case "speaker", "reference", "vector", "text":
 	default:
-		return fmt.Errorf("表达方式无效。")
+		return Err(MsgErrModeInvalid, nil)
 	}
 	if textLen(d.EmotionText) > 500 || len(d.Emotions) != 8 {
-		return fmt.Errorf("情绪参数无效。")
+		return Err(MsgErrEmotionInvalid, nil)
 	}
 	for _, v := range d.Emotions {
 		if !inRange(v, 0, 1) {
-			return fmt.Errorf("情绪强度需为 0–1。")
+			return Err(MsgErrEmotionStrength, nil)
 		}
 	}
 	for _, v := range [][3]float64{{d.Speed, .5, 2}, {d.EmotionStrength, 0, 1}, {d.Temperature, .05, 2}, {d.TopP, .01, 1}, {d.RepetitionPenalty, .1, 20}, {d.LengthPenalty, -2, 2}} {
 		if !inRange(v[0], v[1], v[2]) {
-			return fmt.Errorf("生成参数超出范围。")
+			return Err(MsgErrParamsOutOfRange, nil)
 		}
 	}
 	if d.TopK < 1 || d.TopK > 200 || d.MaxTokens < 50 || d.MaxTokens > 4000 || d.NumBeams < 1 || d.NumBeams > 10 || d.IntervalSilenceMs < 0 || d.IntervalSilenceMs > 2000 || (d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647)) {
-		return fmt.Errorf("高级生成参数超出范围。")
+		return Err(MsgErrParamsOutOfRange, nil)
 	}
 	return nil
 }
@@ -155,7 +154,7 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		r := map[string]any{"text": text, "options": o}
 		if d.RequiresVoice() {
 			if voice == "" {
-				return nil, fmt.Errorf("音色克隆需要参考音频。")
+				return nil, Err(MsgErrVoiceRequired, nil)
 			}
 			r["voice_ref"] = voice
 		}
@@ -172,7 +171,7 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 	switch d.Mode {
 	case "reference":
 		if emotion == "" {
-			return nil, fmt.Errorf("请添加情绪参考音频。")
+			return nil, Err(MsgErrEmotionVoiceRequired, nil)
 		}
 		r["audio"] = emotion
 		o["emotion_alpha"] = d.EmotionStrength
@@ -198,7 +197,7 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		o["use_random_emotion"] = d.RandomEmotion
 		if !d.InferEmotion {
 			if strings.TrimSpace(d.EmotionText) == "" {
-				return nil, fmt.Errorf("请输入情绪描述，或选择理解正文。")
+				return nil, Err(MsgErrEmotionTextRequired, nil)
 			}
 			o["emotion_text"] = d.EmotionText
 		}

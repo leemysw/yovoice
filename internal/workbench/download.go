@@ -81,17 +81,17 @@ func Download(ctx context.Context, client *http.Client, url, destination, hash s
 			return os.Rename(partial, destination)
 		}
 		_ = os.Remove(partial)
-		return fmt.Errorf("断点已失效，请重试下载。")
+		return Err(MsgErrDownloadStale, nil)
 	}
 	if res.StatusCode != 200 && res.StatusCode != 206 {
-		return fmt.Errorf("下载失败（HTTP %d），请检查网络或更换来源。", res.StatusCode)
+		return Err(MsgErrDownloadHTTP, MessageParams{"status": res.StatusCode})
 	}
 	var rangeTotal int64
 	if res.StatusCode == 206 {
 		var start, end int64
 		n, _ := fmt.Sscanf(res.Header.Get("Content-Range"), "bytes %d-%d/%d", &start, &end, &rangeTotal)
 		if n != 3 || start != offset || end < start || rangeTotal <= end {
-			return fmt.Errorf("下载源返回了错误的断点范围。")
+			return Err(MsgErrDownloadRange, nil)
 		}
 	} else {
 		offset = 0
@@ -104,7 +104,7 @@ func Download(ctx context.Context, client *http.Client, url, destination, hash s
 		}
 	}
 	if expected > 0 && res.ContentLength >= 0 && offset+res.ContentLength != expected {
-		return fmt.Errorf("下载源的文件大小不匹配。")
+		return Err(MsgErrDownloadSize, nil)
 	}
 	flags := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 	if offset > 0 {
@@ -124,7 +124,7 @@ func Download(ctx context.Context, client *http.Client, url, destination, hash s
 			if n > 0 {
 				received += int64(n)
 				if total > 0 && received > total {
-					return fmt.Errorf("下载文件超出声明大小。")
+					return Err(MsgErrDownloadOversized, nil)
 				}
 				if _, e := f.Write(buffer[:n]); e != nil {
 					return e
@@ -148,7 +148,7 @@ func Download(ctx context.Context, client *http.Client, url, destination, hash s
 	}
 	progress(received, total)
 	if expected > 0 && received != expected {
-		return fmt.Errorf("下载未完成，可重试续传。")
+		return Err(MsgErrDownloadIncomplete, nil)
 	}
 	h, e := Hash(ctx, partial)
 	if e != nil {
@@ -156,7 +156,7 @@ func Download(ctx context.Context, client *http.Client, url, destination, hash s
 	}
 	if h != hash {
 		_ = os.Remove(partial)
-		return fmt.Errorf("文件校验未通过，请更换下载来源后重试。")
+		return Err(MsgErrDownloadChecksum, nil)
 	}
 	if e = ctx.Err(); e != nil {
 		return e
@@ -180,17 +180,17 @@ func Extract(ctx context.Context, archive, destination string) error {
 		name = strings.ReplaceAll(name, "\\", "/")
 		name = strings.TrimPrefix(name, "./")
 		if !filepath.IsLocal(name) || strings.Contains(name, ":") || strings.Contains(name, "\x00") {
-			return fmt.Errorf("压缩包包含非法路径。")
+			return Err(MsgErrRuntimeArchivePath, nil)
 		}
 		if mode.IsDir() {
 			return root.MkdirAll(name, 0755)
 		}
 		if !mode.IsRegular() {
-			return fmt.Errorf("运行库包含不支持的链接或特殊文件。")
+			return Err(MsgErrRuntimeArchiveLink, nil)
 		}
 		total += size
 		if size < 0 || total > 8<<30 {
-			return fmt.Errorf("运行时解压体积异常。")
+			return Err(MsgErrRuntimeArchiveSize, nil)
 		}
 		if e := root.MkdirAll(filepath.Dir(name), 0755); e != nil {
 			return e
@@ -230,7 +230,7 @@ func Extract(ctx context.Context, archive, destination string) error {
 				continue
 			}
 			if h.Typeflag != tar.TypeReg && h.Typeflag != tar.TypeRegA && h.Typeflag != tar.TypeDir {
-				return fmt.Errorf("运行库包含不支持的链接或特殊文件。")
+				return Err(MsgErrRuntimeArchiveLink, nil)
 			}
 			if e = write(h.Name, h.Size, h.FileInfo().Mode(), tr); e != nil {
 				return e

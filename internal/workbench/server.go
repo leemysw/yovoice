@@ -41,7 +41,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.calls.Unlock()
 		reply := map[string]any{"id": message.ID, "result": result}
 		if err != nil {
-			reply = map[string]any{"id": message.ID, "error": err.Error()}
+			reply = map[string]any{"id": message.ID, "error": encodeCallError(err)}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(reply)
