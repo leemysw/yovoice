@@ -43,9 +43,9 @@ export async function call<T = unknown>(method: string, data: unknown = {}): Pro
   }
   if (method === 'media.rename' || method === 'media.delete') {
     const { kind, id, name } = data as { kind: string; id: string; name: string };
-    if (!['voices', 'outputs'].includes(kind)) throw new Error('音频类型无效。');
+    if (!['voices', 'outputs'].includes(kind)) throw new CallError('@yovoice.error.audioKindInvalid');
     if (method === 'media.rename') {
-      if (!name?.trim() || name.trim().length > 120) throw new Error('名称需为 1–120 个字符。');
+      if (!name?.trim() || name.trim().length > 120) throw new CallError('@yovoice.error.nameLength');
       if (kind === 'voices') preview.voices = preview.voices.map(v => v.id === id ? { ...v, name: name.trim() } : v);
       else preview.history = preview.history.map(v => v.id === id ? { ...v, title: name.trim() } : v);
     } else {
@@ -68,7 +68,7 @@ export async function call<T = unknown>(method: string, data: unknown = {}): Pro
     const bytes = Uint8Array.from(atob(recording.base64), c => c.charCodeAt(0));
     return await importVoiceFile(new File([bytes], `${recording.name}.wav`, { type: 'audio/wav' })) as T;
   }
-  throw new Error('请在桌面应用中使用此功能；浏览器可预览界面、编辑正文和试听参考音频。');
+  throw new CallError('@yovoice.error.previewDesktopOnly');
 }
 function database(): Promise<IDBDatabase> { return new Promise((resolve, reject) => {
   const request = indexedDB.open('voice-workbench-audio', 1);
@@ -84,12 +84,12 @@ async function blobStore(key: string, value?: Blob): Promise<Blob | undefined> {
   }); } finally { db.close(); }
 }
 export async function importVoiceFile(file: File): Promise<Voice> {
-  if (file.size > 20 * 1024 * 1024) throw new Error('参考音频需小于 20 MB。');
+  if (file.size > 20 * 1024 * 1024) throw new CallError('@yovoice.error.audioTooLarge');
   if (native) return call<Voice>('voice.record', { name: file.name.replace(/\.[^.]+$/, ''), base64: await toBase64(file) });
   const context = new AudioContext();
   try {
     const decoded = await context.decodeAudioData(await file.arrayBuffer());
-    if (decoded.duration < 1 || decoded.duration > 60) throw new Error('请选择 1–60 秒的参考音频。');
+    if (decoded.duration < 1 || decoded.duration > 60) throw new CallError('@yovoice.error.audioDuration');
     const wav = encodeWav(decoded);
     const id = crypto.randomUUID().replaceAll('-', '');
     const voice = { id, name: file.name.replace(/\.[^.]+$/, ''), fileName: id + '.wav', duration: decoded.duration };
@@ -99,5 +99,5 @@ export async function importVoiceFile(file: File): Promise<Voice> {
 export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promise<string> {
   if (native && window.__workbenchMediaBase) return `${window.__workbenchMediaBase}${kind}/${encodeURIComponent(file)}`;
   if (native) return `https://${kind}.workbench.local/${encodeURIComponent(file)}`;
-  const blob = await blobStore(file); if (!blob) throw new Error('音频文件不存在，请重新导入。'); return URL.createObjectURL(blob);
+  const blob = await blobStore(file); if (!blob) throw new CallError('@yovoice.error.audioBlobMissing'); return URL.createObjectURL(blob);
 }

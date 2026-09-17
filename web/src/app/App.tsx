@@ -6,7 +6,7 @@ import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { Selector } from '@astryxdesign/core/Selector';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Dialog } from '@astryxdesign/core/Dialog';
-import { useTranslator } from '@astryxdesign/core/i18n';
+import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, PanelLeft, Plus, Pencil, Clock3, Settings2, Check, Play, X, Trash2, Mic, SlidersHorizontal } from 'lucide-react';
 import { call, subscribe, isDesktop, isMac } from '../shared/lib/client';
 import { isVoxModel, requiresVoice, createDraft, emptyState, formatTime, formatSize, type Activity, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
@@ -18,7 +18,7 @@ const VoicePicker = lazy(() => import('../features/media/VoicePicker').then(modu
 import { SelectionAction, type TextSelection } from '../features/create/SelectionAction';
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './LocaleShell';
 import { isUiLocale } from '../shared/i18n/locale';
-import { formatActivity, formatActivityError, formatCallError } from '../shared/i18n/format';
+import { formatActivity, formatActivityError } from '../shared/i18n/format';
 
 const destinationIds = [
   { id: 'create', key: '@yovoice.nav.create', icon: Pencil },
@@ -100,7 +100,7 @@ export function App() {
           next = { ...next, preferences: { ...next.preferences, uiLocale: bootLocale } };
         } catch (e) { setError((e as Error).message); }
       }
-      setState(next); setCatalog(result.catalog); setDraft(next.drafts[0] ?? createDraft(true));
+      setState(next); setCatalog(result.catalog); setDraft(next.drafts[0] ?? createDraft(true, next.preferences.uiLocale));
       setReady(true);
     }).catch(e => setError(e.message));
     return unsubscribe;
@@ -117,13 +117,6 @@ export function App() {
   }, [draft, ready, deleting]);
   useEffect(() => {
     if (!ready) return;
-    const latest = state.history.find(item => item.settings.id === draft.id);
-    const key = `${draft.id}/${latest?.id ?? ''}`;
-    if (key !== previousHistory.current) setTrack(latest ? { id: latest.id, name: latest.title, fileName: latest.fileName, kind: 'outputs', subtitle: '生成结果' } : null);
-    previousHistory.current = key;
-  }, [draft.id, state.history, ready]);
-  useEffect(() => {
-    if (!ready) return;
     const removed = previousVoices.current.filter(v => !state.voices.some(next => next.id === v.id));
     previousVoices.current = state.voices;
     setDraft(current => {
@@ -138,16 +131,7 @@ export function App() {
     };
     setTrack(refresh); setPreviewTrack(refresh);
   }, [state.voices, state.history, ready]);
-  function selectGeneration(item: Generation) {
-    clearTimeout(saveTimer.current);
-    setDraft(current => ({ ...structuredClone(item.settings), id: current.id, title: current.title }));
-    setTrack({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: '生成结果' });
-  }
   useEffect(() => { setPreviewTrack(null); setTrack(current => current ? { ...current, playRequest: undefined } : null); }, [page]);
-  const audition = (value: Track) => {
-    if (page === 'create') setTrack({ ...value, playRequest: performance.now() });
-    else setPreviewTrack(current => current?.id === value.id ? null : { ...value, playRequest: performance.now() });
-  };
   const change = (patch: Partial<Draft>) => setDraft(current => ({ ...current, ...patch }));
   const generate = () => {
     if (state.activity?.status === 'running') return;
@@ -161,7 +145,7 @@ export function App() {
     const onKey = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && page === 'create' && !document.querySelector('[role=dialog]')) { event.preventDefault(); generate(); } };
     window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
   });
-  function newDraft() { run(async () => { await call('draft.save', draft); const next = createDraft(); await call('draft.save', next); setDraft(next); setPage('create'); }); }
+  function newDraft() { run(async () => { await call('draft.save', draft); const next = createDraft(false, state.preferences.uiLocale); await call('draft.save', next); setDraft(next); setPage('create'); }); }
   function selectDraft(item: Draft) { run(async () => { await call('draft.save', draft); setDraft(item); setPage('create'); }); }
   async function deleteDraft() {
     if (!deleteTarget || deleting) return;
@@ -170,7 +154,7 @@ export function App() {
       // 等待已发出的保存，再切换当前作品，避免删除后被延迟保存恢复。
       await pendingSave.current.catch(() => {});
       if (deleteTarget.id === draft.id) {
-        const next = state.drafts.find(item => item.id !== draft.id) ?? createDraft();
+        const next = state.drafts.find(item => item.id !== draft.id) ?? createDraft(false, state.preferences.uiLocale);
         window.__workbenchDraft = next; setDraft(next);
         await call('draft.save', next);
       }
@@ -185,39 +169,161 @@ export function App() {
   }
   const generations = state.history.filter(item => item.settings.id === draft.id);
   const activity = state.activity; const busy = activity?.status === 'running';
+  return <LocaleShell preferencesLocale={state.preferences.uiLocale}>
+    <WorkbenchChrome
+      navigation={navigation}
+      toggleSidebar={toggleSidebar}
+      state={state}
+      setState={setState}
+      catalog={catalog}
+      draft={draft}
+      setDraft={setDraft}
+      ready={ready}
+      page={page}
+      setPage={setPage}
+      error={error}
+      setError={setError}
+      saving={saving}
+      voicePicker={voicePicker}
+      setVoicePicker={setVoicePicker}
+      previewTrack={previewTrack}
+      setPreviewTrack={setPreviewTrack}
+      track={track}
+      setTrack={setTrack}
+      advanced={advanced}
+      setAdvanced={setAdvanced}
+      pronunciation={pronunciation}
+      setPronunciation={setPronunciation}
+      deleteTarget={deleteTarget}
+      setDeleteTarget={setDeleteTarget}
+      deleting={deleting}
+      showInspector={showInspector}
+      setShowInspector={setShowInspector}
+      editor={editor}
+      previousHistory={previousHistory}
+      onError={onError}
+      run={run}
+      change={change}
+      generate={generate}
+      newDraft={newDraft}
+      selectDraft={selectDraft}
+      deleteDraft={deleteDraft}
+      selectVoice={selectVoice}
+      annotate={annotate}
+      generations={generations}
+      activity={activity}
+      busy={busy}
+      saveTimer={saveTimer}
+    />
+  </LocaleShell>;
+}
+
+function WorkbenchChrome(props: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  navigation: { props: any; size: number; isCollapsed: boolean };
+  toggleSidebar: () => void;
+  state: State;
+  setState: React.Dispatch<React.SetStateAction<State>>;
+  catalog: ModelPackage[];
+  draft: Draft;
+  setDraft: React.Dispatch<React.SetStateAction<Draft>>;
+  ready: boolean;
+  page: string;
+  setPage: (id: string) => void;
+  error: string;
+  setError: (message: string) => void;
+  saving: boolean;
+  voicePicker: 'voice' | 'emotion' | 'add' | null;
+  setVoicePicker: (value: 'voice' | 'emotion' | 'add' | null) => void;
+  previewTrack: Track | null;
+  setPreviewTrack: React.Dispatch<React.SetStateAction<Track | null>>;
+  track: Track | null;
+  setTrack: React.Dispatch<React.SetStateAction<Track | null>>;
+  advanced: boolean;
+  setAdvanced: (value: boolean) => void;
+  pronunciation: { start: number; end: number; word: string; sound: string } | null;
+  setPronunciation: React.Dispatch<React.SetStateAction<{ start: number; end: number; word: string; sound: string } | null>>;
+  deleteTarget: Draft | null;
+  setDeleteTarget: (item: Draft | null) => void;
+  deleting: boolean;
+  showInspector: boolean;
+  setShowInspector: (value: boolean) => void;
+  editor: React.RefObject<HTMLTextAreaElement | null>;
+  previousHistory: React.MutableRefObject<string | undefined>;
+  onError: (message: string) => void;
+  run: (action: () => Promise<unknown>) => void;
+  change: (patch: Partial<Draft>) => void;
+  generate: () => void;
+  newDraft: () => void;
+  selectDraft: (item: Draft) => void;
+  deleteDraft: () => Promise<void>;
+  selectVoice: (voice: Voice) => void;
+  annotate: (selection: TextSelection) => void;
+  generations: Generation[];
+  activity: Activity | null;
+  busy: boolean;
+  saveTimer: React.MutableRefObject<ReturnType<typeof setTimeout> | undefined>;
+}) {
+  const t = useTranslator();
+  const locale = useLocale();
+  const {
+    navigation, toggleSidebar, state, setState, catalog, draft, setDraft, ready, page, setPage,
+    error, setError, saving, voicePicker, setVoicePicker, previewTrack, setPreviewTrack, track, setTrack,
+    advanced, setAdvanced, pronunciation, setPronunciation, deleteTarget, setDeleteTarget, deleting,
+    showInspector, setShowInspector, editor, previousHistory, onError, run, change, generate, newDraft,
+    selectDraft, deleteDraft, selectVoice, annotate, generations, activity, busy, saveTimer,
+  } = props;
+
+  useEffect(() => {
+    if (!ready) return;
+    const latest = state.history.find(item => item.settings.id === draft.id);
+    const key = `${draft.id}/${latest?.id ?? ''}`;
+    if (key !== previousHistory.current) setTrack(latest ? { id: latest.id, name: latest.title, fileName: latest.fileName, kind: 'outputs', subtitle: t('@yovoice.app.subtitleOutput') } : null);
+    previousHistory.current = key;
+  }, [draft.id, state.history, ready, t, previousHistory, setTrack]);
+
+  function selectGeneration(item: Generation) {
+    clearTimeout(saveTimer.current);
+    setDraft(current => ({ ...structuredClone(item.settings), id: current.id, title: current.title }));
+    setTrack({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: t('@yovoice.app.subtitleOutput') });
+  }
+  const audition = (value: Track) => {
+    if (page === 'create') setTrack({ ...value, playRequest: performance.now() });
+    else setPreviewTrack(current => current?.id === value.id ? null : { ...value, playRequest: performance.now() });
+  };
+  const dateOpts: Intl.DateTimeFormatOptions = { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+  const historyDateOpts: Intl.DateTimeFormatOptions = { ...dateOpts, second: '2-digit' };
   const sidebar = <SidebarNav page={page} setPage={setPage} newDraft={newDraft} state={state} draft={draft} selectDraft={selectDraft} setDeleteTarget={setDeleteTarget} navigation={navigation} />;
   const inspector = <Inspector catalog={catalog} close={() => setShowInspector(false)} draft={draft} state={state} change={change} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => setPage('settings')} advanced={advanced} setAdvanced={setAdvanced} />;
-  return <LocaleShell preferencesLocale={state.preferences.uiLocale}>
-  <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
-    {!isMac ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? '展开侧栏' : '收起侧栏'} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b>{!isDesktop ? <small>桌面界面预览</small> : null}</HStack> : null}
+  return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
+    {!isMac ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? t('@yovoice.app.expandSidebar') : t('@yovoice.app.collapseSidebar')} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b>{!isDesktop ? <small>{t('@yovoice.app.browserPreview')}</small> : null}</HStack> : null}
     <AppShell variant="surface" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill">
-      <Layout height="fill" footer={page === 'create' ? <Player suspended={voicePicker !== null} track={track} onError={onError} historyControl={generations.length ? <Selector label="当前作品历史" isLabelHidden placement="above" size="sm" variant="ghost" width="100%" isDisabled={busy} value={track?.kind === 'outputs' ? track.id : undefined} placeholder="历史版本" options={generations.map((item, index) => ({ value: item.id, label: `版本 ${generations.length - index}`, description: new Date(item.createdAt).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }))} renderValue={option => option.label} onChange={id => { const item = generations.find(item => item.id === id); if (item) selectGeneration(item); }} /> : undefined} /> : undefined} content={<VStack className="content-frame" gap={0}>
-        {error || activity?.status === 'failed' ? <HStack className="notice" role="alert" gap={3} hAlign="between" vAlign="center"><p><NoticeText error={error} activity={activity} /></p><Button label="关闭提示" variant="ghost" isIconOnly icon={<X size={16} />} onClick={() => { setError(''); if (activity?.status === 'failed') setState(s => ({ ...s, activity: null })); }} /></HStack> : null}
-        {busy && !['download', 'generate'].includes(activity.kind) ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><HStack hAlign="between"><ActivityLabel activity={activity} />{activity.total > 0 ? <small>{formatSize(activity.received)} / {formatSize(activity.total)}</small> : null}</HStack><progress value={activity.total > 0 ? activity.received : undefined} max={activity.total || 1} /></VStack><Button label={activity.kind === 'download' ? '暂停' : '取消'} size="sm" onClick={() => run(() => call('operation.cancel'))} /></HStack> : null}
-        {!ready ? <p className="loading" role="status">正在打开工作台…</p> : page === 'create' ? <HStack className={`studio ${showInspector ? 'show-inspector' : ''}`} gap={0}>
+      <Layout height="fill" footer={page === 'create' ? <Player suspended={voicePicker !== null} track={track} onError={onError} historyControl={generations.length ? <Selector label={t('@yovoice.app.historyVersions')} isLabelHidden placement="above" size="sm" variant="ghost" width="100%" isDisabled={busy} value={track?.kind === 'outputs' ? track.id : undefined} placeholder={t('@yovoice.app.historyPlaceholder')} options={generations.map((item, index) => ({ value: item.id, label: t('@yovoice.app.historyVersion', { n: generations.length - index }), description: new Date(item.createdAt).toLocaleString(locale, dateOpts) }))} renderValue={option => option.label} onChange={id => { const item = generations.find(item => item.id === id); if (item) selectGeneration(item); }} /> : undefined} /> : undefined} content={<VStack className="content-frame" gap={0}>
+        {error || activity?.status === 'failed' ? <HStack className="notice" role="alert" gap={3} hAlign="between" vAlign="center"><p><NoticeText error={error} activity={activity} /></p><Button label={t('@yovoice.action.closeNotice')} variant="ghost" isIconOnly icon={<X size={16} />} onClick={() => { setError(''); if (activity?.status === 'failed') setState(s => ({ ...s, activity: null })); }} /></HStack> : null}
+        {busy && activity && !['download', 'generate'].includes(activity.kind) ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><HStack hAlign="between"><ActivityLabel activity={activity} />{activity.total > 0 ? <small>{formatSize(activity.received)} / {formatSize(activity.total)}</small> : null}</HStack><progress value={activity.total > 0 ? activity.received : undefined} max={activity.total || 1} /></VStack><Button label={activity.kind === 'download' ? t('@yovoice.action.pause') : t('@yovoice.action.cancel')} size="sm" onClick={() => run(() => call('operation.cancel'))} /></HStack> : null}
+        {!ready ? <p className="loading" role="status">{t('@yovoice.app.loading')}</p> : page === 'create' ? <HStack className={`studio ${showInspector ? 'show-inspector' : ''}`} gap={0}>
           <VStack as="section" className="document" gap={0}>
 
             <VStack className="writing" gap={0}>
-              <HStack className="document-heading" gap={3} vAlign="center"><input className="document-title" aria-label="作品名称" maxLength={120} value={draft.title} onChange={e => change({ title: e.target.value })} /><Button label="声音设置" className="inspector-toggle" isIconOnly icon={<SlidersHorizontal size={17} />} variant="ghost" onClick={() => setShowInspector(!showInspector)} /></HStack>
-              <textarea ref={editor} className="script-editor" aria-label="正文" placeholder="从第一句话开始…" maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />
-              <HStack className="editor-status" hAlign="end" vAlign="center" gap={4}><small className="saved"><Check size={14} />{saving ? '保存中…' : '已保存'}</small><small>{Array.from(draft.text).length} 字</small></HStack>
+              <HStack className="document-heading" gap={3} vAlign="center"><input className="document-title" aria-label={t('@yovoice.app.titleLabel')} maxLength={120} value={draft.title} onChange={e => change({ title: e.target.value })} /><Button label={t('@yovoice.app.voiceSettings')} className="inspector-toggle" isIconOnly icon={<SlidersHorizontal size={17} />} variant="ghost" onClick={() => setShowInspector(!showInspector)} /></HStack>
+              <textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />
+              <HStack className="editor-status" hAlign="end" vAlign="center" gap={4}><small className="saved"><Check size={14} />{saving ? t('@yovoice.app.saving') : t('@yovoice.app.saved')}</small><small>{t('@yovoice.app.charCount', { count: Array.from(draft.text).length })}</small></HStack>
 
             </VStack>
           </VStack>{inspector}
-        </HStack> : page === 'settings' ? <Suspense fallback={<p role="status">正在加载设置…</p>}><Settings state={state} catalog={catalog} draft={draft} run={run} /></Suspense> : <VStack className={`library-page ${page === 'voices' ? 'voices-page' : 'history-page'}`} gap={6}>
-          <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}><header><h1>{page === 'voices' ? '声音库' : '历史记录'}</h1><p className="subtitle">{page === 'voices' ? `${state.voices.length} 个音色` : `${state.history.length} 条生成记录`}</p></header>{page === 'voices' && state.voices.length > 0 ? <Button label="添加声音" size="sm" icon={<Plus size={16} />} onClick={() => setVoicePicker('add')} /> : null}</HStack>
+        </HStack> : page === 'settings' ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingSettings')}</p>}><Settings state={state} catalog={catalog} draft={draft} run={run} /></Suspense> : <VStack className={`library-page ${page === 'voices' ? 'voices-page' : 'history-page'}`} gap={6}>
+          <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}><header><h1>{page === 'voices' ? t('@yovoice.library.voicesTitle') : t('@yovoice.library.historyTitle')}</h1><p className="subtitle">{page === 'voices' ? t('@yovoice.library.voiceCount', { count: state.voices.length }) : t('@yovoice.library.historyCount', { count: state.history.length })}</p></header>{page === 'voices' && state.voices.length > 0 ? <Button label={t('@yovoice.library.addVoice')} size="sm" icon={<Plus size={16} />} onClick={() => setVoicePicker('add')} /> : null}</HStack>
           {page === 'voices' ? state.voices.length ? <VStack gap={0} className="voice-library-list">{state.voices.map(voice => <VStack key={voice.id} className="voice-library-item" gap={0}>
-            <HStack className="voice-library-row" gap={3} vAlign="center"><AudioLines className="voice-mark" size={20} /><h3 className="grow" title={voice.name}>{voice.name}</h3><small className="time">{formatTime(voice.duration)}</small><Button label={previewTrack?.id === voice.id ? `收起试听${voice.name}` : `试听${voice.name}`} size="sm" variant="ghost" isIconOnly icon={previewTrack?.id === voice.id ? <X size={16} /> : <Play size={16} />} onClick={() => audition({ ...voice, kind: 'voices', subtitle: '参考音频' })} /><MediaActions item={{ ...voice, kind: 'voices' }} beforeDelete={() => setPreviewTrack(null)} onError={onError} /></HStack>
+            <HStack className="voice-library-row" gap={3} vAlign="center"><AudioLines className="voice-mark" size={20} /><h3 className="grow" title={voice.name}>{voice.name}</h3><small className="time">{formatTime(voice.duration)}</small><Button label={previewTrack?.id === voice.id ? t('@yovoice.app.collapseAudition', { name: voice.name }) : t('@yovoice.app.audition', { name: voice.name })} size="sm" variant="ghost" isIconOnly icon={previewTrack?.id === voice.id ? <X size={16} /> : <Play size={16} />} onClick={() => audition({ ...voice, kind: 'voices', subtitle: t('@yovoice.app.subtitleReference') })} /><MediaActions item={{ ...voice, kind: 'voices' }} beforeDelete={() => setPreviewTrack(null)} onError={onError} /></HStack>
             {previewTrack?.id === voice.id ? <Player compact suspended={voicePicker !== null} track={previewTrack} onError={onError} /> : null}
-          </VStack>)}</VStack> : <VStack className="empty-state" gap={4} align="center"><Mic size={40} strokeWidth={1} /><h2>从一个声音开始</h2><p>导入清晰的人声，或录下你自己的声音。</p><Button label="添加第一个声音" variant="primary" onClick={() => setVoicePicker('add')} /></VStack> : state.history.length ? <VStack className="history-list" gap={0}>{state.history.map(item => <VStack key={item.id} className="history-item" gap={0}><HStack className="history-row" gap={3} vAlign="center"><Button label={previewTrack?.id === item.id ? `收起试听${item.title}` : `试听${item.title}`} size="sm" variant="ghost" isIconOnly icon={previewTrack?.id === item.id ? <X size={16} /> : <Play size={16} />} onClick={() => audition({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: '生成结果' })} /><HStack gap={4} vAlign="center" className="grow history-info"><h3 title={item.title}>{item.title}</h3><small>{new Date(item.createdAt).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</small></HStack><small className="time">{formatTime(item.duration)}</small><HStack className="history-actions" gap={1}><Button label="复用参数" size="sm" variant="ghost" onClick={() => { setDraft({ ...item.settings, id: crypto.randomUUID().replaceAll('-', ''), title: item.title + ' · 副本' }); setPage('create'); }} /><MediaActions item={{ id: item.id, kind: 'outputs', name: item.title }} beforeDelete={() => setPreviewTrack(null)} onError={onError} /></HStack></HStack>{previewTrack?.id === item.id ? <Player compact suspended={false} track={previewTrack} onError={onError} /> : null}</VStack>)}</VStack> : <VStack className="empty-state" gap={4} align="center"><Clock3 size={40} strokeWidth={1} /><h2>让第一句话被听见</h2><p>生成的音频和参数会自动保存在这里。</p><Button label="开始创作" onClick={() => setPage('create')} /></VStack>}
+          </VStack>)}</VStack> : <VStack className="empty-state" gap={4} align="center"><Mic size={40} strokeWidth={1} /><h2>{t('@yovoice.library.emptyVoicesTitle')}</h2><p>{t('@yovoice.library.emptyVoicesBody')}</p><Button label={t('@yovoice.library.addFirstVoice')} variant="primary" onClick={() => setVoicePicker('add')} /></VStack> : state.history.length ? <VStack className="history-list" gap={0}>{state.history.map(item => <VStack key={item.id} className="history-item" gap={0}><HStack className="history-row" gap={3} vAlign="center"><Button label={previewTrack?.id === item.id ? t('@yovoice.app.collapseAudition', { name: item.title }) : t('@yovoice.app.audition', { name: item.title })} size="sm" variant="ghost" isIconOnly icon={previewTrack?.id === item.id ? <X size={16} /> : <Play size={16} />} onClick={() => audition({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: t('@yovoice.app.subtitleOutput') })} /><HStack gap={4} vAlign="center" className="grow history-info"><h3 title={item.title}>{item.title}</h3><small>{new Date(item.createdAt).toLocaleString(locale, historyDateOpts)}</small></HStack><small className="time">{formatTime(item.duration)}</small><HStack className="history-actions" gap={1}><Button label={t('@yovoice.app.reuseSettings')} size="sm" variant="ghost" onClick={() => { setDraft({ ...item.settings, id: crypto.randomUUID().replaceAll('-', ''), title: item.title + t('@yovoice.draft.copySuffix') }); setPage('create'); }} /><MediaActions item={{ id: item.id, kind: 'outputs', name: item.title }} beforeDelete={() => setPreviewTrack(null)} onError={onError} /></HStack></HStack>{previewTrack?.id === item.id ? <Player compact suspended={false} track={previewTrack} onError={onError} /> : null}</VStack>)}</VStack> : <VStack className="empty-state" gap={4} align="center"><Clock3 size={40} strokeWidth={1} /><h2>{t('@yovoice.library.emptyHistoryTitle')}</h2><p>{t('@yovoice.library.emptyHistoryBody')}</p><Button label={t('@yovoice.library.startCreating')} onClick={() => setPage('create')} /></VStack>}
         </VStack>}
       </VStack>} />
     </AppShell>
     {ready && !isVoxModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <SelectionAction key={draft.id} editor={editor} onEdit={annotate} /> : null}
 
-    {deleteTarget ? <Dialog isOpen onOpenChange={open => { if (!open && !deleting) setDeleteTarget(null); }} width={400} padding={6}><VStack gap={4}><h2>删除作品？</h2><p className="helper">“{deleteTarget.title}”的草稿将被删除，已生成的音频仍保留在历史记录中。</p><HStack hAlign="end" gap={2}><Button label="取消" size="sm" isDisabled={deleting} onClick={() => setDeleteTarget(null)} /><Button label="删除作品" size="sm" variant="primary" isLoading={deleting} onClick={() => void deleteDraft()} /></HStack></VStack></Dialog> : null}
-    {voicePicker ? <Suspense fallback={<p role="status">正在加载声音选择…</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={selectVoice} /></Suspense> : null}
-    {pronunciation ? <Dialog isOpen onOpenChange={open => { if (!open) setPronunciation(null); }} width={480} purpose="form" padding={6}><VStack gap={5}><h2>调整发音</h2><p>为“{pronunciation.word}”指定读法。</p><TextInput label={draft.modelId.startsWith('index-2.5') ? '拼音 / 英文音素 / 日语假名' : '拼音'} value={pronunciation.sound} onChange={sound => setPronunciation({ ...pronunciation, sound })} placeholder="例如 HANG2" /><HStack hAlign="end" gap={3}><Button label="取消" onClick={() => setPronunciation(null)} /><Button label="应用发音" variant="primary" isDisabled={!pronunciation.sound.trim()} onClick={() => { const { start, end, word, sound } = pronunciation; const replacement = draft.modelId.startsWith('index-2.5') ? `<${word}|${sound.trim()}>` : sound.trim(); change({ text: draft.text.slice(0, start) + replacement + draft.text.slice(end) }); setPronunciation(null); requestAnimationFrame(() => { editor.current?.focus(); editor.current?.setSelectionRange(start + replacement.length, start + replacement.length); }); }} /></HStack></VStack></Dialog> : null}
-  </VStack>
-  </LocaleShell>;
+    {deleteTarget ? <Dialog isOpen onOpenChange={open => { if (!open && !deleting) setDeleteTarget(null); }} width={400} padding={6}><VStack gap={4}><h2>{t('@yovoice.app.deleteProjectTitle')}</h2><p className="helper">{t('@yovoice.app.deleteProjectBody', { title: deleteTarget.title })}</p><HStack hAlign="end" gap={2}><Button label={t('@yovoice.action.cancel')} size="sm" isDisabled={deleting} onClick={() => setDeleteTarget(null)} /><Button label={t('@yovoice.app.deleteProjectConfirm')} size="sm" variant="primary" isLoading={deleting} onClick={() => void deleteDraft()} /></HStack></VStack></Dialog> : null}
+    {voicePicker ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={selectVoice} /></Suspense> : null}
+    {pronunciation ? <Dialog isOpen onOpenChange={open => { if (!open) setPronunciation(null); }} width={480} purpose="form" padding={6}><VStack gap={5}><h2>{t('@yovoice.app.pronunciationTitle')}</h2><p>{t('@yovoice.app.pronunciationBody', { word: pronunciation.word })}</p><TextInput label={draft.modelId.startsWith('index-2.5') ? t('@yovoice.app.pronunciationLabel25') : t('@yovoice.app.pronunciationLabel')} value={pronunciation.sound} onChange={sound => setPronunciation({ ...pronunciation, sound })} placeholder={t('@yovoice.app.pronunciationPlaceholder')} /><HStack hAlign="end" gap={3}><Button label={t('@yovoice.action.cancel')} onClick={() => setPronunciation(null)} /><Button label={t('@yovoice.app.pronunciationApply')} variant="primary" isDisabled={!pronunciation.sound.trim()} onClick={() => { const { start, end, word, sound } = pronunciation; const replacement = draft.modelId.startsWith('index-2.5') ? `<${word}|${sound.trim()}>` : sound.trim(); change({ text: draft.text.slice(0, start) + replacement + draft.text.slice(end) }); setPronunciation(null); requestAnimationFrame(() => { editor.current?.focus(); editor.current?.setSelectionRange(start + replacement.length, start + replacement.length); }); }} /></HStack></VStack></Dialog> : null}
+  </VStack>;
 }

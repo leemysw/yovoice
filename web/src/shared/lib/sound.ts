@@ -1,8 +1,10 @@
+import { CallError } from './callError';
+
 export function encodeWav(buffer: AudioBuffer, start = 0, end = buffer.duration): Blob {
   const first = Math.max(0, Math.floor(start * buffer.sampleRate));
   const last = Math.min(buffer.length, Math.floor(end * buffer.sampleRate));
   const frames = last - first;
-  if (frames <= 0) throw new Error('裁剪结束时间必须大于开始时间。');
+  if (frames <= 0) throw new CallError('@yovoice.error.cropRangeInvalid');
   const bytes = new ArrayBuffer(44 + frames * 2); const view = new DataView(bytes);
   const text = (offset: number, value: string) => [...value].forEach((char, i) => view.setUint8(offset + i, char.charCodeAt(0)));
   text(0, 'RIFF'); view.setUint32(4, 36 + frames * 2, true); text(8, 'WAVE'); text(12, 'fmt ');
