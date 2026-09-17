@@ -16,7 +16,7 @@ struct UpdateRelease: Decodable {
     func package(newerThan current: String) throws -> Asset? {
         guard !draft, !prerelease else { return nil }
         guard tag_name.hasPrefix("v"), Self.parts(version) != nil,
-              Self.parts(current) != nil else { throw Self.failure("更新版本号无效。") }
+              Self.parts(current) != nil else { throw Self.failure(HostL10n.t("err.updateVersion")) }
         guard version.compare(current, options: .numeric) == .orderedDescending else { return nil }
         return try asset(named: "yovoice-\(tag_name)-macos-arm64.zip")
     }
@@ -30,7 +30,7 @@ struct UpdateRelease: Decodable {
               asset.browser_download_url.password == nil,
               asset.browser_download_url.port == nil,
               asset.browser_download_url.path == "/leemysw/yovoice/releases/download/\(tag_name)/\(name)" else {
-            throw Self.failure("当前版本缺少有效的更新包或校验文件，请从 GitHub 下载。")
+            throw Self.failure(HostL10n.t("err.updateMissing"))
         }
         return asset
     }
@@ -47,7 +47,7 @@ struct UpdateRelease: Decodable {
         }
         guard hashes.count == 1, let hash = hashes.first,
               hash.count == 64, hash.allSatisfy({ "0123456789abcdef".contains($0) }) else {
-            throw failure("更新包的 SHA-256 校验信息无效。")
+            throw failure(HostL10n.t("err.updateSha"))
         }
         return hash
     }

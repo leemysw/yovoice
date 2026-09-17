@@ -31,9 +31,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         window.title = "yovoice"
         let accessory = NSTitlebarAccessoryViewController()
         accessory.layoutAttribute = .left
-        let sidebarButton = NSButton(image: NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: "切换侧栏")!, target: self, action: #selector(toggleSidebar))
+        let sidebarButton = NSButton(image: NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: HostL10n.t("sidebar.toggle"))!, target: self, action: #selector(toggleSidebar))
         sidebarButton.isBordered = false
-        sidebarButton.toolTip = "收起或展开侧栏"
+        sidebarButton.toolTip = HostL10n.t("sidebar.tooltip")
         sidebarButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
         accessory.view = sidebarButton
         window.addTitlebarAccessoryViewController(accessory)
@@ -41,7 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.center()
-        let loading = NSTextField(labelWithString: "正在打开 yovoice…")
+        let loading = NSTextField(labelWithString: HostL10n.t("loading"))
         loading.frame = NSRect(x: 40, y: 40, width: 400, height: 30)
         window.contentView?.addSubview(loading)
         window.makeKeyAndOrderFront(nil)
@@ -60,7 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
         let credits = NSMutableAttributedString(
-            string: "如果 yovoice 对你有帮助，欢迎给项目点个 Star。\n\n",
+            string: HostL10n.t("about.credits"),
             attributes: [.font: NSFont.systemFont(ofSize: NSFont.systemFontSize), .paragraphStyle: paragraph]
         )
         credits.append(NSAttributedString(
@@ -75,23 +75,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let appItem = NSMenuItem()
         menu.addItem(appItem)
         appItem.submenu = NSMenu()
-        let aboutItem = appItem.submenu?.addItem(withTitle: "关于 yovoice", action: #selector(showAbout), keyEquivalent: "")
+        let aboutItem = appItem.submenu?.addItem(withTitle: HostL10n.t("menu.about"), action: #selector(showAbout), keyEquivalent: "")
         aboutItem?.target = self
-        let updateItem = NSMenuItem(title: "检查更新…", action: nil, keyEquivalent: "")
+        let updateItem = NSMenuItem(title: HostL10n.t("menu.checkUpdates"), action: nil, keyEquivalent: "")
         appItem.submenu?.addItem(updateItem)
         updater = AppUpdater(menuItem: updateItem, root: root)
         appItem.submenu?.addItem(.separator())
-        appItem.submenu?.addItem(withTitle: "退出 yovoice", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let edit = NSMenuItem()
         menu.addItem(edit)
-        edit.submenu = NSMenu(title: "编辑")
-        for (title, action, key) in [("撤销", "undo:", "z"), ("剪切", "cut:", "x"), ("复制", "copy:", "c"), ("粘贴", "paste:", "v"), ("全选", "selectAll:", "a")] {
+        edit.submenu = NSMenu(title: HostL10n.t("menu.edit"))
+        for (title, action, key) in [(HostL10n.t("menu.undo"), "undo:", "z"), (HostL10n.t("menu.cut"), "cut:", "x"), (HostL10n.t("menu.copy"), "copy:", "c"), (HostL10n.t("menu.paste"), "paste:", "v"), (HostL10n.t("menu.selectAll"), "selectAll:", "a")] {
             edit.submenu?.addItem(withTitle: title, action: Selector(action), keyEquivalent: key)
         }
         let windowItem = NSMenuItem()
         menu.addItem(windowItem)
-        windowItem.submenu = NSMenu(title: "窗口")
-        windowItem.submenu?.addItem(withTitle: "最小化", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowItem.submenu = NSMenu(title: HostL10n.t("menu.window"))
+        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
         NSApp.windowsMenu = windowItem.submenu
         NSApp.mainMenu = menu
     }
@@ -99,7 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     private func startService() throws {
         let resources = Bundle.main.resourceURL!
         let executable = resources.appendingPathComponent("service/yovoice-service")
-        guard FileManager.default.isExecutableFile(atPath: executable.path) else { throw failure("本地服务缺失，请重新构建或安装应用。") }
+        guard FileManager.default.isExecutableFile(atPath: executable.path) else { throw failure(HostL10n.t("err.serviceMissing")) }
         if ProcessInfo.processInfo.environment["WORKBENCH_DATA"] == nil {
             let migration = Process()
             migration.executableURL = executable
@@ -108,7 +108,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             migration.standardError = errors
             try migration.run()
             migration.waitUntilExit()
-            guard migration.terminationStatus == 0 else { throw failure("数据目录迁移失败，请先退出旧版应用。原数据保留在旧目录。") }
+            guard migration.terminationStatus == 0 else { throw failure(HostL10n.t("err.migrateFailed")) }
         }
         try FileManager.default.createDirectory(at: root.appendingPathComponent("logs"), withIntermediateDirectories: true)
         service.executableURL = executable
@@ -127,7 +127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         service.terminationHandler = { [weak self] process in
             Task { @MainActor in
                 guard let self, !self.closing else { return }
-                self.showError(self.failure("本地服务已停止（\(process.terminationStatus)）。请退出后重新打开，诊断记录保存在日志目录。"))
+                self.showError(self.failure(HostL10n.t("err.serviceStopped", process.terminationStatus)))
             }
         }
         try service.run()
@@ -135,7 +135,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             try? await Task.sleep(for: .seconds(30))
             if origin == nil && service.isRunning && !closing {
                 try? input.fileHandleForWriting.close()
-                showError(failure("本地服务启动超时，请退出后重新打开。"))
+                showError(failure(HostL10n.t("err.serviceTimeout")))
             }
         }
         // 仅首行输出启动地址，其余日志写入文件，避免把凭证暴露给前端或日志。
@@ -155,7 +155,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
 
     private func loadWeb(_ address: String) {
-        guard let url = URL(string: address), url.host == "127.0.0.1", url.scheme == "http" else { showError(failure("本地服务返回了无效地址。")); return }
+        guard let url = URL(string: address), url.host == "127.0.0.1", url.scheme == "http" else { showError(failure(HostL10n.t("err.invalidAddress"))); return }
         origin = url
         let configuration = WKWebViewConfiguration()
         configuration.mediaTypesRequiringUserActionForPlayback = []
@@ -225,7 +225,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
         guard frame.isMainFrame, trusted(frame.request.url) else { completionHandler(nil); return }
         let panel = NSOpenPanel()
-        panel.title = "选择参考音频"
+        panel.title = HostL10n.t("panel.pickAudio")
         panel.allowedContentTypes = [.audio]
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
@@ -258,15 +258,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         var data = message["data"] as? [String: Any] ?? [:]
         let method = message["method"] as? String ?? ""
         if method == "sidebar.save" {
-            guard let size = data["size"] as? Double, size.isFinite, (180...360).contains(size), let collapsed = data["isCollapsed"] as? Bool else { throw failure("侧栏设置无效。") }
+            guard let size = data["size"] as? Double, size.isFinite, (180...360).contains(size), let collapsed = data["isCollapsed"] as? Bool else { throw failure(HostL10n.t("err.sidebarInvalid")) }
             let saved = try JSONSerialization.data(withJSONObject: ["size": size, "isCollapsed": collapsed])
             UserDefaults.standard.set(String(data: saved, encoding: .utf8), forKey: "sidebar-layout")
             return ["id": message["id"]!, "result": true]
         }
         if method == "media.reveal" {
             let response = try await request("api/call", body: ["id": "media-path", "method": "media.path", "data": data])
-            guard let path = response["result"] as? String else { throw failure(response["error"] as? String ?? "无法读取音频位置。") }
-            guard FileManager.default.fileExists(atPath: path) else { throw failure("音频文件不存在。") }
+            guard let path = response["result"] as? String else { throw failure(Self.hostErrorMessage(response["error"]) ?? HostL10n.t("err.audioPath")) }
+            guard FileManager.default.fileExists(atPath: path) else { throw failure(HostL10n.t("err.audioMissing")) }
             NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
             return ["id": message["id"]!, "result": true]
         }
@@ -285,20 +285,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             let response = try await request("api/call", body: ["id": "model-directory", "method": "state.get", "data": [:]])
             guard let result = response["result"] as? [String: Any],
                   let state = result["state"] as? [String: Any],
-                  let preferences = state["preferences"] as? [String: Any] else { throw failure("无法读取模型保存位置。") }
+                  let preferences = state["preferences"] as? [String: Any] else { throw failure(HostL10n.t("err.modelDirRead")) }
             let directory = (preferences["modelDirectory"] as? String).map { URL(fileURLWithPath: $0, isDirectory: true) } ?? root.appendingPathComponent("models", isDirectory: true)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            guard NSWorkspace.shared.open(directory) else { throw failure("无法打开模型保存目录。") }
+            guard NSWorkspace.shared.open(directory) else { throw failure(HostL10n.t("err.modelDirOpen")) }
             return ["id": message["id"]!, "result": true]
         }
         if method == "logs.open" {
             NSWorkspace.shared.open(root.appendingPathComponent("logs"))
             return ["id": message["id"]!, "result": true]
         }
+        if method == "preferences.save" {
+            let response = try await request("api/call", body: message)
+            if response["error"] == nil {
+                HostL10n.applyPreferences(message["data"] as? [String: Any])
+                refreshHostMenus()
+            }
+            return response
+        }
         return try await request("api/call", body: message)
     }
     private func request(_ path: String, body: [String: Any]) async throws -> [String: Any] {
-        guard let origin else { throw failure("本地服务尚未就绪。") }
+        guard let origin else { throw failure(HostL10n.t("err.serviceNotReady")) }
         var request = URLRequest(url: origin.appendingPathComponent(path))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -306,7 +314,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         request.timeoutInterval = 120
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw failure("本地服务请求失败。") }
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw failure(HostL10n.t("err.serviceRequest")) }
         if data.isEmpty { return [:] }
         return (try JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:]
     }
@@ -314,11 +322,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         guard let data = try? JSONSerialization.data(withJSONObject: message), let json = String(data: data, encoding: .utf8) else { return }
         web.evaluateJavaScript("window.__workbenchReceive(\(json))", completionHandler: nil)
     }
+    private static func hostErrorMessage(_ error: Any?) -> String? {
+        if let text = error as? String { return text }
+        if let object = error as? [String: Any], let code = object["code"] as? String { return code }
+        return nil
+    }
+    private func refreshHostMenus() {
+        guard let menu = NSApp.mainMenu else { return }
+        if let appMenu = menu.item(at: 0)?.submenu {
+            appMenu.item(at: 0)?.title = HostL10n.t("menu.about")
+            if appMenu.numberOfItems > 1 { appMenu.item(at: 1)?.title = HostL10n.t("menu.checkUpdates") }
+            appMenu.items.last?.title = HostL10n.t("menu.quit")
+        }
+        updater?.applyLocaleTitles()
+    }
     private func failure(_ message: String) -> NSError { NSError(domain: "VoiceWorkbench", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
     private func showError(_ error: Error) {
         try? error.localizedDescription.write(to: root.appendingPathComponent("logs/last-host-error.txt"), atomically: true, encoding: .utf8)
         let alert = NSAlert()
-        alert.messageText = "yovoice 未能完成操作"
+        alert.messageText = HostL10n.t("alert.hostError.title")
         alert.informativeText = error.localizedDescription
         alert.beginSheetModal(for: window)
     }
@@ -337,10 +359,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
                     let activity = (result?["state"] as? [String: Any])?["activity"] as? [String: Any]
                     if activity?["status"] as? String == "running" {
                         let alert = NSAlert()
-                        alert.messageText = "退出并取消当前操作？"
-                        alert.informativeText = "正文与已下载的部分文件会保留。"
-                        alert.addButton(withTitle: "退出")
-                        alert.addButton(withTitle: "继续操作")
+                        alert.messageText = HostL10n.t("alert.quitBusy.title")
+                        alert.informativeText = HostL10n.t("alert.quitBusy.body")
+                        alert.addButton(withTitle: HostL10n.t("alert.quitBusy.quit"))
+                        alert.addButton(withTitle: HostL10n.t("alert.quitBusy.continue"))
                         if alert.runModal() != .alertFirstButtonReturn { closing = false; updater?.cancelInstall(); return }
                     }
                     // 读取最新编辑内容，避免自动保存的防抖窗口丢失最后输入。
