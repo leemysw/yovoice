@@ -4,7 +4,7 @@
 <h1 align="center">yovoice</h1>
 <p align="center">让文字拥有你的声音。</p>
 <p align="center">
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.1-blue?style=flat-square" alt="Version 0.1.1" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.2-blue?style=flat-square" alt="Version 0.1.2" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
