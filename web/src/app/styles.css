@@ -244,10 +244,16 @@
   .directory-actions .astryx-button { font-size: var(--app-small-font); flex-shrink: 0; }
   .settings-directory { flex-wrap: wrap; }
   .directory-actions { flex-shrink: 0; }
-  .settings-directory { border-top: 1px solid var(--app-line); padding-top: var(--spacing-5); }
-  .settings-page { max-width: calc(var(--spacing-10) * 24); }
+  .settings-directory p { flex-shrink: 0; }
+  .settings-directory .model-path { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #models-panel > .model-list { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-5); }
+  .settings-page { flex: 1; overflow: hidden; max-width: calc(var(--spacing-10) * 24); }
+  .settings-page > [role="tabpanel"] { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin-inline-end: calc(-1 * var(--spacing-4)); padding-inline-end: var(--spacing-4); scrollbar-gutter: stable; }
+  .settings-page > [role="tabpanel"] > * { flex-shrink: 0; }
   .settings-page h1 { font-size: var(--font-size-2xl); }
-  .settings-page header { padding-block: var(--spacing-3) 0; }
+  .content-frame > .settings-page { padding-block-start: var(--spacing-5); }
+  .settings-page header { display: flex; align-items: center; height: var(--spacing-10); padding-block: 0; }
+  .settings-page .astryx-tab-indicator { inset-inline: 0; }
   .settings-page .astryx-selector { min-height: var(--spacing-8); font-size: var(--app-small-font); }
   .engine-settings { width: 100%; }
   .engine-setting-row { min-height: var(--spacing-16); padding-block: var(--spacing-4); border-bottom: 1px solid var(--app-line); }

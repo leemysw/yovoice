@@ -42,6 +42,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
   await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(6);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
@@ -108,6 +109,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(preview).toHaveCount(0);
   await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
   await expect(page.locator('audio')).toHaveCount(0);
   await page.getByRole('button', { name: '历史记录', exact: true }).click();
   await expect(page.locator('footer.player')).toHaveCount(0);
@@ -131,7 +133,13 @@ test('单选与设置标签支持方向键，弹窗错误就地显示', async ({
   await natural.click(); await natural.press('ArrowRight');
   await expect(page.getByRole('radio', { name: '参考演绎', exact: true })).toBeChecked();
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '模型', exact: true }).focus();
+  await expect(page.getByRole('tab', { name: '常规', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('combobox', { name: '界面语言', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '常规', exact: true }).focus();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('tabpanel', { name: '模型', exact: true })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: '界面语言', exact: true })).toHaveCount(0);
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab', { name: '推理引擎', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
@@ -178,6 +186,7 @@ for (const trigger of ['鼠标', '键盘']) test(`选中文字显示发音浮层
 test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
   const source = page.getByRole('combobox', { name: '下载来源', exact: true });
   await source.click();
   const menu = page.getByRole('listbox');
@@ -194,6 +203,7 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
   }, emptyState());
   await page.reload();
   await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
   const row = page.locator('.model-row').filter({ has: page.getByRole('progressbar', { name: 'IndexTTS 2.0 Q8 下载进度' }) });
   await expect(row).toContainText('正在校验');
   await expect(page.getByRole('button', { name: '移除模型', exact: true })).toBeEnabled();
@@ -361,6 +371,32 @@ test('声音库和历史仅列表滚动，标题位置保持固定', async ({ pa
   }
 });
 
+
+test('设置仅内容区滚动，标题和页签保持固定', async ({ page }) => {
+  await page.setViewportSize({ width: 1000, height: 600 });
+  await page.goto('/');
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  const heading = page.getByRole('heading', { name: '设置', exact: true });
+  const tabs = page.getByRole('tablist');
+  for (const width of [1000, 800]) {
+    await page.setViewportSize({ width, height: 600 });
+    const titleBox = (await heading.boundingBox())!;
+    const newBox = (await page.getByTestId('nav-new').boundingBox())!;
+    const tabBox = (await page.getByRole('tab', { name: '常规', exact: true }).boundingBox())!;
+    const createBox = (await page.getByTestId('nav-create').boundingBox())!;
+    expect(Math.abs(titleBox.y + titleBox.height / 2 - newBox.y - newBox.height / 2)).toBeLessThan(1);
+    expect(Math.abs(tabBox.y + tabBox.height / 2 - createBox.y - createBox.height / 2)).toBeLessThan(1);
+  }
+  const headingBefore = await heading.boundingBox();
+  const tabsBefore = await tabs.boundingBox();
+  const panel = page.getByRole('tabpanel', { name: '模型', exact: true });
+  await panel.evaluate(el => { el.scrollTop = el.scrollHeight; });
+  await expect.poll(() => panel.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  await expect(page.getByRole('button', { name: 'IndexTTS 协议', exact: true })).toBeInViewport();
+  expect((await heading.boundingBox())!.y).toBe(headingBefore!.y);
+  expect((await tabs.boundingBox())!.y).toBe(tabsBefore!.y);
+});
 
 test('录音权限拒绝时给出可操作提示', async ({ page }) => {
   await page.addInitScript(() => {

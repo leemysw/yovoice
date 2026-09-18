@@ -938,11 +938,14 @@
   "@yovoice.settings.tabEngine": {
     "defaultMessage": "推理引擎"
   },
+  "@yovoice.settings.tabGeneral": {
+    "defaultMessage": "常规"
+  },
   "@yovoice.settings.tabModels": {
     "defaultMessage": "模型"
   },
   "@yovoice.settings.title": {
-    "defaultMessage": "模型与引擎"
+    "defaultMessage": "设置"
   },
   "@yovoice.settings.uiLocale": {
     "defaultMessage": "界面语言"

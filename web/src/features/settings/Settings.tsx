@@ -19,33 +19,39 @@ function downloadStatusLabel(t: (key: string) => string, downloading: boolean, r
 export function Settings({ state, catalog, draft, run }: { state: State; catalog: ModelPackage[]; draft: Draft; run: (task: () => Promise<unknown>) => void }) {
   const t = useTranslator();
   const [license, setLicense] = useState<string | null>(null);
-  const [tab, setTab] = useState('models'); const busy = state.activity?.status === 'running';
+  const [tab, setTab] = useState('general'); const busy = state.activity?.status === 'running';
   const preferences = state.preferences;
   const runtimeReady = !!state.runtimePath && state.runtimeBackend === preferences.backend;
   return <VStack className="settings-page" gap={6}>
     <header><h1>{t('@yovoice.settings.title')}</h1></header>
-    <TabList value={tab} onChange={setTab} role="tablist" hasDivider><Tab value="models" label={t('@yovoice.settings.tabModels')} panelId="models-panel" /><Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" /></TabList>
-    {tab === 'models' ? <VStack gap={5} id="models-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabModels')}>
+    <TabList value={tab} onChange={setTab} role="tablist" hasDivider><Tab value="general" label={t('@yovoice.settings.tabGeneral')} panelId="general-panel" /><Tab value="models" label={t('@yovoice.settings.tabModels')} panelId="models-panel" /><Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" /></TabList>
+    {tab === 'general' ? <VStack gap={5} id="general-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabGeneral')}>
+      <HStack hAlign="between" vAlign="center" gap={4} wrap="wrap">
+        <h3>{t('@yovoice.settings.uiLocale')}</h3>
+        <Selector
+          data-testid="ui-locale"
+          size="sm"
+          placement="below"
+          label={t('@yovoice.settings.uiLocale')}
+          isLabelHidden
+          value={preferences.uiLocale}
+          options={[
+            { value: 'zh-CN', label: t('@yovoice.settings.uiLocale.zhCN') },
+            { value: 'en', label: t('@yovoice.settings.uiLocale.en') },
+          ]}
+          onChange={uiLocale => run(() => call('preferences.save', { ...preferences, uiLocale: uiLocale as UiLocale }))}
+          width="min(100%, calc(var(--spacing-10) * 5))"
+        />
+      </HStack>
+    </VStack> : tab === 'models' ? <VStack gap={5} id="models-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabModels')}>
       <HStack className="settings-toolbar" hAlign="between" vAlign="center" gap={4} wrap="wrap">
         <HStack gap={3} vAlign="center" wrap="wrap">
           <p className="muted">{t('@yovoice.settings.downloadSource')}</p>
           <Selector size="sm" placement="below" label={t('@yovoice.settings.downloadSource')} isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: t('@yovoice.settings.source.modelscope') }, { value: 'huggingface', label: t('@yovoice.settings.source.huggingface') }, { value: 'mirror', label: t('@yovoice.settings.source.mirror') }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 6)" className="download-source" />
-          <Selector
-            data-testid="ui-locale"
-            size="sm"
-            placement="below"
-            label={t('@yovoice.settings.uiLocale')}
-            value={preferences.uiLocale}
-            options={[
-              { value: 'zh-CN', label: t('@yovoice.settings.uiLocale.zhCN') },
-              { value: 'en', label: t('@yovoice.settings.uiLocale.en') },
-            ]}
-            onChange={uiLocale => run(() => call('preferences.save', { ...preferences, uiLocale: uiLocale as UiLocale }))}
-            width="calc(var(--spacing-10) * 5)"
-          />
         </HStack>
-        <HStack gap={2}><Button size="sm" label={t('@yovoice.settings.importGguf')} icon={<FilePlus size={16} />} isDisabled={busy} onClick={() => run(() => call('model.import'))} /><Button size="sm" label={t('@yovoice.settings.importDirectory')} icon={<FolderOpen size={16} />} isDisabled={busy} onClick={() => run(() => call('model.import', { directory: true }))} /></HStack>
+        <HStack gap={2}><Button size="sm" label={t('@yovoice.settings.importGguf')} icon={<FilePlus size={16} />} isDisabled={busy} onClick={() => run(() => call('model.import'))} /></HStack>
       </HStack>
+      <HStack className="settings-directory" hAlign="between" gap={4} vAlign="center"><HStack className="grow" gap={3} vAlign="center"><p className="muted">{t('@yovoice.settings.modelDirectory')}</p><small className="model-path grow" title={preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}>{preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}</small></HStack><HStack className="directory-actions" gap={2}><Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} /><Button size="sm" label={t('@yovoice.settings.changeLocation')} icon={<FolderCog size={16} />} isDisabled={busy} onClick={() => run(() => call('model.directory'))} /></HStack></HStack>
       <section className="model-list">{catalog.map(model => {
         const installed = state.models.find(m => m.id === model.id);
         const activity = state.activity;
@@ -54,7 +60,7 @@ export function Settings({ state, catalog, draft, run }: { state: State; catalog
         const removeBlocked = busy && !(activity?.kind === 'download' && activity.modelId && activity.modelId !== model.id);
         const modelDesc = model.family === 'voxcpm2' ? t('@yovoice.settings.modelDesc.vox') : model.version === '2.5' ? t('@yovoice.settings.modelDesc.25') : t('@yovoice.settings.modelDesc.basic');
         return <VStack className="model-row" key={model.id} gap={3}><HStack className="model-summary" gap={5} vAlign="center" wrap="wrap">
-          <VStack className="grow" gap={1}><HStack gap={3} vAlign="center" wrap="wrap"><h3>{model.name}</h3><small className="precision">{model.precision}</small><small className="model-size">{formatSize(model.size)}</small>{installed ? <small className="ready"><Check size={12} />{draft.modelId === model.id ? t('@yovoice.settings.inUse') : t('@yovoice.settings.verified')}</small> : null}</HStack><small>{modelDesc}</small>{installed ? <small className="model-path" title={installed.path}>{installed.path}</small> : null}</VStack>
+          <VStack className="grow" gap={1}><HStack gap={3} vAlign="center" wrap="wrap"><h3>{model.name}</h3><small className="precision">{model.precision}</small><small className="model-size">{formatSize(model.size)}</small>{installed ? <small className="ready"><Check size={12} />{draft.modelId === model.id ? t('@yovoice.settings.inUse') : t('@yovoice.settings.verified')}</small> : null}</HStack><small>{modelDesc}</small></VStack>
           {downloading ? <Button size="sm" label={t('@yovoice.action.pause')} icon={<Pause size={16} />} onClick={() => run(() => call('operation.cancel'))} /> : installed ? <Button size="sm" label={t('@yovoice.settings.removeModel')} icon={<Trash2 size={16} />} isDisabled={removeBlocked} tooltip={removeBlocked ? t('@yovoice.settings.removeBlocked') : t('@yovoice.settings.removeTooltip')} onClick={() => run(() => call('model.forget', { id: model.id }))} /> : <Button size="sm" label={download ? t('@yovoice.settings.resumeDownload') : t('@yovoice.settings.downloadModel')} icon={<Download size={16} />} isDisabled={busy} onClick={() => run(() => call('model.download', { id: model.id }))} />}
         </HStack>
         {download ? <VStack className="model-download" gap={2} role="status" aria-label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })}>
@@ -63,10 +69,7 @@ export function Settings({ state, catalog, draft, run }: { state: State; catalog
         </VStack> : null}
         </VStack>;
       })}</section>
-      <VStack gap={2}>
-      <HStack className="settings-directory" hAlign="between" gap={4} vAlign="center"><VStack className="grow" gap={1}><h3>{t('@yovoice.settings.modelDirectory')}</h3><small className="model-path">{preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}</small></VStack><HStack className="directory-actions" gap={2}><Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} /><Button size="sm" label={t('@yovoice.settings.changeLocation')} icon={<FolderCog size={16} />} isDisabled={busy} onClick={() => run(() => call('model.directory'))} /></HStack></HStack>
       <details className="settings-help"><summary><ChevronRight size={16} aria-hidden="true" />{t('@yovoice.settings.modelHelpSummary')}</summary><p className="helper muted">{t('@yovoice.settings.modelHelpBody')}</p></details>
-      </VStack>
       <p className="helper muted">{t('@yovoice.settings.licenseBlurb')}<Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></p>
     </VStack> : <VStack className="engine-settings" gap={5} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
       <HStack className="runtime-heading" gap={3} vAlign="center"><Cpu size={22} strokeWidth={1.5} /><h2>audio.cpp</h2><small>v0.7.4</small></HStack>

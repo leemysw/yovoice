@@ -938,11 +938,14 @@
   "@yovoice.settings.tabEngine": {
     "defaultMessage": "Inference engine"
   },
+  "@yovoice.settings.tabGeneral": {
+    "defaultMessage": "General"
+  },
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Models"
   },
   "@yovoice.settings.title": {
-    "defaultMessage": "Models & engine"
+    "defaultMessage": "Settings"
   },
   "@yovoice.settings.uiLocale": {
     "defaultMessage": "Interface language"
