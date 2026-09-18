@@ -25,9 +25,25 @@ yovoice is an open-source voice creation tool for macOS and Windows that turns t
 - **Voice and expression** — use a reference voice, match a reference performance, adjust emotions, or describe the delivery in words.
 - **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
 - **Voice design and cloning** — VoxCPM2 offers text-guided voice design, controllable cloning, and transcript-assisted cloning with automatic multilingual handling, and 48 kHz output.
-- **Local models** — run IndexTTS 2.0 / 2.5 and VoxCPM2 through audio.cpp, with resumable model downloads and GGUF import.
+- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice and Qwen3-TTS through audio.cpp, with resumable model downloads and GGUF import.
 - **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
 - **Agent Skill** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
+
+---
+
+## Supported Models
+
+| Model | Core capabilities |
+| --- | --- |
+| IndexTTS 2.0 | Chinese/English voice cloning, emotion control, reference performance |
+| IndexTTS 2.5 | Multilingual voice cloning, emotion control, pronunciation editing |
+| VoxCPM2 | Text-guided voice design, voice cloning, transcript-assisted cloning |
+| OmniVoice | Attribute-based voice design, voice cloning, non-verbal sound tags |
+| Qwen3-TTS Base · 0.6B / 1.7B | Reference voice cloning, optional transcript guidance, multilingual speech |
+| Qwen3-TTS CustomVoice · 1.7B | 9 built-in voices, text-guided style and emotion |
+| Qwen3-TTS VoiceDesign · 1.7B | Voice design from natural-language descriptions, no reference audio required |
+
+All models are available in the App and CLI. See [model capabilities](skills/yovoice/references/models.md) for precisions and parameters. OmniVoice weights use the CC-BY-NC license and are restricted to non-commercial use.
 
 ---
 
@@ -50,8 +66,8 @@ Check for updates from the app menu on macOS or Windows. Updates are also checke
 
 ## Quick Start
 
-1. **Set up a model.** Open Settings and download an IndexTTS or VoxCPM2 model. The CPU engine is bundled on Windows; CUDA can be downloaded from Settings for NVIDIA GPU acceleration.
-2. **Add a voice.** Import or record a 1–60 second reference clip, or use VoxCPM2 voice design without one.
+1. **Set up a model.** Open Settings and download your chosen model. The CPU engine is bundled on Windows; CUDA can be downloaded from Settings for NVIDIA GPU acceleration.
+2. **Add a voice.** Import or record a 1–60 second reference clip, or use VoxCPM2 / OmniVoice / Qwen3-TTS VoiceDesign without one.
 3. **Create speech.** Enter your text, choose an expression mode, and select Generate.
 4. **Listen and export.** Preview the result and find previous generations in History.
 

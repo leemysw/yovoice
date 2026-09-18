@@ -43,7 +43,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('tab', { name: '模型', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(6);
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(21);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
   await page.getByRole('button', { name: '关闭协议' }).click();
@@ -459,4 +459,55 @@ test('VoxCPM2 模式切换与草稿保存', async ({ page }) => {
   await page.getByRole('option', { name: /IndexTTS 2.5 · Q8/ }).click();
   await expect(page.getByRole('radio', { name: '跟随音色', exact: true })).toBeVisible();
   await expect(page.getByLabel('参考音频原文')).toHaveCount(0);
+});
+
+test('OmniVoice 和 Qwen3-TTS 使用各自的声音控件', async ({ page }) => {
+  await page.goto('/');
+  const model = page.getByRole('combobox', { name: '模型', exact: true });
+  await model.click();
+  await page.getByRole('option', { name: /OmniVoice · Q8/ }).click();
+  await expect(page.getByRole('radio', { name: '声音设计', exact: true })).toBeChecked();
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
+  await page.getByRole('combobox', { name: '性别', exact: true }).click();
+  await page.getByRole('option', { name: '女', exact: true }).click();
+  await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toBeVisible();
+  await page.getByLabel('参考音频原文').fill('你好。');
+  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('radio', { name: '音色克隆', exact: true })).toBeChecked();
+  await expect(page.getByLabel('参考音频原文')).toHaveValue('你好。');
+  await model.click();
+  await page.getByRole('option', { name: /Qwen3-TTS 1.7B Base · Q8/ }).click();
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toBeVisible();
+  await expect(page.getByRole('radio', { name: '声音设计', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('radio', { name: '情绪调节', exact: true })).toHaveCount(0);
+  await expect(page.getByLabel('参考音频原文（可选）')).toHaveValue('你好。');
+});
+
+
+test('Qwen 变体、独立参数与离线生成控件', async ({ page }) => {
+  await page.goto('/');
+  const model = page.getByRole('combobox', { name: '模型', exact: true });
+  await model.click();
+  await page.getByRole('option', { name: /Qwen3-TTS 1.7B CustomVoice · Q8/ }).click();
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
+  await page.getByRole('combobox', { name: '内置音色', exact: true }).click();
+  await page.getByRole('option', { name: /^Ryan/ }).click();
+  await page.getByLabel('声音描述', { exact: true }).fill('轻松愉快');
+  await page.getByText('高级设置', { exact: true }).click();
+  await expect(page.getByLabel('重复惩罚', { exact: true })).toHaveValue('1.05');
+  await page.getByLabel('温度', { exact: true }).fill('0.7');
+  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('combobox', { name: '内置音色', exact: true })).toContainText('Ryan');
+  await model.click();
+  await page.getByRole('option', { name: /Qwen3-TTS 1.7B VoiceDesign · Q8/ }).click();
+  await expect(page.getByRole('combobox', { name: '内置音色', exact: true })).toHaveCount(0);
+  await expect(page.getByLabel('声音描述', { exact: true })).toBeVisible();
+  await model.click();
+  await page.getByRole('option', { name: /IndexTTS 2.5 · Q8/ }).click();
+  await page.getByText('高级设置', { exact: true }).click();
+  await expect(page.getByLabel('重复惩罚', { exact: true })).toHaveValue('10');
+  await expect(page.getByText('流式生成', { exact: true })).toHaveCount(0);
 });

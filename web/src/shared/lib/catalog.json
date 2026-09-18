@@ -20,6 +20,16 @@
     "family": "index_tts2"
   },
   {
+    "name": "IndexTTS 2.5",
+    "version": "2.5",
+    "family": "index_tts2",
+    "id": "index-2.5-orig",
+    "precision": "ORIG",
+    "remotePath": "IndexTTS2.5-GGUF/index-tts2_5-orig.gguf",
+    "size": 7885093440,
+    "sha256": "2c736df55a306155df4e607f49fe963cf2192fc2193ad449a4bdffb15e52b93a"
+  },
+  {
     "id": "index-2-q8",
     "name": "IndexTTS 2.0",
     "version": "2",
@@ -40,6 +50,16 @@
     "family": "index_tts2"
   },
   {
+    "name": "IndexTTS 2.0",
+    "version": "2",
+    "family": "index_tts2",
+    "id": "index-2-orig",
+    "precision": "ORIG",
+    "remotePath": "IndexTTS2-GGUF/index-tts2-orig.gguf",
+    "size": 8084552000,
+    "sha256": "c96cb948339b7169b7240f43dbd42ad6354ae3d0a22465e292ec8e090c338e16"
+  },
+  {
     "id": "voxcpm2-q8",
     "name": "VoxCPM2",
     "family": "voxcpm2",
@@ -58,5 +78,153 @@
     "remotePath": "VoxCPM2-GGUF/voxcpm2-bf16.gguf",
     "size": 4772288288,
     "sha256": "0c0cd2515c7a1145c0ddba06c871724656c36cb53ee3b0118116b34cb4153699"
+  },
+  {
+    "name": "VoxCPM2",
+    "family": "voxcpm2",
+    "version": "2",
+    "id": "voxcpm2-orig",
+    "precision": "ORIG",
+    "remotePath": "VoxCPM2-GGUF/voxcpm2-orig.gguf",
+    "size": 4960716192,
+    "sha256": "13181e01e15d555c9eae7779626eb395c69334f15e948c9ea265ddf37ab50b16"
+  },
+  {
+    "id": "omnivoice-q8",
+    "name": "OmniVoice",
+    "family": "omnivoice",
+    "version": "1",
+    "precision": "Q8",
+    "remotePath": "OmniVoice-GGUF/omnivoice-q8_0.gguf",
+    "size": 1350288416,
+    "sha256": "2f4be637278043c6842de5b85d681532030e9eb6ffe0f8b0e320f68238e3da8b"
+  },
+  {
+    "id": "omnivoice-bf16",
+    "name": "OmniVoice",
+    "family": "omnivoice",
+    "version": "1",
+    "precision": "BF16",
+    "remotePath": "OmniVoice-GGUF/omnivoice-bf16.gguf",
+    "size": 1639548640,
+    "sha256": "7301a41a0a5a2cb04430c1831a705e3906bfca51562c5cdb2f30a90d505a819c"
+  },
+  {
+    "name": "OmniVoice",
+    "family": "omnivoice",
+    "version": "1",
+    "id": "omnivoice-f16",
+    "precision": "F16",
+    "remotePath": "OmniVoice-GGUF/omnivoice-f16.gguf",
+    "size": 1639548768,
+    "sha256": "7421b6c387351d2cdce7eb8b931fa279739d628ef25acd4ff2062a70e6e1ab63"
+  },
+  {
+    "id": "qwen3-tts-base-q8",
+    "name": "Qwen3-TTS 1.7B Base",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "precision": "Q8",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-q8_0_v2.gguf",
+    "size": 2695175104,
+    "sha256": "b55e06c7890d43c208d15aed8b4ed3f18215f295e47d5960e061b15bff338ab0",
+    "variant": "base",
+    "task": "tts"
+  },
+  {
+    "id": "qwen3-tts-base-bf16",
+    "name": "Qwen3-TTS 1.7B Base",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "precision": "BF16",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-bf16.gguf",
+    "size": 4203158464,
+    "sha256": "f5cf4c37b969335e0ffb657119e52025e26192553119590d59fa17b8d36e8b29",
+    "variant": "base",
+    "task": "tts"
+  },
+  {
+    "id": "qwen3-tts-base-orig",
+    "name": "Qwen3-TTS 1.7B Base",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "variant": "base",
+    "task": "tts",
+    "precision": "ORIG",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-orig.gguf",
+    "size": 4544273280,
+    "sha256": "7ab774d56ab9ed9ee7d0ae50917798cda23c7bcc11eaa6c3a4ae32068718b1c1"
+  },
+  {
+    "id": "qwen3-tts-customvoice-q8",
+    "name": "Qwen3-TTS 1.7B CustomVoice",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "variant": "customvoice",
+    "task": "tts",
+    "precision": "Q8",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF/qwen3-tts-12hz-1.7b-customvoice-q8_0.gguf",
+    "size": 2817044064,
+    "sha256": "3cfaac8e9f13554f6daea3c5e0c53fede71ef5500cbaae7445e5fc3a5bb12e72"
+  },
+  {
+    "id": "qwen3-tts-customvoice-bf16",
+    "name": "Qwen3-TTS 1.7B CustomVoice",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "variant": "customvoice",
+    "task": "tts",
+    "precision": "BF16",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF/qwen3-tts-12hz-1.7b-customvoice-bf16.gguf",
+    "size": 4179144352,
+    "sha256": "ef55652c7aa919dc5eeb7967c782a17a6f5d9a8b775337376a4678d37e71a11c"
+  },
+  {
+    "id": "qwen3-tts-base-0.6b-q8",
+    "name": "Qwen3-TTS 0.6B Base",
+    "family": "qwen3_tts",
+    "version": "0.6B",
+    "variant": "base",
+    "task": "tts",
+    "precision": "Q8",
+    "remotePath": "Qwen3-TTS-12Hz-0.6B-Base-GGUF/qwen3-tts-12hz-0.6b-base-q8_0.gguf",
+    "size": 1991211136,
+    "sha256": "771420bd20ff5f35407b4fa9cf9c5461e153800d3d772ef51c9febc0a520855d"
+  },
+  {
+    "id": "qwen3-tts-base-0.6b-bf16",
+    "name": "Qwen3-TTS 0.6B Base",
+    "family": "qwen3_tts",
+    "version": "0.6B",
+    "variant": "base",
+    "task": "tts",
+    "precision": "BF16",
+    "remotePath": "Qwen3-TTS-12Hz-0.6B-Base-GGUF/qwen3-tts-12hz-0.6b-base-bf16.gguf",
+    "size": 2516154496,
+    "sha256": "97d418048b07b5b267628da955b27db4c57b353ded8089de01a469b474255b8d"
+  },
+  {
+    "id": "qwen3-tts-voicedesign-q8",
+    "name": "Qwen3-TTS 1.7B VoiceDesign",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "variant": "voicedesign",
+    "task": "vdes",
+    "precision": "Q8",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF/qwen3-tts-12hz-1.7b-voicedesign-q8_0.gguf",
+    "size": 2816988960,
+    "sha256": "1bcef9a8c021072fca40e00498e00af9091fbe6d3ae4f87567cfee885d6c7554"
+  },
+  {
+    "id": "qwen3-tts-voicedesign-bf16",
+    "name": "Qwen3-TTS 1.7B VoiceDesign",
+    "family": "qwen3_tts",
+    "version": "1.7B",
+    "variant": "voicedesign",
+    "task": "vdes",
+    "precision": "BF16",
+    "remotePath": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF/qwen3-tts-12hz-1.7b-voicedesign-bf16.gguf",
+    "size": 4179089248,
+    "sha256": "f4cebcd68023a2db7c3fc8d52d1d28eafb22d4e3b7a64e12c4f946a300536f86"
   }
 ]

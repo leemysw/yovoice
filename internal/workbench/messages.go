@@ -4,6 +4,13 @@ package workbench
 type MessageCode string
 
 const (
+	MsgErrOmniReferenceRequired    MessageCode = "@yovoice.error.omniReferenceRequired"
+	MsgErrVoiceDescriptionRequired MessageCode = "@yovoice.error.voiceDescriptionRequired"
+	MsgErrOmniAttributes           MessageCode = "@yovoice.error.omniAttributes"
+	MsgErrSpeakerInvalid           MessageCode = "@yovoice.error.speakerInvalid"
+)
+
+const (
 	MsgActivityDownload        MessageCode = "@yovoice.activity.download"
 	MsgActivityDownloading     MessageCode = "@yovoice.activity.downloading"
 	MsgActivityVerifying       MessageCode = "@yovoice.activity.verifying"
@@ -122,6 +129,8 @@ func encodeCallError(err error) map[string]any {
 // AllMessageCodes lists every MessageCode constant for catalog coverage checks.
 func AllMessageCodes() []MessageCode {
 	return []MessageCode{
+		MsgErrOmniReferenceRequired,
+		MsgErrVoiceDescriptionRequired, MsgErrOmniAttributes, MsgErrSpeakerInvalid,
 		MsgActivityDownload, MsgActivityDownloading, MsgActivityVerifying, MsgActivityImport,
 		MsgActivityRuntimeDownload, MsgActivityRuntimeExtract, MsgActivityEngineStart,
 		MsgActivityGenerate, MsgActivitySynthesizing, MsgActivitySavingAudio,

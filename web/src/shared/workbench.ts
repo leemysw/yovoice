@@ -2,6 +2,8 @@ import { draftCopy } from './i18n/draftCopy';
 
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface Draft {
+  modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
+  voiceMode?: 'design' | 'clone';
   voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
   id: string; title: string; text: string; modelId: string; voiceId: string | null;
   mode: Mode; emotionVoiceId: string | null; emotionText: string; inferEmotion: boolean;
@@ -10,7 +12,7 @@ export interface Draft {
   maxTokens: number; intervalSilenceMs: number; doSample: boolean; numBeams: number; lengthPenalty: number; seed: number | null;
 }
 export interface Voice { id: string; name: string; fileName: string; duration: number }
-export interface ModelPackage { family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
+export interface ModelPackage { variant?: string; task?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
 export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface Generation { id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft }
 /** UI chrome locale. Distinct from Draft.language (TTS). */
@@ -55,4 +57,5 @@ export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }
 
 export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
-export const requiresVoice = (draft: Draft) => !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
+export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || id.startsWith('qwen3-tts-');
+export const requiresVoice = (draft: Draft) => draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');

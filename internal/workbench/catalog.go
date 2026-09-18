@@ -10,6 +10,8 @@ const Revision = "6d5436fc85f7a20c2e9f4e472b7f3a532f686444"
 const EngineVersion = "v0.7.4"
 
 type ModelPackage struct {
+	Variant    string `json:"variant,omitempty"`
+	Task       string `json:"task,omitempty"`
 	ID         string `json:"id"`
 	Name       string `json:"name"`
 	Family     string `json:"family"`

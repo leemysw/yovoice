@@ -1,3 +1,4 @@
+import { ModelOptions } from './ModelOptions';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -40,6 +41,7 @@ export function VoxControls({ draft, state, change, chooseVoice, play, advanced,
         <Slider label={t('@yovoice.vox.guidanceScale')} value={draft.guidanceScale || 2} min={0.5} max={5} step={0.1} onChange={(guidanceScale: number) => change({ guidanceScale })} valueDisplay="text" formatValue={value => value.toFixed(1)} />
         <p className="muted helper">{t('@yovoice.vox.guidanceHelp')}</p>
         <label className="number-field">{t('@yovoice.vox.inferenceSteps')}<input type="number" min={1} max={50} value={draft.inferenceSteps || 10} onChange={event => { if (event.target.value) change({ inferenceSteps: Number(event.target.value) }); }} /></label>
+        <ModelOptions draft={draft} family="voxcpm2" change={change} />
         <label className="number-field">{t('@yovoice.create.seed')}<input type="number" min={0} max={2147483647} value={draft.seed ?? ''} placeholder={t('@yovoice.create.seedAuto')} onChange={event => change({ seed: event.target.value ? Number(event.target.value) : null })} /></label>
       </VStack>
     </details>

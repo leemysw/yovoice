@@ -35,8 +35,11 @@ func (e *Engine) Stop() {
 		e.key = ""
 	}
 }
-func (e *Engine) start(ctx context.Context, executable, model, family, backend string, progress func(MessageCode, MessageParams)) error {
-	key := executable + "|" + model + "|" + family + "|" + backend
+func (e *Engine) start(ctx context.Context, executable, model, family, task, backend string, progress func(MessageCode, MessageParams)) error {
+	if task == "" {
+		task = "tts"
+	}
+	key := executable + "|" + model + "|" + family + "|" + task + "|" + backend
 	if e.process != nil && e.key == key {
 		select {
 		case <-e.done:
@@ -59,7 +62,7 @@ func (e *Engine) start(ctx context.Context, executable, model, family, backend s
 	}
 	port := l.Addr().(*net.TCPAddr).Port
 	l.Close()
-	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": backend, "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{map[string]any{"id": "index", "family": family, "path": model, "task": "tts", "mode": "offline"}}}
+	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": backend, "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{map[string]any{"id": "index", "family": family, "path": model, "task": task, "mode": "offline"}}}
 	b, err := json.Marshal(config)
 	if err != nil {
 		return err
@@ -136,7 +139,7 @@ func (e *Engine) Generate(ctx context.Context, executable string, m InstalledMod
 	if err != nil {
 		return err
 	}
-	if err = e.start(ctx, executable, m.Path, definition.Family, backend, progress); err != nil {
+	if err = e.start(ctx, executable, m.Path, definition.Family, definition.Task, backend, progress); err != nil {
 		return err
 	}
 	progress(MsgActivitySynthesizing, nil)

@@ -5,6 +5,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf16"
@@ -77,6 +78,47 @@ func Validate(d Draft) error {
 	if e != nil {
 		return e
 	}
+	if _, e := d.generationOptions(m.Family); e != nil {
+		return e
+	}
+	if m.Family == "omnivoice" || m.Family == "qwen3_tts" {
+		if textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
+			return Err(MsgErrDraftLimits, nil)
+		}
+		if d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647) {
+			return Err(MsgErrParamsOutOfRange, nil)
+		}
+		if m.Family == "omnivoice" && d.VoiceMode != "" && d.VoiceMode != "design" && d.VoiceMode != "clone" {
+			return Err(MsgErrModeInvalid, nil)
+		}
+		if m.Family == "qwen3_tts" {
+			if !slices.Contains([]string{"", "auto", "zh", "en", "ja", "ko", "de", "fr", "ru", "pt", "es", "it"}, d.SynthesisLanguage) {
+				return Err(MsgErrLanguageUnsupported, nil)
+			}
+			if m.Variant == "customvoice" && d.Speaker != "" && !slices.Contains(QwenSpeakers, d.Speaker) {
+				return Err(MsgErrSpeakerInvalid, nil)
+			}
+			if m.Variant == "voicedesign" && strings.TrimSpace(d.VoiceDescription) == "" {
+				return Err(MsgErrVoiceDescriptionRequired, nil)
+			}
+		} else {
+			if d.VoiceMode == "clone" && strings.TrimSpace(d.ReferenceText) == "" {
+				return Err(MsgErrOmniReferenceRequired, nil)
+			}
+			if d.VoiceMode != "clone" {
+				if err := validateOmniDescription(d.VoiceDescription); err != nil {
+					return err
+				}
+			}
+			if d.OmniSpeed != 0 && !inRange(d.OmniSpeed, .5, 2) {
+				return Err(MsgErrParamsOutOfRange, nil)
+			}
+			if textLen(d.SynthesisLanguage) > 32 {
+				return Err(MsgErrLanguageUnsupported, nil)
+			}
+		}
+		return nil
+	}
 	if m.Family == "voxcpm2" {
 		if d.VoxMode != "" && d.VoxMode != "design" && d.VoxMode != "clone" && d.VoxMode != "continuation" {
 			return Err(MsgErrVoxModeInvalid, nil)
@@ -134,6 +176,47 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		return nil, e
 	}
 	m, _ := model(d.ModelID)
+	if m.Family == "omnivoice" || m.Family == "qwen3_tts" {
+		o, _ := d.generationOptions(m.Family)
+		if d.Seed != nil {
+			o["seed"] = *d.Seed
+		}
+
+		if m.Family == "omnivoice" && d.OmniSpeed != 0 {
+			o["speed"] = d.OmniSpeed
+		}
+		if m.Variant == "customvoice" {
+			o["speaker"] = d.Speaker
+			if d.Speaker == "" {
+				o["speaker"] = "Vivian"
+			}
+		}
+		r := map[string]any{"text": d.Text, "options": o}
+		if d.SynthesisLanguage != "" && d.SynthesisLanguage != "auto" {
+			r["language"] = d.SynthesisLanguage
+			if m.Family == "qwen3_tts" {
+				r["language"] = map[string]string{"zh": "Chinese", "en": "English", "ja": "Japanese", "ko": "Korean", "de": "German", "fr": "French", "ru": "Russian", "pt": "Portuguese", "es": "Spanish", "it": "Italian"}[d.SynthesisLanguage]
+			}
+		}
+		if d.RequiresVoice() {
+			if voice == "" {
+				return nil, Err(MsgErrVoiceRequired, nil)
+			}
+			r["voice_ref"] = voice
+			transcript := strings.TrimSpace(d.ReferenceText)
+			if transcript != "" {
+				o["reference_text"] = transcript
+			}
+			// 没有原文时只提取说话人特征，避免进入需要原文的 ICL 克隆路径。
+			if m.Family == "qwen3_tts" {
+				o["x_vector_only_mode"] = transcript == ""
+			}
+		} else if description := strings.TrimSpace(d.VoiceDescription); description != "" {
+			o["instruct"] = description
+		}
+		// 使用各引擎原生默认值，不透传 IndexTTS 的采样、情绪或语速参数。
+		return map[string]any{"model": "index", "request": r}, nil
+	}
 	if m.Family == "voxcpm2" {
 		guidance, steps := d.GuidanceScale, d.InferenceSteps
 		if guidance == 0 {
@@ -142,7 +225,8 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		if steps == 0 {
 			steps = 10
 		}
-		o := map[string]any{"guidance_scale": guidance, "num_inference_steps": steps}
+		o, _ := d.generationOptions(m.Family)
+		o["guidance_scale"], o["num_inference_steps"] = guidance, steps
 		if d.Seed != nil {
 			o["seed"] = *d.Seed
 		}
@@ -164,6 +248,10 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		return map[string]any{"model": "index", "request": r}, nil
 	}
 	o := map[string]any{"language": d.Language, "duration_factor": 1 / d.Speed, "temperature": d.Temperature, "top_p": d.TopP, "top_k": d.TopK, "repetition_penalty": d.RepetitionPenalty, "max_tokens": d.MaxTokens, "interval_silence_ms": d.IntervalSilenceMs, "do_sample": d.DoSample, "num_beams": d.NumBeams, "length_penalty": d.LengthPenalty}
+	extra, _ := d.generationOptions(m.Family)
+	for k, v := range extra {
+		o[k] = v
+	}
 	if d.Seed != nil {
 		o["seed"] = *d.Seed
 	}
@@ -207,5 +295,11 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 
 func (d Draft) RequiresVoice() bool {
 	m, err := model(d.ModelID)
+	if err == nil && m.Family == "omnivoice" {
+		return d.VoiceMode == "clone"
+	}
+	if err == nil && m.Family == "qwen3_tts" {
+		return m.Variant == "" || m.Variant == "base"
+	}
 	return err != nil || m.Family != "voxcpm2" || d.VoxMode == "clone" || d.VoxMode == "continuation"
 }

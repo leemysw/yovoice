@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -34,6 +35,11 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
 VoxCPM2：--vox-mode design|clone|continuation、--voice-description TEXT、
   --reference-text TEXT、--guidance-scale 2、--inference-steps 10。
 VoxCPM2 无参考音频默认声音设计；有参考音频默认克隆，有原文默认精细克隆。
+OmniVoice：--voice-mode design|clone、--voice-description TEXT、--reference-text TEXT。
+Qwen3-TTS Base：需要参考音频，--reference-text TEXT 可选；不提供原文时仅克隆音色。
+Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；VoiceDesign：--voice-description TEXT。
+OmniVoice / Qwen3-TTS 支持 --language；OmniVoice 支持 --speed、--guidance-scale、--inference-steps。
+高级选项：--option 'text_chunk_size=512'、--option 'text_chunk_mode="tag_aware"'，可重复。
 所有命令支持 --data-dir DIR、--json。stdout 输出 JSON，进度写 stderr。
 生成与下载阻塞至完成；Ctrl-C 取消并清理推理进程。已有输出文件不会被覆盖。
 `
@@ -88,6 +94,8 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	d.Mode = "speaker"
 	d.EmotionText = ""
 	seed := int64(-1)
+	nativeOptions := map[string]any{}
+	emotionReference, emotionVector := "", ""
 	textFile, reference, voice, output := "", "", "", ""
 	switch command {
 	case "setup":
@@ -101,6 +109,19 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	case "voices import":
 		fs.StringVar(&name, "name", "", "音色名称")
 	case "generate":
+		fs.Func("option", "模型高级选项 KEY=JSON，可重复；参数见 models list 的 generationOptions", func(value string) error {
+			key, raw, ok := strings.Cut(value, "=")
+			if !ok || key == "" {
+				return fmt.Errorf("--option 需要 KEY=JSON")
+			}
+			var parsed any
+			if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
+				return fmt.Errorf("--option %s: %w", key, err)
+			}
+			nativeOptions[key] = parsed
+			return nil
+		})
+		fs.StringVar(&d.Speaker, "speaker", "", "Qwen3 CustomVoice 内置音色，默认 Vivian")
 		fs.StringVar(&d.Text, "text", "", "正文")
 		fs.StringVar(&textFile, "text-file", "", "UTF-8 文本文件")
 		fs.StringVar(&reference, "reference", "", "1–60 秒参考音频，常见格式自动转换")
@@ -109,10 +130,26 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.StringVar(&d.ModelID, "model", d.ModelID, "模型 ID")
 		fs.StringVar(&d.Language, "language", "zh", "语言")
 		fs.Float64Var(&d.Speed, "speed", 1, "语速 0.5–2")
+		fs.StringVar(&d.Mode, "emotion-mode", "speaker", "IndexTTS：speaker、reference、vector、text")
+		fs.StringVar(&emotionReference, "emotion-reference", "", "IndexTTS 演绎参考音频")
+		fs.StringVar(&emotionVector, "emotion-vector", "", "IndexTTS 八维情绪，逗号分隔")
+		fs.Float64Var(&d.EmotionStrength, "emotion-strength", d.EmotionStrength, "IndexTTS 情绪强度 0–1")
+		fs.BoolVar(&d.InferEmotion, "infer-emotion", false, "从正文推断情绪")
+		fs.BoolVar(&d.RandomEmotion, "random-emotion", false, "随机情绪采样")
+		fs.BoolVar(&d.DoSample, "do-sample", d.DoSample, "IndexTTS 随机采样")
+		fs.Float64Var(&d.Temperature, "temperature", d.Temperature, "IndexTTS 采样温度")
+		fs.Float64Var(&d.TopP, "top-p", d.TopP, "IndexTTS Top P")
+		fs.IntVar(&d.TopK, "top-k", d.TopK, "IndexTTS Top K")
+		fs.Float64Var(&d.RepetitionPenalty, "repetition-penalty", d.RepetitionPenalty, "IndexTTS 重复惩罚")
+		fs.IntVar(&d.MaxTokens, "max-tokens", d.MaxTokens, "IndexTTS 最大生成长度")
+		fs.IntVar(&d.IntervalSilenceMs, "interval-silence-ms", d.IntervalSilenceMs, "IndexTTS 段间停顿毫秒")
+		fs.IntVar(&d.NumBeams, "num-beams", d.NumBeams, "IndexTTS 束搜索数量")
+		fs.Float64Var(&d.LengthPenalty, "length-penalty", d.LengthPenalty, "IndexTTS 长度惩罚")
 		fs.StringVar(&d.EmotionText, "emotion-text", "", "IndexTTS 文字情绪指导")
+		fs.StringVar(&d.VoiceMode, "voice-mode", "", "OmniVoice：design 或 clone")
 		fs.StringVar(&d.VoxMode, "vox-mode", "", "VoxCPM2：design、clone 或 continuation")
-		fs.StringVar(&d.VoiceDescription, "voice-description", "", "VoxCPM2 声音或风格描述")
-		fs.StringVar(&d.ReferenceText, "reference-text", "", "VoxCPM2 参考音频原文")
+		fs.StringVar(&d.VoiceDescription, "voice-description", "", "VoxCPM2 / OmniVoice / Qwen3-TTS 声音描述")
+		fs.StringVar(&d.ReferenceText, "reference-text", "", "参考音频原文")
 		fs.Float64Var(&d.GuidanceScale, "guidance-scale", 2, "VoxCPM2 引导强度")
 		fs.IntVar(&d.InferenceSteps, "inference-steps", 10, "VoxCPM2 推理步数")
 		fs.Int64Var(&seed, "seed", -1, "随机种子，-1 为自动")
@@ -134,12 +171,53 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			return fmt.Errorf("--text 和 --text-file 必须且只能指定一个")
 		}
 		vox := strings.HasPrefix(d.ModelID, "voxcpm2-")
+		omni := strings.HasPrefix(d.ModelID, "omnivoice-")
+		qwen := strings.HasPrefix(d.ModelID, "qwen3-tts-")
 		var unsupported string
 		fs.Visit(func(f *flag.Flag) {
-			if vox && (f.Name == "language" || f.Name == "speed" || f.Name == "emotion-text") || !vox && (f.Name == "vox-mode" || f.Name == "voice-description" || f.Name == "reference-text" || f.Name == "guidance-scale" || f.Name == "inference-steps") {
+			if vox || omni || qwen {
+				switch f.Name {
+				case "emotion-mode", "emotion-reference", "emotion-vector", "emotion-strength", "infer-emotion", "random-emotion", "do-sample", "temperature", "top-p", "top-k", "repetition-penalty", "max-tokens", "interval-silence-ms", "num-beams", "length-penalty":
+					unsupported = f.Name
+				}
+			}
+			if vox && f.Name == "language" || (vox || qwen) && f.Name == "speed" || (vox || omni || qwen) && f.Name == "emotion-text" ||
+				!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
+				!strings.Contains(d.ModelID, "customvoice") && f.Name == "speaker" ||
+				!omni && f.Name == "voice-mode" ||
+				!(vox || omni || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
+				!(vox || omni || qwen) && f.Name == "reference-text" {
 				unsupported = f.Name
 			}
 		})
+		family := ""
+		for _, model := range workbench.Catalog {
+			if model.ID == d.ModelID {
+				family = model.Family
+				break
+			}
+		}
+		if family == "" {
+			return fmt.Errorf("未知模型：%s", d.ModelID)
+		}
+		d.ModelOptions = map[string]map[string]any{family: nativeOptions}
+		if omni || qwen {
+			d.SynthesisLanguage = "auto"
+			fs.Visit(func(f *flag.Flag) {
+				if f.Name == "language" {
+					d.SynthesisLanguage = d.Language
+				}
+				if omni && f.Name == "speed" {
+					d.OmniSpeed = d.Speed
+				}
+				if omni && f.Name == "guidance-scale" {
+					nativeOptions["guidance_scale"] = d.GuidanceScale
+				}
+				if omni && f.Name == "inference-steps" {
+					nativeOptions["num_inference_steps"] = float64(d.InferenceSteps)
+				}
+			})
+		}
 		if unsupported != "" {
 			return fmt.Errorf("当前模型不支持 --%s", unsupported)
 		}
@@ -155,6 +233,15 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 				d.VoxMode = "continuation"
 			}
 		}
+		if omni && d.VoiceMode == "" {
+			d.VoiceMode = "design"
+			if reference != "" || voice != "" {
+				d.VoiceMode = "clone"
+			}
+		}
+		if omni && ((d.VoiceMode == "design" && d.ReferenceText != "") || (d.VoiceMode == "clone" && d.VoiceDescription != "")) {
+			return fmt.Errorf("OmniVoice 声音设计使用 --voice-description；克隆使用参考音频和 --reference-text")
+		}
 		if reference != "" && voice != "" {
 			return fmt.Errorf("--reference 和 --voice 只能指定一个")
 		}
@@ -163,6 +250,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 		if !d.RequiresVoice() && (reference != "" || voice != "") {
 			return fmt.Errorf("声音设计不使用参考音频，请选择 clone 或 continuation")
+		}
+		if qwen && !d.RequiresVoice() && d.ReferenceText != "" {
+			return fmt.Errorf("仅 Base 模型使用 --reference-text")
 		}
 		if vox && d.VoxMode != "continuation" && d.ReferenceText != "" {
 			return fmt.Errorf("--reference-text 需要 continuation 模式")
@@ -184,8 +274,35 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			}
 			d.Text = string(b)
 		}
-		if d.EmotionText != "" {
+		count := 0
+		if d.EmotionText != "" || d.InferEmotion {
 			d.Mode = "text"
+			count++
+		}
+		if emotionReference != "" {
+			d.Mode = "reference"
+			count++
+		}
+		if emotionVector != "" {
+			d.Mode = "vector"
+			count++
+			d.Emotions = nil
+			for _, item := range strings.Split(emotionVector, ",") {
+				value, err := strconv.ParseFloat(strings.TrimSpace(item), 64)
+				if err != nil {
+					return fmt.Errorf("无效情绪向量：%w", err)
+				}
+				d.Emotions = append(d.Emotions, value)
+			}
+		}
+		if count > 1 {
+			return fmt.Errorf("情绪文字、向量和参考音频只能选择一种")
+		}
+		if !vox && !omni && !qwen && d.Mode == "reference" && emotionReference == "" {
+			return fmt.Errorf("参考演绎需要 --emotion-reference")
+		}
+		if !vox && !omni && !qwen && d.Mode == "text" && d.EmotionText == "" && !d.InferEmotion {
+			return fmt.Errorf("文字情绪需要 --emotion-text 或 --infer-emotion")
 		}
 		if err := workbench.Validate(d); err != nil {
 			return err
@@ -241,7 +358,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	case "status":
 		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": workbench.EngineVersion}
 	case "models list":
-		result = map[string]any{"catalog": workbench.Catalog, "installed": w.Store.Read().Models}
+		result = map[string]any{"catalog": workbench.Catalog, "installed": w.Store.Read().Models, "generationOptions": workbench.GenerationOptions}
 	case "voices list":
 		result = w.Store.Read().Voices
 	case "voices import":
@@ -271,6 +388,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 				return err
 			}
 			voice = v.ID
+		}
+		if emotionReference != "" {
+			v, e := w.ImportVoice(ctx, emotionReference, "")
+			if e != nil {
+				return e
+			}
+			d.EmotionVoiceID = &v.ID
 		}
 		if voice != "" {
 			d.VoiceID = &voice

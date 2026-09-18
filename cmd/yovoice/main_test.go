@@ -69,7 +69,7 @@ func TestStandalone(t *testing.T) {
 		s.RuntimePath = &exe
 		b := "cpu"
 		s.RuntimeBackend = &b
-		s.Models = []workbench.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}}
+		s.Models = []workbench.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}}
 	}, true)
 	if e != nil {
 		t.Fatal(e)
@@ -136,6 +136,33 @@ func TestStandalone(t *testing.T) {
 			t.Fatal(string(config), err)
 		}
 	}
+	for i, test := range []struct {
+		model, family string
+		flags         []string
+	}{
+		{"omnivoice-q8", "omnivoice", []string{"--voice-description", "female, young adult", "--language", "zh", "--speed", "1.1", "--inference-steps", "32"}},
+		{"index-2.5-q8", "index_tts2", []string{"--reference", ref, "--emotion-reference", ref}},
+		{"index-2.5-q8", "index_tts2", []string{"--reference", ref, "--emotion-vector", "0.4,0,0,0,0,0,0.1,0", "--temperature", "0.7"}},
+		{"omnivoice-q8", "omnivoice", []string{"--voice-mode", "clone", "--reference", ref, "--reference-text", "原文"}},
+		{"qwen3-tts-base-q8", "qwen3_tts", []string{"--reference", ref, "--language", "ja", "--option", "temperature=0.7"}},
+		{"qwen3-tts-customvoice-q8", "qwen3_tts", []string{"--speaker", "Ryan", "--voice-description", "Warm"}},
+		{"qwen3-tts-voicedesign-q8", "qwen3_tts", []string{"--voice-description", "Warm narrator"}},
+	} {
+		args := []string{"generate", "--model", test.model, "--text", "你好", "--output", filepath.Join(root, fmt.Sprintf("new-model-%d.wav", i)), "--data-dir", root}
+		if err := run(ctx, append(args, test.flags...), &out, &progress); err != nil {
+			t.Fatal(test.model, err)
+		}
+		config, err := os.ReadFile(filepath.Join(root, "runtime", "server.json"))
+		if err != nil || !bytes.Contains(config, []byte(`"family":"`+test.family+`"`)) {
+			t.Fatal(string(config), err)
+		}
+		if test.model == "qwen3-tts-voicedesign-q8" && !bytes.Contains(config, []byte(`"task":"vdes"`)) {
+			t.Fatal(string(config))
+		}
+		if !bytes.Contains(config, []byte(`"mode":"offline"`)) {
+			t.Fatal(string(config))
+		}
+	}
 	lock, e := workbench.Lock(filepath.Join(root, "service.lock"))
 	if e != nil {
 		t.Fatal(e)
@@ -158,6 +185,11 @@ func TestModelSpecificFlags(t *testing.T) {
 		{"--model", "voxcpm2-q8", "--vox-mode", "design", "--reference", "unused.wav"},
 		{"--model", "voxcpm2-q8", "--reference", "unused.wav", "--voice", "unused"},
 		{"--model", "voxcpm2-q8", "--inference-steps", "0"},
+		{"--model", "omnivoice-q8", "--voice-mode", "clone", "--reference", "unused.wav"},
+		{"--model", "qwen3-tts-voicedesign-q8"},
+		{"--model", "qwen3-tts-customvoice-q8", "--speaker", "unknown"},
+		{"--model", "omnivoice-q8", "--option", "streaming=true"},
+		{"--model", "voxcpm2-q8", "--option", "max_tokens=100", "--option", "min_tokens=101"},
 	} {
 		var out bytes.Buffer
 		args := append([]string{"generate", "--text", "你好", "--output", "unused.wav"}, flags...)

@@ -1,0 +1,154 @@
+{
+  "gender": [
+    [
+      "male",
+      "男"
+    ],
+    [
+      "female",
+      "女"
+    ]
+  ],
+  "age": [
+    [
+      "child",
+      "儿童"
+    ],
+    [
+      "teenager",
+      "少年"
+    ],
+    [
+      "young adult",
+      "青年"
+    ],
+    [
+      "middle-aged",
+      "中年"
+    ],
+    [
+      "elderly",
+      "老年"
+    ]
+  ],
+  "pitch": [
+    [
+      "very low pitch",
+      "极低音调"
+    ],
+    [
+      "low pitch",
+      "低音调"
+    ],
+    [
+      "moderate pitch",
+      "中音调"
+    ],
+    [
+      "high pitch",
+      "高音调"
+    ],
+    [
+      "very high pitch",
+      "极高音调"
+    ]
+  ],
+  "delivery": [
+    [
+      "whisper",
+      "耳语"
+    ]
+  ],
+  "accent": [
+    [
+      "american accent",
+      "美式口音"
+    ],
+    [
+      "british accent",
+      "英式口音"
+    ],
+    [
+      "australian accent",
+      "澳式口音"
+    ],
+    [
+      "chinese accent",
+      "中式口音"
+    ],
+    [
+      "canadian accent",
+      "加拿大口音"
+    ],
+    [
+      "indian accent",
+      "印度口音"
+    ],
+    [
+      "korean accent",
+      "韩国口音"
+    ],
+    [
+      "portuguese accent",
+      "葡萄牙口音"
+    ],
+    [
+      "russian accent",
+      "俄罗斯口音"
+    ],
+    [
+      "japanese accent",
+      "日本口音"
+    ]
+  ],
+  "dialect": [
+    [
+      "河南话",
+      "河南话"
+    ],
+    [
+      "陕西话",
+      "陕西话"
+    ],
+    [
+      "四川话",
+      "四川话"
+    ],
+    [
+      "贵州话",
+      "贵州话"
+    ],
+    [
+      "云南话",
+      "云南话"
+    ],
+    [
+      "桂林话",
+      "桂林话"
+    ],
+    [
+      "济南话",
+      "济南话"
+    ],
+    [
+      "石家庄话",
+      "石家庄话"
+    ],
+    [
+      "甘肃话",
+      "甘肃话"
+    ],
+    [
+      "宁夏话",
+      "宁夏话"
+    ],
+    [
+      "青岛话",
+      "青岛话"
+    ],
+    [
+      "东北话",
+      "东北话"
+    ]
+  ]
+}

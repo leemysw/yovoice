@@ -1,3 +1,4 @@
+import { ModelOptions } from './ModelOptions';
 import { useEffect, useState } from 'react';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Button } from '@astryxdesign/core/Button';
@@ -8,8 +9,9 @@ import { Selector, SelectorOption } from '@astryxdesign/core/Selector';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, ChevronUp, ChevronRight, Play, LoaderCircle } from 'lucide-react';
+import { ReferenceControls } from './ReferenceControls';
 import { VoxControls } from './VoxControls';
-import { isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
+import { isReferenceModel, isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
 
@@ -78,11 +80,11 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
       <h2 className="inspector-section-title">{t('@yovoice.create.model')}</h2>
       <Selector label={t('@yovoice.create.model')} isLabelHidden placement="below" renderOption={option => <SelectorOption label={option.label} description={option.description} layout="inline" />} renderValue={option => option.label} className="model-selector" width="100%" value={draft.modelId} isDisabled={busy}
         options={[...catalog.map(model => ({ value: model.id, label: `${model.name} · ${model.precision}`, description: state.models.some(installed => installed.id === model.id) ? t('@yovoice.create.modelInstalled') : t('@yovoice.create.modelMissing') })), { value: 'manage', label: t('@yovoice.create.manageModels') }]}
-        onChange={modelId => { if (modelId === 'manage') { settings(); return; } change({ modelId, language: modelId.startsWith('index-2.5') || ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); }} />
+        onChange={modelId => { if (modelId === 'manage') { settings(); return; } change({ modelId, synthesisLanguage: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.synthesisLanguage : 'auto', voiceDescription: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.voiceDescription : '', language: modelId.startsWith('index-2.5') || ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); }} />
 
     </VStack>
     <HStack className="inspector-heading" hAlign="between" vAlign="center"><h2 className="inspector-section-title">{t('@yovoice.create.voiceSettings')}</h2><Button label={t('@yovoice.create.backToScript')} className="inspector-toggle" variant="ghost" onClick={close} /></HStack>
-      {isVoxModel(draft.modelId) ? <VoxControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} advanced={advanced} setAdvanced={setAdvanced} /> : <>
+      {isReferenceModel(draft.modelId) ? <ReferenceControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} /> : isVoxModel(draft.modelId) ? <VoxControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} advanced={advanced} setAdvanced={setAdvanced} /> : <>
       <VStack gap={3}>
         <h3>{t('@yovoice.create.referenceVoice')}</h3>
         <HStack className="voice-selected" gap={3} vAlign="center">
@@ -121,6 +123,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
         {['text', 'vector'].includes(draft.mode) ? <Switch label={t('@yovoice.create.randomEmotion')} size="sm" value={draft.randomEmotion} onChange={randomEmotion => change({ randomEmotion })} /> : null}
         <Switch label={t('@yovoice.create.doSample')} size="sm" value={draft.doSample} onChange={v => change({ doSample: v })} />
         {advancedFields.map(([key, labelKey, min, max, step]) => <label key={key} className="number-field">{labelKey.startsWith('@') ? t(labelKey) : labelKey}<input type="number" min={min} max={max} step={step} value={draft[key]} onChange={e => { if (e.target.value !== '') change({ [key]: Number(e.target.value) }); }} /></label>)}
+        <ModelOptions draft={draft} family="index_tts2" change={change} />
         <label className="number-field">{t('@yovoice.create.seed')}<input type="number" min={0} max={2147483647} value={draft.seed ?? ''} placeholder={t('@yovoice.create.seedAuto')} onChange={e => change({ seed: e.target.value ? Number(e.target.value) : null })} /></label>
       </VStack></details>
       </>}

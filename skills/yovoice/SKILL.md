@@ -1,6 +1,6 @@
 ---
 name: yovoice
-description: 使用独立 yovoice CLI 在本地将文字生成语音，支持 IndexTTS 配音和 VoxCPM2 声音设计、音色克隆。适用于配音、旁白、朗读和音色复用，无需桌面 App。
+description: 使用独立 yovoice CLI 在本地将文字生成语音，支持 IndexTTS、VoxCPM2、OmniVoice、Qwen3-TTS 的配音、声音设计和音色克隆。适用于配音、旁白、朗读和音色复用，无需桌面 App。
 ---
 
 # yovoice 本地配音
@@ -26,6 +26,8 @@ description: 使用独立 yovoice CLI 在本地将文字生成语音，支持 In
 - `yovoice models list --json` 查看真实模型 ID 和安装状态；`yovoice voices list --json` 查看可用音色 ID。
 - 安装引擎、选择 CPU/GPU、下载或登记模型时，阅读[引擎与模型参考](references/setup.md)。
 - 用户提供参考文件时用 `--reference`。常见音频格式内部自动转换；格式、时长限制和复用方式见[音频参考](references/audio.md)。IndexTTS 需要参考音色；VoxCPM2 可无需参考音频进行声音设计，模式与参数见同一参考文档。
+
+- 选择模型变体、内置音色、设计属性或高级生成参数时，阅读[模型能力参考](references/models.md)。Qwen Base、CustomVoice、VoiceDesign 的输入不同，不混用参考音频、内置说话人和设计描述。
 
 ## 生成
 

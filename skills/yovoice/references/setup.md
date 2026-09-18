@@ -60,3 +60,7 @@ yovoice models import /absolute/index-tts2_5-q8_0.gguf
 App 与 CLI 安装包均内置由 FFmpeg 8.1.2 源码裁剪构建的转换器，只保留音频解码、重采样和 WAV 输出，不包含视频编解码、网络协议或播放器。转换完全离线，不需要下载额外组件或安装系统 FFmpeg。CLI 解压时保留可执行文件同级的 `tools/` 目录。
 
 VoxCPM2 可在无参考音频时进行声音设计，也支持克隆及参考原文辅助的精细克隆，详见[音频与生成模式](audio.md#voxcpm2)。IndexTTS 遵循应用提供的模型协议；VoxCPM2 遵循 [Apache-2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE)。
+
+OmniVoice：`omnivoice-q8` / `omnivoice-bf16`；Qwen3-TTS 1.7B Base：`qwen3-tts-base-q8` / `qwen3-tts-base-bf16`。使用 `yovoice models download MODEL --source modelscope` 下载；也支持 `huggingface`、`mirror`，下载后自动校验 SHA-256。OmniVoice 权重仅限非商业用途（CC-BY-NC）。
+
+全部模型变体、精度和文件大小见[模型能力参考](models.md#下载与精度)。

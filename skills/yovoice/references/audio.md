@@ -40,3 +40,26 @@ yovoice generate --model voxcpm2-q8 --text-file narration.txt --voice-descriptio
 - 高级参数 `--guidance-scale 2`、`--inference-steps 10` 沿用模型默认；需要可复现时指定 `--seed 123`。实际结果仍受后端与模型精度影响。
 
 声音描述最多 500 字，参考原文最多 2000 字。App 的三个生成模式与 CLI 对应，参考音频导入限制保持一致。
+
+### OmniVoice 与 Qwen3-TTS
+
+App 在模型设置中下载后，从创作页模型菜单切换。两者均完整生成后播放，可自动识别语言或显式指定语言，支持随机种子。使用引擎原生采样默认值，不沿用 IndexTTS 的情绪、语速或采样设置。
+
+| 模型 | Q8 | BF16 | 用途 |
+| --- | --- | --- | --- |
+| OmniVoice | `omnivoice-q8` | `omnivoice-bf16` | 文字设计音色、参考音色克隆 |
+| Qwen3-TTS 1.7B Base | `qwen3-tts-base-q8` | `qwen3-tts-base-bf16` | 参考音色克隆 |
+
+```sh
+yovoice models download omnivoice-q8 --source modelscope
+yovoice models download qwen3-tts-base-q8 --source modelscope
+yovoice generate --model omnivoice-q8 --text "你好，欢迎来到声音的世界。" --voice-description "female, young adult, moderate pitch" --output design.wav
+yovoice generate --model omnivoice-q8 --text-file narration.txt --reference voice.wav --reference-text "参考音频原文" --output omni-clone.wav
+yovoice generate --model qwen3-tts-base-q8 --text-file narration.txt --reference voice.wav --reference-text "参考音频原文" --output qwen-clone.wav
+```
+
+OmniVoice 自动根据是否提供参考音频选择设计或克隆，也可用 `--voice-mode design|clone` 指定。设计模式使用逗号分隔的预定义属性（如 `female, young adult, moderate pitch` 或 `女, 青年, 中音调`），不接受任意自由描述；可省略属性让模型自动选择音色。克隆模式不叠加设计描述。OmniVoice 克隆必须提供与录音一致的原文；Qwen Base 的原文可选，Qwen3-TTS 无原文时使用 `x_vector_only_mode` 仅提取说话人特征。Qwen3-TTS 同时支持 1.7B CustomVoice、VoiceDesign 和 0.6B Base；各变体使用不同输入。
+
+OmniVoice 权重为 [CC-BY-NC](https://huggingface.co/k2-fsa/OmniVoice#license)，仅限非商业用途；Qwen3-TTS 权重为 Apache-2.0。
+
+完整模型列表、四类模型能力、内置音色、Omni 属性及高级参数见[模型能力参考](models.md)。

@@ -870,7 +870,7 @@
     "defaultMessage": "Install runtime"
   },
   "@yovoice.settings.licenseBlurb": {
-    "defaultMessage": "IndexTTS follows the bilibili model license; VoxCPM2 uses Apache-2.0."
+    "defaultMessage": "IndexTTS follows the bilibili model license; VoxCPM2 and Qwen3-TTS use Apache-2.0; OmniVoice weights use CC-BY-NC, for non-commercial use only."
   },
   "@yovoice.settings.licenseButton": {
     "defaultMessage": "IndexTTS license"
@@ -1060,5 +1060,338 @@
   },
   "@yovoice.vox.voiceDescriptionPlaceholder": {
     "defaultMessage": "e.g. gentle female voice, relaxed pace; leave blank for natural delivery"
+  },
+  "@yovoice.reference.transcript": {
+    "defaultMessage": "Reference transcript (optional)"
+  },
+  "@yovoice.reference.transcriptHelp": {
+    "defaultMessage": "An accurate transcript helps cloning; leave blank to use only the voice."
+  },
+  "@yovoice.reference.designPlaceholder": {
+    "defaultMessage": "For example: female, young adult, moderate pitch. Leave blank for an automatic voice."
+  },
+  "@yovoice.settings.modelDesc.omni": {
+    "defaultMessage": "Multilingual · Voice design and cloning"
+  },
+  "@yovoice.settings.modelDesc.qwen": {
+    "defaultMessage": "10 languages · Reference voice cloning"
+  },
+  "@yovoice.reference.designHelp": {
+    "defaultMessage": "Use comma-separated attributes, such as male/female, young adult/middle-aged, low pitch/moderate pitch, whisper; free-form descriptions are not supported."
+  },
+  "@yovoice.options.text_chunk_size": {
+    "defaultMessage": "Text chunk size (0 uses model default)"
+  },
+  "@yovoice.options.text_chunk_mode": {
+    "defaultMessage": "Text chunk mode"
+  },
+  "@yovoice.options.max_tokens": {
+    "defaultMessage": "Maximum generated tokens"
+  },
+  "@yovoice.options.voxcpm2.chunk_strategy": {
+    "defaultMessage": "Long-form strategy"
+  },
+  "@yovoice.options.num_inference_steps": {
+    "defaultMessage": "Inference steps"
+  },
+  "@yovoice.options.guidance_scale": {
+    "defaultMessage": "Guidance scale"
+  },
+  "@yovoice.options.audio_chunk_duration": {
+    "defaultMessage": "Automatic chunk duration (seconds)"
+  },
+  "@yovoice.options.audio_chunk_threshold": {
+    "defaultMessage": "Automatic chunk threshold (seconds)"
+  },
+  "@yovoice.options.do_sample": {
+    "defaultMessage": "Sampling"
+  },
+  "@yovoice.options.temperature": {
+    "defaultMessage": "Temperature"
+  },
+  "@yovoice.options.top_k": {
+    "defaultMessage": "Top K"
+  },
+  "@yovoice.options.top_p": {
+    "defaultMessage": "Top P"
+  },
+  "@yovoice.options.repetition_penalty": {
+    "defaultMessage": "Repetition penalty"
+  },
+  "@yovoice.options.subtalker_do_sample": {
+    "defaultMessage": "Subtalker sampling"
+  },
+  "@yovoice.options.subtalker_temperature": {
+    "defaultMessage": "Subtalker temperature"
+  },
+  "@yovoice.options.subtalker_top_k": {
+    "defaultMessage": "Subtalker Top K"
+  },
+  "@yovoice.options.subtalker_top_p": {
+    "defaultMessage": "Subtalker Top P"
+  },
+  "@yovoice.reference.auto": {
+    "defaultMessage": "Auto"
+  },
+  "@yovoice.reference.speaker": {
+    "defaultMessage": "Built-in voice"
+  },
+  "@yovoice.reference.voiceDesignHelp": {
+    "defaultMessage": "Describe the voice, emotion and speaking style."
+  },
+  "@yovoice.reference.omniLanguage": {
+    "defaultMessage": "Language hint (blank for automatic)"
+  },
+  "@yovoice.reference.gender": {
+    "defaultMessage": "Gender"
+  },
+  "@yovoice.reference.age": {
+    "defaultMessage": "Age"
+  },
+  "@yovoice.reference.pitch": {
+    "defaultMessage": "Pitch"
+  },
+  "@yovoice.reference.delivery": {
+    "defaultMessage": "Delivery"
+  },
+  "@yovoice.reference.accent": {
+    "defaultMessage": "Accent"
+  },
+  "@yovoice.reference.dialect": {
+    "defaultMessage": "Dialect"
+  },
+  "@yovoice.reference.tags": {
+    "defaultMessage": "Non-verbal sounds"
+  },
+  "@yovoice.reference.tagsHelp": {
+    "defaultMessage": "Append to the script, then move the tag to the desired position."
+  },
+  "@yovoice.reference.male": {
+    "defaultMessage": "male"
+  },
+  "@yovoice.reference.female": {
+    "defaultMessage": "female"
+  },
+  "@yovoice.reference.child": {
+    "defaultMessage": "child"
+  },
+  "@yovoice.reference.teenager": {
+    "defaultMessage": "teenager"
+  },
+  "@yovoice.reference.young adult": {
+    "defaultMessage": "young adult"
+  },
+  "@yovoice.reference.middle-aged": {
+    "defaultMessage": "middle-aged"
+  },
+  "@yovoice.reference.elderly": {
+    "defaultMessage": "elderly"
+  },
+  "@yovoice.reference.very low pitch": {
+    "defaultMessage": "very low pitch"
+  },
+  "@yovoice.reference.low pitch": {
+    "defaultMessage": "low pitch"
+  },
+  "@yovoice.reference.moderate pitch": {
+    "defaultMessage": "moderate pitch"
+  },
+  "@yovoice.reference.high pitch": {
+    "defaultMessage": "high pitch"
+  },
+  "@yovoice.reference.very high pitch": {
+    "defaultMessage": "very high pitch"
+  },
+  "@yovoice.reference.whisper": {
+    "defaultMessage": "whisper"
+  },
+  "@yovoice.reference.american accent": {
+    "defaultMessage": "american accent"
+  },
+  "@yovoice.reference.british accent": {
+    "defaultMessage": "british accent"
+  },
+  "@yovoice.reference.australian accent": {
+    "defaultMessage": "australian accent"
+  },
+  "@yovoice.reference.chinese accent": {
+    "defaultMessage": "chinese accent"
+  },
+  "@yovoice.reference.canadian accent": {
+    "defaultMessage": "canadian accent"
+  },
+  "@yovoice.reference.indian accent": {
+    "defaultMessage": "indian accent"
+  },
+  "@yovoice.reference.korean accent": {
+    "defaultMessage": "korean accent"
+  },
+  "@yovoice.reference.portuguese accent": {
+    "defaultMessage": "portuguese accent"
+  },
+  "@yovoice.reference.russian accent": {
+    "defaultMessage": "russian accent"
+  },
+  "@yovoice.reference.japanese accent": {
+    "defaultMessage": "japanese accent"
+  },
+  "@yovoice.reference.河南话": {
+    "defaultMessage": "河南话"
+  },
+  "@yovoice.reference.陕西话": {
+    "defaultMessage": "陕西话"
+  },
+  "@yovoice.reference.四川话": {
+    "defaultMessage": "四川话"
+  },
+  "@yovoice.reference.贵州话": {
+    "defaultMessage": "贵州话"
+  },
+  "@yovoice.reference.云南话": {
+    "defaultMessage": "云南话"
+  },
+  "@yovoice.reference.桂林话": {
+    "defaultMessage": "桂林话"
+  },
+  "@yovoice.reference.济南话": {
+    "defaultMessage": "济南话"
+  },
+  "@yovoice.reference.石家庄话": {
+    "defaultMessage": "石家庄话"
+  },
+  "@yovoice.reference.甘肃话": {
+    "defaultMessage": "甘肃话"
+  },
+  "@yovoice.reference.宁夏话": {
+    "defaultMessage": "宁夏话"
+  },
+  "@yovoice.reference.青岛话": {
+    "defaultMessage": "青岛话"
+  },
+  "@yovoice.reference.东北话": {
+    "defaultMessage": "东北话"
+  },
+  "@yovoice.language.ko": {
+    "defaultMessage": "Korean"
+  },
+  "@yovoice.language.de": {
+    "defaultMessage": "German"
+  },
+  "@yovoice.language.fr": {
+    "defaultMessage": "French"
+  },
+  "@yovoice.language.ru": {
+    "defaultMessage": "Russian"
+  },
+  "@yovoice.language.pt": {
+    "defaultMessage": "Portuguese"
+  },
+  "@yovoice.language.it": {
+    "defaultMessage": "Italian"
+  },
+  "@yovoice.options.value.default": {
+    "defaultMessage": "Sentences"
+  },
+  "@yovoice.options.value.tag_aware": {
+    "defaultMessage": "Preserve tags"
+  },
+  "@yovoice.options.value.japanese": {
+    "defaultMessage": "Japanese"
+  },
+  "@yovoice.options.value.endline": {
+    "defaultMessage": "Lines"
+  },
+  "@yovoice.options.value.continuation": {
+    "defaultMessage": "Continuation"
+  },
+  "@yovoice.options.value.stateless": {
+    "defaultMessage": "Independent"
+  },
+  "@yovoice.settings.modelDesc.qwen.base": {
+    "defaultMessage": "Reference voice cloning · optional transcript"
+  },
+  "@yovoice.settings.modelDesc.qwen.customvoice": {
+    "defaultMessage": "9 built-in voices · style instructions"
+  },
+  "@yovoice.settings.modelDesc.qwen.voicedesign": {
+    "defaultMessage": "Voice design from text descriptions"
+  },
+  "@yovoice.error.voiceDescriptionRequired": {
+    "defaultMessage": "Enter a voice description."
+  },
+  "@yovoice.error.omniAttributes": {
+    "defaultMessage": "OmniVoice requires supported voice attributes, with one value per category."
+  },
+  "@yovoice.error.speakerInvalid": {
+    "defaultMessage": "Choose a supported built-in voice."
+  },
+  "@yovoice.reference.speaker.Vivian": {
+    "defaultMessage": "Bright young female · Chinese"
+  },
+  "@yovoice.reference.speaker.Serena": {
+    "defaultMessage": "Gentle young female · Chinese"
+  },
+  "@yovoice.reference.speaker.Uncle_Fu": {
+    "defaultMessage": "Mellow mature male · Chinese"
+  },
+  "@yovoice.reference.speaker.Dylan": {
+    "defaultMessage": "Natural young male · Beijing dialect"
+  },
+  "@yovoice.reference.speaker.Eric": {
+    "defaultMessage": "Slightly husky male · Sichuan dialect"
+  },
+  "@yovoice.reference.speaker.Ryan": {
+    "defaultMessage": "Dynamic male · English"
+  },
+  "@yovoice.reference.speaker.Aiden": {
+    "defaultMessage": "Clear male · American English"
+  },
+  "@yovoice.reference.speaker.Ono_Anna": {
+    "defaultMessage": "Light female · Japanese"
+  },
+  "@yovoice.reference.speaker.Sohee": {
+    "defaultMessage": "Warm female · Korean"
+  },
+  "@yovoice.options.duration": {
+    "defaultMessage": "Target duration (seconds, 0 for automatic)"
+  },
+  "@yovoice.options.denoise": {
+    "defaultMessage": "Reference denoising"
+  },
+  "@yovoice.options.preprocess_prompt": {
+    "defaultMessage": "Prompt preprocessing"
+  },
+  "@yovoice.options.postprocess_output": {
+    "defaultMessage": "Output postprocessing"
+  },
+  "@yovoice.options.t_shift": {
+    "defaultMessage": "Diffusion time shift"
+  },
+  "@yovoice.options.layer_penalty_factor": {
+    "defaultMessage": "Layer penalty factor"
+  },
+  "@yovoice.options.position_temperature": {
+    "defaultMessage": "Position temperature"
+  },
+  "@yovoice.options.class_temperature": {
+    "defaultMessage": "Class temperature"
+  },
+  "@yovoice.options.min_tokens": {
+    "defaultMessage": "Minimum generated tokens"
+  },
+  "@yovoice.options.retry_badcase": {
+    "defaultMessage": "Retry abnormal generations"
+  },
+  "@yovoice.options.retry_badcase_max_times": {
+    "defaultMessage": "Maximum retries"
+  },
+  "@yovoice.options.retry_badcase_ratio_threshold": {
+    "defaultMessage": "Abnormal length ratio threshold"
+  },
+  "@yovoice.error.omniReferenceRequired": {
+    "defaultMessage": "OmniVoice cloning requires the reference transcript."
+  },
+  "@yovoice.reference.omniTranscriptHelp": {
+    "defaultMessage": "The transcript must match the reference audio."
   }
 }

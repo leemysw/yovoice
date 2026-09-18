@@ -870,7 +870,7 @@
     "defaultMessage": "安装内核"
   },
   "@yovoice.settings.licenseBlurb": {
-    "defaultMessage": "IndexTTS 遵循 bilibili 模型使用协议；VoxCPM2 使用 Apache-2.0 许可。"
+    "defaultMessage": "IndexTTS 遵循 bilibili 模型协议；VoxCPM2、Qwen3-TTS 使用 Apache-2.0；OmniVoice 权重使用 CC-BY-NC，仅限非商业用途。"
   },
   "@yovoice.settings.licenseButton": {
     "defaultMessage": "IndexTTS 协议"
@@ -1060,5 +1060,338 @@
   },
   "@yovoice.vox.voiceDescriptionPlaceholder": {
     "defaultMessage": "如：温柔女声，舒缓语速；留空自然演绎"
+  },
+  "@yovoice.reference.transcript": {
+    "defaultMessage": "参考音频原文（可选）"
+  },
+  "@yovoice.reference.transcriptHelp": {
+    "defaultMessage": "填写准确原文可辅助克隆；留空仅参考音色。"
+  },
+  "@yovoice.reference.designPlaceholder": {
+    "defaultMessage": "例如：女, 青年, 中音调；留空自动选择音色。"
+  },
+  "@yovoice.settings.modelDesc.omni": {
+    "defaultMessage": "多语言 · 声音设计与音色克隆"
+  },
+  "@yovoice.settings.modelDesc.qwen": {
+    "defaultMessage": "10 种语言 · 参考音频克隆"
+  },
+  "@yovoice.reference.designHelp": {
+    "defaultMessage": "填写预定义属性，以逗号分隔，如男/女、青年/中年、低音调/中音调、耳语；不支持自由描述。"
+  },
+  "@yovoice.options.text_chunk_size": {
+    "defaultMessage": "长文分段字数（0 为模型默认）"
+  },
+  "@yovoice.options.text_chunk_mode": {
+    "defaultMessage": "分段方式"
+  },
+  "@yovoice.options.max_tokens": {
+    "defaultMessage": "最大生成长度"
+  },
+  "@yovoice.options.voxcpm2.chunk_strategy": {
+    "defaultMessage": "长文生成策略"
+  },
+  "@yovoice.options.num_inference_steps": {
+    "defaultMessage": "推理步数"
+  },
+  "@yovoice.options.guidance_scale": {
+    "defaultMessage": "引导强度"
+  },
+  "@yovoice.options.audio_chunk_duration": {
+    "defaultMessage": "自动分段时长（秒）"
+  },
+  "@yovoice.options.audio_chunk_threshold": {
+    "defaultMessage": "自动分段阈值（秒）"
+  },
+  "@yovoice.options.do_sample": {
+    "defaultMessage": "随机采样"
+  },
+  "@yovoice.options.temperature": {
+    "defaultMessage": "温度"
+  },
+  "@yovoice.options.top_k": {
+    "defaultMessage": "Top K"
+  },
+  "@yovoice.options.top_p": {
+    "defaultMessage": "Top P"
+  },
+  "@yovoice.options.repetition_penalty": {
+    "defaultMessage": "重复惩罚"
+  },
+  "@yovoice.options.subtalker_do_sample": {
+    "defaultMessage": "子解码器随机采样"
+  },
+  "@yovoice.options.subtalker_temperature": {
+    "defaultMessage": "子解码器温度"
+  },
+  "@yovoice.options.subtalker_top_k": {
+    "defaultMessage": "子解码器 Top K"
+  },
+  "@yovoice.options.subtalker_top_p": {
+    "defaultMessage": "子解码器 Top P"
+  },
+  "@yovoice.reference.auto": {
+    "defaultMessage": "自动"
+  },
+  "@yovoice.reference.speaker": {
+    "defaultMessage": "内置音色"
+  },
+  "@yovoice.reference.voiceDesignHelp": {
+    "defaultMessage": "用文字描述音色、情绪和说话风格。"
+  },
+  "@yovoice.reference.omniLanguage": {
+    "defaultMessage": "语言提示（留空自动识别）"
+  },
+  "@yovoice.reference.gender": {
+    "defaultMessage": "性别"
+  },
+  "@yovoice.reference.age": {
+    "defaultMessage": "年龄"
+  },
+  "@yovoice.reference.pitch": {
+    "defaultMessage": "音调"
+  },
+  "@yovoice.reference.delivery": {
+    "defaultMessage": "发声方式"
+  },
+  "@yovoice.reference.accent": {
+    "defaultMessage": "口音"
+  },
+  "@yovoice.reference.dialect": {
+    "defaultMessage": "方言"
+  },
+  "@yovoice.reference.tags": {
+    "defaultMessage": "非语言声音"
+  },
+  "@yovoice.reference.tagsHelp": {
+    "defaultMessage": "点击添加到正文末尾，可在正文中移动位置。"
+  },
+  "@yovoice.reference.male": {
+    "defaultMessage": "男"
+  },
+  "@yovoice.reference.female": {
+    "defaultMessage": "女"
+  },
+  "@yovoice.reference.child": {
+    "defaultMessage": "儿童"
+  },
+  "@yovoice.reference.teenager": {
+    "defaultMessage": "少年"
+  },
+  "@yovoice.reference.young adult": {
+    "defaultMessage": "青年"
+  },
+  "@yovoice.reference.middle-aged": {
+    "defaultMessage": "中年"
+  },
+  "@yovoice.reference.elderly": {
+    "defaultMessage": "老年"
+  },
+  "@yovoice.reference.very low pitch": {
+    "defaultMessage": "极低音调"
+  },
+  "@yovoice.reference.low pitch": {
+    "defaultMessage": "低音调"
+  },
+  "@yovoice.reference.moderate pitch": {
+    "defaultMessage": "中音调"
+  },
+  "@yovoice.reference.high pitch": {
+    "defaultMessage": "高音调"
+  },
+  "@yovoice.reference.very high pitch": {
+    "defaultMessage": "极高音调"
+  },
+  "@yovoice.reference.whisper": {
+    "defaultMessage": "耳语"
+  },
+  "@yovoice.reference.american accent": {
+    "defaultMessage": "美式口音"
+  },
+  "@yovoice.reference.british accent": {
+    "defaultMessage": "英式口音"
+  },
+  "@yovoice.reference.australian accent": {
+    "defaultMessage": "澳式口音"
+  },
+  "@yovoice.reference.chinese accent": {
+    "defaultMessage": "中式口音"
+  },
+  "@yovoice.reference.canadian accent": {
+    "defaultMessage": "加拿大口音"
+  },
+  "@yovoice.reference.indian accent": {
+    "defaultMessage": "印度口音"
+  },
+  "@yovoice.reference.korean accent": {
+    "defaultMessage": "韩国口音"
+  },
+  "@yovoice.reference.portuguese accent": {
+    "defaultMessage": "葡萄牙口音"
+  },
+  "@yovoice.reference.russian accent": {
+    "defaultMessage": "俄罗斯口音"
+  },
+  "@yovoice.reference.japanese accent": {
+    "defaultMessage": "日本口音"
+  },
+  "@yovoice.reference.河南话": {
+    "defaultMessage": "河南话"
+  },
+  "@yovoice.reference.陕西话": {
+    "defaultMessage": "陕西话"
+  },
+  "@yovoice.reference.四川话": {
+    "defaultMessage": "四川话"
+  },
+  "@yovoice.reference.贵州话": {
+    "defaultMessage": "贵州话"
+  },
+  "@yovoice.reference.云南话": {
+    "defaultMessage": "云南话"
+  },
+  "@yovoice.reference.桂林话": {
+    "defaultMessage": "桂林话"
+  },
+  "@yovoice.reference.济南话": {
+    "defaultMessage": "济南话"
+  },
+  "@yovoice.reference.石家庄话": {
+    "defaultMessage": "石家庄话"
+  },
+  "@yovoice.reference.甘肃话": {
+    "defaultMessage": "甘肃话"
+  },
+  "@yovoice.reference.宁夏话": {
+    "defaultMessage": "宁夏话"
+  },
+  "@yovoice.reference.青岛话": {
+    "defaultMessage": "青岛话"
+  },
+  "@yovoice.reference.东北话": {
+    "defaultMessage": "东北话"
+  },
+  "@yovoice.language.ko": {
+    "defaultMessage": "韩语"
+  },
+  "@yovoice.language.de": {
+    "defaultMessage": "德语"
+  },
+  "@yovoice.language.fr": {
+    "defaultMessage": "法语"
+  },
+  "@yovoice.language.ru": {
+    "defaultMessage": "俄语"
+  },
+  "@yovoice.language.pt": {
+    "defaultMessage": "葡萄牙语"
+  },
+  "@yovoice.language.it": {
+    "defaultMessage": "意大利语"
+  },
+  "@yovoice.options.value.default": {
+    "defaultMessage": "按句分段"
+  },
+  "@yovoice.options.value.tag_aware": {
+    "defaultMessage": "保留标签"
+  },
+  "@yovoice.options.value.japanese": {
+    "defaultMessage": "日语分段"
+  },
+  "@yovoice.options.value.endline": {
+    "defaultMessage": "按行分段"
+  },
+  "@yovoice.options.value.continuation": {
+    "defaultMessage": "连续生成"
+  },
+  "@yovoice.options.value.stateless": {
+    "defaultMessage": "独立生成"
+  },
+  "@yovoice.settings.modelDesc.qwen.base": {
+    "defaultMessage": "参考音频克隆 · 可选原文"
+  },
+  "@yovoice.settings.modelDesc.qwen.customvoice": {
+    "defaultMessage": "9 种内置音色 · 风格指导"
+  },
+  "@yovoice.settings.modelDesc.qwen.voicedesign": {
+    "defaultMessage": "文字描述设计音色"
+  },
+  "@yovoice.error.voiceDescriptionRequired": {
+    "defaultMessage": "请填写声音描述。"
+  },
+  "@yovoice.error.omniAttributes": {
+    "defaultMessage": "OmniVoice 仅接受预定义音色属性，同一类别只能选择一个。"
+  },
+  "@yovoice.error.speakerInvalid": {
+    "defaultMessage": "请选择有效的内置音色。"
+  },
+  "@yovoice.reference.speaker.Vivian": {
+    "defaultMessage": "明亮年轻女声 · 中文"
+  },
+  "@yovoice.reference.speaker.Serena": {
+    "defaultMessage": "温柔年轻女声 · 中文"
+  },
+  "@yovoice.reference.speaker.Uncle_Fu": {
+    "defaultMessage": "低沉成熟男声 · 中文"
+  },
+  "@yovoice.reference.speaker.Dylan": {
+    "defaultMessage": "自然年轻男声 · 北京话"
+  },
+  "@yovoice.reference.speaker.Eric": {
+    "defaultMessage": "略沙哑男声 · 四川话"
+  },
+  "@yovoice.reference.speaker.Ryan": {
+    "defaultMessage": "富有节奏男声 · 英语"
+  },
+  "@yovoice.reference.speaker.Aiden": {
+    "defaultMessage": "清晰阳光男声 · 美式英语"
+  },
+  "@yovoice.reference.speaker.Ono_Anna": {
+    "defaultMessage": "轻快女声 · 日语"
+  },
+  "@yovoice.reference.speaker.Sohee": {
+    "defaultMessage": "温暖女声 · 韩语"
+  },
+  "@yovoice.options.duration": {
+    "defaultMessage": "目标时长（秒，0 为自动）"
+  },
+  "@yovoice.options.denoise": {
+    "defaultMessage": "参考音频降噪"
+  },
+  "@yovoice.options.preprocess_prompt": {
+    "defaultMessage": "提示词预处理"
+  },
+  "@yovoice.options.postprocess_output": {
+    "defaultMessage": "音频后处理"
+  },
+  "@yovoice.options.t_shift": {
+    "defaultMessage": "扩散时间偏移"
+  },
+  "@yovoice.options.layer_penalty_factor": {
+    "defaultMessage": "层惩罚系数"
+  },
+  "@yovoice.options.position_temperature": {
+    "defaultMessage": "位置采样温度"
+  },
+  "@yovoice.options.class_temperature": {
+    "defaultMessage": "类别采样温度"
+  },
+  "@yovoice.options.min_tokens": {
+    "defaultMessage": "最小生成长度"
+  },
+  "@yovoice.options.retry_badcase": {
+    "defaultMessage": "异常生成自动重试"
+  },
+  "@yovoice.options.retry_badcase_max_times": {
+    "defaultMessage": "最多重试次数"
+  },
+  "@yovoice.options.retry_badcase_ratio_threshold": {
+    "defaultMessage": "异常长度比例阈值"
+  },
+  "@yovoice.error.omniReferenceRequired": {
+    "defaultMessage": "OmniVoice 克隆需要填写参考音频原文。"
+  },
+  "@yovoice.reference.omniTranscriptHelp": {
+    "defaultMessage": "原文须与参考音频一致。"
   }
 }

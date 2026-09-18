@@ -8,3 +8,9 @@
 - FFmpeg 8.1.2：https://ffmpeg.org/ ，LGPL-2.1-or-later。构建时从校验摘要的官方源码裁剪，只保留音频解码与 WAV 输出，作为独立可执行程序随 App/CLI 分发。许可证与构建参数位于安装包 `tools/FFmpeg-LICENSE.txt`、`tools/build.json`（macOS App 为 `Contents/Resources/tools/`）；对应源码与构建脚本随 Release 的 `yovoice-<版本>-ffmpeg-source.tar.gz` 提供。
 
 - VoxCPM2：https://github.com/OpenBMB/VoxCPM ，模型不随应用分发，使用 Apache-2.0 许可：https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE 。
+
+## OmniVoice and Qwen3-TTS
+
+- [OmniVoice](https://huggingface.co/k2-fsa/OmniVoice): code Apache-2.0, pretrained weights CC-BY-NC (non-commercial), as stated by the model author.
+- [Qwen3-TTS 12Hz 1.7B Base](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base): Apache-2.0.
+- Weights are downloaded separately from audio.cpp GGUF repositories and are not included in yovoice installers.

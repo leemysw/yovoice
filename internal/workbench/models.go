@@ -24,6 +24,12 @@ func value(s *string) string {
 }
 
 type Draft struct {
+	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty"`
+	Speaker           string                    `json:"speaker,omitempty"`
+	SynthesisLanguage string                    `json:"synthesisLanguage,omitempty"`
+	OmniSpeed         float64                   `json:"omniSpeed,omitempty"`
+
+	VoiceMode         string    `json:"voiceMode"`
 	VoxMode           string    `json:"voxMode"`
 	VoiceDescription  string    `json:"voiceDescription"`
 	ReferenceText     string    `json:"referenceText"`

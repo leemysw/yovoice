@@ -24,9 +24,25 @@ yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在�
 - **音色与表达** — 跟随参考音色、模仿参考演绎、调整情绪，或用文字描述想要的表达方式。
 - **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
 - **声音设计与克隆** — VoxCPM2 支持文字设计音色、带风格指导的克隆及参考原文辅助的精细克隆，自动多语言、48 kHz 输出。
-- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5 和 VoxCPM2，支持模型下载续传与 GGUF 导入。
+- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5、VoxCPM2、OmniVoice 和 Qwen3-TTS，支持模型下载续传与 GGUF 导入。
 - **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
 - **Agent Skill** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
+
+---
+
+## 支持模型
+
+| 模型 | 核心能力 |
+| --- | --- |
+| IndexTTS 2.0 | 中英音色克隆、情绪控制、参考演绎 |
+| IndexTTS 2.5 | 多语言音色克隆、情绪控制、发音调整 |
+| VoxCPM2 | 文字设计音色、音色克隆、参考原文辅助的精细克隆 |
+| OmniVoice | 属性设计音色、音色克隆、非语言声音标签 |
+| Qwen3-TTS Base · 0.6B / 1.7B | 参考音色克隆、可选原文辅助、多语言生成 |
+| Qwen3-TTS CustomVoice · 1.7B | 9 种内置音色、文字控制风格与情绪 |
+| Qwen3-TTS VoiceDesign · 1.7B | 自然语言描述设计音色，无需参考音频 |
+
+App 与 CLI 均支持以上模型，详细精度与参数见[模型能力说明](skills/yovoice/references/models.md)。OmniVoice 权重采用 CC-BY-NC 许可，仅限非商业用途。
 
 ---
 
@@ -49,8 +65,8 @@ macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查�
 
 ## 快速上手
 
-1. **准备模型。** 在设置中下载 IndexTTS 或 VoxCPM2 模型，Windows 已内置 CPU 内核，可在设置中下载 CUDA 内核以使用 NVIDIA GPU 加速。
-2. **添加音色。** 导入或录制一段 1–60 秒的参考音频，或使用 VoxCPM2 无参考音频的声音设计。
+1. **准备模型。** 在设置中下载所需模型，Windows 已内置 CPU 内核，可在设置中下载 CUDA 内核以使用 NVIDIA GPU 加速。
+2. **添加音色。** 导入或录制一段 1–60 秒的参考音频，或使用 VoxCPM2 / OmniVoice / Qwen3-TTS VoiceDesign 无参考音频的声音设计。
 3. **生成语音。** 输入正文，选择表达方式，点击生成。
 4. **试听与导出。** 预览生成结果，在历史记录中查找以往作品。
 

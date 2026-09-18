@@ -1,0 +1,293 @@
+{
+  "index_tts2": [
+    {
+      "key": "text_chunk_size",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 12000,
+      "step": 1
+    },
+    {
+      "key": "text_chunk_mode",
+      "type": "select",
+      "default": "default",
+      "values": [
+        "default",
+        "tag_aware",
+        "japanese",
+        "endline"
+      ]
+    }
+  ],
+  "voxcpm2": [
+    {
+      "key": "text_chunk_size",
+      "type": "number",
+      "default": 2048,
+      "min": 0,
+      "max": 12000,
+      "step": 1
+    },
+    {
+      "key": "text_chunk_mode",
+      "type": "select",
+      "default": "tag_aware",
+      "values": [
+        "default",
+        "tag_aware",
+        "japanese",
+        "endline"
+      ]
+    },
+    {
+      "key": "max_tokens",
+      "type": "number",
+      "default": 4096,
+      "min": 50,
+      "max": 4096,
+      "step": 1
+    },
+    {
+      "key": "voxcpm2.chunk_strategy",
+      "type": "select",
+      "default": "continuation",
+      "values": [
+        "continuation",
+        "stateless"
+      ]
+    },
+    {
+      "key": "min_tokens",
+      "type": "number",
+      "default": 2,
+      "min": 0,
+      "max": 4096,
+      "step": 1
+    },
+    {
+      "key": "retry_badcase",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "retry_badcase_max_times",
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "key": "retry_badcase_ratio_threshold",
+      "type": "number",
+      "default": 6,
+      "min": 0.1,
+      "max": 20,
+      "step": 0.1
+    }
+  ],
+  "omnivoice": [
+    {
+      "key": "text_chunk_size",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 12000,
+      "step": 1
+    },
+    {
+      "key": "text_chunk_mode",
+      "type": "select",
+      "default": "tag_aware",
+      "values": [
+        "default",
+        "tag_aware",
+        "japanese",
+        "endline"
+      ]
+    },
+    {
+      "key": "num_inference_steps",
+      "type": "number",
+      "default": 32,
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "guidance_scale",
+      "type": "number",
+      "default": 2,
+      "min": 0.5,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "key": "audio_chunk_duration",
+      "type": "number",
+      "default": 15,
+      "min": 1,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "key": "audio_chunk_threshold",
+      "type": "number",
+      "default": 30,
+      "min": 1,
+      "max": 120,
+      "step": 1
+    },
+    {
+      "key": "duration",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 300,
+      "step": 0.1
+    },
+    {
+      "key": "denoise",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "preprocess_prompt",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "postprocess_output",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "t_shift",
+      "type": "number",
+      "default": 0.1,
+      "min": 0.01,
+      "max": 2,
+      "step": 0.01
+    },
+    {
+      "key": "layer_penalty_factor",
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 20,
+      "step": 0.1
+    },
+    {
+      "key": "position_temperature",
+      "type": "number",
+      "default": 5,
+      "min": 0,
+      "max": 20,
+      "step": 0.1
+    },
+    {
+      "key": "class_temperature",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 5,
+      "step": 0.1
+    }
+  ],
+  "qwen3_tts": [
+    {
+      "key": "text_chunk_size",
+      "type": "number",
+      "default": 8192,
+      "min": 0,
+      "max": 12000,
+      "step": 1
+    },
+    {
+      "key": "text_chunk_mode",
+      "type": "select",
+      "default": "default",
+      "values": [
+        "default",
+        "tag_aware",
+        "japanese",
+        "endline"
+      ]
+    },
+    {
+      "key": "max_tokens",
+      "type": "number",
+      "default": 8192,
+      "min": 50,
+      "max": 16384,
+      "step": 1
+    },
+    {
+      "key": "do_sample",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "temperature",
+      "type": "number",
+      "default": 0.9,
+      "min": 0.05,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "key": "top_k",
+      "type": "number",
+      "default": 50,
+      "min": 1,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "key": "top_p",
+      "type": "number",
+      "default": 1,
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "key": "repetition_penalty",
+      "type": "number",
+      "default": 1.05,
+      "min": 0.1,
+      "max": 20,
+      "step": 0.05
+    },
+    {
+      "key": "subtalker_do_sample",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "subtalker_temperature",
+      "type": "number",
+      "default": 0.9,
+      "min": 0.05,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "key": "subtalker_top_k",
+      "type": "number",
+      "default": 50,
+      "min": 1,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "key": "subtalker_top_p",
+      "type": "number",
+      "default": 1,
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01
+    }
+  ]
+}
