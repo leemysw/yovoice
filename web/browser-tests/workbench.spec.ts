@@ -189,7 +189,7 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
   await page.keyboard.press('Escape');
   await page.evaluate(state => {
     state.models = [{ id: 'index-2.5-q8', path: '/models/index.gguf', managed: false }];
-    state.activity = { error: null, kind: 'download', modelId: 'index-2-q8', label: '正在校验模型', status: 'running', received: 3633888608, total: 3633888608 };
+    state.activity = { errorCode: null, errorParams: null, kind: 'download', modelId: 'index-2-q8', code: '@yovoice.activity.verifying', params: null, status: 'running', received: 3633888608, total: 3633888608 };
     localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
   }, emptyState());
   await page.reload();
@@ -204,10 +204,10 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
 
 test('生成状态仅在右侧显示，已用时间持续更新', async ({ page }) => {
   const state = emptyState();
-  state.activity = { kind: 'generate', label: '正在加载模型或合成语音', status: 'running', received: 0, total: 0, error: null, startedAt: new Date(Date.now() - 10000).toISOString() };
+  state.activity = { kind: 'generate', code: '@yovoice.activity.synthesizing', params: null, status: 'running', received: 0, total: 0, errorCode: null, errorParams: null, startedAt: new Date(Date.now() - 10000).toISOString() };
   await page.addInitScript(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
   await page.goto('/');
-  await expect(page.locator('.generation-action')).toContainText('正在加载模型或合成语音');
+  await expect(page.locator('.generation-action')).toContainText(/加载模型|合成语音|Loading model|Synthesizing/i);
   await expect(page.getByRole('button', { name: '取消生成', exact: true })).toHaveCount(1);
   await expect(page.locator('.activity')).toHaveCount(0);
   const elapsed = page.getByLabel('已用时间', { exact: true });

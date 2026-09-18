@@ -47,7 +47,7 @@ func (w *Workbench) UseBundledCPU(path string) error {
 		return err
 	}
 	if !info.Mode().IsRegular() {
-		return fmt.Errorf("内置 CPU 内核不是有效文件。")
+		return Err(MsgErrCPUBundleInvalid, nil)
 	}
 	w.bundledCPU = path
 	return w.Store.Update(func(s *State) {
@@ -59,7 +59,7 @@ func (w *Workbench) UseBundledCPU(path string) error {
 }
 func (w *Workbench) SaveDraft(d Draft) error {
 	if !validID(d.ID) || textLen(d.Text) > 12000 || textLen(d.Title) > 120 || textLen(d.EmotionText) > 500 || textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
-		return fmt.Errorf("作品内容超出限制。")
+		return Err(MsgErrDraftLimits, nil)
 	}
 	return w.Store.Update(func(s *State) {
 		i := slices.IndexFunc(s.Drafts, func(v Draft) bool { return v.ID == d.ID })
@@ -72,7 +72,7 @@ func (w *Workbench) SaveDraft(d Draft) error {
 }
 func (w *Workbench) MediaFile(kind, id string) (string, error) {
 	if !validID(id) {
-		return "", fmt.Errorf("音频编号无效。")
+		return "", Err(MsgErrAudioIDInvalid, nil)
 	}
 	s := w.Store.Read()
 	var file string
@@ -90,10 +90,10 @@ func (w *Workbench) MediaFile(kind, id string) (string, error) {
 			}
 		}
 	default:
-		return "", fmt.Errorf("音频类型无效。")
+		return "", Err(MsgErrAudioKindInvalid, nil)
 	}
 	if file == "" {
-		return "", fmt.Errorf("没有找到音频。")
+		return "", Err(MsgErrAudioMissing, nil)
 	}
 	return w.Store.MediaPath(kind, file)
 }
@@ -103,7 +103,7 @@ func (w *Workbench) rename(kind, id, name string) error {
 	}
 	name = strings.TrimSpace(name)
 	if textLen(name) < 1 || textLen(name) > 120 || strings.ContainsFunc(name, unicode.IsControl) {
-		return fmt.Errorf("名称需为 1–120 个字符。")
+		return Err(MsgErrNameLength, nil)
 	}
 	return w.Store.Update(func(s *State) {
 		if kind == "voices" {
@@ -128,7 +128,7 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 	}
 	s := w.Store.Read()
 	if kind == "voices" && s.Activity != nil && s.Activity.Kind == "generate" && s.Activity.Status == "running" {
-		return fmt.Errorf("请等待生成结束后再删除声音。")
+		return Err(MsgErrVoiceBusyDelete, nil)
 	}
 	removed := path + ".deleted"
 	_, e = os.Stat(path)
@@ -159,7 +159,7 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 	if e != nil {
 		if exists {
 			if restore := os.Rename(removed, path); restore != nil {
-				return fmt.Errorf("%w；音频恢复失败：%v", e, restore)
+				return Err(MsgErrUnknown, MessageParams{"detail": fmt.Sprintf("%v; restore failed: %v", e, restore)})
 			}
 		}
 		return e
@@ -177,7 +177,15 @@ func (w *Workbench) preferences(p Preferences) error {
 		return e
 	}
 	if p.ModelDirectory != nil && !filepath.IsAbs(*p.ModelDirectory) {
-		return fmt.Errorf("模型目录必须是绝对路径。")
+		return Err(MsgErrModelDirAbsolute, nil)
+	}
+	if p.UiLocale == "" {
+		p.UiLocale = w.Store.Read().Preferences.UiLocale
+		if p.UiLocale == "" {
+			p.UiLocale = UiLocaleZhCN
+		}
+	} else if _, e := ParseUiLocale(string(p.UiLocale)); e != nil {
+		return e
 	}
 	return w.Store.Update(func(s *State) {
 		s.Preferences = p
@@ -191,15 +199,15 @@ func (w *Workbench) preferences(p Preferences) error {
 }
 
 // 前台命令由服务串行调度，耗时操作独立运行，状态通过 Store 广播。
-func (w *Workbench) begin(kind, label string, modelID *string, action func(context.Context) error) error {
+func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, modelID *string, action func(context.Context) error) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.closed || w.cancel != nil {
-		return fmt.Errorf("请等待当前操作结束，或先取消。")
+		return Err(MsgErrBusy, nil)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	if e := w.Store.Update(func(s *State) {
-		s.Activity = &Activity{Kind: kind, Label: label, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
+		s.Activity = &Activity{Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
 	}, true); e != nil {
 		cancel()
 		return e
@@ -216,18 +224,32 @@ func (w *Workbench) begin(kind, label string, modelID *string, action func(conte
 		update := func(s *State) {
 			a := s.Activity
 			if err == nil {
-				a.Label = "已完成"
+				a.Code = MsgActivityCompleted
+				a.Params = nil
 				a.Status = "completed"
+				a.ErrorCode = nil
+				a.ErrorParams = nil
 			} else if errors.Is(err, context.Canceled) {
 				a.Status = "cancelled"
-				a.Label = "已取消，可重新开始"
+				a.Code = MsgActivityCancelled
+				a.Params = nil
 				if kind == "download" {
-					a.Label = "已暂停"
+					a.Code = MsgActivityPaused
 				}
+				a.ErrorCode = nil
+				a.ErrorParams = nil
 			} else {
 				a.Status = "failed"
-				a.Label = "操作未完成"
-				a.Error = ptr(err.Error())
+				a.Code = MsgActivityFailed
+				a.Params = nil
+				if ce, ok := err.(*CallError); ok && ce != nil {
+					a.ErrorCode = &ce.Code
+					a.ErrorParams = ce.Params
+				} else {
+					code := MsgErrUnknown
+					a.ErrorCode = &code
+					a.ErrorParams = MessageParams{"detail": err.Error()}
+				}
 			}
 		}
 		if err != nil && !errors.Is(err, context.Canceled) {
@@ -237,7 +259,9 @@ func (w *Workbench) begin(kind, label string, modelID *string, action func(conte
 			_ = w.Store.Update(func(s *State) {
 				update(s)
 				s.Activity.Status = "failed"
-				s.Activity.Error = ptr("状态保存失败：" + e.Error())
+				code := MsgErrStateSaveFailed
+				s.Activity.ErrorCode = &code
+				s.Activity.ErrorParams = MessageParams{"detail": e.Error()}
 			}, false)
 		}
 		w.cancel = nil
@@ -268,10 +292,11 @@ func (w *Workbench) Close() {
 	})
 }
 
-func (w *Workbench) progress(label string, received, total int64) {
+func (w *Workbench) progress(code MessageCode, params MessageParams, received, total int64) {
 	_ = w.Store.Update(func(s *State) {
 		if s.Activity != nil {
-			s.Activity.Label = label
+			s.Activity.Code = code
+			s.Activity.Params = params
 			s.Activity.Received = received
 			s.Activity.Total = total
 		}
@@ -297,7 +322,7 @@ func (w *Workbench) download(id string) error {
 	if e != nil {
 		return e
 	}
-	return w.begin("download", "下载 "+m.Name, ptr(id), func(ctx context.Context) error {
+	return w.begin("download", MsgActivityDownload, MessageParams{"name": m.Name}, ptr(id), func(ctx context.Context) error {
 		dir := value(s.Preferences.ModelDirectory)
 		if dir == "" {
 			dir = filepath.Join(w.Store.Root, "models")
@@ -312,14 +337,14 @@ func (w *Workbench) download(id string) error {
 		}
 		need := max(int64(0), m.Size-fileSize(dest+".part")) + (100 << 20)
 		if available < uint64(need) {
-			return fmt.Errorf("模型目录磁盘空间不足。")
+			return Err(MsgErrModelDirSpace, nil)
 		}
 		if e = Download(ctx, w.client, url, dest, m.SHA256, m.Size, func(r, t int64) {
-			label := "下载 " + m.Name
+			code, params := MsgActivityDownloading, MessageParams{"name": m.Name}
 			if r == t {
-				label = "正在校验模型"
+				code, params = MsgActivityVerifying, nil
 			}
-			w.progress(label, r, t)
+			w.progress(code, params, r, t)
 		}); e != nil {
 			return e
 		}
@@ -327,7 +352,7 @@ func (w *Workbench) download(id string) error {
 	})
 }
 func (w *Workbench) importModel(path string) error {
-	return w.begin("import", "正在识别并校验模型", nil, func(ctx context.Context) error {
+	return w.begin("import", MsgActivityImport, nil, nil, func(ctx context.Context) error {
 		paths := []string{path}
 		info, e := os.Stat(path)
 		if e != nil {
@@ -362,7 +387,7 @@ func (w *Workbench) importModel(path string) error {
 			}
 		}
 		if count == 0 {
-			return fmt.Errorf("没有识别到兼容的 GGUF，请选择模型列表中列出的 audio.cpp 模型包。")
+			return Err(MsgErrModelImportNone, nil)
 		}
 		return nil
 	})
@@ -373,7 +398,7 @@ func (w *Workbench) install() error {
 	if e != nil {
 		return e
 	}
-	return w.begin("runtime", "准备 audio.cpp 运行时", nil, func(ctx context.Context) (err error) {
+	return w.begin("runtime", MsgActivityRuntimeDownload, nil, nil, func(ctx context.Context) (err error) {
 		w.engine.Stop()
 		staging, err := os.MkdirTemp(filepath.Join(w.Store.Root, "runtime"), EngineVersion+"-"+backend+"-")
 		if err != nil {
@@ -386,10 +411,10 @@ func (w *Workbench) install() error {
 		}()
 		for _, a := range archives {
 			file := filepath.Join(w.Store.Root, "downloads", a.Name)
-			if err = Download(ctx, w.client, "https://github.com/0xShug0/audio.cpp/releases/download/"+EngineVersion+"/"+a.Name, file, a.Hash, 0, func(r, t int64) { w.progress("下载推理运行库", r, t) }); err != nil {
+			if err = Download(ctx, w.client, "https://github.com/0xShug0/audio.cpp/releases/download/"+EngineVersion+"/"+a.Name, file, a.Hash, 0, func(r, t int64) { w.progress(MsgActivityRuntimeDownload, nil, r, t) }); err != nil {
 				return err
 			}
-			w.progress("正在解压运行库", 0, 0)
+			w.progress(MsgActivityRuntimeExtract, nil, 0, 0)
 			if err = Extract(ctx, file, staging); err != nil {
 				return err
 			}
@@ -418,7 +443,7 @@ func (w *Workbench) install() error {
 			return err
 		}
 		if len(executables) != 1 {
-			return fmt.Errorf("运行库未包含唯一的推理服务。")
+			return Err(MsgErrRuntimeUnique, nil)
 		}
 		executable := executables[0]
 		for _, dll := range dlls {
@@ -448,7 +473,7 @@ func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, 
 		return Voice{}, e
 	}
 	if !info.Mode().IsRegular() || info.Size() > 20<<20 {
-		return Voice{}, fmt.Errorf("参考音频需小于 20 MB。")
+		return Voice{}, Err(MsgErrAudioTooLarge, nil)
 	}
 	originalPath := path
 	ctx, cancel := context.WithTimeout(ctx, 90*time.Second)
@@ -474,7 +499,7 @@ func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, 
 		}
 	}
 	if duration < 1 || duration > 60 {
-		return Voice{}, fmt.Errorf("请选择 1–60 秒的参考音频。")
+		return Voice{}, Err(MsgErrAudioDuration, nil)
 	}
 	if strings.TrimSpace(name) == "" {
 		name = strings.TrimSuffix(filepath.Base(originalPath), filepath.Ext(originalPath))
@@ -497,7 +522,7 @@ func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, 
 		return Voice{}, e
 	}
 	if len(b) > 20<<20 {
-		return Voice{}, fmt.Errorf("参考音频需小于 20 MB。")
+		return Voice{}, Err(MsgErrAudioTooLarge, nil)
 	}
 	if e = os.WriteFile(dest, b, 0600); e != nil {
 		return Voice{}, e
@@ -515,14 +540,14 @@ func (w *Workbench) generate(d Draft) error {
 	s := w.Store.Read()
 	i := slices.IndexFunc(s.Models, func(m InstalledModel) bool { return m.ID == d.ModelID })
 	if i < 0 {
-		return fmt.Errorf("请先在设置中下载或导入模型。")
+		return Err(MsgErrModelRequired, nil)
 	}
 	voice := ""
 	var e error
 	if d.RequiresVoice() {
 		voice, e = w.MediaFile("voices", value(d.VoiceID))
 		if e != nil {
-			return fmt.Errorf("请先添加音色参考音频。")
+			return Err(MsgErrVoiceRequired, nil)
 		}
 	}
 	emotion := ""
@@ -533,19 +558,19 @@ func (w *Workbench) generate(d Draft) error {
 		return e
 	}
 	if s.RuntimePath == nil || value(s.RuntimeBackend) != s.Preferences.Backend {
-		return fmt.Errorf("请先安装当前设备对应的推理运行时。")
+		return Err(MsgErrRuntimeRequired, nil)
 	}
 	if e = w.SaveDraft(d); e != nil {
 		return e
 	}
-	return w.begin("generate", "准备生成", nil, func(ctx context.Context) error {
+	return w.begin("generate", MsgActivityGenerate, nil, nil, func(ctx context.Context) error {
 		id := newID()
 		file := id + ".wav"
 		path, e := w.Store.MediaPath("outputs", file)
 		if e != nil {
 			return e
 		}
-		if e = w.engine.Generate(ctx, *s.RuntimePath, s.Models[i], s.Preferences.Backend, d, voice, emotion, path, func(label string) { w.progress(label, 0, 0) }); e != nil {
+		if e = w.engine.Generate(ctx, *s.RuntimePath, s.Models[i], s.Preferences.Backend, d, voice, emotion, path, func(code MessageCode, params MessageParams) { w.progress(code, params, 0, 0) }); e != nil {
 			return e
 		}
 		duration, e := Duration(path)
@@ -569,7 +594,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 		Base64 string `json:"base64"`
 	}
 	if len(data) == 0 || string(data) == "null" {
-		return nil, fmt.Errorf("请求参数无效。")
+		return nil, Err(MsgErrRequestInvalid, nil)
 	}
 	if e := json.Unmarshal(data, &p); e != nil {
 		return nil, e
@@ -586,7 +611,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 		err = w.deleteMedia(p.Kind, p.ID)
 	case "draft.delete":
 		if !validID(p.ID) {
-			return nil, fmt.Errorf("作品编号无效。")
+			return nil, Err(MsgErrDraftIDInvalid, nil)
 		}
 		err = w.Store.Update(func(s *State) { s.Drafts = slices.DeleteFunc(s.Drafts, func(d Draft) bool { return d.ID == p.ID }) }, true)
 	case "draft.save", "generation.start":
@@ -600,7 +625,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 			err = w.generate(d)
 		}
 	case "preferences.save":
-		preferences := Preferences{DownloadSource: "modelscope", Backend: "cpu"}
+		preferences := Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {
 			return nil, e
 		}
@@ -613,7 +638,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 			return nil, e
 		}
 		if len(b) > 20<<20 {
-			return nil, fmt.Errorf("参考音频需小于 20 MB。")
+			return nil, Err(MsgErrAudioTooLarge, nil)
 		}
 		path := filepath.Join(w.Store.Root, "downloads", newID()+".wav")
 		defer os.Remove(path)
@@ -635,7 +660,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 		activity := w.Store.Read().Activity
 		// 下载其他模型不占用推理引擎，也不会改写当前模型的登记。
 		if w.cancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == p.ID) {
-			return nil, fmt.Errorf("此模型暂不可移除，请先结束相关操作。")
+			return nil, Err(MsgErrModelForgetBlocked, nil)
 		}
 		w.engine.Stop()
 		err = w.Store.Update(func(s *State) {
@@ -646,7 +671,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 	case "operation.cancel":
 		w.Cancel()
 	default:
-		return nil, fmt.Errorf("不支持的操作。")
+		return nil, Err(MsgErrMethodUnsupported, nil)
 	}
 	return true, err
 }

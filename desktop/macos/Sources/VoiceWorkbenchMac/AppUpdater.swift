@@ -31,6 +31,16 @@ final class AppUpdater {
         }
     }
 
+    func applyLocaleTitles() {
+        if ready != nil {
+            menuItem.title = HostL10n.t("menu.restartUpdate", ready!.version)
+        } else if operation != nil {
+            menuItem.title = HostL10n.t("menu.checkingUpdates")
+        } else {
+            menuItem.title = HostL10n.t("menu.checkUpdates")
+        }
+    }
+
     @objc private func checkFromMenu() {
         if ready != nil { promptInstall(); return }
         showResult = true
@@ -41,25 +51,25 @@ final class AppUpdater {
         guard operation == nil, ready == nil, !installRequested else { return }
         operation = Task {
             defer { operation = nil; showResult = false }
-            menuItem.title = "正在检查更新…"
+            menuItem.title = HostL10n.t("menu.checkingUpdates")
             do {
                 let url = URL(string: "https://api.github.com/repos/leemysw/yovoice/releases/latest")!
                 let (data, response) = try await URLSession.shared.data(for: request(url))
                 if (response as? HTTPURLResponse)?.statusCode == 404 {
-                    menuItem.title = "检查更新…"
-                    if showResult { inform("暂无可用更新", "GitHub 上尚无可用的正式版本。") }
+                    menuItem.title = HostL10n.t("menu.checkUpdates")
+                    if showResult { inform(HostL10n.t("alert.noUpdate.title"), HostL10n.t("alert.noUpdate.body")) }
                     return
                 }
                 try Self.validate(response)
                 let release = try JSONDecoder().decode(UpdateRelease.self, from: data)
                 guard let asset = try release.package(newerThan: currentVersion) else {
-                    menuItem.title = "检查更新…"
-                    if showResult { inform("yovoice 已是最新版本", "当前版本：\(currentVersion)") }
+                    menuItem.title = HostL10n.t("menu.checkUpdates")
+                    if showResult { inform(HostL10n.t("alert.upToDate.title"), HostL10n.t("alert.upToDate.body", currentVersion)) }
                     return
                 }
                 let target = Bundle.main.bundleURL
                 guard Self.canReplace(target) else {
-                    throw UpdateRelease.failure("请将 yovoice 安装到可写的 Applications 文件夹后再更新。")
+                    throw UpdateRelease.failure(HostL10n.t("err.updateWritable"))
                 }
                 // 只接受与当前正式应用相同开发者签名的更新。
                 let team = try await Task.detached(priority: .utility) { try Self.signingTeam(target) }.value
@@ -70,23 +80,23 @@ final class AppUpdater {
                 let directory = root.appendingPathComponent("updates/\(release.tag_name)", isDirectory: true)
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
                 let archive = directory.appendingPathComponent(asset.name)
-                menuItem.title = "正在后台下载 \(release.version)…"
+                menuItem.title = HostL10n.t("menu.downloadingUpdate", release.version)
                 if !FileManager.default.fileExists(atPath: archive.path) {
                     let (download, downloadResponse) = try await URLSession.shared.download(for: request(asset.browser_download_url, timeout: 600))
                     defer { try? FileManager.default.removeItem(at: download) }
                     try Self.validate(downloadResponse)
                     try FileManager.default.moveItem(at: download, to: archive)
                 }
-                menuItem.title = "正在校验更新…"
+                menuItem.title = HostL10n.t("menu.verifyingUpdate")
                 let app = try await Task.detached(priority: .utility) {
                     try Self.prepare(archive: archive, hash: expected, version: release.version, team: team)
                 }.value
                 ready = (app, release.version)
-                menuItem.title = "重启并更新至 \(release.version)…"
+                menuItem.title = HostL10n.t("menu.restartUpdate", release.version)
                 // 后台检查只更新菜单，不打断正在进行的创作。
                 if showResult { promptInstall() }
             } catch {
-                menuItem.title = "检查更新…"
+                menuItem.title = HostL10n.t("menu.checkUpdates")
                 log(error)
                 if showResult { showFailure(error) }
             }
@@ -102,10 +112,10 @@ final class AppUpdater {
     private func promptInstall() {
         guard let ready, !installRequested else { return }
         let alert = NSAlert()
-        alert.messageText = "yovoice \(ready.version) 已准备好"
-        alert.informativeText = "更新已下载并通过校验。重启前会保存当前作品。"
-        alert.addButton(withTitle: "重启并更新")
-        alert.addButton(withTitle: "稍后")
+        alert.messageText = HostL10n.t("alert.updateReady.title", ready.version)
+        alert.informativeText = HostL10n.t("alert.updateReady.body")
+        alert.addButton(withTitle: HostL10n.t("alert.updateReady.restart"))
+        alert.addButton(withTitle: HostL10n.t("alert.updateReady.later"))
         if alert.runModal() == .alertFirstButtonReturn {
             installRequested = true
             NSApp.terminate(nil)
@@ -123,7 +133,7 @@ final class AppUpdater {
         guard installRequested, let ready else { return }
         let target = Bundle.main.bundleURL
         guard Self.canReplace(target), let resource = Bundle.main.resourceURL else {
-            throw UpdateRelease.failure("当前应用位置不可替换，请从 GitHub 下载更新。")
+            throw UpdateRelease.failure(HostL10n.t("err.updateReplace"))
         }
         let directory = ready.app.deletingLastPathComponent()
         let helper = directory.appendingPathComponent("install-update.sh")
@@ -152,10 +162,10 @@ final class AppUpdater {
 
     private func showFailure(_ error: Error) {
         let alert = NSAlert()
-        alert.messageText = "未能完成更新"
+        alert.messageText = HostL10n.t("alert.updateFailed.title")
         alert.informativeText = error.localizedDescription
-        alert.addButton(withTitle: "稍后")
-        alert.addButton(withTitle: "打开下载页")
+        alert.addButton(withTitle: HostL10n.t("alert.updateReady.later"))
+        alert.addButton(withTitle: HostL10n.t("alert.updateFailed.open"))
         if alert.runModal() == .alertSecondButtonReturn { NSWorkspace.shared.open(releases) }
     }
 
@@ -167,7 +177,7 @@ final class AppUpdater {
 
     nonisolated private static func validate(_ response: URLResponse) throws {
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw UpdateRelease.failure("更新服务暂时不可用，请稍后重试。")
+            throw UpdateRelease.failure(HostL10n.t("err.updateUnavailable"))
         }
     }
 
@@ -180,11 +190,11 @@ final class AppUpdater {
     nonisolated private static func signingTeam(_ app: URL) throws -> String {
         let signature = try run("/usr/bin/codesign", ["-dv", "--verbose=4", app.path])
         guard let line = signature.split(separator: "\n").first(where: { $0.hasPrefix("TeamIdentifier=") }) else {
-            throw UpdateRelease.failure("开发构建不支持自动替换，请安装正式发布版本。")
+            throw UpdateRelease.failure(HostL10n.t("err.updateDevBuild"))
         }
         let team = String(line.dropFirst("TeamIdentifier=".count))
         guard team.count == 10, team.allSatisfy({ "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".contains($0) }) else {
-            throw UpdateRelease.failure("开发构建不支持自动替换，请安装正式发布版本。")
+            throw UpdateRelease.failure(HostL10n.t("err.updateDevBuild"))
         }
         return team
     }
@@ -196,7 +206,7 @@ final class AppUpdater {
         while let data = try file.read(upToCount: 1024 * 1024), !data.isEmpty { digest.update(data: data) }
         guard digest.finalize().map({ String(format: "%02x", $0) }).joined() == hash else {
             try? FileManager.default.removeItem(at: archive)
-            throw UpdateRelease.failure("更新包校验失败，已删除下载文件，请重试。")
+            throw UpdateRelease.failure(HostL10n.t("err.updateChecksum"))
         }
         let directory = archive.deletingLastPathComponent()
         let app = directory.appendingPathComponent("yovoice.app")
@@ -204,7 +214,7 @@ final class AppUpdater {
         _ = try run("/usr/bin/ditto", ["-x", "-k", archive.path, directory.path])
         guard let bundle = Bundle(url: app), bundle.bundleIdentifier == "app.voiceworkbench.desktop",
               bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == version else {
-            throw UpdateRelease.failure("更新包的应用标识或版本不匹配。")
+            throw UpdateRelease.failure(HostL10n.t("err.updateIdentity"))
         }
         try verifyArchitecture(app.appendingPathComponent("Contents/MacOS/VoiceWorkbenchMac"))
         _ = try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", "-R", "anchor apple generic and certificate leaf[subject.OU] = \"\(team)\"", app.path])
@@ -229,7 +239,7 @@ final class AppUpdater {
         process.waitUntilExit()
         let output = String(decoding: data, as: UTF8.self)
         guard process.terminationStatus == 0 else {
-            throw UpdateRelease.failure("更新校验失败（\(URL(fileURLWithPath: executable).lastPathComponent)）：\(output.prefix(500))")
+            throw UpdateRelease.failure(HostL10n.t("err.updateCodesign", URL(fileURLWithPath: executable).lastPathComponent, String(output.prefix(500))))
         }
         return output
     }

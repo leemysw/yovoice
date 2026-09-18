@@ -1,6 +1,9 @@
 import catalog from './catalog.json';
 import { emptyState, type Draft, type State, type Voice, type Preferences } from '../workbench';
 import { encodeWav, toBase64 } from './sound';
+import { CallError, parseCallError } from './callError';
+
+export { CallError, parseCallError };
 
 declare global { interface Window { __workbenchPlatform?: 'macos'; __workbenchMediaBase?: string; __workbenchDraft?: Draft; chrome?: { webview?: { postMessage: (data: unknown) => void; addEventListener: (name: string, listener: (event: MessageEvent) => void) => void } } } }
 const native = window.chrome?.webview;
@@ -13,16 +16,22 @@ native?.addEventListener('message', ({ data }) => {
   const callback = pending.get(data.id);
   if (!callback) return;
   clearTimeout(callback.timer); pending.delete(data.id);
-  if (data.error) callback.reject(new Error(data.error)); else callback.resolve(data.result);
+  if (data.error) callback.reject(parseCallError(data.error)); else callback.resolve(data.result);
 });
 let preview: State;
-try { preview = JSON.parse(localStorage.getItem('voice-workbench-v1') ?? 'null') ?? emptyState(); } catch { preview = emptyState(); }
+try {
+  const stored = JSON.parse(localStorage.getItem('voice-workbench-v1') ?? 'null');
+  preview = stored ?? emptyState();
+  if (!preview.preferences?.uiLocale || (preview.preferences.uiLocale !== 'zh-CN' && preview.preferences.uiLocale !== 'en')) {
+    preview = { ...preview, preferences: { ...preview.preferences, uiLocale: 'zh-CN' } };
+  }
+} catch { preview = emptyState(); }
 function publish() { localStorage.setItem('voice-workbench-v1', JSON.stringify(preview)); listeners.forEach(fn => fn(structuredClone(preview))); }
 export function subscribe(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
 export async function call<T = unknown>(method: string, data: unknown = {}): Promise<T> {
   if (native) return new Promise<T>((resolve, reject) => {
     const id = crypto.randomUUID();
-    const timer = setTimeout(() => { pending.delete(id); reject(new Error('桌面服务没有响应，请重试。')); }, 120000);
+    const timer = setTimeout(() => { pending.delete(id); reject(new CallError('@yovoice.error.unknown', { detail: 'desktop timeout' })); }, 120000);
     pending.set(id, { resolve: value => resolve(value as T), reject, timer }); native.postMessage({ id, method, data });
   });
   // 浏览器预览只保存编辑和音频数据，不模拟桌面推理或模型安装。
@@ -34,9 +43,9 @@ export async function call<T = unknown>(method: string, data: unknown = {}): Pro
   }
   if (method === 'media.rename' || method === 'media.delete') {
     const { kind, id, name } = data as { kind: string; id: string; name: string };
-    if (!['voices', 'outputs'].includes(kind)) throw new Error('音频类型无效。');
+    if (!['voices', 'outputs'].includes(kind)) throw new CallError('@yovoice.error.audioKindInvalid');
     if (method === 'media.rename') {
-      if (!name?.trim() || name.trim().length > 120) throw new Error('名称需为 1–120 个字符。');
+      if (!name?.trim() || name.trim().length > 120) throw new CallError('@yovoice.error.nameLength');
       if (kind === 'voices') preview.voices = preview.voices.map(v => v.id === id ? { ...v, name: name.trim() } : v);
       else preview.history = preview.history.map(v => v.id === id ? { ...v, title: name.trim() } : v);
     } else {
@@ -59,7 +68,7 @@ export async function call<T = unknown>(method: string, data: unknown = {}): Pro
     const bytes = Uint8Array.from(atob(recording.base64), c => c.charCodeAt(0));
     return await importVoiceFile(new File([bytes], `${recording.name}.wav`, { type: 'audio/wav' })) as T;
   }
-  throw new Error('请在桌面应用中使用此功能；浏览器可预览界面、编辑正文和试听参考音频。');
+  throw new CallError('@yovoice.error.previewDesktopOnly');
 }
 function database(): Promise<IDBDatabase> { return new Promise((resolve, reject) => {
   const request = indexedDB.open('voice-workbench-audio', 1);
@@ -75,12 +84,12 @@ async function blobStore(key: string, value?: Blob): Promise<Blob | undefined> {
   }); } finally { db.close(); }
 }
 export async function importVoiceFile(file: File): Promise<Voice> {
-  if (file.size > 20 * 1024 * 1024) throw new Error('参考音频需小于 20 MB。');
+  if (file.size > 20 * 1024 * 1024) throw new CallError('@yovoice.error.audioTooLarge');
   if (native) return call<Voice>('voice.record', { name: file.name.replace(/\.[^.]+$/, ''), base64: await toBase64(file) });
   const context = new AudioContext();
   try {
     const decoded = await context.decodeAudioData(await file.arrayBuffer());
-    if (decoded.duration < 1 || decoded.duration > 60) throw new Error('请选择 1–60 秒的参考音频。');
+    if (decoded.duration < 1 || decoded.duration > 60) throw new CallError('@yovoice.error.audioDuration');
     const wav = encodeWav(decoded);
     const id = crypto.randomUUID().replaceAll('-', '');
     const voice = { id, name: file.name.replace(/\.[^.]+$/, ''), fileName: id + '.wav', duration: decoded.duration };
@@ -90,5 +99,5 @@ export async function importVoiceFile(file: File): Promise<Voice> {
 export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promise<string> {
   if (native && window.__workbenchMediaBase) return `${window.__workbenchMediaBase}${kind}/${encodeURIComponent(file)}`;
   if (native) return `https://${kind}.workbench.local/${encodeURIComponent(file)}`;
-  const blob = await blobStore(file); if (!blob) throw new Error('音频文件不存在，请重新导入。'); return URL.createObjectURL(blob);
+  const blob = await blobStore(file); if (!blob) throw new CallError('@yovoice.error.audioBlobMissing'); return URL.createObjectURL(blob);
 }
