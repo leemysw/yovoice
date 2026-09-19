@@ -519,7 +519,18 @@ test('OmniVoice 和 Qwen3-TTS 使用各自的声音控件', async ({ page }) => 
   await expect(page.getByRole('radio', { name: '声音设计', exact: true })).toBeChecked();
   await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
   await page.getByRole('combobox', { name: '性别', exact: true }).click();
+  const genderTrigger = await page.getByRole('combobox', { name: '性别', exact: true }).boundingBox();
+  const genderMenu = await page.getByRole('listbox').boundingBox();
+  expect(genderMenu!.y).toBeGreaterThanOrEqual(genderTrigger!.y + genderTrigger!.height);
   await page.getByRole('option', { name: '女', exact: true }).click();
+  await page.locator('summary').filter({ hasText: '非语言声音' }).click();
+  const tags = page.getByRole('combobox', { name: '非语言声音', exact: true });
+  await tags.click();
+  const tagTrigger = await tags.boundingBox();
+  const tagMenu = await page.getByRole('listbox').boundingBox();
+  expect(tagMenu!.y >= tagTrigger!.y + tagTrigger!.height || tagMenu!.y + tagMenu!.height <= tagTrigger!.y).toBe(true);
+  await page.getByRole('option', { name: '[laughter]', exact: true }).click();
+  await expect(page.getByLabel('正文', { exact: true })).toHaveValue(/\[laughter\]$/);
   await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
   await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toBeVisible();
   await page.getByLabel('参考音频原文').fill('你好。');
