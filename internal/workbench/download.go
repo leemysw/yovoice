@@ -182,6 +182,8 @@ func Extract(ctx context.Context, archive, destination string) error {
 		if !filepath.IsLocal(name) || strings.Contains(name, ":") || strings.Contains(name, "\x00") {
 			return Err(MsgErrRuntimeArchivePath, nil)
 		}
+		// Windows 的 os.Root 不接受目录名末尾的分隔符，校验后统一为本机路径。
+		name = filepath.Clean(name)
 		if mode.IsDir() {
 			return root.MkdirAll(name, 0755)
 		}
