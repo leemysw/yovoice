@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         if: runner.os == 'Windows'
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 8.0.x
       - name: Set application version
         shell: bash
         env:

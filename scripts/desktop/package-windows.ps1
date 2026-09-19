@@ -1,4 +1,4 @@
-param([Parameter(Mandatory = $true)][string]$Version)
+﻿param([Parameter(Mandatory = $true)][string]$Version)
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 if ($Version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "版本号无效" }
