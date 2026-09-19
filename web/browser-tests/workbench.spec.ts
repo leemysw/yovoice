@@ -311,6 +311,9 @@ test('侧栏拖拽调宽、收起和恢复会记住状态', async ({ page }) => 
   await page.setViewportSize({ width: 1280, height: 800 }); await page.goto('/');
   const sidebar = page.getByRole('navigation', { name: '主导航' });
   const handle = page.getByRole('separator', { name: '调整侧栏宽度' });
+  const panel = page.locator('.astryx-app-shell-sidenav');
+  // 内层侧栏必须适配外层内容宽度，避免分隔线挤出横向滚动条。
+  await expect.poll(() => panel.evaluate(el => el.scrollWidth - el.clientWidth)).toBe(0);
   const initial = (await sidebar.boundingBox())!.width;
   const bounds = (await handle.boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
@@ -328,6 +331,11 @@ test('侧栏拖拽调宽、收起和恢复会记住状态', async ({ page }) => 
   await expect(sidebar).toHaveCount(0);
   await page.evaluate(() => window.dispatchEvent(new Event('workbench-toggle-sidebar')));
   await expect(sidebar).toBeVisible();
+  for (const width of [840, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect.poll(() => panel.evaluate(el => el.scrollWidth - el.clientWidth)).toBe(0);
+    await expect(page.getByTestId('nav-settings')).toBeInViewport();
+  }
 });
 
 

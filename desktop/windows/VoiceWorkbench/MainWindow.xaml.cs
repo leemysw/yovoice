@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Interop;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Win32;
@@ -25,6 +27,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        StateChanged += (_, _) =>
+        {
+            bool maximized = WindowState == WindowState.Maximized;
+            MaximizeGlyph.Text = maximized ? "\uE923" : "\uE922";
+            MaximizeButton.ToolTip = maximized ? "还原" : "最大化";
+            System.Windows.Automation.AutomationProperties.SetName(MaximizeButton, maximized ? "还原" : "最大化");
+        };
         using (var stream = System.Windows.Application.GetResourceStream(new Uri("Resources/AppIcon.ico", UriKind.Relative)).Stream)
             trayIcon = new System.Drawing.Icon(stream);
         trayMenu = new Forms.ContextMenuStrip();
@@ -67,6 +76,18 @@ public partial class MainWindow : Window
         };
         Closed += (_, _) => { closed = true; tray.Visible = false; tray.Dispose(); trayMenu.Dispose(); trayIcon.Dispose(); updater.Dispose(); service.Dispose(); web?.Dispose(); };
     }
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        // 与 Nexus 一样交由 DWM 绘制系统圆角和窗口效果，避免自定义标题栏变成无边框平面。
+        var handle = new WindowInteropHelper(this).Handle;
+        const int windowCornerPreference = 33, systemBackdropType = 38;
+        int roundCorners = 2, mainWindowBackdrop = 2;
+        _ = DwmSetWindowAttribute(handle, windowCornerPreference, ref roundCorners, sizeof(int));
+        _ = DwmSetWindowAttribute(handle, systemBackdropType, ref mainWindowBackdrop, sizeof(int));
+    }
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr handle, int attribute, ref int value, int size);
     private void RestoreWindow()
     {
         Show();
@@ -81,6 +102,24 @@ public partial class MainWindow : Window
         Close();
     }
     private void ExitMenu_Click(object sender, RoutedEventArgs e) => RequestExit();
+    private void ShowWindowMenu_Click(object sender, RoutedEventArgs e)
+    {
+        var icon = (FrameworkElement)sender;
+        SystemCommands.ShowSystemMenu(this, icon.PointToScreen(new Point(0, icon.ActualHeight)));
+    }
+    private void Minimize_Click(object sender, RoutedEventArgs e) => SystemCommands.MinimizeWindow(this);
+    private void Maximize_Click(object sender, RoutedEventArgs e)
+    {
+        if (WindowState == WindowState.Maximized) SystemCommands.RestoreWindow(this);
+        else SystemCommands.MaximizeWindow(this);
+    }
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+    private async void ToggleSidebar_Click(object sender, RoutedEventArgs e)
+    {
+        if (web?.CoreWebView2 is null || recovering || shuttingDown) return;
+        try { await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('workbench-toggle-sidebar'))"); }
+        catch (InvalidOperationException) { }
+    }
     private async Task InitializeWebAsync()
     {
         if (recovering || closed) return;
@@ -93,6 +132,9 @@ public partial class MainWindow : Window
             var environment = await CoreWebView2Environment.CreateAsync(null, Path.Combine(service.Root, "web-cache"));
             await web.EnsureCoreWebView2Async(environment);
             var core = web.CoreWebView2;
+            // 桌面界面跟随系统 DPI，禁止 Ctrl＋滚轮及缩放快捷键改变页面比例。
+            core.Settings.IsZoomControlEnabled = false;
+            web.ZoomFactor = 1;
             core.Settings.IsStatusBarEnabled = false;
             core.Settings.AreDefaultContextMenusEnabled = false;
             core.Settings.IsPasswordAutosaveEnabled = false;
