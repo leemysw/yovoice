@@ -1,4 +1,8 @@
 {
+  "@yovoice.settings.proxy": { "defaultMessage": "网络代理" },
+  "@yovoice.settings.proxyEnabled": { "defaultMessage": "启用代理" },
+  "@yovoice.settings.proxyAddress": { "defaultMessage": "代理地址" },
+  "@yovoice.error.proxyURL": { "defaultMessage": "请输入有效的 HTTP、HTTPS 或 SOCKS5 代理地址及端口，不包含路径或账号密码。" },
   "@yovoice.action.apply": {
     "defaultMessage": "应用"
   },

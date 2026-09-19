@@ -1,6 +1,48 @@
 import { emptyState } from '../src/shared/workbench';
 import { test, expect } from '@playwright/test';
 
+test('代理地址失焦自动保存，开关与地址重载后保留', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('nav-settings').click();
+  const address = page.getByRole('textbox', { name: '代理地址' });
+  const save = page.getByRole('button', { name: '保存代理' });
+  const enabled = page.getByRole('switch', { name: '启用代理' });
+  await expect(enabled).not.toBeChecked();
+  await expect(enabled).toBeDisabled();
+  await expect(save).toHaveCount(0);
+  await address.fill('  http://127.0.0.1:7890  ');
+  await page.getByRole('heading', { name: '网络代理' }).click();
+  await expect(address).toHaveValue('http://127.0.0.1:7890');
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(address).toHaveValue('http://127.0.0.1:7890');
+  await expect(enabled).not.toBeChecked();
+  await enabled.click();
+  await expect(enabled).toBeChecked();
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(enabled).toBeChecked();
+  await enabled.click();
+  await expect(enabled).not.toBeChecked();
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(enabled).not.toBeChecked();
+  await expect(address).toHaveValue('http://127.0.0.1:7890');
+  await address.fill('http://127.0.0.1:7891');
+  await enabled.click();
+  await expect(enabled).toBeChecked();
+  await page.getByTestId('nav-create').click();
+  await page.getByTestId('nav-settings').click();
+  await expect(address).toHaveValue('http://127.0.0.1:7891');
+  await address.fill('');
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  await page.getByRole('tab', { name: '常规', exact: true }).click();
+  await expect(enabled).not.toBeChecked();
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(address).toHaveValue('');
+});
+
 test('四种表达方式、草稿持久化与模型协议', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('/');
