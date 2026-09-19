@@ -9,6 +9,65 @@
         <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
+        <Style TargetType="MenuItem">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontFamily" Value="Segoe UI, Microsoft YaHei UI" />
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="MinWidth" Value="220" />
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Grid SnapsToDevicePixels="True">
+                            <Border x:Name="MenuSurface" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter ContentSource="Header" RecognizesAccessKey="True"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+                            </Border>
+                            <!-- 保留原生菜单的焦点和键盘行为，仅替换视觉模板。 -->
+                            <!-- 直接锚定按钮左边缘，不用阴影留白额外向左偏移。 -->
+                            <Popup x:Name="PART_Popup" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Placement="Bottom" PlacementTarget="{Binding ElementName=MenuSurface}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade" HorizontalOffset="0">
+                                <Border Margin="8" CornerRadius="10" Padding="4"
+                                        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                        BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" BorderThickness="1">
+                                    <Border.Effect><DropShadowEffect BlurRadius="14" ShadowDepth="3" Opacity="0.18" /></Border.Effect>
+                                    <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                                  MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle"
+                                                        Grid.IsSharedSizeScope="True" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="MenuSurface" Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+                            </Trigger>
+                            <Trigger Property="IsSubmenuOpen" Value="True">
+                                <Setter TargetName="MenuSurface" Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Role" Value="TopLevelHeader">
+                    <Setter Property="MinWidth" Value="0" />
+                    <Setter Property="MinHeight" Value="28" />
+                    <Setter Property="FontSize" Value="14" />
+                    <Setter Property="Padding" Value="8,4" />
+                    <Setter Property="Margin" Value="1,0" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="CaptionButton" TargetType="Button">
             <Setter Property="Width" Value="46" />
             <Setter Property="Height" Value="40" />
@@ -67,13 +126,13 @@
                           Stroke="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" StrokeThickness="1" Width="16" Height="16" />
                 </Button>
                 <Menu VerticalAlignment="Center" Background="Transparent" shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                    <MenuItem Header="文件(_F)" Padding="10,6">
+                    <MenuItem Header="文件">
                         <MenuItem Header="退出 yovoice" Click="ExitMenu_Click" />
                     </MenuItem>
-                    <MenuItem Header="视图(_V)" Padding="10,6">
+                    <MenuItem Header="视图">
                         <MenuItem Header="切换侧栏" Click="ToggleSidebar_Click" />
                     </MenuItem>
-                    <MenuItem Header="帮助(_H)" Padding="10,6">
+                    <MenuItem Header="帮助">
                         <MenuItem x:Name="CheckUpdatesMenu" Header="检查更新…" />
                     </MenuItem>
                 </Menu>

@@ -43,7 +43,7 @@ public partial class MainWindow : Window
         tray.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) RestoreWindow(); };
         updater = new AppUpdater(this, CheckUpdatesMenu, service.Root);
         service.StateChanged += json => { if (!closed) _ = Dispatcher.InvokeAsync(() => PostJson(json)); };
-        service.Failed += error => { if (!closed && !shuttingDown) _ = Dispatcher.InvokeAsync(() => MessageBox.Show(error, "yovoice")); };
+        service.Failed += error => { if (!closed && !shuttingDown) _ = Dispatcher.InvokeAsync(() => AppDialog.Show(this, "本地服务已停止", error)); };
         Loaded += async (_, _) => { await InitializeWebAsync(); updater.Start(); };
         Closing += async (_, e) =>
         {
@@ -59,7 +59,7 @@ public partial class MainWindow : Window
                 if (web?.CoreWebView2 is not null)
                 {
                     var result = await service.CallAsync("state.get", new { });
-                    if (result.GetProperty("state").TryGetProperty("activity", out var activity) && activity.ValueKind == JsonValueKind.Object && activity.GetProperty("status").GetString() == "running" && MessageBox.Show("当前操作尚未结束。退出将取消操作，已下载的部分文件和正文会保留。", "退出 yovoice", MessageBoxButton.OKCancel) != MessageBoxResult.OK) { shuttingDown = false; updater.CancelInstall(); return; }
+                    if (result.GetProperty("state").TryGetProperty("activity", out var activity) && activity.ValueKind == JsonValueKind.Object && activity.GetProperty("status").GetString() == "running" && !AppDialog.Show(this, "退出 yovoice？", "当前操作尚未结束。退出将取消操作，已下载的部分文件和正文会保留。", "退出", "继续使用")) { shuttingDown = false; updater.CancelInstall(); return; }
                 }
                 // 关闭前读取最新正文，避免自动保存的防抖窗口丢字。
                 if (web?.CoreWebView2 is not null)
@@ -72,7 +72,7 @@ public partial class MainWindow : Window
                 updater.CommitInstall();
                 shutdownComplete = true; Close();
             }
-            catch (Exception error) { shuttingDown = false; updater.CancelInstall(); MessageBox.Show(error.Message, "未能安全保存，请重试退出"); }
+            catch (Exception error) { shuttingDown = false; updater.CancelInstall(); AppDialog.Show(this, "未能安全保存", error.Message + "\n\n请稍后重试退出。"); }
         };
         Closed += (_, _) => { closed = true; tray.Visible = false; tray.Dispose(); trayMenu.Dispose(); trayIcon.Dispose(); updater.Dispose(); service.Dispose(); web?.Dispose(); };
     }
