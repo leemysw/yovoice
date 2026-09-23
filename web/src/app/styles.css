@@ -234,6 +234,7 @@
   .advanced { border-top: 1px solid var(--app-line); padding-top: var(--spacing-3); }
   .advanced summary { min-height: var(--spacing-8); font-size: var(--app-small-font); color: var(--app-muted); }
   .number-field input { min-height: var(--spacing-9); text-align: right; font-variant-numeric: tabular-nums; }
+  .number-field input::-webkit-inner-spin-button { margin-inline-start: var(--spacing-2); }
 
   .section-eyebrow { font-weight: var(--font-weight-medium); }
   .settings-page h1,.library-page h1 { font-size: var(--font-size-3xl); }
