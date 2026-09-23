@@ -1,5 +1,5 @@
 import { VStack } from '@astryxdesign/core/Layout';
-import { Selector } from '@astryxdesign/core/Selector';
+import { Selector } from '../../shared/Selector';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import definitions from '../../shared/lib/generation_options.json';

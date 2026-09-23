@@ -1,5 +1,5 @@
 import { ModelOptions } from './ModelOptions';
-import { Selector } from '@astryxdesign/core/Selector';
+import { Selector } from '../../shared/Selector';
 import { Slider } from '@astryxdesign/core/Slider';
 import attributes from '../../shared/lib/omni_attributes.json';
 import { Button } from '@astryxdesign/core/Button';

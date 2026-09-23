@@ -5,7 +5,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { Slider } from '@astryxdesign/core/Slider';
-import { Selector, SelectorOption } from '@astryxdesign/core/Selector';
+import { Selector, SelectorOption } from '../../shared/Selector';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, ChevronUp, ChevronRight, Play, LoaderCircle } from 'lucide-react';

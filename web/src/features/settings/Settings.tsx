@@ -3,7 +3,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { Dialog } from '@astryxdesign/core/Dialog';
-import { Selector } from '@astryxdesign/core/Selector';
+import { Selector } from '../../shared/Selector';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';

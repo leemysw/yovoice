@@ -3,7 +3,7 @@ import { useResizable, ResizeHandle } from '@astryxdesign/core/Resizable';
 import { AppShell } from '@astryxdesign/core/AppShell';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
-import { Selector } from '@astryxdesign/core/Selector';
+import { Selector } from '../shared/Selector';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
