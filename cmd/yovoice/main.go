@@ -39,6 +39,7 @@ OmniVoice：--voice-mode design|clone、--voice-description TEXT、--reference-t
 Qwen3-TTS Base：需要参考音频，--reference-text TEXT 可选；不提供原文时仅克隆音色。
 Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；VoiceDesign：--voice-description TEXT。
 OmniVoice / Qwen3-TTS 支持 --language；OmniVoice 支持 --speed、--guidance-scale、--inference-steps。
+Kokoro：--speaker zf_xiaobei（v1.0）或 zf_001（v1.1-zh），语言随音色选择，无需参考音频。
 高级选项：--option 'text_chunk_size=512'、--option 'text_chunk_mode="tag_aware"'，可重复。
 所有命令支持 --data-dir DIR、--json。stdout 输出 JSON，进度写 stderr。
 生成与下载阻塞至完成；Ctrl-C 取消并清理推理进程。已有输出文件不会被覆盖。
@@ -121,7 +122,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			nativeOptions[key] = parsed
 			return nil
 		})
-		fs.StringVar(&d.Speaker, "speaker", "", "Qwen3 CustomVoice 内置音色，默认 Vivian")
+		fs.StringVar(&d.Speaker, "speaker", "", "Qwen3 CustomVoice 或 Kokoro 内置音色 ID")
 		fs.StringVar(&d.Text, "text", "", "正文")
 		fs.StringVar(&textFile, "text-file", "", "UTF-8 文本文件")
 		fs.StringVar(&reference, "reference", "", "1–60 秒参考音频，常见格式自动转换")
@@ -173,17 +174,18 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		vox := strings.HasPrefix(d.ModelID, "voxcpm2-")
 		omni := strings.HasPrefix(d.ModelID, "omnivoice-")
 		qwen := strings.HasPrefix(d.ModelID, "qwen3-tts-")
+		kokoro := strings.HasPrefix(d.ModelID, "kokoro-")
 		var unsupported string
 		fs.Visit(func(f *flag.Flag) {
-			if vox || omni || qwen {
+			if vox || omni || qwen || kokoro {
 				switch f.Name {
 				case "emotion-mode", "emotion-reference", "emotion-vector", "emotion-strength", "infer-emotion", "random-emotion", "do-sample", "temperature", "top-p", "top-k", "repetition-penalty", "max-tokens", "interval-silence-ms", "num-beams", "length-penalty":
 					unsupported = f.Name
 				}
 			}
-			if vox && f.Name == "language" || (vox || qwen) && f.Name == "speed" || (vox || omni || qwen) && f.Name == "emotion-text" ||
+			if (vox || kokoro) && f.Name == "language" || (vox || qwen || kokoro) && f.Name == "speed" || (vox || omni || qwen || kokoro) && f.Name == "emotion-text" ||
 				!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
-				!strings.Contains(d.ModelID, "customvoice") && f.Name == "speaker" ||
+				!(strings.Contains(d.ModelID, "customvoice") || kokoro) && f.Name == "speaker" ||
 				!omni && f.Name == "voice-mode" ||
 				!(vox || omni || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
 				!(vox || omni || qwen) && f.Name == "reference-text" {

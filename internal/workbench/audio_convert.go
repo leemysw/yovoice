@@ -10,6 +10,14 @@ import (
 
 // audioConverter 只使用安装包中的转换器，不在运行时下载或依赖系统 PATH。
 func (w *Workbench) audioConverter() (string, error) {
+	name := "ffmpeg"
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	return packagedTool(name)
+}
+
+func packagedTool(name string) (string, error) {
 	executable, err := os.Executable()
 	if err != nil {
 		return "", err
@@ -17,10 +25,6 @@ func (w *Workbench) audioConverter() (string, error) {
 	executable, err = filepath.EvalSymlinks(executable)
 	if err != nil {
 		return "", err
-	}
-	name := "ffmpeg"
-	if runtime.GOOS == "windows" {
-		name += ".exe"
 	}
 	directory := filepath.Dir(executable)
 	// CLI 的 tools 与可执行文件同级；桌面服务位于 service 子目录。

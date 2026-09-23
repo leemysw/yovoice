@@ -9,7 +9,7 @@ import { Dialog } from '@astryxdesign/core/Dialog';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, PanelLeft, Plus, Pencil, Clock3, Settings2, Check, Play, X, Trash2, Mic, SlidersHorizontal } from 'lucide-react';
 import { call, subscribe, isDesktop } from '../shared/lib/client';
-import { isReferenceModel, isVoxModel, requiresVoice, createDraft, emptyState, formatTime, formatSize, type Activity, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { isKokoroModel, isReferenceModel, isVoxModel, requiresVoice, createDraft, emptyState, formatTime, formatSize, type Activity, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { MediaActions } from '../features/media/MediaActions';
 import { Inspector } from '../features/create/Inspector';
 const Settings = lazy(() => import('../features/settings/Settings').then(module => ({ default: module.Settings })));
@@ -320,7 +320,7 @@ function WorkbenchChrome(props: {
         </VStack>}
       </VStack>} />
     </AppShell>
-    {ready && !isVoxModel(draft.modelId) && !isReferenceModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <SelectionAction key={draft.id} editor={editor} onEdit={annotate} /> : null}
+    {ready && !isKokoroModel(draft.modelId) && !isVoxModel(draft.modelId) && !isReferenceModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <SelectionAction key={draft.id} editor={editor} onEdit={annotate} /> : null}
 
     {deleteTarget ? <Dialog isOpen onOpenChange={open => { if (!open && !deleting) setDeleteTarget(null); }} width={400} padding={6}><VStack gap={4}><h2>{t('@yovoice.app.deleteProjectTitle')}</h2><p className="helper">{t('@yovoice.app.deleteProjectBody', { title: deleteTarget.title })}</p><HStack hAlign="end" gap={2}><Button label={t('@yovoice.action.cancel')} size="sm" isDisabled={deleting} onClick={() => setDeleteTarget(null)} /><Button label={t('@yovoice.app.deleteProjectConfirm')} size="sm" variant="primary" isLoading={deleting} onClick={() => void deleteDraft()} /></HStack></VStack></Dialog> : null}
     {voicePicker ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={selectVoice} /></Suspense> : null}

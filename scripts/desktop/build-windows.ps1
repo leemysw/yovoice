@@ -98,6 +98,8 @@ try {
     $env:PATH = $audioPath
     & $audioPython scripts/build-ffmpeg.py "$destination/tools"
     if ($LASTEXITCODE -ne 0) { throw "音频转换器构建失败" }
+    & $audioPython scripts/package-kokoro-runtime.py "$destination/tools/kokoro"
+    if ($LASTEXITCODE -ne 0) { throw "Kokoro 发音库打包失败" }
 } finally { $env:PATH = $originalPath }
 Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md $destination
 # Windows 仅分发 Setup，清除旧构建遗留的便携包。

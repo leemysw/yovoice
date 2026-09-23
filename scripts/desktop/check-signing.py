@@ -75,6 +75,20 @@ if name == 'xcrun' and args[:2] == ['notarytool', 'submit']:
     assert not any(call[:2] == ['xcrun', 'stapler'] for call in calls)
     result, calls = run(cli, YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1', CHECK_STATUS='Invalid')
     assert result.returncode != 0, 'CLI 公证失败必须阻止打包'
+    # 正式签名必须先处理发音库，再签保持加固运行时的引擎。
+    library = app / 'Contents/Resources/tools/kokoro/libespeak-ng.dylib'
+    library.parent.mkdir(parents=True)
+    library.touch()
+    result, calls = run(YOVOICE_CODESIGN_IDENTITY=identity)
+    assert result.returncode == 0, result.stderr
+    signed = [call for call in calls if call[0] == 'codesign' and '--sign' in call]
+    library_index = next(i for i, call in enumerate(signed) if call[-1] == str(library))
+    engine_index = next(i for i, call in enumerate(signed) if call[-1].endswith('/engine/audiocpp_server'))
+    assert library_index < engine_index and 'runtime' in signed[engine_index]
+    result, calls = run()
+    assert result.returncode == 0, result.stderr
+    engine = next(call for call in calls if call[0] == 'codesign' and '--sign' in call and call[-1].endswith('/engine/audiocpp_server'))
+    assert 'runtime' not in engine, '临时签名的引擎必须能加载无 Team ID 的发音库'
     # 只执行构建脚本的进程门禁，确认运行中不允许覆盖 App。
     build = (repo / 'scripts/desktop/build-macos.sh').read_text()
     guard = build[build.index('ensure_app_stopped() {'):build.index('\nensure_app_stopped\n')]

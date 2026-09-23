@@ -78,6 +78,21 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	}
 	c := exec.Command(executable, "--config", path, "--no-ui")
 	c.Dir = filepath.Dir(executable)
+	if family == "kokoro_tts" {
+		names := map[string][2]string{
+			"darwin":  {"libespeak-ng.dylib", "libmecab.2.dylib"},
+			"windows": {"espeak-ng.dll", "libmecab.dll"},
+			"linux":   {"libespeak-ng.so", "libmecab.so.2"},
+		}[runtime.GOOS]
+		c.Env = os.Environ()
+		for i, key := range []string{"AUDIOCPP_ESPEAK_LIBRARY", "AUDIOCPP_MECAB_LIBRARY"} {
+			library, err := packagedTool(filepath.Join("kokoro", names[i]))
+			if err != nil {
+				return Err(MsgErrRuntimeMissing, nil)
+			}
+			c.Env = append(c.Env, key+"="+library)
+		}
+	}
 	configureProcess(c)
 	out, err := os.Create(filepath.Join(e.root, "logs", "engine.log.out"))
 	if err != nil {
@@ -99,7 +114,12 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	done := e.done
 	go func() { done <- c.Wait(); close(done) }()
 	e.endpoint = fmt.Sprintf("http://127.0.0.1:%d/", port)
-	for i := 0; i < 120; i++ {
+	attempts := 120
+	if family == "kokoro_tts" {
+		// 多语言包包含日文词典；首次读取内嵌资源需要更长时间。
+		attempts = 1200
+	}
+	for i := 0; i < attempts; i++ {
 		if err = ctx.Err(); err != nil {
 			return err
 		}

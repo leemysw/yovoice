@@ -24,14 +24,15 @@ with tempfile.TemporaryDirectory() as directory:
     executable = Path(directory) / ("yovoice.exe" if goos == "windows" else "yovoice")
     subprocess.run([os.environ.get("GO", "go"), "build", "-trimpath", "-ldflags", f"-s -w -X main.version={version}", "-o", str(executable), "./cmd/yovoice"], cwd=root, env={**os.environ, "GOOS": goos, "GOARCH": goarch, "CGO_ENABLED": "0"}, check=True)
     subprocess.run([sys.executable, "scripts/build-ffmpeg.py", str(Path(directory) / "tools")], cwd=root, check=True)
+    subprocess.run([sys.executable, "scripts/package-kokoro-runtime.py", str(Path(directory) / "tools/kokoro")], cwd=root, check=True)
     converter = Path(directory) / "tools" / ("ffmpeg.exe" if goos == "windows" else "ffmpeg")
     subprocess.run([str(converter), "-version"], stdout=subprocess.DEVNULL, check=True)
     if goos == "darwin":
         subprocess.run(["bash", "scripts/desktop/sign-macos.sh", str(executable)], cwd=root, check=True)
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.write(executable, executable.name)
-        for source in sorted((Path(directory) / "tools").iterdir()):
-            archive.write(source, "tools/" + source.name)
-        for source in ("LICENSE", "THIRD_PARTY_NOTICES.md", "web/public/model-license.txt", "docs/cli.md", "skills/yovoice/SKILL.md", "skills/yovoice/references/setup.md", "skills/yovoice/references/audio.md"):
+        for source in sorted((Path(directory) / "tools").rglob("*")):
+            archive.write(source, source.relative_to(directory).as_posix())
+        for source in ("LICENSE", "THIRD_PARTY_NOTICES.md", "web/public/model-license.txt", "docs/cli.md", "docs/kokoro.md", "skills/yovoice/SKILL.md", "skills/yovoice/references/setup.md", "skills/yovoice/references/audio.md"):
             archive.write(root / source, source)
 print(output)

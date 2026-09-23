@@ -10,16 +10,17 @@ const Revision = "6d5436fc85f7a20c2e9f4e472b7f3a532f686444"
 const EngineVersion = "v0.7.4"
 
 type ModelPackage struct {
-	Variant    string `json:"variant,omitempty"`
-	Task       string `json:"task,omitempty"`
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Family     string `json:"family"`
-	Version    string `json:"version"`
-	Precision  string `json:"precision"`
-	RemotePath string `json:"remotePath"`
-	Size       int64  `json:"size"`
-	SHA256     string `json:"sha256"`
+	Voices     []string `json:"voices,omitempty"`
+	Variant    string   `json:"variant,omitempty"`
+	Task       string   `json:"task,omitempty"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Family     string   `json:"family"`
+	Version    string   `json:"version"`
+	Precision  string   `json:"precision"`
+	RemotePath string   `json:"remotePath"`
+	Size       int64    `json:"size"`
+	SHA256     string   `json:"sha256"`
 }
 
 //go:embed catalog.json
@@ -40,6 +41,9 @@ func model(id string) (ModelPackage, error) {
 	return ModelPackage{}, Err(MsgErrModelUnsupported, nil)
 }
 func (m ModelPackage) URL(source string) (string, error) {
+	if m.RemotePath == "" {
+		return "", Err(MsgErrModelImportRequired, nil)
+	}
 	switch source {
 	case "huggingface":
 		return "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/" + Revision + "/" + m.RemotePath, nil

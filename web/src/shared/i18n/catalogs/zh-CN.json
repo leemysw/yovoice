@@ -1397,5 +1397,29 @@
   },
   "@yovoice.reference.omniTranscriptHelp": {
     "defaultMessage": "原文须与参考音频一致。"
+  },
+  "@yovoice.error.modelImportRequired": {
+    "defaultMessage": "该模型包尚未发布到下载源，请导入已验证的 Kokoro 多语言 GGUF 包。"
+  },
+  "@yovoice.settings.modelDesc.kokoro": {
+    "defaultMessage": "内置音色，多语言离线合成，无需参考录音；首次加载会展开语言资源。"
+  },
+  "@yovoice.create.kokoroHelp": {
+    "defaultMessage": "语言由所选音色决定；无需上传参考录音。"
+  },
+  "@yovoice.language.en-us": {
+    "defaultMessage": "英语（美式）"
+  },
+  "@yovoice.language.en-gb": {
+    "defaultMessage": "英语（英式）"
+  },
+  "@yovoice.language.fr-fr": {
+    "defaultMessage": "法语"
+  },
+  "@yovoice.language.pt-br": {
+    "defaultMessage": "葡萄牙语（巴西）"
+  },
+  "@yovoice.language.hi": {
+    "defaultMessage": "印地语"
   }
 }

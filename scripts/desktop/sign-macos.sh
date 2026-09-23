@@ -15,6 +15,14 @@ fi
 sign_args=(--force --sign "$identity")
 if [[ -n "${MACOS_CODESIGN_KEYCHAIN_PATH:-}" ]]; then sign_args+=(--keychain "$MACOS_CODESIGN_KEYCHAIN_PATH"); fi
 if [[ "$identity" != - ]]; then sign_args+=(--timestamp); fi
+sign_kokoro() {
+  local directory="$1"
+  if [[ ! -d "$directory" ]]; then return; fi
+  for library in "$directory"/*.dylib; do
+    codesign "${sign_args[@]}" "$library"
+    codesign --verify --strict "$library"
+  done
+}
 case "$target" in
   *.app)
     # 先签嵌入的服务，再签主应用；不使用 --deep 代替逐项签名。
@@ -22,13 +30,20 @@ case "$target" in
       if [[ "$(lipo -archs "$executable")" != arm64 ]]; then echo "仅支持 Apple Silicon：$executable" >&2; exit 1; fi
     done
     codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/service/yovoice-service"
-    codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/engine/audiocpp_server"
+    sign_kokoro "$target/Contents/Resources/tools/kokoro"
+    # 临时签名没有 Team ID，无法通过动态库的同团队校验；正式签名保留加固运行时。
+    if [[ "$identity" == - ]]; then
+      codesign "${sign_args[@]}" "$target/Contents/Resources/engine/audiocpp_server"
+    else
+      codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/engine/audiocpp_server"
+    fi
     codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/tools/ffmpeg"
     codesign "${sign_args[@]}" --options runtime --entitlements desktop/macos/entitlements.plist "$target"
     codesign --verify --deep --strict "$target"
     ;;
   *.dmg) codesign "${sign_args[@]}" "$target"; codesign --verify --strict "$target" ;;
   */yovoice)
+    sign_kokoro "$(dirname "$target")/tools/kokoro"
     if [[ "$(lipo -archs "$target")" != arm64 ]]; then echo "仅支持 Apple Silicon：$target" >&2; exit 1; fi
     converter="$(dirname "$target")/tools/ffmpeg"
     if [[ "$(lipo -archs "$converter")" != arm64 ]]; then echo 'CLI 转换器必须为 arm64。' >&2; exit 1; fi

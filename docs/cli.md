@@ -105,3 +105,7 @@ OmniVoice 自动根据是否提供参考音频选择设计或克隆，也可用 
 OmniVoice 权重为 [CC-BY-NC](https://huggingface.co/k2-fsa/OmniVoice#license)，仅限非商业用途；Qwen3-TTS 权重为 Apache-2.0。
 
 完整模型列表、四类模型能力、内置音色、Omni 属性及高级参数见[模型能力参考](../skills/yovoice/references/models.md)。
+
+## Kokoro
+
+Kokoro 使用内置音色，无需参考音频。模型包导入、语言与版本差异见 [Kokoro 文档](kokoro.md)。

@@ -1,0 +1,30 @@
+import { test, expect } from '@playwright/test';
+
+test('Kokoro 按版本提供语言和音色，切换模型后重置音色并保存', async ({ page }) => {
+  await page.goto('/');
+  const model = page.getByRole('combobox', { name: '模型', exact: true });
+  await model.click();
+  await page.getByRole('option', { name: /Kokoro-82M 1.0 · Q8/ }).click();
+  const language = page.getByRole('combobox', { name: '语言', exact: true });
+  const speaker = page.getByRole('combobox', { name: '内置音色', exact: true });
+  await expect(speaker).toContainText('zf_xiaobei');
+  await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
+  await language.click();
+  await expect(page.getByRole('option')).toHaveCount(9);
+  await page.getByRole('option', { name: '日语', exact: true }).click();
+  await expect(speaker).toContainText('jf_alpha');
+  await model.click();
+  await page.getByRole('option', { name: /Kokoro-82M 1.1-zh · Q8/ }).click();
+  await expect(speaker).toContainText('zf_001');
+  await language.click();
+  await expect(page.getByRole('option')).toHaveCount(3);
+  await page.getByRole('option', { name: '中文', exact: true }).click();
+  await speaker.click();
+  await expect(page.getByRole('option')).toHaveCount(100);
+  await page.getByRole('option', { name: 'zm_010', exact: true }).click();
+  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(speaker).toContainText('zm_010');
+  await page.getByRole('button', { name: '生成语音', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '设置', exact: true })).toBeVisible();
+});

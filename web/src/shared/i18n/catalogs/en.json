@@ -1397,5 +1397,29 @@
   },
   "@yovoice.reference.omniTranscriptHelp": {
     "defaultMessage": "The transcript must match the reference audio."
+  },
+  "@yovoice.error.modelImportRequired": {
+    "defaultMessage": "This package is not on a download source yet. Import the verified Kokoro multilingual GGUF package."
+  },
+  "@yovoice.settings.modelDesc.kokoro": {
+    "defaultMessage": "Built-in voices for offline synthesis without reference audio. Language resources are extracted on first load."
+  },
+  "@yovoice.create.kokoroHelp": {
+    "defaultMessage": "The selected voice determines the language. No reference recording is required."
+  },
+  "@yovoice.language.en-us": {
+    "defaultMessage": "English (US)"
+  },
+  "@yovoice.language.en-gb": {
+    "defaultMessage": "English (UK)"
+  },
+  "@yovoice.language.fr-fr": {
+    "defaultMessage": "French"
+  },
+  "@yovoice.language.pt-br": {
+    "defaultMessage": "Portuguese (Brazil)"
+  },
+  "@yovoice.language.hi": {
+    "defaultMessage": "Hindi"
   }
 }

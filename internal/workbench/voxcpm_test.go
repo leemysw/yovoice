@@ -110,6 +110,10 @@ func TestModelVariantsAndOptions(t *testing.T) {
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"
 			d.ModelOptions = map[string]map[string]any{m.Family: {"text_chunk_size": float64(512), "text_chunk_mode": "tag_aware"}}
+			if m.Family == "kokoro_tts" {
+				delete(d.ModelOptions[m.Family], "text_chunk_mode")
+				d.ModelOptions[m.Family]["text_chunk_size"] = float64(120)
+			}
 			if m.Family == "qwen3_tts" {
 				d.SynthesisLanguage = "ja"
 				d.ModelOptions[m.Family]["temperature"] = .7
@@ -118,7 +122,7 @@ func TestModelVariantsAndOptions(t *testing.T) {
 			must(t, err)
 			r := p["request"].(map[string]any)
 			o := r["options"].(map[string]any)
-			if o["text_chunk_size"] != float64(512) {
+			if o["text_chunk_size"] != d.ModelOptions[m.Family]["text_chunk_size"] {
 				t.Fatal(o)
 			}
 			if m.Variant == "customvoice" && (d.RequiresVoice() || o["speaker"] != "Vivian") {

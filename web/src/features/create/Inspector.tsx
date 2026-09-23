@@ -1,3 +1,4 @@
+import { KokoroControls } from './KokoroControls';
 import { ModelOptions } from './ModelOptions';
 import { useEffect, useState } from 'react';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -80,11 +81,11 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
       <h2 className="inspector-section-title">{t('@yovoice.create.model')}</h2>
       <Selector label={t('@yovoice.create.model')} isLabelHidden placement="below" renderOption={option => <SelectorOption label={option.label} description={option.description} layout="inline" />} renderValue={option => option.label} className="model-selector" width="100%" value={draft.modelId} isDisabled={busy}
         options={[...catalog.map(model => ({ value: model.id, label: `${model.name} · ${model.precision}`, description: state.models.some(installed => installed.id === model.id) ? t('@yovoice.create.modelInstalled') : t('@yovoice.create.modelMissing') })), { value: 'manage', label: t('@yovoice.create.manageModels') }]}
-        onChange={modelId => { if (modelId === 'manage') { settings(); return; } change({ modelId, synthesisLanguage: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.synthesisLanguage : 'auto', voiceDescription: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.voiceDescription : '', language: modelId.startsWith('index-2.5') || ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); }} />
+        onChange={modelId => { if (modelId === 'manage') { settings(); return; } change({ modelId, speaker: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family && !modelId.startsWith('kokoro-') ? draft.speaker : '', synthesisLanguage: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.synthesisLanguage : 'auto', voiceDescription: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.voiceDescription : '', language: modelId.startsWith('index-2.5') || ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); }} />
 
     </VStack>
     <HStack className="inspector-heading" hAlign="between" vAlign="center"><h2 className="inspector-section-title">{t('@yovoice.create.voiceSettings')}</h2><Button label={t('@yovoice.create.backToScript')} className="inspector-toggle" variant="ghost" onClick={close} /></HStack>
-      {isReferenceModel(draft.modelId) ? <ReferenceControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} /> : isVoxModel(draft.modelId) ? <VoxControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} advanced={advanced} setAdvanced={setAdvanced} /> : <>
+      {catalog.find(model => model.id === draft.modelId)?.family === 'kokoro_tts' ? <KokoroControls draft={draft} model={catalog.find(model => model.id === draft.modelId)!} change={change} /> : isReferenceModel(draft.modelId) ? <ReferenceControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} /> : isVoxModel(draft.modelId) ? <VoxControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} advanced={advanced} setAdvanced={setAdvanced} /> : <>
       <VStack gap={3}>
         <h3>{t('@yovoice.create.referenceVoice')}</h3>
         <HStack className="voice-selected" gap={3} vAlign="center">

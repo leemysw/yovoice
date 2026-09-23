@@ -81,6 +81,18 @@ func Validate(d Draft) error {
 	if _, e := d.generationOptions(m.Family); e != nil {
 		return e
 	}
+	if m.Family == "kokoro_tts" {
+		if !slices.Contains(m.Voices, d.kokoroSpeaker(m)) {
+			return Err(MsgErrSpeakerInvalid, nil)
+		}
+		if d.SynthesisLanguage != "" && d.SynthesisLanguage != "auto" && d.SynthesisLanguage != kokoroLanguage(d.kokoroSpeaker(m)) {
+			return Err(MsgErrLanguageUnsupported, nil)
+		}
+		if d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647) {
+			return Err(MsgErrParamsOutOfRange, nil)
+		}
+		return nil
+	}
 	if m.Family == "omnivoice" || m.Family == "qwen3_tts" {
 		if textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
 			return Err(MsgErrDraftLimits, nil)
@@ -176,6 +188,16 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 		return nil, e
 	}
 	m, _ := model(d.ModelID)
+	if m.Family == "kokoro_tts" {
+		o, _ := d.generationOptions(m.Family)
+		if _, ok := o["text_chunk_size"]; !ok {
+			o["text_chunk_size"] = 64
+		}
+		if d.Seed != nil {
+			o["seed"] = *d.Seed
+		}
+		return map[string]any{"model": "index", "request": map[string]any{"text": d.Text, "voice_id": d.kokoroSpeaker(m), "options": o}}, nil
+	}
 	if m.Family == "omnivoice" || m.Family == "qwen3_tts" {
 		o, _ := d.generationOptions(m.Family)
 		if d.Seed != nil {
@@ -295,6 +317,9 @@ func BuildRequest(d Draft, voice, emotion string) (map[string]any, error) {
 
 func (d Draft) RequiresVoice() bool {
 	m, err := model(d.ModelID)
+	if err == nil && m.Family == "kokoro_tts" {
+		return false
+	}
 	if err == nil && m.Family == "omnivoice" {
 		return d.VoiceMode == "clone"
 	}
@@ -302,4 +327,23 @@ func (d Draft) RequiresVoice() bool {
 		return m.Variant == "" || m.Variant == "base"
 	}
 	return err != nil || m.Family != "voxcpm2" || d.VoxMode == "clone" || d.VoxMode == "continuation"
+}
+
+func (d Draft) kokoroSpeaker(m ModelPackage) string {
+	if d.Speaker != "" {
+		return d.Speaker
+	}
+	for _, voice := range m.Voices {
+		if strings.HasPrefix(voice, "zf_") {
+			return voice
+		}
+	}
+	return ""
+}
+
+func kokoroLanguage(voice string) string {
+	if voice == "" {
+		return ""
+	}
+	return map[byte]string{'a': "en-us", 'b': "en-gb", 'e': "es", 'f': "fr-fr", 'h': "hi", 'i': "it", 'j': "ja", 'p': "pt-br", 'z': "zh"}[voice[0]]
 }
