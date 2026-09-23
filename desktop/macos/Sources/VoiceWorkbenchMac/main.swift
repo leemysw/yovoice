@@ -198,6 +198,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         guard let url, let origin else { return false }
         return url.scheme == origin.scheme && url.host == origin.host && url.port == origin.port
     }
+    static func trusted(_ securityOrigin: WKSecurityOrigin, localOrigin: URL?) -> Bool {
+        guard let localOrigin else { return false }
+        return securityOrigin.protocol == localOrigin.scheme && securityOrigin.host == localOrigin.host && securityOrigin.port == localOrigin.port
+    }
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         decisionHandler(trusted(navigationAction.request.url) ? .allow : .cancel)
     }
@@ -223,7 +227,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
     #endif
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
-        guard frame.isMainFrame, trusted(frame.request.url) else { completionHandler(nil); return }
+        guard frame.isMainFrame, Self.trusted(frame.securityOrigin, localOrigin: origin) else { completionHandler(nil); return }
         let panel = NSOpenPanel()
         panel.title = HostL10n.t("panel.pickAudio")
         panel.allowedContentTypes = [.audio]
@@ -233,9 +237,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { webView.reload() }
     func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
-        guard frame.isMainFrame, trusted(frame.request.url), type == .microphone,
-              let localOrigin = self.origin, origin.protocol == localOrigin.scheme,
-              origin.host == localOrigin.host, origin.port == localOrigin.port else {
+        // WebKit 620.1.16 的媒体授权回调留空 request，但保留请求页面的 securityOrigin。
+        // 读取 frame.request 会在 Swift URLRequest 桥接时崩溃，必须直接校验安全来源。
+        guard frame.isMainFrame, Self.trusted(frame.securityOrigin, localOrigin: self.origin), type == .microphone,
+              Self.trusted(origin, localOrigin: self.origin), trusted(webView.url) else {
             decisionHandler(.deny)
             return
         }
@@ -246,7 +251,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         }
     }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.frameInfo.isMainFrame, trusted(message.frameInfo.request.url), let body = message.body as? [String: Any], let id = body["id"] as? String else { return }
+        guard message.frameInfo.isMainFrame, Self.trusted(message.frameInfo.securityOrigin, localOrigin: origin), let body = message.body as? [String: Any], let id = body["id"] as? String else { return }
         Task {
             do { post(try await handle(body)) }
             catch { post(["id": id, "error": error.localizedDescription]) }
