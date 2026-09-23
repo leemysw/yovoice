@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"net/http"
 	"os"
@@ -35,11 +36,11 @@ func (e *Engine) Stop() {
 		e.key = ""
 	}
 }
-func (e *Engine) start(ctx context.Context, executable, model, family, task, backend string, progress func(MessageCode, MessageParams)) error {
+func (e *Engine) start(ctx context.Context, executable, model, family, task, backend string, encoderSamples int, progress func(MessageCode, MessageParams)) error {
 	if task == "" {
 		task = "tts"
 	}
-	key := executable + "|" + model + "|" + family + "|" + task + "|" + backend
+	key := fmt.Sprintf("%s|%s|%s|%s|%s|%d", executable, model, family, task, backend, encoderSamples)
 	if e.process != nil && e.key == key {
 		select {
 		case <-e.done:
@@ -62,7 +63,11 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	}
 	port := l.Addr().(*net.TCPAddr).Port
 	l.Close()
-	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": backend, "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{map[string]any{"id": "index", "family": family, "path": model, "task": task, "mode": "offline"}}}
+	entry := map[string]any{"id": "index", "family": family, "path": model, "task": task, "mode": "offline"}
+	if encoderSamples > 0 {
+		entry["session_options"] = map[string]any{"voxcpm2.audiovae_encoder_sample_capacity": encoderSamples}
+	}
+	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": backend, "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{entry}}
 	b, err := json.Marshal(config)
 	if err != nil {
 		return err
@@ -139,7 +144,22 @@ func (e *Engine) Generate(ctx context.Context, executable string, m InstalledMod
 	if err != nil {
 		return err
 	}
-	if err = e.start(ctx, executable, m.Path, definition.Family, definition.Task, backend, progress); err != nil {
+	encoderSamples := 0
+	if definition.Family == "voxcpm2" {
+		encoderSamples = 240000
+		if d.RequiresVoice() {
+			duration, audioErr := Duration(voice)
+			if audioErr != nil {
+				return audioErr
+			}
+			if duration < 1 || duration > 60 {
+				return Err(MsgErrAudioDuration, nil)
+			}
+			// VoxCPM2 先重采样到 16 kHz，再按 4 × 640 个采样点补齐；长参考音频按需扩容。
+			encoderSamples = max(encoderSamples, int(math.Ceil(duration*16000/2560))*2560)
+		}
+	}
+	if err = e.start(ctx, executable, m.Path, definition.Family, definition.Task, backend, encoderSamples, progress); err != nil {
 		return err
 	}
 	progress(MsgActivitySynthesizing, nil)
