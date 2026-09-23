@@ -60,7 +60,7 @@ public sealed class AppUpdater : IDisposable
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 menu.Header = "检查更新…";
-                if (showResult) MessageBox.Show(owner, "GitHub 上尚无可用的正式版本。", "暂无可用更新");
+                if (showResult) AppDialog.Show(owner, "暂无可用更新", "GitHub 上尚无可用的正式版本。");
                 return;
             }
             response.EnsureSuccessStatusCode();
@@ -69,7 +69,7 @@ public sealed class AppUpdater : IDisposable
             if (asset is null)
             {
                 menu.Header = "检查更新…";
-                if (showResult) MessageBox.Show(owner, $"当前版本：{current}", "yovoice 已是最新版本");
+                if (showResult) AppDialog.Show(owner, "已是最新版本", $"当前版本：yovoice {current}");
                 return;
             }
             string checksums = await client.GetStringAsync(release.Asset("SHA256SUMS.txt").Url, stopped.Token);
@@ -115,7 +115,7 @@ public sealed class AppUpdater : IDisposable
                 File.WriteAllText(Path.Combine(root, "logs", "update-check.log"), $"{DateTimeOffset.Now}: {error}\n");
             }
             catch (IOException) { }
-            if (showResult && !disposed && MessageBox.Show(owner, error.Message + "\n\n是否打开 GitHub 下载页？", "未能完成更新", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (showResult && !disposed && AppDialog.Show(owner, "未能完成更新", error.Message + "\n\n你也可以从 GitHub 下载最新版本。", "打开下载页", "稍后再试"))
                 Process.Start(new ProcessStartInfo("https://github.com/leemysw/yovoice/releases/latest") { UseShellExecute = true });
         }
         finally { checking = false; showResult = false; }
@@ -123,7 +123,7 @@ public sealed class AppUpdater : IDisposable
     private void PromptInstall()
     {
         if (ready is null || installRequested) return;
-        if (MessageBox.Show(owner, "更新已下载并通过校验。现在保存作品并重启安装？", $"yovoice {ready.Version} 已准备好", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+        if (!AppDialog.Show(owner, "更新已准备好", $"yovoice {ready.Version} 已下载并通过校验。重启后将安装更新，当前作品会先自动保存。", "重启并更新", "稍后")) return;
         installRequested = true;
         owner.Close();
     }

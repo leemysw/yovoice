@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -34,7 +35,15 @@ func New(root string) (*Workbench, error) {
 	if e != nil {
 		return nil, e
 	}
-	return &Workbench{Store: s, engine: NewEngine(root), client: &http.Client{}}, nil
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.Proxy = func(req *http.Request) (*url.URL, error) {
+		preferences := s.Read().Preferences
+		if (preferences.ProxyEnabled == nil && preferences.ProxyURL == "") || (preferences.ProxyEnabled != nil && !*preferences.ProxyEnabled) {
+			return nil, nil
+		}
+		return downloadProxy(req, preferences.ProxyURL)
+	}
+	return &Workbench{Store: s, engine: NewEngine(root), client: &http.Client{Transport: transport}}, nil
 }
 
 // UseBundledCPU 在服务启动时登记内置内核，保留用户已安装的 GPU 内核。
@@ -170,6 +179,13 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 	return nil
 }
 func (w *Workbench) preferences(p Preferences) error {
+	p.ProxyURL = strings.TrimSpace(p.ProxyURL)
+	if p.ProxyEnabled != nil && *p.ProxyEnabled && p.ProxyURL == "" {
+		return Err(MsgErrProxyURL, nil)
+	}
+	if _, err := parseProxyURL(p.ProxyURL); err != nil {
+		return err
+	}
 	if _, e := runtimeArchives(p.Backend); e != nil {
 		return e
 	}

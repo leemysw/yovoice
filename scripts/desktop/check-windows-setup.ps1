@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 if (!$env:CI) { throw "安装/卸载验证仅在隔离的 CI runner 中运行。" }
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 $directory = Join-Path $env:RUNNER_TEMP "yovoice-setup-check"

@@ -5,9 +5,20 @@
 - Node.js 22+, pnpm 9.15.2, Go 1.26+, Python 3.12+.
 - The bundled audio converter is built from FFmpeg source; Make, Bash, curl, and a C compiler are required. Windows builds use MSYS2 MinGW64 (GCC, Make, Python, curl).
 - macOS: Apple Silicon, macOS 14+, Xcode Command Line Tools.
-- Windows: Windows 10/11 x64, .NET SDK 10, WebView2 Runtime, Inno Setup 6 (`winget install JRSoftware.InnoSetup`). Make targets require GNU Make.
+- Windows: Windows 10/11 x64, .NET SDK 8, WebView2 Runtime. Packaging installers additionally requires Inno Setup 6 (`winget install JRSoftware.InnoSetup`). Make targets require GNU Make.
 
 Run the following commands from the repository root.
+
+### Windows audio build tools
+
+Install [MSYS2](https://www.msys2.org/) and run these commands in its MinGW64 terminal (reopen the terminal if the update requests it):
+
+```sh
+pacman -Syu
+pacman -S --needed make curl diffutils mingw-w64-x86_64-gcc mingw-w64-x86_64-python
+```
+
+The Windows build finds MSYS2 at `artifacts/tooling/msys64` or `C:/msys64`. For another location, set `$env:YOVOICE_MSYS2 = 'D:/tools/msys64'` in PowerShell before running `make app-run`. Python 3.12+ and the build tools can also be supplied through `PATH`; the Windows Store Python alias is not a Python installation. FFmpeg is compiled once and reused until its build script changes.
 
 ## Run
 
@@ -70,6 +81,7 @@ On Windows without GNU Make:
 To also create installers, run `make app-package` (or `./scripts/desktop/build-windows.ps1 -Package` on Windows). Packages are written to `artifacts/`: macOS DMG and ZIP, Windows Setup EXE.
 The macOS DMG uses a Retina background and a fixed Finder drag-to-install layout. A logged-in macOS desktop session with Finder automation permission is required to create the layout (as on GitHub macOS runners).
 Exit the local macOS app before rebuilding; the build refuses to replace a running bundle.
+On Windows, use **File → Quit yovoice** or the tray menu before rebuilding. Closing the window only hides the app. The build checks for processes running from its output directory before compiling or removing any files.
 
 To package an existing signed app without replacing it:
 

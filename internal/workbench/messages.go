@@ -28,6 +28,7 @@ const (
 	MsgActivityInterrupted     MessageCode = "@yovoice.activity.interrupted"
 
 	MsgErrBusy                 MessageCode = "@yovoice.error.busy"
+	MsgErrProxyURL             MessageCode = "@yovoice.error.proxyURL"
 	MsgErrModelDirAbsolute     MessageCode = "@yovoice.error.modelDirAbsolute"
 	MsgErrModelDirSpace        MessageCode = "@yovoice.error.modelDirSpace"
 	MsgErrDownloadHTTP         MessageCode = "@yovoice.error.downloadHTTP"
@@ -135,7 +136,7 @@ func AllMessageCodes() []MessageCode {
 		MsgActivityRuntimeDownload, MsgActivityRuntimeExtract, MsgActivityEngineStart,
 		MsgActivityGenerate, MsgActivitySynthesizing, MsgActivitySavingAudio,
 		MsgActivityCompleted, MsgActivityCancelled, MsgActivityPaused, MsgActivityFailed, MsgActivityInterrupted,
-		MsgErrBusy, MsgErrModelDirAbsolute, MsgErrModelDirSpace,
+		MsgErrBusy, MsgErrProxyURL, MsgErrModelDirAbsolute, MsgErrModelDirSpace,
 		MsgErrDownloadHTTP, MsgErrDownloadRange, MsgErrDownloadSize, MsgErrDownloadIncomplete,
 		MsgErrDownloadStale, MsgErrDownloadChecksum, MsgErrDownloadOversized,
 		MsgErrGenerateFailed, MsgErrParamsOutOfRange, MsgErrStateSaveFailed, MsgErrStateCorrupt,

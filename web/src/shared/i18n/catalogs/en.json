@@ -1,4 +1,8 @@
 {
+  "@yovoice.settings.proxy": { "defaultMessage": "Network proxy" },
+  "@yovoice.settings.proxyEnabled": { "defaultMessage": "Enable proxy" },
+  "@yovoice.settings.proxyAddress": { "defaultMessage": "Proxy address" },
+  "@yovoice.error.proxyURL": { "defaultMessage": "Enter an HTTP, HTTPS or SOCKS5 proxy URL with a valid port, without paths or credentials." },
   "@yovoice.action.apply": {
     "defaultMessage": "Apply"
   },

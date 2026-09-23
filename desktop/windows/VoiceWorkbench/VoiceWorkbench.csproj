@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows10.0.19041.0</TargetFramework><UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><EnableWindowsTargeting>true</EnableWindowsTargeting><AssemblyName>yovoice</AssemblyName><RootNamespace>VoiceWorkbench</RootNamespace><Product>yovoice</Product><Title>yovoice</Title><Version>0.1.2</Version></PropertyGroup>
+  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net8.0-windows10.0.19041.0</TargetFramework><UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><EnableWindowsTargeting>true</EnableWindowsTargeting><AssemblyName>yovoice</AssemblyName><RootNamespace>VoiceWorkbench</RootNamespace><Product>yovoice</Product><Title>yovoice</Title><Version>0.1.3</Version></PropertyGroup>
   <PropertyGroup><ApplicationIcon>Resources/AppIcon.ico</ApplicationIcon></PropertyGroup>
   <ItemGroup><Resource Include="Resources/AppIcon.ico"/></ItemGroup>
   <ItemGroup><PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3967.48"/></ItemGroup>

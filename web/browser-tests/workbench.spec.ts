@@ -1,6 +1,48 @@
 import { emptyState } from '../src/shared/workbench';
 import { test, expect } from '@playwright/test';
 
+test('代理地址失焦自动保存，开关与地址重载后保留', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('nav-settings').click();
+  const address = page.getByRole('textbox', { name: '代理地址' });
+  const save = page.getByRole('button', { name: '保存代理' });
+  const enabled = page.getByRole('switch', { name: '启用代理' });
+  await expect(enabled).not.toBeChecked();
+  await expect(enabled).toBeDisabled();
+  await expect(save).toHaveCount(0);
+  await address.fill('  http://127.0.0.1:7890  ');
+  await page.getByRole('heading', { name: '网络代理' }).click();
+  await expect(address).toHaveValue('http://127.0.0.1:7890');
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(address).toHaveValue('http://127.0.0.1:7890');
+  await expect(enabled).not.toBeChecked();
+  await enabled.click();
+  await expect(enabled).toBeChecked();
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(enabled).toBeChecked();
+  await enabled.click();
+  await expect(enabled).not.toBeChecked();
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(enabled).not.toBeChecked();
+  await expect(address).toHaveValue('http://127.0.0.1:7890');
+  await address.fill('http://127.0.0.1:7891');
+  await enabled.click();
+  await expect(enabled).toBeChecked();
+  await page.getByTestId('nav-create').click();
+  await page.getByTestId('nav-settings').click();
+  await expect(address).toHaveValue('http://127.0.0.1:7891');
+  await address.fill('');
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  await page.getByRole('tab', { name: '常规', exact: true }).click();
+  await expect(enabled).not.toBeChecked();
+  await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await expect(address).toHaveValue('');
+});
+
 test('四种表达方式、草稿持久化与模型协议', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('/');
@@ -311,6 +353,9 @@ test('侧栏拖拽调宽、收起和恢复会记住状态', async ({ page }) => 
   await page.setViewportSize({ width: 1280, height: 800 }); await page.goto('/');
   const sidebar = page.getByRole('navigation', { name: '主导航' });
   const handle = page.getByRole('separator', { name: '调整侧栏宽度' });
+  const panel = page.locator('.astryx-app-shell-sidenav');
+  // 内层侧栏必须适配外层内容宽度，避免分隔线挤出横向滚动条。
+  await expect.poll(() => panel.evaluate(el => el.scrollWidth - el.clientWidth)).toBe(0);
   const initial = (await sidebar.boundingBox())!.width;
   const bounds = (await handle.boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
@@ -328,6 +373,11 @@ test('侧栏拖拽调宽、收起和恢复会记住状态', async ({ page }) => 
   await expect(sidebar).toHaveCount(0);
   await page.evaluate(() => window.dispatchEvent(new Event('workbench-toggle-sidebar')));
   await expect(sidebar).toBeVisible();
+  for (const width of [840, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect.poll(() => panel.evaluate(el => el.scrollWidth - el.clientWidth)).toBe(0);
+    await expect(page.getByTestId('nav-settings')).toBeInViewport();
+  }
 });
 
 
@@ -469,7 +519,18 @@ test('OmniVoice 和 Qwen3-TTS 使用各自的声音控件', async ({ page }) => 
   await expect(page.getByRole('radio', { name: '声音设计', exact: true })).toBeChecked();
   await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
   await page.getByRole('combobox', { name: '性别', exact: true }).click();
+  const genderTrigger = await page.getByRole('combobox', { name: '性别', exact: true }).boundingBox();
+  const genderMenu = await page.getByRole('listbox').boundingBox();
+  expect(genderMenu!.y).toBeGreaterThanOrEqual(genderTrigger!.y + genderTrigger!.height);
   await page.getByRole('option', { name: '女', exact: true }).click();
+  await page.locator('summary').filter({ hasText: '非语言声音' }).click();
+  const tags = page.getByRole('combobox', { name: '非语言声音', exact: true });
+  await tags.click();
+  const tagTrigger = await tags.boundingBox();
+  const tagMenu = await page.getByRole('listbox').boundingBox();
+  expect(tagMenu!.y >= tagTrigger!.y + tagTrigger!.height || tagMenu!.y + tagMenu!.height <= tagTrigger!.y).toBe(true);
+  await page.getByRole('option', { name: '[laughter]', exact: true }).click();
+  await expect(page.getByLabel('正文', { exact: true })).toHaveValue(/\[laughter\]$/);
   await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
   await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toBeVisible();
   await page.getByLabel('参考音频原文').fill('你好。');

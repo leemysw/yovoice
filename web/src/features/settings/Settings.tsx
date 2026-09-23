@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { Selector } from '@astryxdesign/core/Selector';
+import { TextInput } from '@astryxdesign/core/TextInput';
+import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Download, FolderOpen, FolderCog, FilePlus, Check, Cpu, ArrowUpRight, ChevronRight, Pause, Trash2 } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
@@ -21,6 +23,15 @@ export function Settings({ state, catalog, draft, run }: { state: State; catalog
   const [license, setLicense] = useState<string | null>(null);
   const [tab, setTab] = useState('general'); const busy = state.activity?.status === 'running';
   const preferences = state.preferences;
+  const [proxyURL, setProxyURL] = useState(preferences.proxyURL ?? '');
+  const [savingProxy, setSavingProxy] = useState(false);
+  const proxyEnabled = preferences.proxyEnabled ?? !!preferences.proxyURL;
+  const saveProxy = (enabled: boolean, address = proxyURL.trim()) => run(async () => {
+    setSavingProxy(true);
+    try { await call('preferences.save', { ...preferences, proxyURL: address, proxyEnabled: enabled }); }
+    finally { setSavingProxy(false); }
+  });
+  useEffect(() => setProxyURL(preferences.proxyURL ?? ''), [preferences.proxyURL]);
   const runtimeReady = !!state.runtimePath && state.runtimeBackend === preferences.backend;
   return <VStack className="settings-page" gap={6}>
     <header><h1>{t('@yovoice.settings.title')}</h1></header>
@@ -43,6 +54,17 @@ export function Settings({ state, catalog, draft, run }: { state: State; catalog
           width="min(100%, calc(var(--spacing-10) * 5))"
         />
       </HStack>
+      <VStack gap={3}>
+        <h3>{t('@yovoice.settings.proxy')}</h3>
+        <HStack gap={4} hAlign="between" vAlign="center" wrap="wrap">
+          <TextInput size="sm" label={t('@yovoice.settings.proxyAddress')} isLabelHidden value={proxyURL} onChange={setProxyURL} onBlur={event => {
+            // 点击开关时由开关一起保存地址，避免失焦保存抢先禁用开关。
+            if (event.relatedTarget?.getAttribute('role') === 'switch') return;
+            if (proxyURL.trim() !== (preferences.proxyURL ?? '')) saveProxy(proxyEnabled && !!proxyURL.trim());
+          }} placeholder="http://127.0.0.1:7890" isDisabled={savingProxy} width="min(100%, calc(var(--spacing-10) * 10))" />
+          <Switch label={t('@yovoice.settings.proxyEnabled')} value={proxyEnabled} isLoading={savingProxy} isDisabled={savingProxy || (!proxyEnabled && !proxyURL.trim())} onChange={enabled => saveProxy(enabled)} />
+        </HStack>
+      </VStack>
     </VStack> : tab === 'models' ? <VStack gap={5} id="models-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabModels')}>
       <HStack className="settings-toolbar" hAlign="between" vAlign="center" gap={4} wrap="wrap">
         <HStack gap={3} vAlign="center" wrap="wrap">
