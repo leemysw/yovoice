@@ -79,7 +79,9 @@ func run() error {
 		case <-ctx.Done():
 		}
 	}()
+	shutdownDone := make(chan struct{})
 	go func() {
+		defer close(shutdownDone)
 		<-ctx.Done()
 		wb.Close()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -88,6 +90,9 @@ func run() error {
 	}()
 	fmt.Println("http://" + listener.Addr().String())
 	e = server.Serve(listener)
+	// Serve 在监听器关闭后立即返回；等待活动请求完成，避免进程退出截断响应。
+	stop()
+	<-shutdownDone
 	if e == http.ErrServerClosed {
 		return nil
 	}
