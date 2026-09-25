@@ -72,9 +72,22 @@ export function Player({ track, onError, suspended, compact = false, historyCont
   const tickBase = 10 ** Math.floor(Math.log10(scale / zoom / 10));
   const tickStep = [1, 2, 5, 10].map(n => n * tickBase).find(n => n >= scale / zoom / 10)!;
   const ticks = Array.from({ length: Math.ceil(scale / tickStep) }, (_, i) => i * tickStep);
-  if (compact) return <audio className="library-preview" aria-label={t('@yovoice.player.audition', { name: track?.name ?? '' })} ref={audio} src={url || undefined} controls onCanPlay={() => { if (autoplay.current && !suspended) { autoplay.current = false; void audio.current?.play().catch(() => onError('@yovoice.error.audioPlayClick')); } }} onError={() => { if (url) onError('@yovoice.error.audioPlayFailed'); }} />;
+  const media = <audio hidden ref={audio} src={url || undefined}
+    onCanPlay={() => { if (autoplay.current && !suspended) { autoplay.current = false; void audio.current?.play().catch(() => onError('@yovoice.error.audioPlayClick')); } }}
+    onLoadedMetadata={() => { const value = audio.current?.duration; if (value && Number.isFinite(value)) setDuration(value); }}
+    onTimeUpdate={() => setTime(audio.current?.currentTime ?? 0)}
+    onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
+    onError={() => { if (url) onError('@yovoice.error.audioPlayFailed'); }} />;
+  if (compact) return <HStack className="library-preview" role="group" aria-label={t('@yovoice.player.audition', { name: track?.name ?? '' })} gap={3} vAlign="center">
+    {media}
+    <Button label={playing ? t('@yovoice.player.pause') : t('@yovoice.player.play')} isIconOnly icon={playing ? <Pause size={16} /> : <Play size={16} fill="currentColor" />} size="sm" variant="ghost" className="preview-play" isDisabled={!url || suspended} onClick={() => void toggle()} />
+    <small className="preview-time">{formatTime(time)}</small>
+    <input className="preview-progress" aria-label={t('@yovoice.player.progress')} aria-valuetext={t('@yovoice.player.progressValue', { current: formatTime(time), total: formatTime(duration) })} type="range" min={0} max={duration || 1} step={0.01} value={time} disabled={!duration} onChange={e => seek(Number(e.target.value))} style={{ background: `linear-gradient(to right, var(--app-wave) ${duration ? time / duration * 100 : 0}%, var(--app-line) 0%)` }} />
+    <small className="preview-time">{formatTime(duration)}</small>
+    <Button label={volume === 0 ? t('@yovoice.player.unmute') : t('@yovoice.player.mute')} isIconOnly icon={volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />} size="sm" variant="ghost" onClick={() => { const next = volume === 0 ? 1 : 0; setVolume(next); if (audio.current) audio.current.volume = next; }} />
+  </HStack>;
   return <VStack as="footer" className="player" gap={0}>
-    <audio onCanPlay={() => { if (autoplay.current) { autoplay.current = false; void audio.current?.play().catch(() => onError('@yovoice.error.audioPlayClick')); } }} ref={audio} src={url || undefined} onTimeUpdate={() => setTime(audio.current?.currentTime ?? 0)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />
+    {media}
     <HStack className="transport" vAlign="center" gap={4}>
       <small className="transport-time">{formatTime(time)} <em>/ {formatTime(duration)}</em></small>
       <HStack className="transport-controls" gap={2} vAlign="center">

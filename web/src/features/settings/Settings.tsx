@@ -103,6 +103,6 @@ export function Settings({ state, catalog, draft, run }: { state: State; catalog
       <details className="settings-help engine-help"><summary><ChevronRight size={15} aria-hidden="true" />{t('@yovoice.settings.engineHelpSummary')}</summary><VStack gap={2}><p className="helper">{isMac ? t('@yovoice.settings.engineHelpMac') : t('@yovoice.settings.engineHelpWin')}</p><p className="helper">{t('@yovoice.settings.engineHelpGpu')}</p></VStack></details>
     </VStack>}
 
-    {license ? <Dialog isOpen onOpenChange={open => { if (!open) setLicense(null); }} width={680} padding={6}><VStack gap={4}><h2>{t('@yovoice.settings.licenseTitle')}</h2><pre className="license-text">{license}</pre><Button size="sm" label={t('@yovoice.settings.closeLicense')} onClick={() => setLicense(null)} /></VStack></Dialog> : null}
+    {license ? <Dialog isOpen onOpenChange={open => { if (!open) setLicense(null); }} width={680} padding={6}><VStack gap={4}><h2 tabIndex={-1} data-autofocus="">{t('@yovoice.settings.licenseTitle')}</h2><pre className="license-text">{license}</pre><Button size="sm" label={t('@yovoice.settings.closeLicense')} onClick={() => setLicense(null)} /></VStack></Dialog> : null}
   </VStack>;
 }

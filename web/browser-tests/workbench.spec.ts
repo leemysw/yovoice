@@ -128,7 +128,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await page.getByRole('button', { name: '测试音色', exact: true }).click();
   await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.locator('audio.voice-preview')).toBeVisible();
+  await expect(page.getByRole('dialog').locator('.library-preview')).toBeVisible();
   await page.getByRole('button', { name: '裁剪', exact: true }).click();
   await page.getByRole('button', { name: '另存为新音色' }).click();
   await expect(page.getByRole('button', { name: '测试音色 · 裁剪', exact: true })).toBeVisible();
@@ -145,8 +145,25 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await page.getByRole('button', { name: '声音库', exact: true }).click();
 
   await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
-  const preview = page.locator('audio.library-preview');
+  const preview = page.locator('.library-preview audio');
   await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => !audio.paused && audio.currentTime > 0)).toBeTruthy();
+  const controls = page.locator('.library-preview');
+  await expect(preview).not.toHaveAttribute('controls');
+  await controls.getByRole('button', { name: '暂停', exact: true }).click();
+  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.paused)).toBeTruthy();
+  await controls.getByRole('slider', { name: '播放进度' }).fill('1');
+  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeCloseTo(1, 1);
+  await controls.getByRole('button', { name: '静音', exact: true }).click();
+  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.volume)).toBe(0);
+  await controls.getByRole('button', { name: '取消静音' }).click();
+  const play = controls.getByRole('button', { name: '播放', exact: true });
+  await play.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Shift+Tab');
+  await expect(play).toBeFocused();
+  await expect(play).toHaveCSS('outline-width', '1px');
+  await play.press('Enter');
+  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.paused)).toBeFalsy();
   await page.getByRole('button', { name: '收起试听测试音色', exact: true }).click();
   await expect(preview).toHaveCount(0);
   await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
@@ -394,6 +411,9 @@ test('声音库管理复用重命名和删除，清理当前音色引用', async
   await page.getByRole('button', { name: '保存名称', exact: true }).click();
   await expect(page.getByRole('button', { name: '打开位置新音色', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '删除声音新音色', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('heading')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('dialog').getByRole('button', { name: '取消', exact: true })).toBeFocused();
   await page.getByRole('button', { name: '删除声音', exact: true }).click();
   await expect(page.getByRole('button', { name: '添加第一个声音', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '创作', exact: true }).click();
