@@ -1,8 +1,16 @@
 {
-  "@yovoice.settings.proxy": { "defaultMessage": "Network proxy" },
-  "@yovoice.settings.proxyEnabled": { "defaultMessage": "Enable proxy" },
-  "@yovoice.settings.proxyAddress": { "defaultMessage": "Proxy address" },
-  "@yovoice.error.proxyURL": { "defaultMessage": "Enter an HTTP, HTTPS or SOCKS5 proxy URL with a valid port, without paths or credentials." },
+  "@yovoice.settings.proxy": {
+    "defaultMessage": "Network proxy"
+  },
+  "@yovoice.settings.proxyEnabled": {
+    "defaultMessage": "Enable proxy"
+  },
+  "@yovoice.settings.proxyAddress": {
+    "defaultMessage": "Proxy address"
+  },
+  "@yovoice.error.proxyURL": {
+    "defaultMessage": "Enter an HTTP, HTTPS or SOCKS5 proxy URL with a valid port, without paths or credentials."
+  },
   "@yovoice.action.apply": {
     "defaultMessage": "Apply"
   },
@@ -1421,5 +1429,161 @@
   },
   "@yovoice.language.hi": {
     "defaultMessage": "Hindi"
+  },
+  "@yovoice.nav.characters": {
+    "defaultMessage": "Characters"
+  },
+  "@yovoice.character.saveAs": {
+    "defaultMessage": "Save as character"
+  },
+  "@yovoice.character.choose": {
+    "defaultMessage": "Choose character"
+  },
+  "@yovoice.character.edit": {
+    "defaultMessage": "Edit character"
+  },
+  "@yovoice.character.name": {
+    "defaultMessage": "Character name"
+  },
+  "@yovoice.character.demo": {
+    "defaultMessage": "Preview script"
+  },
+  "@yovoice.character.example": {
+    "defaultMessage": "Hello, nice to meet you. Let’s share our story with the world."
+  },
+  "@yovoice.character.useText": {
+    "defaultMessage": "Use current script"
+  },
+  "@yovoice.character.save": {
+    "defaultMessage": "Save character"
+  },
+  "@yovoice.character.copy": {
+    "defaultMessage": "Save as new character"
+  },
+  "@yovoice.character.apply": {
+    "defaultMessage": "Apply character"
+  },
+  "@yovoice.character.preview": {
+    "defaultMessage": "Generate demo"
+  },
+  "@yovoice.character.regenerate": {
+    "defaultMessage": "Regenerate demo"
+  },
+  "@yovoice.character.ready": {
+    "defaultMessage": "Demo ready"
+  },
+  "@yovoice.character.stale": {
+    "defaultMessage": "Demo out of date"
+  },
+  "@yovoice.character.emptyPreview": {
+    "defaultMessage": "No demo yet"
+  },
+  "@yovoice.character.empty": {
+    "defaultMessage": "No characters yet"
+  },
+  "@yovoice.character.delete": {
+    "defaultMessage": "Delete character"
+  },
+  "@yovoice.character.deleteConfirm": {
+    "defaultMessage": "Delete this character? Referenced voices and generation history will be kept."
+  },
+  "@yovoice.character.missingModel": {
+    "defaultMessage": "Model not installed. You can save settings and generate a demo after installation."
+  },
+  "@yovoice.character.missingVoice": {
+    "defaultMessage": "Reference voice missing. Please select another."
+  },
+  "@yovoice.character.close": {
+    "defaultMessage": "Cancel editing"
+  },
+  "@yovoice.character.listen": {
+    "defaultMessage": "Play demo"
+  },
+  "@yovoice.character.sourceDesign": {
+    "defaultMessage": "Built-in speaker / voice description"
+  },
+  "@yovoice.voice.save": {
+    "defaultMessage": "Save as voice"
+  },
+  "@yovoice.voice.edit": {
+    "defaultMessage": "Edit voice details"
+  },
+  "@yovoice.voice.name": {
+    "defaultMessage": "Voice name"
+  },
+  "@yovoice.voice.transcript": {
+    "defaultMessage": "Reference transcript"
+  },
+  "@yovoice.voice.transcriptHelp": {
+    "defaultMessage": "Enter what the audio actually says; check pronunciation annotations and special text."
+  },
+  "@yovoice.voice.limit": {
+    "defaultMessage": "The complete clip must be 1–60 seconds and no larger than 20 MB. Audio is not trimmed here."
+  },
+  "@yovoice.voice.sourceGeneration": {
+    "defaultMessage": "From generation history"
+  },
+  "@yovoice.voice.sourceImport": {
+    "defaultMessage": "Imported / recorded"
+  },
+  "@yovoice.voice.saved": {
+    "defaultMessage": "Save voice"
+  },
+  "@yovoice.error.voiceInUse": {
+    "defaultMessage": "This voice is used by a character. Replace or remove its reference first."
+  },
+  "@yovoice.error.characterInvalid": {
+    "defaultMessage": "Invalid character or voice details. Check the name, script length and record."
+  },
+  "@yovoice.character.clearReferences": {
+    "defaultMessage": "Remove voice references"
+  },
+  "@yovoice.character.help": {
+    "defaultMessage": "Save these voice settings for other projects. The preview script does not replace your project text."
+  },
+  "@yovoice.character.parameters": {
+    "defaultMessage": "Voice settings"
+  },
+  "@yovoice.character.emptyDemo": {
+    "defaultMessage": "Add a preview script to generate a preview, or save the character now."
+  },
+  "@yovoice.character.libraryHelp": {
+    "defaultMessage": "Save voice settings and previews to reuse while creating."
+  },
+  "@yovoice.character.search": {
+    "defaultMessage": "Search characters"
+  },
+  "@yovoice.character.noResults": {
+    "defaultMessage": "No matching characters. Try another search."
+  },
+  "@yovoice.character.createFirst": {
+    "defaultMessage": "Save your first character"
+  },
+  "@yovoice.character.nameLimit": {
+    "defaultMessage": "Character names must be 120 characters or fewer."
+  },
+  "@yovoice.character.update": {
+    "defaultMessage": "Update character with current settings"
+  },
+  "@yovoice.character.applied": {
+    "defaultMessage": "Character settings applied. Project text is unchanged."
+  },
+  "@yovoice.character.saved": {
+    "defaultMessage": "Character saved. Find it in your character library."
+  },
+  "@yovoice.library.nameRequired": {
+    "defaultMessage": "Enter a name to save."
+  },
+  "@yovoice.library.textLimit": {
+    "defaultMessage": "The script must be 2000 characters or fewer."
+  },
+  "@yovoice.voice.nameLimit": {
+    "defaultMessage": "Voice names must be 100 characters or fewer."
+  },
+  "@yovoice.voice.durationLimit": {
+    "defaultMessage": "This audio must be between 1 and 60 seconds. Choose another history clip."
+  },
+  "@yovoice.voice.saveSuccess": {
+    "defaultMessage": "Voice saved. Find it in your voice library."
   }
 }

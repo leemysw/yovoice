@@ -1,17 +1,26 @@
 import { draftCopy } from './i18n/draftCopy';
 
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
-export interface Draft {
+export interface SynthesisSettings {
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
   voiceMode?: 'design' | 'clone';
   voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
-  id: string; title: string; text: string; modelId: string; voiceId: string | null;
+  modelId: string; voiceId: string | null;
   mode: Mode; emotionVoiceId: string | null; emotionText: string; inferEmotion: boolean;
   emotionStrength: number; emotions: number[]; randomEmotion: boolean; language: string;
   speed: number; temperature: number; topP: number; topK: number; repetitionPenalty: number;
   maxTokens: number; intervalSilenceMs: number; doSample: boolean; numBeams: number; lengthPenalty: number; seed: number | null;
 }
-export interface Voice { id: string; name: string; fileName: string; duration: number }
+export interface Draft extends SynthesisSettings { id: string; title: string; text: string }
+export interface CharacterPreview { id: string; fileName: string; duration: number; settings: SynthesisSettings; text: string }
+export interface Character { id: string; name: string; settings: SynthesisSettings; demoText: string; preview?: CharacterPreview; createdAt?: string; updatedAt?: string }
+export const synthesisSettings = ({ id: _id, title: _title, text: _text, ...settings }: Draft): SynthesisSettings => structuredClone(settings);
+// 参数键的序列化顺序不影响试听是否过期。
+const stableJSON = (value: unknown): string => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+// 与 Go 的可选字段默认值对齐，保留 seed=0 与自动随机种子的区别。
+const comparableSettings = (settings: SynthesisSettings) => ({ speaker: '', synthesisLanguage: '', omniSpeed: 0, voiceMode: '', voxMode: '', voiceDescription: '', referenceText: '', guidanceScale: 0, inferenceSteps: 0, modelOptions: {}, ...settings });
+export const previewStale = (c: Character) => !!c.preview && (c.demoText !== c.preview.text || stableJSON(comparableSettings(c.settings)) !== stableJSON(comparableSettings(c.preview.settings)));
+export interface Voice { referenceText?: string; source?: string; sourceGenerationId?: string; id: string; name: string; fileName: string; duration: number }
 export interface ModelPackage { voices?: string[]; variant?: string; task?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
 export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface Generation { id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft }
@@ -21,6 +30,7 @@ export type UiLocale = 'zh-CN' | 'en';
 export type MessageCode = `@yovoice.${string}`;
 export type MessageParams = Record<string, unknown>;
 export interface Activity {
+  requestId?: string;
   startedAt?: string | null;
   modelId?: string | null;
   kind: string;
@@ -34,7 +44,7 @@ export interface Activity {
 }
 export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean }
 export interface State {
-  drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
+  characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; activity: Activity | null;
 }
 
@@ -51,7 +61,7 @@ export const createDraft = (example = false, locale: UiLocale = 'zh-CN'): Draft 
   intervalSilenceMs: 200, doSample: true, numBeams: 3, lengthPenalty: 0, seed: null,
 };
 };
-export const emptyState = (): State => ({ drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: 'zh-CN' }, runtimePath: null, runtimeBackend: null, activity: null });
+export const emptyState = (): State => ({ characters: [], previews: [], drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: 'zh-CN' }, runtimePath: null, runtimeBackend: null, activity: null });
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }

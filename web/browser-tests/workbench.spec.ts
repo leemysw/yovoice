@@ -398,7 +398,7 @@ test('侧栏拖拽调宽、收起和恢复会记住状态', async ({ page }) => 
 });
 
 
-test('声音库管理复用重命名和删除，清理当前音色引用', async ({ page }) => {
+test('声音库管理复用重命名和删除，清理当前音色引用', async ({ page }, testInfo) => {
   const state = emptyState();
   state.voices = [{ id: 'voice', name: '测试音色', fileName: 'voice.wav', duration: 3 }];
   state.drafts[0].voiceId = 'voice';
@@ -406,9 +406,10 @@ test('声音库管理复用重命名和删除，清理当前音色引用', async
   await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
   await page.reload();
   await page.getByRole('button', { name: '声音库', exact: true }).click();
-  await page.getByRole('button', { name: '重命名声音测试音色', exact: true }).click();
-  await page.getByRole('textbox', { name: '名称', exact: true }).fill('新音色');
-  await page.getByRole('button', { name: '保存名称', exact: true }).click();
+  await page.getByRole('button', { name: '编辑音色信息', exact: true }).click();
+  await page.getByLabel('音色名称').fill('新音色');
+  await page.screenshot({ animations: 'disabled', path: testInfo.outputPath('edit-voice.png') });
+  await page.getByRole('button', { name: '保存音色', exact: true }).click();
   await expect(page.getByRole('button', { name: '打开位置新音色', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '删除声音新音色', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('heading')).toBeFocused();

@@ -1,5 +1,5 @@
 import catalog from './catalog.json';
-import { emptyState, type Draft, type State, type Voice, type Preferences } from '../workbench';
+import { emptyState, type Draft, type State, type Voice, type Preferences, type Character } from '../workbench';
 import { encodeWav, toBase64 } from './sound';
 import { CallError, parseCallError } from './callError';
 
@@ -22,6 +22,7 @@ let preview: State;
 try {
   const stored = JSON.parse(localStorage.getItem('voice-workbench-v1') ?? 'null');
   preview = stored ?? emptyState();
+  preview.characters ??= []; preview.previews = [];
   if (!preview.preferences?.uiLocale || (preview.preferences.uiLocale !== 'zh-CN' && preview.preferences.uiLocale !== 'en')) {
     preview = { ...preview, preferences: { ...preview.preferences, uiLocale: 'zh-CN' } };
   }
@@ -36,6 +37,35 @@ export async function call<T = unknown>(method: string, data: unknown = {}): Pro
   });
   // 浏览器预览只保存编辑和音频数据，不模拟桌面推理或模型安装。
   if (method === 'state.get') return { state: preview, catalog, desktop: false } as T;
+  if (method === 'character.save') {
+    const character = structuredClone(data as Character);
+    if (!character.name.trim() || character.name.length > 120 || character.demoText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
+    if ([character.settings.voiceId, character.settings.emotionVoiceId].some(id => id && !preview.voices.some(v => v.id === id))) throw new CallError('@yovoice.error.voiceRequired');
+    const index = preview.characters.findIndex(c => c.id === character.id);
+    character.name = character.name.trim(); character.createdAt = index < 0 ? new Date().toISOString() : preview.characters[index].createdAt;
+    character.updatedAt = new Date().toISOString();
+    if (index < 0) preview.characters.push(character); else preview.characters[index] = character;
+    publish(); return character as T;
+  }
+  if (method === 'character.delete') { preview.characters = preview.characters.filter(c => c.id !== (data as { id: string }).id); publish(); return true as T; }
+  if (method === 'character.discardPreview') return true as T;
+  if (method === 'voice.update' || method === 'voice.fromGeneration') {
+    const input = data as { id: string; name: string; referenceText: string };
+    if (!input.name.trim() || input.name.length > 100 || input.referenceText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
+    if (method === 'voice.update') {
+      const voice = preview.voices.find(v => v.id === input.id);
+      if (!voice) throw new CallError('@yovoice.error.audioMissing');
+      voice.name = input.name.trim(); voice.referenceText = input.referenceText;
+      publish(); return voice as T;
+    }
+    const generation = preview.history.find(g => g.id === input.id);
+    if (!generation) throw new CallError('@yovoice.error.audioMissing');
+    const blob = await blobStore(generation.fileName);
+    if (!blob) throw new CallError('@yovoice.error.audioBlobMissing');
+    const voice = await importVoiceFile(new File([blob], input.name.trim() + '.wav'));
+    Object.assign(voice, { referenceText: input.referenceText, source: 'generation', sourceGenerationId: input.id });
+    publish(); return voice as T;
+  }
   if (method === 'draft.save') {
     const draft = data as Draft; const index = preview.drafts.findIndex(d => d.id === draft.id);
     if (index < 0) preview.drafts.unshift(draft); else preview.drafts[index] = draft;
@@ -51,6 +81,7 @@ export async function call<T = unknown>(method: string, data: unknown = {}): Pro
     } else {
       const item = kind === 'voices' ? preview.voices.find(v => v.id === id) : preview.history.find(v => v.id === id);
       if (kind === 'voices') {
+        if (preview.characters.some(c => c.settings.voiceId === id || c.settings.emotionVoiceId === id)) throw new CallError('@yovoice.error.voiceInUse');
         preview.voices = preview.voices.filter(v => v.id !== id);
         preview.drafts = preview.drafts.map(d => ({ ...d, voiceId: d.voiceId === id ? null : d.voiceId, emotionVoiceId: d.emotionVoiceId === id ? null : d.emotionVoiceId }));
       } else preview.history = preview.history.filter(v => v.id !== id);

@@ -1,8 +1,16 @@
 {
-  "@yovoice.settings.proxy": { "defaultMessage": "网络代理" },
-  "@yovoice.settings.proxyEnabled": { "defaultMessage": "启用代理" },
-  "@yovoice.settings.proxyAddress": { "defaultMessage": "代理地址" },
-  "@yovoice.error.proxyURL": { "defaultMessage": "请输入有效的 HTTP、HTTPS 或 SOCKS5 代理地址及端口，不包含路径或账号密码。" },
+  "@yovoice.settings.proxy": {
+    "defaultMessage": "网络代理"
+  },
+  "@yovoice.settings.proxyEnabled": {
+    "defaultMessage": "启用代理"
+  },
+  "@yovoice.settings.proxyAddress": {
+    "defaultMessage": "代理地址"
+  },
+  "@yovoice.error.proxyURL": {
+    "defaultMessage": "请输入有效的 HTTP、HTTPS 或 SOCKS5 代理地址及端口，不包含路径或账号密码。"
+  },
   "@yovoice.action.apply": {
     "defaultMessage": "应用"
   },
@@ -1421,5 +1429,161 @@
   },
   "@yovoice.language.hi": {
     "defaultMessage": "印地语"
+  },
+  "@yovoice.nav.characters": {
+    "defaultMessage": "角色库"
+  },
+  "@yovoice.character.saveAs": {
+    "defaultMessage": "保存为角色"
+  },
+  "@yovoice.character.choose": {
+    "defaultMessage": "选择角色"
+  },
+  "@yovoice.character.edit": {
+    "defaultMessage": "编辑角色"
+  },
+  "@yovoice.character.name": {
+    "defaultMessage": "角色名称"
+  },
+  "@yovoice.character.demo": {
+    "defaultMessage": "试听台词"
+  },
+  "@yovoice.character.example": {
+    "defaultMessage": "你好，很高兴认识你。让我们一起，把故事讲给更多人听。"
+  },
+  "@yovoice.character.useText": {
+    "defaultMessage": "使用当前正文"
+  },
+  "@yovoice.character.save": {
+    "defaultMessage": "保存角色"
+  },
+  "@yovoice.character.copy": {
+    "defaultMessage": "另存为新角色"
+  },
+  "@yovoice.character.apply": {
+    "defaultMessage": "应用角色"
+  },
+  "@yovoice.character.preview": {
+    "defaultMessage": "生成试听"
+  },
+  "@yovoice.character.regenerate": {
+    "defaultMessage": "重新生成试听"
+  },
+  "@yovoice.character.ready": {
+    "defaultMessage": "试听已生成"
+  },
+  "@yovoice.character.stale": {
+    "defaultMessage": "试听待更新"
+  },
+  "@yovoice.character.emptyPreview": {
+    "defaultMessage": "尚未生成试听"
+  },
+  "@yovoice.character.empty": {
+    "defaultMessage": "暂无角色"
+  },
+  "@yovoice.character.delete": {
+    "defaultMessage": "删除角色"
+  },
+  "@yovoice.character.deleteConfirm": {
+    "defaultMessage": "确认删除此角色？引用的音色和作品历史会保留。"
+  },
+  "@yovoice.character.missingModel": {
+    "defaultMessage": "模型未安装，可保存参数，安装后可生成试听。"
+  },
+  "@yovoice.character.missingVoice": {
+    "defaultMessage": "参考音色缺失，请重新选择。"
+  },
+  "@yovoice.character.close": {
+    "defaultMessage": "取消编辑"
+  },
+  "@yovoice.character.listen": {
+    "defaultMessage": "试听角色"
+  },
+  "@yovoice.character.sourceDesign": {
+    "defaultMessage": "内置说话人 / 声音描述"
+  },
+  "@yovoice.voice.save": {
+    "defaultMessage": "保存为音色"
+  },
+  "@yovoice.voice.edit": {
+    "defaultMessage": "编辑音色信息"
+  },
+  "@yovoice.voice.name": {
+    "defaultMessage": "音色名称"
+  },
+  "@yovoice.voice.transcript": {
+    "defaultMessage": "参考原文"
+  },
+  "@yovoice.voice.transcriptHelp": {
+    "defaultMessage": "填写这段音频实际说出的内容；请检查发音标记和特殊文本。"
+  },
+  "@yovoice.voice.limit": {
+    "defaultMessage": "完整片段需为 1～60 秒且不超过 20 MB。此处不裁剪音频。"
+  },
+  "@yovoice.voice.sourceGeneration": {
+    "defaultMessage": "来自生成历史"
+  },
+  "@yovoice.voice.sourceImport": {
+    "defaultMessage": "导入 / 录音"
+  },
+  "@yovoice.voice.saved": {
+    "defaultMessage": "保存音色"
+  },
+  "@yovoice.error.voiceInUse": {
+    "defaultMessage": "此音色正在被角色使用，请先在角色中替换或解除引用。"
+  },
+  "@yovoice.error.characterInvalid": {
+    "defaultMessage": "角色或音色信息无效，请检查名称、台词长度及记录是否存在。"
+  },
+  "@yovoice.character.clearReferences": {
+    "defaultMessage": "解除音色引用"
+  },
+  "@yovoice.character.help": {
+    "defaultMessage": "保存当前声音参数，方便在其他作品中复用。试听台词仅用于试听，不会替换作品正文。"
+  },
+  "@yovoice.character.parameters": {
+    "defaultMessage": "声音参数"
+  },
+  "@yovoice.character.emptyDemo": {
+    "defaultMessage": "填写试听台词后即可生成试听，也可以先保存角色。"
+  },
+  "@yovoice.character.libraryHelp": {
+    "defaultMessage": "保存声音参数与试听，在创作时一键应用。"
+  },
+  "@yovoice.character.search": {
+    "defaultMessage": "搜索角色"
+  },
+  "@yovoice.character.noResults": {
+    "defaultMessage": "没有匹配的角色，试试其他关键词。"
+  },
+  "@yovoice.character.createFirst": {
+    "defaultMessage": "保存第一个角色"
+  },
+  "@yovoice.character.nameLimit": {
+    "defaultMessage": "角色名称不能超过 120 个字符。"
+  },
+  "@yovoice.character.update": {
+    "defaultMessage": "用当前参数更新角色"
+  },
+  "@yovoice.character.applied": {
+    "defaultMessage": "已应用角色的声音参数，作品正文保持不变。"
+  },
+  "@yovoice.character.saved": {
+    "defaultMessage": "角色已保存，可在角色库中查看和使用。"
+  },
+  "@yovoice.library.nameRequired": {
+    "defaultMessage": "请填写名称后再保存。"
+  },
+  "@yovoice.library.textLimit": {
+    "defaultMessage": "台词不能超过 2000 个字符，请缩短后再保存。"
+  },
+  "@yovoice.voice.nameLimit": {
+    "defaultMessage": "音色名称不能超过 100 个字符。"
+  },
+  "@yovoice.voice.durationLimit": {
+    "defaultMessage": "这段音频不符合 1–60 秒的要求，请选择其他历史片段。"
+  },
+  "@yovoice.voice.saveSuccess": {
+    "defaultMessage": "音色已保存，可在音色库中查看和使用。"
   }
 }

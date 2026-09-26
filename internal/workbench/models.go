@@ -23,7 +23,7 @@ func value(s *string) string {
 	return *s
 }
 
-type Draft struct {
+type SynthesisSettings struct {
 	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty"`
 	Speaker           string                    `json:"speaker,omitempty"`
 	SynthesisLanguage string                    `json:"synthesisLanguage,omitempty"`
@@ -35,9 +35,6 @@ type Draft struct {
 	ReferenceText     string    `json:"referenceText"`
 	GuidanceScale     float64   `json:"guidanceScale"`
 	InferenceSteps    int       `json:"inferenceSteps"`
-	ID                string    `json:"id"`
-	Title             string    `json:"title"`
-	Text              string    `json:"text"`
 	ModelID           string    `json:"modelId"`
 	VoiceID           *string   `json:"voiceId"`
 	Mode              string    `json:"mode"`
@@ -61,15 +58,43 @@ type Draft struct {
 	Seed              *int      `json:"seed"`
 }
 
+type Draft struct {
+	SynthesisSettings
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Text  string `json:"text"`
+}
+
 func DefaultDraft() Draft {
-	return Draft{ID: newID(), Title: "清晨旁白", Text: "清晨的阳光穿过窗帘，\n房间渐渐明亮起来。\n\n给自己倒一杯热茶，\n让思绪在片刻的安静里慢下来。\n\n今天，我们从一个好声音开始。", ModelID: "index-2.5-q8", Mode: "text", EmotionText: "温柔、平静，像是在和熟悉的人说话。", EmotionStrength: .6, Emotions: []float64{0, 0, 0, 0, 0, 0, 0, .5}, Language: "zh", Speed: 1, Temperature: .8, TopP: .8, TopK: 30, RepetitionPenalty: 10, MaxTokens: 1500, IntervalSilenceMs: 200, DoSample: true, NumBeams: 3}
+	return Draft{ID: newID(), Title: "清晨旁白", Text: "清晨的阳光穿过窗帘，\n房间渐渐明亮起来。\n\n给自己倒一杯热茶，\n让思绪在片刻的安静里慢下来。\n\n今天，我们从一个好声音开始。", SynthesisSettings: SynthesisSettings{ModelID: "index-2.5-q8", Mode: "text", EmotionText: "温柔、平静，像是在和熟悉的人说话。", EmotionStrength: .6, Emotions: []float64{0, 0, 0, 0, 0, 0, 0, .5}, Language: "zh", Speed: 1, Temperature: .8, TopP: .8, TopK: 30, RepetitionPenalty: 10, MaxTokens: 1500, IntervalSilenceMs: 200, DoSample: true, NumBeams: 3}}
+}
+
+type CharacterPreview struct {
+	ID       string            `json:"id"`
+	FileName string            `json:"fileName"`
+	Duration float64           `json:"duration"`
+	Settings SynthesisSettings `json:"settings"`
+	Text     string            `json:"text"`
+}
+
+type Character struct {
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Settings  SynthesisSettings `json:"settings"`
+	DemoText  string            `json:"demoText"`
+	Preview   *CharacterPreview `json:"preview,omitempty"`
+	CreatedAt time.Time         `json:"createdAt"`
+	UpdatedAt time.Time         `json:"updatedAt"`
 }
 
 type Voice struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	FileName string  `json:"fileName"`
-	Duration float64 `json:"duration"`
+	ReferenceText      string  `json:"referenceText,omitempty"`
+	Source             string  `json:"source,omitempty"`
+	SourceGenerationID string  `json:"sourceGenerationId,omitempty"`
+	ID                 string  `json:"id"`
+	Name               string  `json:"name"`
+	FileName           string  `json:"fileName"`
+	Duration           float64 `json:"duration"`
 }
 type InstalledModel struct {
 	ID      string `json:"id"`
@@ -85,6 +110,7 @@ type Generation struct {
 	Settings  Draft     `json:"settings"`
 }
 type Activity struct {
+	RequestID   string        `json:"requestId,omitempty"`
 	Kind        string        `json:"kind"`
 	Code        MessageCode   `json:"code"`
 	Params      MessageParams `json:"params"`
@@ -123,16 +149,18 @@ type Preferences struct {
 	UiLocale       UiLocale `json:"uiLocale"`
 }
 type State struct {
-	Drafts         []Draft          `json:"drafts"`
-	Voices         []Voice          `json:"voices"`
-	Models         []InstalledModel `json:"models"`
-	History        []Generation     `json:"history"`
-	Preferences    Preferences      `json:"preferences"`
-	RuntimePath    *string          `json:"runtimePath"`
-	RuntimeBackend *string          `json:"runtimeBackend"`
-	Activity       *Activity        `json:"activity"`
+	Characters     []Character        `json:"characters"`
+	Previews       []CharacterPreview `json:"previews"`
+	Drafts         []Draft            `json:"drafts"`
+	Voices         []Voice            `json:"voices"`
+	Models         []InstalledModel   `json:"models"`
+	History        []Generation       `json:"history"`
+	Preferences    Preferences        `json:"preferences"`
+	RuntimePath    *string            `json:"runtimePath"`
+	RuntimeBackend *string            `json:"runtimeBackend"`
+	Activity       *Activity          `json:"activity"`
 }
 
 func defaultState() State {
-	return State{Drafts: []Draft{DefaultDraft()}, Voices: []Voice{}, Models: []InstalledModel{}, History: []Generation{}, Preferences: Preferences{DownloadSource: "modelscope", Backend: "cpu"}}
+	return State{Characters: []Character{}, Previews: []CharacterPreview{}, Drafts: []Draft{DefaultDraft()}, Voices: []Voice{}, Models: []InstalledModel{}, History: []Generation{}, Preferences: Preferences{DownloadSource: "modelscope", Backend: "cpu"}}
 }

@@ -93,6 +93,16 @@ func (w *Workbench) MediaFile(kind, id string) (string, error) {
 			}
 		}
 	case "outputs":
+		for _, c := range s.Characters {
+			if c.Preview != nil && c.Preview.ID == id {
+				file = c.Preview.FileName
+			}
+		}
+		for _, p := range s.Previews {
+			if p.ID == id {
+				file = p.FileName
+			}
+		}
 		for _, v := range s.History {
 			if v.ID == id {
 				file = v.FileName
@@ -131,11 +141,23 @@ func (w *Workbench) rename(kind, id, name string) error {
 	}, true)
 }
 func (w *Workbench) deleteMedia(kind, id string) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
 	path, e := w.MediaFile(kind, id)
 	if e != nil {
 		return e
 	}
 	s := w.Store.Read()
+	if kind == "outputs" && !slices.ContainsFunc(s.History, func(g Generation) bool { return g.ID == id }) {
+		return Err(MsgErrAudioMissing, nil)
+	}
+	if kind == "voices" {
+		for _, c := range s.Characters {
+			if value(c.Settings.VoiceID) == id || value(c.Settings.EmotionVoiceID) == id {
+				return Err(MsgErrVoiceInUse, nil)
+			}
+		}
+	}
 	if kind == "voices" && s.Activity != nil && s.Activity.Kind == "generate" && s.Activity.Status == "running" {
 		return Err(MsgErrVoiceBusyDelete, nil)
 	}
@@ -215,7 +237,7 @@ func (w *Workbench) preferences(p Preferences) error {
 }
 
 // 前台命令由服务串行调度，耗时操作独立运行，状态通过 Store 广播。
-func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, modelID *string, action func(context.Context) error) error {
+func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, modelID *string, action func(context.Context) error, requestIDs ...string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.closed || w.cancel != nil {
@@ -223,7 +245,11 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	if e := w.Store.Update(func(s *State) {
-		s.Activity = &Activity{Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
+		requestID := ""
+		if len(requestIDs) > 0 {
+			requestID = requestIDs[0]
+		}
+		s.Activity = &Activity{RequestID: requestID, Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
 	}, true); e != nil {
 		cancel()
 		return e
@@ -484,6 +510,10 @@ func (w *Workbench) install() error {
 	})
 }
 func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, error) {
+	return w.importVoice(ctx, path, name, "", "")
+}
+
+func (w *Workbench) importVoice(ctx context.Context, path, name, referenceText, sourceID string) (Voice, error) {
 	info, e := os.Stat(path)
 	if e != nil {
 		return Voice{}, e
@@ -528,7 +558,10 @@ func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, 
 		return Voice{}, err
 	}
 	id := newID()
-	v := Voice{id, name, id + ".wav", duration}
+	v := Voice{ID: id, Name: name, FileName: id + ".wav", Duration: duration, Source: "import", ReferenceText: referenceText, SourceGenerationID: sourceID}
+	if sourceID != "" {
+		v.Source = "generation"
+	}
 	dest, e := w.Store.MediaPath("voices", v.FileName)
 	if e != nil {
 		return Voice{}, e
@@ -549,7 +582,9 @@ func (w *Workbench) ImportVoice(ctx context.Context, path, name string) (Voice, 
 	}
 	return v, nil
 }
-func (w *Workbench) generate(d Draft) error {
+func (w *Workbench) generate(d Draft) error { return w.generateAudio(d, "") }
+
+func (w *Workbench) generateAudio(d Draft, previewID string) error {
 	if e := Validate(d); e != nil {
 		return e
 	}
@@ -576,16 +611,28 @@ func (w *Workbench) generate(d Draft) error {
 	if s.RuntimePath == nil || value(s.RuntimeBackend) != s.Preferences.Backend {
 		return Err(MsgErrRuntimeRequired, nil)
 	}
-	if e = w.SaveDraft(d); e != nil {
-		return e
+	if previewID == "" {
+		if e = w.SaveDraft(d); e != nil {
+			return e
+		}
 	}
 	return w.begin("generate", MsgActivityGenerate, nil, nil, func(ctx context.Context) error {
 		id := newID()
 		file := id + ".wav"
+		if previewID != "" {
+			id = previewID
+			file = "audition-" + id + ".wav"
+		}
 		path, e := w.Store.MediaPath("outputs", file)
 		if e != nil {
 			return e
 		}
+		keep := false
+		defer func() {
+			if !keep {
+				_ = os.Remove(path)
+			}
+		}()
 		if e = w.engine.Generate(ctx, *s.RuntimePath, s.Models[i], s.Preferences.Backend, d, voice, emotion, path, func(code MessageCode, params MessageParams) { w.progress(code, params, 0, 0) }); e != nil {
 			return e
 		}
@@ -593,13 +640,24 @@ func (w *Workbench) generate(d Draft) error {
 		if e != nil {
 			return e
 		}
+		if e = ctx.Err(); e != nil {
+			return e
+		}
+		if previewID != "" {
+			e = w.Store.Update(func(s *State) {
+				s.Previews = append(s.Previews, CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
+			}, true)
+			keep = e == nil
+			return e
+		}
 		g := Generation{id, d.Title, file, time.Now().UTC(), duration, d}
 		if e = w.Store.Update(func(s *State) { s.History = append([]Generation{g}, s.History...) }, true); e != nil {
 			_ = os.Remove(path)
 			return e
 		}
+		keep = true
 		return nil
-	})
+	}, previewID)
 }
 func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 	var p struct {
@@ -617,6 +675,8 @@ func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
 	}
 	var err error
 	switch method {
+	case "character.save", "character.delete", "character.preview", "character.discardPreview", "voice.fromGeneration", "voice.update":
+		return w.libraryCall(method, data)
 	case "state.get":
 		return map[string]any{"state": w.Store.Read(), "catalog": Catalog, "desktop": true}, nil
 	case "media.path":

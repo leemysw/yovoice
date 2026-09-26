@@ -50,6 +50,12 @@ func NewStore(root string) (*Store, error) {
 	if s.state.Preferences.UiLocale == "" && fromFile {
 		s.state.Preferences.UiLocale = UiLocaleZhCN
 	}
+	// 未保存的试听不跨会话保留，角色已保存的试听使用独立文件。
+	s.state.Previews = []CharacterPreview{}
+	files, _ := filepath.Glob(filepath.Join(root, "outputs", "audition-*.wav"))
+	for _, file := range files {
+		_ = os.Remove(file)
+	}
 	return s, nil
 }
 func clone(s State) State    { b, _ := json.Marshal(s); var r State; _ = json.Unmarshal(b, &r); return r }

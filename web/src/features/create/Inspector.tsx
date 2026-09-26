@@ -1,6 +1,6 @@
 import { KokoroControls } from './KokoroControls';
 import { ModelOptions } from './ModelOptions';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
@@ -44,7 +44,8 @@ const advancedFields = [
   ['lengthPenalty', '@yovoice.create.lengthPenalty', -2, 2, 0.1],
 ] as const;
 
-export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEmotion, play, generate, cancel, settings, advanced, setAdvanced, close }: {
+export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEmotion, play, generate, cancel, settings, advanced, setAdvanced, close, embedded = false, libraryActions, generationAction, allowModelManagement = true }: {
+  embedded?: boolean; libraryActions?: ReactNode; generationAction?: ReactNode; allowModelManagement?: boolean;
   draft: Draft; state: State; catalog: ModelPackage[]; change: (patch: Partial<Draft>) => void; chooseVoice: () => void; chooseEmotion: () => void;
   play: (track: Track) => void; generate: () => void; cancel: () => void; settings: () => void; close: () => void; advanced: boolean; setAdvanced: (v: boolean) => void;
 }) {
@@ -67,24 +68,26 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
   const languageOptions = (draft.modelId.startsWith('index-2.5')
     ? (['zh', 'en', 'ja', 'es', 'ar'] as const)
     : (['zh', 'en'] as const)).map(value => ({ value, label: t(`@yovoice.language.${value}`) }));
-  return <VStack as="aside" className="inspector" gap={0}>
-    <VStack className="generation-action" gap={3}>
-      {busy && state.activity?.kind === 'generate' ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" /> : <Button label={t('@yovoice.create.generate')} variant="primary" width="100%" size="lg" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim()} onClick={generate} />}
-      {generating ? <HStack className="generation-status" gap={2} vAlign="center">
+  return <VStack as="aside" className={embedded ? undefined : "inspector"} gap={0}>
+    {!embedded ? <VStack className="generation-action" gap={3}>
+      {generationAction ?? (busy && state.activity?.kind === 'generate' ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" /> : <Button label={t('@yovoice.create.generate')} variant="primary" width="100%" size="lg" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim()} onClick={generate} />)}
+      {generating && !generationAction ? <HStack className="generation-status" gap={2} vAlign="center">
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
         <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
       </HStack> : null}
     </VStack>
-    <VStack className="inspector-scroll" gap={5}>
+    : null}
+    <VStack className={embedded ? undefined : "inspector-scroll"} gap={5}>
+    {libraryActions}
     <VStack className="inspector-actions" gap={3}>
       <h2 className="inspector-section-title">{t('@yovoice.create.model')}</h2>
       <Selector label={t('@yovoice.create.model')} isLabelHidden placement="below" renderOption={option => <SelectorOption label={option.label} description={option.description} layout="inline" />} renderValue={option => option.label} className="model-selector" width="100%" value={draft.modelId} isDisabled={busy}
-        options={[...catalog.map(model => ({ value: model.id, label: `${model.name} · ${model.precision}`, description: state.models.some(installed => installed.id === model.id) ? t('@yovoice.create.modelInstalled') : t('@yovoice.create.modelMissing') })), { value: 'manage', label: t('@yovoice.create.manageModels') }]}
+        options={[...catalog.map(model => ({ value: model.id, label: `${model.name} · ${model.precision}`, description: state.models.some(installed => installed.id === model.id) ? t('@yovoice.create.modelInstalled') : t('@yovoice.create.modelMissing') })), ...(embedded || !allowModelManagement ? [] : [{ value: 'manage', label: t('@yovoice.create.manageModels') }])]}
         onChange={modelId => { if (modelId === 'manage') { settings(); return; } change({ modelId, speaker: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family && !modelId.startsWith('kokoro-') ? draft.speaker : '', synthesisLanguage: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.synthesisLanguage : 'auto', voiceDescription: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.voiceDescription : '', language: modelId.startsWith('index-2.5') || ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); }} />
 
     </VStack>
-    <HStack className="inspector-heading" hAlign="between" vAlign="center"><h2 className="inspector-section-title">{t('@yovoice.create.voiceSettings')}</h2><Button label={t('@yovoice.create.backToScript')} className="inspector-toggle" variant="ghost" onClick={close} /></HStack>
+    <HStack className="inspector-heading" hAlign="between" vAlign="center"><h2 className="inspector-section-title">{t('@yovoice.create.voiceSettings')}</h2>{!embedded ? <Button label={t('@yovoice.create.backToScript')} className="inspector-toggle" variant="ghost" onClick={close} /> : null}</HStack>
       {catalog.find(model => model.id === draft.modelId)?.family === 'kokoro_tts' ? <KokoroControls draft={draft} model={catalog.find(model => model.id === draft.modelId)!} change={change} /> : isReferenceModel(draft.modelId) ? <ReferenceControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} /> : isVoxModel(draft.modelId) ? <VoxControls draft={draft} state={state} change={change} chooseVoice={chooseVoice} play={play} advanced={advanced} setAdvanced={setAdvanced} /> : <>
       <VStack gap={3}>
         <h3>{t('@yovoice.create.referenceVoice')}</h3>

@@ -9,7 +9,7 @@ import { call } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
 import type { Track } from '../../shared/workbench';
 
-export function MediaActions({ item, beforeDelete, onError }: { item: Pick<Track, 'id' | 'kind' | 'name'>; beforeDelete: () => void; onError: (message: string) => void }) {
+export function MediaActions({ item, beforeDelete, onError, onEdit }: { onEdit?: () => void; item: Pick<Track, 'id' | 'kind' | 'name'>; beforeDelete: () => void; onError: (message: string) => void }) {
   const t = useTranslator();
   const [action, setAction] = useState<'rename' | 'delete' | null>(null);
   const [name, setName] = useState(item.name);
@@ -27,14 +27,14 @@ export function MediaActions({ item, beforeDelete, onError }: { item: Pick<Track
     finally { setBusy(false); }
   }
   return <HStack className="media-actions" gap={1}>
-    <Button label={t('@yovoice.media.rename', { noun, name: item.name })} isIconOnly icon={<Pencil size={15} />} size="sm" variant="ghost" onClick={() => { setName(item.name); setError(''); setAction('rename'); }} />
+    <Button label={onEdit ? t('@yovoice.voice.edit') : t('@yovoice.media.rename', { noun, name: item.name })} isIconOnly icon={<Pencil size={15} />} size="sm" variant="ghost" onClick={() => { if (onEdit) { onEdit(); return; } setName(item.name); setError(''); setAction('rename'); }} />
     <Button label={t('@yovoice.media.reveal', { name: item.name })} isIconOnly icon={<FolderOpen size={15} />} size="sm" variant="ghost" onClick={() => { void call('media.reveal', { kind: item.kind, id: item.id }).catch(e => onError(e.message)); }} />
     <Button label={t('@yovoice.media.delete', { noun, name: item.name })} isIconOnly icon={<Trash2 size={15} />} size="sm" variant="ghost" onClick={() => { setError(''); setAction('delete'); }} />
     {action ? <Dialog isOpen onOpenChange={open => { if (!open && !busy) setAction(null); }} width={400} padding={6}><VStack gap={4}>
       <h2 tabIndex={-1} data-autofocus="">{action === 'rename' ? t('@yovoice.media.renameTitle', { noun }) : t('@yovoice.media.deleteTitle', { noun })}</h2>
       {action === 'rename' ? <TextInput label={t('@yovoice.media.name')} value={name} onChange={setName} /> : <p className="helper">{t('@yovoice.media.deleteBody', { name: item.name })}{item.kind === 'voices' ? t('@yovoice.media.deleteVoiceExtra') : t('@yovoice.media.deleteHistoryExtra')}</p>}
       {error ? <p className="dialog-error" role="alert">{error}</p> : null}
-      <HStack hAlign="end" gap={2}><Button label={t('@yovoice.action.cancel')} size="sm" isDisabled={busy} onClick={() => setAction(null)} /><Button label={action === 'rename' ? t('@yovoice.media.saveName') : t('@yovoice.media.deleteConfirm', { noun })} size="sm" variant={action === 'rename' ? 'primary' : 'destructive'} isLoading={busy} isDisabled={action === 'rename' && (!name.trim() || name.trim().length > 120)} onClick={() => void submit()} /></HStack>
+      <HStack className="dialog-actions" hAlign="end" gap={2}><Button label={t('@yovoice.action.cancel')} isDisabled={busy} onClick={() => setAction(null)} /><Button label={action === 'rename' ? t('@yovoice.media.saveName') : t('@yovoice.media.deleteConfirm', { noun })} variant={action === 'rename' ? 'primary' : 'destructive'} isLoading={busy} isDisabled={action === 'rename' && (!name.trim() || name.trim().length > 120)} onClick={() => void submit()} /></HStack>
     </VStack></Dialog> : null}
   </HStack>;
 }
