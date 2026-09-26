@@ -1433,6 +1433,9 @@
   "@yovoice.nav.characters": {
     "defaultMessage": "角色库"
   },
+  "@yovoice.character.create": {
+    "defaultMessage": "新建角色"
+  },
   "@yovoice.character.saveAs": {
     "defaultMessage": "保存为角色"
   },
@@ -1450,9 +1453,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "你好，很高兴认识你。让我们一起，把故事讲给更多人听。"
-  },
-  "@yovoice.character.useText": {
-    "defaultMessage": "使用当前正文"
   },
   "@yovoice.character.save": {
     "defaultMessage": "保存角色"
@@ -1494,7 +1494,7 @@
     "defaultMessage": "参考音色缺失，请重新选择。"
   },
   "@yovoice.character.close": {
-    "defaultMessage": "取消编辑"
+    "defaultMessage": "退出"
   },
   "@yovoice.character.listen": {
     "defaultMessage": "试听角色"
@@ -1585,5 +1585,17 @@
   },
   "@yovoice.voice.saveSuccess": {
     "defaultMessage": "音色已保存，可在音色库中查看和使用。"
+  },
+  "@yovoice.library.searchVoices": {
+    "defaultMessage": "搜索声音"
+  },
+  "@yovoice.library.searchHistory": {
+    "defaultMessage": "搜索历史记录"
+  },
+  "@yovoice.library.noSearchResults": {
+    "defaultMessage": "没有匹配的结果"
+  },
+  "@yovoice.settings.modelDesc.kokoroOfficial": {
+    "defaultMessage": "官方 Q8 下载包 · 中英等 8 种语言 · 49 个预设音色，不含日语词典。"
   }
 }

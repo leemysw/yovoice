@@ -4,6 +4,12 @@ test('Kokoro 按版本提供语言和音色，切换模型后重置音色并保�
   await page.goto('/');
   const model = page.getByRole('combobox', { name: '模型', exact: true });
   await model.click();
+  await page.getByRole('option', { name: /Kokoro-82M 1.0 Official · Q8/ }).click();
+  await page.getByRole('combobox', { name: '语言', exact: true }).click();
+  await expect(page.getByRole('option')).toHaveCount(8);
+  await expect(page.getByRole('option', { name: '日语', exact: true })).toHaveCount(0);
+  await page.getByRole('option', { name: '中文', exact: true }).click();
+  await model.click();
   await page.getByRole('option', { name: /Kokoro-82M 1.0 · Q8/ }).click();
   const language = page.getByRole('combobox', { name: '语言', exact: true });
   const speaker = page.getByRole('combobox', { name: '内置音色', exact: true });

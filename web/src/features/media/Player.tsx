@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
@@ -7,7 +7,10 @@ import { call, mediaUrl, CallError } from '../../shared/lib/client';
 import { formatTime } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 
-export function Player({ track, onError, suspended, compact = false, historyControl }: { historyControl?: ReactNode; compact?: boolean; suspended: boolean; track: Track | null; onError: (message: string) => void }) {
+// 头像素材仅在展示库列表时加载，避免进入创作首屏主包。
+const SeededAvatar = lazy(() => import('../../shared/ui/SeededAvatar').then(module => ({ default: module.SeededAvatar })));
+
+export function Player({ track, onError, suspended, compact = false, historyControl, actions, avatar }: { avatar?: { seed: string; label: string; disabled?: boolean; select: () => void }; actions?: ReactNode; historyControl?: ReactNode; compact?: boolean; suspended: boolean; track: Track | null; onError: (message: string) => void }) {
   const t = useTranslator();
   const audio = useRef<HTMLAudioElement>(null);
   const autoplay = useRef(false);
@@ -25,7 +28,7 @@ export function Player({ track, onError, suspended, compact = false, historyCont
       try {
         resource = await mediaUrl(track.kind, track.fileName); if (disposed) return;
         setUrl(resource);
-        if (compact) return;
+        if (avatar || compact) return;
         const context = new AudioContext();
         try {
           const response = await fetch(resource); if (!response.ok) throw new CallError('@yovoice.error.audioReadFailed');
@@ -62,7 +65,10 @@ export function Player({ track, onError, suspended, compact = false, historyCont
   }, [peaks, zoom]);
   const toggle = async () => {
     if (!audio.current) return;
-    if (playing) audio.current.pause(); else try { await audio.current.play(); } catch { onError('@yovoice.error.audioPlayFailed'); }
+    if (playing) audio.current.pause(); else try {
+      if (avatar) { audio.current.currentTime = 0; setTime(0); }
+      await audio.current.play();
+    } catch { onError('@yovoice.error.audioPlayFailed'); }
   };
   const seek = (value: number) => {
     if (audio.current) audio.current.currentTime = value;
@@ -78,6 +84,12 @@ export function Player({ track, onError, suspended, compact = false, historyCont
     onTimeUpdate={() => setTime(audio.current?.currentTime ?? 0)}
     onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
     onError={() => { if (url) onError('@yovoice.error.audioPlayFailed'); }} />;
+  if (avatar) return <HStack className="avatar-player" data-playing={playing} gap={0}>
+    {media}
+    <Button className="avatar-toggle" label={playing ? t('@yovoice.player.pause') : avatar.label} isIconOnly variant="ghost" isDisabled={avatar.disabled || suspended}
+      icon={<HStack className="avatar-art" gap={0}><Suspense fallback={null}><SeededAvatar seed={avatar.seed} /></Suspense>{playing ? <Pause className="avatar-symbol" size={20} fill="currentColor" /> : <Play className="avatar-symbol" size={20} fill="currentColor" />}</HStack>}
+      onClick={() => { if (track && url) void toggle(); else avatar.select(); }} />
+  </HStack>;
   if (compact) return <HStack className="library-preview" role="group" aria-label={t('@yovoice.player.audition', { name: track?.name ?? '' })} gap={3} vAlign="center">
     {media}
     <Button label={playing ? t('@yovoice.player.pause') : t('@yovoice.player.play')} isIconOnly icon={playing ? <Pause size={16} /> : <Play size={16} fill="currentColor" />} size="sm" variant="ghost" className="preview-play" isDisabled={!url || suspended} onClick={() => void toggle()} />
@@ -106,6 +118,7 @@ export function Player({ track, onError, suspended, compact = false, historyCont
           <Button label={t('@yovoice.player.zoomIn')} isIconOnly icon={<ZoomIn size={16} />} size="sm" variant="ghost" isDisabled={!duration || zoom === 8} onClick={() => setZoom(value => Math.min(8, value * 2))} />
         </HStack>
         {track?.kind === 'outputs' ? <Button label={t('@yovoice.player.reveal')} isIconOnly icon={<FolderOpen size={17} />} size="sm" variant="ghost" onClick={() => { void call('media.reveal', { kind: track.kind, id: track.id }).catch(e => onError(e.message)); }} /> : null}
+        {actions}
       </HStack>
     </HStack>
     <HStack className="timeline" gap={0}>

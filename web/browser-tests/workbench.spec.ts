@@ -85,7 +85,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('tab', { name: '模型', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(21);
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(22);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
   await page.getByRole('button', { name: '关闭协议' }).click();
@@ -144,29 +144,26 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(page.getByRole('button', { name: '测试音色 · 裁剪', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '声音库', exact: true }).click();
 
-  await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
-  const preview = page.locator('.library-preview audio');
+  const entry = page.locator('.library-entry').filter({ has: page.getByRole('heading', { name: '测试音色', exact: true }) });
+  await entry.click({ position: { x: 200, y: 8 } });
+  const controls = page.locator('.library-entry').filter({ has: page.getByRole('heading', { name: '测试音色', exact: true }) }).locator('.avatar-player');
+  const preview = controls.locator('audio');
   await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => !audio.paused && audio.currentTime > 0)).toBeTruthy();
-  const controls = page.locator('.library-preview');
-  await expect(preview).not.toHaveAttribute('controls');
-  await controls.getByRole('button', { name: '暂停', exact: true }).click();
+  await expect(controls).toHaveAttribute('data-playing', 'true');
+  await expect(controls.locator('img')).toHaveCSS('width', '48px');
+  await expect(controls.locator('img')).toHaveCSS('animation-play-state', 'running');
+  await entry.click({ position: { x: 200, y: 8 } });
   await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.paused)).toBeTruthy();
-  await controls.getByRole('slider', { name: '播放进度' }).fill('1');
-  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeCloseTo(1, 1);
-  await controls.getByRole('button', { name: '静音', exact: true }).click();
-  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.volume)).toBe(0);
-  await controls.getByRole('button', { name: '取消静音' }).click();
-  const play = controls.getByRole('button', { name: '播放', exact: true });
+  await expect(controls.locator('img')).toHaveCSS('animation-play-state', 'paused');
+  await preview.evaluate((audio: HTMLAudioElement) => { audio.currentTime = 1; });
+  const play = controls.getByRole('button', { name: '试听测试音色', exact: true });
   await play.focus();
-  await page.keyboard.press('Tab');
-  await page.keyboard.press('Shift+Tab');
   await expect(play).toBeFocused();
-  await expect(play).toHaveCSS('outline-width', '1px');
   await play.press('Enter');
-  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => audio.paused)).toBeFalsy();
-  await page.getByRole('button', { name: '收起试听测试音色', exact: true }).click();
-  await expect(preview).toHaveCount(0);
-  await page.getByRole('button', { name: '试听测试音色', exact: true }).click();
+  await expect.poll(() => preview.evaluate((audio: HTMLAudioElement) => !audio.paused && audio.currentTime < 1)).toBeTruthy();
+  await preview.evaluate((audio: HTMLAudioElement) => { audio.currentTime = audio.duration; });
+  await expect(controls).toHaveAttribute('data-playing', 'false');
+  await play.click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('tab', { name: '模型', exact: true }).click();
   await expect(page.locator('audio')).toHaveCount(0);
@@ -423,22 +420,44 @@ test('声音库管理复用重命名和删除，清理当前音色引用', async
 });
 
 
-test('声音库和历史仅列表滚动，标题位置保持固定', async ({ page }) => {
+test('声音库和历史仅列表滚动，标题位置保持固定', async ({ page }, testInfo) => {
   const state = emptyState();
   state.voices = Array.from({ length: 30 }, (_, i) => ({ id: `voice-${i}`, name: `声音 ${i}`, fileName: `${i}.wav`, duration: 3 }));
   state.history = Array.from({ length: 30 }, (_, i) => ({ id: `history-${i}`, title: `历史 ${i}`, fileName: `${i}.wav`, createdAt: '2026-09-15T10:00:00Z', duration: 3, settings: state.drafts[0] }));
   await page.goto('/');
   await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
   await page.reload();
+  // 测试历史没有音频文件，先关闭缺失音频提示，再核对常态布局。
+  const closeNotice = page.getByRole('button', { name: '关闭提示', exact: true });
+  await closeNotice.click();
   for (const [name, selector, last] of [['声音库', '.voice-library-list', '声音 29'], ['历史记录', '.history-list', '历史 29']]) {
     await page.getByRole('button', { name, exact: true }).click();
     const heading = page.getByRole('heading', { name, exact: true });
     const before = await heading.boundingBox();
+    const newProject = (await page.getByTestId('nav-new').boundingBox())!;
+    expect(Math.abs(before!.y + before!.height / 2 - newProject.y - newProject.height / 2)).toBeLessThan(1);
     const list = page.locator(selector);
+    if (name === '声音库') {
+      await expect(list.locator('.library-avatar')).toHaveCount(30);
+      const entries = list.locator('.library-entry');
+      const first = (await entries.nth(0).boundingBox())!;
+      const second = (await entries.nth(1).boundingBox())!;
+      expect(second.x).toBeGreaterThan(first.x);
+      expect(second.y).toBe(first.y);
+      await page.screenshot({ path: testInfo.outputPath('voices-grid.png') });
+    }
     await list.evaluate(el => { el.scrollTop = el.scrollHeight; });
     await expect.poll(() => list.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
     await expect(page.getByRole('heading', { name: last, exact: true })).toBeInViewport();
     expect((await heading.boundingBox())!.y).toBe(before!.y);
+    const search = page.getByRole('textbox', { name: name === '声音库' ? '搜索声音' : '搜索历史记录', exact: true });
+    await search.fill(`  ${last}  `);
+    await expect(list.getByRole('heading')).toHaveCount(1);
+    await expect(list.getByRole('heading', { name: last, exact: true })).toBeVisible();
+    await search.fill('不存在的名称');
+    await expect(list.getByRole('status')).toHaveText('没有匹配的结果');
+    await search.fill('');
+    await expect(list.getByRole('heading')).toHaveCount(30);
   }
 });
 

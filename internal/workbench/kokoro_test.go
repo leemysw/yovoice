@@ -35,8 +35,23 @@ func TestKokoroVoiceRequests(t *testing.T) {
 		if Validate(d) == nil {
 			t.Fatal("拒绝未知音色")
 		}
-		if _, err := m.URL("huggingface"); err == nil {
+		if _, err := m.URL("huggingface"); m.RemotePath == "" && err == nil {
 			t.Fatal("模型未发布时必须明确要求导入，不能生成无效下载地址")
+		}
+	}
+}
+
+func TestKokoroOfficialDownload(t *testing.T) {
+	m, err := model("kokoro-82m-q8")
+	must(t, err)
+	url, err := m.URL("huggingface")
+	must(t, err)
+	if url != "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/"+m.Revision+"/Kokoro-82M-GGUF/kokoro-82m-q8_0.gguf" || m.Size != 189549408 || m.SHA256 != "5d800fd204029302c10313daeafdb31c875c7c29ae31974d0d156cc7f512d1d0" {
+		t.Fatal("官方模型下载元数据不匹配", m)
+	}
+	for _, voice := range m.Voices {
+		if kokoroLanguage(voice) == "ja" {
+			t.Fatal("官方小包没有 UniDic，不应提供日语音色")
 		}
 	}
 }

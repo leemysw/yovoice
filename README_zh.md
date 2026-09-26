@@ -4,7 +4,7 @@
 <h1 align="center">yovoice</h1>
 <p align="center">让文字拥有你的声音。</p>
 <p align="center">
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.3-blue?style=flat-square" alt="Version 0.1.3" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.4-blue?style=flat-square" alt="Version 0.1.4" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
@@ -110,6 +110,9 @@ make app-run
 - [audio.cpp](https://github.com/0xShug0/audio.cpp) — ShugoAI 开发的本地音频推理引擎。
 - [VoxCPM](https://github.com/OpenBMB/VoxCPM) — 声音设计与克隆模型，Apache-2.0 许可。
 - [IndexTTS](https://github.com/index-tts/index-tts) — 为 yovoice 提供语音合成模型。
+- [OmniVoice](https://github.com/k2-fsa/OmniVoice) — 声音设计与音色克隆模型。
+- [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — 支持音色克隆、内置音色与文字设计声音。
+- Kokoro — 使用内置音色的轻量语音合成模型：[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 与 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)。
 
 ---
 

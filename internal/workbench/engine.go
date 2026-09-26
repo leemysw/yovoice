@@ -92,6 +92,10 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 			}
 			c.Env = append(c.Env, key+"="+library)
 		}
+		// 官方小包不包含 eSpeak 数据，由安装包提供；完整包仍可沿用内嵌资源。
+		if data, err := packagedTool(filepath.Join("kokoro", "espeak-ng-data", "phontab")); err == nil {
+			c.Env = append(c.Env, "AUDIOCPP_ESPEAK_DATA="+filepath.Dir(data))
+		}
 	}
 	configureProcess(c)
 	out, err := os.Create(filepath.Join(e.root, "logs", "engine.log.out"))

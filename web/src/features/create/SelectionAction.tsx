@@ -95,7 +95,7 @@ export function SelectionAction({ editor, onEdit }: { editor: RefObject<HTMLText
     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setSelection(null); }}
     onKeyDown={event => { if (event.key === 'Escape' || (event.key === 'Tab' && event.shiftKey)) { event.preventDefault(); setSelection(null); editor.current?.focus(); } }}>
     {/* WebKit 点击按钮时可能不转移焦点，阻止鼠标按下导致编辑器失焦并提前卸载浮层。 */}
-    <Button label={t('@yovoice.selection.adjustPronunciation')} icon={<Type size={16} />} size="sm" variant="ghost"
+    <Button label={t('@yovoice.selection.adjustPronunciation')} icon={<Type size={16} />} size="sm" variant="secondary"
       onMouseDown={event => { if (event.button === 0) event.preventDefault(); }}
       onClick={() => { const target = editor.current; if (target) { const start = target.selectionStart; const end = target.selectionEnd; const word = target.value.slice(start, end); if (word.trim()) onEdit({ start, end, word }); } setSelection(null); }} />
   </HStack>;

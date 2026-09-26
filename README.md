@@ -5,7 +5,7 @@
 <h1 align="center">yovoice</h1>
 <p align="center">Give your words a voice.</p>
 <p align="center">
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.3-blue?style=flat-square" alt="Version 0.1.3" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.4-blue?style=flat-square" alt="Version 0.1.4" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
@@ -111,6 +111,9 @@ Bug reports, feature suggestions, and pull requests are welcome. Include your pl
 - [audio.cpp](https://github.com/0xShug0/audio.cpp) by ShugoAI — the local audio inference engine.
 - [VoxCPM](https://github.com/OpenBMB/VoxCPM) — voice design and cloning models, licensed under Apache-2.0.
 - [IndexTTS](https://github.com/index-tts/index-tts) — the speech synthesis models behind yovoice.
+- [OmniVoice](https://github.com/k2-fsa/OmniVoice) — voice design and cloning models.
+- [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — voice cloning, built-in voices, and text-guided voice design.
+- Kokoro — lightweight speech synthesis with built-in voices: [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) and [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh).
 
 ---
 

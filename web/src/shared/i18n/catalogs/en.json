@@ -1433,6 +1433,9 @@
   "@yovoice.nav.characters": {
     "defaultMessage": "Characters"
   },
+  "@yovoice.character.create": {
+    "defaultMessage": "New character"
+  },
   "@yovoice.character.saveAs": {
     "defaultMessage": "Save as character"
   },
@@ -1450,9 +1453,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "Hello, nice to meet you. Let’s share our story with the world."
-  },
-  "@yovoice.character.useText": {
-    "defaultMessage": "Use current script"
   },
   "@yovoice.character.save": {
     "defaultMessage": "Save character"
@@ -1494,7 +1494,7 @@
     "defaultMessage": "Reference voice missing. Please select another."
   },
   "@yovoice.character.close": {
-    "defaultMessage": "Cancel editing"
+    "defaultMessage": "Exit"
   },
   "@yovoice.character.listen": {
     "defaultMessage": "Play demo"
@@ -1585,5 +1585,17 @@
   },
   "@yovoice.voice.saveSuccess": {
     "defaultMessage": "Voice saved. Find it in your voice library."
+  },
+  "@yovoice.library.searchVoices": {
+    "defaultMessage": "Search voices"
+  },
+  "@yovoice.library.searchHistory": {
+    "defaultMessage": "Search history"
+  },
+  "@yovoice.library.noSearchResults": {
+    "defaultMessage": "No matching results"
+  },
+  "@yovoice.settings.modelDesc.kokoroOfficial": {
+    "defaultMessage": "Official Q8 download · 8 languages and 49 preset voices; Japanese dictionary not included."
   }
 }

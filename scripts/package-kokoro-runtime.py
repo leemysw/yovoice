@@ -50,13 +50,17 @@ def package(destination):
             for entry in archive.infolist():
                 member = Path(entry.filename)
                 native = member.name.endswith(('.dylib', '.dll')) or '.so.' in member.name or member.name == 'libespeak-ng.so'
+                data_file = project == 'espeakng-loader' and 'espeak-ng-data' in member.parts
                 license_file = any(word in member.name.lower() for word in ('license', 'copying', 'notice'))
-                if entry.is_dir() or not (native or license_file):
+                if entry.is_dir() or not (native or license_file or data_file):
                     continue
                 library_name = member.name
                 if library_name.startswith('libmecab'):
                     library_name = {'Windows': 'libmecab.dll', 'Linux': 'libmecab.so.2', 'Darwin': 'libmecab.2.dylib'}[system]
                 target = destination / (library_name if native else f'{project}-{member.name}')
+                if data_file:
+                    target = destination.joinpath(*member.parts[member.parts.index('espeak-ng-data'):])
+                    target.parent.mkdir(parents=True, exist_ok=True)
                 with archive.open(entry) as source, target.open('wb') as output:
                     shutil.copyfileobj(source, output)
                 if native:

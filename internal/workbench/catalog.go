@@ -10,6 +10,7 @@ const Revision = "6d5436fc85f7a20c2e9f4e472b7f3a532f686444"
 const EngineVersion = "v0.7.4"
 
 type ModelPackage struct {
+	Revision   string   `json:"revision,omitempty"`
 	Voices     []string `json:"voices,omitempty"`
 	Variant    string   `json:"variant,omitempty"`
 	Task       string   `json:"task,omitempty"`
@@ -44,11 +45,15 @@ func (m ModelPackage) URL(source string) (string, error) {
 	if m.RemotePath == "" {
 		return "", Err(MsgErrModelImportRequired, nil)
 	}
+	revision := m.Revision
+	if revision == "" {
+		revision = Revision
+	}
 	switch source {
 	case "huggingface":
-		return "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/" + Revision + "/" + m.RemotePath, nil
+		return "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/" + revision + "/" + m.RemotePath, nil
 	case "mirror":
-		return "https://hf-mirror.com/audio-cpp/audio.cpp-gguf/resolve/" + Revision + "/" + m.RemotePath, nil
+		return "https://hf-mirror.com/audio-cpp/audio.cpp-gguf/resolve/" + revision + "/" + m.RemotePath, nil
 	case "modelscope":
 		return "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/" + m.RemotePath, nil
 	}
