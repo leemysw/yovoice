@@ -148,6 +148,7 @@ func (w *Workbench) generateSegments(ctx context.Context, state State, parts []s
 		if err != nil {
 			return err
 		}
+		diagnostic(w.Store.Root, "segment.started", "project_id", part.draft.ID, "batch_id", batch, "cue_id", part.segment.CueID, "generation_id", id, "model_id", part.model.ID, "index", index)
 		err = w.engine.Generate(ctx, *state.RuntimePath, part.model, state.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(_ MessageCode, _ MessageParams) {
 			w.progress(MsgActivitySubtitle, MessageParams{"n": index + 1, "total": len(parts)}, int64(index), int64(len(parts)))
 		})
@@ -180,6 +181,7 @@ func (w *Workbench) generateSegments(ctx context.Context, state State, parts []s
 			_ = os.Remove(path)
 			return err
 		}
+		diagnostic(w.Store.Root, "segment.saved", "project_id", part.draft.ID, "batch_id", batch, "cue_id", part.segment.CueID, "generation_id", id, "duration", duration)
 	}
 	return nil
 }

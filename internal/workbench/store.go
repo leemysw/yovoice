@@ -18,7 +18,8 @@ type Store struct {
 	subscribers map[chan struct{}]bool
 }
 
-func NewStore(root string) (*Store, error) {
+func NewStore(root string) (store *Store, err error) {
+	defer func() { diagnostic(root, "state.open", "platform", runtime.GOOS, "error", diagnosticError(err)) }()
 	for _, d := range []string{"", "voices", "outputs", "downloads", "runtime", "models", "logs"} {
 		if e := os.MkdirAll(filepath.Join(root, d), 0700); e != nil {
 			return nil, e
@@ -39,6 +40,7 @@ func NewStore(root string) (*Store, error) {
 			if e = os.Rename(filepath.Join(root, "state.json"), filepath.Join(root, "state.corrupt-"+time.Now().Format("20060102-150405.000000000")+".json")); e != nil {
 				return nil, e
 			}
+			diagnostic(root, "state.recovered", "source", "state.backup.json")
 			s.state = recovered
 			if e = writeState(filepath.Join(root, "state.json"), recovered); e != nil {
 				return nil, e
@@ -53,6 +55,7 @@ func NewStore(root string) (*Store, error) {
 				return nil, Err(MsgErrStateCorrupt, nil)
 			}
 			fromFile = true
+			diagnostic(root, "state.recovered", "source", "state.backup.json")
 			if e = writeState(filepath.Join(root, "state.json"), s.state); e != nil {
 				return nil, e
 			}
@@ -107,15 +110,23 @@ func writeState(path string, state State) error {
 	}
 	return os.Rename(f.Name(), path)
 }
-func (s *Store) Update(change func(*State), persist bool) error {
+func (s *Store) Update(change func(*State), persist bool) (err error) {
+	stage := "memory"
+	defer func() {
+		if err != nil {
+			diagnostic(s.Root, "state.write_failed", "stage", stage, "error", diagnosticError(err))
+		}
+	}()
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	next := clone(s.state)
 	change(&next)
 	if persist {
+		stage = "state.backup.json"
 		if e := writeState(filepath.Join(s.Root, "state.backup.json"), s.state); e != nil {
 			return e
 		}
+		stage = "state.json"
 		if e := writeState(filepath.Join(s.Root, "state.json"), next); e != nil {
 			return e
 		}

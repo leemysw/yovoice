@@ -66,23 +66,33 @@ func (w *Workbench) UseBundledCPU(path string) error {
 		}
 	}, true)
 }
-func (w *Workbench) SaveDraft(d Draft) error {
+func (w *Workbench) SaveDraft(d Draft) (err error) {
+	started := time.Now()
+	stage := "validate_kind"
+	defer func() {
+		diagnostic(w.Store.Root, "draft.save", "project_id", d.ID, "model_id", d.ModelID, "text_length", textLen(d.Text), "stage", stage, "elapsed_ms", time.Since(started).Milliseconds(), "error", diagnosticError(err))
+	}()
 	d.ensureCueIDs()
 	if d.Kind != "" && d.Kind != "text" && d.Kind != "story" && d.Kind != "subtitle" {
 		return Err(MsgErrDraftLimits, nil)
 	}
+	stage = "validate_assets"
 	if err := w.validateTimelineAssets(d.Timeline); err != nil {
 		return err
 	}
+	stage = "validate_timeline"
 	if err := validateTimeline(d.Timeline, w.Store.Read().History); err != nil {
 		return err
 	}
+	stage = "validate_subtitles"
 	if _, err := d.subtitleDrafts(); err != nil {
 		return err
 	}
+	stage = "validate_limits"
 	if !validID(d.ID) || textLen(d.Text) > 12000 || textLen(d.Title) > 120 || textLen(d.EmotionText) > 500 || textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
 		return Err(MsgErrDraftLimits, nil)
 	}
+	stage = "persist"
 	return w.Store.Update(func(s *State) {
 		i := slices.IndexFunc(s.Drafts, func(v Draft) bool { return v.ID == d.ID })
 		// 打开作品会触发保存，只有内容变化才更新排序时间。
@@ -298,6 +308,10 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 		cancel()
 		return e
 	}
+	operationID := newID()
+	started := time.Now()
+	fields := []any{"operation_id", operationID, "kind", kind, "model_id", value(modelID), "related_ids", requestIDs}
+	diagnostic(w.Store.Root, "operation.started", fields...)
 	w.cancel = cancel
 	done := make(chan struct{})
 	w.done = done
@@ -305,6 +319,13 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 		defer close(done)
 		defer cancel()
 		err := action(ctx)
+		status := "completed"
+		if errors.Is(err, context.Canceled) {
+			status = "cancelled"
+		} else if err != nil {
+			status = "failed"
+		}
+		diagnostic(w.Store.Root, "operation.finished", append(fields, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "error", diagnosticError(err))...)
 		w.mu.Lock()
 		defer w.mu.Unlock()
 		update := func(s *State) {
@@ -355,6 +376,7 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 	return nil
 }
 func (w *Workbench) Cancel() {
+	diagnostic(w.Store.Root, "operation.cancel_requested")
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.cancel != nil {
@@ -363,6 +385,8 @@ func (w *Workbench) Cancel() {
 }
 func (w *Workbench) Close() {
 	w.closeOnce.Do(func() {
+		diagnostic(w.Store.Root, "service.stopping")
+		defer diagnostic(w.Store.Root, "service.stopped")
 		w.mu.Lock()
 		w.closed = true
 		if w.cancel != nil {
@@ -628,7 +652,13 @@ func (w *Workbench) importVoice(ctx context.Context, path, name, referenceText, 
 }
 func (w *Workbench) generate(d Draft) error { return w.generateAudio(d, "", "", "") }
 
-func (w *Workbench) generateAudio(d Draft, previewID, cueID, clipID string) error {
+func (w *Workbench) generateAudio(d Draft, previewID, cueID, clipID string) (err error) {
+	diagnostic(w.Store.Root, "generation.requested", "project_id", d.ID, "model_id", d.ModelID, "cue_id", cueID, "clip_id", clipID, "preview_id", previewID)
+	defer func() {
+		if err != nil {
+			diagnostic(w.Store.Root, "generation.rejected", "project_id", d.ID, "error", diagnosticError(err))
+		}
+	}()
 	d.ensureCueIDs()
 	original := d
 	if cueID != "" {
@@ -712,6 +742,9 @@ func (w *Workbench) generateAudio(d Draft, previewID, cueID, clipID string) erro
 				s.Previews = append(s.Previews, CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
 			}, true)
 			keep = e == nil
+			if keep {
+				diagnostic(w.Store.Root, "preview.saved", "preview_id", id, "model_id", part.model.ID, "duration", duration)
+			}
 			return e
 		}
 		g := Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: d}
@@ -720,10 +753,17 @@ func (w *Workbench) generateAudio(d Draft, previewID, cueID, clipID string) erro
 			return e
 		}
 		keep = true
+		diagnostic(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
 		return nil
 	}, previewID, d.ID)
 }
-func (w *Workbench) Call(method string, data json.RawMessage) (any, error) {
+func (w *Workbench) Call(method string, data json.RawMessage) (result any, callErr error) {
+	started := time.Now()
+	defer func() {
+		if callErr != nil {
+			diagnostic(w.Store.Root, "rpc.failed", "method", method, "elapsed_ms", time.Since(started).Milliseconds(), "error", diagnosticError(callErr))
+		}
+	}()
 	var p struct {
 		ID     string `json:"id"`
 		Kind   string `json:"kind"`

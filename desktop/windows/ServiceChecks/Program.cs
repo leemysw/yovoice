@@ -16,6 +16,13 @@ string folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
 try
 {
+    HostLog.Write(folder, "exit.save_failed", failure);
+    string log = Path.Combine(folder, "logs", "host.log");
+    Require(File.ReadAllText(log).Contains("exit.save_failed"));
+    File.WriteAllText(log, new string('x', 5 * 1024 * 1024));
+    HostLog.Write(folder, "exit.backup_completed");
+    Require(File.Exists(log + ".1") && File.ReadAllText(log).Contains("exit.backup_completed"));
+    HostLog.Write(log, "不可写日志不影响业务");
     string path = Path.Combine(folder, "恢复.json");
     const string draft = """{"id":"test","text":"尚未保存的台词","timeline":{"tracks":[]}}""";
     DraftRecovery.Save(path, draft);

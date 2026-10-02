@@ -2,6 +2,7 @@
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
   <ItemGroup>
     <Compile Include="../VoiceWorkbench/ServiceCallException.cs" Link="ServiceCallException.cs"/>
+    <Compile Include="../VoiceWorkbench/HostLog.cs" Link="HostLog.cs"/>
     <Compile Include="../VoiceWorkbench/DraftRecovery.cs" Link="DraftRecovery.cs"/>
     <EmbeddedResource Include="../../../web/src/shared/i18n/catalogs/zh-cn.json" LogicalName="yovoice.messages.zh-cn.json"/>
   </ItemGroup>

@@ -56,6 +56,7 @@ public partial class MainWindow : Window
             exitRequested = false;
             if (shuttingDown) return;
             shuttingDown = true;
+            HostLog.Write(service.Root, "exit.requested");
             try
             {
                 if (web?.CoreWebView2 is not null)
@@ -69,13 +70,15 @@ public partial class MainWindow : Window
                     string json = await web.CoreWebView2.ExecuteScriptAsync("window.__workbenchDraft ?? null");
                     if (json != "null")
                     {
-                        try { await service.CallAsync("draft.save", JsonSerializer.Deserialize<JsonElement>(json)); }
+                        try { HostLog.Write(service.Root, "exit.save_started"); await service.CallAsync("draft.save", JsonSerializer.Deserialize<JsonElement>(json)); HostLog.Write(service.Root, "exit.save_completed"); }
                         catch (Exception error)
                         {
+                            HostLog.Write(service.Root, "exit.save_failed", error);
                             if (!AppDialog.Show(this, "作品保存失败", error.Message + "\n\n可以备份当前作品后退出，或返回继续编辑。", "备份后退出", "返回编辑")) { shuttingDown = false; updater.CancelInstall(); return; }
                             var backup = new SaveFileDialog { Filter = "作品恢复备份|*.json", DefaultExt = ".json", FileName = "yovoice-recovery-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".json", OverwritePrompt = true };
                             if (backup.ShowDialog(this) != true) { shuttingDown = false; updater.CancelInstall(); return; }
                             DraftRecovery.Save(backup.FileName, json);
+                            HostLog.Write(service.Root, "exit.backup_completed");
                             // 保存失败时仅退出，不继续执行更新安装。
                             updater.CancelInstall();
                         }
@@ -84,9 +87,10 @@ public partial class MainWindow : Window
                 await updater.PrepareInstallAsync();
                 await service.ShutdownAsync();
                 updater.CommitInstall();
+                HostLog.Write(service.Root, "exit.completed");
                 shutdownComplete = true; Close();
             }
-            catch (Exception error) { shuttingDown = false; updater.CancelInstall(); AppDialog.Show(this, "未能安全保存", error.Message + "\n\n请稍后重试退出。"); }
+            catch (Exception error) { HostLog.Write(service.Root, "exit.failed", error); shuttingDown = false; updater.CancelInstall(); AppDialog.Show(this, "未能安全保存", error.Message + "\n\n请稍后重试退出。"); }
         };
         Closed += (_, _) => { closed = true; tray.Visible = false; tray.Dispose(); trayMenu.Dispose(); trayIcon.Dispose(); updater.Dispose(); service.Dispose(); web?.Dispose(); };
     }
@@ -207,6 +211,7 @@ public partial class MainWindow : Window
     {
         if (!Trusted(args.Source)) return;
         string? id = null;
+        string method = "unknown";
         try
         {
             string raw = args.WebMessageAsJson;
@@ -214,7 +219,7 @@ public partial class MainWindow : Window
             using var doc = JsonDocument.Parse(raw);
             var message = doc.RootElement;
             id = message.GetProperty("id").GetString();
-            string method = message.GetProperty("method").GetString()!;
+            method = message.GetProperty("method").GetString()!;
             var data = message.GetProperty("data");
             object? result;
             switch (method)
@@ -278,8 +283,8 @@ public partial class MainWindow : Window
             }
             Post(new { id, result });
         }
-        catch (ServiceCallException error) { Post(new { id, error = error.Wire }); }
-        catch (Exception error) { Post(new { id, error = error.Message }); }
+        catch (ServiceCallException error) { HostLog.Write(service.Root, "rpc.failed:" + method, error); Post(new { id, error = error.Wire }); }
+        catch (Exception error) { HostLog.Write(service.Root, "bridge.failed:" + method, error); Post(new { id, error = error.Message }); }
     }
     private void Post(object value) => PostJson(JsonSerializer.Serialize(value));
     private void PostJson(string json)

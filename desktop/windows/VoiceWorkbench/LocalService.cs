@@ -23,6 +23,7 @@ public sealed class LocalService : IDisposable
     public async Task StartAsync()
     {
         if (process is { HasExited: false }) return;
+        HostLog.Write(Root, "service.start_requested");
         string executable = Path.Combine(AppContext.BaseDirectory, "service", "yovoice-service.exe");
         if (!File.Exists(executable)) throw new IOException("本地服务缺失，请重新构建或安装应用。");
         if (Environment.GetEnvironmentVariable("WORKBENCH_DATA") is null)
@@ -52,15 +53,17 @@ public sealed class LocalService : IDisposable
             await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(10));
             throw;
         }
+        HostLog.Write(Root, "service.ready");
         events = ReadEventsAsync();
     }
     private async Task PumpErrorsAsync(Process running)
     {
         try
         {
-            using var log = new StreamWriter(Path.Combine(Root, "logs", "host-service.log"), false);
+            using var log = new StreamWriter(Path.Combine(Root, "logs", "host-service.log"), true);
             while (await running.StandardError.ReadLineAsync() is { } line) { await log.WriteLineAsync(line); await log.FlushAsync(); }
             await running.WaitForExitAsync();
+            HostLog.Write(Root, "service.exited:" + running.ExitCode);
             if (!stopped.IsCancellationRequested) Failed?.Invoke("本地服务已停止，请退出后重新打开应用。");
         }
         catch (Exception error) when (error is IOException or ObjectDisposedException or InvalidOperationException) { }
@@ -103,6 +106,7 @@ public sealed class LocalService : IDisposable
     }
     public async Task ShutdownAsync()
     {
+        HostLog.Write(Root, "service.shutdown_requested");
         if (process is not { HasExited: false }) return;
         using var request = Request(HttpMethod.Post, "shutdown");
         using var response = await client.SendAsync(request).WaitAsync(TimeSpan.FromSeconds(30));
@@ -110,6 +114,7 @@ public sealed class LocalService : IDisposable
         stopped.Cancel();
         process.StandardInput.Close();
         await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        HostLog.Write(Root, "service.shutdown_completed");
     }
     public void Dispose()
     {
