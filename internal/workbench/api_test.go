@@ -1,0 +1,102 @@
+package workbench
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+)
+
+func TestRemoteAPI(t *testing.T) {
+	wb, err := New(t.TempDir())
+	must(t, err)
+	defer wb.Close()
+	token := strings.Repeat("a", 32)
+	api := &API{Workbench: wb, Token: token}
+	request := func(method, path, body, auth string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		r.Header.Set("Authorization", auth)
+		w := httptest.NewRecorder()
+		api.ServeHTTP(w, r)
+		return w
+	}
+	if w := request("GET", "/v1/models", "", ""); w.Code != 401 {
+		t.Fatal(w.Code)
+	}
+	if w := request("POST", "/api/call", `{"method":"model.import"}`, "Bearer "+token); w.Code != 404 {
+		t.Fatal(w.Code)
+	}
+	r := httptest.NewRequest("GET", "/v1/models", nil)
+	r.Header.Set("Authorization", "Bearer "+token)
+	r.Header.Set("Origin", "https://example.com")
+	rejected := httptest.NewRecorder()
+	api.ServeHTTP(rejected, r)
+	if rejected.Code != 403 {
+		t.Fatal(rejected.Code)
+	}
+	uploaded := request("POST", "/v1/voices?name=remote", string(wav()), "Bearer "+token)
+	if uploaded.Code != 200 {
+		t.Fatal(uploaded.Code, uploaded.Body.String())
+	}
+	var voice Voice
+	must(t, json.Unmarshal(uploaded.Body.Bytes(), &voice))
+	executable, err := os.Executable()
+	must(t, err)
+	model := filepath.Join(wb.Store.Root, "models", "fake.gguf")
+	must(t, os.WriteFile(model, []byte("test"), 0600))
+	must(t, wb.Store.Update(func(s *State) {
+		s.Models = []InstalledModel{{ID: "index-2.5-q8", Path: model}}
+		s.RuntimePath = &executable
+		s.RuntimeBackend = ptr("cpu")
+		s.Preferences.Backend = "cpu"
+	}, true))
+	for _, body := range []string{`{"text":"hi","path":"/etc/passwd"}`, `{"text":"hi"} {}`, `{"text":""}`} {
+		if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != 400 {
+			t.Fatal(w.Code)
+		}
+	}
+	body := `{"text":"远程生成","voiceId":"` + voice.ID + `"}`
+	result := request("POST", "/v1/generate", body, "Bearer "+token)
+	if result.Code != 200 || !bytes.Equal(result.Body.Bytes(), wav()) {
+		t.Fatal(result.Code, result.Body.String())
+	}
+	if result.Header().Get("X-Yovoice-Generation-ID") == "" {
+		t.Fatal("缺少结果 ID")
+	}
+	// 用已有模拟引擎验证断开连接时释放推理资源和请求锁。
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	pending := httptest.NewRequest("POST", "/v1/generate", strings.NewReader(strings.Replace(body, "远程生成", "等待取消", 1))).WithContext(ctx)
+	pending.Header.Set("Authorization", "Bearer "+token)
+	done := make(chan struct{})
+	go func() { defer close(done); api.ServeHTTP(httptest.NewRecorder(), pending) }()
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		s := wb.Store.Read()
+		if s.Activity != nil && s.Activity.Status == "running" {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("任务未启动")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != http.StatusConflict {
+		t.Fatal(w.Code)
+	}
+	cancel()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("取消未完成")
+	}
+	if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != 200 {
+		t.Fatal(w.Code, w.Body.String())
+	}
+}

@@ -92,6 +92,8 @@ The agent runs the standalone CLI without opening the desktop app. See the [CLI 
 
 ---
 
+Run `yovoice serve` to provide an authenticated HTTP API and MCP inference service for other machines. See the [remote API guide](docs/api.md) for deployment and client examples.
+
 ## Development
 
 ```sh

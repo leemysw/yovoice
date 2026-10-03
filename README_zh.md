@@ -91,6 +91,8 @@ Agent 通过独立 CLI 完成配音，无需打开桌面应用。详细用法见
 
 ---
 
+运行 `yovoice serve` 可为其他机器提供带认证的 HTTP API 与 MCP 推理服务，支持上传参考音频与生成 WAV。部署和调用示例见[远程 API](docs/api.md)。
+
 ## 开发
 
 ```sh

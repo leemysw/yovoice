@@ -22,3 +22,8 @@
 - [MeCab](https://taku910.github.io/mecab/)：BSD / LGPL / GPL 多许可，按 BSD 条款分发；原生库来自 fugashi 1.5.2，`LICENSE.mecab` 与 fugashi 的许可随库保留。
 - [Misaki](https://github.com/hexgrad/misaki)：Apache-2.0；[jieba](https://github.com/fxsjy/jieba) 和 [pypinyin](https://github.com/mozillazg/python-pinyin)：MIT。模型中的字词发音映射由这些组件生成，对应许可内嵌在模型资源中。
 - [UniDic 3.1.0](https://github.com/polm/unidic-py)：日文词典与许可内嵌在 v1.0 多语言模型包中。详情和原生前端差异见 [Kokoro 文档](docs/kokoro.md)。
+
+## MCP
+
+- [MCP Go SDK v1.8.0](https://github.com/modelcontextprotocol/go-sdk/tree/v1.8.0)：官方 Model Context Protocol 实现，Apache-2.0 / MIT，见[原始许可](https://github.com/modelcontextprotocol/go-sdk/blob/v1.8.0/LICENSE)。
+- SDK 的 Go 依赖版本锁定在 `go.mod` / `go.sum`，包括 google/jsonschema-go、yosida95/uritemplate、segmentio/encoding 与 asm，以及 golang.org/x 下的 oauth2、sync、sys、time；各组件保留上游许可。

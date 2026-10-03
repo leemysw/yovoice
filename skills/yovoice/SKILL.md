@@ -1,9 +1,17 @@
 ---
 name: yovoice
-description: 使用独立 yovoice CLI 在本地将文字生成语音，支持 IndexTTS、VoxCPM2、OmniVoice、Qwen3-TTS 的配音、声音设计和音色克隆。适用于配音、旁白、朗读和音色复用，无需桌面 App。
+description: 使用 yovoice 本地 CLI 或远程 HTTP API／MCP 生成语音，用于配音、旁白、朗读、声音设计和音色克隆，无需桌面 App。
 ---
 
-# yovoice 本地配音
+# yovoice 配音
+
+## 选择运行方式
+
+- 用户指定远程服务或已有可用的 yovoice MCP 连接时，优先复用该服务，阅读[远程调用参考](references/remote.md)。客户端无需安装 CLI、引擎或模型。
+- 使用本地推理时，按下方流程准备 CLI。用户明确选择的运行方式优先；远程连接失败时先核对地址和认证，不擅自改用本地或安装模型。
+- 模型与音色 ID 来自所选服务或本地实例，不能跨实例直接复用。
+
+## 本地 CLI
 
 使用 `yovoice --help` 检查命令是否可用，再运行 `yovoice status --json`。CLI 独立运行，无需安装桌面应用或开发环境。
 

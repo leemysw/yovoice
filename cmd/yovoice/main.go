@@ -22,6 +22,7 @@ var version = "dev"
 
 const usage = `yovoice：独立本地语音生成，无需桌面 App。
 用法：
+  yovoice serve [--listen 127.0.0.1:8080] [--tls-cert FILE --tls-key FILE]
   yovoice status [--data-dir DIR] [--json]
   yovoice setup [--backend metal|cpu|vulkan|cuda]
   yovoice models list
@@ -41,6 +42,7 @@ Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；Voi
 OmniVoice / Qwen3-TTS 支持 --language；OmniVoice 支持 --speed、--guidance-scale、--inference-steps。
 Kokoro：--speaker zf_xiaobei（v1.0）或 zf_001（v1.1-zh），语言随音色选择，无需参考音频。
 高级选项：--option 'text_chunk_size=512'、--option 'text_chunk_mode="tag_aware"'，可重复。
+serve 同时提供 HTTP API 与 /mcp，启动前设置至少 32 字符的 YOVOICE_API_TOKEN。
 所有命令支持 --data-dir DIR、--json。stdout 输出 JSON，进度写 stderr。
 生成与下载阻塞至完成；Ctrl-C 取消并清理推理进程。已有输出文件不会被覆盖。
 `
@@ -80,7 +82,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 	}
 	switch command {
-	case "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "generate":
+	case "serve", "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "generate":
 	default:
 		return fmt.Errorf("未知命令 %q；使用 --help 查看用法", command)
 	}
@@ -89,6 +91,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	root := fs.String("data-dir", "", "数据目录，默认 ~/.yovoice")
 	fs.Bool("json", false, "JSON 输出（默认）")
 	backend, source, name := "", "", ""
+	address, cert, key := "", "", ""
 	d := workbench.DefaultDraft()
 	d.Title = "CLI 语音"
 	d.Text = ""
@@ -99,6 +102,10 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	emotionReference, emotionVector := "", ""
 	textFile, reference, voice, output := "", "", "", ""
 	switch command {
+	case "serve":
+		fs.StringVar(&address, "listen", "127.0.0.1:8080", "HTTP API 监听地址")
+		fs.StringVar(&cert, "tls-cert", "", "TLS 证书")
+		fs.StringVar(&key, "tls-key", "", "TLS 私钥")
 	case "setup":
 		initial := "cpu"
 		if runtime.GOOS == "darwin" {
@@ -357,6 +364,8 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	}
 	var result any
 	switch command {
+	case "serve":
+		return serveAPI(ctx, w, address, os.Getenv("YOVOICE_API_TOKEN"), cert, key, out)
 	case "status":
 		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": workbench.EngineVersion}
 	case "models list":

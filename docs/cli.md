@@ -109,3 +109,7 @@ OmniVoice 权重为 [CC-BY-NC](https://huggingface.co/k2-fsa/OmniVoice#license)�
 ## Kokoro
 
 Kokoro 使用内置音色，无需参考音频。模型包导入、语言与版本差异见 [Kokoro 文档](kokoro.md)。
+
+## 远程服务
+
+运行 `yovoice serve --listen 0.0.0.0:8080` 可将本机作为推理服务，启动前须设置 `YOVOICE_API_TOKEN` 并准备引擎和模型。客户端通过 HTTP 或 MCP 上传参考音频、生成并下载 WAV，无需本地模型。部署、TLS 和 curl 示例见[远程 API](api.md)。
