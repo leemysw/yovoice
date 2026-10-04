@@ -42,7 +42,7 @@ func (a *API) newMCPHandler() http.Handler {
 		voice, err := a.uploadVoice(ctx, bytes.NewReader(data), in.Name)
 		return nil, voice, err
 	})
-	mcp.AddTool(server, &mcp.Tool{Name: "generate", Description: "完整生成语音，返回 id、duration 和 downloadPath。通过服务端地址加 downloadPath 下载 WAV，HTTP 请求需携带相同 Bearer Token；不返回服务器本地路径"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
+	mcp.AddTool(server, &mcp.Tool{Name: "generate", Description: "同步生成，长耗时优先使用 submit_generation。完整生成语音，返回 id、duration 和 downloadPath。通过服务端地址加 downloadPath 下载 WAV，HTTP 请求需携带相同 Bearer Token；不返回服务器本地路径"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
 		Text     string         `json:"text" jsonschema:"需要朗读的正文"`
 		Settings map[string]any `json:"settings,omitempty" jsonschema:"声音参数，与 HTTP API 同名，例如 modelId、voiceId、voxMode、voiceDescription、speaker、referenceText、seed、modelOptions"`
 	}) (*mcp.CallToolResult, any, error) {
@@ -71,5 +71,34 @@ func (a *API) newMCPHandler() http.Handler {
 		}
 		return nil, map[string]any{"id": g.ID, "duration": g.Duration, "downloadPath": "/v1/audio/" + g.ID}, nil
 	})
+	mcp.AddTool(server, &mcp.Tool{Name: "submit_generation", Description: "提交异步语音生成，立即返回任务状态。requestId 为客户端生成的32位十六进制随机ID；相同ID和参数重试不会重复生成。随后用 get_generation 查询，完成后下载音频。优先使用此工具避免长连接超时"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
+		RequestID string         `json:"requestId"`
+		Text      string         `json:"text"`
+		Settings  map[string]any `json:"settings,omitempty"`
+	}) (*mcp.CallToolResult, any, error) {
+		if in.Settings == nil {
+			in.Settings = map[string]any{}
+		}
+		in.Settings["text"] = in.Text
+		data, err := json.Marshal(in.Settings)
+		if err != nil {
+			return nil, nil, err
+		}
+		if len(data) > 1<<20 {
+			return nil, nil, fmt.Errorf("生成参数超过 1 MB")
+		}
+		d, err := decodeGeneration(bytes.NewReader(data))
+		if err != nil {
+			return nil, nil, err
+		}
+		job, err := a.submitJob(in.RequestID, d)
+		return nil, job, err
+	})
+	for _, name := range []string{"get_generation", "cancel_generation"} {
+		mcp.AddTool(server, &mcp.Tool{Name: name, Description: map[string]string{"get_generation": "按 requestId 查询任务；建议每2–5秒查询，completed 后使用 downloadPath 下载", "cancel_generation": "按 requestId 取消任务；取消后查询至终态，终态任务保持不变"}[name]}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
+			RequestID string `json:"requestId"`
+		}) (*mcp.CallToolResult, any, error) { job, err := a.getJob(in.RequestID, name == "cancel_generation"); return nil, job, err })
+	}
+
 	return mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: 28 << 20, PropagateRequestCancellation: true})
 }

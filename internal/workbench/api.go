@@ -12,15 +12,20 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 // API 为远程客户端提供有限的推理接口，不开放桌面管理与任意路径访问。
 type API struct {
-	Workbench  *Workbench
-	Token      string
-	busy       sync.Mutex
-	mcpOnce    sync.Once
-	mcpHandler http.Handler
+	Workbench         *Workbench
+	Token             string
+	Context           context.Context
+	GenerationTimeout time.Duration
+	jobsMu            sync.Mutex
+	jobs              map[string]*generationJob
+	busy              sync.Mutex
+	mcpOnce           sync.Once
+	mcpHandler        http.Handler
 }
 
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -42,6 +47,8 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	state := a.Workbench.Store.Read()
 	switch {
+	case strings.HasPrefix(r.URL.Path, "/v1/jobs/"):
+		a.jobHTTP(w, r)
 	case r.Method == "GET" && r.URL.Path == "/v1/status":
 		apiJSON(w, map[string]any{"engineVersion": EngineVersion, "activity": state.Activity, "ready": state.RuntimePath != nil})
 	case r.Method == "GET" && r.URL.Path == "/v1/models":
@@ -116,7 +123,11 @@ func (a *API) generate(w http.ResponseWriter, r *http.Request) {
 	}
 	g, err := a.generateAudio(r.Context(), d)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		status := http.StatusInternalServerError
+		if errors.Is(err, context.DeadlineExceeded) {
+			status = http.StatusGatewayTimeout
+		}
+		http.Error(w, err.Error(), status)
 		return
 	}
 	a.audio(w, r, g.ID)
@@ -145,6 +156,11 @@ func decodeGeneration(body io.Reader) (Draft, error) {
 }
 
 func (a *API) generateAudio(ctx context.Context, d Draft) (Generation, error) {
+	ctx, cancel := context.WithTimeout(ctx, a.generationTimeout())
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return Generation{}, err
+	}
 	if err := a.Workbench.generate(d); err != nil {
 		return Generation{}, err
 	}
@@ -158,6 +174,9 @@ func (a *API) generateAudio(ctx context.Context, d Draft) (Generation, error) {
 		a.Workbench.Cancel()
 		<-done
 		return Generation{}, ctx.Err()
+	}
+	if err := ctx.Err(); err != nil {
+		return Generation{}, err
 	}
 	state := a.Workbench.Store.Read()
 	if state.Activity == nil || state.Activity.Status != "completed" {

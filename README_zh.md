@@ -11,6 +11,8 @@
 </p>
 <p align="center"><a href="README.md">English</a> · 简体中文</p>
 
+<p align="center"><a href="docs/cli.md">CLI 与 Agent Skill</a> · <a href="docs/api.md">API / MCP 部署</a> · <a href="docs/development.md">开发指南</a></p>
+
 ---
 
 yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在本地将文字转化为自然、富有表现力的语音。支持音色复刻、情绪控制与音频作品管理，可自主选择 TTS 模型，无需调用云端 API，也没有按字数计费的开销，让旁白、配音和有声内容创作更自主、更低成本。
@@ -91,7 +93,7 @@ Agent 通过独立 CLI 完成配音，无需打开桌面应用。详细用法见
 
 ---
 
-运行 `yovoice serve` 可为其他机器提供带认证的 HTTP API 与 MCP 推理服务，支持上传参考音频与生成 WAV。部署和调用示例见[远程 API](docs/api.md)。
+运行 `yovoice serve` 可为其他机器提供带认证的 HTTP API 与 MCP 推理服务，支持上传参考音频与生成 WAV。部署和调用示例见[API / MCP 部署指南](docs/api.md)。
 
 ## 开发
 

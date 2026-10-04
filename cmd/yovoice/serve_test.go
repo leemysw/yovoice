@@ -50,6 +50,10 @@ func TestServeCommand(t *testing.T) {
 	case <-time.After(6 * time.Second):
 		t.Fatal("API 未退出")
 	}
+	if err := run(context.Background(), []string{"serve", "--generation-timeout", "0s", "--data-dir", t.TempDir()}, io.Discard, io.Discard); err == nil {
+		t.Fatal("无效生成超时未拒绝")
+	}
+
 	t.Setenv("YOVOICE_API_TOKEN", "")
 	if err := run(context.Background(), []string{"serve", "--data-dir", t.TempDir()}, io.Discard, io.Discard); err == nil {
 		t.Fatal("缺少凭证仍启动服务")

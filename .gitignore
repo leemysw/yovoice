@@ -14,3 +14,6 @@ playwright-report/
 **/.build/
 **/.swiftpm/
 __pycache__/
+
+# 本地产品规划，不随源码和安装包分发。
+.local/

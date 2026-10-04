@@ -99,4 +99,50 @@ func TestRemoteAPI(t *testing.T) {
 	if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != 200 {
 		t.Fatal(w.Code, w.Body.String())
 	}
+	waitJob := func(id, status string) GenerationJob {
+		t.Helper()
+		deadline := time.Now().Add(5 * time.Second)
+		for {
+			res := request("GET", "/v1/jobs/"+id, "", "Bearer "+token)
+			var job GenerationJob
+			must(t, json.Unmarshal(res.Body.Bytes(), &job))
+			if job.Status == status {
+				return job
+			}
+			if time.Now().After(deadline) {
+				t.Fatalf("任务状态: %+v，期望 %s", job, status)
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+	}
+	id := newID()
+	submitted := request("PUT", "/v1/jobs/"+id, body, "Bearer "+token)
+	if submitted.Code != 200 {
+		t.Fatal(submitted.Body.String())
+	}
+	job := waitJob(id, "completed")
+	replay := request("PUT", "/v1/jobs/"+id, body, "Bearer "+token)
+	var same GenerationJob
+	must(t, json.Unmarshal(replay.Body.Bytes(), &same))
+	if same.ID != job.ID {
+		t.Fatal("重试重复生成")
+	}
+	if res := request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "其他文本", 1), "Bearer "+token); res.Code != 409 {
+		t.Fatal(res.Code)
+	}
+	if res := request("GET", job.DownloadPath, "", "Bearer "+token); !bytes.Equal(res.Body.Bytes(), wav()) {
+		t.Fatal("异步音频不正确")
+	}
+	api.GenerationTimeout = 100 * time.Millisecond
+	id = newID()
+	request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "等待取消", 1), "Bearer "+token)
+	waitJob(id, "timed_out")
+	// 超时必须释放单任务槽，后续请求仍能提交。
+	id = newID()
+	if res := request("PUT", "/v1/jobs/"+id, body, "Bearer "+token); res.Code != 200 {
+		t.Fatal(res.Code)
+	}
+	request("DELETE", "/v1/jobs/"+id, "", "Bearer "+token)
+	waitJob(id, "cancelled")
+
 }

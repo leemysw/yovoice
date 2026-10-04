@@ -6,7 +6,7 @@
 
 ### Added
 
-- 新增 `yovoice serve` 远程 HTTP API 与 MCP Streamable HTTP，支持 Token 认证、TLS、参考音频上传和语音生成，客户端无需安装模型。
+- 新增 `yovoice serve` 远程 HTTP API 与 MCP Streamable HTTP，支持 Token 认证、TLS、参考音频上传、可查询和取消的异步生成任务、重试去重与可配置生成超时，客户端无需安装模型。
 - Skill 支持选择本地 CLI 或远程 API／MCP，补充认证下载流程，CLI 包完整携带模型与远程调用参考。
 
 ### Fixed

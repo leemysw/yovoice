@@ -8,10 +8,11 @@
 
 1. `status` 检查服务，`list_models` 选择 `installed` 中的模型，`list_voices` 查询参考音色。`catalog` 中存在不代表已安装。
 2. 新参考音频可通过 `upload_voice` 上传，参数为纯 Base64 的 `audio` 与可选 `name`，返回音色 `id`。大文件优先使用下方 HTTP 二进制上传，不把 Base64 展示给用户。
-3. `generate` 接收 `text` 和可选 `settings`，例如：
+3. 优先使用 `submit_generation`，先生成并保存 32 位十六进制随机 `requestId`（例如 `openssl rand -hex 16`）。接收 `text` 和可选 `settings`，例如：
 
 ```json
 {
+  "requestId": "6e08d9be21e74da38609b061f2c8547a",
   "text": "你好，欢迎收听。",
   "settings": {
     "modelId": "index-2.5-q8",
@@ -22,7 +23,9 @@
 
 `settings` 使用 API 参数名，不能把 CLI 的 `--model`、`--reference`、`--output` 等直接传入。模型输入要求见[模型能力参考](models.md)；高级参数可查询 `list_models` 返回的 `generationOptions`。服务只接受已上传的 `voiceId`，不接受客户端本地路径。
 
-生成成功返回 `id`、`duration`、`downloadPath`。**这只是结果信息，还不是客户端音频文件。** 用服务地址加 `downloadPath` 下载 WAV，仍需相同的 Bearer Token；若 MCP 客户端没有向下载工具提供凭证，应使用用户已配置的环境变量或凭证机制。缺少下载权限时说明音频已在服务端生成，不宣称已保存到本机。
+提交后每 2–5 秒调用 `get_generation`（参数 `requestId`），直到 `completed`、`failed`、`cancelled` 或 `timed_out`。用户要求停止时调用 `cancel_generation` 并确认终态。提交超时先查询同一 ID，重试保留 ID 与原参数；不要新建重复任务。旧服务只提供 `generate` 时才使用同步调用，说明长任务可能超过客户端超时。
+
+任务 `completed` 时返回 `id`、`duration`、`downloadPath`。**这只是结果信息，还不是客户端音频文件。** 用服务地址加 `downloadPath` 下载 WAV，仍需相同的 Bearer Token；若 MCP 客户端没有向下载工具提供凭证，应使用用户已配置的环境变量或凭证机制。缺少下载权限时说明音频已在服务端生成，不宣称已保存到本机。
 
 ## 配置 MCP
 
@@ -63,12 +66,16 @@ curl --fail-with-body -H "Authorization: Bearer $YOVOICE_API_TOKEN" \
 ```
 
 ```sh
-curl --fail -H "Authorization: Bearer $YOVOICE_API_TOKEN" \
+REQUEST_ID=$(openssl rand -hex 16)
+curl --fail-with-body --connect-timeout 10 --max-time 30 -X PUT \
+  -H "Authorization: Bearer $YOVOICE_API_TOKEN" \
   -H 'Content-Type: application/json' --data-binary @request.json \
-  "$YOVOICE_URL/v1/generate" -o narration.wav
+  "$YOVOICE_URL/v1/jobs/$REQUEST_ID"
+curl --fail-with-body -H "Authorization: Bearer $YOVOICE_API_TOKEN" \
+  "$YOVOICE_URL/v1/jobs/$REQUEST_ID"
 ```
 
-HTTP 生成直接返回完整 WAV；MCP 结果或已知生成 ID 使用下载接口，无需重新生成：
+HTTP 与 MCP 异步生成都需轮询至完成，再根据结果中的生成 ID 下载，无需重新生成：
 
 ```sh
 curl --fail -H "Authorization: Bearer $YOVOICE_API_TOKEN" \
@@ -81,5 +88,6 @@ curl --fail -H "Authorization: Bearer $YOVOICE_API_TOKEN" \
 
 - 401：核对 Token；404：核对地址、生成 ID 和服务版本。不要因接口不可用就自行在客户端安装模型。
 - HTTP 409 或 MCP 繁忙错误：已有任务正在处理，查询状态并稍后重试，不连续提交重复生成。
-- 生成耗时包括模型首次加载。超时或连接断开时，不假定任务一定完成，也不无条件重发；已拿到生成 ID 时优先下载已有结果。
+- 生成默认最多 30 分钟，包含模型加载，服务端可通过 `--generation-timeout 45m` 调整。异步提交/查询工具超时建议至少 30 秒；客户端断线不取消已接受的异步任务。
+- 最近 100 个任务和去重记录仅驻留服务内存，重启丢失。查询 404 时先确认服务是否重启或记录被淘汰，不自动换 ID 重发；已拿到生成 ID 时优先下载已有结果。
 - 服务端模型缺失需要在服务端准备，API／MCP 不提供安装或任意路径导入工具。用户要求部署时，先阅读[引擎与模型参考](setup.md)，在目标服务器准备后设置至少 32 字符的 `YOVOICE_API_TOKEN`，运行 `yovoice serve --listen 0.0.0.0:8080 --data-dir DIR`。TLS 使用成对的 `--tls-cert`、`--tls-key`，或由反向代理提供 HTTPS。

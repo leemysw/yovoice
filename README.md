@@ -12,6 +12,8 @@
 </p>
 <p align="center">English · <a href="README_zh.md">简体中文</a></p>
 
+<p align="center"><a href="docs/cli.md">CLI & Agent Skill</a> · <a href="docs/api.md">API / MCP Deployment</a> · <a href="docs/development.md">Development</a></p>
+
 ---
 
 yovoice is an open-source voice creation tool for macOS and Windows that turns text into natural, expressive speech locally. With voice cloning, emotion control, audio project management, and a choice of TTS models, it requires no cloud API calls and incurs no per-character charges, giving you more control over narration, voiceovers, and audio content creation at a lower cost.
@@ -92,7 +94,7 @@ The agent runs the standalone CLI without opening the desktop app. See the [CLI 
 
 ---
 
-Run `yovoice serve` to provide an authenticated HTTP API and MCP inference service for other machines. See the [remote API guide](docs/api.md) for deployment and client examples.
+Run `yovoice serve` to provide an authenticated HTTP API and MCP inference service for other machines. See the [API / MCP deployment guide](docs/api.md) for deployment and client examples.
 
 ## Development
 

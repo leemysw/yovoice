@@ -22,7 +22,7 @@ var version = "dev"
 
 const usage = `yovoice：独立本地语音生成，无需桌面 App。
 用法：
-  yovoice serve [--listen 127.0.0.1:8080] [--tls-cert FILE --tls-key FILE]
+  yovoice serve [--listen 127.0.0.1:8080] [--tls-cert FILE --tls-key FILE] [--generation-timeout 30m]
   yovoice status [--data-dir DIR] [--json]
   yovoice setup [--backend metal|cpu|vulkan|cuda]
   yovoice models list
@@ -92,6 +92,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	fs.Bool("json", false, "JSON 输出（默认）")
 	backend, source, name := "", "", ""
 	address, cert, key := "", "", ""
+	var generationTimeout time.Duration
 	d := workbench.DefaultDraft()
 	d.Title = "CLI 语音"
 	d.Text = ""
@@ -103,6 +104,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	textFile, reference, voice, output := "", "", "", ""
 	switch command {
 	case "serve":
+		fs.DurationVar(&generationTimeout, "generation-timeout", 30*time.Minute, "单次生成最长时间，包含模型加载")
 		fs.StringVar(&address, "listen", "127.0.0.1:8080", "HTTP API 监听地址")
 		fs.StringVar(&cert, "tls-cert", "", "TLS 证书")
 		fs.StringVar(&key, "tls-key", "", "TLS 私钥")
@@ -365,7 +367,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	var result any
 	switch command {
 	case "serve":
-		return serveAPI(ctx, w, address, os.Getenv("YOVOICE_API_TOKEN"), cert, key, out)
+		return serveAPI(ctx, w, address, os.Getenv("YOVOICE_API_TOKEN"), cert, key, generationTimeout, out)
 	case "status":
 		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": workbench.EngineVersion}
 	case "models list":
