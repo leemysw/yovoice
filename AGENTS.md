@@ -47,4 +47,5 @@ MORE CLI:
 
 - 用户可见的功能、改进和修复同步记录到 `CHANGELOG.md` 的 `Unreleased`，合并相近条目，不记录纯实现细节。
 - 发布前将待发布内容压缩为简短说明，移入 `## [X.Y.Z] - YYYY-MM-DD`，保留 `Unreleased` 供后续更新；版本号、变更日志与代码一起提交。
+- 从 v0.1.7 起，每次发布说明必须分别包含 `### English` 和 `### 简体中文`，两部分内容对应、面向用户；CI 校验缺少任一语言时阻止发布。
 - 推送版本标签前运行 `python3 scripts/release-notes.py vX.Y.Z` 检查正文。CI 从标签对应的变更日志提取版本说明，自动写入 GitHub Release 页面。

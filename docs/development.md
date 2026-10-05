@@ -75,3 +75,5 @@ Use `make check-core` for Go tests with the race detector, or `make check-web` f
 | `scripts/` | Build and packaging tools |
 
 Public guides use English `*.md` and Chinese `*_zh.md` files. Keep both versions and their links in sync when changing user-facing behavior.
+
+Release notes from v0.1.7 onward must include separate `### English` and `### 简体中文` sections in CHANGELOG.md. The release workflow checks both sections before building.

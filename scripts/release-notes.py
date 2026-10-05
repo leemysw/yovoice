@@ -22,6 +22,13 @@ def extract_notes(changelog: str, tag: str) -> str:
     if not any(line.strip() and not line.lstrip().startswith(("#", "<!--"))
                for line in body.splitlines()):
         raise ValueError(f"[{version}] 的发布说明为空")
+    # 历史版本保留原文，新版本发布必须同时提供中英文说明。
+    if tuple(map(int, version.split("-")[0].split("."))) >= (0, 1, 7):
+        for language in ("English", "简体中文"):
+            parts = re.findall(r"(?ms)^### " + re.escape(language) + r"\s*\n(.*?)(?=^### |\Z)", body)
+            if len(parts) != 1 or not any(line.startswith("- ") and line[2:].strip()
+                                         for line in parts[0].splitlines()):
+                raise ValueError(f"[{version}] 必须包含非空的 ### {language} 发布说明")
     return "## " + section.strip() + "\n"
 
 

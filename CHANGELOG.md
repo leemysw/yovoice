@@ -4,20 +4,19 @@
 
 ## [Unreleased]
 
-### Added
+## [0.1.7] - 2026-10-05
 
-- 新增 `yovoice serve` 远程 HTTP API 与 MCP Streamable HTTP，支持 Token 认证、TLS、参考音频上传、可查询和取消的异步生成任务、重试去重与可配置生成超时，客户端无需安装模型。
-- Skill 支持选择本地 CLI 或远程 API／MCP，补充认证下载流程，CLI 包完整携带模型与远程调用参考。
+### English
 
-### Changed
+- Run a remote speech service with HTTP API and MCP support. Submit, query, cancel, and download generation tasks with authentication, retry deduplication, and configurable timeouts.
+- Use the Agent Skill with either a local CLI or a remote service. User guides and CLI packages now include separate English and Chinese documentation.
+- Fix Windows save-error reporting and allow a recovery backup when saving on exit fails. Improve diagnostic logs for saving and generation failures.
 
-- 用户指南区分中英文版本，统一语言切换和 README 入口，精简使用说明；CLI 安装包包含双语文档。
+### 简体中文
 
-### Fixed
-
-- 补充作品保存、状态落盘、生成任务和 Windows 退出流程的诊断日志，保留失败阶段、错误原因与关联 ID，并滚动保留上一份日志。
-
-- 修复 Windows 保存失败时错误信息被类型异常覆盖的问题；退出保存失败可备份当前作品后退出，取消或备份失败时继续保留编辑现场。
+- 新增 HTTP API 与 MCP 远程语音服务，支持任务提交、查询、取消和音频下载，提供认证、重试去重与可配置超时。
+- Agent Skill 支持本地 CLI 和远程服务；用户指南与 CLI 安装包提供独立中英文文档。
+- 修复 Windows 保存错误提示，退出保存失败时可备份作品；完善保存和生成失败的诊断日志。
 
 ## [0.1.6] - 2026-10-01
 

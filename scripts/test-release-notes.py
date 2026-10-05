@@ -22,6 +22,16 @@ class ReleaseNotesTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     extract_notes(text, tag)
 
+    def test_bilingual_notes_required_for_new_releases(self):
+        notes = "## [0.1.7] - 2026-10-05\n\n### English\n\n- Remote speech service.\n\n### 简体中文\n\n- 远程语音服务。\n"
+        self.assertEqual(extract_notes(notes, "v0.1.7"), notes)
+        for invalid in (notes.replace("### English", "### Added"),
+                        notes.replace("### 简体中文", "### 更新"),
+                        notes.replace("- Remote speech service.", ""),
+                        notes + "\n### English\n\n- Duplicate.\n"):
+            with self.subTest(notes=invalid), self.assertRaises(ValueError):
+                extract_notes(invalid, "v0.1.7")
+
 
 if __name__ == "__main__":
     unittest.main()
