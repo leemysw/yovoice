@@ -50,7 +50,7 @@ yovoice is an open-source voice creation tool for macOS and Windows that turns t
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental, import only |
 
 
-All models are available in the App and CLI. See [model capabilities](skills/yovoice/references/models.md) for precisions and parameters. OmniVoice weights use the CC-BY-NC license and are restricted to non-commercial use.
+All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice weights use the CC-BY-NC license and are restricted to non-commercial use.
 
 ---
 

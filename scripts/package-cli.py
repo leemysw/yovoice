@@ -33,8 +33,11 @@ with tempfile.TemporaryDirectory() as directory:
         archive.write(executable, executable.name)
         for source in sorted((Path(directory) / "tools").rglob("*")):
             archive.write(source, source.relative_to(directory).as_posix())
-        for source in ("LICENSE", "THIRD_PARTY_NOTICES.md", "web/public/model-license.txt", "docs/cli.md", "docs/api.md", "docs/kokoro.md"):
+        for source in ("LICENSE", "THIRD_PARTY_NOTICES.md", "web/public/model-license.txt"):
             archive.write(root / source, source)
+        # 包含两种语言的公开指南及其互相引用。
+        for source in sorted((root / "docs").glob("*.md")):
+            archive.write(source, source.relative_to(root).as_posix())
         # 打包完整 Skill，避免新增模型或远程调用参考遗漏。
         for source in sorted((root / "skills/yovoice").rglob("*.md")):
             archive.write(source, source.relative_to(root).as_posix())

@@ -11,7 +11,7 @@
 </p>
 <p align="center"><a href="README.md">English</a> · 简体中文</p>
 
-<p align="center"><a href="docs/cli.md">CLI 与 Agent Skill</a> · <a href="docs/api.md">API / MCP 部署</a> · <a href="docs/development.md">开发指南</a></p>
+<p align="center"><a href="docs/cli_zh.md">CLI 与 Agent Skill</a> · <a href="docs/api_zh.md">API / MCP 部署</a> · <a href="docs/development_zh.md">开发指南</a></p>
 
 ---
 
@@ -49,7 +49,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在�
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 种中文音色及 3 种英文音色；实验性，仅支持导入 |
 
 
-App 与 CLI 均支持以上模型，详细精度与参数见[模型能力说明](skills/yovoice/references/models.md)。OmniVoice 权重采用 CC-BY-NC 许可，仅限非商业用途。
+App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice 权重采用 CC-BY-NC 许可，仅限非商业用途。
 
 ---
 
@@ -89,11 +89,11 @@ macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查�
 
 > 用 voice.wav 的音色朗读 narration.txt，语气平静，保存为 narration.wav。
 
-Agent 通过独立 CLI 完成配音，无需打开桌面应用。详细用法见 [CLI 指南](docs/cli.md)。
+Agent 通过独立 CLI 完成配音，无需打开桌面应用。详细用法见 [CLI 指南](docs/cli_zh.md)。
 
 ---
 
-运行 `yovoice serve` 可为其他机器提供带认证的 HTTP API 与 MCP 推理服务，支持上传参考音频与生成 WAV。部署和调用示例见[API / MCP 部署指南](docs/api.md)。
+运行 `yovoice serve` 可为其他机器提供带认证的 HTTP API 与 MCP 推理服务，支持上传参考音频与生成 WAV。部署和调用示例见[API / MCP 部署指南](docs/api_zh.md)。
 
 ## 开发
 
@@ -102,7 +102,7 @@ make install
 make app-run
 ```
 
-环境要求见[开发指南](docs/development.md)，其中也介绍了浏览器预览、测试和项目结构。
+环境要求见[开发指南](docs/development_zh.md)，其中也介绍了浏览器预览、测试和项目结构。
 
 ---
 
