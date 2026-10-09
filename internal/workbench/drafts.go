@@ -4,37 +4,40 @@ import (
 	"encoding/json"
 	"slices"
 	"time"
+	"yovoice/internal/diag"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
 )
 
-func (w *Workbench) SaveDraft(d Draft) (err error) {
+func (w *Workbench) SaveDraft(d domain.Draft) (err error) {
 	started := time.Now()
 	stage := "validate_kind"
 	defer func() {
-		diagnostic(w.Store.Root, "draft.save", "project_id", d.ID, "model_id", d.ModelID, "text_length", textLen(d.Text), "stage", stage, "elapsed_ms", time.Since(started).Milliseconds(), "error", diagnosticError(err))
+		diag.Log(w.Store.Root, "draft.save", "project_id", d.ID, "model_id", d.ModelID, "text_length", domain.TextLen(d.Text), "stage", stage, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))
 	}()
-	d.ensureCueIDs()
+	d.EnsureCueIDs()
 	if d.Kind != "" && d.Kind != "text" && d.Kind != "story" && d.Kind != "subtitle" {
-		return Err(MsgErrDraftLimits, nil)
+		return msg.Err(msg.ErrDraftLimits, nil)
 	}
 	stage = "validate_assets"
 	if err := w.validateTimelineAssets(d.Timeline); err != nil {
 		return err
 	}
 	stage = "validate_timeline"
-	if err := validateTimeline(d.Timeline, w.Store.Read().History); err != nil {
+	if err := domain.ValidateTimeline(d.Timeline, w.Store.Read().History); err != nil {
 		return err
 	}
 	stage = "validate_subtitles"
-	if _, err := d.subtitleDrafts(); err != nil {
+	if _, err := d.SubtitleDrafts(); err != nil {
 		return err
 	}
 	stage = "validate_limits"
-	if !validID(d.ID) || textLen(d.Text) > 12000 || textLen(d.Title) > 120 || textLen(d.EmotionText) > 500 || textLen(d.VoiceDescription) > 500 || textLen(d.ReferenceText) > 2000 {
-		return Err(MsgErrDraftLimits, nil)
+	if !domain.ValidID(d.ID) || domain.TextLen(d.Text) > 12000 || domain.TextLen(d.Title) > 120 || domain.TextLen(d.EmotionText) > 500 || domain.TextLen(d.VoiceDescription) > 500 || domain.TextLen(d.ReferenceText) > 2000 {
+		return msg.Err(msg.ErrDraftLimits, nil)
 	}
 	stage = "persist"
-	return w.Store.Update(func(s *State) {
-		i := slices.IndexFunc(s.Drafts, func(v Draft) bool { return v.ID == d.ID })
+	return w.Store.Update(func(s *domain.State) {
+		i := slices.IndexFunc(s.Drafts, func(v domain.Draft) bool { return v.ID == d.ID })
 		// 打开作品会触发保存，只有内容变化才更新排序时间。
 		if i >= 0 {
 			d.CreatedAt = s.Drafts[i].CreatedAt
@@ -49,7 +52,7 @@ func (w *Workbench) SaveDraft(d Draft) (err error) {
 		d.UpdatedAt = &now
 		if i < 0 {
 			d.CreatedAt = &now
-			s.Drafts = append([]Draft{d}, s.Drafts...)
+			s.Drafts = append([]domain.Draft{d}, s.Drafts...)
 		} else {
 			s.Drafts[i] = d
 		}

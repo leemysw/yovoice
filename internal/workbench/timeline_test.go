@@ -8,24 +8,26 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"yovoice/internal/domain"
+	"yovoice/internal/store"
 )
 
 func TestTimelinePersistenceAndSourceProtection(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := DefaultDraft()
-	id := newID()
+	d := domain.DefaultDraft()
+	id := domain.NewID()
 	file := filepath.Join(w.Store.Root, "outputs", id+".wav")
 	must(t, os.WriteFile(file, wav(), 0600))
-	must(t, w.Store.Update(func(s *State) {
-		s.History = []Generation{{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d}}
+	must(t, w.Store.Update(func(s *domain.State) {
+		s.History = []domain.Generation{{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d}}
 	}, true))
-	d.Timeline = &AudioTimeline{Tracks: []AudioLane{{ID: "track", Name: "音轨 1", Clips: []AudioClip{{ID: "clip", GenerationID: id, Start: 3, Offset: 0.25, Duration: 0.5}}}}}
+	d.Timeline = &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "track", Name: "音轨 1", Clips: []domain.AudioClip{{ID: "clip", GenerationID: id, Start: 3, Offset: 0.25, Duration: 0.5}}}}}
 	must(t, w.SaveDraft(d))
-	store, err := NewStore(w.Store.Root)
+	st, err := store.New(w.Store.Root)
 	must(t, err)
-	if store.Read().Drafts[0].Timeline.Tracks[0].Clips[0].Start != 3 {
+	if st.Read().Drafts[0].Timeline.Tracks[0].Clips[0].Start != 3 {
 		t.Fatal("时间线未保存")
 	}
 	if w.deleteMedia("outputs", id) == nil {
@@ -45,12 +47,12 @@ func TestTimelinePersistenceAndSourceProtection(t *testing.T) {
 	d.Timeline.Tracks[0].Clips = nil
 	must(t, w.SaveDraft(d))
 	must(t, w.deleteMedia("outputs", id))
-	d.Timeline.Tracks = []AudioLane{}
+	d.Timeline.Tracks = []domain.AudioLane{}
 	d.Timeline.AcceptedGenerations = []string{id}
 	must(t, w.SaveDraft(d))
-	store, err = NewStore(w.Store.Root)
+	st, err = store.New(w.Store.Root)
 	must(t, err)
-	saved := store.Read().Drafts[0].Timeline
+	saved := st.Read().Drafts[0].Timeline
 	if saved == nil || len(saved.Tracks) != 0 || len(saved.AcceptedGenerations) != 1 || saved.AcceptedGenerations[0] != id {
 		t.Fatal("删除最后一条空轨后应保留空时间线及已接收版本，避免重新插入已删除的音频")
 	}
@@ -63,16 +65,16 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 	data := append(wav()[:44], make([]byte, 32000*65)...)
 	binary.LittleEndian.PutUint32(data[4:], uint32(len(data)-8))
 	binary.LittleEndian.PutUint32(data[40:], uint32(len(data)-44))
-	asset := invoke(t, w, "timeline.import", map[string]string{"name": "环境音", "base64": base64.StdEncoding.EncodeToString(data)}).(AudioAsset)
+	asset := invoke(t, w, "timeline.import", map[string]string{"name": "环境音", "base64": base64.StdEncoding.EncodeToString(data)}).(domain.AudioAsset)
 	if asset.Duration != 65 {
 		t.Fatal("导入素材不应受参考音频 60 秒限制")
 	}
-	d := DefaultDraft()
-	d.Timeline = &AudioTimeline{Assets: []AudioAsset{asset}, Tracks: []AudioLane{{ID: "lane", Name: "音轨 1", Clips: []AudioClip{{ID: "clip", AssetID: asset.ID, Offset: 1, Duration: 2}}}}}
+	d := domain.DefaultDraft()
+	d.Timeline = &domain.AudioTimeline{Assets: []domain.AudioAsset{asset}, Tracks: []domain.AudioLane{{ID: "lane", Name: "音轨 1", Clips: []domain.AudioClip{{ID: "clip", AssetID: asset.ID, Offset: 1, Duration: 2}}}}}
 	must(t, w.SaveDraft(d))
-	store, err := NewStore(w.Store.Root)
+	st, err := store.New(w.Store.Root)
 	must(t, err)
-	state := store.Read()
+	state := st.Read()
 	if len(state.History) != 0 || len(state.Voices) != 0 || len(state.Drafts[0].Timeline.Assets) != 1 {
 		t.Fatal("上传素材应仅随作品持久化")
 	}
@@ -81,7 +83,7 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 		t.Fatal("不能伪造源音频时长")
 	}
 	d.Timeline.Assets[0] = asset
-	d.Timeline.Tracks[0].Clips[0].GenerationID = newID()
+	d.Timeline.Tracks[0].Clips[0].GenerationID = domain.NewID()
 	if w.SaveDraft(d) == nil {
 		t.Fatal("片段不能同时指定两种源")
 	}
@@ -93,18 +95,18 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 }
 
 func TestTimelineEffectValidation(t *testing.T) {
-	timeline := &AudioTimeline{Tracks: []AudioLane{{ID: "t", Name: "t", GainDB: 13}}}
-	if validateTimeline(timeline, nil) == nil {
+	timeline := &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "t", Name: "t", GainDB: 13}}}
+	if domain.ValidateTimeline(timeline, nil) == nil {
 		t.Fatal("接受越界增益")
 	}
 	timeline.Tracks[0].GainDB = 0
 	timeline.Tracks[0].DuckDB = -1
-	if validateTimeline(timeline, nil) == nil {
+	if domain.ValidateTimeline(timeline, nil) == nil {
 		t.Fatal("接受负压低量")
 	}
 	timeline.Tracks[0].DuckDB = 12
-	timeline.Markers = []AudioMarker{{ID: "m", Name: "x", Time: -1}}
-	if validateTimeline(timeline, nil) == nil {
+	timeline.Markers = []domain.AudioMarker{{ID: "m", Name: "x", Time: -1}}
+	if domain.ValidateTimeline(timeline, nil) == nil {
 		t.Fatal("接受负标记位置")
 	}
 }

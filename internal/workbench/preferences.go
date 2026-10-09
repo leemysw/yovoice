@@ -4,34 +4,38 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"yovoice/internal/catalog"
+	"yovoice/internal/domain"
+	"yovoice/internal/download"
+	"yovoice/internal/msg"
 )
 
-func (w *Workbench) preferences(p Preferences) error {
+func (w *Workbench) preferences(p domain.Preferences) error {
 	p.ProxyURL = strings.TrimSpace(p.ProxyURL)
 	if p.ProxyEnabled != nil && *p.ProxyEnabled && p.ProxyURL == "" {
-		return Err(MsgErrProxyURL, nil)
+		return msg.Err(msg.ErrProxyURL, nil)
 	}
-	if _, err := parseProxyURL(p.ProxyURL); err != nil {
+	if _, err := download.ParseProxy(p.ProxyURL); err != nil {
 		return err
 	}
-	if _, e := runtimeArchives(p.Backend); e != nil {
+	if _, e := catalog.RuntimeArchives(p.Backend); e != nil {
 		return e
 	}
-	if _, e := Catalog[0].URL(p.DownloadSource); e != nil {
+	if _, e := catalog.Models[0].URL(p.DownloadSource); e != nil {
 		return e
 	}
 	if p.ModelDirectory != nil && !filepath.IsAbs(*p.ModelDirectory) {
-		return Err(MsgErrModelDirAbsolute, nil)
+		return msg.Err(msg.ErrModelDirAbsolute, nil)
 	}
 	if p.UiLocale == "" {
 		p.UiLocale = w.Store.Read().Preferences.UiLocale
 		if p.UiLocale == "" {
-			p.UiLocale = UiLocaleZhCN
+			p.UiLocale = domain.UiLocaleZhCN
 		}
-	} else if _, e := ParseUiLocale(string(p.UiLocale)); e != nil {
+	} else if _, e := domain.ParseUiLocale(string(p.UiLocale)); e != nil {
 		return e
 	}
-	return w.Store.Update(func(s *State) {
+	return w.Store.Update(func(s *domain.State) {
 		s.Preferences = p
 		if p.Backend == "cpu" && w.bundledCPU != "" {
 			s.RuntimePath = ptr(w.bundledCPU)

@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"yovoice/internal/domain"
+	"yovoice/internal/store"
 )
 
 func TestCharacterAndVoiceLifecycle(t *testing.T) {
@@ -21,14 +23,14 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		must(t, e)
 		return result
 	}
-	d := DefaultDraft()
-	id := newID()
+	d := domain.DefaultDraft()
+	id := domain.NewID()
 	file := filepath.Join(w.Store.Root, "outputs", id+".wav")
 	must(t, os.WriteFile(file, wav(), 0600))
-	must(t, w.Store.Update(func(s *State) {
-		s.History = append(s.History, Generation{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
+	must(t, w.Store.Update(func(s *domain.State) {
+		s.History = append(s.History, domain.Generation{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
-	v := call("voice.fromGeneration", map[string]any{"id": id, "name": "旁白音色", "referenceText": "校正后的原文"}).(Voice)
+	v := call("voice.fromGeneration", map[string]any{"id": id, "name": "旁白音色", "referenceText": "校正后的原文"}).(domain.Voice)
 	if v.SourceGenerationID != id || v.ReferenceText != "校正后的原文" {
 		t.Fatal(v)
 	}
@@ -39,8 +41,8 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		t.Fatal("删除历史破坏了音色", err)
 	}
 	d.VoiceID = &v.ID
-	c := Character{ID: newID(), Name: "旁白", Settings: d.SynthesisSettings, DemoText: "试听台词"}
-	c = call("character.save", c).(Character)
+	c := domain.Character{ID: domain.NewID(), Name: "旁白", Settings: d.SynthesisSettings, DemoText: "试听台词"}
+	c = call("character.save", c).(domain.Character)
 	if err := w.deleteMedia("voices", v.ID); err == nil {
 		t.Fatal("允许删除被角色引用的音色")
 	}
@@ -49,8 +51,8 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	must(t, err)
 	modelPath := filepath.Join(w.Store.Root, "model.gguf")
 	must(t, os.WriteFile(modelPath, []byte("test"), 0600))
-	must(t, w.Store.Update(func(s *State) {
-		s.Models = []InstalledModel{{ID: d.ModelID, Path: modelPath}}
+	must(t, w.Store.Update(func(s *domain.State) {
+		s.Models = []domain.InstalledModel{{ID: d.ModelID, Path: modelPath}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 	}, true))
@@ -73,7 +75,7 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	}
 	c.Preview = &state.Previews[0]
 	c.DemoText = "编辑中的新台词"
-	c = call("character.save", c).(Character)
+	c = call("character.save", c).(domain.Character)
 	if c.Preview.Text != "试听台词" || c.Preview.ID == previewID {
 		t.Fatal("试听快照未独立保存", c)
 	}
@@ -84,16 +86,16 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	copy := c
-	copy.ID = newID()
+	copy.ID = domain.NewID()
 	copy.Name = "旁白副本"
-	copy = call("character.save", copy).(Character)
+	copy = call("character.save", copy).(domain.Character)
 	call("character.delete", map[string]string{"id": c.ID})
 	copyPath, err := w.MediaFile("outputs", copy.Preview.ID)
 	must(t, err)
 	if _, err := os.Stat(copyPath); err != nil {
 		t.Fatal("删除原角色破坏了副本试听", err)
 	}
-	restored, err := NewStore(w.Store.Root)
+	restored, err := store.New(w.Store.Root)
 	must(t, err)
 	if len(restored.Read().Characters) != 1 || restored.Read().Characters[0].Preview.Text != "试听台词" {
 		t.Fatal("角色未恢复")

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"yovoice/internal/msg"
 )
 
 type Server struct {
@@ -41,7 +42,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.calls.Unlock()
 		reply := map[string]any{"id": message.ID, "result": result}
 		if err != nil {
-			reply = map[string]any{"id": message.ID, "error": encodeCallError(err)}
+			reply = map[string]any{"id": message.ID, "error": msg.Encode(err)}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(reply)

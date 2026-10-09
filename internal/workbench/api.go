@@ -13,6 +13,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"yovoice/internal/catalog"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
 )
 
 // API 为远程客户端提供有限的推理接口，不开放桌面管理与任意路径访问。
@@ -50,9 +53,9 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case strings.HasPrefix(r.URL.Path, "/v1/jobs/"):
 		a.jobHTTP(w, r)
 	case r.Method == "GET" && r.URL.Path == "/v1/status":
-		apiJSON(w, map[string]any{"engineVersion": EngineVersion, "activity": state.Activity, "ready": state.RuntimePath != nil})
+		apiJSON(w, map[string]any{"engineVersion": catalog.EngineVersion, "activity": state.Activity, "ready": state.RuntimePath != nil})
 	case r.Method == "GET" && r.URL.Path == "/v1/models":
-		apiJSON(w, map[string]any{"catalog": Catalog, "installed": state.Models, "generationOptions": GenerationOptions})
+		apiJSON(w, map[string]any{"catalog": catalog.Models, "installed": state.Models, "generationOptions": catalog.GenerationOptions})
 	case r.Method == "GET" && r.URL.Path == "/v1/voices":
 		apiJSON(w, state.Voices)
 	case r.Method == "GET" && strings.HasPrefix(r.URL.Path, "/v1/audio/"):
@@ -94,22 +97,22 @@ func (a *API) upload(w http.ResponseWriter, r *http.Request) {
 	apiJSON(w, voice)
 }
 
-func (a *API) uploadVoice(ctx context.Context, body io.Reader, name string) (Voice, error) {
+func (a *API) uploadVoice(ctx context.Context, body io.Reader, name string) (domain.Voice, error) {
 	f, err := os.CreateTemp(filepath.Join(a.Workbench.Store.Root, "downloads"), "api-upload-*")
 	if err != nil {
-		return Voice{}, err
+		return domain.Voice{}, err
 	}
 	defer os.Remove(f.Name())
 	n, err := io.Copy(f, io.LimitReader(body, (20<<20)+1))
 	closeErr := f.Close()
 	if err != nil {
-		return Voice{}, err
+		return domain.Voice{}, err
 	}
 	if closeErr != nil {
-		return Voice{}, closeErr
+		return domain.Voice{}, closeErr
 	}
 	if n > 20<<20 {
-		return Voice{}, &http.MaxBytesError{Limit: 20 << 20}
+		return domain.Voice{}, &http.MaxBytesError{Limit: 20 << 20}
 	}
 	return a.Workbench.ImportVoice(ctx, f.Name(), name)
 }
@@ -133,12 +136,12 @@ func (a *API) generate(w http.ResponseWriter, r *http.Request) {
 	a.audio(w, r, g.ID)
 }
 
-func decodeGeneration(body io.Reader) (Draft, error) {
-	d := DefaultDraft()
+func decodeGeneration(body io.Reader) (domain.Draft, error) {
+	d := domain.DefaultDraft()
 	d.Title, d.Text, d.Mode, d.EmotionText = "API 语音", "", "speaker", ""
 	input := struct {
 		Text string `json:"text"`
-		SynthesisSettings
+		domain.SynthesisSettings
 	}{SynthesisSettings: d.SynthesisSettings}
 	decoder := json.NewDecoder(body)
 	decoder.DisallowUnknownFields()
@@ -152,17 +155,17 @@ func decodeGeneration(body io.Reader) (Draft, error) {
 	if strings.TrimSpace(d.Text) == "" {
 		return d, fmt.Errorf("正文不能为空")
 	}
-	return d, Validate(d)
+	return d, domain.Validate(d)
 }
 
-func (a *API) generateAudio(ctx context.Context, d Draft) (Generation, error) {
+func (a *API) generateAudio(ctx context.Context, d domain.Draft) (domain.Generation, error) {
 	ctx, cancel := context.WithTimeout(ctx, a.generationTimeout())
 	defer cancel()
 	if err := ctx.Err(); err != nil {
-		return Generation{}, err
+		return domain.Generation{}, err
 	}
 	if err := a.Workbench.generateDetached(d); err != nil {
-		return Generation{}, err
+		return domain.Generation{}, err
 	}
 	// 断开连接时取消推理，等待任务退出后才允许下一个请求。
 	a.Workbench.mu.Lock()
@@ -173,25 +176,25 @@ func (a *API) generateAudio(ctx context.Context, d Draft) (Generation, error) {
 	case <-ctx.Done():
 		a.Workbench.Cancel()
 		<-done
-		return Generation{}, ctx.Err()
+		return domain.Generation{}, ctx.Err()
 	}
 	if err := ctx.Err(); err != nil {
-		return Generation{}, err
+		return domain.Generation{}, err
 	}
 	state := a.Workbench.Store.Read()
 	if activity := state.Activity; activity == nil || activity.Status != "completed" {
 		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
 		if activity != nil && activity.ErrorCode != nil {
-			return Generation{}, fmt.Errorf("语音生成失败：%s", encodeErrorText(*activity.ErrorCode, activity.ErrorParams))
+			return domain.Generation{}, fmt.Errorf("语音生成失败：%s", encodeErrorText(*activity.ErrorCode, activity.ErrorParams))
 		}
-		return Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
+		return domain.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
 	}
 	for _, g := range state.History {
 		if g.Settings.ID == d.ID {
 			return g, nil
 		}
 	}
-	return Generation{}, fmt.Errorf("生成结果未找到")
+	return domain.Generation{}, fmt.Errorf("生成结果未找到")
 }
 
 func (a *API) audio(w http.ResponseWriter, r *http.Request, id string) {
@@ -206,7 +209,7 @@ func (a *API) audio(w http.ResponseWriter, r *http.Request, id string) {
 	http.ServeFile(w, r, path)
 }
 
-func encodeErrorText(code MessageCode, params MessageParams) string {
+func encodeErrorText(code msg.Code, params msg.Params) string {
 	if detail, ok := params["detail"]; ok {
 		return fmt.Sprintf("%s (%v)", code, detail)
 	}

@@ -9,16 +9,20 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"yovoice/internal/audio"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
+	"yovoice/internal/store"
 )
 
 const projectArchiveLimit = 500 << 20
 
 type projectArchive struct {
-	Version    int          `json:"version"`
-	Draft      Draft        `json:"draft"`
-	History    []Generation `json:"history"`
-	Voices     []Voice      `json:"voices"`
-	Characters []Character  `json:"characters"`
+	Version    int                 `json:"version"`
+	Draft      domain.Draft        `json:"draft"`
+	History    []domain.Generation `json:"history"`
+	Voices     []domain.Voice      `json:"voices"`
+	Characters []domain.Character  `json:"characters"`
 }
 
 // projectMedia 只枚举工程实际引用的文件，归档中不包含模型、密钥和全局设置。
@@ -46,9 +50,9 @@ func (p *projectArchive) projectMedia() []string {
 
 func (w *Workbench) ExportProject(id, path string) error {
 	state := w.Store.Read()
-	index := slices.IndexFunc(state.Drafts, func(d Draft) bool { return d.ID == id })
+	index := slices.IndexFunc(state.Drafts, func(d domain.Draft) bool { return d.ID == id })
 	if index < 0 || !strings.EqualFold(filepath.Ext(path), ".yovoice") {
-		return Err(MsgErrDraftIDInvalid, nil)
+		return msg.Err(msg.ErrDraftIDInvalid, nil)
 	}
 	pack := projectArchive{Version: 1, Draft: state.Drafts[index]}
 	generations, characters, voices := map[string]bool{}, map[string]bool{}, map[string]bool{}
@@ -59,8 +63,8 @@ func (w *Workbench) ExportProject(id, path string) error {
 			}
 		}
 	}
-	collect := func(d Draft) {
-		settings := d.allSettings()
+	collect := func(d domain.Draft) {
+		settings := d.AllSettings()
 		characters[d.CharacterID] = true
 		if d.Subtitles != nil {
 			for _, s := range d.Subtitles.Speakers {
@@ -103,7 +107,7 @@ func (w *Workbench) ExportProject(id, path string) error {
 	}
 	delete(voices, "")
 	if len(voices) != 0 {
-		return Err(MsgErrVoiceRequired, nil)
+		return msg.Err(msg.ErrVoiceRequired, nil)
 	}
 	manifest, err := json.Marshal(pack)
 	if err != nil {
@@ -142,7 +146,7 @@ func (w *Workbench) ExportProject(id, path string) error {
 		total += info.Size()
 		if total > projectArchiveLimit {
 			input.Close()
-			return Err(MsgErrProjectPackageLimit, nil)
+			return msg.Err(msg.ErrProjectPackageLimit, nil)
 		}
 		entry, e = writer.Create(name)
 		if e == nil {
@@ -166,141 +170,141 @@ func (w *Workbench) ExportProject(id, path string) error {
 }
 
 // ImportProject 使用新身份导入副本；校验完成前不覆盖现有作品或素材。
-func (w *Workbench) ImportProject(path string) (Draft, error) {
-	bad := Err(MsgErrProjectPackage, nil)
+func (w *Workbench) ImportProject(path string) (domain.Draft, error) {
+	bad := msg.Err(msg.ErrProjectPackage, nil)
 	reader, err := zip.OpenReader(path)
 	if err != nil {
-		return Draft{}, bad
+		return domain.Draft{}, bad
 	}
 	defer reader.Close()
 	entries := map[string]*zip.File{}
 	var total uint64
 	for _, f := range reader.File {
 		if entries[f.Name] != nil || f.FileInfo().IsDir() || f.Mode()&os.ModeSymlink != 0 {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		if f.UncompressedSize64 > projectArchiveLimit-total {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		total += f.UncompressedSize64
 		if total > projectArchiveLimit || len(entries) >= 10000 {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		entries[f.Name] = f
 	}
 	manifest := entries["project.json"]
 	if manifest == nil || manifest.UncompressedSize64 > 20<<20 {
-		return Draft{}, bad
+		return domain.Draft{}, bad
 	}
 	stream, err := manifest.Open()
 	if err != nil {
-		return Draft{}, bad
+		return domain.Draft{}, bad
 	}
 	var pack projectArchive
 	err = json.NewDecoder(io.LimitReader(stream, 20<<20)).Decode(&pack)
 	stream.Close()
 	if err != nil || pack.Version != 1 || len(pack.History) > 5000 || len(pack.Voices) > 2000 || len(pack.Characters) > 1000 {
-		return Draft{}, bad
+		return domain.Draft{}, bad
 	}
 	files := pack.projectMedia()
 	if len(files)+1 != len(entries) {
-		return Draft{}, bad
+		return domain.Draft{}, bad
 	}
 	stage, err := os.MkdirTemp(w.Store.Root, ".project-*")
 	if err != nil {
-		return Draft{}, err
+		return domain.Draft{}, err
 	}
 	defer os.RemoveAll(stage)
 	for _, kind := range []string{"outputs", "voices"} {
 		if err = os.Mkdir(filepath.Join(stage, kind), 0700); err != nil {
-			return Draft{}, err
+			return domain.Draft{}, err
 		}
 	}
 	names := map[string]string{}
 	for _, name := range files {
 		kind, file, _ := strings.Cut(name, "/")
 		if _, err = w.Store.MediaPath(kind, file); err != nil || entries[name] == nil {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		stream, err := entries[name].Open()
 		if err != nil {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		destination := filepath.Join(stage, kind, file)
 		out, err := os.OpenFile(destination, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 		if err != nil {
 			stream.Close()
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		_, err = io.Copy(out, io.LimitReader(stream, projectArchiveLimit+1))
 		stream.Close()
 		closeErr := out.Close()
 		if err != nil || closeErr != nil {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
-		if _, err = Duration(destination); err != nil {
-			return Draft{}, bad
+		if _, err = audio.Duration(destination); err != nil {
+			return domain.Draft{}, bad
 		}
-		names[name] = newID() + ".wav"
+		names[name] = domain.NewID() + ".wav"
 	}
-	tempWorkbench := &Workbench{Store: &Store{Root: stage}}
+	tempWorkbench := &Workbench{Store: &store.Store{Root: stage}}
 	if err = tempWorkbench.validateTimelineAssets(pack.Draft.Timeline); err != nil {
-		return Draft{}, bad
+		return domain.Draft{}, bad
 	}
-	if err = validateTimeline(pack.Draft.Timeline, pack.History); err != nil {
-		return Draft{}, bad
+	if err = domain.ValidateTimeline(pack.Draft.Timeline, pack.History); err != nil {
+		return domain.Draft{}, bad
 	}
-	if _, err = pack.Draft.subtitleDrafts(); err != nil {
-		return Draft{}, bad
+	if _, err = pack.Draft.SubtitleDrafts(); err != nil {
+		return domain.Draft{}, bad
 	}
-	if !validID(pack.Draft.ID) || textLen(pack.Draft.Title) > 120 || textLen(pack.Draft.Text) > 12000 || textLen(pack.Draft.EmotionText) > 500 || textLen(pack.Draft.VoiceDescription) > 500 || textLen(pack.Draft.ReferenceText) > 2000 || !slices.Contains([]string{"", "text", "story", "subtitle"}, pack.Draft.Kind) {
-		return Draft{}, bad
+	if !domain.ValidID(pack.Draft.ID) || domain.TextLen(pack.Draft.Title) > 120 || domain.TextLen(pack.Draft.Text) > 12000 || domain.TextLen(pack.Draft.EmotionText) > 500 || domain.TextLen(pack.Draft.VoiceDescription) > 500 || domain.TextLen(pack.Draft.ReferenceText) > 2000 || !slices.Contains([]string{"", "text", "story", "subtitle"}, pack.Draft.Kind) {
+		return domain.Draft{}, bad
 	}
 	ids, voiceIDs := map[string]string{}, map[string]bool{}
 	register := func(id string) bool {
-		if !validID(id) || ids[id] != "" {
+		if !domain.ValidID(id) || ids[id] != "" {
 			return false
 		}
-		ids[id] = newID()
+		ids[id] = domain.NewID()
 		return true
 	}
 	for _, v := range pack.Voices {
-		if !register(v.ID) || textLen(v.Name) > 120 || textLen(v.ReferenceText) > 2000 || !inRange(v.Duration, 1, 60) {
-			return Draft{}, bad
+		if !register(v.ID) || domain.TextLen(v.Name) > 120 || domain.TextLen(v.ReferenceText) > 2000 || !domain.InRange(v.Duration, 1, 60) {
+			return domain.Draft{}, bad
 		}
 		voiceIDs[v.ID] = true
-		actual, _ := Duration(filepath.Join(stage, "voices", v.FileName))
+		actual, _ := audio.Duration(filepath.Join(stage, "voices", v.FileName))
 		if actual < 1 || actual > 60 {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 	}
 	for _, c := range pack.Characters {
-		if !register(c.ID) || textLen(c.Name) > 120 || textLen(c.DemoText) > 2000 {
-			return Draft{}, bad
+		if !register(c.ID) || domain.TextLen(c.Name) > 120 || domain.TextLen(c.DemoText) > 2000 {
+			return domain.Draft{}, bad
 		}
 		if c.Preview != nil && !register(c.Preview.ID) {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 	}
 	for _, g := range pack.History {
-		if !register(g.ID) || !inRange(g.Duration, .01, 3600) {
-			return Draft{}, bad
+		if !register(g.ID) || !domain.InRange(g.Duration, .01, 3600) {
+			return domain.Draft{}, bad
 		}
-		actual, _ := Duration(filepath.Join(stage, "outputs", g.FileName))
+		actual, _ := audio.Duration(filepath.Join(stage, "outputs", g.FileName))
 		if actual+.001 < g.Duration {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 	}
 	if pack.Draft.Timeline != nil {
 		for _, a := range pack.Draft.Timeline.Assets {
 			if !register(a.ID) {
-				return Draft{}, bad
+				return domain.Draft{}, bad
 			}
 			names["outputs/"+a.FileName] = "import-" + ids[a.ID] + ".wav"
 		}
 	}
-	pack.Draft.ID = newID()
-	remapSettings := func(s *SynthesisSettings) error {
+	pack.Draft.ID = domain.NewID()
+	remapSettings := func(s *domain.SynthesisSettings) error {
 		for _, ref := range []**string{&s.VoiceID, &s.EmotionVoiceID} {
 			if *ref != nil && **ref != "" {
 				if !voiceIDs[**ref] {
@@ -311,7 +315,7 @@ func (w *Workbench) ImportProject(path string) (Draft, error) {
 		}
 		return nil
 	}
-	remapDraft := func(d *Draft) error {
+	remapDraft := func(d *domain.Draft) error {
 		if err := remapSettings(&d.SynthesisSettings); err != nil {
 			return err
 		}
@@ -344,7 +348,7 @@ func (w *Workbench) ImportProject(path string) (Draft, error) {
 		return nil
 	}
 	if err = remapDraft(&pack.Draft); err != nil {
-		return Draft{}, err
+		return domain.Draft{}, err
 	}
 	for i := range pack.Voices {
 		v := &pack.Voices[i]
@@ -356,21 +360,21 @@ func (w *Workbench) ImportProject(path string) (Draft, error) {
 		c := &pack.Characters[i]
 		c.ID = ids[c.ID]
 		if len(c.Performances) > 32 {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		for j := range c.Performances {
 			if err = remapSettings(&c.Performances[j].Settings); err != nil {
-				return Draft{}, err
+				return domain.Draft{}, err
 			}
 		}
 		if err = remapSettings(&c.Settings); err != nil {
-			return Draft{}, err
+			return domain.Draft{}, err
 		}
 		if c.Preview != nil {
 			c.Preview.ID = ids[c.Preview.ID]
 			c.Preview.FileName = names["outputs/"+c.Preview.FileName]
 			if err = remapSettings(&c.Preview.Settings); err != nil {
-				return Draft{}, err
+				return domain.Draft{}, err
 			}
 		}
 	}
@@ -380,7 +384,7 @@ func (w *Workbench) ImportProject(path string) (Draft, error) {
 		g.FileName = names["outputs/"+g.FileName]
 		g.Settings.Timeline = nil
 		if err = remapDraft(&g.Settings); err != nil {
-			return Draft{}, err
+			return domain.Draft{}, err
 		}
 	}
 	if pack.Draft.Timeline != nil {
@@ -421,23 +425,23 @@ func (w *Workbench) ImportProject(path string) (Draft, error) {
 		kind, _, _ := strings.Cut(old, "/")
 		destination := filepath.Join(w.Store.Root, kind, name)
 		if _, err = os.Lstat(destination); !os.IsNotExist(err) {
-			return Draft{}, bad
+			return domain.Draft{}, bad
 		}
 		if err = os.Rename(filepath.Join(stage, filepath.FromSlash(old)), destination); err != nil {
-			return Draft{}, err
+			return domain.Draft{}, err
 		}
 		written = append(written, destination)
 	}
-	if err = validateTimeline(pack.Draft.Timeline, pack.History); err != nil {
-		return Draft{}, bad
+	if err = domain.ValidateTimeline(pack.Draft.Timeline, pack.History); err != nil {
+		return domain.Draft{}, bad
 	}
-	if err = w.Store.Update(func(s *State) {
-		s.Drafts = append([]Draft{pack.Draft}, s.Drafts...)
+	if err = w.Store.Update(func(s *domain.State) {
+		s.Drafts = append([]domain.Draft{pack.Draft}, s.Drafts...)
 		s.History = append(pack.History, s.History...)
 		s.Voices = append(s.Voices, pack.Voices...)
 		s.Characters = append(s.Characters, pack.Characters...)
 	}, true); err != nil {
-		return Draft{}, err
+		return domain.Draft{}, err
 	}
 	committed = true
 	return pack.Draft, nil

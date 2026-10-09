@@ -6,6 +6,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"yovoice/internal/catalog"
+	"yovoice/internal/domain"
+	"yovoice/internal/download"
+	"yovoice/internal/msg"
 )
 
 // UseBundledCPU 在服务启动时登记内置内核，保留用户已安装的 GPU 内核。
@@ -18,10 +22,10 @@ func (w *Workbench) UseBundledCPU(path string) error {
 		return err
 	}
 	if !info.Mode().IsRegular() {
-		return Err(MsgErrCPUBundleInvalid, nil)
+		return msg.Err(msg.ErrCPUBundleInvalid, nil)
 	}
 	w.bundledCPU = path
-	return w.Store.Update(func(s *State) {
+	return w.Store.Update(func(s *domain.State) {
 		if s.RuntimePath == nil || s.Preferences.Backend == "cpu" {
 			s.RuntimePath = ptr(path)
 			s.RuntimeBackend = ptr("cpu")
@@ -30,13 +34,13 @@ func (w *Workbench) UseBundledCPU(path string) error {
 }
 func (w *Workbench) install() error {
 	backend := w.Store.Read().Preferences.Backend
-	archives, e := runtimeArchives(backend)
+	archives, e := catalog.RuntimeArchives(backend)
 	if e != nil {
 		return e
 	}
-	return w.begin("runtime", MsgActivityRuntimeDownload, nil, nil, func(ctx context.Context) (err error) {
+	return w.begin("runtime", msg.ActivityRuntimeDownload, nil, nil, func(ctx context.Context) (err error) {
 		w.engine.Stop()
-		staging, err := os.MkdirTemp(filepath.Join(w.Store.Root, "runtime"), EngineVersion+"-"+backend+"-")
+		staging, err := os.MkdirTemp(filepath.Join(w.Store.Root, "runtime"), catalog.EngineVersion+"-"+backend+"-")
 		if err != nil {
 			return err
 		}
@@ -47,11 +51,11 @@ func (w *Workbench) install() error {
 		}()
 		for _, a := range archives {
 			file := filepath.Join(w.Store.Root, "downloads", a.Name)
-			if err = Download(ctx, w.client, "https://github.com/0xShug0/audio.cpp/releases/download/"+EngineVersion+"/"+a.Name, file, a.Hash, 0, func(r, t int64) { w.progress(MsgActivityRuntimeDownload, nil, r, t) }); err != nil {
+			if err = download.File(ctx, w.client, "https://github.com/0xShug0/audio.cpp/releases/download/"+catalog.EngineVersion+"/"+a.Name, file, a.Hash, 0, func(r, t int64) { w.progress(msg.ActivityRuntimeDownload, nil, r, t) }); err != nil {
 				return err
 			}
-			w.progress(MsgActivityRuntimeExtract, nil, 0, 0)
-			if err = Extract(ctx, file, staging); err != nil {
+			w.progress(msg.ActivityRuntimeExtract, nil, 0, 0)
+			if err = download.Extract(ctx, file, staging); err != nil {
 				return err
 			}
 		}
@@ -79,7 +83,7 @@ func (w *Workbench) install() error {
 			return err
 		}
 		if len(executables) != 1 {
-			return Err(MsgErrRuntimeUnique, nil)
+			return msg.Err(msg.ErrRuntimeUnique, nil)
 		}
 		executable := executables[0]
 		for _, dll := range dlls {
@@ -100,6 +104,6 @@ func (w *Workbench) install() error {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		return w.Store.Update(func(s *State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true)
+		return w.Store.Update(func(s *domain.State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true)
 	})
 }

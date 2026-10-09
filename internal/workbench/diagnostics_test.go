@@ -7,13 +7,15 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"yovoice/internal/diag"
+	"yovoice/internal/domain"
 )
 
 func TestSaveDiagnostics(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := DefaultDraft()
+	d := domain.DefaultDraft()
 	d.Text = "不应出现在日志中的正文"
 	d.ReferenceText = "不应出现在日志中的参考文本"
 	must(t, w.SaveDraft(d))
@@ -50,7 +52,7 @@ func TestDiagnosticRotationAndConcurrency(t *testing.T) {
 	var tasks sync.WaitGroup
 	for i := range 20 {
 		tasks.Add(1)
-		go func() { defer tasks.Done(); diagnostic(root, "check", "index", i) }()
+		go func() { defer tasks.Done(); diag.Log(root, "check", "index", i) }()
 	}
 	tasks.Wait()
 	if _, err := os.Stat(path + ".1"); err != nil {
@@ -73,5 +75,5 @@ func TestDiagnosticRotationAndConcurrency(t *testing.T) {
 	defer w.Close()
 	must(t, os.RemoveAll(filepath.Join(w.Store.Root, "logs")))
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "logs"), nil, 0600))
-	must(t, w.SaveDraft(DefaultDraft()))
+	must(t, w.SaveDraft(domain.DefaultDraft()))
 }

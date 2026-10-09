@@ -1,3 +1,4 @@
+// Package workbench 是应用服务层：编排作品、素材、角色、模型、运行时与生成，并串行调度耗时操作。
 package workbench
 
 import (
@@ -9,22 +10,28 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+	"yovoice/internal/diag"
+	"yovoice/internal/domain"
+	"yovoice/internal/download"
+	"yovoice/internal/engine"
+	"yovoice/internal/msg"
+	"yovoice/internal/store"
 )
 
 type Workbench struct {
-	Store      *Store
+	Store      *store.Store
 	mu         sync.Mutex
 	cancel     context.CancelFunc
 	done       chan struct{}
 	closed     bool
 	closeOnce  sync.Once
-	engine     *Engine
+	engine     *engine.Engine
 	client     *http.Client
 	bundledCPU string
 }
 
 func New(root string) (*Workbench, error) {
-	s, e := NewStore(root)
+	s, e := store.New(root)
 	if e != nil {
 		return nil, e
 	}
@@ -34,25 +41,25 @@ func New(root string) (*Workbench, error) {
 		if (preferences.ProxyEnabled == nil && preferences.ProxyURL == "") || (preferences.ProxyEnabled != nil && !*preferences.ProxyEnabled) {
 			return nil, nil
 		}
-		return downloadProxy(req, preferences.ProxyURL)
+		return download.Proxy(req, preferences.ProxyURL)
 	}
-	return &Workbench{Store: s, engine: NewEngine(root), client: &http.Client{Transport: transport}}, nil
+	return &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}}, nil
 }
 
 // 前台命令由服务串行调度，耗时操作独立运行，状态通过 Store 广播。
-func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, modelID *string, action func(context.Context) error, requestIDs ...string) error {
+func (w *Workbench) begin(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.closed || w.cancel != nil {
-		return Err(MsgErrBusy, nil)
+		return msg.Err(msg.ErrBusy, nil)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	if e := w.Store.Update(func(s *State) {
+	if e := w.Store.Update(func(s *domain.State) {
 		requestID := ""
 		if len(requestIDs) > 0 {
 			requestID = requestIDs[0]
 		}
-		s.Activity = &Activity{RequestID: requestID, Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
+		s.Activity = &domain.Activity{RequestID: requestID, Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
 		if len(requestIDs) > 1 {
 			if requestID == "" {
 				s.Activity.ProjectID = requestIDs[1]
@@ -64,10 +71,10 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 		cancel()
 		return e
 	}
-	operationID := newID()
+	operationID := domain.NewID()
 	started := time.Now()
 	fields := []any{"operation_id", operationID, "kind", kind, "model_id", value(modelID), "related_ids", requestIDs}
-	diagnostic(w.Store.Root, "operation.started", fields...)
+	diag.Log(w.Store.Root, "operation.started", fields...)
 	w.cancel = cancel
 	done := make(chan struct{})
 	w.done = done
@@ -81,37 +88,37 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 		} else if err != nil {
 			status = "failed"
 		}
-		diagnostic(w.Store.Root, "operation.finished", append(fields, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "error", diagnosticError(err))...)
+		diag.Log(w.Store.Root, "operation.finished", append(fields, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))...)
 		w.mu.Lock()
 		defer w.mu.Unlock()
-		update := func(s *State) {
+		update := func(s *domain.State) {
 			a := s.Activity
 			if err == nil {
-				a.Code = MsgActivityCompleted
+				a.Code = msg.ActivityCompleted
 				a.Params = nil
 				a.Status = "completed"
 				a.ErrorCode = nil
 				a.ErrorParams = nil
 			} else if errors.Is(err, context.Canceled) {
 				a.Status = "cancelled"
-				a.Code = MsgActivityCancelled
+				a.Code = msg.ActivityCancelled
 				a.Params = nil
 				if kind == "download" {
-					a.Code = MsgActivityPaused
+					a.Code = msg.ActivityPaused
 				}
 				a.ErrorCode = nil
 				a.ErrorParams = nil
 			} else {
 				a.Status = "failed"
-				a.Code = MsgActivityFailed
+				a.Code = msg.ActivityFailed
 				a.Params = nil
-				if ce, ok := err.(*CallError); ok && ce != nil {
+				if ce, ok := err.(*msg.CallError); ok && ce != nil {
 					a.ErrorCode = &ce.Code
 					a.ErrorParams = ce.Params
 				} else {
-					code := MsgErrUnknown
+					code := msg.ErrUnknown
 					a.ErrorCode = &code
-					a.ErrorParams = MessageParams{"detail": err.Error()}
+					a.ErrorParams = msg.Params{"detail": err.Error()}
 				}
 			}
 		}
@@ -119,12 +126,12 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 			_ = os.WriteFile(filepath.Join(w.Store.Root, "logs", "last-error.txt"), []byte(err.Error()), 0600)
 		}
 		if e := w.Store.Update(update, true); e != nil {
-			_ = w.Store.Update(func(s *State) {
+			_ = w.Store.Update(func(s *domain.State) {
 				update(s)
 				s.Activity.Status = "failed"
-				code := MsgErrStateSaveFailed
+				code := msg.ErrStateSaveFailed
 				s.Activity.ErrorCode = &code
-				s.Activity.ErrorParams = MessageParams{"detail": e.Error()}
+				s.Activity.ErrorParams = msg.Params{"detail": e.Error()}
 			}, false)
 		}
 		w.cancel = nil
@@ -132,7 +139,7 @@ func (w *Workbench) begin(kind string, code MessageCode, params MessageParams, m
 	return nil
 }
 func (w *Workbench) Cancel() {
-	diagnostic(w.Store.Root, "operation.cancel_requested")
+	diag.Log(w.Store.Root, "operation.cancel_requested")
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.cancel != nil {
@@ -141,8 +148,8 @@ func (w *Workbench) Cancel() {
 }
 func (w *Workbench) Close() {
 	w.closeOnce.Do(func() {
-		diagnostic(w.Store.Root, "service.stopping")
-		defer diagnostic(w.Store.Root, "service.stopped")
+		diag.Log(w.Store.Root, "service.stopping")
+		defer diag.Log(w.Store.Root, "service.stopped")
 		w.mu.Lock()
 		w.closed = true
 		if w.cancel != nil {
@@ -158,8 +165,8 @@ func (w *Workbench) Close() {
 	})
 }
 
-func (w *Workbench) progress(code MessageCode, params MessageParams, received, total int64) {
-	_ = w.Store.Update(func(s *State) {
+func (w *Workbench) progress(code msg.Code, params msg.Params, received, total int64) {
+	_ = w.Store.Update(func(s *domain.State) {
 		if s.Activity != nil {
 			s.Activity.Code = code
 			s.Activity.Params = params

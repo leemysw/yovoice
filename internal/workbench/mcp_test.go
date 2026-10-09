@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"yovoice/internal/domain"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -59,14 +60,14 @@ func TestMCPRemoteWorkflow(t *testing.T) {
 	uploaded := call("upload_voice", map[string]any{"audio": base64.StdEncoding.EncodeToString(wav()), "name": "MCP 音色"})
 	b, err := json.Marshal(uploaded.StructuredContent)
 	must(t, err)
-	var voice Voice
+	var voice domain.Voice
 	must(t, json.Unmarshal(b, &voice))
 	executable, err := os.Executable()
 	must(t, err)
 	model := filepath.Join(wb.Store.Root, "models", "fake.gguf")
 	must(t, os.WriteFile(model, []byte("test"), 0600))
-	must(t, wb.Store.Update(func(s *State) {
-		s.Models = []InstalledModel{{ID: "index-2.5-q8", Path: model}}
+	must(t, wb.Store.Update(func(s *domain.State) {
+		s.Models = []domain.InstalledModel{{ID: "index-2.5-q8", Path: model}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 		s.Preferences.Backend = "cpu"
@@ -95,7 +96,7 @@ func TestMCPRemoteWorkflow(t *testing.T) {
 
 	// 两代协议均使用短请求提交和轮询，任务不依赖 MCP 会话存活。
 	for _, protocol := range []string{"2025-03-26", "2026-07-28"} {
-		id := newID()
+		id := domain.NewID()
 		rawCall := func(name string, args any) *mcp.CallToolResult {
 			t.Helper()
 			data, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": map[string]any{"name": name, "arguments": args, "_meta": map[string]any{"io.modelcontextprotocol/protocolVersion": protocol, "io.modelcontextprotocol/clientCapabilities": map[string]any{}, "io.modelcontextprotocol/clientInfo": map[string]any{"name": "test", "version": "1"}}}})

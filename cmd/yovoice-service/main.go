@@ -14,12 +14,15 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"yovoice/internal/domain"
+	"yovoice/internal/platform"
+	"yovoice/internal/store"
 	"yovoice/internal/workbench"
 )
 
 func run() error {
 	if len(os.Args) > 1 && os.Args[1] == "--prepare-data" {
-		return workbench.PrepareDefault()
+		return store.PrepareDefault()
 	}
 	root, secret, assets := os.Getenv("WORKBENCH_DATA"), os.Getenv("WORKBENCH_TOKEN"), os.Getenv("WORKBENCH_WEB")
 	if root == "" || assets == "" || len(secret) < 32 {
@@ -28,7 +31,7 @@ func run() error {
 	if e := os.MkdirAll(root, 0700); e != nil {
 		return e
 	}
-	lock, e := workbench.Lock(filepath.Join(root, "service.lock"))
+	lock, e := platform.Lock(filepath.Join(root, "service.lock"))
 	if e != nil {
 		return fmt.Errorf("数据目录正被其他应用使用：%w", e)
 	}
@@ -46,7 +49,7 @@ func run() error {
 	}
 	existing := wb.Store.Read()
 	if _, e = os.Stat(bundled); runtime.GOOS == "darwin" && e == nil && (existing.RuntimePath == nil || strings.HasSuffix(*existing.RuntimePath, "/Contents/Resources/engine/audiocpp_server")) {
-		if e = wb.Store.Update(func(s *workbench.State) {
+		if e = wb.Store.Update(func(s *domain.State) {
 			s.RuntimePath = &bundled
 			backend := s.Preferences.Backend
 			if existing.RuntimePath == nil {

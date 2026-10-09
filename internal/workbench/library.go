@@ -7,20 +7,22 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
 )
 
 // libraryCall 管理角色与参考素材；试听只复用推理流程，不写入作品历史。
 func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error) {
 	if method == "character.preview" {
-		var c Character
+		var c domain.Character
 		if err := json.Unmarshal(data, &c); err != nil {
 			return nil, err
 		}
-		if !validID(c.ID) || textLen(c.DemoText) > 2000 {
-			return nil, Err(MsgErrCharacterInvalid, nil)
+		if !domain.ValidID(c.ID) || domain.TextLen(c.DemoText) > 2000 {
+			return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 		}
-		id := newID()
-		return id, w.generateAudio(Draft{ID: c.ID, Title: c.Name, Text: c.DemoText, SynthesisSettings: c.Settings}, id, "", "")
+		id := domain.NewID()
+		return id, w.generateAudio(domain.Draft{ID: c.ID, Title: c.Name, Text: c.DemoText, SynthesisSettings: c.Settings}, id, "", "")
 	}
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -32,35 +34,35 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 	if err := json.Unmarshal(data, &p); err != nil {
 		return nil, err
 	}
-	if !validID(p.ID) {
-		return nil, Err(MsgErrCharacterInvalid, nil)
+	if !domain.ValidID(p.ID) {
+		return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 	}
 	state := w.Store.Read()
 	switch method {
 	case "character.save":
-		var c Character
+		var c domain.Character
 		if err := json.Unmarshal(data, &c); err != nil {
 			return nil, err
 		}
 		c.Name = strings.TrimSpace(c.Name)
-		if c.Name == "" || textLen(c.Name) > 120 || textLen(c.DemoText) > 2000 {
-			return nil, Err(MsgErrCharacterInvalid, nil)
+		if c.Name == "" || domain.TextLen(c.Name) > 120 || domain.TextLen(c.DemoText) > 2000 {
+			return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 		}
 		// 保存配置无需安装模型，生成时再检查运行环境和所需参考音频。
 		text := c.DemoText
 		if strings.TrimSpace(text) == "" {
 			text = "试听"
 		}
-		if err := Validate(Draft{ID: c.ID, Title: c.Name, Text: text, SynthesisSettings: c.Settings}); err != nil {
+		if err := domain.Validate(domain.Draft{ID: c.ID, Title: c.Name, Text: text, SynthesisSettings: c.Settings}); err != nil {
 			return nil, err
 		}
 		for _, id := range []*string{c.Settings.VoiceID, c.Settings.EmotionVoiceID} {
-			if id != nil && !slices.ContainsFunc(state.Voices, func(v Voice) bool { return v.ID == *id }) {
-				return nil, Err(MsgErrVoiceRequired, nil)
+			if id != nil && !slices.ContainsFunc(state.Voices, func(v domain.Voice) bool { return v.ID == *id }) {
+				return nil, msg.Err(msg.ErrVoiceRequired, nil)
 			}
 		}
 		if len(c.Performances) > 32 {
-			return nil, Err(MsgErrCharacterInvalid, nil)
+			return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 		}
 		ids := map[string]bool{}
 		names := map[string]bool{}
@@ -68,23 +70,23 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 			p := &c.Performances[i]
 			p.Name = strings.TrimSpace(p.Name)
 			name := strings.ToLower(p.Name)
-			if !validID(p.ID) || p.Name == "" || textLen(p.Name) > 120 || ids[p.ID] || names[name] {
-				return nil, Err(MsgErrCharacterInvalid, nil)
+			if !domain.ValidID(p.ID) || p.Name == "" || domain.TextLen(p.Name) > 120 || ids[p.ID] || names[name] {
+				return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 			}
 			ids[p.ID], names[name] = true, true
-			p.Settings = c.Settings.performanceSettings(p)
-			if err := Validate(Draft{ID: c.ID, Title: c.Name, Text: text, SynthesisSettings: p.Settings}); err != nil {
+			p.Settings = c.Settings.PerformanceSettings(p)
+			if err := domain.Validate(domain.Draft{ID: c.ID, Title: c.Name, Text: text, SynthesisSettings: p.Settings}); err != nil {
 				return nil, err
 			}
 			for _, id := range []*string{p.Settings.VoiceID, p.Settings.EmotionVoiceID} {
-				if id != nil && !slices.ContainsFunc(state.Voices, func(v Voice) bool { return v.ID == *id }) {
-					return nil, Err(MsgErrVoiceRequired, nil)
+				if id != nil && !slices.ContainsFunc(state.Voices, func(v domain.Voice) bool { return v.ID == *id }) {
+					return nil, msg.Err(msg.ErrVoiceRequired, nil)
 				}
 			}
 		}
-		index := slices.IndexFunc(state.Characters, func(v Character) bool { return v.ID == c.ID })
+		index := slices.IndexFunc(state.Characters, func(v domain.Character) bool { return v.ID == c.ID })
 		c.CreatedAt = time.Now().UTC()
-		var old *CharacterPreview
+		var old *domain.CharacterPreview
 		if index >= 0 {
 			c.CreatedAt = state.Characters[index].CreatedAt
 			old = state.Characters[index].Preview
@@ -93,7 +95,7 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 		var copied string
 		if c.Preview != nil {
 			// 只接受服务端已知的试听 ID，不信任客户端提供的路径和参数快照。
-			var found *CharacterPreview
+			var found *domain.CharacterPreview
 			for _, v := range state.Previews {
 				if v.ID == c.Preview.ID {
 					found = &v
@@ -107,7 +109,7 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 				}
 			}
 			if found == nil {
-				return nil, Err(MsgErrAudioMissing, nil)
+				return nil, msg.Err(msg.ErrAudioMissing, nil)
 			}
 			if old != nil && old.ID == found.ID {
 				c.Preview = old
@@ -121,7 +123,7 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 					return nil, err
 				}
 				next := *found
-				next.ID = newID()
+				next.ID = domain.NewID()
 				next.FileName = "character-" + next.ID + ".wav"
 				copied, err = w.Store.MediaPath("outputs", next.FileName)
 				if err != nil {
@@ -133,7 +135,7 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 				c.Preview = &next
 			}
 		}
-		err := w.Store.Update(func(s *State) {
+		err := w.Store.Update(func(s *domain.State) {
 			if index < 0 {
 				s.Characters = append(s.Characters, c)
 			} else {
@@ -151,20 +153,20 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 		}
 		return c, nil
 	case "character.delete":
-		index := slices.IndexFunc(state.Characters, func(c Character) bool { return c.ID == p.ID })
+		index := slices.IndexFunc(state.Characters, func(c domain.Character) bool { return c.ID == p.ID })
 		if index < 0 {
-			return nil, Err(MsgErrCharacterInvalid, nil)
+			return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 		}
-		if err := w.Store.Update(func(s *State) { s.Characters = slices.Delete(s.Characters, index, index+1) }, true); err != nil {
+		if err := w.Store.Update(func(s *domain.State) { s.Characters = slices.Delete(s.Characters, index, index+1) }, true); err != nil {
 			return nil, err
 		}
 		w.removePreviewFile(state.Characters[index].Preview)
 	case "character.discardPreview":
 		if w.cancel != nil {
-			return nil, Err(MsgErrBusy, nil)
+			return nil, msg.Err(msg.ErrBusy, nil)
 		}
-		if err := w.Store.Update(func(s *State) {
-			s.Previews = slices.DeleteFunc(s.Previews, func(v CharacterPreview) bool { return v.ID == p.ID })
+		if err := w.Store.Update(func(s *domain.State) {
+			s.Previews = slices.DeleteFunc(s.Previews, func(v domain.CharacterPreview) bool { return v.ID == p.ID })
 		}, true); err != nil {
 			return nil, err
 		}
@@ -174,12 +176,12 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 			}
 		}
 	case "voice.fromGeneration":
-		index := slices.IndexFunc(state.History, func(g Generation) bool { return g.ID == p.ID })
+		index := slices.IndexFunc(state.History, func(g domain.Generation) bool { return g.ID == p.ID })
 		if index < 0 {
-			return nil, Err(MsgErrAudioMissing, nil)
+			return nil, msg.Err(msg.ErrAudioMissing, nil)
 		}
-		if strings.TrimSpace(p.Name) == "" || textLen(p.Name) > 100 || textLen(p.ReferenceText) > 2000 {
-			return nil, Err(MsgErrCharacterInvalid, nil)
+		if strings.TrimSpace(p.Name) == "" || domain.TextLen(p.Name) > 100 || domain.TextLen(p.ReferenceText) > 2000 {
+			return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 		}
 		path, err := w.Store.MediaPath("outputs", state.History[index].FileName)
 		if err != nil {
@@ -187,14 +189,14 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 		}
 		return w.importVoice(context.Background(), path, p.Name, p.ReferenceText, p.ID)
 	case "voice.update":
-		if strings.TrimSpace(p.Name) == "" || textLen(p.Name) > 100 || textLen(p.ReferenceText) > 2000 {
-			return nil, Err(MsgErrCharacterInvalid, nil)
+		if strings.TrimSpace(p.Name) == "" || domain.TextLen(p.Name) > 100 || domain.TextLen(p.ReferenceText) > 2000 {
+			return nil, msg.Err(msg.ErrCharacterInvalid, nil)
 		}
-		index := slices.IndexFunc(state.Voices, func(v Voice) bool { return v.ID == p.ID })
+		index := slices.IndexFunc(state.Voices, func(v domain.Voice) bool { return v.ID == p.ID })
 		if index < 0 {
-			return nil, Err(MsgErrAudioMissing, nil)
+			return nil, msg.Err(msg.ErrAudioMissing, nil)
 		}
-		return true, w.Store.Update(func(s *State) {
+		return true, w.Store.Update(func(s *domain.State) {
 			s.Voices[index].Name = strings.TrimSpace(p.Name)
 			s.Voices[index].ReferenceText = p.ReferenceText
 		}, true)
@@ -202,7 +204,7 @@ func (w *Workbench) libraryCall(method string, data json.RawMessage) (any, error
 	return true, nil
 }
 
-func (w *Workbench) removePreviewFile(p *CharacterPreview) {
+func (w *Workbench) removePreviewFile(p *domain.CharacterPreview) {
 	if p == nil {
 		return
 	}

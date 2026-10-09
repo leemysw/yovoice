@@ -13,7 +13,10 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-	"yovoice/internal/workbench"
+	"yovoice/internal/audio"
+	"yovoice/internal/domain"
+	"yovoice/internal/platform"
+	"yovoice/internal/store"
 )
 
 func wave() []byte {
@@ -56,7 +59,7 @@ func TestMain(m *testing.M) {
 }
 func TestStandalone(t *testing.T) {
 	root := t.TempDir()
-	s, e := workbench.NewStore(root)
+	s, e := store.New(root)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -65,11 +68,11 @@ func TestStandalone(t *testing.T) {
 	if e = os.WriteFile(model, []byte("test"), 0600); e != nil {
 		t.Fatal(e)
 	}
-	e = s.Update(func(s *workbench.State) {
+	e = s.Update(func(s *domain.State) {
 		s.RuntimePath = &exe
 		b := "cpu"
 		s.RuntimeBackend = &b
-		s.Models = []workbench.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}}
+		s.Models = []domain.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}}
 	}, true)
 	if e != nil {
 		t.Fatal(e)
@@ -101,7 +104,7 @@ func TestStandalone(t *testing.T) {
 	if e = run(ctx, args, &out, &progress); e == nil {
 		t.Fatal("不能覆盖已有输出")
 	}
-	if duration, e := workbench.Duration(output); e != nil || duration != 1 {
+	if duration, e := audio.Duration(output); e != nil || duration != 1 {
 		t.Fatal(duration, e)
 	}
 	args[2] = "等待取消"
@@ -163,7 +166,7 @@ func TestStandalone(t *testing.T) {
 			t.Fatal(string(config))
 		}
 	}
-	lock, e := workbench.Lock(filepath.Join(root, "service.lock"))
+	lock, e := platform.Lock(filepath.Join(root, "service.lock"))
 	if e != nil {
 		t.Fatal(e)
 	}

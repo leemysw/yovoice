@@ -6,11 +6,13 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
 )
 
 func (w *Workbench) MediaFile(kind, id string) (string, error) {
-	if !validID(id) {
-		return "", Err(MsgErrAudioIDInvalid, nil)
+	if !domain.ValidID(id) {
+		return "", msg.Err(msg.ErrAudioIDInvalid, nil)
 	}
 	s := w.Store.Read()
 	var file string
@@ -38,10 +40,10 @@ func (w *Workbench) MediaFile(kind, id string) (string, error) {
 			}
 		}
 	default:
-		return "", Err(MsgErrAudioKindInvalid, nil)
+		return "", msg.Err(msg.ErrAudioKindInvalid, nil)
 	}
 	if file == "" {
-		return "", Err(MsgErrAudioMissing, nil)
+		return "", msg.Err(msg.ErrAudioMissing, nil)
 	}
 	return w.Store.MediaPath(kind, file)
 }
@@ -50,10 +52,10 @@ func (w *Workbench) rename(kind, id, name string) error {
 		return e
 	}
 	name = strings.TrimSpace(name)
-	if textLen(name) < 1 || textLen(name) > 120 || strings.ContainsFunc(name, unicode.IsControl) {
-		return Err(MsgErrNameLength, nil)
+	if domain.TextLen(name) < 1 || domain.TextLen(name) > 120 || strings.ContainsFunc(name, unicode.IsControl) {
+		return msg.Err(msg.ErrNameLength, nil)
 	}
-	return w.Store.Update(func(s *State) {
+	return w.Store.Update(func(s *domain.State) {
 		if kind == "voices" {
 			for i := range s.Voices {
 				if s.Voices[i].ID == id {
@@ -77,17 +79,17 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 		return e
 	}
 	s := w.Store.Read()
-	if kind == "outputs" && !slices.ContainsFunc(s.History, func(g Generation) bool { return g.ID == id }) {
-		return Err(MsgErrAudioMissing, nil)
+	if kind == "outputs" && !slices.ContainsFunc(s.History, func(g domain.Generation) bool { return g.ID == id }) {
+		return msg.Err(msg.ErrAudioMissing, nil)
 	}
 	if kind == "voices" {
-		users := s.voiceUsers(id)
+		users := s.VoiceUsers(id)
 		if len(users) > 0 {
-			return Err(MsgErrVoiceReferenced, MessageParams{"names": strings.Join(users, "、")})
+			return msg.Err(msg.ErrVoiceReferenced, msg.Params{"names": strings.Join(users, "、")})
 		}
 	}
 	if kind == "voices" && s.Activity != nil && s.Activity.Kind == "generate" && s.Activity.Status == "running" {
-		return Err(MsgErrVoiceBusyDelete, nil)
+		return msg.Err(msg.ErrVoiceBusyDelete, nil)
 	}
 	if kind == "outputs" {
 		for _, draft := range s.Drafts {
@@ -95,8 +97,8 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 				continue
 			}
 			for _, track := range draft.Timeline.Tracks {
-				if slices.ContainsFunc(track.Clips, func(c AudioClip) bool { return c.GenerationID == id }) {
-					return Err(MsgErrTimelineInUse, nil)
+				if slices.ContainsFunc(track.Clips, func(c domain.AudioClip) bool { return c.GenerationID == id }) {
+					return msg.Err(msg.ErrTimelineInUse, nil)
 				}
 			}
 		}
@@ -112,11 +114,11 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 			return e
 		}
 	}
-	e = w.Store.Update(func(s *State) {
+	e = w.Store.Update(func(s *domain.State) {
 		if kind == "outputs" {
-			s.History = slices.DeleteFunc(s.History, func(v Generation) bool { return v.ID == id })
+			s.History = slices.DeleteFunc(s.History, func(v domain.Generation) bool { return v.ID == id })
 		} else {
-			s.Voices = slices.DeleteFunc(s.Voices, func(v Voice) bool { return v.ID == id })
+			s.Voices = slices.DeleteFunc(s.Voices, func(v domain.Voice) bool { return v.ID == id })
 			for i := range s.Drafts {
 				if value(s.Drafts[i].VoiceID) == id {
 					s.Drafts[i].VoiceID = nil
@@ -130,7 +132,7 @@ func (w *Workbench) deleteMedia(kind, id string) error {
 	if e != nil {
 		if exists {
 			if restore := os.Rename(removed, path); restore != nil {
-				return Err(MsgErrUnknown, MessageParams{"detail": fmt.Sprintf("%v; restore failed: %v", e, restore)})
+				return msg.Err(msg.ErrUnknown, msg.Params{"detail": fmt.Sprintf("%v; restore failed: %v", e, restore)})
 			}
 		}
 		return e

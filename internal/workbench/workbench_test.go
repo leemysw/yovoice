@@ -7,8 +7,6 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/sha256"
-	"encoding/base64"
-	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -18,34 +16,18 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
+	"yovoice/internal/domain"
+	"yovoice/internal/download"
+	"yovoice/internal/engine"
+	"yovoice/internal/msg"
+	"yovoice/internal/platform"
+	"yovoice/internal/store"
+	"yovoice/internal/testkit"
 )
 
-func must(t *testing.T, e error) {
-	t.Helper()
-	if e != nil {
-		t.Fatal(e)
-	}
-}
-func wav() []byte {
-	b := make([]byte, 44+32000)
-	copy(b, "RIFF")
-	binary.LittleEndian.PutUint32(b[4:], uint32(len(b)-8))
-	copy(b[8:], "WAVEfmt ")
-	binary.LittleEndian.PutUint32(b[16:], 16)
-	binary.LittleEndian.PutUint16(b[20:], 1)
-	binary.LittleEndian.PutUint16(b[22:], 1)
-	binary.LittleEndian.PutUint32(b[24:], 16000)
-	binary.LittleEndian.PutUint32(b[28:], 32000)
-	binary.LittleEndian.PutUint16(b[32:], 2)
-	binary.LittleEndian.PutUint16(b[34:], 16)
-	copy(b[36:], "data")
-	binary.LittleEndian.PutUint32(b[40:], 32000)
-	return b
-}
 func invoke(t *testing.T, w *Workbench, method string, data any) any {
 	t.Helper()
 	b, e := json.Marshal(data)
@@ -55,10 +37,10 @@ func invoke(t *testing.T, w *Workbench, method string, data any) any {
 	return result
 }
 func TestRequests(t *testing.T) {
-	d := DefaultDraft()
+	d := domain.DefaultDraft()
 	for _, mode := range []string{"speaker", "reference", "vector", "text"} {
 		d.Mode = mode
-		payload, e := BuildRequest(d, "voice.wav", "emotion.wav")
+		payload, e := engine.BuildRequest(d, "voice.wav", "emotion.wav")
 		must(t, e)
 		r := payload["request"].(map[string]any)
 		o := r["options"].(map[string]any)
@@ -76,14 +58,14 @@ func TestRequests(t *testing.T) {
 				t.Fatal(o)
 			}
 			d.InferEmotion = true
-			p, e := BuildRequest(d, "v", "")
+			p, e := engine.BuildRequest(d, "v", "")
 			must(t, e)
 			if _, ok := p["request"].(map[string]any)["options"].(map[string]any)["emotion_text"]; ok {
 				t.Fatal("理解正文不应传显式情绪")
 			}
 		case "vector":
 			d.Emotions = []float64{1, 1, 1, 1, 1, 1, 1, 1}
-			p, e := BuildRequest(d, "v", "")
+			p, e := engine.BuildRequest(d, "v", "")
 			must(t, e)
 			vector := p["request"].(map[string]any)["options"].(map[string]any)["emotion_vector"].(string)
 			sum := 0.
@@ -98,16 +80,16 @@ func TestRequests(t *testing.T) {
 			}
 		}
 	}
-	for _, change := range []func(*Draft){func(d *Draft) { d.Speed = math.NaN() }, func(d *Draft) { d.ModelID = "index-2-q8"; d.Language = "ja" }, func(d *Draft) { d.Emotions = nil }, func(d *Draft) { d.Mode = "bad" }} {
-		d := DefaultDraft()
+	for _, change := range []func(*domain.Draft){func(d *domain.Draft) { d.Speed = math.NaN() }, func(d *domain.Draft) { d.ModelID = "index-2-q8"; d.Language = "ja" }, func(d *domain.Draft) { d.Emotions = nil }, func(d *domain.Draft) { d.Mode = "bad" }} {
+		d := domain.DefaultDraft()
 		change(&d)
-		if Validate(d) == nil {
+		if domain.Validate(d) == nil {
 			t.Fatal("未拒绝非法参数")
 		}
 	}
-	d = DefaultDraft()
+	d = domain.DefaultDraft()
 	d.Mode = "reference"
-	if _, e := BuildRequest(d, "v", ""); e == nil {
+	if _, e := engine.BuildRequest(d, "v", ""); e == nil {
 		t.Fatal("缺少情绪音频")
 	}
 }
@@ -120,7 +102,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	must(t, os.WriteFile(file, wav(), 0600))
 	v, e := w.ImportVoice(context.Background(), file, "参考音色")
 	must(t, e)
-	d := DefaultDraft()
+	d := domain.DefaultDraft()
 	d.VoiceID = &v.ID
 	d.EmotionVoiceID = &v.ID
 	must(t, w.SaveDraft(d))
@@ -153,16 +135,16 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	if _, e = os.Stat(path); !os.IsNotExist(e) {
 		t.Fatal("音频未删除")
 	}
-	s, e := NewStore(root)
+	s, e := store.New(root)
 	must(t, e)
 	if len(s.Read().Voices) != 0 || s.Read().Drafts[0].VoiceID != nil || s.Read().Drafts[0].EmotionVoiceID != nil {
 		t.Fatal("引用未清除")
 	}
-	id := newID()
+	id := domain.NewID()
 	output, _ := w.Store.MediaPath("outputs", id+".wav")
 	must(t, os.WriteFile(output, wav(), 0600))
-	must(t, w.Store.Update(func(s *State) {
-		s.History = append(s.History, Generation{ID: id, Title: "历史", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
+	must(t, w.Store.Update(func(s *domain.State) {
+		s.History = append(s.History, domain.Generation{ID: id, Title: "历史", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
 	invoke(t, w, "media.rename", map[string]string{"kind": "outputs", "id": id, "name": "重命名历史"})
 	must(t, w.deleteMedia("outputs", id))
@@ -185,7 +167,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	}
 	must(t, os.Remove(filepath.Join(root, "state.backup.json")))
 	must(t, os.WriteFile(filepath.Join(root, "state.json"), []byte("broken"), 0600))
-	if _, e = NewStore(root); e == nil {
+	if _, e = store.New(root); e == nil {
 		t.Fatal("损坏状态被接受")
 	}
 	b, e := os.ReadFile(filepath.Join(root, "state.json"))
@@ -197,30 +179,30 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 func TestMigrationAndLock(t *testing.T) {
 	base := t.TempDir()
 	legacy, target := filepath.Join(base, "legacy"), filepath.Join(base, ".yovoice")
-	s, e := NewStore(legacy)
+	s, e := store.New(legacy)
 	must(t, e)
 	external := filepath.Join(base, "external")
-	must(t, s.Update(func(s *State) {
+	must(t, s.Update(func(s *domain.State) {
 		s.RuntimePath = ptr(filepath.Join(legacy, "runtime", "engine"))
 		s.Preferences.ModelDirectory = &external
-		s.Models = append(s.Models, InstalledModel{"test", filepath.Join(legacy, "models", "test.gguf"), true})
+		s.Models = append(s.Models, domain.InstalledModel{ID: "test", Path: filepath.Join(legacy, "models", "test.gguf"), Managed: true})
 	}, true))
 	must(t, os.WriteFile(filepath.Join(legacy, "voices", "test.wav"), wav(), 0600))
-	lock, e := Lock(filepath.Join(legacy, "service.lock"))
+	lock, e := platform.Lock(filepath.Join(legacy, "service.lock"))
 	must(t, e)
-	if e = Migrate(legacy, target); e == nil {
+	if e = store.Migrate(legacy, target); e == nil {
 		t.Fatal("运行中的数据被移动")
 	}
 	lock.Close()
-	must(t, Migrate(legacy, target))
-	m, e := NewStore(target)
+	must(t, store.Migrate(legacy, target))
+	m, e := store.New(target)
 	must(t, e)
 	state := m.Read()
 	if value(state.RuntimePath) != filepath.Join(target, "runtime", "engine") || state.Models[0].Path != filepath.Join(target, "models", "test.gguf") || value(state.Preferences.ModelDirectory) != external {
 		t.Fatal(state)
 	}
 	must(t, os.Mkdir(legacy, 0700))
-	must(t, Migrate(legacy, target))
+	must(t, store.Migrate(legacy, target))
 	if _, e = os.Stat(legacy); e != nil {
 		t.Fatal("不应覆盖已有新目录")
 	}
@@ -261,7 +243,7 @@ func TestDownloadAndArchives(t *testing.T) {
 			if mode == "bad-hash" {
 				digest = strings.Repeat("0", 64)
 			}
-			e := Download(ctx, server.Client(), server.URL, dest, digest, int64(len(b)), func(int64, int64) {})
+			e := download.File(ctx, server.Client(), server.URL, dest, digest, int64(len(b)), func(int64, int64) {})
 			if mode == "resume" || mode == "restart" {
 				must(t, e)
 				got, e := os.ReadFile(dest)
@@ -276,7 +258,7 @@ func TestDownloadAndArchives(t *testing.T) {
 	}
 	for _, name := range []string{"../escape", "/escape", "..\\escape"} {
 		for _, kind := range []string{"zip", "tar.gz"} {
-			file := filepath.Join(root, newID()+"."+kind)
+			file := filepath.Join(root, domain.NewID()+"."+kind)
 			f, e := os.Create(file)
 			must(t, e)
 			if kind == "zip" {
@@ -296,7 +278,7 @@ func TestDownloadAndArchives(t *testing.T) {
 				must(t, gz.Close())
 			}
 			f.Close()
-			if e = Extract(context.Background(), file, filepath.Join(root, newID())); e == nil {
+			if e = download.Extract(context.Background(), file, filepath.Join(root, domain.NewID())); e == nil {
 				t.Fatal("未拒绝压缩包路径", name)
 			}
 		}
@@ -305,8 +287,8 @@ func TestDownloadAndArchives(t *testing.T) {
 func TestOperationCancellation(t *testing.T) {
 	w, e := New(t.TempDir())
 	must(t, e)
-	must(t, w.begin("download", MsgActivityDownload, nil, ptr("index-2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
-	if e = w.begin("runtime", MsgActivityRuntimeDownload, nil, nil, func(context.Context) error { return nil }); e == nil {
+	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("index-2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	if e = w.begin("runtime", msg.ActivityRuntimeDownload, nil, nil, func(context.Context) error { return nil }); e == nil {
 		t.Fatal("允许并发操作")
 	}
 	w.Cancel()
@@ -356,7 +338,7 @@ func TestHTTPBoundaryAndEvents(t *testing.T) {
 	if !bytes.Contains(buffer[:n], []byte(`"event":"state"`)) {
 		t.Fatal(string(buffer[:n]))
 	}
-	d := DefaultDraft()
+	d := domain.DefaultDraft()
 	d.Title = "事件更新"
 	must(t, w.SaveDraft(d))
 	n, e = res.Body.Read(buffer)
@@ -382,105 +364,8 @@ func TestHTTPBoundaryAndEvents(t *testing.T) {
 
 // 子进程模拟真实 audio.cpp 协议，验证启动、复用和取消时的进程清理。
 func TestMain(m *testing.M) {
-	if len(os.Args) > 2 && os.Args[1] == "--config" {
-		b, e := os.ReadFile(os.Args[2])
-		if e != nil {
-			os.Exit(2)
-		}
-		var config struct {
-			Port int `json:"port"`
-		}
-		if json.Unmarshal(b, &config) != nil {
-			os.Exit(2)
-		}
-		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("{}")) })
-		http.HandleFunc("/v1/tasks/run", func(w http.ResponseWriter, r *http.Request) {
-			var p struct {
-				Request struct {
-					Text string `json:"text"`
-				} `json:"request"`
-			}
-			_ = json.NewDecoder(r.Body).Decode(&p)
-			if p.Request.Text == "等待取消" {
-				<-r.Context().Done()
-				return
-			}
-			if strings.HasSuffix(p.Request.Text, "模拟生成失败") {
-				http.Error(w, "模拟生成失败", http.StatusInternalServerError)
-				return
-			}
-			_ = json.NewEncoder(w).Encode(map[string]string{"audio": base64.StdEncoding.EncodeToString(wav())})
-		})
-		_ = http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", config.Port), nil)
-		os.Exit(0)
-	}
+	testkit.RunFakeEngine()
 	os.Exit(m.Run())
-}
-func TestEngineLifecycle(t *testing.T) {
-	root := t.TempDir()
-	_, e := NewStore(root)
-	must(t, e)
-	engine := NewEngine(root)
-	defer engine.Stop()
-	executable, e := os.Executable()
-	must(t, e)
-	model := filepath.Join(root, "model.gguf")
-	must(t, os.WriteFile(model, []byte("test"), 0600))
-	d := DefaultDraft()
-	out := filepath.Join(root, "outputs", "test.wav")
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-	must(t, engine.Generate(ctx, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(MessageCode, MessageParams) {}))
-	pid := engine.process.Process.Pid
-	if seconds, e := Duration(out); e != nil || seconds != 1 {
-		t.Fatal(seconds, e)
-	}
-	must(t, os.Remove(out))
-	must(t, engine.Generate(ctx, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(MessageCode, MessageParams) {}))
-	if engine.process.Process.Pid != pid {
-		t.Fatal("引擎未复用")
-	}
-
-	// 旧草稿中的流式标记应被忽略，始终使用完整生成。
-	must(t, json.Unmarshal([]byte(`{"modelId":"voxcpm2-q8","streaming":true}`), &d))
-	must(t, engine.Generate(ctx, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "", "", out, func(MessageCode, MessageParams) {}))
-	if engine.process.Process.Pid == pid {
-		t.Fatal("切换模型类型后必须重新启动引擎")
-	}
-	config, err := os.ReadFile(filepath.Join(root, "runtime", "server.json"))
-	must(t, err)
-	if !bytes.Contains(config, []byte(`"family":"voxcpm2"`)) || !bytes.Contains(config, []byte(`"mode":"offline"`)) {
-		t.Fatal(string(config))
-	}
-	d.Text = "等待取消"
-	cancelled, stop := context.WithCancel(ctx)
-	timer := time.AfterFunc(200*time.Millisecond, stop)
-	defer timer.Stop()
-	if e = engine.Generate(cancelled, executable, InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(MessageCode, MessageParams) {}); e == nil {
-		t.Fatal("未取消")
-	}
-	if engine.process != nil {
-		t.Fatal("取消后引擎仍存活")
-	}
-	if runtime.GOOS == "darwin" {
-		a, e := runtimeArchives("metal")
-		must(t, e)
-		if len(a) != 1 || !strings.Contains(a[0].Name, "macos") {
-			t.Fatal(a)
-		}
-	}
-	if runtime.GOOS == "linux" && runtime.GOARCH == "amd64" {
-		for _, backend := range []string{"cpu", "vulkan"} {
-			a, err := runtimeArchives(backend)
-			must(t, err)
-			if len(a) != 1 || a[0].Name != "audio-v0.7.4-bin-ubuntu-x64-"+backend+"-portable.tar.gz" || len(a[0].Hash) != 64 {
-				t.Fatal(a)
-			}
-		}
-		if _, err := runtimeArchives("metal"); err == nil {
-			t.Fatal("Linux 不应接受 Metal 后端")
-		}
-	}
 }
 
 func TestForgetModelDuringDownload(t *testing.T) {
@@ -489,10 +374,10 @@ func TestForgetModelDuringDownload(t *testing.T) {
 	defer w.Close()
 	path := filepath.Join(w.Store.Root, "model.gguf")
 	must(t, os.WriteFile(path, []byte("model"), 0600))
-	must(t, w.Store.Update(func(s *State) {
-		s.Models = []InstalledModel{{ID: "index-2-q8", Path: path}, {ID: "voxcpm2-q8", Path: path}}
+	must(t, w.Store.Update(func(s *domain.State) {
+		s.Models = []domain.InstalledModel{{ID: "index-2-q8", Path: path}, {ID: "voxcpm2-q8", Path: path}}
 	}, true))
-	must(t, w.begin("download", MsgActivityDownload, nil, ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
 	_, err = w.Call("model.forget", json.RawMessage(`{"id":"index-2-q8"}`))
 	must(t, err)
 	if len(w.Store.Read().Models) != 1 || w.Store.Read().Activity.Status != "running" {
@@ -506,7 +391,7 @@ func TestForgetModelDuringDownload(t *testing.T) {
 	}
 	w.Cancel()
 	<-w.done
-	must(t, w.begin("generate", MsgActivityGenerate, nil, nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	must(t, w.begin("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
 	if _, err = w.Call("model.forget", json.RawMessage(`{"id":"voxcpm2-q8"}`)); err == nil {
 		t.Fatal("生成期间应保护模型")
 	}

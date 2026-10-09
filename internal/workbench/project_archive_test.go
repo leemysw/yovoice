@@ -5,24 +5,30 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"yovoice/internal/domain"
+	"yovoice/internal/store"
 )
 
 func TestProjectArchiveAndRecovery(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := DefaultDraft()
+	d := domain.DefaultDraft()
 	foreign := d
-	foreign.ID = newID()
-	g := Generation{ID: newID(), FileName: "source.wav", Duration: 1, Settings: foreign}
-	v := Voice{ID: newID(), Name: "参考", FileName: "reference.wav", Duration: 1}
-	c := Character{ID: newID(), Name: "旁白", Settings: SynthesisSettings{VoiceID: ptr(v.ID)}}
+	foreign.ID = domain.NewID()
+	g := domain.Generation{ID: domain.NewID(), FileName: "source.wav", Duration: 1, Settings: foreign}
+	v := domain.Voice{ID: domain.NewID(), Name: "参考", FileName: "reference.wav", Duration: 1}
+	c := domain.Character{ID: domain.NewID(), Name: "旁白", Settings: domain.SynthesisSettings{VoiceID: ptr(v.ID)}}
 	d.CharacterID = c.ID
 	d.VoiceID = ptr(v.ID)
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "voices", v.FileName), wav(), 0600))
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "outputs", g.FileName), wav(), 0600))
-	must(t, w.Store.Update(func(s *State) { s.History = []Generation{g}; s.Voices = []Voice{v}; s.Characters = []Character{c} }, true))
-	d.Timeline = &AudioTimeline{Markers: []AudioMarker{{ID: "scene", Name: "开场", Time: .1}}, Tracks: []AudioLane{{ID: "lane", Name: "对白", Solo: true, GainDB: -3, Clips: []AudioClip{{ID: "clip", GenerationID: g.ID, Duration: .8, Offset: .1, FadeIn: .1}}}}}
+	must(t, w.Store.Update(func(s *domain.State) {
+		s.History = []domain.Generation{g}
+		s.Voices = []domain.Voice{v}
+		s.Characters = []domain.Character{c}
+	}, true))
+	d.Timeline = &domain.AudioTimeline{Markers: []domain.AudioMarker{{ID: "scene", Name: "开场", Time: .1}}, Tracks: []domain.AudioLane{{ID: "lane", Name: "对白", Solo: true, GainDB: -3, Clips: []domain.AudioClip{{ID: "clip", GenerationID: g.ID, Duration: .8, Offset: .1, FadeIn: .1}}}}}
 	must(t, w.SaveDraft(d))
 	archive := filepath.Join(t.TempDir(), "project.yovoice")
 	must(t, w.ExportProject(d.ID, archive))
@@ -45,7 +51,7 @@ func TestProjectArchiveAndRecovery(t *testing.T) {
 	copy.Title = "第二次保存"
 	must(t, w.SaveDraft(copy))
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "state.json"), []byte("broken"), 0600))
-	recovered, err := NewStore(w.Store.Root)
+	recovered, err := store.New(w.Store.Root)
 	must(t, err)
 	if len(recovered.Read().Drafts) < 2 {
 		t.Fatal("备份未恢复工程")

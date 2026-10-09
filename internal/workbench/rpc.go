@@ -8,13 +8,17 @@ import (
 	"path/filepath"
 	"slices"
 	"time"
+	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
 )
 
 func (w *Workbench) Call(method string, data json.RawMessage) (result any, callErr error) {
 	started := time.Now()
 	defer func() {
 		if callErr != nil {
-			diagnostic(w.Store.Root, "rpc.failed", "method", method, "elapsed_ms", time.Since(started).Milliseconds(), "error", diagnosticError(callErr))
+			diag.Log(w.Store.Root, "rpc.failed", "method", method, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(callErr))
 		}
 	}()
 	var p struct {
@@ -25,7 +29,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (result any, callE
 		Base64 string `json:"base64"`
 	}
 	if len(data) == 0 || string(data) == "null" {
-		return nil, Err(MsgErrRequestInvalid, nil)
+		return nil, msg.Err(msg.ErrRequestInvalid, nil)
 	}
 	if e := json.Unmarshal(data, &p); e != nil {
 		return nil, e
@@ -39,7 +43,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (result any, callE
 	case "project.import":
 		return w.ImportProject(p.Path)
 	case "state.get":
-		return map[string]any{"state": w.Store.Read(), "catalog": Catalog, "desktop": true}, nil
+		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "desktop": true}, nil
 	case "media.path":
 		return w.MediaFile(p.Kind, p.ID)
 	case "media.rename":
@@ -47,25 +51,27 @@ func (w *Workbench) Call(method string, data json.RawMessage) (result any, callE
 	case "media.delete":
 		err = w.deleteMedia(p.Kind, p.ID)
 	case "draft.delete":
-		if !validID(p.ID) {
-			return nil, Err(MsgErrDraftIDInvalid, nil)
+		if !domain.ValidID(p.ID) {
+			return nil, msg.Err(msg.ErrDraftIDInvalid, nil)
 		}
-		err = w.Store.Update(func(s *State) { s.Drafts = slices.DeleteFunc(s.Drafts, func(d Draft) bool { return d.ID == p.ID }) }, true)
+		err = w.Store.Update(func(s *domain.State) {
+			s.Drafts = slices.DeleteFunc(s.Drafts, func(d domain.Draft) bool { return d.ID == p.ID })
+		}, true)
 	case "generation.cue":
 		var input struct {
-			Draft  Draft  `json:"draft"`
-			CueID  string `json:"cueId"`
-			ClipID string `json:"clipId"`
+			Draft  domain.Draft `json:"draft"`
+			CueID  string       `json:"cueId"`
+			ClipID string       `json:"clipId"`
 		}
 		if err = json.Unmarshal(data, &input); err != nil {
 			return nil, err
 		}
 		if input.CueID == "" {
-			return nil, Err(MsgErrSubtitleInvalid, nil)
+			return nil, msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
 		err = w.generateAudio(input.Draft, "", input.CueID, input.ClipID)
 	case "draft.save", "generation.start":
-		d := DefaultDraft()
+		d := domain.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {
 			return nil, e
 		}
@@ -75,7 +81,7 @@ func (w *Workbench) Call(method string, data json.RawMessage) (result any, callE
 			err = w.generate(d)
 		}
 	case "preferences.save":
-		preferences := Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: UiLocaleZhCN}
+		preferences := domain.Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: domain.UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {
 			return nil, e
 		}
@@ -88,9 +94,9 @@ func (w *Workbench) Call(method string, data json.RawMessage) (result any, callE
 			return nil, e
 		}
 		if len(b) > 20<<20 {
-			return nil, Err(MsgErrAudioTooLarge, nil)
+			return nil, msg.Err(msg.ErrAudioTooLarge, nil)
 		}
-		path := filepath.Join(w.Store.Root, "downloads", newID()+".wav")
+		path := filepath.Join(w.Store.Root, "downloads", domain.NewID()+".wav")
 		defer os.Remove(path)
 		if e = os.WriteFile(path, b, 0600); e != nil {
 			return nil, e
@@ -113,18 +119,18 @@ func (w *Workbench) Call(method string, data json.RawMessage) (result any, callE
 		activity := w.Store.Read().Activity
 		// 下载其他模型不占用推理引擎，也不会改写当前模型的登记。
 		if w.cancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == p.ID) {
-			return nil, Err(MsgErrModelForgetBlocked, nil)
+			return nil, msg.Err(msg.ErrModelForgetBlocked, nil)
 		}
 		w.engine.Stop()
-		err = w.Store.Update(func(s *State) {
-			s.Models = slices.DeleteFunc(s.Models, func(m InstalledModel) bool { return m.ID == p.ID })
+		err = w.Store.Update(func(s *domain.State) {
+			s.Models = slices.DeleteFunc(s.Models, func(m domain.InstalledModel) bool { return m.ID == p.ID })
 		}, true)
 	case "runtime.install":
 		err = w.install()
 	case "operation.cancel":
 		w.Cancel()
 	default:
-		return nil, Err(MsgErrMethodUnsupported, nil)
+		return nil, msg.Err(msg.ErrMethodUnsupported, nil)
 	}
 	return true, err
 }

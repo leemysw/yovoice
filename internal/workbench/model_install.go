@@ -5,6 +5,11 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"yovoice/internal/catalog"
+	"yovoice/internal/domain"
+	"yovoice/internal/download"
+	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 )
 
 func (w *Workbench) register(id, path string, managed bool) error {
@@ -12,13 +17,13 @@ func (w *Workbench) register(id, path string, managed bool) error {
 	if e != nil {
 		return e
 	}
-	return w.Store.Update(func(s *State) {
-		s.Models = slices.DeleteFunc(s.Models, func(m InstalledModel) bool { return m.ID == id })
-		s.Models = append(s.Models, InstalledModel{id, path, managed})
+	return w.Store.Update(func(s *domain.State) {
+		s.Models = slices.DeleteFunc(s.Models, func(m domain.InstalledModel) bool { return m.ID == id })
+		s.Models = append(s.Models, domain.InstalledModel{ID: id, Path: path, Managed: managed})
 	}, true)
 }
 func (w *Workbench) download(id string) error {
-	m, e := model(id)
+	m, e := catalog.Lookup(id)
 	if e != nil {
 		return e
 	}
@@ -27,7 +32,7 @@ func (w *Workbench) download(id string) error {
 	if e != nil {
 		return e
 	}
-	return w.begin("download", MsgActivityDownload, MessageParams{"name": m.Name}, ptr(id), func(ctx context.Context) error {
+	return w.begin("download", msg.ActivityDownload, msg.Params{"name": m.Name}, ptr(id), func(ctx context.Context) error {
 		dir := value(s.Preferences.ModelDirectory)
 		if dir == "" {
 			dir = filepath.Join(w.Store.Root, "models")
@@ -36,18 +41,18 @@ func (w *Workbench) download(id string) error {
 			return e
 		}
 		dest := filepath.Join(dir, filepath.Base(m.RemotePath))
-		available, e := freeSpace(dir)
+		available, e := platform.FreeSpace(dir)
 		if e != nil {
 			return e
 		}
-		need := max(int64(0), m.Size-fileSize(dest+".part")) + (100 << 20)
+		need := max(int64(0), m.Size-download.FileSize(dest+".part")) + (100 << 20)
 		if available < uint64(need) {
-			return Err(MsgErrModelDirSpace, nil)
+			return msg.Err(msg.ErrModelDirSpace, nil)
 		}
-		if e = Download(ctx, w.client, url, dest, m.SHA256, m.Size, func(r, t int64) {
-			code, params := MsgActivityDownloading, MessageParams{"name": m.Name}
+		if e = download.File(ctx, w.client, url, dest, m.SHA256, m.Size, func(r, t int64) {
+			code, params := msg.ActivityDownloading, msg.Params{"name": m.Name}
 			if r == t {
-				code, params = MsgActivityVerifying, nil
+				code, params = msg.ActivityVerifying, nil
 			}
 			w.progress(code, params, r, t)
 		}); e != nil {
@@ -57,7 +62,7 @@ func (w *Workbench) download(id string) error {
 	})
 }
 func (w *Workbench) importModel(path string) error {
-	return w.begin("import", MsgActivityImport, nil, nil, func(ctx context.Context) error {
+	return w.begin("import", msg.ActivityImport, nil, nil, func(ctx context.Context) error {
 		paths := []string{path}
 		info, e := os.Stat(path)
 		if e != nil {
@@ -74,15 +79,15 @@ func (w *Workbench) importModel(path string) error {
 			if e = ctx.Err(); e != nil {
 				return e
 			}
-			size := fileSize(p)
-			if !slices.ContainsFunc(Catalog, func(m ModelPackage) bool { return m.Size == size }) {
+			size := download.FileSize(p)
+			if !slices.ContainsFunc(catalog.Models, func(m catalog.ModelPackage) bool { return m.Size == size }) {
 				continue
 			}
-			hash, e := Hash(ctx, p)
+			hash, e := download.Hash(ctx, p)
 			if e != nil {
 				return e
 			}
-			for _, m := range Catalog {
+			for _, m := range catalog.Models {
 				if m.SHA256 == hash {
 					if e = w.register(m.ID, p, false); e != nil {
 						return e
@@ -92,7 +97,7 @@ func (w *Workbench) importModel(path string) error {
 			}
 		}
 		if count == 0 {
-			return Err(MsgErrModelImportNone, nil)
+			return msg.Err(msg.ErrModelImportNone, nil)
 		}
 		return nil
 	})

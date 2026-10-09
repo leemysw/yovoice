@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"yovoice/internal/catalog"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -16,10 +17,10 @@ func (a *API) newMCPHandler() http.Handler {
 	server := mcp.NewServer(&mcp.Implementation{Name: "yovoice", Version: "1.0.0"}, nil)
 	mcp.AddTool(server, &mcp.Tool{Name: "status", Description: "查看推理引擎及当前任务状态"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
 		s := a.Workbench.Store.Read()
-		return nil, map[string]any{"engineVersion": EngineVersion, "activity": s.Activity, "ready": s.RuntimePath != nil}, nil
+		return nil, map[string]any{"engineVersion": catalog.EngineVersion, "activity": s.Activity, "ready": s.RuntimePath != nil}, nil
 	})
 	mcp.AddTool(server, &mcp.Tool{Name: "list_models", Description: "查询模型 ID、安装状态和高级参数定义；生成前选择已安装模型"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
-		return nil, map[string]any{"catalog": Catalog, "installed": a.Workbench.Store.Read().Models, "generationOptions": GenerationOptions}, nil
+		return nil, map[string]any{"catalog": catalog.Models, "installed": a.Workbench.Store.Read().Models, "generationOptions": catalog.GenerationOptions}, nil
 	})
 	mcp.AddTool(server, &mcp.Tool{Name: "list_voices", Description: "列出已上传参考音色及 voiceId"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, map[string]any{"voices": a.Workbench.Store.Read().Voices}, nil

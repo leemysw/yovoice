@@ -5,33 +5,39 @@ import (
 	"os"
 	"slices"
 	"time"
+	"yovoice/internal/audio"
+	"yovoice/internal/diag"
+	"yovoice/internal/domain"
+	"yovoice/internal/msg"
 )
 
-func (w *Workbench) generate(d Draft) error { return w.generateAudio(d, "", "", "") }
+func (w *Workbench) generate(d domain.Draft) error { return w.generateAudio(d, "", "", "") }
 
 // generateDetached 供远程服务调用：结果仍写入历史，但不为每个请求新建作品，避免状态文件无限增长。
-func (w *Workbench) generateDetached(d Draft) error { return w.startGeneration(d, "", "", "", false) }
+func (w *Workbench) generateDetached(d domain.Draft) error {
+	return w.startGeneration(d, "", "", "", false)
+}
 
-func (w *Workbench) generateAudio(d Draft, previewID, cueID, clipID string) error {
+func (w *Workbench) generateAudio(d domain.Draft, previewID, cueID, clipID string) error {
 	return w.startGeneration(d, previewID, cueID, clipID, previewID == "")
 }
 
-func (w *Workbench) startGeneration(d Draft, previewID, cueID, clipID string, saveDraft bool) (err error) {
-	diagnostic(w.Store.Root, "generation.requested", "project_id", d.ID, "model_id", d.ModelID, "cue_id", cueID, "clip_id", clipID, "preview_id", previewID)
+func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID string, saveDraft bool) (err error) {
+	diag.Log(w.Store.Root, "generation.requested", "project_id", d.ID, "model_id", d.ModelID, "cue_id", cueID, "clip_id", clipID, "preview_id", previewID)
 	defer func() {
 		if err != nil {
-			diagnostic(w.Store.Root, "generation.rejected", "project_id", d.ID, "error", diagnosticError(err))
+			diag.Log(w.Store.Root, "generation.rejected", "project_id", d.ID, "error", diag.Error(err))
 		}
 	}()
-	d.ensureCueIDs()
+	d.EnsureCueIDs()
 	original := d
 	if cueID != "" {
 		if d.Subtitles == nil {
-			return Err(MsgErrSubtitleInvalid, nil)
+			return msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
-		i := slices.IndexFunc(d.Subtitles.Cues, func(c SubtitleCue) bool { return c.ID == cueID })
+		i := slices.IndexFunc(d.Subtitles.Cues, func(c domain.SubtitleCue) bool { return c.ID == cueID })
 		if i < 0 {
-			return Err(MsgErrSubtitleInvalid, nil)
+			return msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
 		if clipID != "" {
 			found := false
@@ -40,7 +46,7 @@ func (w *Workbench) startGeneration(d Draft, previewID, cueID, clipID string, sa
 					for _, clip := range lane.Clips {
 						if clip.ID == clipID {
 							if lane.Locked {
-								return Err(MsgErrTimelineInvalid, nil)
+								return msg.Err(msg.ErrTimelineInvalid, nil)
 							}
 							found = true
 						}
@@ -48,11 +54,11 @@ func (w *Workbench) startGeneration(d Draft, previewID, cueID, clipID string, sa
 				}
 			}
 			if !found {
-				return Err(MsgErrTimelineInvalid, nil)
+				return msg.Err(msg.ErrTimelineInvalid, nil)
 			}
 		}
 		document := *d.Subtitles
-		document.Cues = []SubtitleCue{document.Cues[i]}
+		document.Cues = []domain.SubtitleCue{document.Cues[i]}
 		d.Subtitles = &document
 		d.Text = document.Cues[0].Text
 	}
@@ -63,18 +69,18 @@ func (w *Workbench) startGeneration(d Draft, previewID, cueID, clipID string, sa
 	}
 
 	if s.RuntimePath == nil || value(s.RuntimeBackend) != s.Preferences.Backend {
-		return Err(MsgErrRuntimeRequired, nil)
+		return msg.Err(msg.ErrRuntimeRequired, nil)
 	}
 	if saveDraft {
 		if e = w.SaveDraft(original); e != nil {
 			return e
 		}
 	}
-	return w.begin("generate", MsgActivityGenerate, nil, nil, func(ctx context.Context) error {
+	return w.begin("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
 		if d.Subtitles != nil && previewID == "" {
 			return w.generateSegments(ctx, s, parts, clipID)
 		}
-		id := newID()
+		id := domain.NewID()
 		file := id + ".wav"
 		if previewID != "" {
 			id = previewID
@@ -91,10 +97,10 @@ func (w *Workbench) startGeneration(d Draft, previewID, cueID, clipID string, sa
 			}
 		}()
 		part := parts[0]
-		if e = w.engine.Generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(code MessageCode, params MessageParams) { w.progress(code, params, 0, 1) }); e != nil {
+		if e = w.engine.Generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
 			return e
 		}
-		duration, e := Duration(path)
+		duration, e := audio.Duration(path)
 		if e != nil {
 			return e
 		}
@@ -102,25 +108,25 @@ func (w *Workbench) startGeneration(d Draft, previewID, cueID, clipID string, sa
 			return e
 		}
 		if previewID != "" {
-			e = w.Store.Update(func(s *State) {
-				s.Previews = append(s.Previews, CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
+			e = w.Store.Update(func(s *domain.State) {
+				s.Previews = append(s.Previews, domain.CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
 			}, true)
 			keep = e == nil
 			if keep {
-				diagnostic(w.Store.Root, "preview.saved", "preview_id", id, "model_id", part.model.ID, "duration", duration)
+				diag.Log(w.Store.Root, "preview.saved", "preview_id", id, "model_id", part.model.ID, "duration", duration)
 			}
 			return e
 		}
 		// 与逐句生成一致，快照不携带时间轴，避免历史记录随剪辑反复膨胀。
 		snapshot := d
 		snapshot.Timeline = nil
-		g := Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot}
-		if e = w.Store.Update(func(s *State) { s.History = append([]Generation{g}, s.History...) }, true); e != nil {
+		g := domain.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot}
+		if e = w.Store.Update(func(s *domain.State) { s.History = append([]domain.Generation{g}, s.History...) }, true); e != nil {
 			_ = os.Remove(path)
 			return e
 		}
 		keep = true
-		diagnostic(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
+		diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
 		return nil
 	}, previewID, d.ID)
 }
