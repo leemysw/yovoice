@@ -84,7 +84,7 @@ Use `make check-core` for Go formatting, static analysis and tests with the race
   | Transport | `desktop`, `remote` | Local desktop server and RPC dispatch; remote HTTP API, async jobs and MCP |
   | Application | `workbench` | Projects, media, characters, models, runtime, generation and project archives |
   | Infrastructure | `engine`, `store`, `download`, `audio` | Inference process, state persistence, downloads and extraction, audio parsing and conversion |
-  | Model | `domain`, `catalog` | Persisted structures and validation; model catalog and generation options |
+  | Model | `schema`, `catalog` | Persisted structures and validation; model catalog and generation options |
   | Leaf | `msg`, `diag`, `platform` | Message codes, diagnostic logs, platform differences |
 
   Transport packages only decode requests and call public `Workbench` methods; they never touch its internal state. `testkit` is for tests only.

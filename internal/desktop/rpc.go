@@ -8,8 +8,8 @@ import (
 	"time"
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
 
@@ -40,7 +40,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "state.get":
 		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "desktop": true}, nil
 	case "draft.save", "generation.start":
-		d := domain.DefaultDraft()
+		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {
 			return nil, e
 		}
@@ -50,7 +50,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.Generate(d)
 	case "generation.cue":
 		var input struct {
-			Draft  domain.Draft `json:"draft"`
+			Draft  schema.Draft `json:"draft"`
 			CueID  string       `json:"cueId"`
 			ClipID string       `json:"clipId"`
 		}
@@ -65,7 +65,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "project.import":
 		return w.ImportProject(p.Path)
 	case "character.save", "character.preview":
-		var c domain.Character
+		var c schema.Character
 		if e := json.Unmarshal(data, &c); e != nil {
 			return nil, e
 		}
@@ -99,7 +99,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "media.delete":
 		return true, w.DeleteMedia(p.Kind, p.ID)
 	case "preferences.save":
-		preferences := domain.Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: domain.UiLocaleZhCN}
+		preferences := schema.Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: schema.UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {
 			return nil, e
 		}

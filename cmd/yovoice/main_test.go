@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 	"yovoice/internal/audio"
-	"yovoice/internal/domain"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -68,11 +68,11 @@ func TestStandalone(t *testing.T) {
 	if e = os.WriteFile(model, []byte("test"), 0600); e != nil {
 		t.Fatal(e)
 	}
-	e = s.Update(func(s *domain.State) {
+	e = s.Update(func(s *schema.State) {
 		s.RuntimePath = &exe
 		b := "cpu"
 		s.RuntimeBackend = &b
-		s.Models = []domain.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}}
+		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}}
 	}, true)
 	if e != nil {
 		t.Fatal(e)

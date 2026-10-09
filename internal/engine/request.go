@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"strings"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
-func BuildRequest(d domain.Draft, voice, emotion string) (map[string]any, error) {
-	if e := domain.Validate(d); e != nil {
+func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error) {
+	if e := schema.Validate(d); e != nil {
 		return nil, e
 	}
 	m, _ := catalog.Lookup(d.ModelID)

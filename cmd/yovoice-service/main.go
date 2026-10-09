@@ -15,8 +15,8 @@ import (
 	"syscall"
 	"time"
 	"yovoice/internal/desktop"
-	"yovoice/internal/domain"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 	"yovoice/internal/workbench"
 )
@@ -50,7 +50,7 @@ func run() error {
 	}
 	existing := wb.Store.Read()
 	if _, e = os.Stat(bundled); runtime.GOOS == "darwin" && e == nil && (existing.RuntimePath == nil || strings.HasSuffix(*existing.RuntimePath, "/Contents/Resources/engine/audiocpp_server")) {
-		if e = wb.Store.Update(func(s *domain.State) {
+		if e = wb.Store.Update(func(s *schema.State) {
 			s.RuntimePath = &bundled
 			backend := s.Preferences.Backend
 			if existing.RuntimePath == nil {

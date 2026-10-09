@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 	"yovoice/internal/testkit"
 )
@@ -21,9 +21,9 @@ func TestVoxReferenceEncoderCapacity(t *testing.T) {
 	defer engine.Stop()
 	executable, err := os.Executable()
 	must(t, err)
-	model := domain.InstalledModel{ID: "voxcpm2-q8", Path: filepath.Join(root, "model.gguf")}
+	model := schema.InstalledModel{ID: "voxcpm2-q8", Path: filepath.Join(root, "model.gguf")}
 	must(t, os.WriteFile(model.Path, []byte("test"), 0600))
-	draft := domain.DefaultDraft()
+	draft := schema.DefaultDraft()
 	draft.ModelID, draft.VoxMode = model.ID, "clone"
 	voice := filepath.Join(root, "reference.wav")
 	output := filepath.Join(root, "output.wav")

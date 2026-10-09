@@ -17,17 +17,17 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
 	"yovoice/internal/download"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 	"yovoice/internal/testkit"
 )
 
 func TestRequests(t *testing.T) {
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	for _, mode := range []string{"speaker", "reference", "vector", "text"} {
 		d.Mode = mode
 		payload, e := engine.BuildRequest(d, "voice.wav", "emotion.wav")
@@ -70,14 +70,14 @@ func TestRequests(t *testing.T) {
 			}
 		}
 	}
-	for _, change := range []func(*domain.Draft){func(d *domain.Draft) { d.Speed = math.NaN() }, func(d *domain.Draft) { d.ModelID = "index-2-q8"; d.Language = "ja" }, func(d *domain.Draft) { d.Emotions = nil }, func(d *domain.Draft) { d.Mode = "bad" }} {
-		d := domain.DefaultDraft()
+	for _, change := range []func(*schema.Draft){func(d *schema.Draft) { d.Speed = math.NaN() }, func(d *schema.Draft) { d.ModelID = "index-2-q8"; d.Language = "ja" }, func(d *schema.Draft) { d.Emotions = nil }, func(d *schema.Draft) { d.Mode = "bad" }} {
+		d := schema.DefaultDraft()
 		change(&d)
-		if domain.Validate(d) == nil {
+		if schema.Validate(d) == nil {
 			t.Fatal("未拒绝非法参数")
 		}
 	}
-	d = domain.DefaultDraft()
+	d = schema.DefaultDraft()
 	d.Mode = "reference"
 	if _, e := engine.BuildRequest(d, "v", ""); e == nil {
 		t.Fatal("缺少情绪音频")
@@ -92,7 +92,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	must(t, os.WriteFile(file, wav(), 0600))
 	v, e := w.ImportVoice(context.Background(), file, "参考音色")
 	must(t, e)
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.VoiceID = &v.ID
 	d.EmotionVoiceID = &v.ID
 	must(t, w.SaveDraft(d))
@@ -130,11 +130,11 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	if len(s.Read().Voices) != 0 || s.Read().Drafts[0].VoiceID != nil || s.Read().Drafts[0].EmotionVoiceID != nil {
 		t.Fatal("引用未清除")
 	}
-	id := domain.NewID()
+	id := schema.NewID()
 	output, _ := w.Store.MediaPath("outputs", id+".wav")
 	must(t, os.WriteFile(output, wav(), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.History = append(s.History, domain.Generation{ID: id, Title: "历史", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.History = append(s.History, schema.Generation{ID: id, Title: "历史", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
 	must(t, w.RenameMedia("outputs", id, "重命名历史"))
 	must(t, w.DeleteMedia("outputs", id))
@@ -172,10 +172,10 @@ func TestMigrationAndLock(t *testing.T) {
 	s, e := store.New(legacy)
 	must(t, e)
 	external := filepath.Join(base, "external")
-	must(t, s.Update(func(s *domain.State) {
+	must(t, s.Update(func(s *schema.State) {
 		s.RuntimePath = ptr(filepath.Join(legacy, "runtime", "engine"))
 		s.Preferences.ModelDirectory = &external
-		s.Models = append(s.Models, domain.InstalledModel{ID: "test", Path: filepath.Join(legacy, "models", "test.gguf"), Managed: true})
+		s.Models = append(s.Models, schema.InstalledModel{ID: "test", Path: filepath.Join(legacy, "models", "test.gguf"), Managed: true})
 	}, true))
 	must(t, os.WriteFile(filepath.Join(legacy, "voices", "test.wav"), wav(), 0600))
 	lock, e := platform.Lock(filepath.Join(legacy, "service.lock"))
@@ -248,7 +248,7 @@ func TestDownloadAndArchives(t *testing.T) {
 	}
 	for _, name := range []string{"../escape", "/escape", "..\\escape"} {
 		for _, kind := range []string{"zip", "tar.gz"} {
-			file := filepath.Join(root, domain.NewID()+"."+kind)
+			file := filepath.Join(root, schema.NewID()+"."+kind)
 			f, e := os.Create(file)
 			must(t, e)
 			if kind == "zip" {
@@ -268,7 +268,7 @@ func TestDownloadAndArchives(t *testing.T) {
 				must(t, gz.Close())
 			}
 			f.Close()
-			if e = download.Extract(context.Background(), file, filepath.Join(root, domain.NewID())); e == nil {
+			if e = download.Extract(context.Background(), file, filepath.Join(root, schema.NewID())); e == nil {
 				t.Fatal("未拒绝压缩包路径", name)
 			}
 		}
@@ -302,8 +302,8 @@ func TestForgetModelDuringDownload(t *testing.T) {
 	defer w.Close()
 	path := filepath.Join(w.Store.Root, "model.gguf")
 	must(t, os.WriteFile(path, []byte("model"), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.Models = []domain.InstalledModel{{ID: "index-2-q8", Path: path}, {ID: "voxcpm2-q8", Path: path}}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{{ID: "index-2-q8", Path: path}, {ID: "voxcpm2-q8", Path: path}}
 	}, true))
 	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
 	err = w.ForgetModel("index-2-q8")

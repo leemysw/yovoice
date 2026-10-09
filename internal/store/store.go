@@ -11,15 +11,15 @@ import (
 	"sync"
 	"time"
 	"yovoice/internal/diag"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 )
 
 type Store struct {
 	Root        string
 	mu          sync.Mutex
-	state       domain.State
+	state       schema.State
 	subscribers map[chan struct{}]bool
 }
 
@@ -30,14 +30,14 @@ func New(root string) (store *Store, err error) {
 			return nil, e
 		}
 	}
-	s := &Store{Root: root, state: domain.DefaultState(), subscribers: map[chan struct{}]bool{}}
+	s := &Store{Root: root, state: schema.DefaultState(), subscribers: map[chan struct{}]bool{}}
 	b, e := os.ReadFile(filepath.Join(root, "state.json"))
 	fromFile := false
 	if e == nil {
 		fromFile = true
 		if string(b) == "null" || json.Unmarshal(b, &s.state) != nil {
 			backup, backupErr := os.ReadFile(filepath.Join(root, "state.backup.json"))
-			recovered := domain.DefaultState()
+			recovered := schema.DefaultState()
 			if backupErr != nil || string(backup) == "null" || json.Unmarshal(backup, &recovered) != nil {
 				return nil, msg.Err(msg.ErrStateCorrupt, nil)
 			}
@@ -81,24 +81,24 @@ func New(root string) (store *Store, err error) {
 	}
 	// Legacy state.json without uiLocale defaults to zh-CN. Brand-new installs stay empty so the web can persist navigator.language.
 	if s.state.Preferences.UiLocale == "" && fromFile {
-		s.state.Preferences.UiLocale = domain.UiLocaleZhCN
+		s.state.Preferences.UiLocale = schema.UiLocaleZhCN
 	}
 	// 未保存的试听不跨会话保留，角色已保存的试听使用独立文件。
-	s.state.Previews = []domain.CharacterPreview{}
+	s.state.Previews = []schema.CharacterPreview{}
 	files, _ := filepath.Glob(filepath.Join(root, "outputs", "audition-*.wav"))
 	for _, file := range files {
 		_ = os.Remove(file)
 	}
 	return s, nil
 }
-func clone(s domain.State) domain.State {
+func clone(s schema.State) schema.State {
 	b, _ := json.Marshal(s)
-	var r domain.State
+	var r schema.State
 	_ = json.Unmarshal(b, &r)
 	return r
 }
-func (s *Store) Read() domain.State { s.mu.Lock(); defer s.mu.Unlock(); return clone(s.state) }
-func writeState(path string, state domain.State) error {
+func (s *Store) Read() schema.State { s.mu.Lock(); defer s.mu.Unlock(); return clone(s.state) }
+func writeState(path string, state schema.State) error {
 	b, e := json.MarshalIndent(state, "", "  ")
 	if e != nil {
 		return e
@@ -120,7 +120,7 @@ func writeState(path string, state domain.State) error {
 	}
 	return os.Rename(f.Name(), path)
 }
-func (s *Store) Update(change func(*domain.State), persist bool) (err error) {
+func (s *Store) Update(change func(*schema.State), persist bool) (err error) {
 	stage := "memory"
 	defer func() {
 		if err != nil {
@@ -203,7 +203,7 @@ func Migrate(legacy, target string) error {
 		return e
 	}
 	defer lock.Close()
-	var state domain.State
+	var state schema.State
 	b, e := os.ReadFile(filepath.Join(legacy, "state.json"))
 	hasState := e == nil
 	if e != nil && !os.IsNotExist(e) {

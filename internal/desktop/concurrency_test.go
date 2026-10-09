@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
 
@@ -62,7 +62,7 @@ func TestConcurrentCalls(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			d := domain.DefaultDraft()
+			d := schema.DefaultDraft()
 			for round := range rounds {
 				d.Title = fmt.Sprintf("作品 %d-%d", worker, round)
 				if _, err := call("draft.save", d); err != nil {
@@ -101,7 +101,7 @@ func TestShutdownWaitsForCalls(t *testing.T) {
 	// 模拟一个耗时调用仍在进行，新调用不应排队等待。
 	saved := make(chan error, 1)
 	go func() {
-		_, err := call("draft.save", domain.DefaultDraft())
+		_, err := call("draft.save", schema.DefaultDraft())
 		saved <- err
 	}()
 	select {

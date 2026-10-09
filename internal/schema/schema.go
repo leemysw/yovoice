@@ -1,5 +1,5 @@
-// Package domain 定义持久化的作品、角色、素材与偏好结构，以及与存储无关的校验规则。
-package domain
+// Package schema 定义持久化的作品、角色、素材与偏好结构，以及与存储无关的校验规则。
+package schema
 
 import (
 	"crypto/rand"

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -17,14 +17,14 @@ func TestTimelinePersistenceAndSourceProtection(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := domain.DefaultDraft()
-	id := domain.NewID()
+	d := schema.DefaultDraft()
+	id := schema.NewID()
 	file := filepath.Join(w.Store.Root, "outputs", id+".wav")
 	must(t, os.WriteFile(file, wav(), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.History = []domain.Generation{{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d}}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.History = []schema.Generation{{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d}}
 	}, true))
-	d.Timeline = &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "track", Name: "音轨 1", Clips: []domain.AudioClip{{ID: "clip", GenerationID: id, Start: 3, Offset: 0.25, Duration: 0.5}}}}}
+	d.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "track", Name: "音轨 1", Clips: []schema.AudioClip{{ID: "clip", GenerationID: id, Start: 3, Offset: 0.25, Duration: 0.5}}}}}
 	must(t, w.SaveDraft(d))
 	st, err := store.New(w.Store.Root)
 	must(t, err)
@@ -48,7 +48,7 @@ func TestTimelinePersistenceAndSourceProtection(t *testing.T) {
 	d.Timeline.Tracks[0].Clips = nil
 	must(t, w.SaveDraft(d))
 	must(t, w.DeleteMedia("outputs", id))
-	d.Timeline.Tracks = []domain.AudioLane{}
+	d.Timeline.Tracks = []schema.AudioLane{}
 	d.Timeline.AcceptedGenerations = []string{id}
 	must(t, w.SaveDraft(d))
 	st, err = store.New(w.Store.Root)
@@ -71,8 +71,8 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 	if asset.Duration != 65 {
 		t.Fatal("导入素材不应受参考音频 60 秒限制")
 	}
-	d := domain.DefaultDraft()
-	d.Timeline = &domain.AudioTimeline{Assets: []domain.AudioAsset{asset}, Tracks: []domain.AudioLane{{ID: "lane", Name: "音轨 1", Clips: []domain.AudioClip{{ID: "clip", AssetID: asset.ID, Offset: 1, Duration: 2}}}}}
+	d := schema.DefaultDraft()
+	d.Timeline = &schema.AudioTimeline{Assets: []schema.AudioAsset{asset}, Tracks: []schema.AudioLane{{ID: "lane", Name: "音轨 1", Clips: []schema.AudioClip{{ID: "clip", AssetID: asset.ID, Offset: 1, Duration: 2}}}}}
 	must(t, w.SaveDraft(d))
 	st, err := store.New(w.Store.Root)
 	must(t, err)
@@ -85,7 +85,7 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 		t.Fatal("不能伪造源音频时长")
 	}
 	d.Timeline.Assets[0] = asset
-	d.Timeline.Tracks[0].Clips[0].GenerationID = domain.NewID()
+	d.Timeline.Tracks[0].Clips[0].GenerationID = schema.NewID()
 	if w.SaveDraft(d) == nil {
 		t.Fatal("片段不能同时指定两种源")
 	}
@@ -97,18 +97,18 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 }
 
 func TestTimelineEffectValidation(t *testing.T) {
-	timeline := &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "t", Name: "t", GainDB: 13}}}
-	if domain.ValidateTimeline(timeline, nil) == nil {
+	timeline := &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "t", Name: "t", GainDB: 13}}}
+	if schema.ValidateTimeline(timeline, nil) == nil {
 		t.Fatal("接受越界增益")
 	}
 	timeline.Tracks[0].GainDB = 0
 	timeline.Tracks[0].DuckDB = -1
-	if domain.ValidateTimeline(timeline, nil) == nil {
+	if schema.ValidateTimeline(timeline, nil) == nil {
 		t.Fatal("接受负压低量")
 	}
 	timeline.Tracks[0].DuckDB = 12
-	timeline.Markers = []domain.AudioMarker{{ID: "m", Name: "x", Time: -1}}
-	if domain.ValidateTimeline(timeline, nil) == nil {
+	timeline.Markers = []schema.AudioMarker{{ID: "m", Name: "x", Time: -1}}
+	if schema.ValidateTimeline(timeline, nil) == nil {
 		t.Fatal("接受负标记位置")
 	}
 }

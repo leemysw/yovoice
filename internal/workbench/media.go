@@ -6,12 +6,12 @@ import (
 	"slices"
 	"strings"
 	"unicode"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
 func (w *Workbench) MediaFile(kind, id string) (string, error) {
-	if !domain.ValidID(id) {
+	if !schema.ValidID(id) {
 		return "", msg.Err(msg.ErrAudioIDInvalid, nil)
 	}
 	s := w.Store.Read()
@@ -54,10 +54,10 @@ func (w *Workbench) RenameMedia(kind, id, name string) error {
 		return e
 	}
 	name = strings.TrimSpace(name)
-	if domain.TextLen(name) < 1 || domain.TextLen(name) > 120 || strings.ContainsFunc(name, unicode.IsControl) {
+	if schema.TextLen(name) < 1 || schema.TextLen(name) > 120 || strings.ContainsFunc(name, unicode.IsControl) {
 		return msg.Err(msg.ErrNameLength, nil)
 	}
-	return w.Store.Update(func(s *domain.State) {
+	return w.Store.Update(func(s *schema.State) {
 		if kind == "voices" {
 			for i := range s.Voices {
 				if s.Voices[i].ID == id {
@@ -81,7 +81,7 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 		return e
 	}
 	s := w.Store.Read()
-	if kind == "outputs" && !slices.ContainsFunc(s.History, func(g domain.Generation) bool { return g.ID == id }) {
+	if kind == "outputs" && !slices.ContainsFunc(s.History, func(g schema.Generation) bool { return g.ID == id }) {
 		return msg.Err(msg.ErrAudioMissing, nil)
 	}
 	if kind == "voices" {
@@ -99,7 +99,7 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 				continue
 			}
 			for _, track := range draft.Timeline.Tracks {
-				if slices.ContainsFunc(track.Clips, func(c domain.AudioClip) bool { return c.GenerationID == id }) {
+				if slices.ContainsFunc(track.Clips, func(c schema.AudioClip) bool { return c.GenerationID == id }) {
 					return msg.Err(msg.ErrTimelineInUse, nil)
 				}
 			}
@@ -116,11 +116,11 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 			return e
 		}
 	}
-	e = w.Store.Update(func(s *domain.State) {
+	e = w.Store.Update(func(s *schema.State) {
 		if kind == "outputs" {
-			s.History = slices.DeleteFunc(s.History, func(v domain.Generation) bool { return v.ID == id })
+			s.History = slices.DeleteFunc(s.History, func(v schema.Generation) bool { return v.ID == id })
 		} else {
-			s.Voices = slices.DeleteFunc(s.Voices, func(v domain.Voice) bool { return v.ID == id })
+			s.Voices = slices.DeleteFunc(s.Voices, func(v schema.Voice) bool { return v.ID == id })
 			for i := range s.Drafts {
 				if value(s.Drafts[i].VoiceID) == id {
 					s.Drafts[i].VoiceID = nil

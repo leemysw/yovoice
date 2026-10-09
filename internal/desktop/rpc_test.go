@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
 
@@ -25,7 +25,7 @@ func TestCallDecodesAndLogsFailures(t *testing.T) {
 	if _, err = Call(context.Background(), w, "unknown.method", json.RawMessage(`{}`)); !errors.As(err, &callErr) || callErr.Code != msg.ErrMethodUnsupported {
 		t.Fatal("未知方法应返回 methodUnsupported", err)
 	}
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.Title = "经由 RPC 保存"
 	raw, err := json.Marshal(d)
 	must(t, err)

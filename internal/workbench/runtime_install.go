@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"strings"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
 // UseBundledCPU 在服务启动时登记内置内核，保留用户已安装的 GPU 内核。
@@ -25,7 +25,7 @@ func (w *Workbench) UseBundledCPU(path string) error {
 		return msg.Err(msg.ErrCPUBundleInvalid, nil)
 	}
 	w.bundledCPU = path
-	return w.Store.Update(func(s *domain.State) {
+	return w.Store.Update(func(s *schema.State) {
 		if s.RuntimePath == nil || s.Preferences.Backend == "cpu" {
 			s.RuntimePath = ptr(path)
 			s.RuntimeBackend = ptr("cpu")
@@ -104,6 +104,6 @@ func (w *Workbench) InstallRuntime() error {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		return w.Store.Update(func(s *domain.State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true)
+		return w.Store.Update(func(s *schema.State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true)
 	})
 }

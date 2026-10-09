@@ -5,18 +5,18 @@ import (
 	"runtime"
 	"strings"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
-func (w *Workbench) SavePreferences(p domain.Preferences) error {
+func (w *Workbench) SavePreferences(p schema.Preferences) error {
 	w.edit.Lock()
 	defer w.edit.Unlock()
 	return w.savePreferences(p)
 }
 
-func (w *Workbench) savePreferences(p domain.Preferences) error {
+func (w *Workbench) savePreferences(p schema.Preferences) error {
 	p.ProxyURL = strings.TrimSpace(p.ProxyURL)
 	if p.ProxyEnabled != nil && *p.ProxyEnabled && p.ProxyURL == "" {
 		return msg.Err(msg.ErrProxyURL, nil)
@@ -36,12 +36,12 @@ func (w *Workbench) savePreferences(p domain.Preferences) error {
 	if p.UiLocale == "" {
 		p.UiLocale = w.Store.Read().Preferences.UiLocale
 		if p.UiLocale == "" {
-			p.UiLocale = domain.UiLocaleZhCN
+			p.UiLocale = schema.UiLocaleZhCN
 		}
-	} else if _, e := domain.ParseUiLocale(string(p.UiLocale)); e != nil {
+	} else if _, e := schema.ParseUiLocale(string(p.UiLocale)); e != nil {
 		return e
 	}
-	return w.Store.Update(func(s *domain.State) {
+	return w.Store.Update(func(s *schema.State) {
 		s.Preferences = p
 		if p.Backend == "cpu" && w.bundledCPU != "" {
 			s.RuntimePath = ptr(w.bundledCPU)

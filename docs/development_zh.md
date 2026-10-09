@@ -84,7 +84,7 @@ make check
   | 传输 | `desktop`、`remote` | 桌面本机服务与 RPC 分发；远程 HTTP API、异步任务与 MCP |
   | 应用 | `workbench` | 作品、素材、角色、模型、运行时、生成与工程归档 |
   | 基础 | `engine`、`store`、`download`、`audio` | 推理进程、状态持久化、下载解包、音频解析与转码 |
-  | 模型 | `domain`、`catalog` | 持久化结构与校验；模型目录与生成参数 |
+  | 模型 | `schema`、`catalog` | 持久化结构与校验；模型目录与生成参数 |
   | 叶子 | `msg`、`diag`、`platform` | 消息码、诊断日志、平台差异 |
 
   传输层只解码请求并调用 `Workbench` 的公开方法，不访问其内部状态。`testkit` 仅供测试引用。

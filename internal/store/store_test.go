@@ -2,8 +2,8 @@ package store
 
 import (
 	"testing"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
 func TestStoreDoesNotReplayPreviousFailure(t *testing.T) {
@@ -11,9 +11,9 @@ func TestStoreDoesNotReplayPreviousFailure(t *testing.T) {
 	store, err := New(root)
 	must(t, err)
 	for _, status := range []string{"failed", "running"} {
-		must(t, store.Update(func(state *domain.State) {
+		must(t, store.Update(func(state *schema.State) {
 			code := msg.ErrAudioDecode
-			state.Activity = &domain.Activity{Kind: "generate", Status: status, Code: msg.ActivityFailed, ErrorCode: &code}
+			state.Activity = &schema.Activity{Kind: "generate", Status: status, Code: msg.ActivityFailed, ErrorCode: &code}
 		}, true))
 		reopened, err := New(root)
 		must(t, err)

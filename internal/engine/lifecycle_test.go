@@ -12,8 +12,8 @@ import (
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -27,24 +27,24 @@ func TestEngineLifecycle(t *testing.T) {
 	must(t, e)
 	model := filepath.Join(root, "model.gguf")
 	must(t, os.WriteFile(model, []byte("test"), 0600))
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	out := filepath.Join(root, "outputs", "test.wav")
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	must(t, engine.Generate(ctx, executable, domain.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(msg.Code, msg.Params) {}))
+	must(t, engine.Generate(ctx, executable, schema.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(msg.Code, msg.Params) {}))
 	pid := engine.process.Process.Pid
 	if seconds, e := audio.Duration(out); e != nil || seconds != 1 {
 		t.Fatal(seconds, e)
 	}
 	must(t, os.Remove(out))
-	must(t, engine.Generate(ctx, executable, domain.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(msg.Code, msg.Params) {}))
+	must(t, engine.Generate(ctx, executable, schema.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(msg.Code, msg.Params) {}))
 	if engine.process.Process.Pid != pid {
 		t.Fatal("引擎未复用")
 	}
 
 	// 旧草稿中的流式标记应被忽略，始终使用完整生成。
 	must(t, json.Unmarshal([]byte(`{"modelId":"voxcpm2-q8","streaming":true}`), &d))
-	must(t, engine.Generate(ctx, executable, domain.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "", "", out, func(msg.Code, msg.Params) {}))
+	must(t, engine.Generate(ctx, executable, schema.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "", "", out, func(msg.Code, msg.Params) {}))
 	if engine.process.Process.Pid == pid {
 		t.Fatal("切换模型类型后必须重新启动引擎")
 	}
@@ -57,7 +57,7 @@ func TestEngineLifecycle(t *testing.T) {
 	cancelled, stop := context.WithCancel(ctx)
 	timer := time.AfterFunc(200*time.Millisecond, stop)
 	defer timer.Stop()
-	if e = engine.Generate(cancelled, executable, domain.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(msg.Code, msg.Params) {}); e == nil {
+	if e = engine.Generate(cancelled, executable, schema.InstalledModel{ID: d.ModelID, Path: model}, "cpu", d, "voice.wav", "", out, func(msg.Code, msg.Params) {}); e == nil {
 		t.Fatal("未取消")
 	}
 	if engine.process != nil {

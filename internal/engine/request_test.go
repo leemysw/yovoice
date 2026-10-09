@@ -4,11 +4,11 @@ import (
 	"math"
 	"testing"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 )
 
 func TestVoxCPMRequest(t *testing.T) {
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.ModelID = "voxcpm2-q8"
 	d.VoiceDescription = "温柔清澈"
 	// 保留的 IndexTTS 参数不能泄漏到 VoxCPM2 请求中。
@@ -44,15 +44,15 @@ func TestVoxCPMRequest(t *testing.T) {
 			}
 		})
 	}
-	for _, patch := range []func(*domain.Draft){
-		func(d *domain.Draft) { d.VoxMode = "invalid" },
-		func(d *domain.Draft) { d.VoxMode = "continuation"; d.ReferenceText = " " },
-		func(d *domain.Draft) { d.GuidanceScale = math.NaN() },
-		func(d *domain.Draft) { d.InferenceSteps = 51 },
+	for _, patch := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.VoxMode = "invalid" },
+		func(d *schema.Draft) { d.VoxMode = "continuation"; d.ReferenceText = " " },
+		func(d *schema.Draft) { d.GuidanceScale = math.NaN() },
+		func(d *schema.Draft) { d.InferenceSteps = 51 },
 	} {
 		invalid := d
 		patch(&invalid)
-		if domain.Validate(invalid) == nil {
+		if schema.Validate(invalid) == nil {
 			t.Fatal("应拒绝无效参数", invalid)
 		}
 	}
@@ -61,7 +61,7 @@ func TestVoxCPMRequest(t *testing.T) {
 func TestOmniAndQwenRequests(t *testing.T) {
 	for _, id := range []string{"omnivoice-q8", "omnivoice-bf16", "qwen3-tts-base-q8", "qwen3-tts-base-bf16"} {
 		t.Run(id, func(t *testing.T) {
-			d := domain.DefaultDraft()
+			d := schema.DefaultDraft()
 			d.ModelID = id
 			d.VoiceDescription = "female, young adult, moderate pitch"
 			d.VoiceMode = "design"
@@ -98,7 +98,7 @@ func TestOmniAndQwenRequests(t *testing.T) {
 			}
 			seed := -1
 			d.Seed = &seed
-			if domain.Validate(d) == nil {
+			if schema.Validate(d) == nil {
 				t.Fatal("无效种子应失败")
 			}
 		})
@@ -108,7 +108,7 @@ func TestOmniAndQwenRequests(t *testing.T) {
 func TestModelVariantsAndOptions(t *testing.T) {
 	for _, m := range catalog.Models {
 		t.Run(m.ID, func(t *testing.T) {
-			d := domain.DefaultDraft()
+			d := schema.DefaultDraft()
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"
 			d.ModelOptions = map[string]map[string]any{m.Family: {"text_chunk_size": float64(512), "text_chunk_mode": "tag_aware"}}
@@ -137,21 +137,21 @@ func TestModelVariantsAndOptions(t *testing.T) {
 				t.Fatal(o)
 			}
 			d.ModelOptions[m.Family]["streaming"] = true
-			if domain.Validate(d) == nil {
+			if schema.Validate(d) == nil {
 				t.Fatal("拒绝未支持的流式或任意引擎选项")
 			}
 			delete(d.ModelOptions[m.Family], "streaming")
 			d.ModelOptions[m.Family]["text_chunk_size"] = 1.5
-			if domain.Validate(d) == nil {
+			if schema.Validate(d) == nil {
 				t.Fatal("拒绝非整数分段字数")
 			}
 		})
 	}
 	for _, invalid := range []string{"warm voice", "female, male", "young adult, 老年"} {
-		d := domain.DefaultDraft()
+		d := schema.DefaultDraft()
 		d.ModelID = "omnivoice-q8"
 		d.VoiceDescription = invalid
-		if domain.Validate(d) == nil {
+		if schema.Validate(d) == nil {
 			t.Fatal("拒绝无效或互斥的音色属性", invalid)
 		}
 	}

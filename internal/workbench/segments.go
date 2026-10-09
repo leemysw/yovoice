@@ -8,21 +8,21 @@ import (
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/diag"
-	"yovoice/internal/domain"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
 type synthesisPart struct {
-	draft   domain.Draft
-	model   domain.InstalledModel
+	draft   schema.Draft
+	model   schema.InstalledModel
 	voice   string
 	emotion string
-	segment *domain.GenerationSegment
+	segment *schema.GenerationSegment
 }
 
 // prepareSynthesis 在启动前检查所有句子，避免生成到一半才发现角色缺少模型或音色。
-func (w *Workbench) prepareSynthesis(d domain.Draft, state domain.State) ([]synthesisPart, error) {
+func (w *Workbench) prepareSynthesis(d schema.Draft, state schema.State) ([]synthesisPart, error) {
 	drafts, err := d.SubtitleDrafts()
 	if err != nil {
 		return nil, err
@@ -32,10 +32,10 @@ func (w *Workbench) prepareSynthesis(d domain.Draft, state domain.State) ([]synt
 		if d.Subtitles != nil && strings.TrimSpace(draft.Text) == "" {
 			continue
 		}
-		if err = domain.Validate(draft); err != nil {
+		if err = schema.Validate(draft); err != nil {
 			return nil, err
 		}
-		modelIndex := slices.IndexFunc(state.Models, func(m domain.InstalledModel) bool { return m.ID == draft.ModelID })
+		modelIndex := slices.IndexFunc(state.Models, func(m schema.InstalledModel) bool { return m.ID == draft.ModelID })
 		if modelIndex < 0 {
 			return nil, msg.Err(msg.ErrModelRequired, nil)
 		}
@@ -48,7 +48,7 @@ func (w *Workbench) prepareSynthesis(d domain.Draft, state domain.State) ([]synt
 					name = speaker.SourceName
 				}
 			}
-			part.segment = &domain.GenerationSegment{CueID: cue.ID, SpeakerID: cue.SpeakerID, SpeakerName: name, Index: index, Placement: "ripple"}
+			part.segment = &schema.GenerationSegment{CueID: cue.ID, SpeakerID: cue.SpeakerID, SpeakerName: name, Index: index, Placement: "ripple"}
 		}
 		if draft.RequiresVoice() {
 			part.voice, err = w.MediaFile("voices", value(draft.VoiceID))
@@ -71,20 +71,20 @@ func (w *Workbench) prepareSynthesis(d domain.Draft, state domain.State) ([]synt
 }
 
 // generateSegments 逐句落盘。取消或失败保留已经完成的句子，不创建合并文件。
-func (w *Workbench) generateSegments(ctx context.Context, state domain.State, parts []synthesisPart, targetClipID string) error {
-	batch := domain.NewID()
+func (w *Workbench) generateSegments(ctx context.Context, state schema.State, parts []synthesisPart, targetClipID string) error {
+	batch := schema.NewID()
 	for index, part := range parts {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if err := w.Store.Update(func(s *domain.State) {
+		if err := w.Store.Update(func(s *schema.State) {
 			if s.Activity != nil {
 				s.Activity.CueID = part.segment.CueID
 			}
 		}, false); err != nil {
 			return err
 		}
-		id := domain.NewID()
+		id := schema.NewID()
 		path, err := w.Store.MediaPath("outputs", id+".wav")
 		if err != nil {
 			return err
@@ -117,8 +117,8 @@ func (w *Workbench) generateSegments(ctx context.Context, state domain.State, pa
 		snapshot := part.draft
 		snapshot.Timeline = nil
 		snapshot.Kind = "text"
-		g := domain.Generation{ID: id, Title: string(title), FileName: id + ".wav", CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot, Segment: part.segment}
-		if err = w.Store.Update(func(s *domain.State) { s.History = append([]domain.Generation{g}, s.History...) }, true); err != nil {
+		g := schema.Generation{ID: id, Title: string(title), FileName: id + ".wav", CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot, Segment: part.segment}
+		if err = w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); err != nil {
 			_ = os.Remove(path)
 			return err
 		}

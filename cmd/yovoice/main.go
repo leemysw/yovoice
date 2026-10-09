@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"time"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 	"yovoice/internal/workbench"
 )
@@ -97,7 +97,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	backend, source, name := "", "", ""
 	address, cert, key := "", "", ""
 	var generationTimeout time.Duration
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.Title = "CLI 语音"
 	d.Text = ""
 	d.Mode = "speaker"
@@ -319,7 +319,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if !vox && !omni && !qwen && d.Mode == "text" && d.EmotionText == "" && !d.InferEmotion {
 			return fmt.Errorf("文字情绪需要 --emotion-text 或 --infer-emotion")
 		}
-		if err := domain.Validate(d); err != nil {
+		if err := schema.Validate(d); err != nil {
 			return err
 		}
 		if output == "" || !strings.EqualFold(filepath.Ext(output), ".wav") {
@@ -393,7 +393,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		result = w.Store.Read().Models
 	case "generate":
 		if reference != "" {
-			var v domain.Voice
+			var v schema.Voice
 			v, err = w.ImportVoice(ctx, reference, "")
 			if err != nil {
 				return err

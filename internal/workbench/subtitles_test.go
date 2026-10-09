@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -14,13 +14,13 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.ModelID, d.VoxMode, d.Text = "voxcpm2-q8", "design", "你好\n再见"
 	other := d.SynthesisSettings
 	other.VoiceDescription = "温柔"
-	d.Subtitles = &domain.SubtitleDocument{
-		Speakers: []domain.SubtitleSpeaker{{ID: "1"}, {ID: "2", Settings: &other}},
-		Cues:     []domain.SubtitleCue{{Start: 0, End: 1000, Text: "你好", SpeakerID: "1"}, {Start: 2000, End: 3000, Text: "再见", SpeakerID: "2"}},
+	d.Subtitles = &schema.SubtitleDocument{
+		Speakers: []schema.SubtitleSpeaker{{ID: "1"}, {ID: "2", Settings: &other}},
+		Cues:     []schema.SubtitleCue{{Start: 0, End: 1000, Text: "你好", SpeakerID: "1"}, {Start: 2000, End: 3000, Text: "再见", SpeakerID: "2"}},
 	}
 	must(t, w.SaveDraft(d))
 	st, err := store.New(w.Store.Root)
@@ -30,10 +30,10 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	}
 	executable, err := os.Executable()
 	must(t, err)
-	model := domain.InstalledModel{ID: d.ModelID, Path: filepath.Join(w.Store.Root, "model.gguf")}
+	model := schema.InstalledModel{ID: d.ModelID, Path: filepath.Join(w.Store.Root, "model.gguf")}
 	must(t, os.WriteFile(model.Path, []byte("test"), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.Models = []domain.InstalledModel{model}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{model}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 	}, true))
@@ -46,7 +46,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	blank := d
 	document := *d.Subtitles
 	blank.Subtitles = &document
-	blank.Subtitles.Cues = append(append([]domain.SubtitleCue{}, d.Subtitles.Cues...), domain.SubtitleCue{Start: 3000, End: 4000, SpeakerID: "2"})
+	blank.Subtitles.Cues = append(append([]schema.SubtitleCue{}, d.Subtitles.Cues...), schema.SubtitleCue{Start: 3000, End: 4000, SpeakerID: "2"})
 	blank.Text += "\n"
 	must(t, w.SaveDraft(blank))
 	withBlank, err := w.prepareSynthesis(blank, w.Store.Read())
@@ -67,11 +67,11 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	if _, err := w.prepareSynthesis(blank, w.Store.Read()); err == nil {
 		t.Fatal("删除全部台词后可以保存，但不能生成")
 	}
-	for _, mutate := range []func(*domain.Draft){
-		func(d *domain.Draft) { d.Subtitles.Cues[0].SpeakerID = "missing" },
-		func(d *domain.Draft) { d.Subtitles.Cues[0].End = -1 },
-		func(d *domain.Draft) { d.Text = "different" },
-		func(d *domain.Draft) { d.Subtitles.Speakers[1].ID = "1" },
+	for _, mutate := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.Subtitles.Cues[0].SpeakerID = "missing" },
+		func(d *schema.Draft) { d.Subtitles.Cues[0].End = -1 },
+		func(d *schema.Draft) { d.Text = "different" },
+		func(d *schema.Draft) { d.Subtitles.Speakers[1].ID = "1" },
 	} {
 		broken := st.Read().Drafts[0]
 		mutate(&broken)
@@ -105,7 +105,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 		t.Fatal("生成阶段不应创建合并音频", files)
 	}
 	d = state.Drafts[0]
-	d.Timeline = &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "lane", Name: "台词", Clips: []domain.AudioClip{{ID: "clip", GenerationID: first.ID, Duration: 1}}}}}
+	d.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "lane", Name: "台词", Clips: []schema.AudioClip{{ID: "clip", GenerationID: first.ID, Duration: 1}}}}}
 	// 生成后自动保存及退出时重复保存都应保留正文、片段和生成记录。
 	must(t, w.SaveDraft(d))
 	must(t, w.SaveDraft(d))

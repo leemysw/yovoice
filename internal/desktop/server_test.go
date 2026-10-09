@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
 
@@ -54,7 +54,7 @@ func TestHTTPBoundaryAndEvents(t *testing.T) {
 	if !bytes.Contains(buffer[:n], []byte(`"event":"state"`)) {
 		t.Fatal(string(buffer[:n]))
 	}
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.Title = "事件更新"
 	must(t, w.SaveDraft(d))
 	n, e = res.Body.Read(buffer)

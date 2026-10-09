@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 	"yovoice/internal/diag"
-	"yovoice/internal/domain"
 	"yovoice/internal/download"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -65,12 +65,12 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 		return nil, msg.Err(msg.ErrBusy, nil)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	if e := w.Store.Update(func(s *domain.State) {
+	if e := w.Store.Update(func(s *schema.State) {
 		requestID := ""
 		if len(requestIDs) > 0 {
 			requestID = requestIDs[0]
 		}
-		s.Activity = &domain.Activity{RequestID: requestID, Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
+		s.Activity = &schema.Activity{RequestID: requestID, Kind: kind, Code: code, Params: params, Status: "running", ModelID: modelID, StartedAt: time.Now().UTC()}
 		if len(requestIDs) > 1 {
 			if requestID == "" {
 				s.Activity.ProjectID = requestIDs[1]
@@ -82,7 +82,7 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 		cancel()
 		return nil, e
 	}
-	operationID := domain.NewID()
+	operationID := schema.NewID()
 	started := time.Now()
 	fields := []any{"operation_id", operationID, "kind", kind, "model_id", value(modelID), "related_ids", requestIDs}
 	diag.Log(w.Store.Root, "operation.started", fields...)
@@ -102,7 +102,7 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 		diag.Log(w.Store.Root, "operation.finished", append(fields, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))...)
 		w.mu.Lock()
 		defer w.mu.Unlock()
-		update := func(s *domain.State) {
+		update := func(s *schema.State) {
 			a := s.Activity
 			if err == nil {
 				a.Code = msg.ActivityCompleted
@@ -137,7 +137,7 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 			_ = os.WriteFile(filepath.Join(w.Store.Root, "logs", "last-error.txt"), []byte(err.Error()), 0600)
 		}
 		if e := w.Store.Update(update, true); e != nil {
-			_ = w.Store.Update(func(s *domain.State) {
+			_ = w.Store.Update(func(s *schema.State) {
 				update(s)
 				s.Activity.Status = "failed"
 				code := msg.ErrStateSaveFailed
@@ -190,7 +190,7 @@ func (w *Workbench) Close() {
 }
 
 func (w *Workbench) progress(code msg.Code, params msg.Params, received, total int64) {
-	_ = w.Store.Update(func(s *domain.State) {
+	_ = w.Store.Update(func(s *schema.State) {
 		if s.Activity != nil {
 			s.Activity.Code = code
 			s.Activity.Params = params

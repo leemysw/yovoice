@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
 
@@ -117,12 +117,12 @@ func (a *API) generate(w http.ResponseWriter, r *http.Request) {
 	a.audio(w, r, g.ID)
 }
 
-func decodeGeneration(body io.Reader) (domain.Draft, error) {
-	d := domain.DefaultDraft()
+func decodeGeneration(body io.Reader) (schema.Draft, error) {
+	d := schema.DefaultDraft()
 	d.Title, d.Text, d.Mode, d.EmotionText = "API 语音", "", "speaker", ""
 	input := struct {
 		Text string `json:"text"`
-		domain.SynthesisSettings
+		schema.SynthesisSettings
 	}{SynthesisSettings: d.SynthesisSettings}
 	decoder := json.NewDecoder(body)
 	decoder.DisallowUnknownFields()
@@ -136,10 +136,10 @@ func decodeGeneration(body io.Reader) (domain.Draft, error) {
 	if strings.TrimSpace(d.Text) == "" {
 		return d, fmt.Errorf("正文不能为空")
 	}
-	return d, domain.Validate(d)
+	return d, schema.Validate(d)
 }
 
-func (a *API) generateAudio(ctx context.Context, d domain.Draft) (domain.Generation, error) {
+func (a *API) generateAudio(ctx context.Context, d schema.Draft) (schema.Generation, error) {
 	ctx, cancel := context.WithTimeout(ctx, a.generationTimeout())
 	defer cancel()
 	return a.Workbench.Synthesize(ctx, d)

@@ -8,14 +8,14 @@ import (
 	"sync"
 	"testing"
 	"yovoice/internal/diag"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 )
 
 func TestSaveDiagnostics(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.Text = "不应出现在日志中的正文"
 	d.ReferenceText = "不应出现在日志中的参考文本"
 	must(t, w.SaveDraft(d))
@@ -73,5 +73,5 @@ func TestDiagnosticRotationAndConcurrency(t *testing.T) {
 	defer w.Close()
 	must(t, os.RemoveAll(filepath.Join(w.Store.Root, "logs")))
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "logs"), nil, 0600))
-	must(t, w.SaveDraft(domain.DefaultDraft()))
+	must(t, w.SaveDraft(schema.DefaultDraft()))
 }

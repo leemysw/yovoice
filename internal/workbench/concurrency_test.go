@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 )
 
 // 导入音频只在提交时短暂写入状态，接收和转码期间不阻塞作品保存等编辑。
@@ -23,7 +23,7 @@ func TestLongImportDoesNotBlockEdits(t *testing.T) {
 		_, err := w.ImportVoiceFrom(context.Background(), reader, "慢速上传")
 		imported <- err
 	}()
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.Title = "导入期间保存"
 	saved := make(chan error, 1)
 	go func() { saved <- w.SaveDraft(d) }()
@@ -48,25 +48,25 @@ func TestConcurrentSaveAndDeleteKeepReferences(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	must(t, w.SaveDraft(d))
 	for range 100 {
-		id := domain.NewID()
+		id := schema.NewID()
 		must(t, os.WriteFile(filepath.Join(w.Store.Root, "outputs", id+".wav"), wav(), 0600))
-		must(t, w.Store.Update(func(s *domain.State) {
-			s.History = append(s.History, domain.Generation{ID: id, Title: "片段", FileName: id + ".wav", Duration: 1, Settings: d})
+		must(t, w.Store.Update(func(s *schema.State) {
+			s.History = append(s.History, schema.Generation{ID: id, Title: "片段", FileName: id + ".wav", Duration: 1, Settings: d})
 		}, true))
 		next := d
-		next.Timeline = &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "lane", Name: "旁白", Clips: []domain.AudioClip{{ID: "clip-" + id, GenerationID: id, Duration: 1}}}}}
+		next.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "lane", Name: "旁白", Clips: []schema.AudioClip{{ID: "clip-" + id, GenerationID: id, Duration: 1}}}}}
 		var wg sync.WaitGroup
 		wg.Add(2)
 		go func() { defer wg.Done(); _ = w.SaveDraft(next) }()
 		go func() { defer wg.Done(); _ = w.DeleteMedia("outputs", id) }()
 		wg.Wait()
 		state := w.Store.Read()
-		draft := state.Drafts[slices.IndexFunc(state.Drafts, func(v domain.Draft) bool { return v.ID == d.ID })]
+		draft := state.Drafts[slices.IndexFunc(state.Drafts, func(v schema.Draft) bool { return v.ID == d.ID })]
 		referenced := draft.Timeline != nil && len(draft.Timeline.Tracks[0].Clips) == 1 && draft.Timeline.Tracks[0].Clips[0].GenerationID == id
-		exists := slices.ContainsFunc(state.History, func(g domain.Generation) bool { return g.ID == id })
+		exists := slices.ContainsFunc(state.History, func(g schema.Generation) bool { return g.ID == id })
 		if referenced && !exists {
 			t.Fatal("作品引用了已删除的音频")
 		}

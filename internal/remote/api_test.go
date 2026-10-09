@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
 
@@ -47,14 +47,14 @@ func TestRemoteAPI(t *testing.T) {
 	if uploaded.Code != 200 {
 		t.Fatal(uploaded.Code, uploaded.Body.String())
 	}
-	var voice domain.Voice
+	var voice schema.Voice
 	must(t, json.Unmarshal(uploaded.Body.Bytes(), &voice))
 	executable, err := os.Executable()
 	must(t, err)
 	model := filepath.Join(wb.Store.Root, "models", "fake.gguf")
 	must(t, os.WriteFile(model, []byte("test"), 0600))
-	must(t, wb.Store.Update(func(s *domain.State) {
-		s.Models = []domain.InstalledModel{{ID: "index-2.5-q8", Path: model}}
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 		s.Preferences.Backend = "cpu"
@@ -123,7 +123,7 @@ func TestRemoteAPI(t *testing.T) {
 			time.Sleep(10 * time.Millisecond)
 		}
 	}
-	id := domain.NewID()
+	id := schema.NewID()
 	submitted := request("PUT", "/v1/jobs/"+id, body, "Bearer "+token)
 	if submitted.Code != 200 {
 		t.Fatal(submitted.Body.String())
@@ -142,11 +142,11 @@ func TestRemoteAPI(t *testing.T) {
 		t.Fatal("异步音频不正确")
 	}
 	api.GenerationTimeout = 100 * time.Millisecond
-	id = domain.NewID()
+	id = schema.NewID()
 	request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "等待取消", 1), "Bearer "+token)
 	waitJob(id, "timed_out")
 	// 超时必须释放单任务槽，后续请求仍能提交。
-	id = domain.NewID()
+	id = schema.NewID()
 	if res := request("PUT", "/v1/jobs/"+id, body, "Bearer "+token); res.Code != 200 {
 		t.Fatal(res.Code)
 	}
@@ -154,7 +154,7 @@ func TestRemoteAPI(t *testing.T) {
 	waitJob(id, "cancelled")
 	// 引擎失败时返回稳定错误码，客户端无需读取服务端日志。
 	api.GenerationTimeout = 0
-	id = domain.NewID()
+	id = schema.NewID()
 	request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "模拟生成失败", 1), "Bearer "+token)
 	if failed := waitJob(id, "failed"); !strings.Contains(failed.Error, string(msg.ErrGenerateFailed)) {
 		t.Fatal(failed.Error)

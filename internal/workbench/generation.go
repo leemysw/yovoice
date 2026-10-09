@@ -8,14 +8,14 @@ import (
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/diag"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 )
 
-func (w *Workbench) Generate(d domain.Draft) error { return w.generateAudio(d, "", "", "") }
+func (w *Workbench) Generate(d schema.Draft) error { return w.generateAudio(d, "", "", "") }
 
 // GenerateCue 重新生成字幕中的一句，可指定替换的时间线片段。
-func (w *Workbench) GenerateCue(d domain.Draft, cueID, clipID string) error {
+func (w *Workbench) GenerateCue(d schema.Draft, cueID, clipID string) error {
 	if cueID == "" {
 		return msg.Err(msg.ErrSubtitleInvalid, nil)
 	}
@@ -24,38 +24,38 @@ func (w *Workbench) GenerateCue(d domain.Draft, cueID, clipID string) error {
 
 // Synthesize 同步生成并返回历史记录：结果不新建作品，避免远程服务的状态文件无限增长。
 // ctx 结束时取消推理，并等待操作收尾后才返回。
-func (w *Workbench) Synthesize(ctx context.Context, d domain.Draft) (domain.Generation, error) {
+func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Generation, error) {
 	if err := ctx.Err(); err != nil {
-		return domain.Generation{}, err
+		return schema.Generation{}, err
 	}
 	done, err := w.startGeneration(d, "", "", "", false)
 	if err != nil {
-		return domain.Generation{}, err
+		return schema.Generation{}, err
 	}
 	select {
 	case <-done:
 	case <-ctx.Done():
 		w.Cancel()
 		<-done
-		return domain.Generation{}, ctx.Err()
+		return schema.Generation{}, ctx.Err()
 	}
 	if err := ctx.Err(); err != nil {
-		return domain.Generation{}, err
+		return schema.Generation{}, err
 	}
 	state := w.Store.Read()
 	if activity := state.Activity; activity == nil || activity.Status != "completed" {
 		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
 		if activity != nil && activity.ErrorCode != nil {
-			return domain.Generation{}, fmt.Errorf("语音生成失败：%s", errorText(*activity.ErrorCode, activity.ErrorParams))
+			return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorText(*activity.ErrorCode, activity.ErrorParams))
 		}
-		return domain.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
+		return schema.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
 	}
 	for _, g := range state.History {
 		if g.Settings.ID == d.ID {
 			return g, nil
 		}
 	}
-	return domain.Generation{}, fmt.Errorf("生成结果未找到")
+	return schema.Generation{}, fmt.Errorf("生成结果未找到")
 }
 
 func errorText(code msg.Code, params msg.Params) string {
@@ -65,13 +65,13 @@ func errorText(code msg.Code, params msg.Params) string {
 	return string(code)
 }
 
-func (w *Workbench) generateAudio(d domain.Draft, previewID, cueID, clipID string) error {
+func (w *Workbench) generateAudio(d schema.Draft, previewID, cueID, clipID string) error {
 	_, err := w.startGeneration(d, previewID, cueID, clipID, previewID == "")
 	return err
 }
 
 // startGeneration 在编辑锁内完成检查、保存与启动，推理开始后素材删除会因任务运行而被拒绝。
-func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID string, saveDraft bool) (done <-chan struct{}, err error) {
+func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID string, saveDraft bool) (done <-chan struct{}, err error) {
 	w.edit.Lock()
 	defer w.edit.Unlock()
 	diag.Log(w.Store.Root, "generation.requested", "project_id", d.ID, "model_id", d.ModelID, "cue_id", cueID, "clip_id", clipID, "preview_id", previewID)
@@ -86,7 +86,7 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 		if d.Subtitles == nil {
 			return nil, msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
-		i := slices.IndexFunc(d.Subtitles.Cues, func(c domain.SubtitleCue) bool { return c.ID == cueID })
+		i := slices.IndexFunc(d.Subtitles.Cues, func(c schema.SubtitleCue) bool { return c.ID == cueID })
 		if i < 0 {
 			return nil, msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
@@ -109,7 +109,7 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 			}
 		}
 		document := *d.Subtitles
-		document.Cues = []domain.SubtitleCue{document.Cues[i]}
+		document.Cues = []schema.SubtitleCue{document.Cues[i]}
 		d.Subtitles = &document
 		d.Text = document.Cues[0].Text
 	}
@@ -131,7 +131,7 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 		if d.Subtitles != nil && previewID == "" {
 			return w.generateSegments(ctx, s, parts, clipID)
 		}
-		id := domain.NewID()
+		id := schema.NewID()
 		file := id + ".wav"
 		if previewID != "" {
 			id = previewID
@@ -159,8 +159,8 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 			return e
 		}
 		if previewID != "" {
-			e = w.Store.Update(func(s *domain.State) {
-				s.Previews = append(s.Previews, domain.CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
+			e = w.Store.Update(func(s *schema.State) {
+				s.Previews = append(s.Previews, schema.CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
 			}, true)
 			keep = e == nil
 			if keep {
@@ -171,8 +171,8 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 		// 与逐句生成一致，快照不携带时间轴，避免历史记录随剪辑反复膨胀。
 		snapshot := d
 		snapshot.Timeline = nil
-		g := domain.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot}
-		if e = w.Store.Update(func(s *domain.State) { s.History = append([]domain.Generation{g}, s.History...) }, true); e != nil {
+		g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot}
+		if e = w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); e != nil {
 			_ = os.Remove(path)
 			return e
 		}

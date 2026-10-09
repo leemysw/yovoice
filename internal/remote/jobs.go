@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 )
 
 // GenerationJob 是可轮询的远程任务，音频仍由历史记录保存。
@@ -38,13 +38,13 @@ func (a *API) generationTimeout() time.Duration {
 	return 30 * time.Minute
 }
 
-func (a *API) submitJob(id string, d domain.Draft) (GenerationJob, error) {
-	if !domain.ValidID(id) {
+func (a *API) submitJob(id string, d schema.Draft) (GenerationJob, error) {
+	if !schema.ValidID(id) {
 		return GenerationJob{}, fmt.Errorf("requestId 必须为 32 位十六进制随机 ID")
 	}
 	data, err := json.Marshal(struct {
 		Text string
-		domain.SynthesisSettings
+		schema.SynthesisSettings
 	}{d.Text, d.SynthesisSettings})
 	if err != nil {
 		return GenerationJob{}, err
@@ -125,7 +125,7 @@ func (a *API) jobHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 	switch r.Method {
 	case "PUT":
-		var d domain.Draft
+		var d schema.Draft
 		d, err = decodeGeneration(http.MaxBytesReader(w, r.Body, 1<<20))
 		if err == nil {
 			result, err = a.submitJob(id, d)

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -13,22 +13,22 @@ func TestProjectArchiveAndRecovery(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	foreign := d
-	foreign.ID = domain.NewID()
-	g := domain.Generation{ID: domain.NewID(), FileName: "source.wav", Duration: 1, Settings: foreign}
-	v := domain.Voice{ID: domain.NewID(), Name: "参考", FileName: "reference.wav", Duration: 1}
-	c := domain.Character{ID: domain.NewID(), Name: "旁白", Settings: domain.SynthesisSettings{VoiceID: ptr(v.ID)}}
+	foreign.ID = schema.NewID()
+	g := schema.Generation{ID: schema.NewID(), FileName: "source.wav", Duration: 1, Settings: foreign}
+	v := schema.Voice{ID: schema.NewID(), Name: "参考", FileName: "reference.wav", Duration: 1}
+	c := schema.Character{ID: schema.NewID(), Name: "旁白", Settings: schema.SynthesisSettings{VoiceID: ptr(v.ID)}}
 	d.CharacterID = c.ID
 	d.VoiceID = ptr(v.ID)
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "voices", v.FileName), wav(), 0600))
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "outputs", g.FileName), wav(), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.History = []domain.Generation{g}
-		s.Voices = []domain.Voice{v}
-		s.Characters = []domain.Character{c}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.History = []schema.Generation{g}
+		s.Voices = []schema.Voice{v}
+		s.Characters = []schema.Character{c}
 	}, true))
-	d.Timeline = &domain.AudioTimeline{Markers: []domain.AudioMarker{{ID: "scene", Name: "开场", Time: .1}}, Tracks: []domain.AudioLane{{ID: "lane", Name: "对白", Solo: true, GainDB: -3, Clips: []domain.AudioClip{{ID: "clip", GenerationID: g.ID, Duration: .8, Offset: .1, FadeIn: .1}}}}}
+	d.Timeline = &schema.AudioTimeline{Markers: []schema.AudioMarker{{ID: "scene", Name: "开场", Time: .1}}, Tracks: []schema.AudioLane{{ID: "lane", Name: "对白", Solo: true, GainDB: -3, Clips: []schema.AudioClip{{ID: "clip", GenerationID: g.ID, Duration: .8, Offset: .1, FadeIn: .1}}}}}
 	must(t, w.SaveDraft(d))
 	archive := filepath.Join(t.TempDir(), "project.yovoice")
 	must(t, w.ExportProject(d.ID, archive))

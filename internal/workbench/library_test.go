@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 	"time"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -14,12 +14,12 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := domain.DefaultDraft()
-	id := domain.NewID()
+	d := schema.DefaultDraft()
+	id := schema.NewID()
 	file := filepath.Join(w.Store.Root, "outputs", id+".wav")
 	must(t, os.WriteFile(file, wav(), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.History = append(s.History, domain.Generation{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.History = append(s.History, schema.Generation{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
 	v, err := w.VoiceFromGeneration(id, "旁白音色", "校正后的原文")
 	must(t, err)
@@ -33,7 +33,7 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		t.Fatal("删除历史破坏了音色", err)
 	}
 	d.VoiceID = &v.ID
-	c := domain.Character{ID: domain.NewID(), Name: "旁白", Settings: d.SynthesisSettings, DemoText: "试听台词"}
+	c := schema.Character{ID: schema.NewID(), Name: "旁白", Settings: d.SynthesisSettings, DemoText: "试听台词"}
 	c, err = w.SaveCharacter(c)
 	must(t, err)
 	if err := w.DeleteMedia("voices", v.ID); err == nil {
@@ -44,8 +44,8 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	must(t, err)
 	modelPath := filepath.Join(w.Store.Root, "model.gguf")
 	must(t, os.WriteFile(modelPath, []byte("test"), 0600))
-	must(t, w.Store.Update(func(s *domain.State) {
-		s.Models = []domain.InstalledModel{{ID: d.ModelID, Path: modelPath}}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{{ID: d.ModelID, Path: modelPath}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 	}, true))
@@ -79,7 +79,7 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	copy := c
-	copy.ID = domain.NewID()
+	copy.ID = schema.NewID()
 	copy.Name = "旁白副本"
 	copy, err = w.SaveCharacter(copy)
 	must(t, err)

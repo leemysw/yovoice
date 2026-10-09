@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 )
 
 // 历史快照不携带时间轴，作品自身的时间轴保持不变。
@@ -21,15 +21,15 @@ func TestGenerationSnapshotOmitsTimeline(t *testing.T) {
 	must(t, os.WriteFile(reference, wav(), 0600))
 	voice, err := wb.ImportVoice(context.Background(), reference, "")
 	must(t, err)
-	must(t, wb.Store.Update(func(s *domain.State) {
-		s.Models = []domain.InstalledModel{{ID: "index-2.5-q8", Path: model}}
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 		s.Preferences.Backend = "cpu"
 	}, true))
-	d := domain.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.VoiceID = &voice.ID
-	d.Timeline = &domain.AudioTimeline{Tracks: []domain.AudioLane{{ID: "lane", Name: "旁白", Clips: []domain.AudioClip{}}}}
+	d.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "lane", Name: "旁白", Clips: []schema.AudioClip{}}}}
 	must(t, wb.Generate(d))
 	done := wb.Done()
 	<-done

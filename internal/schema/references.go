@@ -1,4 +1,4 @@
-package domain
+package schema
 
 // voiceUsers 检查素材的完整引用范围，避免删除后角色或历史版本无法重现。
 func (s State) VoiceUsers(id string) []string {

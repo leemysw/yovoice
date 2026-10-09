@@ -19,9 +19,9 @@ import (
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 )
 
 // Engine 可被并发调用：同一时间只运行一个推理请求，停止会等待当前请求结束。
@@ -169,7 +169,7 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	}
 	return msg.Err(msg.ErrEngineStartTimeout, nil)
 }
-func (e *Engine) Generate(ctx context.Context, executable string, m domain.InstalledModel, backend string, d domain.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (err error) {
+func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	defer func() {

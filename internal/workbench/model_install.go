@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"slices"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
+	"yovoice/internal/schema"
 )
 
 func (w *Workbench) register(id, path string, managed bool) error {
@@ -17,9 +17,9 @@ func (w *Workbench) register(id, path string, managed bool) error {
 	if e != nil {
 		return e
 	}
-	return w.Store.Update(func(s *domain.State) {
-		s.Models = slices.DeleteFunc(s.Models, func(m domain.InstalledModel) bool { return m.ID == id })
-		s.Models = append(s.Models, domain.InstalledModel{ID: id, Path: path, Managed: managed})
+	return w.Store.Update(func(s *schema.State) {
+		s.Models = slices.DeleteFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
+		s.Models = append(s.Models, schema.InstalledModel{ID: id, Path: path, Managed: managed})
 	}, true)
 }
 func (w *Workbench) DownloadModel(id string) error {
@@ -112,7 +112,7 @@ func (w *Workbench) ForgetModel(id string) error {
 		return msg.Err(msg.ErrModelForgetBlocked, nil)
 	}
 	w.engine.Stop()
-	return w.Store.Update(func(s *domain.State) {
-		s.Models = slices.DeleteFunc(s.Models, func(m domain.InstalledModel) bool { return m.ID == id })
+	return w.Store.Update(func(s *schema.State) {
+		s.Models = slices.DeleteFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
 	}, true)
 }

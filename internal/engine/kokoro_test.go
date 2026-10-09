@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 	"yovoice/internal/catalog"
-	"yovoice/internal/domain"
+	"yovoice/internal/schema"
 )
 
 func TestKokoroVoiceRequests(t *testing.T) {
@@ -12,14 +12,14 @@ func TestKokoroVoiceRequests(t *testing.T) {
 		if m.Family != "kokoro_tts" {
 			continue
 		}
-		d := domain.DefaultDraft()
+		d := schema.DefaultDraft()
 		d.ModelID = m.ID
 		if d.RequiresVoice() {
 			t.Fatal("Kokoro 不应要求参考录音")
 		}
 		for _, voice := range append([]string{""}, m.Voices...) {
 			d.Speaker = voice
-			d.SynthesisLanguage = domain.KokoroLanguage(d.KokoroSpeaker(m))
+			d.SynthesisLanguage = schema.KokoroLanguage(d.KokoroSpeaker(m))
 			payload, err := BuildRequest(d, "", "")
 			must(t, err)
 			r := payload["request"].(map[string]any)
@@ -33,11 +33,11 @@ func TestKokoroVoiceRequests(t *testing.T) {
 		}
 		d.SynthesisLanguage = "ja"
 		d.Speaker = d.KokoroSpeaker(m)
-		if domain.Validate(d) == nil {
+		if schema.Validate(d) == nil {
 			t.Fatal("拒绝音色与语言不匹配")
 		}
 		d.SynthesisLanguage, d.Speaker = "auto", "unknown"
-		if domain.Validate(d) == nil {
+		if schema.Validate(d) == nil {
 			t.Fatal("拒绝未知音色")
 		}
 		if _, err := m.URL("huggingface"); m.RemotePath == "" && err == nil {
@@ -77,7 +77,7 @@ func TestKokoroOfficialDownload(t *testing.T) {
 				t.Fatal("两种精度应提供相同的 49 个音色")
 			}
 			for _, voice := range m.Voices {
-				if domain.KokoroLanguage(voice) == "ja" {
+				if schema.KokoroLanguage(voice) == "ja" {
 					t.Fatal("官方小包没有 UniDic，不应提供日语音色")
 				}
 			}
