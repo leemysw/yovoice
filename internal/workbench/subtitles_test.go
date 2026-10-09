@@ -6,32 +6,34 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"yovoice/internal/schema"
+	"yovoice/internal/store"
 )
 
 func TestSubtitleMappingAndGeneration(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	d := DefaultDraft()
+	d := schema.DefaultDraft()
 	d.ModelID, d.VoxMode, d.Text = "voxcpm2-q8", "design", "你好\n再见"
 	other := d.SynthesisSettings
 	other.VoiceDescription = "温柔"
-	d.Subtitles = &SubtitleDocument{
-		Speakers: []SubtitleSpeaker{{ID: "1"}, {ID: "2", Settings: &other}},
-		Cues:     []SubtitleCue{{Start: 0, End: 1000, Text: "你好", SpeakerID: "1"}, {Start: 2000, End: 3000, Text: "再见", SpeakerID: "2"}},
+	d.Subtitles = &schema.SubtitleDocument{
+		Speakers: []schema.SubtitleSpeaker{{ID: "1"}, {ID: "2", Settings: &other}},
+		Cues:     []schema.SubtitleCue{{Start: 0, End: 1000, Text: "你好", SpeakerID: "1"}, {Start: 2000, End: 3000, Text: "再见", SpeakerID: "2"}},
 	}
 	must(t, w.SaveDraft(d))
-	store, err := NewStore(w.Store.Root)
+	st, err := store.New(w.Store.Root)
 	must(t, err)
-	if store.Read().Drafts[0].Subtitles.Speakers[1].Settings.VoiceDescription != "温柔" {
+	if st.Read().Drafts[0].Subtitles.Speakers[1].Settings.VoiceDescription != "温柔" {
 		t.Fatal("角色参数未持久化")
 	}
 	executable, err := os.Executable()
 	must(t, err)
-	model := InstalledModel{ID: d.ModelID, Path: filepath.Join(w.Store.Root, "model.gguf")}
+	model := schema.InstalledModel{ID: d.ModelID, Path: filepath.Join(w.Store.Root, "model.gguf")}
 	must(t, os.WriteFile(model.Path, []byte("test"), 0600))
-	must(t, w.Store.Update(func(s *State) {
-		s.Models = []InstalledModel{model}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{model}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
 	}, true))
@@ -44,7 +46,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	blank := d
 	document := *d.Subtitles
 	blank.Subtitles = &document
-	blank.Subtitles.Cues = append(append([]SubtitleCue{}, d.Subtitles.Cues...), SubtitleCue{Start: 3000, End: 4000, SpeakerID: "2"})
+	blank.Subtitles.Cues = append(append([]schema.SubtitleCue{}, d.Subtitles.Cues...), schema.SubtitleCue{Start: 3000, End: 4000, SpeakerID: "2"})
 	blank.Text += "\n"
 	must(t, w.SaveDraft(blank))
 	withBlank, err := w.prepareSynthesis(blank, w.Store.Read())
@@ -65,13 +67,13 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	if _, err := w.prepareSynthesis(blank, w.Store.Read()); err == nil {
 		t.Fatal("删除全部台词后可以保存，但不能生成")
 	}
-	for _, mutate := range []func(*Draft){
-		func(d *Draft) { d.Subtitles.Cues[0].SpeakerID = "missing" },
-		func(d *Draft) { d.Subtitles.Cues[0].End = -1 },
-		func(d *Draft) { d.Text = "different" },
-		func(d *Draft) { d.Subtitles.Speakers[1].ID = "1" },
+	for _, mutate := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.Subtitles.Cues[0].SpeakerID = "missing" },
+		func(d *schema.Draft) { d.Subtitles.Cues[0].End = -1 },
+		func(d *schema.Draft) { d.Text = "different" },
+		func(d *schema.Draft) { d.Subtitles.Speakers[1].ID = "1" },
 	} {
-		broken := store.Read().Drafts[0]
+		broken := st.Read().Drafts[0]
 		mutate(&broken)
 		if w.SaveDraft(broken) == nil {
 			t.Fatal("非法字幕不应保存")
@@ -82,10 +84,8 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 		t.Fatal("所有角色必须预检查")
 	}
 	other.ModelID = d.ModelID
-	must(t, w.generate(d))
-	w.mu.Lock()
-	done := w.done
-	w.mu.Unlock()
+	must(t, w.Generate(d))
+	done := w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):
@@ -105,19 +105,17 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 		t.Fatal("生成阶段不应创建合并音频", files)
 	}
 	d = state.Drafts[0]
-	d.Timeline = &AudioTimeline{Tracks: []AudioLane{{ID: "lane", Name: "台词", Clips: []AudioClip{{ID: "clip", GenerationID: first.ID, Duration: 1}}}}}
+	d.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "lane", Name: "台词", Clips: []schema.AudioClip{{ID: "clip", GenerationID: first.ID, Duration: 1}}}}}
 	// 生成后自动保存及退出时重复保存都应保留正文、片段和生成记录。
 	must(t, w.SaveDraft(d))
 	must(t, w.SaveDraft(d))
-	reopened, err := NewStore(w.Store.Root)
+	reopened, err := store.New(w.Store.Root)
 	must(t, err)
 	if len(reopened.Read().History) != 2 || reopened.Read().Drafts[0].Timeline.Tracks[0].Clips[0].GenerationID != first.ID {
 		t.Fatal("生成后保存丢失作品或音频记录")
 	}
 	must(t, w.generateAudio(d, "", first.Segment.CueID, "clip"))
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	done = w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):
@@ -135,10 +133,8 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	}
 	d.Subtitles.Cues[1].Text = "模拟生成失败"
 	d.Text = "你好\n模拟生成失败"
-	must(t, w.generate(d))
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	must(t, w.Generate(d))
+	done = w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):
@@ -157,9 +153,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	d.Timeline.RegenerateMode = "preserve"
 	before := len(state.History)
 	must(t, w.generateAudio(d, "", first.Segment.CueID, "clip"))
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	done = w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):

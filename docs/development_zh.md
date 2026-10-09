@@ -61,18 +61,39 @@ pnpm --dir web exec playwright install chromium
 make check
 ```
 
-`make check-core` 运行带竞态检测的 Go 测试，`make check-web` 执行前端构建与浏览器测试。原生安装和 GPU 推理还需在目标平台验证。
+`make check-core` 检查 Go 格式与静态分析，并运行带竞态检测的测试；`make check-web` 执行前端构建与浏览器测试。原生安装和 GPU 推理还需在目标平台验证。
 
 ## 项目结构
 
 | 目录 | 用途 |
 | --- | --- |
 | `cmd/` | CLI 和本地服务入口 |
-| `internal/workbench/` | 应用逻辑与 Go 测试 |
+| `internal/` | Go 服务实现，按职责分包（见下） |
 | `desktop/macos/`、`desktop/windows/` | 原生 App 宿主 |
 | `web/src/` | 前端应用 |
 | `web/browser-tests/` | 浏览器测试 |
 | `scripts/` | 构建与打包工具 |
+
+### 架构约定
+
+- 前端依赖方向为 `app → features → shared`，`shared` 不引用业务模块。
+- Go 服务按职责分包，依赖只能自上而下：
+
+  | 层 | 包 | 职责 |
+  | --- | --- | --- |
+  | 传输 | `desktop`、`remote` | 桌面本机服务与 RPC 分发；远程 HTTP API、异步任务与 MCP |
+  | 应用 | `workbench` | 作品、素材、角色、模型、运行时、生成与工程归档 |
+  | 基础 | `engine`、`store`、`download`、`audio` | 推理进程、状态持久化、下载解包、音频解析与转码 |
+  | 模型 | `schema`、`catalog` | 持久化结构与校验；模型目录与生成参数 |
+  | 叶子 | `msg`、`diag`、`platform` | 消息码、诊断日志、平台差异 |
+
+  传输层只解码请求并调用 `Workbench` 的公开方法，不访问其内部状态。`testkit` 仅供测试引用。
+- 桌面调用并发执行。`Workbench` 用编辑锁串行化“读取 → 校验引用 → 写入”的短事务，转码、下载、推理与工程导入导出不持锁；后台操作同一时间只运行一个。
+- 模型目录、生成参数和 OmniVoice 属性同时嵌入 Go 服务并供界面引用，`internal/catalog/*.json` 与 `web/src/shared/lib/*.json` 需保持一致。
+- 消息码在 `internal/msg` 中声明，须加入 `msg.All` 并在两种界面语言中提供文案。
+- 升级 audio.cpp 时，同步修改 `EngineVersion`、运行时包校验值与 `scripts/desktop/` 构建脚本。
+
+后三项由 `go test` 校验。
 
 公开指南使用英文 `*.md` 和中文 `*_zh.md`。修改用户可见行为时，同步更新两种语言及其链接。
 

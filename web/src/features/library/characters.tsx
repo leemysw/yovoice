@@ -13,7 +13,7 @@ import { Inspector } from '../create/inspector';
 import { Player } from '../media/player';
 const VoicePicker = lazy(() => import('../media/voice-picker').then(module => ({ default: module.VoicePicker })));
 import { call } from '../../shared/lib/client';
-import { formatActivity, formatActivityError, formatCallError } from '../../shared/i18n/format';
+import { formatActivity, formatActivityError, formatCallError, formatNotice } from '../../shared/i18n/format';
 import { stableJSON, previewStale, performanceSettings, synthesisSettings, type Character, type Draft, type State, type ModelPackage, type Track } from '../../shared/workbench';
 
 export function CharacterEditor({ initial, state, catalog, active = true, close, settings, apply }: { active?: boolean; initial: Character; state: State; catalog: ModelPackage[]; close: (saved?: Character) => void; settings: (modelId?: string) => void; apply?: (saved: Character) => Promise<void> }) {
@@ -112,7 +112,7 @@ export function CharacterEditor({ initial, state, catalog, active = true, close,
         {previewStale({ ...character, settings: activeSettings }) ? <small role="status">{t('@yovoice.character.stale')}</small> : null}
         {demoTrack && track ? <Button size="sm" variant="secondary" label={t('@yovoice.character.listen')} onClick={() => setTrack(null)} /> : null}
         {invalid ? <small role="alert" className="dialog-error">{t(invalid)}</small> : null}
-        {error ? <small role="alert">{error.startsWith('@yovoice.') ? t(error) : error}</small> : null}
+        {error ? <small role="alert">{formatNotice(t, error)}</small> : null}
       </HStack> : null}
       <Player track={track ?? demoTrack} suspended={!active || !!choosing} onError={setError} actions={existing ? <Button label={t('@yovoice.character.copy')} size="sm" isDisabled={editingBusy || !!invalid} onClick={() => void save(true)} /> : undefined} />
     </VStack></LayoutFooter>} /></VStack>
@@ -149,7 +149,7 @@ export function CharacterLibrary({ state, catalog, create, edit, apply, onError,
         </>} />)}
     </LibraryPage>
     {deleting ? <ConfirmDelete title={t('@yovoice.character.delete')} description={`${deleting.name} — ${t('@yovoice.character.deleteConfirm')}`}
-      confirmLabel={t('@yovoice.character.delete')} busy={saving} error={error.startsWith('@yovoice.') ? t(error) : error} onClose={() => setDeleting(null)}
+      confirmLabel={t('@yovoice.character.delete')} busy={saving} error={formatNotice(t, error)} onClose={() => setDeleting(null)}
       onConfirm={() => { setSaving(true); setError(''); void call('character.delete', { id: deleting.id }).then(() => { setDeleting(null); setPlaying(null); }).catch(e => setError(formatCallError(t, e))).finally(() => setSaving(false)); }} /> : null}
   </>;
 }

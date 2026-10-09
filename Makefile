@@ -21,7 +21,9 @@ check: check-web check-core ## 验证前端与核心
 check-web: ## 构建前端并运行浏览器测试
 	$(PNPM) --dir web run check
 
-check-core: ## 运行核心检查
+check-core: ## 运行核心检查（格式、静态分析与竞态测试）
+	@unformatted="$$(gofmt -l cmd internal)"; if [ -n "$$unformatted" ]; then echo "未格式化：$$unformatted" >&2; exit 1; fi
+	$(GO) vet ./...
 	$(GO) test -race ./...
 
 ifeq ($(OS),Windows_NT)

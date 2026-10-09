@@ -27,3 +27,9 @@ export function parseCallError(wire: unknown): CallError {
   const detail = typeof wire === 'string' ? wire : wire != null ? JSON.stringify(wire) : '';
   return new CallError('@yovoice.error.unknown', detail ? { detail } : {});
 }
+
+/** 存入界面状态的错误文本：消息码保持可翻译，未知错误附带底层原因，格式为 `code::detail`。 */
+export function noticeMessage(error: unknown): string {
+  if (error instanceof CallError && error.code === '@yovoice.error.unknown' && error.params.detail) return `${error.code}::${String(error.params.detail)}`;
+  return error instanceof Error ? error.message : String(error);
+}

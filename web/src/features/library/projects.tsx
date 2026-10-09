@@ -1,4 +1,5 @@
 import { useState, type ReactNode, type ComponentProps } from 'react';
+import { formatNotice } from '../../shared/i18n/format';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
@@ -8,6 +9,7 @@ import { Copy, Folder, History, MoreVertical, Pencil, Plus, Trash2 } from 'lucid
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { createDraft, projectKind, type Draft, type UiLocale } from '../../shared/workbench';
 import { call, isDesktop } from '../../shared/lib/client';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { SpeakerAvatar } from '../create/subtitles';
 import { LibraryEmpty, LibraryPage } from './library-layout';
 
@@ -31,7 +33,7 @@ export function NewProject({ locale, modelId, create, onError, button, kind }: {
     items={[
       { id: 'story', label: t('@yovoice.project.story'), onClick: () => void start('story') },
       { id: 'text', label: t('@yovoice.project.text'), onClick: () => void start('text') },
-      ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), onClick: () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError((e as Error).message)).finally(() => setBusy(false)); } }] : []),
+      ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), onClick: () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); } }] : []),
     ]} />;
 }
 
@@ -67,7 +69,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
             <DropdownMenu presentation="popover" alignment="end" menuWidth="calc(var(--spacing-10) * 4)" hasChevron={false}
               button={{ label: t('@yovoice.project.more'), icon: <MoreVertical />, isIconOnly: true, variant: 'ghost', size: 'sm' }}
               items={[
-              ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError((e as Error).message)) }] : []),
+              ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError(noticeMessage(e))) }] : []),
                 { id: 'rename', label: t('@yovoice.project.renameShort'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setError(''); setRenaming(draft); } },
                 { id: 'copy', label: t('@yovoice.project.copyShort'), icon: <Copy className="project-menu-icon" strokeWidth={1.5} />, onClick: () => copy(draft) },
                 ...(kind === 'text' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
@@ -80,7 +82,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
 
       </VStack>)}
     </LibraryPage>
-    {renaming ? <AppDialog title={t('@yovoice.project.rename')} busy={busy} error={error.startsWith('@yovoice.') ? t(error) : error} onClose={() => setRenaming(null)} actions={<>
+    {renaming ? <AppDialog title={t('@yovoice.project.rename')} busy={busy} error={formatNotice(t, error)} onClose={() => setRenaming(null)} actions={<>
       <Button label={t('@yovoice.action.cancel')} isDisabled={busy} onClick={() => setRenaming(null)} />
       <Button label={t('@yovoice.action.save')} variant="primary" isLoading={busy} isDisabled={!renaming.title.trim() || renaming.title.length > 120} onClick={() => void update({ ...renaming, title: renaming.title.trim() })} />
     </>}><TextInput label={t('@yovoice.app.titleLabel')} value={renaming.title} onChange={title => setRenaming({ ...renaming, title })} /></AppDialog> : null}

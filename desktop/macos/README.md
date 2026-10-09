@@ -1,6 +1,6 @@
 # macOS 原生宿主
 
-SwiftPM + AppKit + WKWebView，最低 macOS 14，仅支持 M 系列（Apple Silicon arm64）。共用 React 界面与 `internal/workbench`，业务核心通过独立 Go 本地服务运行，用户不需要安装 .NET 或 Python。
+SwiftPM + AppKit + WKWebView，最低 macOS 14，仅支持 M 系列（Apple Silicon arm64）。共用 React 界面与 `internal/` 下的 Go 服务，业务核心通过独立 Go 本地服务运行，用户不需要安装 .NET 或 Python。
 
 ## 构建与运行
 

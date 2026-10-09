@@ -1,0 +1,123 @@
+// Package desktop 为原生宿主提供本机 HTTP 服务：界面资源、RPC、状态事件与媒体文件。
+package desktop
+
+import (
+	"context"
+	"crypto/subtle"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"sync"
+	"yovoice/internal/msg"
+	"yovoice/internal/workbench"
+)
+
+type Server struct {
+	Workbench      *workbench.Workbench
+	Assets, Secret string
+	Shutdown       func()
+	// calls 允许 RPC 并发执行；关闭时独占，等待在途调用结束后再释放资源。
+	calls   sync.RWMutex
+	once    sync.Once
+	closing context.Context
+	stop    context.CancelFunc
+}
+
+// lifetime 在关闭时取消，用于中止转码等耗时调用，避免拖住退出。
+func (s *Server) lifetime() context.Context {
+	s.once.Do(func() { s.closing, s.stop = context.WithCancel(context.Background()) })
+	return s.closing
+}
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	cookie, e := r.Cookie("vw-" + s.Secret[:12])
+	if !strings.HasPrefix(r.Host, "127.0.0.1:") || e != nil || subtle.ConstantTimeCompare([]byte(cookie.Value), []byte(s.Secret)) != 1 || (r.Header.Get("Origin") != "" && r.Header.Get("Origin") != "http://"+r.Host) {
+		http.Error(w, "Forbidden", 403)
+		return
+	}
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+	r.Body = http.MaxBytesReader(w, r.Body, 28<<20)
+	switch {
+	case r.URL.Path == "/api/call" && r.Method == "POST":
+		var message struct {
+			ID     string          `json:"id"`
+			Method string          `json:"method"`
+			Data   json.RawMessage `json:"data"`
+		}
+		if e = json.NewDecoder(r.Body).Decode(&message); e != nil {
+			http.Error(w, "请求无效。", 400)
+			return
+		}
+		// 调用之间互不阻塞：导入音色时仍可保存作品；数据一致性由 Workbench 保证。
+		// 宿主断开或服务关闭时取消调用。
+		ctx, cancel := context.WithCancel(r.Context())
+		release := context.AfterFunc(s.lifetime(), cancel)
+		s.calls.RLock()
+		result, err := Call(ctx, s.Workbench, message.Method, message.Data)
+		s.calls.RUnlock()
+		release()
+		cancel()
+		reply := map[string]any{"id": message.ID, "result": result}
+		if err != nil {
+			reply = map[string]any{"id": message.ID, "error": msg.Encode(err)}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(reply)
+	case r.URL.Path == "/api/state-events" && r.Method == "GET":
+		ch, unsubscribe := s.Workbench.Store.Subscribe()
+		defer unsubscribe()
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-store")
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			return
+		}
+		for {
+			select {
+			case <-r.Context().Done():
+				return
+			case <-ch:
+				b, e := json.Marshal(map[string]any{"event": "state", "state": s.Workbench.Store.Read()})
+				if e != nil {
+					return
+				}
+				if _, e = fmt.Fprintf(w, "data: %s\n\n", b); e != nil {
+					return
+				}
+				flusher.Flush()
+			}
+		}
+	case strings.HasPrefix(r.URL.Path, "/media/") && (r.Method == "GET" || r.Method == "HEAD"):
+		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/media/"), "/")
+		if len(parts) != 2 {
+			http.NotFound(w, r)
+			return
+		}
+		path, e := s.Workbench.Store.MediaPath(parts[0], parts[1])
+		if e != nil {
+			http.Error(w, "无效路径", 400)
+			return
+		}
+		w.Header().Set("Content-Type", "audio/wav")
+		http.ServeFile(w, r, path)
+	case r.URL.Path == "/shutdown" && r.Method == "POST":
+		s.lifetime()
+		s.stop()
+		s.calls.Lock()
+		s.Workbench.Close()
+		s.calls.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte("{}"))
+		if s.Shutdown != nil {
+			go s.Shutdown()
+		}
+	default:
+		if r.Method != "GET" && r.Method != "HEAD" {
+			http.Error(w, "Method not allowed", 405)
+			return
+		}
+		http.FileServer(http.Dir(s.Assets)).ServeHTTP(w, r)
+	}
+}

@@ -15,6 +15,10 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"yovoice/internal/catalog"
+	"yovoice/internal/platform"
+	"yovoice/internal/schema"
+	"yovoice/internal/store"
 	"yovoice/internal/workbench"
 )
 
@@ -93,7 +97,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	backend, source, name := "", "", ""
 	address, cert, key := "", "", ""
 	var generationTimeout time.Duration
-	d := workbench.DefaultDraft()
+	d := schema.DefaultDraft()
 	d.Title = "CLI 语音"
 	d.Text = ""
 	d.Mode = "speaker"
@@ -202,7 +206,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			}
 		})
 		family := ""
-		for _, model := range workbench.Catalog {
+		for _, model := range catalog.Models {
 			if model.ID == d.ModelID {
 				family = model.Family
 				break
@@ -315,7 +319,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if !vox && !omni && !qwen && d.Mode == "text" && d.EmotionText == "" && !d.InferEmotion {
 			return fmt.Errorf("文字情绪需要 --emotion-text 或 --infer-emotion")
 		}
-		if err := workbench.Validate(d); err != nil {
+		if err := schema.Validate(d); err != nil {
 			return err
 		}
 		if output == "" || !strings.EqualFold(filepath.Ext(output), ".wav") {
@@ -329,7 +333,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	}
 	if *root == "" {
 		var err error
-		*root, err = workbench.DefaultDirectory()
+		*root, err = store.DefaultDirectory()
 		if err != nil {
 			return err
 		}
@@ -341,7 +345,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	if err = os.MkdirAll(abs, 0700); err != nil {
 		return err
 	}
-	lock, err := workbench.Lock(filepath.Join(abs, "service.lock"))
+	lock, err := platform.Lock(filepath.Join(abs, "service.lock"))
 	if err != nil {
 		return fmt.Errorf("数据目录正在使用，请退出 App 或指定独立 --data-dir：%w", err)
 	}
@@ -351,15 +355,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		return err
 	}
 	defer w.Close()
-	invoke := func(method string, data any) (any, error) {
-		b, e := json.Marshal(data)
-		if e != nil {
-			return nil, e
-		}
-		return w.Call(method, b)
-	}
-	wait := func(method string, data any) error {
-		if _, e := invoke(method, data); e != nil {
+	// 启动后台操作并等待结束，进度写入 stderr。
+	wait := func(start func() error) error {
+		if e := start(); e != nil {
 			return e
 		}
 		return waitOperation(ctx, w, progress)
@@ -369,33 +367,33 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	case "serve":
 		return serveAPI(ctx, w, address, os.Getenv("YOVOICE_API_TOKEN"), cert, key, generationTimeout, out)
 	case "status":
-		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": workbench.EngineVersion}
+		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": catalog.EngineVersion}
 	case "models list":
-		result = map[string]any{"catalog": workbench.Catalog, "installed": w.Store.Read().Models, "generationOptions": workbench.GenerationOptions}
+		result = map[string]any{"catalog": catalog.Models, "installed": w.Store.Read().Models, "generationOptions": catalog.GenerationOptions}
 	case "voices list":
 		result = w.Store.Read().Voices
 	case "voices import":
 		result, err = w.ImportVoice(ctx, operand, name)
 	case "models import":
-		err = wait("model.import", map[string]string{"path": operand})
+		err = wait(func() error { return w.ImportModel(operand) })
 		result = w.Store.Read().Models
 	case "setup":
 		p := w.Store.Read().Preferences
 		p.Backend = backend
-		if _, err = invoke("preferences.save", p); err == nil {
-			err = wait("runtime.install", map[string]string{})
+		if err = w.SavePreferences(p); err == nil {
+			err = wait(w.InstallRuntime)
 		}
 		result = w.Store.Read().RuntimePath
 	case "models download":
 		p := w.Store.Read().Preferences
 		p.DownloadSource = source
-		if _, err = invoke("preferences.save", p); err == nil {
-			err = wait("model.download", map[string]string{"id": operand})
+		if err = w.SavePreferences(p); err == nil {
+			err = wait(func() error { return w.DownloadModel(operand) })
 		}
 		result = w.Store.Read().Models
 	case "generate":
 		if reference != "" {
-			var v workbench.Voice
+			var v schema.Voice
 			v, err = w.ImportVoice(ctx, reference, "")
 			if err != nil {
 				return err
@@ -412,7 +410,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if voice != "" {
 			d.VoiceID = &voice
 		}
-		if err = wait("generation.start", d); err != nil {
+		if err = wait(func() error { return w.Generate(d) }); err != nil {
 			return err
 		}
 		history := w.Store.Read().History

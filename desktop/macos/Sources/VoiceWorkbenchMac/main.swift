@@ -404,7 +404,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
                     // 读取最新编辑内容，避免自动保存的防抖窗口丢失最后输入。
                     if let draft = try await web.evaluateJavaScript("window.__workbenchDraft ?? null") as? [String: Any] {
                         let saved = try await request("api/call", body: ["id": "exit-save", "method": "draft.save", "data": draft])
-                        if let error = saved["error"] as? String { throw failure(error) }
+                        if let error = Self.hostErrorMessage(saved["error"]) { throw failure(HostL10n.t("err.exitSave", error)) }
                     }
                 }
                 // 先确认更新助手可启动，再关闭服务；失败时仍可继续使用应用。

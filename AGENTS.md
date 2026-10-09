@@ -36,7 +36,7 @@ MORE CLI:
 
 - 前端工程位于 `web/`，依赖方向为 `app → features → shared`；浏览器测试位于 `web/browser-tests/`。
 - 前端文件名统一使用小写 kebab-case，例如 `voice-editor.tsx`、`call-error.ts`；组件和类型名仍使用 PascalCase。
-- 原生宿主按 `desktop/windows/`、`desktop/macos/` 分平台；本地服务入口归 `cmd/`，Go 业务实现归 `internal/workbench/`，构建与原生验证脚本归 `scripts/desktop/`。
+- 原生宿主按 `desktop/windows/`、`desktop/macos/` 分平台；本地服务入口归 `cmd/`，Go 实现归 `internal/` 下按职责划分的子包（传输 `desktop`/`remote` → 应用 `workbench` → 基础 `engine`/`store`/`download`/`audio` → 模型 `schema`/`catalog` → 叶子 `msg`/`diag`/`platform`，只允许向下依赖），构建与原生验证脚本归 `scripts/desktop/`。
 - 始终用中文回复，代码注释使用中文。
 - Go 按对象职责划分，Windows C# 只处理原生窗口与文件对话框；避免仅有一个实现的接口和预留架构。
 - 修改推理映射或下载逻辑后运行 `go test -race ./...`。

@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"yovoice/internal/schema"
 )
 
 func TestBundledCPU(t *testing.T) {
@@ -21,7 +22,7 @@ func TestBundledCPU(t *testing.T) {
 	if value(s.RuntimePath) != path || value(s.RuntimeBackend) != "cpu" || s.Preferences.Backend != "cpu" {
 		t.Fatal("首次启动应使用内置 CPU")
 	}
-	must(t, w.Store.Update(func(s *State) {
+	must(t, w.Store.Update(func(s *schema.State) {
 		s.Preferences.Backend = "cuda"
 		s.RuntimePath = ptr("downloaded-cuda")
 		s.RuntimeBackend = ptr("cuda")
@@ -32,7 +33,7 @@ func TestBundledCPU(t *testing.T) {
 	}
 	p := w.Store.Read().Preferences
 	p.Backend = "cpu"
-	must(t, w.preferences(p))
+	must(t, w.SavePreferences(p))
 	if value(w.Store.Read().RuntimePath) != path || value(w.Store.Read().RuntimeBackend) != "cpu" {
 		t.Fatal("切回 CPU 应复用内置内核")
 	}

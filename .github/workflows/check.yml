@@ -181,7 +181,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           command -v ffmpeg >/dev/null || brew install ffmpeg
-          YOVOICE_TEST_FFMPEG="$PWD/artifacts/macos-arm64/yovoice.app/Contents/Resources/tools/ffmpeg" go test -race ./internal/workbench -run '^TestAudioConversion$' -count=1
+          YOVOICE_TEST_FFMPEG="$PWD/artifacts/macos-arm64/yovoice.app/Contents/Resources/tools/ffmpeg" go test -race ./internal/audio -run '^TestAudioConversion$' -count=1
       - name: Delete macOS signing keychain
         if: always() && runner.os == 'macOS' && env.MACOS_CODESIGN_KEYCHAIN_PATH != ''
         run: security delete-keychain "$MACOS_CODESIGN_KEYCHAIN_PATH"
@@ -220,6 +220,14 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
+      - name: Check Go format and vet
+        if: ${{ !inputs.release }}
+        run: |
+          unformatted="$(gofmt -l cmd internal)"
+          if [[ -n "$unformatted" ]]; then echo "未格式化：$unformatted" >&2; exit 1; fi
+          go vet ./...
+          GOOS=windows go vet ./...
+          GOOS=darwin go vet ./...
       - run: go test -race ./...
         if: ${{ !inputs.release }}
       - uses: actions/cache@v4

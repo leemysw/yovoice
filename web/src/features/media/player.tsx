@@ -7,6 +7,7 @@ import { useAudioPanel } from './use-audio-panel';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Play, Pause, Square, FolderOpen, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { call, mediaUrl, CallError } from '../../shared/lib/client';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 
@@ -124,7 +125,7 @@ export function Player({ track, onError, suspended, compact = false, historyCont
         </HStack>
         <TrackZoom value={zoom} change={setZoom} disabled={!duration} />
         {actions}
-        {track?.kind === 'outputs' ? <Button label={t('@yovoice.player.reveal')} isIconOnly icon={<FolderOpen size={17} />} size="sm" variant="ghost" onClick={() => { void call('media.reveal', { kind: track.kind, id: track.id }).catch(e => onError(e.message)); }} /> : null}
+        {track?.kind === 'outputs' ? <Button label={t('@yovoice.player.reveal')} isIconOnly icon={<FolderOpen size={17} />} size="sm" variant="ghost" onClick={() => { void call('media.reveal', { kind: track.kind, id: track.id }).catch(e => onError(noticeMessage(e))); }} /> : null}
 
     </PlaybackToolbar>
     <HStack className="timeline" gap={0}>
