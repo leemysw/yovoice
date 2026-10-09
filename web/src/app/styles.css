@@ -72,6 +72,8 @@
   .astryx-button:not(:disabled):hover { filter: brightness(.98); }
   .astryx-button:not(:disabled):active { filter: brightness(.95); }
   .app-dialog-layout, .app-dialog-layout > * { max-height: 75vh; max-height: 75dvh; }
+  /* 弹窗遮罩不透出底层分隔线，避免点击删除后出现亮条。 */
+  .app-dialog::backdrop { background-color: color-mix(in srgb, var(--color-background-surface) 75%, var(--color-text-primary) 25%); backdrop-filter: none; }
   .app-dialog-header > div > div { align-items: center; }
   .app-dialog-header > div > div > div { margin-block: 0; }
   .dialog-error { padding: var(--spacing-3); border-radius: var(--radius-element); background: var(--color-error-muted); color: var(--color-text-primary); font-size: var(--app-ui-font); }
