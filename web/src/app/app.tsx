@@ -31,10 +31,17 @@ import { SelectionAction, type TextSelection } from '../features/create/selectio
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './locale-shell';
 import { isUiLocale } from '../shared/i18n/locale';
 import { formatActivity, formatActivityError } from '../shared/i18n/format';
+import { CallError } from '../shared/lib/call-error';
+
+function errorMessage(error: unknown): string {
+  if (error instanceof CallError && error.code === '@yovoice.error.unknown' && error.params.detail) return `${error.code}::${String(error.params.detail)}`;
+  return error instanceof Error ? error.message : String(error);
+}
 
 function NoticeText({ error, activity }: { error: string; activity: Activity | null | undefined }) {
   const t = useTranslator();
-  if (error.startsWith('@yovoice.')) return <>{t(error)}</>;
+  const [code, detail] = error.split('::', 2);
+  if (code.startsWith('@yovoice.')) return <>{t(code)}{detail ? ` (${detail})` : null}</>;
   if (error) return <>{error}</>;
   return <>{formatActivityError(t, activity) ?? t('@yovoice.error.unknown')}</>;
 }
@@ -87,7 +94,7 @@ export function App() {
   }, [toggleSidebar]);
   const previousVoices = useRef<Voice[]>([]);
   const [state, setState] = useState<State>(emptyState); const [catalog, setCatalog] = useState<ModelPackage[]>([]);
-  const [draft, setDraft] = useState<Draft>(() => createDraft(true)); const [ready, setReady] = useState(false);
+  const [draft, setDraft] = useState<Draft>(() => createDraft(true)); const [ready, setReady] = useState(false); const [draftPersisted, setDraftPersisted] = useState(true);
   const [page, setPage] = useState('create');
   const [saveFailed, setSaveFailed] = useState(false);
   const [settingsFocus, setSettingsFocus] = useState<{ tab: string; modelId: string; request: number } | undefined>();
@@ -110,7 +117,7 @@ export function App() {
     const saved = localStorage.getItem('astryx-resizable:workbench-sidebar');
     if (saved) void call('sidebar.save', JSON.parse(saved)).catch(error => setError(error.message));
   }, [navigation.size, navigation.isCollapsed]);
-  const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(e instanceof Error && e.name === 'CallError' ? e.message : (e as Error).message)); }, []);
+  const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(errorMessage(e))); }, []);
   useEffect(() => {
     const unsubscribe = subscribe(setState);
     void call<{ state: State; catalog: ModelPackage[] }>('state.get').then(async result => {
@@ -121,13 +128,15 @@ export function App() {
           next = { ...next, preferences: { ...next.preferences, uiLocale: bootLocale } };
         } catch (e) { setError((e as Error).message); }
       }
-      setState(next); setCatalog(result.catalog); setDraft(withCueIds(next.drafts.find(d => d.id === localStorage.getItem('yovoice-active-project')) ?? next.drafts[0] ?? createDraft(true, next.preferences.uiLocale)));
+      const defaultModelId = next.models[0]?.id ?? result.catalog[0]?.id ?? 'index-2.5-q8';
+      const initial = next.drafts.find(d => d.id === localStorage.getItem('yovoice-active-project')) ?? next.drafts[0];
+      setState(next); setCatalog(result.catalog); setDraft(withCueIds(initial ?? createDraft(true, next.preferences.uiLocale, defaultModelId))); setDraftPersisted(!!initial);
       setReady(true);
     }).catch(e => setError(e.message));
     return unsubscribe;
   }, []);
   useEffect(() => {
-    if (!ready || deleting) return;
+    if (!ready || deleting || !draftPersisted) return;
     window.__workbenchDraft = draft;
     localStorage.setItem('yovoice-active-project', draft.id);
     setSaving(true); setSaveFailed(false); const sequence = ++saveSequence.current;
@@ -136,7 +145,7 @@ export function App() {
       void pendingSave.current.then(() => { if (sequence === saveSequence.current) setSaving(false); }).catch(e => { setSaveFailed(true); setSaving(false); setError(e.message); });
     }, 350);
     return () => clearTimeout(timer);
-  }, [draft, ready, deleting]);
+  }, [draft, ready, deleting, draftPersisted]);
   useEffect(() => {
     if (!ready) return;
     const removed = previousVoices.current.filter(v => !state.voices.some(next => next.id === v.id));
@@ -155,7 +164,7 @@ export function App() {
   }, [state.voices, state.history, ready]);
   useEffect(() => { setPreviewTrack(null); setTrack(current => current ? { ...current, playRequest: undefined } : null); }, [page]);
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(withCueIds(current), state.history)); }, [state.history, draft.id, ready]);
-  const change = (patch: Partial<Draft>) => setDraft(current => withCueIds({ ...current, ...patch }));
+  const change = (patch: Partial<Draft>) => { setDraftPersisted(true); setDraft(current => withCueIds({ ...current, ...patch })); };
   const generate = () => {
     if (state.activity?.status === 'running') return;
     if (draft.subtitles) {
@@ -177,14 +186,14 @@ export function App() {
     clearTimeout(saveTimer.current); const sequence = ++saveSequence.current;
     setSaving(true); setSaveFailed(false);
     pendingSave.current = pendingSave.current.catch(() => {}).then(() => call('draft.save', next));
-    try { await pendingSave.current; if (sequence === saveSequence.current) setSaving(false); }
+    try { await pendingSave.current; setDraftPersisted(true); if (sequence === saveSequence.current) setSaving(false); }
     catch (error) { setSaving(false); setSaveFailed(true); throw error; }
   }
   async function newDraft(next: Draft) {
-    await persistDraft(draft); await persistDraft(next);
+    if (draftPersisted) await persistDraft(draft); await persistDraft(next);
     setDraft(withCueIds(next)); setPage('create');
   }
-  function selectDraft(item: Draft) { run(async () => { await persistDraft(draft); setDraft(withCueIds(item.id === draft.id ? draft : item)); setPage('create'); }); }
+  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(withCueIds(item.id === draft.id ? draft : item)); setDraftPersisted(true); setPage('create'); }); }
   async function deleteDraft() {
     if (!deleteTarget || deleting) return;
     setDeleting(true); setDeleteError(''); clearTimeout(saveTimer.current); ++saveSequence.current;
@@ -192,13 +201,17 @@ export function App() {
       // 等待已发出的保存，再切换当前作品，避免删除后被延迟保存恢复。
       await pendingSave.current.catch(() => {});
       if (deleteTarget.id === draft.id) {
-        const next = state.drafts.find(item => item.id !== draft.id) ?? createDraft(false, state.preferences.uiLocale);
-        window.__workbenchDraft = next; setDraft(next);
-        await call('draft.save', next);
+        const next = state.drafts.find(item => item.id !== draft.id);
+        const replacement = next ?? createDraft(false, state.preferences.uiLocale, state.models[0]?.id ?? 'index-2.5-q8');
+        window.__workbenchDraft = replacement; setDraft(replacement); setDraftPersisted(!!next);
+        if (next) await call('draft.save', next);
       }
       await call('draft.delete', { id: deleteTarget.id });
       setDeleteTarget(null);
-    } catch (error) { setDeleteError((error as Error).message); }
+    } catch (error) {
+      const message = errorMessage(error);
+      setDeleteError(message.startsWith('@yovoice.error.unknown::') ? message.slice('@yovoice.error.unknown::'.length) : message);
+    }
     finally { setDeleting(false); }
   }
   function selectVoice(voice: Voice) { if (voicePicker !== 'add') change(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); }
@@ -215,6 +228,8 @@ export function App() {
       catalog={catalog}
       draft={draft}
       setDraft={setDraft}
+      draftPersisted={draftPersisted}
+      setDraftPersisted={setDraftPersisted}
       ready={ready}
       page={page}
       setPage={setPage}
@@ -267,6 +282,8 @@ function WorkbenchChrome(props: {
   catalog: ModelPackage[];
   draft: Draft;
   setDraft: React.Dispatch<React.SetStateAction<Draft>>;
+  draftPersisted: boolean;
+  setDraftPersisted: (persisted: boolean) => void;
   ready: boolean;
   page: string;
   setPage: (id: string) => void;
@@ -311,7 +328,7 @@ function WorkbenchChrome(props: {
   const t = useTranslator();
   const locale = useLocale();
   const {
-    navigation, toggleSidebar, state, catalog, draft, setDraft, ready, page, setPage,
+    navigation, toggleSidebar, state, catalog, draft, setDraft, draftPersisted, setDraftPersisted, ready, page, setPage,
     error, setError, saving, saveFailed, persistDraft, openSettings, settingsFocus, voicePicker, setVoicePicker, previewTrack, setPreviewTrack, track, setTrack,
     advanced, setAdvanced, pronunciation, setPronunciation, deleteTarget, setDeleteTarget, deleting, deleteError,
     showInspector, setShowInspector, editor, previousHistory, onError, run, change, generate, newDraft,
@@ -325,7 +342,7 @@ function WorkbenchChrome(props: {
   const inspectorDraft = activeSpeaker ? { ...draft, ...(activeCue ? cueSettings(draft, activeCue) : activeSpeaker.settings), text: activeCue?.text ?? '' } : draft;
   const selectCue = (index: number) => setCueSelection(current => ({ draftId: draft.id, index, revision: (current?.revision ?? 0) + 1 }));
   // 已选演绎只修改当前句子的快照，默认参数仍归当前说话人。
-  const changeSpeaker = (patch: Partial<Draft>) => setDraft(current => {
+  const changeSpeaker = (patch: Partial<Draft>) => { setDraftPersisted(true); setDraft(current => {
     if (!activeSpeaker || !current.subtitles || current.id !== draft.id) return { ...current, ...patch, performance: current.performance ? { ...current.performance, settings: synthesisSettings({ ...current, ...patch }) } : undefined };
     const { text, ...settings } = patch;
     if (activeCue?.performance) {
@@ -337,14 +354,14 @@ function WorkbenchChrome(props: {
     const joined = cues.map(cue => cue.text).join('\n');
     if (joined.length > 12000) return current;
     return { ...current, text: joined, subtitles: { ...current.subtitles, cues, speakers: current.subtitles.speakers.map(speaker => speaker.id === activeSpeaker.id && Object.keys(settings).length ? { ...speaker, settings: synthesisSettings({ ...current, ...speaker.settings, ...settings }) } : speaker) } };
-  });
+  }); };
   const [voiceTarget, setVoiceTarget] = useState<Character | null>(null);
   const [dismissedActivity, setDismissedActivity] = useState(() => localStorage.getItem('yovoice-dismissed-task') ?? '');
   const activityKey = activity ? stableJSON(activity) : '';
   const projectList = state.drafts.map(d => d.id === draft.id ? { ...draft, createdAt: d.createdAt, updatedAt: d.updatedAt } : d);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [historyQuery, setHistoryQuery] = useState('');
-  const openHistory = (item: Draft) => run(async () => { await persistDraft(draft); setDraft(withCueIds(item)); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
+  const openHistory = (item: Draft) => run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(withCueIds(item)); setDraftPersisted(true); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
   const [characterEditor, setCharacterEditor] = useState<Character | null>(null);
   const characterActive = !!characterEditor && page === 'characters';
   const characterReturnPage = useRef('create');
@@ -394,7 +411,8 @@ function WorkbenchChrome(props: {
   };
   const dateOpts: Intl.DateTimeFormatOptions = { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
   const editorFooter = (controls?: ReactNode) => <HStack className="editor-status" hAlign="between" vAlign="center" gap={2} wrap="wrap"><HStack gap={1} vAlign="center">{projectKind(draft) === 'story' ? <SubtitleImport onError={onError} onImport={async (title, subtitles) => { await newDraft({ ...createDraft(false, state.preferences.uiLocale), ...synthesisSettings(draft), kind: 'story', title, text: subtitles.cues.map(c => c.text).join('\n'), subtitles }); }} /> : null}{controls}</HStack><HStack vAlign="center" gap={4}><small className="saved"><Check size={14} />{saveFailed ? <Button size="sm" label={t('@yovoice.app.saveFailed')} onClick={() => run(() => persistDraft(draft))} /> : saving ? t('@yovoice.app.saving') : t('@yovoice.app.saved')}</small><small>{t('@yovoice.app.charCount', { count: Array.from(draft.text).length })}</small></HStack></HStack>;
-  const sidebar = <SidebarNav page={page} setPage={setPage} newDraft={<NewProject locale={state.preferences.uiLocale} create={newDraft} onError={onError} button={{ 'data-testid': 'nav-new', className: 'new-project', width: '100%', size: 'md' }} />} state={state} draft={draft} selectDraft={selectDraft} removeDraft={setDeleteTarget} navigation={navigation} />;
+  const defaultModelId = state.models[0]?.id ?? 'index-2.5-q8';
+  const sidebar = <SidebarNav page={page} setPage={setPage} newDraft={<NewProject locale={state.preferences.uiLocale} modelId={defaultModelId} create={newDraft} onError={onError} button={{ 'data-testid': 'nav-new', className: 'new-project', width: '100%', size: 'md' }} />} state={state} draft={draft} selectDraft={selectDraft} removeDraft={setDeleteTarget} navigation={navigation} />;
   const currentCharacter = state.characters.find(c => c.id === (activeSpeaker?.characterId ?? selectedCharacter));
   const currentPerformance = activeSpeaker ? activeCue?.performance : draft.performance;
   const performances = currentCharacter?.performances ?? [];
@@ -428,7 +446,7 @@ function WorkbenchChrome(props: {
         </Studio>
           </VStack>
           {(['story', 'text'] as const).map(kind => <VStack key={kind} className="page-panel" gap={0} style={{ display: page === kind ? 'flex' : 'none' }}>
-            <Projects onError={onError} kind={kind} drafts={projectList} open={selectDraft} history={openHistory} create={<NewProject kind={kind} locale={state.preferences.uiLocale} create={newDraft} onError={onError} />} copy={item => run(() => newDraft({ ...structuredClone(item), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }))} remove={setDeleteTarget} save={async next => { await persistDraft(draft); await persistDraft(next); if (next.id === draft.id) setDraft(next); }} />
+            <Projects onError={onError} kind={kind} drafts={projectList} open={selectDraft} history={openHistory} create={<NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} create={newDraft} onError={onError} />} copy={item => run(() => newDraft({ ...structuredClone(item), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }))} remove={setDeleteTarget} save={async next => { await persistDraft(draft); await persistDraft(next); if (next.id === draft.id) setDraft(next); }} />
           </VStack>)}
           <VStack id="voice-library-panel" className="page-panel" gap={0} style={{ display: page === 'characters' ? 'flex' : 'none' }}>
             <CharacterLibrary controls={libraryTabs} active={page === 'characters' && !voiceTarget && !characterActive} create={createVoice} state={state} catalog={catalog} edit={editCharacter} apply={setVoiceTarget} onError={onError} />

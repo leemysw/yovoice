@@ -346,6 +346,17 @@ test('作品列表可滚动，删除当前作品后不会被自动保存恢复',
   await expect(page.locator('.project-row')).toHaveCount(5);
 });
 
+test('删除最后一个作品后不生成新的最近作品', async ({ page }) => {
+  await page.goto('/');
+  const row = page.locator('.recent-projects .project-row').first();
+  await row.hover();
+  await row.locator('.project-quick-delete').click();
+  await page.getByRole('dialog').getByRole('button', { name: '删除作品', exact: true }).click();
+  await expect(page.locator('.recent-projects .project-row')).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('.recent-projects .project-row')).toHaveCount(0);
+});
+
 test('版本切换仅试听，不改正文参数且不再显示版本操作菜单', async ({ page }) => {
   const state = emptyState();
   const draft = state.drafts[0];

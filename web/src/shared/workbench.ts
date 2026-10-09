@@ -77,13 +77,13 @@ export interface State {
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; activity: Activity | null;
 }
 
-export const createDraft = (example = false, locale: UiLocale = 'zh-CN'): Draft => {
+export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId = 'index-2.5-q8'): Draft => {
   const copy = draftCopy[locale];
   return {
   id: crypto.randomUUID().replaceAll('-', ''),
   title: example ? copy.exampleTitle : copy.untitled,
   text: example ? copy.exampleText : '',
-  modelId: 'index-2.5-q8', voiceId: null, mode: 'text', emotionVoiceId: null,
+  modelId, voiceId: null, mode: 'text', emotionVoiceId: null,
   emotionText: copy.emotionText, inferEmotion: false, emotionStrength: 0.6,
   emotions: [0, 0, 0, 0, 0, 0, 0, 0.5], randomEmotion: false, language: copy.language, speed: 1,
   temperature: 0.8, topP: 0.8, topK: 30, repetitionPenalty: 10, maxTokens: 1500,

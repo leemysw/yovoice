@@ -11,15 +11,15 @@ import { call, isDesktop } from '../../shared/lib/client';
 import { SpeakerAvatar } from '../create/subtitles';
 import { LibraryEmpty, LibraryPage } from './library-layout';
 
-export function NewProject({ locale, create, onError, button, kind }: {
-  kind?: 'text' | 'story'; locale: UiLocale; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
+export function NewProject({ locale, modelId, create, onError, button, kind }: {
+  kind?: 'text' | 'story'; locale: UiLocale; modelId?: string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
   button?: Omit<ComponentProps<typeof Button>, 'onClick' | 'label'> & { label?: string };
 }) {
   const t = useTranslator();
   const [busy, setBusy] = useState(false);
   async function start(kind: 'text' | 'story') {
     setBusy(true);
-    const next: Draft = { ...createDraft(false, locale), kind };
+    const next: Draft = { ...createDraft(false, locale, modelId), kind };
     if (kind === 'story') next.subtitles = { speakers: [{ id: crypto.randomUUID(), sourceName: t('@yovoice.library.narrator') }], cues: [] };
     try { await create(next); }
     catch (error) { onError((error as Error).message); }
