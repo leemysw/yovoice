@@ -1,4 +1,5 @@
-// Package workbench 是应用服务层：编排作品、素材、角色、模型、运行时与生成，并串行调度耗时操作。
+// Package workbench 是应用服务层：编排作品、素材、角色、模型、运行时与生成。
+// 方法可被并发调用：短事务由编辑锁串行化，后台操作（下载、安装、推理）同一时间只运行一个。
 package workbench
 
 import (
@@ -19,7 +20,11 @@ import (
 )
 
 type Workbench struct {
-	Store      *store.Store
+	Store *store.Store
+	// edit 串行化“读取状态 → 校验引用 → 写入”的短事务，避免并发调用使引用检查失效；
+	// 持有期间不执行转码、下载或推理等耗时操作。锁顺序：先 edit 后 mu。
+	edit sync.Mutex
+	// mu 保护后台操作的取消函数与完成通道。
 	mu         sync.Mutex
 	cancel     context.CancelFunc
 	done       chan struct{}
@@ -48,10 +53,16 @@ func New(root string) (*Workbench, error) {
 
 // 前台命令由服务串行调度，耗时操作独立运行，状态通过 Store 广播。
 func (w *Workbench) begin(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) error {
+	_, err := w.start(kind, code, params, modelID, action, requestIDs...)
+	return err
+}
+
+// start 启动后台操作并返回本次操作的完成通道，调用方据此等待，不会误等后续操作。
+func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) (<-chan struct{}, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.closed || w.cancel != nil {
-		return msg.Err(msg.ErrBusy, nil)
+		return nil, msg.Err(msg.ErrBusy, nil)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	if e := w.Store.Update(func(s *domain.State) {
@@ -69,7 +80,7 @@ func (w *Workbench) begin(kind string, code msg.Code, params msg.Params, modelID
 		}
 	}, true); e != nil {
 		cancel()
-		return e
+		return nil, e
 	}
 	operationID := domain.NewID()
 	started := time.Now()
@@ -136,7 +147,7 @@ func (w *Workbench) begin(kind string, code msg.Code, params msg.Params, modelID
 		}
 		w.cancel = nil
 	}()
-	return nil
+	return done, nil
 }
 
 // Done 返回当前操作的完成信号；没有进行中的操作时返回已关闭的通道。

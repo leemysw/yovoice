@@ -11,6 +11,12 @@ import (
 )
 
 func (w *Workbench) SavePreferences(p domain.Preferences) error {
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	return w.savePreferences(p)
+}
+
+func (w *Workbench) savePreferences(p domain.Preferences) error {
 	p.ProxyURL = strings.TrimSpace(p.ProxyURL)
 	if p.ProxyEnabled != nil && *p.ProxyEnabled && p.ProxyURL == "" {
 		return msg.Err(msg.ErrProxyURL, nil)
@@ -48,7 +54,9 @@ func (w *Workbench) SavePreferences(p domain.Preferences) error {
 
 // SetModelDirectory 只更换模型下载目录，其余偏好保持不变。
 func (w *Workbench) SetModelDirectory(path string) error {
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	p := w.Store.Read().Preferences
 	p.ModelDirectory = ptr(path)
-	return w.SavePreferences(p)
+	return w.savePreferences(p)
 }

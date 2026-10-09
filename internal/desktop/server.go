@@ -2,6 +2,7 @@
 package desktop
 
 import (
+	"context"
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
@@ -16,7 +17,17 @@ type Server struct {
 	Workbench      *workbench.Workbench
 	Assets, Secret string
 	Shutdown       func()
-	calls          sync.Mutex
+	// calls 允许 RPC 并发执行；关闭时独占，等待在途调用结束后再释放资源。
+	calls   sync.RWMutex
+	once    sync.Once
+	closing context.Context
+	stop    context.CancelFunc
+}
+
+// lifetime 在关闭时取消，用于中止转码等耗时调用，避免拖住退出。
+func (s *Server) lifetime() context.Context {
+	s.once.Do(func() { s.closing, s.stop = context.WithCancel(context.Background()) })
+	return s.closing
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -39,9 +50,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "请求无效。", 400)
 			return
 		}
-		s.calls.Lock()
-		result, err := Call(s.Workbench, message.Method, message.Data)
-		s.calls.Unlock()
+		// 调用之间互不阻塞：导入音色时仍可保存作品；数据一致性由 Workbench 保证。
+		// 宿主断开或服务关闭时取消调用。
+		ctx, cancel := context.WithCancel(r.Context())
+		release := context.AfterFunc(s.lifetime(), cancel)
+		s.calls.RLock()
+		result, err := Call(ctx, s.Workbench, message.Method, message.Data)
+		s.calls.RUnlock()
+		release()
+		cancel()
 		reply := map[string]any{"id": message.ID, "result": result}
 		if err != nil {
 			reply = map[string]any{"id": message.ID, "error": msg.Encode(err)}
@@ -86,6 +103,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "audio/wav")
 		http.ServeFile(w, r, path)
 	case r.URL.Path == "/shutdown" && r.Method == "POST":
+		s.lifetime()
+		s.stop()
 		s.calls.Lock()
 		s.Workbench.Close()
 		s.calls.Unlock()

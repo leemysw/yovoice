@@ -14,7 +14,8 @@ import (
 )
 
 // Call 解码桌面界面的 RPC 请求并调用应用服务；耗时操作由 Workbench 调度，结果通过状态事件广播。
-func Call(w *workbench.Workbench, method string, data json.RawMessage) (result any, callErr error) {
+// ctx 只约束导入等同步耗时调用；后台操作的生命周期由 Workbench 管理。
+func Call(ctx context.Context, w *workbench.Workbench, method string, data json.RawMessage) (result any, callErr error) {
 	started := time.Now()
 	defer func() {
 		if callErr != nil {
@@ -35,7 +36,6 @@ func Call(w *workbench.Workbench, method string, data json.RawMessage) (result a
 	if e := json.Unmarshal(data, &p); e != nil {
 		return nil, e
 	}
-	ctx := context.Background()
 	switch method {
 	case "state.get":
 		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "desktop": true}, nil

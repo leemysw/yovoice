@@ -48,6 +48,8 @@ func (w *Workbench) MediaFile(kind, id string) (string, error) {
 	return w.Store.MediaPath(kind, file)
 }
 func (w *Workbench) RenameMedia(kind, id, name string) error {
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	if _, e := w.MediaFile(kind, id); e != nil {
 		return e
 	}
@@ -72,8 +74,8 @@ func (w *Workbench) RenameMedia(kind, id, name string) error {
 	}, true)
 }
 func (w *Workbench) DeleteMedia(kind, id string) error {
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	path, e := w.MediaFile(kind, id)
 	if e != nil {
 		return e

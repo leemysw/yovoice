@@ -24,8 +24,8 @@ func (w *Workbench) SaveCharacter(c domain.Character) (domain.Character, error) 
 	if !domain.ValidID(c.ID) {
 		return domain.Character{}, msg.Err(msg.ErrCharacterInvalid, nil)
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	state := w.Store.Read()
 	c.Name = strings.TrimSpace(c.Name)
 	if c.Name == "" || domain.TextLen(c.Name) > 120 || domain.TextLen(c.DemoText) > 2000 {
@@ -141,8 +141,8 @@ func (w *Workbench) DeleteCharacter(id string) error {
 	if !domain.ValidID(id) {
 		return msg.Err(msg.ErrCharacterInvalid, nil)
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	state := w.Store.Read()
 	index := slices.IndexFunc(state.Characters, func(c domain.Character) bool { return c.ID == id })
 	if index < 0 {
@@ -160,10 +160,13 @@ func (w *Workbench) DiscardPreview(id string) error {
 	if !domain.ValidID(id) {
 		return msg.Err(msg.ErrCharacterInvalid, nil)
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	state := w.Store.Read()
-	if w.cancel != nil {
+	w.mu.Lock()
+	busy := w.cancel != nil
+	w.mu.Unlock()
+	if busy {
 		return msg.Err(msg.ErrBusy, nil)
 	}
 	if err := w.Store.Update(func(s *domain.State) {
@@ -184,8 +187,8 @@ func (w *Workbench) VoiceFromGeneration(id, name, referenceText string) (domain.
 	if !domain.ValidID(id) {
 		return domain.Voice{}, msg.Err(msg.ErrCharacterInvalid, nil)
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	state := w.Store.Read()
 	index := slices.IndexFunc(state.History, func(g domain.Generation) bool { return g.ID == id })
 	if index < 0 {
@@ -205,8 +208,8 @@ func (w *Workbench) UpdateVoice(id, name, referenceText string) error {
 	if !domain.ValidID(id) {
 		return msg.Err(msg.ErrCharacterInvalid, nil)
 	}
-	w.mu.Lock()
-	defer w.mu.Unlock()
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	state := w.Store.Read()
 	if strings.TrimSpace(name) == "" || domain.TextLen(name) > 100 || domain.TextLen(referenceText) > 2000 {
 		return msg.Err(msg.ErrCharacterInvalid, nil)

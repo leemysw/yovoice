@@ -9,7 +9,14 @@ import (
 	"yovoice/internal/msg"
 )
 
-func (w *Workbench) SaveDraft(d domain.Draft) (err error) {
+func (w *Workbench) SaveDraft(d domain.Draft) error {
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	return w.saveDraft(d)
+}
+
+// saveDraft 要求调用方持有编辑锁。
+func (w *Workbench) saveDraft(d domain.Draft) (err error) {
 	started := time.Now()
 	stage := "validate_kind"
 	defer func() {
@@ -63,6 +70,8 @@ func (w *Workbench) DeleteDraft(id string) error {
 	if !domain.ValidID(id) {
 		return msg.Err(msg.ErrDraftIDInvalid, nil)
 	}
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	return w.Store.Update(func(s *domain.State) {
 		s.Drafts = slices.DeleteFunc(s.Drafts, func(d domain.Draft) bool { return d.ID == id })
 	}, true)

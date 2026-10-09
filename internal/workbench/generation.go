@@ -28,10 +28,10 @@ func (w *Workbench) Synthesize(ctx context.Context, d domain.Draft) (domain.Gene
 	if err := ctx.Err(); err != nil {
 		return domain.Generation{}, err
 	}
-	if err := w.startGeneration(d, "", "", "", false); err != nil {
+	done, err := w.startGeneration(d, "", "", "", false)
+	if err != nil {
 		return domain.Generation{}, err
 	}
-	done := w.Done()
 	select {
 	case <-done:
 	case <-ctx.Done():
@@ -66,10 +66,14 @@ func errorText(code msg.Code, params msg.Params) string {
 }
 
 func (w *Workbench) generateAudio(d domain.Draft, previewID, cueID, clipID string) error {
-	return w.startGeneration(d, previewID, cueID, clipID, previewID == "")
+	_, err := w.startGeneration(d, previewID, cueID, clipID, previewID == "")
+	return err
 }
 
-func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID string, saveDraft bool) (err error) {
+// startGeneration 在编辑锁内完成检查、保存与启动，推理开始后素材删除会因任务运行而被拒绝。
+func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID string, saveDraft bool) (done <-chan struct{}, err error) {
+	w.edit.Lock()
+	defer w.edit.Unlock()
 	diag.Log(w.Store.Root, "generation.requested", "project_id", d.ID, "model_id", d.ModelID, "cue_id", cueID, "clip_id", clipID, "preview_id", previewID)
 	defer func() {
 		if err != nil {
@@ -80,11 +84,11 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 	original := d
 	if cueID != "" {
 		if d.Subtitles == nil {
-			return msg.Err(msg.ErrSubtitleInvalid, nil)
+			return nil, msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
 		i := slices.IndexFunc(d.Subtitles.Cues, func(c domain.SubtitleCue) bool { return c.ID == cueID })
 		if i < 0 {
-			return msg.Err(msg.ErrSubtitleInvalid, nil)
+			return nil, msg.Err(msg.ErrSubtitleInvalid, nil)
 		}
 		if clipID != "" {
 			found := false
@@ -93,7 +97,7 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 					for _, clip := range lane.Clips {
 						if clip.ID == clipID {
 							if lane.Locked {
-								return msg.Err(msg.ErrTimelineInvalid, nil)
+								return nil, msg.Err(msg.ErrTimelineInvalid, nil)
 							}
 							found = true
 						}
@@ -101,7 +105,7 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 				}
 			}
 			if !found {
-				return msg.Err(msg.ErrTimelineInvalid, nil)
+				return nil, msg.Err(msg.ErrTimelineInvalid, nil)
 			}
 		}
 		document := *d.Subtitles
@@ -112,18 +116,18 @@ func (w *Workbench) startGeneration(d domain.Draft, previewID, cueID, clipID str
 	s := w.Store.Read()
 	parts, e := w.prepareSynthesis(d, s)
 	if e != nil {
-		return e
+		return nil, e
 	}
 
 	if s.RuntimePath == nil || value(s.RuntimeBackend) != s.Preferences.Backend {
-		return msg.Err(msg.ErrRuntimeRequired, nil)
+		return nil, msg.Err(msg.ErrRuntimeRequired, nil)
 	}
 	if saveDraft {
-		if e = w.SaveDraft(original); e != nil {
-			return e
+		if e = w.saveDraft(original); e != nil {
+			return nil, e
 		}
 	}
-	return w.begin("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
+	return w.start("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
 		if d.Subtitles != nil && previewID == "" {
 			return w.generateSegments(ctx, s, parts, clipID)
 		}

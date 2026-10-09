@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
@@ -23,7 +24,9 @@ import (
 	"yovoice/internal/platform"
 )
 
+// Engine 可被并发调用：同一时间只运行一个推理请求，停止会等待当前请求结束。
 type Engine struct {
+	mu            sync.Mutex
 	root          string
 	process       *exec.Cmd
 	done          chan error
@@ -35,6 +38,13 @@ func New(root string) *Engine {
 	return &Engine{root: root, client: &http.Client{Transport: &http.Transport{Proxy: nil}}}
 }
 func (e *Engine) Stop() {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.stop()
+}
+
+// stop 要求调用方持有 mu。
+func (e *Engine) stop() {
 	if e.process != nil {
 		platform.KillProcess(e.process)
 		<-e.done
@@ -55,7 +65,7 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 			return nil
 		}
 	}
-	e.Stop()
+	e.stop()
 	if _, err := os.Stat(executable); err != nil {
 		return msg.Err(msg.ErrRuntimeMissing, nil)
 	}
@@ -160,9 +170,11 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	return msg.Err(msg.ErrEngineStartTimeout, nil)
 }
 func (e *Engine) Generate(ctx context.Context, executable string, m domain.InstalledModel, backend string, d domain.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	defer func() {
 		if err != nil {
-			e.Stop()
+			e.stop()
 		}
 		_ = os.Remove(output + ".part")
 	}()
