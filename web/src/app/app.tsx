@@ -4,7 +4,6 @@ import { AppShell } from '@astryxdesign/core/AppShell';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { NewProject, Projects } from '../features/library/projects';
 import { VoiceTarget } from '../features/library/voice-target';
-import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { Selector } from '../shared/selector';
@@ -80,7 +79,8 @@ function SidebarNav(props: {
 
 export function App() {
   const navigation = useResizable({ defaultSize: 224, minSize: 180, maxSize: 360, collapsible: true, autoSaveId: 'workbench-sidebar' });
-  const toggleSidebar = useCallback(() => { if (navigation.isCollapsed) navigation.expand(); else navigation.collapse(); }, [navigation.isCollapsed, navigation.expand, navigation.collapse]);
+  const { isCollapsed, expand, collapse } = navigation;
+  const toggleSidebar = useCallback(() => { if (isCollapsed) expand(); else collapse(); }, [isCollapsed, expand, collapse]);
   useEffect(() => {
     window.addEventListener('workbench-toggle-sidebar', toggleSidebar);
     return () => window.removeEventListener('workbench-toggle-sidebar', toggleSidebar);

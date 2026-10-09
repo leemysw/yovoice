@@ -1,5 +1,5 @@
 import { PlaybackToolbar, TrackZoom } from './playback-toolbar';
-import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { ResizeHandle } from '@astryxdesign/core/Resizable';
@@ -25,16 +25,20 @@ export function Player({ track, onError, suspended, compact = false, historyCont
   const [volume, setVolume] = useState(1);
   const [url, setUrl] = useState(''); const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0); const [duration, setDuration] = useState(0); const [peaks, setPeaks] = useState<number[]>([]);
+  const reportError = useEffectEvent((message: string) => onError(message));
+  // 只在切换音频或重新请求播放时重新加载；精简样式不绘制波形。
+  const trackId = track?.id, kind = track?.kind, fileName = track?.fileName, playRequest = track?.playRequest;
+  const waveform = !(avatar || compact || inline);
   useEffect(() => {
     let disposed = false; let resource = '';
-    autoplay.current = !!track?.playRequest;
+    autoplay.current = !!playRequest;
     setUrl(''); setTime(0); setDuration(0); setPeaks([]); setPlaying(false);
-    if (track) void (async () => {
+    if (trackId && kind && fileName) void (async () => {
       try {
-        resource = await mediaUrl(track.kind, track.fileName);
+        resource = await mediaUrl(kind, fileName);
         if (disposed) { if (resource.startsWith('blob:')) URL.revokeObjectURL(resource); return; }
         setUrl(resource);
-        if (avatar || compact || inline) return;
+        if (!waveform) return;
         const context = new AudioContext();
         try {
           const response = await fetch(resource); if (!response.ok) throw new CallError('@yovoice.error.audioReadFailed');
@@ -46,18 +50,20 @@ export function Player({ track, onError, suspended, compact = false, historyCont
           });
           if (!disposed) { setPeaks(next); setDuration(buffer.duration); }
         } finally { await context.close(); }
-      } catch (error) { if (!disposed) onError((error as Error).message); }
+      } catch (error) { if (!disposed) reportError((error as Error).message); }
     })();
     const element = audio.current;
     return () => { element?.pause(); disposed = true; if (resource.startsWith('blob:')) URL.revokeObjectURL(resource); };
-  }, [track?.id, track?.playRequest, compact]);
+  }, [trackId, kind, fileName, playRequest, waveform]);
   useEffect(() => { if (suspended) { autoplay.current = false; audio.current?.pause(); } }, [suspended]);
-  useLayoutEffect(() => {
+  // 缩放后让播放位置保持在视口中央，播放进度变化本身不触发滚动。
+  const centerPlayhead = useEffectEvent(() => {
     const viewport = lane.current;
     if (!viewport || !duration) return;
     const position = time / duration * viewport.scrollWidth;
     viewport.scrollLeft = Math.max(0, position - viewport.clientWidth / 2);
-  }, [zoom]);
+  });
+  useLayoutEffect(() => centerPlayhead(), [zoom]);
   useEffect(() => {
     const viewport = lane.current;
     if (!viewport || !playing || !duration) return;

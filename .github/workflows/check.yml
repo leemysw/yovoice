@@ -68,6 +68,8 @@ jobs:
       - run: pnpm --dir web install --frozen-lockfile
       - run: pnpm --dir web exec playwright install chromium
         if: ${{ !inputs.release }}
+      - run: pnpm --dir web run lint
+        if: ${{ !inputs.release }}
       - run: go test -race ./...
         if: ${{ !inputs.release }}
       - run: python3 scripts/desktop/check-signing.py
