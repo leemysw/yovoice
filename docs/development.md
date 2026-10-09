@@ -68,7 +68,7 @@ Use `make check-core` for Go formatting, static analysis and tests with the race
 | Directory | Purpose |
 | --- | --- |
 | `cmd/` | CLI and local service entry points |
-| `internal/workbench/` | Application logic and Go tests |
+| `internal/` | Go service, split into packages by responsibility (see below) |
 | `desktop/macos/`, `desktop/windows/` | Native app hosts |
 | `web/src/` | Frontend application |
 | `web/browser-tests/` | Browser tests |
@@ -77,9 +77,20 @@ Use `make check-core` for Go formatting, static analysis and tests with the race
 ### Architecture conventions
 
 - Frontend dependencies flow `app → features → shared`; `shared` never imports feature modules.
-- The Go service centers on `Workbench`, split by responsibility: `workbench.go` schedules foreground operations, `rpc.go` dispatches desktop calls, `api.go` and `mcp.go` serve remote clients, and the remaining files handle projects, media, models, runtime, voices and generation.
-- The model catalog, generation options and OmniVoice attributes are embedded in the Go service and imported by the UI. Keep `internal/workbench/*.json` and `web/src/shared/lib/*.json` identical.
-- Declare message codes in `messages.go`, add them to `AllMessageCodes`, and provide copy in both UI languages.
+- The Go service is split into packages by responsibility. Dependencies only point downward:
+
+  | Layer | Packages | Responsibility |
+  | --- | --- | --- |
+  | Transport | `desktop`, `remote` | Local desktop server and RPC dispatch; remote HTTP API, async jobs and MCP |
+  | Application | `workbench` | Projects, media, characters, models, runtime, generation and project archives |
+  | Infrastructure | `engine`, `store`, `download`, `audio` | Inference process, state persistence, downloads and extraction, audio parsing and conversion |
+  | Model | `domain`, `catalog` | Persisted structures and validation; model catalog and generation options |
+  | Leaf | `msg`, `diag`, `platform` | Message codes, diagnostic logs, platform differences |
+
+  Transport packages only decode requests and call public `Workbench` methods; they never touch its internal state. `testkit` is for tests only.
+- Desktop calls run concurrently. `Workbench` serializes short read-validate-write transactions with an edit lock; conversion, downloads, inference and project import/export run without it. Only one background operation runs at a time.
+- The model catalog, generation options and OmniVoice attributes are embedded in the Go service and imported by the UI. Keep `internal/catalog/*.json` and `web/src/shared/lib/*.json` identical.
+- Declare message codes in `internal/msg`, add them to `msg.All`, and provide copy in both UI languages.
 - When upgrading audio.cpp, update `EngineVersion`, the runtime archive checksums and the build scripts in `scripts/desktop/` together.
 
 `go test` enforces the last three.
