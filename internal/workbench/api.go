@@ -161,7 +161,7 @@ func (a *API) generateAudio(ctx context.Context, d Draft) (Generation, error) {
 	if err := ctx.Err(); err != nil {
 		return Generation{}, err
 	}
-	if err := a.Workbench.generate(d); err != nil {
+	if err := a.Workbench.generateDetached(d); err != nil {
 		return Generation{}, err
 	}
 	// 断开连接时取消推理，等待任务退出后才允许下一个请求。
@@ -179,7 +179,11 @@ func (a *API) generateAudio(ctx context.Context, d Draft) (Generation, error) {
 		return Generation{}, err
 	}
 	state := a.Workbench.Store.Read()
-	if state.Activity == nil || state.Activity.Status != "completed" {
+	if activity := state.Activity; activity == nil || activity.Status != "completed" {
+		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
+		if activity != nil && activity.ErrorCode != nil {
+			return Generation{}, fmt.Errorf("语音生成失败：%s", encodeErrorText(*activity.ErrorCode, activity.ErrorParams))
+		}
 		return Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
 	}
 	for _, g := range state.History {
@@ -200,4 +204,11 @@ func (a *API) audio(w http.ResponseWriter, r *http.Request, id string) {
 	w.Header().Set("Content-Disposition", `attachment; filename="`+id+`.wav"`)
 	w.Header().Set("X-Yovoice-Generation-ID", id)
 	http.ServeFile(w, r, path)
+}
+
+func encodeErrorText(code MessageCode, params MessageParams) string {
+	if detail, ok := params["detail"]; ok {
+		return fmt.Sprintf("%s (%v)", code, detail)
+	}
+	return string(code)
 }

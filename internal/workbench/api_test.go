@@ -62,9 +62,14 @@ func TestRemoteAPI(t *testing.T) {
 		}
 	}
 	body := `{"text":"远程生成","voiceId":"` + voice.ID + `"}`
+	drafts := len(wb.Store.Read().Drafts)
 	result := request("POST", "/v1/generate", body, "Bearer "+token)
 	if result.Code != 200 || !bytes.Equal(result.Body.Bytes(), wav()) {
 		t.Fatal(result.Code, result.Body.String())
+	}
+	// 远程请求只写入历史，不为每次调用新建作品。
+	if len(wb.Store.Read().Drafts) != drafts {
+		t.Fatal("远程生成不应新建作品")
 	}
 	if result.Header().Get("X-Yovoice-Generation-ID") == "" {
 		t.Fatal("缺少结果 ID")
@@ -144,5 +149,54 @@ func TestRemoteAPI(t *testing.T) {
 	}
 	request("DELETE", "/v1/jobs/"+id, "", "Bearer "+token)
 	waitJob(id, "cancelled")
+	// 引擎失败时返回稳定错误码，客户端无需读取服务端日志。
+	api.GenerationTimeout = 0
+	id = newID()
+	request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "模拟生成失败", 1), "Bearer "+token)
+	if failed := waitJob(id, "failed"); !strings.Contains(failed.Error, string(MsgErrGenerateFailed)) {
+		t.Fatal(failed.Error)
+	}
+	if len(wb.Store.Read().Drafts) != drafts {
+		t.Fatal("远程生成不应新建作品")
+	}
 
+}
+
+// 历史快照不携带时间轴，作品自身的时间轴保持不变。
+func TestGenerationSnapshotOmitsTimeline(t *testing.T) {
+	wb, err := New(t.TempDir())
+	must(t, err)
+	defer wb.Close()
+	executable, err := os.Executable()
+	must(t, err)
+	model := filepath.Join(wb.Store.Root, "models", "fake.gguf")
+	must(t, os.WriteFile(model, []byte("test"), 0600))
+	reference := filepath.Join(t.TempDir(), "reference.wav")
+	must(t, os.WriteFile(reference, wav(), 0600))
+	voice, err := wb.ImportVoice(context.Background(), reference, "")
+	must(t, err)
+	must(t, wb.Store.Update(func(s *State) {
+		s.Models = []InstalledModel{{ID: "index-2.5-q8", Path: model}}
+		s.RuntimePath = &executable
+		s.RuntimeBackend = ptr("cpu")
+		s.Preferences.Backend = "cpu"
+	}, true))
+	d := DefaultDraft()
+	d.VoiceID = &voice.ID
+	d.Timeline = &AudioTimeline{Tracks: []AudioLane{{ID: "lane", Name: "旁白", Clips: []AudioClip{}}}}
+	must(t, wb.generate(d))
+	wb.mu.Lock()
+	done := wb.done
+	wb.mu.Unlock()
+	<-done
+	state := wb.Store.Read()
+	if state.Activity == nil || state.Activity.Status != "completed" || len(state.History) != 1 {
+		t.Fatalf("%+v", state.Activity)
+	}
+	if state.History[0].Settings.Timeline != nil {
+		t.Fatal("历史快照不应携带时间轴")
+	}
+	if state.Drafts[0].ID != d.ID || state.Drafts[0].Timeline == nil {
+		t.Fatal("作品时间轴应保留")
+	}
 }
