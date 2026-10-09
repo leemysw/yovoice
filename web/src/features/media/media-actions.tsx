@@ -6,6 +6,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { FolderOpen, Pencil, Trash2 } from 'lucide-react';
 import { call } from '../../shared/lib/client';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { formatCallError } from '../../shared/i18n/format';
 import type { Track } from '../../shared/workbench';
 
@@ -28,7 +29,7 @@ export function MediaActions({ item, beforeDelete, onError, onEdit }: { onEdit?:
   }
   return <HStack className="media-actions" gap={1}>
     <Button label={onEdit ? t('@yovoice.voice.edit') : t('@yovoice.media.rename', { noun, name: item.name })} isIconOnly icon={<Pencil size={15} />} size="sm" variant="ghost" onClick={() => { if (onEdit) { onEdit(); return; } setName(item.name); setError(''); setAction('rename'); }} />
-    <Button label={t('@yovoice.media.reveal', { name: item.name })} isIconOnly icon={<FolderOpen size={15} />} size="sm" variant="ghost" onClick={() => { void call('media.reveal', { kind: item.kind, id: item.id }).catch(e => onError(e.message)); }} />
+    <Button label={t('@yovoice.media.reveal', { name: item.name })} isIconOnly icon={<FolderOpen size={15} />} size="sm" variant="ghost" onClick={() => { void call('media.reveal', { kind: item.kind, id: item.id }).catch(e => onError(noticeMessage(e))); }} />
     <Button label={t('@yovoice.media.delete', { noun, name: item.name })} isIconOnly icon={<Trash2 size={15} />} size="sm" variant="ghost" onClick={() => { setError(''); setAction('delete'); }} />
     {action === 'delete' ? <ConfirmDelete title={t('@yovoice.media.deleteTitle', { noun })}
       description={t('@yovoice.media.deleteBody', { name: item.name }) + t(item.kind === 'voices' ? '@yovoice.media.deleteVoiceExtra' : '@yovoice.media.deleteHistoryExtra')}

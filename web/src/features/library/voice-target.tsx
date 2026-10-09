@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatNotice } from '../../shared/i18n/format';
 import { Button } from '@astryxdesign/core/Button';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { AppDialog } from '../../shared/ui/app-dialog';
@@ -17,7 +18,7 @@ export function VoiceTarget({ voice, drafts, initial, speakerId, apply, close }:
   const [error, setError] = useState('');
   const draft = drafts.find(d => d.id === target);
   const selected = draft?.subtitles?.speakers.find(s => s.id === speaker)?.id ?? draft?.subtitles?.speakers[0]?.id ?? '';
-  return <AppDialog title={t('@yovoice.library.target')} subtitle={voice.name} busy={busy} error={error.startsWith('@yovoice.') ? t(error) : error} onClose={close} actions={<>
+  return <AppDialog title={t('@yovoice.library.target')} subtitle={voice.name} busy={busy} error={formatNotice(t, error)} onClose={close} actions={<>
     <Button label={t('@yovoice.action.cancel')} isDisabled={busy} onClick={close} />
     <Button label={t('@yovoice.library.apply')} variant="primary" isLoading={busy} isDisabled={target !== 'new' && !draft} onClick={async () => {
       setBusy(true); setError('');

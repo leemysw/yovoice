@@ -159,7 +159,7 @@
   .timeline-audio-menu .astryx-dropdown-menu-item { min-height: var(--spacing-8); padding: var(--spacing-1) var(--spacing-2); gap: var(--spacing-2); font-size: var(--app-small-font); }
   .timeline-audio-menu .astryx-dropdown-menu-item span { font-size: inherit; line-height: var(--spacing-5); }
   .timeline-audio-menu svg, .timeline-audio-button svg { width: var(--spacing-4); height: var(--spacing-4); stroke-width: 1.5; }
-  .timeline-history-list { max-height: calc(var(--spacing-16) * 5); overflow-y: auto; }
+  .timeline-history-list { max-height: calc(var(--spacing-8) * 10); overflow-y: auto; }
   .multitrack-region { position: absolute; top: var(--spacing-1); height: var(--spacing-10); min-width: 0; }
   .multitrack-clip { width: 100%; height: 100%; min-width: 0; overflow: hidden; justify-content: start; cursor: grab; border-color: var(--color-border); border-radius: var(--radius-inner); padding-block: 0 var(--spacing-5); font-size: var(--font-size-xs); }
   .multitrack-clip[aria-pressed="true"] { outline: var(--border-width) solid var(--app-wave); outline-offset: calc(var(--border-width) * -1); background: color-mix(in srgb, var(--app-wave) 8%, var(--color-background-surface)); }
@@ -208,7 +208,7 @@
   .track-zoom button:nth-child(2) { min-width: var(--spacing-12); }
   .transport .astryx-button svg { stroke-width: 1.5; }
   .transport .astryx-button[data-variant="ghost"] { color: var(--app-muted); }
-  .volume-control input { appearance: none; width: var(--spacing-20); height: var(--spacing-1); border-radius: var(--radius-full); background: var(--app-ink); cursor: pointer; }
+  .volume-control input { appearance: none; width: calc(var(--spacing-10) * 2); height: var(--spacing-1); border-radius: var(--radius-full); background: var(--app-ink); cursor: pointer; }
   .volume-control input::-webkit-slider-thumb { appearance: none; width: var(--spacing-3); height: var(--spacing-3); border: 2px solid var(--app-ink); border-radius: var(--radius-full); background: var(--app-white); }
   .volume-control input:focus-visible { outline: 2px solid var(--app-wave); outline-offset: var(--spacing-1); }
   .timeline { flex: 1; min-height: 0; overflow: auto; width: 100%; border-top: 1px solid var(--app-line); }
@@ -285,7 +285,7 @@
   .ready { color: var(--app-muted); display: flex; align-items: center; gap: var(--spacing-1); }
   .model-path { overflow-wrap: anywhere; max-width: 100%; }
   .runtime-heading { padding-block: 0; }
-  .empty-state { padding-block: var(--spacing-16); text-align: center; color: var(--app-muted); }
+  .empty-state { padding-block: calc(var(--spacing-8) * 2); text-align: center; color: var(--app-muted); }
   .empty-state h2 { color: var(--app-ink); }
   .empty-state p { font-size: var(--app-ui-font); }
   .empty-icon svg { width: var(--spacing-10); height: var(--spacing-10); stroke-width: 1; }
@@ -299,11 +299,11 @@
   .voice-row small { font-variant-numeric: tabular-nums; }
 
   /* 全局反馈脱离布局流，空白区域仍可操作下方工作区。 */
-  .notifications { position: fixed; top: calc(var(--app-titlebar) + var(--spacing-3)); left: 50%; transform: translateX(-50%); z-index: 500; width: max-content; max-width: min(calc(var(--spacing-16) * 8), calc(100vw - var(--spacing-6))); pointer-events: none; }
+  .notifications { position: fixed; top: calc(var(--app-titlebar) + var(--spacing-3)); left: 50%; transform: translateX(-50%); z-index: 500; width: max-content; max-width: min(calc(var(--spacing-8) * 16), calc(100vw - var(--spacing-6))); pointer-events: none; }
   .notifications > * { pointer-events: auto; min-width: 0; max-height: 50dvh; overflow: auto; padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); box-shadow: var(--shadow-med); font-size: var(--app-small-font); overflow-wrap: anywhere; }
   .notifications .astryx-button { flex-shrink: 0; }
   .notice-icon { width: var(--spacing-4); height: var(--spacing-4); flex-shrink: 0; color: var(--color-text-red); }
-  .activity { width: calc(var(--spacing-16) * 6); max-width: 100%; }
+  .activity { width: calc(var(--spacing-8) * 12); max-width: 100%; }
   progress { width: 100%; height: var(--spacing-1); accent-color: var(--app-ink); }
   .loading { padding: var(--spacing-10); color: var(--app-muted); }
   .recording { color: var(--color-text-red); }
@@ -319,14 +319,14 @@
   .recording-name > label { flex-shrink: 0; }
   .recording-name > :last-child { flex: 1; min-width: 0; }
   .recording-waveform { position: relative; }
-  .recording-waveform svg { width: 100%; height: var(--spacing-16); stroke: var(--app-muted); stroke-width: 2; stroke-linecap: round; }
+  .recording-waveform svg { width: 100%; height: calc(var(--spacing-8) * 2); stroke: var(--app-muted); stroke-width: 2; stroke-linecap: round; }
   .recording-waveform .played,.recording-waveform .recording-playhead { stroke: var(--color-text-red); }
   .recording-waveform input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
   .recording-waveform:focus-within { outline: var(--border-width) solid var(--app-wave); border-radius: var(--radius-inner); }
   .recording-playback time { font-variant-numeric: tabular-nums; }
   .recording-play-button { border-radius: var(--radius-full); }
   .recording-meter { color: var(--color-text-red); }
-  .recording-meter svg { width: 100%; height: var(--spacing-16); stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .recording-meter svg { width: 100%; height: calc(var(--spacing-8) * 2); stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
   .recording-meter time { font-size: var(--font-size-2xl); font-variant-numeric: tabular-nums; }
   .inspector-heading { flex-shrink: 0; }
   .inspector-section-title { font-size: var(--app-ui-font); font-weight: var(--font-weight-medium); }
@@ -360,7 +360,7 @@
   .settings-page > [role="tabpanel"] > * { flex-shrink: 0; }
   .settings-page header { display: flex; align-items: center; height: var(--spacing-10); padding-block: 0; }
   .engine-settings { width: 100%; }
-  .engine-setting-row { min-height: var(--spacing-16); padding-block: var(--spacing-4); border-bottom: 1px solid var(--app-line); }
+  .engine-setting-row { min-height: calc(var(--spacing-8) * 2); padding-block: var(--spacing-4); border-bottom: 1px solid var(--app-line); }
   .engine-setting-row:last-child { border-bottom: 0; }
   .engine-setting-row > .astryx-button { flex-shrink: 0; }
   .compute-device { max-width: calc(var(--spacing-10) * 6); }
@@ -372,9 +372,9 @@
   .time { font-variant-numeric: tabular-nums; }
   @media (max-width: 1190px) { :root { --app-nav: calc(var(--spacing-10) * 4.5); --app-inspector: calc(var(--spacing-8) * 11); --app-editor-font: var(--font-size-lg); --app-title-font: var(--font-size-3xl); } .player { gap: var(--spacing-3); } }
   @media (max-width: 900px) { :root { --app-nav: calc(var(--spacing-10) * 4); --app-inspector: calc(var(--spacing-8) * 11); } .inspector { display: none; } .show-inspector .inspector { display: grid; } .inspector-toggle { display: inline-flex; } .sidebar { padding-inline: var(--spacing-2); } .settings-page,.library-page { padding: var(--spacing-5) var(--spacing-6) var(--spacing-6); } }
-  @media (max-width: 600px) { :root { --app-nav: var(--spacing-16); --app-player: calc(var(--spacing-9) * 2); --app-title-font: var(--font-size-3xl); --app-editor-font: var(--font-size-lg); } .nav-item { font-size: 0; justify-content: center; padding: var(--spacing-2); gap: 0; } .new-project { font-size: 0; gap: 0; padding: var(--spacing-2); } .recent-projects { display: none; } .writing { min-height: calc(var(--spacing-10) * 14); padding-top: var(--spacing-5); } .sidebar { padding-bottom: var(--spacing-2); } .audio-panel { margin: var(--spacing-2); } .play-main { min-width: var(--spacing-10); min-height: var(--spacing-10); } .volume-control input { display: none; } .timeline .transport { min-height: var(--spacing-12); } .transport-time { font-size: var(--font-size-xs); } .transport { padding-inline: var(--spacing-2); } .time-ruler small:nth-child(even) { visibility: hidden; } .show-inspector .document { display: none; } .show-inspector .inspector-document-actions { display: flex; } .show-inspector .inspector { display: grid; grid-template-rows: auto minmax(0, 1fr); width: 100%; } .settings-page,.library-page { padding: var(--spacing-5); } }
+  @media (max-width: 600px) { :root { --app-nav: calc(var(--spacing-8) * 2); --app-player: calc(var(--spacing-9) * 2); --app-title-font: var(--font-size-3xl); --app-editor-font: var(--font-size-lg); } .nav-item { font-size: 0; justify-content: center; padding: var(--spacing-2); gap: 0; } .new-project { font-size: 0; gap: 0; padding: var(--spacing-2); } .recent-projects { display: none; } .writing { min-height: calc(var(--spacing-10) * 14); padding-top: var(--spacing-5); } .sidebar { padding-bottom: var(--spacing-2); } .audio-panel { margin: var(--spacing-2); } .play-main { min-width: var(--spacing-10); min-height: var(--spacing-10); } .volume-control input { display: none; } .timeline .transport { min-height: var(--spacing-12); } .transport-time { font-size: var(--font-size-xs); } .transport { padding-inline: var(--spacing-2); } .time-ruler small:nth-child(even) { visibility: hidden; } .show-inspector .document { display: none; } .show-inspector .inspector-document-actions { display: flex; } .show-inspector .inspector { display: grid; grid-template-rows: auto minmax(0, 1fr); width: 100%; } .settings-page,.library-page { padding: var(--spacing-5); } }
   @media (max-width: 600px) {
-    .workbench .astryx-app-shell-sidenav { width: var(--spacing-16); }
+    .workbench .astryx-app-shell-sidenav { width: calc(var(--spacing-8) * 2); }
     .sidebar > .astryx-resize-handle { display: none; }
     .history-row { flex-wrap: wrap; }
     .history-row > .history-info { min-width: calc(var(--spacing-10) * 3); }
@@ -395,7 +395,7 @@
 .project-library-row .project-title:hover { background: transparent; box-shadow: none; text-decoration: none; }
 .project-title::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-container); }
 .project-title:focus-visible::after { outline: var(--border-width) solid currentColor; }
-.project-avatars { flex-shrink: 0; max-width: var(--spacing-24); }
+.project-avatars { flex-shrink: 0; max-width: calc(var(--spacing-12) * 2); }
 .project-avatars .subtitle-avatar + .subtitle-avatar { margin-left: calc(-1 * var(--spacing-3)); }
 .project-avatars .library-avatar { border: var(--border-width) solid var(--app-white); border-radius: var(--radius-full); }
 .project-excerpt { color: var(--app-muted); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; white-space: pre-line; }

@@ -30,19 +30,12 @@ const VoicePicker = lazy(() => import('../features/media/voice-picker').then(mod
 import { SelectionAction, type TextSelection } from '../features/create/selection-action';
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './locale-shell';
 import { isUiLocale } from '../shared/i18n/locale';
-import { formatActivity, formatActivityError } from '../shared/i18n/format';
-import { CallError } from '../shared/lib/call-error';
-
-function errorMessage(error: unknown): string {
-  if (error instanceof CallError && error.code === '@yovoice.error.unknown' && error.params.detail) return `${error.code}::${String(error.params.detail)}`;
-  return error instanceof Error ? error.message : String(error);
-}
+import { formatActivity, formatActivityError, formatNotice } from '../shared/i18n/format';
+import { noticeMessage } from '../shared/lib/call-error';
 
 function NoticeText({ error, activity }: { error: string; activity: Activity | null | undefined }) {
   const t = useTranslator();
-  const [code, detail] = error.split('::', 2);
-  if (code.startsWith('@yovoice.')) return <>{t(code)}{detail ? ` (${detail})` : null}</>;
-  if (error) return <>{error}</>;
+  if (error) return <>{formatNotice(t, error)}</>;
   return <>{formatActivityError(t, activity) ?? t('@yovoice.error.unknown')}</>;
 }
 
@@ -115,9 +108,9 @@ export function App() {
   useEffect(() => {
     if (!isDesktop) return;
     const saved = localStorage.getItem('astryx-resizable:workbench-sidebar');
-    if (saved) void call('sidebar.save', JSON.parse(saved)).catch(error => setError(error.message));
+    if (saved) void call('sidebar.save', JSON.parse(saved)).catch(error => setError(noticeMessage(error)));
   }, [navigation.size, navigation.isCollapsed]);
-  const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(errorMessage(e))); }, []);
+  const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(noticeMessage(e))); }, []);
   useEffect(() => {
     const unsubscribe = subscribe(setState);
     void call<{ state: State; catalog: ModelPackage[] }>('state.get').then(async result => {
@@ -126,13 +119,13 @@ export function App() {
         try {
           await ensureUiLocalePersisted(next.preferences, bootLocale);
           next = { ...next, preferences: { ...next.preferences, uiLocale: bootLocale } };
-        } catch (e) { setError((e as Error).message); }
+        } catch (e) { setError(noticeMessage(e)); }
       }
       const defaultModelId = next.models[0]?.id ?? result.catalog[0]?.id ?? 'index-2.5-q8';
       const initial = next.drafts.find(d => d.id === localStorage.getItem('yovoice-active-project')) ?? next.drafts[0];
       setState(next); setCatalog(result.catalog); setDraft(withCueIds(initial ?? createDraft(true, next.preferences.uiLocale, defaultModelId))); setDraftPersisted(!!initial);
       setReady(true);
-    }).catch(e => setError(e.message));
+    }).catch(e => setError(noticeMessage(e)));
     return unsubscribe;
   }, []);
   useEffect(() => {
@@ -142,7 +135,7 @@ export function App() {
     setSaving(true); setSaveFailed(false); const sequence = ++saveSequence.current;
     const timer = saveTimer.current = setTimeout(() => {
       pendingSave.current = pendingSave.current.catch(() => {}).then(() => call('draft.save', draft));
-      void pendingSave.current.then(() => { if (sequence === saveSequence.current) setSaving(false); }).catch(e => { setSaveFailed(true); setSaving(false); setError(e.message); });
+      void pendingSave.current.then(() => { if (sequence === saveSequence.current) setSaving(false); }).catch(e => { setSaveFailed(true); setSaving(false); setError(noticeMessage(e)); });
     }, 350);
     return () => clearTimeout(timer);
   }, [draft, ready, deleting, draftPersisted]);
@@ -209,7 +202,7 @@ export function App() {
       await call('draft.delete', { id: deleteTarget.id });
       setDeleteTarget(null);
     } catch (error) {
-      const message = errorMessage(error);
+      const message = noticeMessage(error);
       setDeleteError(message.startsWith('@yovoice.error.unknown::') ? message.slice('@yovoice.error.unknown::'.length) : message);
     }
     finally { setDeleting(false); }
@@ -475,7 +468,7 @@ function WorkbenchChrome(props: {
 
     {voiceTarget ? <VoiceTarget voice={voiceTarget} drafts={projectList} apply={applyToTarget} close={() => setVoiceTarget(null)} /> : null}
     {deleteTarget ? <ConfirmDelete title={t('@yovoice.app.deleteProjectTitle')} description={t('@yovoice.app.deleteProjectBody', { title: deleteTarget.title })}
-      confirmLabel={t('@yovoice.app.deleteProjectConfirm')} busy={deleting} error={deleteError.startsWith('@yovoice.') ? t(deleteError) : deleteError} onClose={() => setDeleteTarget(null)} onConfirm={() => void deleteDraft()} /> : null}
+      confirmLabel={t('@yovoice.app.deleteProjectConfirm')} busy={deleting} error={formatNotice(t, deleteError)} onClose={() => setDeleteTarget(null)} onConfirm={() => void deleteDraft()} /> : null}
     {voiceEditor ? <VoiceEditor item={voiceEditor} close={() => setVoiceEditor(null)} /> : null}
     {voicePicker ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={voice => { if ((activeSpeaker || draft.performance) && voicePicker !== 'add') { changeSpeaker(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); } else selectVoice(voice); }} /></Suspense> : null}
     {pronunciation ? <AppDialog title={t('@yovoice.app.pronunciationTitle')} width={480} onClose={() => setPronunciation(null)} actions={<><Button label={t('@yovoice.action.cancel')} onClick={() => setPronunciation(null)} /><Button label={t('@yovoice.app.pronunciationApply')} variant="primary" isDisabled={!pronunciation.sound.trim()} onClick={() => { const { start, end, word, sound } = pronunciation; const replacement = draft.modelId.startsWith('index-2.5') ? `<${word}|${sound.trim()}>` : sound.trim(); change({ text: draft.text.slice(0, start) + replacement + draft.text.slice(end) }); setPronunciation(null); requestAnimationFrame(() => { editor.current?.focus(); editor.current?.setSelectionRange(start + replacement.length, start + replacement.length); }); }} /></>}><p>{t('@yovoice.app.pronunciationBody', { word: pronunciation.word })}</p><TextInput label={draft.modelId.startsWith('index-2.5') ? t('@yovoice.app.pronunciationLabel25') : t('@yovoice.app.pronunciationLabel')} value={pronunciation.sound} onChange={sound => setPronunciation({ ...pronunciation, sound })} placeholder={t('@yovoice.app.pronunciationPlaceholder')} /></AppDialog> : null}

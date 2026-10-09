@@ -1,4 +1,5 @@
 import { PlaybackToolbar, TrackZoom } from './playback-toolbar';
+import { formatNotice } from '../../shared/i18n/format';
 import { useEffect, useLayoutEffect, useRef, useState, useReducer, type PointerEvent as ReactPointerEvent } from 'react';
 import { Popover } from '@astryxdesign/core/Popover';
 import { Selector } from '../../shared/selector';
@@ -16,6 +17,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { SpeakerAvatar } from '../create/subtitles';
 import { encodeWav } from '../../shared/lib/sound';
 import { isDesktop, mediaUrl, saveAudio, importTimelineFile } from '../../shared/lib/client';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, projectKind, type AudioLane, type AudioAsset, type AudioClip, type AudioTimeline, type Generation, type Draft } from '../../shared/workbench';
 import { Timeline, TimelineHistory } from './timeline';
 
@@ -337,7 +339,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       { label: t('@yovoice.timeline.snap'), onClick: () => setSnap(!snap) },
       { label: t('@yovoice.player.zoomFit'), onClick: fitAll },
       { label: t('@yovoice.timeline.fitSelection'), isDisabled: !range && !selectedIds.length, onClick: fitSelection },
-      ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void exportProject().catch(e => onError((e as Error).message)) }] : []),
+      ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void exportProject().catch(e => onError(noticeMessage(e))) }] : []),
       { label: t('@yovoice.timeline.balance'), isDisabled: !duration, onClick: () => void (async () => { try { const audio = context.current ??= new AudioContext(); for (const c of value.tracks.flatMap(t => t.clips)) await load(Timeline.sourceKey(c), audio); edit(Timeline.balance(value, history, buffers.current)); } catch (e) { onError((e as Error).message); } })() },
     ] },
   ];
@@ -379,7 +381,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       <DropdownMenu presentation="popover" placement="above" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, label: t('@yovoice.timeline.more'), icon: <MoreHorizontal />, 'data-timeline-more': 'true' }} items={menuItems} />
       <TrackZoom value={zoom} change={zoomTo} fit={fitAll} disabled={!duration} min={minZoom} max={32} />
     </PlaybackToolbar>
-    {exportOpen ? <AppDialog title={t('@yovoice.timeline.export')} busy={exporting} error={exportError.startsWith('@yovoice.') ? t(exportError) : exportError} onClose={() => setExportOpen(false)} actions={<Button label={t('@yovoice.timeline.exportConfirm')} variant="primary" isLoading={exporting} isDisabled={!exportName.trim()} onClick={async () => {
+    {exportOpen ? <AppDialog title={t('@yovoice.timeline.export')} busy={exporting} error={formatNotice(t, exportError)} onClose={() => setExportOpen(false)} actions={<Button label={t('@yovoice.timeline.exportConfirm')} variant="primary" isLoading={exporting} isDisabled={!exportName.trim()} onClick={async () => {
       setExporting(true); setExportError('');
       try {
         const snapshot = structuredClone(value);
