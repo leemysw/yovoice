@@ -1,7 +1,8 @@
 package workbench
 
 import (
-	"encoding/base64"
+	"bytes"
+	"context"
 	"encoding/binary"
 	"math"
 	"os"
@@ -30,7 +31,7 @@ func TestTimelinePersistenceAndSourceProtection(t *testing.T) {
 	if st.Read().Drafts[0].Timeline.Tracks[0].Clips[0].Start != 3 {
 		t.Fatal("时间线未保存")
 	}
-	if w.deleteMedia("outputs", id) == nil {
+	if w.DeleteMedia("outputs", id) == nil {
 		t.Fatal("不应删除使用中的源音频")
 	}
 	for _, invalid := range []float64{-1, math.NaN(), math.Inf(1), 86401} {
@@ -46,7 +47,7 @@ func TestTimelinePersistenceAndSourceProtection(t *testing.T) {
 	}
 	d.Timeline.Tracks[0].Clips = nil
 	must(t, w.SaveDraft(d))
-	must(t, w.deleteMedia("outputs", id))
+	must(t, w.DeleteMedia("outputs", id))
 	d.Timeline.Tracks = []domain.AudioLane{}
 	d.Timeline.AcceptedGenerations = []string{id}
 	must(t, w.SaveDraft(d))
@@ -65,7 +66,8 @@ func TestTimelineUploadPersistsWithoutLibraryEntries(t *testing.T) {
 	data := append(wav()[:44], make([]byte, 32000*65)...)
 	binary.LittleEndian.PutUint32(data[4:], uint32(len(data)-8))
 	binary.LittleEndian.PutUint32(data[40:], uint32(len(data)-44))
-	asset := invoke(t, w, "timeline.import", map[string]string{"name": "环境音", "base64": base64.StdEncoding.EncodeToString(data)}).(domain.AudioAsset)
+	asset, err := w.ImportTimelineFrom(context.Background(), bytes.NewReader(data), "环境音")
+	must(t, err)
 	if asset.Duration != 65 {
 		t.Fatal("导入素材不应受参考音频 60 秒限制")
 	}

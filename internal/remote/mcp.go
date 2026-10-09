@@ -1,4 +1,4 @@
-package workbench
+package remote
 
 import (
 	"bytes"
@@ -40,7 +40,7 @@ func (a *API) newMCPHandler() http.Handler {
 		if err != nil {
 			return nil, nil, err
 		}
-		voice, err := a.uploadVoice(ctx, bytes.NewReader(data), in.Name)
+		voice, err := a.Workbench.ImportVoiceFrom(ctx, bytes.NewReader(data), in.Name)
 		return nil, voice, err
 	})
 	mcp.AddTool(server, &mcp.Tool{Name: "generate", Description: "同步生成，长耗时优先使用 submit_generation。完整生成语音，返回 id、duration 和 downloadPath。通过服务端地址加 downloadPath 下载 WAV，HTTP 请求需携带相同 Bearer Token；不返回服务器本地路径"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {

@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"slices"
 	"time"
@@ -11,11 +12,57 @@ import (
 	"yovoice/internal/msg"
 )
 
-func (w *Workbench) generate(d domain.Draft) error { return w.generateAudio(d, "", "", "") }
+func (w *Workbench) Generate(d domain.Draft) error { return w.generateAudio(d, "", "", "") }
 
-// generateDetached 供远程服务调用：结果仍写入历史，但不为每个请求新建作品，避免状态文件无限增长。
-func (w *Workbench) generateDetached(d domain.Draft) error {
-	return w.startGeneration(d, "", "", "", false)
+// GenerateCue 重新生成字幕中的一句，可指定替换的时间线片段。
+func (w *Workbench) GenerateCue(d domain.Draft, cueID, clipID string) error {
+	if cueID == "" {
+		return msg.Err(msg.ErrSubtitleInvalid, nil)
+	}
+	return w.generateAudio(d, "", cueID, clipID)
+}
+
+// Synthesize 同步生成并返回历史记录：结果不新建作品，避免远程服务的状态文件无限增长。
+// ctx 结束时取消推理，并等待操作收尾后才返回。
+func (w *Workbench) Synthesize(ctx context.Context, d domain.Draft) (domain.Generation, error) {
+	if err := ctx.Err(); err != nil {
+		return domain.Generation{}, err
+	}
+	if err := w.startGeneration(d, "", "", "", false); err != nil {
+		return domain.Generation{}, err
+	}
+	done := w.Done()
+	select {
+	case <-done:
+	case <-ctx.Done():
+		w.Cancel()
+		<-done
+		return domain.Generation{}, ctx.Err()
+	}
+	if err := ctx.Err(); err != nil {
+		return domain.Generation{}, err
+	}
+	state := w.Store.Read()
+	if activity := state.Activity; activity == nil || activity.Status != "completed" {
+		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
+		if activity != nil && activity.ErrorCode != nil {
+			return domain.Generation{}, fmt.Errorf("语音生成失败：%s", errorText(*activity.ErrorCode, activity.ErrorParams))
+		}
+		return domain.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
+	}
+	for _, g := range state.History {
+		if g.Settings.ID == d.ID {
+			return g, nil
+		}
+	}
+	return domain.Generation{}, fmt.Errorf("生成结果未找到")
+}
+
+func errorText(code msg.Code, params msg.Params) string {
+	if detail, ok := params["detail"]; ok {
+		return fmt.Sprintf("%s (%v)", code, detail)
+	}
+	return string(code)
 }
 
 func (w *Workbench) generateAudio(d domain.Draft, previewID, cueID, clipID string) error {

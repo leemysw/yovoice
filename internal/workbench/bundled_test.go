@@ -33,7 +33,7 @@ func TestBundledCPU(t *testing.T) {
 	}
 	p := w.Store.Read().Preferences
 	p.Backend = "cpu"
-	must(t, w.preferences(p))
+	must(t, w.SavePreferences(p))
 	if value(w.Store.Read().RuntimePath) != path || value(w.Store.Read().RuntimeBackend) != "cpu" {
 		t.Fatal("切回 CPU 应复用内置内核")
 	}

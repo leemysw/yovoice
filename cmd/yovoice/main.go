@@ -355,15 +355,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		return err
 	}
 	defer w.Close()
-	invoke := func(method string, data any) (any, error) {
-		b, e := json.Marshal(data)
-		if e != nil {
-			return nil, e
-		}
-		return w.Call(method, b)
-	}
-	wait := func(method string, data any) error {
-		if _, e := invoke(method, data); e != nil {
+	// 启动后台操作并等待结束，进度写入 stderr。
+	wait := func(start func() error) error {
+		if e := start(); e != nil {
 			return e
 		}
 		return waitOperation(ctx, w, progress)
@@ -381,20 +375,20 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	case "voices import":
 		result, err = w.ImportVoice(ctx, operand, name)
 	case "models import":
-		err = wait("model.import", map[string]string{"path": operand})
+		err = wait(func() error { return w.ImportModel(operand) })
 		result = w.Store.Read().Models
 	case "setup":
 		p := w.Store.Read().Preferences
 		p.Backend = backend
-		if _, err = invoke("preferences.save", p); err == nil {
-			err = wait("runtime.install", map[string]string{})
+		if err = w.SavePreferences(p); err == nil {
+			err = wait(w.InstallRuntime)
 		}
 		result = w.Store.Read().RuntimePath
 	case "models download":
 		p := w.Store.Read().Preferences
 		p.DownloadSource = source
-		if _, err = invoke("preferences.save", p); err == nil {
-			err = wait("model.download", map[string]string{"id": operand})
+		if err = w.SavePreferences(p); err == nil {
+			err = wait(func() error { return w.DownloadModel(operand) })
 		}
 		result = w.Store.Read().Models
 	case "generate":
@@ -416,7 +410,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if voice != "" {
 			d.VoiceID = &voice
 		}
-		if err = wait("generation.start", d); err != nil {
+		if err = wait(func() error { return w.Generate(d) }); err != nil {
 			return err
 		}
 		history := w.Store.Read().History

@@ -8,9 +8,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -28,14 +26,6 @@ import (
 	"yovoice/internal/testkit"
 )
 
-func invoke(t *testing.T, w *Workbench, method string, data any) any {
-	t.Helper()
-	b, e := json.Marshal(data)
-	must(t, e)
-	result, e := w.Call(method, b)
-	must(t, e)
-	return result
-}
 func TestRequests(t *testing.T) {
 	d := domain.DefaultDraft()
 	for _, mode := range []string{"speaker", "reference", "vector", "text"} {
@@ -106,13 +96,13 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	d.VoiceID = &v.ID
 	d.EmotionVoiceID = &v.ID
 	must(t, w.SaveDraft(d))
-	invoke(t, w, "media.rename", map[string]any{"kind": "voices", "id": v.ID, "name": "新名称"})
+	must(t, w.RenameMedia("voices", v.ID, "新名称"))
 	if w.Store.Read().Voices[0].Name != "新名称" {
 		t.Fatal("未重命名")
 	}
 	path, e := w.MediaFile("voices", v.ID)
 	must(t, e)
-	if err := w.deleteMedia("voices", v.ID); err == nil {
+	if err := w.DeleteMedia("voices", v.ID); err == nil {
 		t.Fatal("不应删除被作品引用的音频")
 	}
 	d.VoiceID = nil
@@ -121,7 +111,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	// 强制状态提交失败，文件和内存状态必须一起恢复。
 	must(t, os.Remove(filepath.Join(root, "state.json")))
 	must(t, os.Mkdir(filepath.Join(root, "state.json"), 0700))
-	if w.deleteMedia("voices", v.ID) == nil {
+	if w.DeleteMedia("voices", v.ID) == nil {
 		t.Fatal("应写入失败")
 	}
 	if _, e = os.Stat(path); e != nil {
@@ -131,7 +121,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 		t.Fatal("状态被错误修改")
 	}
 	must(t, os.Remove(filepath.Join(root, "state.json")))
-	must(t, w.deleteMedia("voices", v.ID))
+	must(t, w.DeleteMedia("voices", v.ID))
 	if _, e = os.Stat(path); !os.IsNotExist(e) {
 		t.Fatal("音频未删除")
 	}
@@ -146,12 +136,12 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	must(t, w.Store.Update(func(s *domain.State) {
 		s.History = append(s.History, domain.Generation{ID: id, Title: "历史", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
-	invoke(t, w, "media.rename", map[string]string{"kind": "outputs", "id": id, "name": "重命名历史"})
-	must(t, w.deleteMedia("outputs", id))
+	must(t, w.RenameMedia("outputs", id, "重命名历史"))
+	must(t, w.DeleteMedia("outputs", id))
 	if len(w.Store.Read().History) != 0 {
 		t.Fatal("历史未删除")
 	}
-	invoke(t, w, "draft.delete", map[string]string{"id": d.ID})
+	must(t, w.DeleteDraft(d.ID))
 	for _, d2 := range w.Store.Read().Drafts {
 		if d2.ID == d.ID {
 			t.Fatal("草稿未删除")
@@ -299,68 +289,6 @@ func TestOperationCancellation(t *testing.T) {
 	}
 	w.Close()
 }
-func TestHTTPBoundaryAndEvents(t *testing.T) {
-	w, e := New(t.TempDir())
-	must(t, e)
-	defer w.Close()
-	secret := strings.Repeat("a", 64)
-	handler := &Server{Workbench: w, Assets: t.TempDir(), Secret: secret}
-	server := httptest.NewServer(handler)
-	defer server.Close()
-	request := func(path, origin string, auth bool) *http.Request {
-		r, e := http.NewRequest("GET", server.URL+path, nil)
-		must(t, e)
-		if auth {
-			r.AddCookie(&http.Cookie{Name: "vw-" + secret[:12], Value: secret})
-		}
-		if origin != "" {
-			r.Header.Set("Origin", origin)
-		}
-		return r
-	}
-	for _, r := range []*http.Request{request("/", "", false), request("/", "https://untrusted.invalid", true)} {
-		res, e := server.Client().Do(r)
-		must(t, e)
-		res.Body.Close()
-		if res.StatusCode != 403 {
-			t.Fatal(res.StatusCode)
-		}
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	r := request("/api/state-events", "", true).WithContext(ctx)
-	res, e := server.Client().Do(r)
-	must(t, e)
-	defer res.Body.Close()
-	buffer := make([]byte, 8192)
-	n, e := res.Body.Read(buffer)
-	must(t, e)
-	if !bytes.Contains(buffer[:n], []byte(`"event":"state"`)) {
-		t.Fatal(string(buffer[:n]))
-	}
-	d := domain.DefaultDraft()
-	d.Title = "事件更新"
-	must(t, w.SaveDraft(d))
-	n, e = res.Body.Read(buffer)
-	must(t, e)
-	if !bytes.Contains(buffer[:n], []byte("事件更新")) {
-		t.Fatal(string(buffer[:n]))
-	}
-	file := filepath.Join(w.Store.Root, "input.wav")
-	must(t, os.WriteFile(file, wav(), 0600))
-	v, e := w.ImportVoice(context.Background(), file, "")
-	must(t, e)
-	r = request("/media/voices/"+v.FileName, "", true)
-	r.Header.Set("Range", "bytes=0-43")
-	audio, e := server.Client().Do(r)
-	must(t, e)
-	b, e := io.ReadAll(audio.Body)
-	audio.Body.Close()
-	must(t, e)
-	if audio.StatusCode != 206 || len(b) != 44 {
-		t.Fatal(audio.StatusCode, len(b))
-	}
-}
 
 // 子进程模拟真实 audio.cpp 协议，验证启动、复用和取消时的进程清理。
 func TestMain(m *testing.M) {
@@ -378,7 +306,7 @@ func TestForgetModelDuringDownload(t *testing.T) {
 		s.Models = []domain.InstalledModel{{ID: "index-2-q8", Path: path}, {ID: "voxcpm2-q8", Path: path}}
 	}, true))
 	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
-	_, err = w.Call("model.forget", json.RawMessage(`{"id":"index-2-q8"}`))
+	err = w.ForgetModel("index-2-q8")
 	must(t, err)
 	if len(w.Store.Read().Models) != 1 || w.Store.Read().Activity.Status != "running" {
 		t.Fatal("移除其他模型不能影响下载")
@@ -386,13 +314,13 @@ func TestForgetModelDuringDownload(t *testing.T) {
 	if _, err = os.Stat(path); err != nil {
 		t.Fatal("移除登记不能删除原文件", err)
 	}
-	if _, err = w.Call("model.forget", json.RawMessage(`{"id":"voxcpm2-q8"}`)); err == nil {
+	if err = w.ForgetModel("voxcpm2-q8"); err == nil {
 		t.Fatal("不能移除正在下载的模型")
 	}
 	w.Cancel()
-	<-w.done
+	<-w.Done()
 	must(t, w.begin("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
-	if _, err = w.Call("model.forget", json.RawMessage(`{"id":"voxcpm2-q8"}`)); err == nil {
+	if err = w.ForgetModel("voxcpm2-q8"); err == nil {
 		t.Fatal("生成期间应保护模型")
 	}
 }

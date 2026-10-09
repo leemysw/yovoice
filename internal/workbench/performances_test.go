@@ -1,7 +1,6 @@
 package workbench
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -32,24 +31,20 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 	angry.Settings.ReferenceText = "演绎参考"
 	angry.Settings.ModelID = "omnivoice-q8"
 	c := domain.Character{ID: domain.NewID(), Name: "悟空", Settings: d.SynthesisSettings, Performances: []domain.CharacterPerformance{angry}}
-	raw, _ := json.Marshal(c)
-	result, err := w.Call("character.save", raw)
+	c, err = w.SaveCharacter(c)
 	must(t, err)
-	c = result.(domain.Character)
 	if c.Performances[0].Settings.ModelID != "omnivoice-q8" || value(c.Performances[0].Settings.VoiceID) != emotion.ID {
 		t.Fatal("演绎独立模型和参数丢失")
 	}
 	invalid := c
 	invalid.Performances = append([]domain.CharacterPerformance{}, c.Performances...)
 	invalid.Performances[0].Settings.VoiceID = ptr(domain.NewID())
-	raw, _ = json.Marshal(invalid)
-	if _, err = w.Call("character.save", raw); err == nil {
+	if _, err = w.SaveCharacter(invalid); err == nil {
 		t.Fatal("允许不存在的演绎音色参考")
 	}
 	duplicate := c
 	duplicate.Performances = append(append([]domain.CharacterPerformance{}, c.Performances...), c.Performances[0])
-	raw, _ = json.Marshal(duplicate)
-	if _, err = w.Call("character.save", raw); err == nil {
+	if _, err = w.SaveCharacter(duplicate); err == nil {
 		t.Fatal("允许重复演绎")
 	}
 	d.Text = "你好\n站住"
@@ -72,9 +67,7 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 		s.RuntimeBackend = ptr("cpu")
 	}, true))
 	must(t, w.generateAudio(d, "", "two", ""))
-	w.mu.Lock()
-	done := w.done
-	w.mu.Unlock()
+	done := w.Done()
 	select {
 	case <-done:
 	case <-time.After(10 * time.Second):
@@ -88,10 +81,9 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 		t.Fatal("单句重生成未使用演绎快照")
 	}
 	c.Performances = nil
-	raw, _ = json.Marshal(c)
-	_, err = w.Call("character.save", raw)
+	_, err = w.SaveCharacter(c)
 	must(t, err)
-	if err = w.deleteMedia("voices", emotion.ID); err == nil {
+	if err = w.DeleteMedia("voices", emotion.ID); err == nil {
 		t.Fatal("允许删除台词快照引用的演绎素材")
 	}
 	restored, err := store.New(w.Store.Root)

@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -84,3 +85,35 @@ func (w *Workbench) importVoice(ctx context.Context, path, name, referenceText, 
 	}
 	return v, nil
 }
+
+// ImportVoiceFrom 从数据流导入参考音色，超过 20 MB 时拒绝。
+func (w *Workbench) ImportVoiceFrom(ctx context.Context, r io.Reader, name string) (domain.Voice, error) {
+	path, err := w.receive(r)
+	if err != nil {
+		return domain.Voice{}, err
+	}
+	defer os.Remove(path)
+	return w.ImportVoice(ctx, path, name)
+}
+
+// receive 将上传内容写入临时文件，调用方负责删除。
+func (w *Workbench) receive(r io.Reader) (string, error) {
+	f, err := os.CreateTemp(filepath.Join(w.Store.Root, "downloads"), "upload-*")
+	if err != nil {
+		return "", err
+	}
+	n, err := io.Copy(f, io.LimitReader(r, maxUpload+1))
+	if closeErr := f.Close(); err == nil {
+		err = closeErr
+	}
+	if err == nil && n > maxUpload {
+		err = msg.Err(msg.ErrAudioTooLarge, nil)
+	}
+	if err != nil {
+		_ = os.Remove(f.Name())
+		return "", err
+	}
+	return f.Name(), nil
+}
+
+const maxUpload = 20 << 20

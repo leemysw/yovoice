@@ -40,7 +40,7 @@ func TestDownloadProxyPersistenceAndChanges(t *testing.T) {
 	defer wb.Close()
 	p := wb.Store.Read().Preferences
 	p.ProxyURL = "  " + proxy.URL + "  "
-	if err := wb.preferences(p); err != nil {
+	if err := wb.SavePreferences(p); err != nil {
 		t.Fatal(err)
 	}
 	reopened, err := store.New(wb.Store.Root)
@@ -56,7 +56,7 @@ func TestDownloadProxyPersistenceAndChanges(t *testing.T) {
 	}
 	// 保存失败不能替换当前有效配置。
 	p.ProxyURL = "invalid"
-	if err := wb.preferences(p); err == nil {
+	if err := wb.SavePreferences(p); err == nil {
 		t.Fatal("无效配置未拒绝")
 	}
 	if wb.Store.Read().Preferences.ProxyURL != proxy.URL {
@@ -65,7 +65,7 @@ func TestDownloadProxyPersistenceAndChanges(t *testing.T) {
 	second := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "updated") }))
 	defer second.Close()
 	p.ProxyURL = second.URL
-	if err := wb.preferences(p); err != nil {
+	if err := wb.SavePreferences(p); err != nil {
 		t.Fatal(err)
 	}
 	sum = fmt.Sprintf("%x", sha256.Sum256([]byte("updated")))
@@ -80,7 +80,7 @@ func TestDownloadProxyPersistenceAndChanges(t *testing.T) {
 		}
 	}
 	p.ProxyURL = ""
-	if err := wb.preferences(p); err != nil {
+	if err := wb.SavePreferences(p); err != nil {
 		t.Fatal(err)
 	}
 	if wb.Store.Read().Preferences.ProxyURL != "" {
@@ -97,7 +97,7 @@ func TestProxyTogglePreservesAddress(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "https://download.invalid/file", nil)
 	for _, enabled := range []bool{true, false, true} {
 		p.ProxyEnabled = &enabled
-		must(t, w.preferences(p))
+		must(t, w.SavePreferences(p))
 		reopened, err := store.New(w.Store.Root)
 		must(t, err)
 		saved := reopened.Read().Preferences
@@ -111,7 +111,7 @@ func TestProxyTogglePreservesAddress(t *testing.T) {
 		}
 	}
 	p.ProxyURL = ""
-	if err := w.preferences(p); err == nil {
+	if err := w.SavePreferences(p); err == nil {
 		t.Fatal("不应允许开启空代理地址")
 	}
 }

@@ -22,7 +22,7 @@ func (w *Workbench) register(id, path string, managed bool) error {
 		s.Models = append(s.Models, domain.InstalledModel{ID: id, Path: path, Managed: managed})
 	}, true)
 }
-func (w *Workbench) download(id string) error {
+func (w *Workbench) DownloadModel(id string) error {
 	m, e := catalog.Lookup(id)
 	if e != nil {
 		return e
@@ -61,7 +61,7 @@ func (w *Workbench) download(id string) error {
 		return w.register(id, dest, true)
 	})
 }
-func (w *Workbench) importModel(path string) error {
+func (w *Workbench) ImportModel(path string) error {
 	return w.begin("import", msg.ActivityImport, nil, nil, func(ctx context.Context) error {
 		paths := []string{path}
 		info, e := os.Stat(path)
@@ -101,4 +101,18 @@ func (w *Workbench) importModel(path string) error {
 		}
 		return nil
 	})
+}
+
+// ForgetModel 移除模型登记，不删除用户导入的文件。下载其他模型不占用推理引擎，可同时移除。
+func (w *Workbench) ForgetModel(id string) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	activity := w.Store.Read().Activity
+	if w.cancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == id) {
+		return msg.Err(msg.ErrModelForgetBlocked, nil)
+	}
+	w.engine.Stop()
+	return w.Store.Update(func(s *domain.State) {
+		s.Models = slices.DeleteFunc(s.Models, func(m domain.InstalledModel) bool { return m.ID == id })
+	}, true)
 }

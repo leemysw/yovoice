@@ -21,9 +21,7 @@ func TestSaveDiagnostics(t *testing.T) {
 	must(t, w.SaveDraft(d))
 	broken := d
 	broken.Kind = "invalid"
-	raw, err := json.Marshal(broken)
-	must(t, err)
-	if _, err = w.Call("draft.save", raw); err == nil {
+	if err = w.SaveDraft(broken); err == nil {
 		t.Fatal("应拒绝无效作品")
 	}
 	// 模拟备份文件被目录占用，保留具体的文件系统错误。
@@ -34,7 +32,7 @@ func TestSaveDiagnostics(t *testing.T) {
 	}
 	b, err := os.ReadFile(filepath.Join(w.Store.Root, "logs", "service.log"))
 	must(t, err)
-	for _, marker := range []string{"draft.save", "validate_kind", "rpc.failed", "state.write_failed", "state.backup.json", "detail", d.ID} {
+	for _, marker := range []string{"draft.save", "validate_kind", "state.write_failed", "state.backup.json", "detail", d.ID} {
 		if !strings.Contains(string(b), marker) {
 			t.Fatal("缺少诊断字段", marker)
 		}

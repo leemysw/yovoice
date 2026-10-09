@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"time"
+	"yovoice/internal/remote"
 	"yovoice/internal/workbench"
 )
 
@@ -27,7 +28,7 @@ func serveAPI(ctx context.Context, wb *workbench.Workbench, address, token, cert
 		return err
 	}
 	defer listener.Close()
-	server := &http.Server{Handler: &workbench.API{Workbench: wb, Token: token, Context: ctx, GenerationTimeout: generationTimeout}, ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 90 * time.Second, IdleTimeout: 60 * time.Second, BaseContext: func(net.Listener) context.Context { return ctx }}
+	server := &http.Server{Handler: &remote.API{Workbench: wb, Token: token, Context: ctx, GenerationTimeout: generationTimeout}, ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 90 * time.Second, IdleTimeout: 60 * time.Second, BaseContext: func(net.Listener) context.Context { return ctx }}
 	stopped := make(chan struct{})
 	finished := make(chan struct{})
 	defer func() { close(stopped); <-finished }()

@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"context"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -81,4 +82,14 @@ func (w *Workbench) validateTimelineAssets(timeline *domain.AudioTimeline) error
 		}
 	}
 	return nil
+}
+
+// ImportTimelineFrom 从数据流导入时间线素材，超过 20 MB 时拒绝。
+func (w *Workbench) ImportTimelineFrom(ctx context.Context, r io.Reader, name string) (domain.AudioAsset, error) {
+	path, err := w.receive(r)
+	if err != nil {
+		return domain.AudioAsset{}, err
+	}
+	defer os.Remove(path)
+	return w.importTimelineAudio(ctx, path, name)
 }

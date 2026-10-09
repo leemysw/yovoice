@@ -14,6 +14,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"yovoice/internal/desktop"
 	"yovoice/internal/domain"
 	"yovoice/internal/platform"
 	"yovoice/internal/store"
@@ -69,7 +70,7 @@ func run() error {
 	defer cancel()
 	var once sync.Once
 	stop := func() { once.Do(cancel) }
-	handler := &workbench.Server{Workbench: wb, Assets: assets, Secret: secret, Shutdown: stop}
+	handler := &desktop.Server{Workbench: wb, Assets: assets, Secret: secret, Shutdown: stop}
 	server := &http.Server{Handler: handler, ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second, BaseContext: func(net.Listener) context.Context { return ctx }}
 	go func() { _, _ = bufio.NewReader(os.Stdin).ReadString('\n'); stop() }()
 	signals := make(chan os.Signal, 1)

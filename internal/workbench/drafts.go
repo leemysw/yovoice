@@ -58,3 +58,12 @@ func (w *Workbench) SaveDraft(d domain.Draft) (err error) {
 		}
 	}, true)
 }
+
+func (w *Workbench) DeleteDraft(id string) error {
+	if !domain.ValidID(id) {
+		return msg.Err(msg.ErrDraftIDInvalid, nil)
+	}
+	return w.Store.Update(func(s *domain.State) {
+		s.Drafts = slices.DeleteFunc(s.Drafts, func(d domain.Draft) bool { return d.ID == id })
+	}, true)
+}

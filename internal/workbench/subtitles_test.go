@@ -84,10 +84,8 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 		t.Fatal("所有角色必须预检查")
 	}
 	other.ModelID = d.ModelID
-	must(t, w.generate(d))
-	w.mu.Lock()
-	done := w.done
-	w.mu.Unlock()
+	must(t, w.Generate(d))
+	done := w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):
@@ -117,9 +115,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 		t.Fatal("生成后保存丢失作品或音频记录")
 	}
 	must(t, w.generateAudio(d, "", first.Segment.CueID, "clip"))
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	done = w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):
@@ -137,10 +133,8 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	}
 	d.Subtitles.Cues[1].Text = "模拟生成失败"
 	d.Text = "你好\n模拟生成失败"
-	must(t, w.generate(d))
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	must(t, w.Generate(d))
+	done = w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):
@@ -159,9 +153,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	d.Timeline.RegenerateMode = "preserve"
 	before := len(state.History)
 	must(t, w.generateAudio(d, "", first.Segment.CueID, "clip"))
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	done = w.Done()
 	select {
 	case <-done:
 	case <-time.After(15 * time.Second):

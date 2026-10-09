@@ -1,4 +1,4 @@
-package workbench
+package remote
 
 import (
 	"context"

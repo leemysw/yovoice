@@ -1,7 +1,6 @@
 package workbench
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -15,14 +14,6 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
-	call := func(method string, input any) any {
-		t.Helper()
-		b, e := json.Marshal(input)
-		must(t, e)
-		result, e := w.Call(method, b)
-		must(t, e)
-		return result
-	}
 	d := domain.DefaultDraft()
 	id := domain.NewID()
 	file := filepath.Join(w.Store.Root, "outputs", id+".wav")
@@ -30,11 +21,12 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	must(t, w.Store.Update(func(s *domain.State) {
 		s.History = append(s.History, domain.Generation{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
-	v := call("voice.fromGeneration", map[string]any{"id": id, "name": "旁白音色", "referenceText": "校正后的原文"}).(domain.Voice)
+	v, err := w.VoiceFromGeneration(id, "旁白音色", "校正后的原文")
+	must(t, err)
 	if v.SourceGenerationID != id || v.ReferenceText != "校正后的原文" {
 		t.Fatal(v)
 	}
-	must(t, w.deleteMedia("outputs", id))
+	must(t, w.DeleteMedia("outputs", id))
 	voicePath, err := w.MediaFile("voices", v.ID)
 	must(t, err)
 	if _, err := os.Stat(voicePath); err != nil {
@@ -42,8 +34,9 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	}
 	d.VoiceID = &v.ID
 	c := domain.Character{ID: domain.NewID(), Name: "旁白", Settings: d.SynthesisSettings, DemoText: "试听台词"}
-	c = call("character.save", c).(domain.Character)
-	if err := w.deleteMedia("voices", v.ID); err == nil {
+	c, err = w.SaveCharacter(c)
+	must(t, err)
+	if err := w.DeleteMedia("voices", v.ID); err == nil {
 		t.Fatal("允许删除被角色引用的音色")
 	}
 	// 用已有协议测试进程完成实际任务调度，验证试听隔离与保存快照。
@@ -57,10 +50,9 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		s.RuntimeBackend = ptr("cpu")
 	}, true))
 	before := w.Store.Read().Drafts
-	previewID := call("character.preview", c).(string)
-	w.mu.Lock()
-	done := w.done
-	w.mu.Unlock()
+	previewID, err := w.PreviewCharacter(c)
+	must(t, err)
+	done := w.Done()
 	select {
 	case <-done:
 	case <-time.After(10 * time.Second):
@@ -75,11 +67,12 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	}
 	c.Preview = &state.Previews[0]
 	c.DemoText = "编辑中的新台词"
-	c = call("character.save", c).(domain.Character)
+	c, err = w.SaveCharacter(c)
+	must(t, err)
 	if c.Preview.Text != "试听台词" || c.Preview.ID == previewID {
 		t.Fatal("试听快照未独立保存", c)
 	}
-	call("character.discardPreview", map[string]string{"id": previewID})
+	must(t, w.DiscardPreview(previewID))
 	savedPath, err := w.MediaFile("outputs", c.Preview.ID)
 	must(t, err)
 	if _, err := os.Stat(savedPath); err != nil {
@@ -88,8 +81,9 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	copy := c
 	copy.ID = domain.NewID()
 	copy.Name = "旁白副本"
-	copy = call("character.save", copy).(domain.Character)
-	call("character.delete", map[string]string{"id": c.ID})
+	copy, err = w.SaveCharacter(copy)
+	must(t, err)
+	must(t, w.DeleteCharacter(c.ID))
 	copyPath, err := w.MediaFile("outputs", copy.Preview.ID)
 	must(t, err)
 	if _, err := os.Stat(copyPath); err != nil {
@@ -102,10 +96,9 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	}
 	// 取消重生成不得修改已经保存的试听。
 	copy.DemoText = "等待取消"
-	call("character.preview", copy)
-	w.mu.Lock()
-	done = w.done
-	w.mu.Unlock()
+	_, err = w.PreviewCharacter(copy)
+	must(t, err)
+	done = w.Done()
 	w.Cancel()
 	select {
 	case <-done:
@@ -115,6 +108,6 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	if w.Store.Read().Characters[0].Preview.ID != copy.Preview.ID {
 		t.Fatal("取消覆盖了原试听")
 	}
-	call("character.delete", map[string]string{"id": copy.ID})
-	must(t, w.deleteMedia("voices", v.ID))
+	must(t, w.DeleteCharacter(copy.ID))
+	must(t, w.DeleteMedia("voices", v.ID))
 }

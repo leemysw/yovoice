@@ -47,7 +47,7 @@ func TestProjectMetadataAndReferenceSafety(t *testing.T) {
 		s.Voices = append(s.Voices, domain.Voice{ID: id, Name: "参考录音", FileName: id + ".wav", Duration: 1})
 	}, true))
 	must(t, w.SaveDraft(d))
-	if w.deleteMedia("voices", id) == nil {
+	if w.DeleteMedia("voices", id) == nil {
 		t.Fatal("删除了作品角色引用的录音")
 	}
 	if _, err := os.Stat(path); err != nil {
@@ -60,7 +60,7 @@ func TestProjectMetadataAndReferenceSafety(t *testing.T) {
 		snapshot.SynthesisSettings = settings
 		s.History = append(s.History, domain.Generation{ID: domain.NewID(), Title: "旧版本", Settings: snapshot})
 	}, true))
-	if w.deleteMedia("voices", id) == nil {
+	if w.DeleteMedia("voices", id) == nil {
 		t.Fatal("删除了历史快照引用的录音")
 	}
 }

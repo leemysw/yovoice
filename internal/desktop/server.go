@@ -1,4 +1,5 @@
-package workbench
+// Package desktop 为原生宿主提供本机 HTTP 服务：界面资源、RPC、状态事件与媒体文件。
+package desktop
 
 import (
 	"crypto/subtle"
@@ -8,10 +9,11 @@ import (
 	"strings"
 	"sync"
 	"yovoice/internal/msg"
+	"yovoice/internal/workbench"
 )
 
 type Server struct {
-	Workbench      *Workbench
+	Workbench      *workbench.Workbench
 	Assets, Secret string
 	Shutdown       func()
 	calls          sync.Mutex
@@ -38,7 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		s.calls.Lock()
-		result, err := s.Workbench.Call(message.Method, message.Data)
+		result, err := Call(s.Workbench, message.Method, message.Data)
 		s.calls.Unlock()
 		reply := map[string]any{"id": message.ID, "result": result}
 		if err != nil {

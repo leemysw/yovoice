@@ -1,4 +1,5 @@
-package workbench
+// Package remote 提供远程 HTTP API、异步生成任务与 MCP 工具，只开放推理相关能力。
+package remote
 
 import (
 	"context"
@@ -8,19 +9,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 	"yovoice/internal/catalog"
 	"yovoice/internal/domain"
 	"yovoice/internal/msg"
+	"yovoice/internal/workbench"
 )
 
 // API 为远程客户端提供有限的推理接口，不开放桌面管理与任意路径访问。
 type API struct {
-	Workbench         *Workbench
+	Workbench         *workbench.Workbench
 	Token             string
 	Context           context.Context
 	GenerationTimeout time.Duration
@@ -84,37 +84,18 @@ func apiJSON(w http.ResponseWriter, value any) {
 
 func (a *API) upload(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
-	voice, err := a.uploadVoice(r.Context(), r.Body, r.URL.Query().Get("name"))
+	voice, err := a.Workbench.ImportVoiceFrom(r.Context(), r.Body, r.URL.Query().Get("name"))
 	if err != nil {
 		status := http.StatusBadRequest
 		var tooLarge *http.MaxBytesError
-		if errors.As(err, &tooLarge) {
+		var callErr *msg.CallError
+		if errors.As(err, &tooLarge) || (errors.As(err, &callErr) && callErr.Code == msg.ErrAudioTooLarge) {
 			status = http.StatusRequestEntityTooLarge
 		}
 		http.Error(w, err.Error(), status)
 		return
 	}
 	apiJSON(w, voice)
-}
-
-func (a *API) uploadVoice(ctx context.Context, body io.Reader, name string) (domain.Voice, error) {
-	f, err := os.CreateTemp(filepath.Join(a.Workbench.Store.Root, "downloads"), "api-upload-*")
-	if err != nil {
-		return domain.Voice{}, err
-	}
-	defer os.Remove(f.Name())
-	n, err := io.Copy(f, io.LimitReader(body, (20<<20)+1))
-	closeErr := f.Close()
-	if err != nil {
-		return domain.Voice{}, err
-	}
-	if closeErr != nil {
-		return domain.Voice{}, closeErr
-	}
-	if n > 20<<20 {
-		return domain.Voice{}, &http.MaxBytesError{Limit: 20 << 20}
-	}
-	return a.Workbench.ImportVoice(ctx, f.Name(), name)
 }
 
 func (a *API) generate(w http.ResponseWriter, r *http.Request) {
@@ -161,40 +142,7 @@ func decodeGeneration(body io.Reader) (domain.Draft, error) {
 func (a *API) generateAudio(ctx context.Context, d domain.Draft) (domain.Generation, error) {
 	ctx, cancel := context.WithTimeout(ctx, a.generationTimeout())
 	defer cancel()
-	if err := ctx.Err(); err != nil {
-		return domain.Generation{}, err
-	}
-	if err := a.Workbench.generateDetached(d); err != nil {
-		return domain.Generation{}, err
-	}
-	// 断开连接时取消推理，等待任务退出后才允许下一个请求。
-	a.Workbench.mu.Lock()
-	done := a.Workbench.done
-	a.Workbench.mu.Unlock()
-	select {
-	case <-done:
-	case <-ctx.Done():
-		a.Workbench.Cancel()
-		<-done
-		return domain.Generation{}, ctx.Err()
-	}
-	if err := ctx.Err(); err != nil {
-		return domain.Generation{}, err
-	}
-	state := a.Workbench.Store.Read()
-	if activity := state.Activity; activity == nil || activity.Status != "completed" {
-		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
-		if activity != nil && activity.ErrorCode != nil {
-			return domain.Generation{}, fmt.Errorf("语音生成失败：%s", encodeErrorText(*activity.ErrorCode, activity.ErrorParams))
-		}
-		return domain.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
-	}
-	for _, g := range state.History {
-		if g.Settings.ID == d.ID {
-			return g, nil
-		}
-	}
-	return domain.Generation{}, fmt.Errorf("生成结果未找到")
+	return a.Workbench.Synthesize(ctx, d)
 }
 
 func (a *API) audio(w http.ResponseWriter, r *http.Request, id string) {
@@ -207,11 +155,4 @@ func (a *API) audio(w http.ResponseWriter, r *http.Request, id string) {
 	w.Header().Set("Content-Disposition", `attachment; filename="`+id+`.wav"`)
 	w.Header().Set("X-Yovoice-Generation-ID", id)
 	http.ServeFile(w, r, path)
-}
-
-func encodeErrorText(code msg.Code, params msg.Params) string {
-	if detail, ok := params["detail"]; ok {
-		return fmt.Sprintf("%s (%v)", code, detail)
-	}
-	return string(code)
 }

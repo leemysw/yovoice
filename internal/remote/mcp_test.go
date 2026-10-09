@@ -1,4 +1,4 @@
-package workbench
+package remote
 
 import (
 	"bytes"
@@ -14,13 +14,14 @@ import (
 	"testing"
 	"time"
 	"yovoice/internal/domain"
+	"yovoice/internal/workbench"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // 使用真实 MCP 客户端验证协议协商、工具发现、上传、推理及认证下载。
 func TestMCPRemoteWorkflow(t *testing.T) {
-	wb, err := New(t.TempDir())
+	wb, err := workbench.New(t.TempDir())
 	must(t, err)
 	defer wb.Close()
 	token := strings.Repeat("m", 32)

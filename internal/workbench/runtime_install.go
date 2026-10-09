@@ -32,7 +32,7 @@ func (w *Workbench) UseBundledCPU(path string) error {
 		}
 	}, true)
 }
-func (w *Workbench) install() error {
+func (w *Workbench) InstallRuntime() error {
 	backend := w.Store.Read().Preferences.Backend
 	archives, e := catalog.RuntimeArchives(backend)
 	if e != nil {

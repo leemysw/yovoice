@@ -138,6 +138,19 @@ func (w *Workbench) begin(kind string, code msg.Code, params msg.Params, modelID
 	}()
 	return nil
 }
+
+// Done 返回当前操作的完成信号；没有进行中的操作时返回已关闭的通道。
+func (w *Workbench) Done() <-chan struct{} {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.done == nil {
+		closed := make(chan struct{})
+		close(closed)
+		return closed
+	}
+	return w.done
+}
+
 func (w *Workbench) Cancel() {
 	diag.Log(w.Store.Root, "operation.cancel_requested")
 	w.mu.Lock()

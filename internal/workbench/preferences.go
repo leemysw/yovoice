@@ -10,7 +10,7 @@ import (
 	"yovoice/internal/msg"
 )
 
-func (w *Workbench) preferences(p domain.Preferences) error {
+func (w *Workbench) SavePreferences(p domain.Preferences) error {
 	p.ProxyURL = strings.TrimSpace(p.ProxyURL)
 	if p.ProxyEnabled != nil && *p.ProxyEnabled && p.ProxyURL == "" {
 		return msg.Err(msg.ErrProxyURL, nil)
@@ -44,4 +44,11 @@ func (w *Workbench) preferences(p domain.Preferences) error {
 			s.RuntimeBackend = ptr(p.Backend)
 		}
 	}, true)
+}
+
+// SetModelDirectory 只更换模型下载目录，其余偏好保持不变。
+func (w *Workbench) SetModelDirectory(path string) error {
+	p := w.Store.Read().Preferences
+	p.ModelDirectory = ptr(path)
+	return w.SavePreferences(p)
 }
