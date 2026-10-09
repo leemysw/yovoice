@@ -66,6 +66,8 @@ public sealed class AppUpdater : IDisposable
             response.EnsureSuccessStatusCode();
             var release = JsonSerializer.Deserialize<UpdateRelease>(await response.Content.ReadAsStringAsync(stopped.Token), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new IOException("版本信息无效。");
             var asset = release.Package(current);
+            // 版本号已校验，过时版本的安装包不再保留。
+            RemoveStaleUpdates(release.Tag);
             if (asset is null)
             {
                 menu.Header = "检查更新…";
@@ -119,6 +121,17 @@ public sealed class AppUpdater : IDisposable
                 Process.Start(new ProcessStartInfo("https://github.com/leemysw/yovoice/releases/latest") { UseShellExecute = true });
         }
         finally { checking = false; showResult = false; }
+    }
+    private void RemoveStaleUpdates(string keep)
+    {
+        string updates = Path.Combine(root, "updates");
+        if (!Directory.Exists(updates)) return;
+        foreach (string directory in Directory.GetDirectories(updates))
+        {
+            if (string.Equals(Path.GetFileName(directory), keep, StringComparison.OrdinalIgnoreCase)) continue;
+            try { Directory.Delete(directory, true); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        }
     }
     private void PromptInstall()
     {

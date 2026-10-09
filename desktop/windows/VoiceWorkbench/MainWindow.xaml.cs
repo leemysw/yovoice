@@ -59,11 +59,7 @@ public partial class MainWindow : Window
             HostLog.Write(service.Root, "exit.requested");
             try
             {
-                if (web?.CoreWebView2 is not null)
-                {
-                    var result = await service.CallAsync("state.get", new { });
-                    if (result.GetProperty("state").TryGetProperty("activity", out var activity) && activity.ValueKind == JsonValueKind.Object && activity.GetProperty("status").GetString() == "running" && !AppDialog.Show(this, "退出 yovoice？", "当前操作尚未结束。退出将取消操作，已下载的部分文件和正文会保留。", "退出", "继续使用")) { shuttingDown = false; updater.CancelInstall(); return; }
-                }
+                if (web?.CoreWebView2 is not null && await IsOperationRunningAsync() && !AppDialog.Show(this, "退出 yovoice？", "当前操作尚未结束。退出将取消操作，已下载的部分文件和正文会保留。", "退出", "继续使用")) { shuttingDown = false; updater.CancelInstall(); return; }
                 // 关闭前读取最新正文，避免自动保存的防抖窗口丢字。
                 if (web?.CoreWebView2 is not null)
                 {
@@ -93,6 +89,20 @@ public partial class MainWindow : Window
             catch (Exception error) { HostLog.Write(service.Root, "exit.failed", error); shuttingDown = false; updater.CancelInstall(); AppDialog.Show(this, "未能安全保存", error.Message + "\n\n请稍后重试退出。"); }
         };
         Closed += (_, _) => { closed = true; tray.Visible = false; tray.Dispose(); trayMenu.Dispose(); trayIcon.Dispose(); updater.Dispose(); service.Dispose(); web?.Dispose(); };
+    }
+    // 查询仅用于提示；本地服务已停止时视为没有运行中的操作，后续保存失败会提供备份后退出。
+    private async Task<bool> IsOperationRunningAsync()
+    {
+        try
+        {
+            var result = await service.CallAsync("state.get", new { });
+            return result.GetProperty("state").TryGetProperty("activity", out var activity) && activity.ValueKind == JsonValueKind.Object && activity.GetProperty("status").GetString() == "running";
+        }
+        catch (Exception error)
+        {
+            HostLog.Write(service.Root, "exit.state_failed", error);
+            return false;
+        }
     }
     protected override void OnSourceInitialized(EventArgs e)
     {

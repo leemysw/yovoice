@@ -62,7 +62,10 @@ final class AppUpdater {
                 }
                 try Self.validate(response)
                 let release = try JSONDecoder().decode(UpdateRelease.self, from: data)
-                guard let asset = try release.package(newerThan: currentVersion) else {
+                let asset = try release.package(newerThan: currentVersion)
+                // 版本号已校验，过时版本的安装包与解压副本不再保留。
+                Self.removeStaleUpdates(in: root, keeping: release.tag_name)
+                guard let asset else {
                     menuItem.title = HostL10n.t("menu.checkUpdates")
                     if showResult { inform(HostL10n.t("alert.upToDate.title"), HostL10n.t("alert.upToDate.body", currentVersion)) }
                     return
@@ -173,6 +176,14 @@ final class AppUpdater {
         let logs = root.appendingPathComponent("logs")
         try? FileManager.default.createDirectory(at: logs, withIntermediateDirectories: true)
         try? "\(Date()): \(error.localizedDescription)\n".write(to: logs.appendingPathComponent("update-check.log"), atomically: true, encoding: .utf8)
+    }
+
+    nonisolated private static func removeStaleUpdates(in root: URL, keeping tag: String) {
+        let updates = root.appendingPathComponent("updates", isDirectory: true)
+        guard let items = try? FileManager.default.contentsOfDirectory(at: updates, includingPropertiesForKeys: nil) else { return }
+        for item in items where item.lastPathComponent != tag {
+            try? FileManager.default.removeItem(at: item)
+        }
     }
 
     nonisolated private static func validate(_ response: URLResponse) throws {
