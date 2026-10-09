@@ -220,6 +220,14 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
+      - name: Check Go format and vet
+        if: ${{ !inputs.release }}
+        run: |
+          unformatted="$(gofmt -l cmd internal)"
+          if [[ -n "$unformatted" ]]; then echo "未格式化：$unformatted" >&2; exit 1; fi
+          go vet ./...
+          GOOS=windows go vet ./...
+          GOOS=darwin go vet ./...
       - run: go test -race ./...
         if: ${{ !inputs.release }}
       - uses: actions/cache@v4

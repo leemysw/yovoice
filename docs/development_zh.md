@@ -61,7 +61,7 @@ pnpm --dir web exec playwright install chromium
 make check
 ```
 
-`make check-core` 运行带竞态检测的 Go 测试，`make check-web` 执行前端构建与浏览器测试。原生安装和 GPU 推理还需在目标平台验证。
+`make check-core` 检查 Go 格式与静态分析，并运行带竞态检测的测试；`make check-web` 执行前端构建与浏览器测试。原生安装和 GPU 推理还需在目标平台验证。
 
 ## 项目结构
 
@@ -73,6 +73,16 @@ make check
 | `web/src/` | 前端应用 |
 | `web/browser-tests/` | 浏览器测试 |
 | `scripts/` | 构建与打包工具 |
+
+### 架构约定
+
+- 前端依赖方向为 `app → features → shared`，`shared` 不引用业务模块。
+- Go 服务以 `Workbench` 为核心，按职责分文件：`workbench.go` 负责前台操作调度，`rpc.go` 分发桌面调用，`api.go`、`mcp.go` 提供远程服务，其余文件分别处理作品、素材、模型、运行时、音色与生成。
+- 模型目录、生成参数和 OmniVoice 属性同时嵌入 Go 服务并供界面引用，`internal/workbench/*.json` 与 `web/src/shared/lib/*.json` 需保持一致。
+- 消息码在 `messages.go` 中声明，须加入 `AllMessageCodes` 并在两种界面语言中提供文案。
+- 升级 audio.cpp 时，同步修改 `EngineVersion`、运行时包校验值与 `scripts/desktop/` 构建脚本。
+
+后三项由 `go test` 校验。
 
 公开指南使用英文 `*.md` 和中文 `*_zh.md`。修改用户可见行为时，同步更新两种语言及其链接。
 

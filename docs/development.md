@@ -61,7 +61,7 @@ pnpm --dir web exec playwright install chromium
 make check
 ```
 
-Use `make check-core` for Go tests with the race detector, or `make check-web` for the frontend build and browser tests. Native installation and GPU inference also need testing on the target platform.
+Use `make check-core` for Go formatting, static analysis and tests with the race detector, or `make check-web` for the frontend build and browser tests. Native installation and GPU inference also need testing on the target platform.
 
 ## Project layout
 
@@ -73,6 +73,16 @@ Use `make check-core` for Go tests with the race detector, or `make check-web` f
 | `web/src/` | Frontend application |
 | `web/browser-tests/` | Browser tests |
 | `scripts/` | Build and packaging tools |
+
+### Architecture conventions
+
+- Frontend dependencies flow `app → features → shared`; `shared` never imports feature modules.
+- The Go service centers on `Workbench`, split by responsibility: `workbench.go` schedules foreground operations, `rpc.go` dispatches desktop calls, `api.go` and `mcp.go` serve remote clients, and the remaining files handle projects, media, models, runtime, voices and generation.
+- The model catalog, generation options and OmniVoice attributes are embedded in the Go service and imported by the UI. Keep `internal/workbench/*.json` and `web/src/shared/lib/*.json` identical.
+- Declare message codes in `messages.go`, add them to `AllMessageCodes`, and provide copy in both UI languages.
+- When upgrading audio.cpp, update `EngineVersion`, the runtime archive checksums and the build scripts in `scripts/desktop/` together.
+
+`go test` enforces the last three.
 
 Public guides use English `*.md` and Chinese `*_zh.md` files. Keep both versions and their links in sync when changing user-facing behavior.
 
