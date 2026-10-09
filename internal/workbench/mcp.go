@@ -97,7 +97,10 @@ func (a *API) newMCPHandler() http.Handler {
 	for _, name := range []string{"get_generation", "cancel_generation"} {
 		mcp.AddTool(server, &mcp.Tool{Name: name, Description: map[string]string{"get_generation": "按 requestId 查询任务；建议每2–5秒查询，completed 后使用 downloadPath 下载", "cancel_generation": "按 requestId 取消任务；取消后查询至终态，终态任务保持不变"}[name]}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
 			RequestID string `json:"requestId"`
-		}) (*mcp.CallToolResult, any, error) { job, err := a.getJob(in.RequestID, name == "cancel_generation"); return nil, job, err })
+		}) (*mcp.CallToolResult, any, error) {
+			job, err := a.getJob(in.RequestID, name == "cancel_generation")
+			return nil, job, err
+		})
 	}
 
 	return mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: 28 << 20, PropagateRequestCancellation: true})
