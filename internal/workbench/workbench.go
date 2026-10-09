@@ -48,7 +48,9 @@ func New(root string) (*Workbench, error) {
 		}
 		return download.Proxy(req, preferences.ProxyURL)
 	}
-	return &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}}, nil
+	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}}
+	w.removeStale()
+	return w, nil
 }
 
 // 前台命令由服务串行调度，耗时操作独立运行，状态通过 Store 广播。

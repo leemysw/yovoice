@@ -104,6 +104,11 @@ func (w *Workbench) InstallRuntime() error {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		return w.Store.Update(func(s *schema.State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true)
+		if err = w.Store.Update(func(s *schema.State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true); err != nil {
+			return err
+		}
+		// 每次安装解压到新目录，旧版本已不再引用，及时清理避免重复安装持续占用磁盘。
+		w.removeStaleRuntimes()
+		return nil
 	})
 }

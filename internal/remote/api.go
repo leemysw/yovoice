@@ -48,16 +48,16 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		a.mcpHandler.ServeHTTP(w, r)
 		return
 	}
-	state := a.Workbench.Store.Read()
 	switch {
 	case strings.HasPrefix(r.URL.Path, "/v1/jobs/"):
 		a.jobHTTP(w, r)
 	case r.Method == "GET" && r.URL.Path == "/v1/status":
+		state := a.Workbench.Store.Read()
 		apiJSON(w, map[string]any{"engineVersion": catalog.EngineVersion, "activity": state.Activity, "ready": state.RuntimePath != nil})
 	case r.Method == "GET" && r.URL.Path == "/v1/models":
-		apiJSON(w, map[string]any{"catalog": catalog.Models, "installed": state.Models, "generationOptions": catalog.GenerationOptions})
+		apiJSON(w, map[string]any{"catalog": catalog.Models, "installed": a.Workbench.Store.Read().Models, "generationOptions": catalog.GenerationOptions})
 	case r.Method == "GET" && r.URL.Path == "/v1/voices":
-		apiJSON(w, state.Voices)
+		apiJSON(w, a.Workbench.Store.Read().Voices)
 	case r.Method == "GET" && strings.HasPrefix(r.URL.Path, "/v1/audio/"):
 		a.audio(w, r, strings.TrimPrefix(r.URL.Path, "/v1/audio/"))
 	case r.Method == "POST" && (r.URL.Path == "/v1/voices" || r.URL.Path == "/v1/generate"):
