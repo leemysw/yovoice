@@ -1,38 +1,38 @@
 import { defineTheme } from '@astryxdesign/core/theme';
 import { neutralTheme } from '@astryxdesign/theme-neutral';
 
-// yovoice 主题：在 neutral 之上换成暖纸色底、墨色文字和一点橙色点缀，界面像放在桌上的纸与胶片。
+// yovoice 主题：在 neutral 之上用接近白的中性底、墨色文字和一点橙色点缀，保持干净不偏暖。
 // 应用只用浅色模式，这里只给单值。修改后运行 `pnpm exec astryx theme build src/app/paper-theme.ts` 重新生成 yovoice-paper.*。
-const ink = '#1C1A17';
-const shade = (alpha: number) => `oklch(0.28 0.02 60 / ${alpha}%)`;
+const ink = '#18181A';
+const shade = (alpha: number) => `oklch(0.25 0 0 / ${alpha}%)`;
 
 export const paperTheme = defineTheme({
   name: 'yovoice-paper',
   extends: neutralTheme,
   tokens: {
-    '--color-background-body': '#F2EFE9',
+    '--color-background-body': '#F7F7F7',
     '--color-background-surface': '#FFFFFF',
     '--color-background-card': '#FFFFFF',
     '--color-background-popover': '#FFFFFF',
-    '--color-background-muted': '#ECE8E1',
-    '--color-background-inverted': '#191714',
+    '--color-background-muted': '#EFEFEF',
+    '--color-background-inverted': '#161617',
     '--color-accent': ink,
     '--color-text-accent': ink,
     '--color-icon-accent': ink,
-    '--color-accent-muted': '#ECE8E1',
+    '--color-accent-muted': '#EFEFEF',
     '--color-text-primary': ink,
-    '--color-text-secondary': '#6F695F',
-    '--color-text-disabled': '#AAA398',
+    '--color-text-secondary': '#6B6B6E',
+    '--color-text-disabled': '#A8A8AB',
     '--color-icon-primary': ink,
-    '--color-icon-secondary': '#7C7569',
-    '--color-icon-disabled': '#AAA398',
-    '--color-border': '#1C1A1714',
-    '--color-border-emphasized': '#D8D2C7',
+    '--color-icon-secondary': '#77777A',
+    '--color-icon-disabled': '#A8A8AB',
+    '--color-border': '#18181A14',
+    '--color-border-emphasized': '#D6D6D8',
     '--color-icon-orange': '#E0651C',
     '--color-text-orange': '#9A3F0B',
     '--color-background-orange': '#FBE6D6',
     '--color-shadow': shade(10),
-    '--color-overlay': '#1C1A1766',
+    '--color-overlay': '#18181A66',
     '--radius-inner': '0.375rem',
     '--radius-element': '0.625rem',
     '--radius-container': '0.875rem',
