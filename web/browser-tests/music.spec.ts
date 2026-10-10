@@ -49,7 +49,7 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
   await page.getByRole('button', { name: '生成歌曲', exact: true }).click();
   await expect(page.getByRole('tab', { name: '模型', selected: true })).toBeVisible();
   await page.getByTestId('nav-music').click();
-  await expect(page.locator('.project-library-row:visible .song-cover')).toHaveCount(1);
+  await expect(page.locator('.project-library-row:visible .record-cover')).toHaveCount(1);
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '语音生成', exact: true }).click();
   await page.getByRole('combobox', { name: '模型' }).click();

@@ -2337,40 +2337,22 @@
     "defaultMessage": "用于渲染编曲的 General MIDI 音色库，含 128 种乐器和鼓组。"
   },
   "@yovoice.settings.tabAI": {
-    "defaultMessage": "AI"
-  },
-  "@yovoice.ai.title": {
     "defaultMessage": "AI 服务"
-  },
-  "@yovoice.ai.optional": {
-    "defaultMessage": "可选"
   },
   "@yovoice.ai.intro": {
     "defaultMessage": "接入大模型后，可在编曲中让 AI 写谱、在音乐生成中让 AI 写歌词。请求从本机直接发往你选择的服务。"
   },
-  "@yovoice.ai.providers": {
-    "defaultMessage": "AI 服务"
-  },
-  "@yovoice.ai.empty": {
-    "defaultMessage": "还没有 AI 服务。在下方添加一个；Ollama 等本地服务无需密钥。"
-  },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "添加服务"
   },
-  "@yovoice.ai.editProvider": {
-    "defaultMessage": "编辑服务"
-  },
   "@yovoice.ai.customProvider": {
-    "defaultMessage": "自定义（兼容接口）"
-  },
-  "@yovoice.ai.provider": {
-    "defaultMessage": "服务"
+    "defaultMessage": "自定义服务"
   },
   "@yovoice.ai.name": {
     "defaultMessage": "名称"
   },
   "@yovoice.ai.baseURL": {
-    "defaultMessage": "接口地址"
+    "defaultMessage": "服务地址"
   },
   "@yovoice.ai.format": {
     "defaultMessage": "协议"
@@ -2405,15 +2387,6 @@
   "@yovoice.ai.modelPlaceholder": {
     "defaultMessage": "填写模型名，或获取模型列表"
   },
-  "@yovoice.ai.availableModels": {
-    "defaultMessage": "可用模型（{count}）"
-  },
-  "@yovoice.ai.pickModel": {
-    "defaultMessage": "选择模型"
-  },
-  "@yovoice.ai.fetchModels": {
-    "defaultMessage": "获取模型"
-  },
   "@yovoice.ai.test": {
     "defaultMessage": "测试"
   },
@@ -2425,24 +2398,6 @@
   },
   "@yovoice.ai.inUse": {
     "defaultMessage": "使用中"
-  },
-  "@yovoice.ai.noModel": {
-    "defaultMessage": "未选择模型"
-  },
-  "@yovoice.ai.lastTestOk": {
-    "defaultMessage": "测试通过"
-  },
-  "@yovoice.ai.lastTestFailed": {
-    "defaultMessage": "测试未通过"
-  },
-  "@yovoice.ai.untested": {
-    "defaultMessage": "未测试"
-  },
-  "@yovoice.ai.use": {
-    "defaultMessage": "使用"
-  },
-  "@yovoice.ai.editNamed": {
-    "defaultMessage": "编辑 {name}"
   },
   "@yovoice.ai.deleteNamed": {
     "defaultMessage": "删除 {name}"
@@ -2457,7 +2412,7 @@
     "defaultMessage": "设置 AI"
   },
   "@yovoice.ai.notConfigured": {
-    "defaultMessage": "这个功能需要大模型。请先在“设置 › AI”中添加服务并选择模型。"
+    "defaultMessage": "这个功能需要大模型。请先在“设置 › AI 服务”中添加服务并选择模型。"
   },
   "@yovoice.ai.working": {
     "defaultMessage": "{model} 正在写… {time}"
@@ -2533,5 +2488,83 @@
   },
   "@yovoice.music.fewerTags": {
     "defaultMessage": "收起标签"
+  },
+  "@yovoice.settings.tabSoundfonts": {
+    "defaultMessage": "音色库"
+  },
+  "@yovoice.settings.downloads": {
+    "defaultMessage": "下载"
+  },
+  "@yovoice.settings.downloaded": {
+    "defaultMessage": "已下载"
+  },
+  "@yovoice.settings.available": {
+    "defaultMessage": "可下载"
+  },
+  "@yovoice.settings.importLocal": {
+    "defaultMessage": "导入本地模型"
+  },
+  "@yovoice.settings.importLocalHint": {
+    "defaultMessage": "已有 GGUF 文件时可直接导入，无需下载。"
+  },
+  "@yovoice.settings.soundfontIntro": {
+    "defaultMessage": "编曲渲染配乐时使用的 General MIDI 音色库，和语音、音乐模型分开管理。"
+  },
+  "@yovoice.settings.uiLocaleHint": {
+    "defaultMessage": "切换后立即生效。"
+  },
+  "@yovoice.settings.proxyHint": {
+    "defaultMessage": "下载模型、内核和访问 AI 服务时使用。"
+  },
+  "@yovoice.settings.preferences": {
+    "defaultMessage": "偏好"
+  },
+  "@yovoice.ai.added": {
+    "defaultMessage": "已添加"
+  },
+  "@yovoice.ai.addable": {
+    "defaultMessage": "可添加"
+  },
+  "@yovoice.ai.notAdded": {
+    "defaultMessage": "未添加"
+  },
+  "@yovoice.ai.enable": {
+    "defaultMessage": "用于 AI 功能"
+  },
+  "@yovoice.ai.replaceKey": {
+    "defaultMessage": "更换密钥"
+  },
+  "@yovoice.ai.clearKey": {
+    "defaultMessage": "清除密钥"
+  },
+  "@yovoice.ai.keyNotSet": {
+    "defaultMessage": "未设置密钥"
+  },
+  "@yovoice.ai.getKeyFrom": {
+    "defaultMessage": "从 {name} 获取 API 密钥"
+  },
+  "@yovoice.ai.syncModels": {
+    "defaultMessage": "同步模型列表"
+  },
+  "@yovoice.ai.searchModels": {
+    "defaultMessage": "搜索模型"
+  },
+  "@yovoice.ai.noModels": {
+    "defaultMessage": "还没有模型列表。可以直接填写模型名，或同步模型列表。"
+  },
+  "@yovoice.ai.currentModel": {
+    "defaultMessage": "当前模型"
+  },
+  "@yovoice.ai.saveProvider": {
+    "defaultMessage": "添加服务"
+  },
+  "@yovoice.ai.saveChanges": {
+    "defaultMessage": "保存更改"
+  },
+  "@yovoice.ai.removeProvider": {
+    "defaultMessage": "删除服务"
+  },
+  "@yovoice.ai.unsaved": {
+    "defaultMessage": "有未保存的更改"
   }
 }

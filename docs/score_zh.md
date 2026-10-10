@@ -12,7 +12,7 @@
 
 ## 准备音色库
 
-渲染需要 MuseScore General 音色库（`musescore-general-sf2`，SF2，约 216 MB），包含 128 种 GM 乐器和鼓组。在“设置 › 模型”中下载，或运行：
+渲染需要 MuseScore General 音色库（`musescore-general-sf2`，SF2，约 216 MB），包含 128 种 GM 乐器和鼓组。在“设置 › 音色库”中下载，或运行：
 
 ```sh
 yovoice models download musescore-general-sf2

@@ -13,8 +13,7 @@ import { noticeMessage } from '../../shared/lib/call-error';
 import { SpeakerAvatar } from '../create/subtitles';
 import { createMusicDraft } from '../music/music-draft';
 import { createScoreDraft, scoreDuration } from '../score/score-draft';
-import { ScoreThumb } from '../score/score-thumb';
-import { SongCover } from '../music/song-cover';
+import { RecordCover } from './record-cover';
 import { LibraryEmpty, LibraryPage } from './library-layout';
 
 export function NewProject({ locale, modelId, create, onError, button, kind }: {
@@ -82,8 +81,9 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
           {newMonth ? <small className="ticket-month eyebrow">{month}</small> : null}
           <HStack className="library-entry project-library-row ticket" gap={0}>
             <HStack className="ticket-main grow" gap={4} vAlign="center">
-              <HStack className="project-avatars ticket-cover" gap={0} hAlign="center" vAlign="center" aria-hidden="true">
-                {kind === 'music' ? <SongCover seed={draft.id} size={96} /> : kind === 'score' ? <ScoreThumb score={draft.score} /> : draft.subtitles?.speakers.length ? draft.subtitles.speakers.slice(0, 3).map(speaker => <SpeakerAvatar key={speaker.id} seed={speaker.characterId ?? `${draft.id}:${speaker.id}`} />) : <SpeakerAvatar seed={draft.characterId ?? draft.id} />}
+              {/* 歌曲和编曲用随机图案做唱片标签；语音作品用说话人头像做标签。 */}
+              <HStack className="project-avatars ticket-cover" gap={0} vAlign="center">
+                {kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} /> : <RecordCover seed={draft.id}><SpeakerAvatar seed={draft.subtitles?.speakers[0] ? draft.subtitles.speakers[0].characterId ?? `${draft.id}:${draft.subtitles.speakers[0].id}` : draft.characterId ?? draft.id} /></RecordCover>}
               </HStack>
               <VStack className="grow ticket-body" gap={1}>
                 <small className="eyebrow">{projectMeta(draft)}</small>

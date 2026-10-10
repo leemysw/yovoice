@@ -6,17 +6,17 @@ yovoice can optionally connect to a large language model. With an AI service set
 
 ## Set up a service
 
-Open Settings › AI and add a service:
+Open Settings › AI services. The left column lists added and available services; select one and fill it in on the right:
 
 | Service | Address | Key |
 | --- | --- | --- |
-| DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter | Built in | Required; **Get a key** opens the provider's console |
+| DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter | Built in | Required; **Get an API key from …** opens the provider's console |
 | Ollama, LM Studio | Defaults to this computer (`127.0.0.1`), editable | Usually not needed |
 | Custom | Any compatible address | Optional |
 
 A custom service chooses one of three protocols: OpenAI Chat Completions, OpenAI Responses or Anthropic Messages, plus the path of its model list (for example `/models`; leave it empty if the service has none and type the model name).
 
-Then **Fetch models** or type a model name, and **Test** sends a short message to check the address, key and model. The first service you add is used; with several, choose **Use** on the one you want.
+Type a model name, or **Sync model list** and pick one. After **Add service** or **Save changes**, **Test** sends a short message to check the address, key and model. The first service you add is used; with several, turn on **Use for AI features** on the one you want. A saved key shows only as a mask; **Replace key** or **Clear key** changes it.
 
 ## Where data goes
 

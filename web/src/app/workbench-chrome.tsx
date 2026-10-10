@@ -50,7 +50,8 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const previousVoices = useRef<Voice[]>([]);
   const [page, setPage] = useState('create');
   const [settingsFocus, setSettingsFocus] = useState<{ tab: string; modelId: string; request: number } | undefined>();
-  const openSettings = (modelId = draft.modelId, tab = 'models') => { setSettingsFocus({ tab, modelId, request: performance.now() }); setPage('settings'); };
+  // 缺的是音色库时打开独立的音色库页，其余模型在“模型”页。
+  const openSettings = (modelId = draft.modelId, requested = 'models') => { const tab = requested === 'models' && catalog.find(m => m.id === modelId)?.family === 'soundfont' ? 'soundfonts' : requested; setSettingsFocus({ tab, modelId, request: performance.now() }); setPage('settings'); };
   const [voicePicker, setVoicePicker] = useState<'voice' | 'emotion' | 'add' | null>(null);
   const [previewTrack, setPreviewTrack] = useState<Track | null>(null);
   const [track, setTrack] = useState<Track | null>(null); const [advanced, setAdvanced] = useState(false);
