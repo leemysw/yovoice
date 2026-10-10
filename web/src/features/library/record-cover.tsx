@@ -181,7 +181,7 @@ export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boole
   c.globalCompositeOperation = 'screen'; c.fillStyle = sheen; c.fillRect(0, 0, width, width); c.restore();
   if (!label) return;
   // 标签取封套画面的中心部分，中心是轴孔。
-  const lr = r * .36, source = art(seed, 192);
+  const lr = r * .36, source = art(seed, 320);
   c.save(); c.beginPath(); c.arc(x, y, lr, 0, Math.PI * 2); c.clip();
   c.drawImage(source, source.width * .3, source.height * .3, source.width * .4, source.height * .4, x - lr, y - lr, lr * 2, lr * 2);
   c.restore();
@@ -189,22 +189,67 @@ export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boole
   c.beginPath(); c.arc(x, y, Math.max(2, r * .045), 0, Math.PI * 2); c.fillStyle = '#0B0B0C'; c.fill();
 }
 
-function drawSleeve(canvas: HTMLCanvasElement, seed: string) {
-  canvas.getContext('2d')?.drawImage(art(seed, canvas.width), 0, 0);
+// 封套：在图案上叠印刷信息和使用痕迹，让它像一张真实的唱片封面而不只是一张图。
+function drawSleeve(canvas: HTMLCanvasElement, seed: string, title: string) {
+  const c = canvas.getContext('2d');
+  if (!c) return;
+  const s = canvas.width, next = random(`${seed}:sleeve`), m = s * .07;
+  c.drawImage(art(seed, s), 0, 0);
+  const font = getComputedStyle(canvas).fontFamily || 'system-ui, sans-serif';
+  // 印刷信息条：顶部或底部一条实色带，左侧粗体标题，下面一行厂牌编号和转速，像老唱片的版式。
+  const top = next() > .5, dark = next() > .5, band = s * .25;
+  const [paper, ink] = dark ? ['#141414', '#F4F1EA'] : ['#F4F1EA', '#141414'];
+  const y0 = top ? 0 : s - band;
+  c.fillStyle = paper; c.fillRect(0, y0, s, band);
+  const size = s * .1;
+  c.font = `700 ${size}px ${font}`; c.textBaseline = 'alphabetic'; c.fillStyle = ink;
+  let text = title.trim();
+  if (c.measureText(text).width > s - m * 2) {
+    while (text.length > 1 && c.measureText(`${text}…`).width > s - m * 2) text = text.slice(0, -1);
+    text = `${text}…`;
+  }
+  c.fillText(text, m, y0 + band * .52);
+  const small = s * .042;
+  c.font = `500 ${small}px ${font}`; c.globalAlpha = .65;
+  const speed = '33⅓ RPM';
+  c.fillText(`YV-${String(Math.floor(next() * 900) + 100)}`, m, y0 + band * .8);
+  c.fillText(speed, s - m - c.measureText(speed).width, y0 + band * .8);
+  c.globalAlpha = 1;
+  // 圆形磨痕：里面那张唱片长年压出的一圈浅色印子，只是若隐若现的一段弧。
+  c.save(); c.globalCompositeOperation = 'screen';
+  const start = next() * Math.PI * 2;
+  for (let i = 0; i < 260; i++) {
+    const a = start + next() * Math.PI * 1.3, rr = s * (.44 + (next() - .5) * .025);
+    c.fillStyle = `rgb(255 255 255 / ${4 + next() * 8}%)`; c.fillRect(s / 2 + Math.cos(a) * rr, s / 2 + Math.sin(a) * rr, 1.2, 1.2);
+  }
+  // 边角磨损：沿四边随机擦出浅色毛边。
+  for (let i = 0; i < 160; i++) {
+    const t = next() * s, d = next() ** 3 * s * .03, side = Math.floor(next() * 4);
+    const [x, y] = side === 0 ? [t, d] : side === 1 ? [s - d, t] : side === 2 ? [t, s - d] : [d, t];
+    c.fillStyle = `rgb(255 255 255 / ${8 + next() * 14}%)`; c.fillRect(x, y, 1 + next() * 1.5, 1 + next() * 1.5);
+  }
+  c.restore();
+  // 覆膜反光与封口阴影：左上一道斜向柔光，右侧开口处略暗。
+  const gloss = c.createLinearGradient(0, 0, s, s);
+  gloss.addColorStop(0, 'rgb(255 255 255 / 0%)'); gloss.addColorStop(.32, 'rgb(255 255 255 / 10%)'); gloss.addColorStop(.42, 'rgb(255 255 255 / 0%)');
+  c.fillStyle = gloss; c.fillRect(0, 0, s, s);
+  const edge = c.createLinearGradient(s * .9, 0, s, 0);
+  edge.addColorStop(0, 'rgb(0 0 0 / 0%)'); edge.addColorStop(1, 'rgb(0 0 0 / 22%)');
+  c.fillStyle = edge; c.fillRect(0, 0, s, s);
 }
 
 // 作品封面：歌曲和编曲是随机图案的封套，唱片从封套里探出一截，悬停时滑出并转动；
 // 传入 children 时不画封套，直接做成以头像为标签的黑胶唱片。
-export function RecordCover({ seed, children }: { seed: string; children?: ReactNode }) {
+export function RecordCover({ seed, title = '', children }: { seed: string; title?: string; children?: ReactNode }) {
   const disc = useRef<HTMLCanvasElement>(null);
   const sleeve = useRef<HTMLCanvasElement>(null);
   const label = !children;
   useEffect(() => {
     if (disc.current) drawRecord(disc.current, seed, label);
-    if (sleeve.current) drawSleeve(sleeve.current, seed);
-  }, [seed, label]);
+    if (sleeve.current) drawSleeve(sleeve.current, seed, title);
+  }, [seed, label, title]);
   return <HStack className="record-cover" gap={0} vAlign="center" aria-hidden="true" data-sleeve={label}>
     <canvas ref={disc} className="record-disc" width={192} height={192} />
-    {label ? <canvas ref={sleeve} className="record-sleeve" width={192} height={192} /> : <HStack className="record-label" gap={0} hAlign="center" vAlign="center">{children}</HStack>}
+    {label ? <canvas ref={sleeve} className="record-sleeve" width={320} height={320} /> : <HStack className="record-label" gap={0} hAlign="center" vAlign="center">{children}</HStack>}
   </HStack>;
 }

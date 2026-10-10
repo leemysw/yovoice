@@ -83,7 +83,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
             <HStack className="ticket-main grow" gap={4} vAlign="center">
               {/* 歌曲和编曲用随机图案做唱片标签；语音作品用说话人头像做标签。 */}
               <HStack className="project-avatars ticket-cover" gap={0} vAlign="center">
-                {kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} /> : <RecordCover seed={draft.id}><SpeakerAvatar seed={draft.subtitles?.speakers[0] ? draft.subtitles.speakers[0].characterId ?? `${draft.id}:${draft.subtitles.speakers[0].id}` : draft.characterId ?? draft.id} /></RecordCover>}
+                {kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} title={draft.title} /> : <RecordCover seed={draft.id}><SpeakerAvatar seed={draft.subtitles?.speakers[0] ? draft.subtitles.speakers[0].characterId ?? `${draft.id}:${draft.subtitles.speakers[0].id}` : draft.characterId ?? draft.id} /></RecordCover>}
               </HStack>
               <VStack className="grow ticket-body" gap={1}>
                 <small className="eyebrow">{projectMeta(draft)}</small>
