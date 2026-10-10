@@ -18,8 +18,9 @@ export function LibraryPage({ title, actions, controls, query, onQueryChange, se
   </VStack>;
 }
 
-export function LibraryEmpty({ icon, title, description, action }: { icon: ReactNode; title: string; description?: string; action: ReactNode }) {
-  return <VStack gap={4} hAlign="center"><HStack className="empty-icon">{icon}</HStack><h2>{title}</h2>{description ? <p>{description}</p> : null}{action}</VStack>;
+// 空列表：用该列表的封面实物（空白唱片、磁带、声波）代替通用图标，轻轻浮动。
+export function LibraryEmpty({ icon, art, title, description, action }: { icon?: ReactNode; art?: ReactNode; title: string; description?: string; action: ReactNode }) {
+  return <VStack gap={4} hAlign="center">{art ? <HStack className="empty-art ticket-cover" gap={0} vAlign="center">{art}</HStack> : <HStack className="empty-icon">{icon}</HStack>}<h2>{title}</h2>{description ? <p>{description}</p> : null}{action}</VStack>;
 }
 
 // 所有作品与素材列表共用的票根卡片：左边封面，中间元信息、标题和摘录，右边虚线撕口后的存根。

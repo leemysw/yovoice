@@ -299,6 +299,10 @@
   .empty-state { padding-block: calc(var(--spacing-8) * 2); text-align: center; color: var(--app-muted); }
   .empty-state h2 { color: var(--app-ink); }
   .empty-state p { font-size: var(--app-ui-font); }
+  .empty-art { scale: 1.5; margin-block: var(--spacing-10) var(--spacing-8); animation: empty-float var(--duration-slow-max) ease-in-out infinite alternate; }
+  .empty-ring-mark { width: var(--spacing-12); height: var(--spacing-12); border-radius: var(--radius-full); background: var(--app-white); color: var(--app-ink); box-shadow: var(--shadow-low); }
+  @keyframes empty-float { to { translate: 0 calc(var(--spacing-1) * -1); } }
+  @media (prefers-reduced-motion: reduce) { .empty-art { animation: none; } }
   .empty-icon svg { width: var(--spacing-10); height: var(--spacing-10); stroke-width: 1; }
   .voice-list { max-height: calc(var(--spacing-10) * 6.5); overflow: auto; }
   .voice-list[data-editing="true"] { max-height: calc(var(--spacing-10) * 3); }
@@ -456,7 +460,10 @@
 }
 
 /* 页面常驻以保留筛选与编辑位置，隐藏页面的播放器单独暂停。 */
-.page-panel { height: 100%; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
+.page-panel { height: 100%; flex: 1; min-width: 0; min-height: 0; overflow: hidden; animation: page-in var(--duration-fast) var(--ease-standard) backwards; }
+/* 切换页面时整页淡入。 */
+@keyframes page-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .page-panel { animation: none; } }
 /* 作品卡片做成票根：左边封面与摘录，右边虚线撕口后的日期存根。 */
 .ticket.library-entry { max-width: none; padding: 0; border: 0; border-radius: var(--radius-container); background: var(--app-paper); transition: background 150ms ease, box-shadow 150ms ease; }
 .ticket.library-entry:hover,.ticket.library-entry:focus-within { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); }
@@ -499,9 +506,9 @@
 .record-cover[data-sleeve="true"] .record-disc { position: absolute; inset-inline-end: 0; width: 90%; height: auto; aspect-ratio: 1; transition: translate var(--duration-medium) ease; }
 .ticket:hover .record-cover[data-sleeve="true"] .record-disc { translate: var(--spacing-2) 0; animation: record-spin 6s linear infinite; }
 @keyframes record-spin { to { transform: rotate(1turn); } }
-/* 列表入场：卡片依次浮起；只在入场期间生效，不在卡片上留下变换，弹出菜单定位不受影响。 */
+/* 列表入场：卡片依次淡入、由虚变实；不移动卡片，点击和弹出菜单定位不受影响。切换页面时重新播放。 */
 .ticket-list .ticket { animation: ticket-in var(--duration-medium) var(--ease-standard) backwards; animation-delay: calc(var(--duration-fast) / 4 * var(--ticket-index, 0)); }
-@keyframes ticket-in { from { opacity: 0; translate: 0 var(--spacing-3); } }
+@keyframes ticket-in { from { opacity: 0; filter: blur(var(--spacing-1)); } }
 @media (prefers-reduced-motion: reduce) {
   .ticket:hover .record-cover[data-sleeve="true"] .record-disc { translate: none; animation: none; }
   .ticket-list .ticket,.ticket:hover .tape-hub,.record-cover .record-disc,.wave-ring-bars { animation: none !important; }

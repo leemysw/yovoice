@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
-import { AudioLines, Ellipsis, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Ellipsis, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AppDialog, ConfirmDelete } from '../../shared/ui/app-dialog';
 import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from './library-layout';
 import { RecordCover } from './record-cover';
@@ -140,7 +140,7 @@ export function CharacterLibrary({ state, catalog, create, edit, apply, onError,
       actions={characters.length ? <Button label={t('@yovoice.character.create')} size="sm" icon={<Plus />} onClick={create} /> : undefined}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.character.search')}
       hasItems={characters.length > 0} hasResults={filtered.length > 0} noResults={t('@yovoice.character.noResults')}
-      empty={<LibraryEmpty icon={<AudioLines />} title={t('@yovoice.character.empty')} action={<Button label={t('@yovoice.character.create')} variant="primary" onClick={create} />} />}>
+      empty={<LibraryEmpty art={<RecordCover seed="empty-character" title={t('@yovoice.library.voicesTab')} />} title={t('@yovoice.character.empty')} action={<Button label={t('@yovoice.character.create')} size="sm" icon={<Plus />} onClick={create} />} />}>
       {/* 角色是一张单曲唱片：头像是唱片标签，点卡片试听，播放时唱片转动；存根记着有几种演绎。 */}
       {filtered.map((c, index) => <Ticket key={c.id} index={index} className="character-row"
         cover={<RecordCover seed={c.id} interactive><Player compact avatar={{ seed: c.id, label: t('@yovoice.character.listen'), disabled: !c.preview, select: () => setPlaying(c.id) }} suspended={!active || !!deleting} track={playing === c.id && c.preview ? { id: c.preview.id, name: c.name, fileName: c.preview.fileName, kind: 'outputs', subtitle: '', playRequest: 1 } : null} onError={onError} /></RecordCover>}

@@ -5,7 +5,7 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Copy, Folder, History, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Copy, FileMusic, FolderInput, History, Mic, MoreHorizontal, Music, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { createDraft, formatTime, projectKind, type Draft, type UiLocale } from '../../shared/workbench';
 import { call, isDesktop } from '../../shared/lib/client';
@@ -35,11 +35,12 @@ export function NewProject({ locale, modelId, create, onError, button, kind }: {
   return <DropdownMenu data-testid={button?.['data-testid']} presentation="popover" hasChevron={false}
     button={{ label: t('@yovoice.project.new'), icon: <Plus />, size: 'sm', ...button, isLoading: busy }}
     items={[
-      { id: 'story', label: t('@yovoice.project.story'), onClick: () => void start('story') },
-      { id: 'text', label: t('@yovoice.project.text'), onClick: () => void start('text') },
-      { id: 'music', label: t('@yovoice.project.music'), onClick: () => void start('music') },
-      { id: 'score', label: t('@yovoice.project.score'), onClick: () => void start('score') },
-      ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), onClick: () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); } }] : []),
+      // 图标与侧栏导航一致。
+      { id: 'story', label: t('@yovoice.project.story'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('story') },
+      { id: 'text', label: t('@yovoice.project.text'), icon: <Mic className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('text') },
+      { id: 'music', label: t('@yovoice.project.music'), icon: <Music className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('music') },
+      { id: 'score', label: t('@yovoice.project.score'), icon: <FileMusic className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('score') },
+      ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), icon: <FolderInput className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); } }] : []),
     ]} />;
 }
 
@@ -74,7 +75,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
     <LibraryPage title={t(`@yovoice.project.${kind}`)} layout="tickets" actions={create}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.project.search')} hasItems={drafts.some(d => projectKind(d) === kind)} hasResults={filtered.length > 0}
       noResults={t('@yovoice.library.noSearchResults')}
-      empty={<LibraryEmpty icon={<Folder />} title={t('@yovoice.project.empty')} action={create} />}>
+      empty={<LibraryEmpty art={kind === 'text' ? <TapeCover seed={`empty-${kind}`} title={t(`@yovoice.project.${kind}`)} /> : <RecordCover seed={`empty-${kind}`} title={t(`@yovoice.project.${kind}`)} />} title={t('@yovoice.project.empty')} action={create} />}>
       {filtered.map((draft, index) => {
         const stamp = draft.updatedAt ?? draft.createdAt, date = new Date(stamp ?? 0);
         const month = monthOf(draft), newMonth = !!month && month !== monthOf(filtered[index - 1]);

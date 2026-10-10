@@ -36,8 +36,8 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
     query={query} onQueryChange={onQueryChange} searchLabel={t(voices ? '@yovoice.library.searchVoices' : '@yovoice.library.searchHistory')}
     hasItems={count > 0} hasResults={(voices ? filteredVoices : filteredHistory).length > 0} layout={voices ? 'tickets' : 'list'}
     noResults={t('@yovoice.library.noSearchResults')}
-    empty={<LibraryEmpty icon={voices ? <Mic /> : <Clock3 />} title={t(voices ? '@yovoice.library.emptyVoicesTitle' : '@yovoice.library.emptyHistoryTitle')}
-      action={voices ? <Button label={t('@yovoice.library.addFirstVoice')} variant="primary" onClick={addVoice} /> : null} />}>
+    empty={<LibraryEmpty icon={<Clock3 />} art={voices ? <WaveRing seed="empty-voice" duration={12}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Mic /></HStack></WaveRing> : undefined} title={t(voices ? '@yovoice.library.emptyVoicesTitle' : '@yovoice.library.emptyHistoryTitle')}
+      action={voices ? <Button label={t('@yovoice.library.addFirstVoice')} size="sm" icon={<Plus />} onClick={addVoice} /> : null} />}>
     {/* 参考音频：头像外围一圈声波，点卡片试听；存根显示时长。 */}
     {voices ? filteredVoices.map((voice, index) => <Ticket key={voice.id} index={index} className="voice-row"
       cover={<WaveRing seed={voice.id} duration={voice.duration}><Player compact avatar={{ seed: voice.id, label: t('@yovoice.app.audition', { name: voice.name }), select: () => audition({ ...voice, kind: 'voices', subtitle: t('@yovoice.app.subtitleReference') }) }} suspended={suspended} track={track?.id === voice.id ? track : null} onError={onError} /></WaveRing>}
