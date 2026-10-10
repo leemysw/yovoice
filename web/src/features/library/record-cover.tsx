@@ -149,22 +149,44 @@ export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boole
   const c = canvas.getContext('2d');
   if (!c) return;
   const { width } = canvas, x = width / 2, y = width / 2, r = width / 2 - 1;
-  const next = random(`${seed}:grooves`);
+  const next = random(`${seed}:grooves`), inner = r * .42, outer = r * .955;
   c.clearRect(0, 0, width, width);
-  // 黑胶盘面与细密纹路。
-  c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = '#141414'; c.fill();
-  for (let ring = r * .4; ring < r * .97; ring += Math.max(1, width / 160)) {
+  // 盘面：中心略亮的黑，边缘一圈光滑的唇边。
+  const base = c.createRadialGradient(x, y, 0, x, y, r);
+  base.addColorStop(0, '#1C1C1E'); base.addColorStop(.7, '#121213'); base.addColorStop(1, '#0B0B0C');
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = base; c.fill();
+  // 曲目之间的空白带：比音槽更平滑、更亮一点，每张唱片的位置和数量不同。
+  const gaps = Array.from({ length: 3 + Math.floor(next() * 4) }, () => inner + (outer - inner) * (.12 + next() * .8)).sort((a, b) => a - b);
+  // 音槽：逐圈描极细的环，明暗随机起伏，空白带附近留出平面。
+  for (let ring = inner; ring < outer; ring += .55) {
+    if (gaps.some(g => Math.abs(ring - g) < width / 140)) continue;
     c.beginPath(); c.arc(x, y, ring, 0, Math.PI * 2);
-    c.strokeStyle = `rgb(255 255 255 / ${3 + next() * 5}%)`; c.lineWidth = .6; c.stroke();
+    c.strokeStyle = next() > .5 ? `rgb(255 255 255 / ${2 + next() * 5}%)` : `rgb(0 0 0 / ${20 + next() * 30}%)`;
+    c.lineWidth = .45; c.stroke();
   }
-  c.beginPath(); c.arc(x, y, r * .97, 0, Math.PI * 2); c.strokeStyle = 'rgb(255 255 255 / 10%)'; c.lineWidth = 1; c.stroke();
+  for (const g of gaps) { c.beginPath(); c.arc(x, y, g, 0, Math.PI * 2); c.strokeStyle = 'rgb(255 255 255 / 7%)'; c.lineWidth = width / 140; c.stroke(); }
+  // 引入槽与收尾槽：外缘一道亮线，标签外一圈平滑的出槽区。
+  c.beginPath(); c.arc(x, y, outer + .5, 0, Math.PI * 2); c.strokeStyle = 'rgb(255 255 255 / 14%)'; c.lineWidth = .8; c.stroke();
+  c.beginPath(); c.arc(x, y, inner, 0, Math.PI * 2); c.strokeStyle = 'rgb(255 255 255 / 12%)'; c.lineWidth = .8; c.stroke();
+  // 音槽反光：两道对称的扇形高光，中间亮两侧渐隐，带一点暖色。
+  const sheen = c.createConicGradient(-Math.PI / 4 + (next() - .5) * .6, x, y);
+  for (const offset of [0, .5]) {
+    sheen.addColorStop(offset, 'rgb(255 255 255 / 0%)');
+    sheen.addColorStop(offset + .06, 'rgb(255 248 235 / 22%)');
+    sheen.addColorStop(offset + .09, 'rgb(255 255 255 / 30%)');
+    sheen.addColorStop(offset + .13, 'rgb(235 240 255 / 14%)');
+    sheen.addColorStop(offset + .22, 'rgb(255 255 255 / 0%)');
+  }
+  c.save(); c.beginPath(); c.arc(x, y, outer, 0, Math.PI * 2); c.arc(x, y, inner, 0, Math.PI * 2, true); c.clip('evenodd');
+  c.globalCompositeOperation = 'screen'; c.fillStyle = sheen; c.fillRect(0, 0, width, width); c.restore();
   if (!label) return;
   // 标签取封套画面的中心部分，中心是轴孔。
-  const lr = r * .38, source = art(seed, 192);
+  const lr = r * .36, source = art(seed, 192);
   c.save(); c.beginPath(); c.arc(x, y, lr, 0, Math.PI * 2); c.clip();
   c.drawImage(source, source.width * .3, source.height * .3, source.width * .4, source.height * .4, x - lr, y - lr, lr * 2, lr * 2);
   c.restore();
-  c.beginPath(); c.arc(x, y, Math.max(2, r * .045), 0, Math.PI * 2); c.fillStyle = '#141414'; c.fill();
+  c.beginPath(); c.arc(x, y, lr, 0, Math.PI * 2); c.strokeStyle = 'rgb(0 0 0 / 35%)'; c.lineWidth = 1; c.stroke();
+  c.beginPath(); c.arc(x, y, Math.max(2, r * .045), 0, Math.PI * 2); c.fillStyle = '#0B0B0C'; c.fill();
 }
 
 function drawSleeve(canvas: HTMLCanvasElement, seed: string) {
