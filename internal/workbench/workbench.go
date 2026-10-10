@@ -33,7 +33,7 @@ type Workbench struct {
 	engine    *engine.Engine
 	client    *http.Client
 	// bundled 记录随安装包分发的内核，键为后端；启动时登记，之后只读。
-	bundled map[string]string
+	bundled map[string]bundledRuntime
 }
 
 func New(root string) (*Workbench, error) {
@@ -49,8 +49,11 @@ func New(root string) (*Workbench, error) {
 		}
 		return download.Proxy(req, preferences.ProxyURL)
 	}
-	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}, bundled: map[string]string{}}
+	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}, bundled: map[string]bundledRuntime{}}
 	w.removeStale()
+	if e = w.recordLegacyRuntimeVersion(); e != nil {
+		return nil, e
+	}
 	return w, nil
 }
 

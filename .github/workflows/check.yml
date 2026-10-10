@@ -196,7 +196,9 @@ jobs:
             artifacts/yovoice-macos-arm64.zip
             artifacts/yovoice-macos-arm64.dmg
             artifacts/yovoice-windows-x64-setup.exe
-            artifacts/yovoice-windows-x64-cuda-setup.exe
+            artifacts/yovoice-windows-x64-update.exe
+            artifacts/yovoice-windows-x64-cuda12.4-setup.exe
+            artifacts/yovoice-windows-x64-cuda13.3-setup.exe
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@v4

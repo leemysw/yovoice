@@ -10,15 +10,15 @@ public sealed record UpdateRelease(
     bool Draft, bool Prerelease, UpdateAsset[] Assets)
 {
     public string Version => Tag[1..];
-    // cuda 为 true 时选择内置 CUDA 内核的安装包，保持用户当前安装的版本类型。
-    public UpdateAsset? Package(string current, bool cuda = false)
+    // 自动更新只下载不含内核的更新包，保留已安装的 CPU 或 CUDA 内核；内核在设置中单独升级。
+    public UpdateAsset? Package(string current)
     {
         if (Draft || Prerelease) return null;
         if (!Regex.IsMatch(Tag, @"^v[0-9]+\.[0-9]+\.[0-9]+$") ||
             !System.Version.TryParse(Version, out var latest) || !System.Version.TryParse(current, out var running))
             throw new IOException("更新版本号无效。");
         if (latest <= running) return null;
-        return Asset(cuda ? $"yovoice-{Tag}-windows-x64-cuda-setup.exe" : $"yovoice-{Tag}-windows-x64-setup.exe");
+        return Asset($"yovoice-{Tag}-windows-x64-update.exe");
     }
     public UpdateAsset Asset(string name)
     {

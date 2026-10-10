@@ -53,3 +53,17 @@ func TestEngineVersionConsistent(t *testing.T) {
 		}
 	}
 }
+
+func TestVersionAtLeast(t *testing.T) {
+	for _, c := range []struct {
+		v, minimum string
+		want       bool
+	}{{"v0.9.1", "v0.9.1", true}, {"v0.10.0", "v0.9.1", true}, {"v1.0.0", "v0.99.99", true}, {"v0.9.0", "v0.9.1", false}, {"", "v0.9.1", false}, {"0.9.1", "v0.9.1", false}, {"v0.9", "v0.9.1", false}} {
+		if VersionAtLeast(c.v, c.minimum) != c.want {
+			t.Errorf("VersionAtLeast(%q, %q) 应为 %v", c.v, c.minimum, c.want)
+		}
+	}
+	if ServerBackend("cuda13") != "cuda" || ServerBackend("cuda") != "cuda" || ServerBackend("cpu") != "cpu" {
+		t.Error("两种 CUDA 构建都应使用 audio.cpp 的 cuda 后端")
+	}
+}

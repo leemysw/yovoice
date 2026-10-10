@@ -53,7 +53,7 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		a.jobHTTP(w, r)
 	case r.Method == "GET" && r.URL.Path == "/v1/status":
 		state := a.Workbench.Store.Read()
-		apiJSON(w, map[string]any{"engineVersion": catalog.EngineVersion, "activity": state.Activity, "runtimeVersion": state.RuntimeVersion, "ready": workbench.RuntimeReady(state)})
+		apiJSON(w, map[string]any{"engineVersion": catalog.EngineVersion, "engineMinimum": catalog.EngineMinimum, "activity": state.Activity, "runtimeVersion": state.RuntimeVersion, "ready": workbench.RuntimeReady(state)})
 	case r.Method == "GET" && r.URL.Path == "/v1/models":
 		apiJSON(w, map[string]any{"catalog": catalog.Models, "installed": a.Workbench.Store.Read().Models, "generationOptions": catalog.GenerationOptions})
 	case r.Method == "GET" && r.URL.Path == "/v1/voices":

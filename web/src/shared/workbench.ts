@@ -91,10 +91,24 @@ export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId
 };
 };
 export const emptyState = (): State => ({ characters: [], previews: [], drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: 'zh-CN' }, runtimePath: null, runtimeBackend: null, runtimeVersion: null, activity: null });
-// 内核需与所选设备一致，且版本与当前应用要求的 audio.cpp 相同；升级应用后旧 GPU 内核需要更新。
-export type RuntimeStatus = 'ready' | 'missing' | 'outdated';
-export const runtimeStatus = (state: State, engineVersion: string): RuntimeStatus =>
-  !state.runtimePath || state.runtimeBackend !== state.preferences.backend ? 'missing' : state.runtimeVersion === engineVersion ? 'ready' : 'outdated';
+// version 是推荐安装的 audio.cpp 版本，minimum 是当前应用可用的最低版本。
+export interface EngineInfo { version: string; minimum: string }
+// 服务未报告版本要求（如浏览器预览）时不做限制。
+const versionAtLeast = (value: string | null, minimum: string) => {
+  if (!minimum) return true;
+  const parse = (v: string | null) => /^v(\d+)\.(\d+)\.(\d+)$/.exec(v ?? '')?.slice(1).map(Number);
+  const a = parse(value), b = parse(minimum);
+  if (!a || !b) return false;
+  const index = a.findIndex((n, i) => n !== b[i]);
+  return index < 0 || a[index] > b[index];
+};
+// 内核需与所选设备一致：低于最低版本时必须更新；不低于最低版本但低于推荐版本时可继续使用，升级可选。
+export type RuntimeStatus = 'ready' | 'upgradable' | 'outdated' | 'missing';
+export const runtimeStatus = (state: State, engine: EngineInfo): RuntimeStatus =>
+  !state.runtimePath || state.runtimeBackend !== state.preferences.backend ? 'missing'
+    : !versionAtLeast(state.runtimeVersion, engine.minimum) ? 'outdated'
+      : versionAtLeast(state.runtimeVersion, engine.version) ? 'ready' : 'upgradable';
+export const runtimeUsable = (status: RuntimeStatus) => status === 'ready' || status === 'upgradable';
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }

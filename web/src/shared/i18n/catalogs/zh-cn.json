@@ -891,7 +891,7 @@
     "defaultMessage": "重新安装"
   },
   "@yovoice.settings.updateRuntime": {
-    "defaultMessage": "更新内核"
+    "defaultMessage": "升级到 {version}"
   },
   "@yovoice.settings.removeBlocked": {
     "defaultMessage": "请先结束相关操作，再移除此模型。"
@@ -912,10 +912,13 @@
     "defaultMessage": "未就绪 · 请安装所选设备的内核"
   },
   "@yovoice.settings.runtimeOutdated": {
-    "defaultMessage": "需要更新 · 当前版本要求 audio.cpp {version}"
+    "defaultMessage": "需要更新 · 当前版本要求 audio.cpp {version} 或更新"
   },
   "@yovoice.settings.runtimeReady": {
     "defaultMessage": "已安装 · 可以开始生成"
+  },
+  "@yovoice.settings.runtimeUpgradable": {
+    "defaultMessage": "可以生成 · 可选升级到 audio.cpp {version}"
   },
   "@yovoice.settings.source.huggingface": {
     "defaultMessage": "Hugging Face"

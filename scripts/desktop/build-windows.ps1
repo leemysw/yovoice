@@ -96,6 +96,8 @@ if (!(Test-Path "$runtime/audiocpp_server.exe") -or !(Test-Path "$runtime/model_
 }
 # 保留服务、DLL、模型描述和许可证，不分发转换工具与其他命令行程序。
 Get-ChildItem $runtime | Where-Object { $_.Name -notin @('audiocpp_server.exe', 'model_specs', 'LICENSE') -and $_.Extension -ne '.dll' } | Remove-Item -Recurse -Force
+# 记录内置内核的后端与版本；应用更新包不含内核，服务据此判断是否需要升级。
+[IO.File]::WriteAllText("$runtime/yovoice-engine.json", (@{ version = $engine.version; backend = 'cpu' } | ConvertTo-Json -Compress))
 $originalPath = $env:PATH
 try {
     $env:PATH = $audioPath
@@ -109,7 +111,11 @@ Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md $destination
 Remove-Item "artifacts/yovoice-windows-x64.zip" -ErrorAction SilentlyContinue
 
 if ($Package) {
-    & "$PSScriptRoot/package-windows.ps1" -Version $version
-    # 另生成内置 CUDA 内核的安装包，供 NVIDIA 显卡用户免下载使用。
-    if ($Cuda) { & "$PSScriptRoot/package-windows.ps1" -Version $version -Cuda }
+    & "$PSScriptRoot/package-windows.ps1" -Version $version -Kind cpu
+    & "$PSScriptRoot/package-windows.ps1" -Version $version -Kind update
+    # 另生成内置 CUDA 内核的完整安装包，供 NVIDIA 显卡用户按驱动选择。
+    if ($Cuda) {
+        & "$PSScriptRoot/package-windows.ps1" -Version $version -Kind cuda12.4
+        & "$PSScriptRoot/package-windows.ps1" -Version $version -Kind cuda13.3
+    }
 }

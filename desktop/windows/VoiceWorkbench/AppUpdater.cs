@@ -65,7 +65,7 @@ public sealed class AppUpdater : IDisposable
             }
             response.EnsureSuccessStatusCode();
             var release = JsonSerializer.Deserialize<UpdateRelease>(await response.Content.ReadAsStringAsync(stopped.Token), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new IOException("版本信息无效。");
-            var asset = release.Package(current, File.Exists(Path.Combine(target, "engine-cuda", "audiocpp_server.exe")));
+            var asset = release.Package(current);
             // 版本号已校验，过时版本的安装包不再保留。
             RemoveStaleUpdates(release.Tag);
             if (asset is null)

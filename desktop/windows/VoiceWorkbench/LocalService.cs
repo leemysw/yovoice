@@ -39,9 +39,6 @@ public sealed class LocalService : IDisposable
         start.Environment["WORKBENCH_WEB"] = Path.Combine(AppContext.BaseDirectory, "web");
         start.Environment["WORKBENCH_TOKEN"] = Token;
         start.Environment["WORKBENCH_ENGINE"] = Path.Combine(AppContext.BaseDirectory, "engine", "audiocpp_server.exe");
-        // 仅 CUDA 安装包附带 engine-cuda；普通安装包仍可在设置中下载 CUDA 内核。
-        string cuda = Path.Combine(AppContext.BaseDirectory, "engine-cuda", "audiocpp_server.exe");
-        if (File.Exists(cuda)) start.Environment["WORKBENCH_ENGINE_CUDA"] = cuda;
         process = Process.Start(start) ?? throw new IOException("无法启动本地服务。");
         _ = PumpErrorsAsync(process);
         try

@@ -5,6 +5,9 @@ import (
 	_ "embed"
 	"encoding/json"
 	"runtime"
+	"slices"
+	"strconv"
+	"strings"
 	"yovoice/internal/msg"
 )
 
@@ -34,8 +37,9 @@ var Models = []ModelPackage{}
 //go:embed engine.json
 var engineJSON []byte
 
-// EngineVersion 是当前应用验证过的 audio.cpp 版本；已安装内核版本不同时需要重新安装。
-var EngineVersion string
+// EngineVersion 是在线安装与打包使用的推荐 audio.cpp 版本；EngineMinimum 是当前应用
+// 请求格式与模型包所需的最低版本。内核不低于最低版本即可使用，升级到推荐版本可选。
+var EngineVersion, EngineMinimum string
 var archives = map[string]string{}
 
 func init() {
@@ -44,12 +48,50 @@ func init() {
 	}
 	var engine struct {
 		Version  string            `json:"version"`
+		Minimum  string            `json:"minimum"`
 		Archives map[string]string `json:"archives"`
 	}
 	if e := json.Unmarshal(engineJSON, &engine); e != nil {
 		panic(e)
 	}
-	EngineVersion, archives = engine.Version, engine.Archives
+	EngineVersion, EngineMinimum, archives = engine.Version, engine.Minimum, engine.Archives
+	if parseVersion(EngineVersion) == nil || parseVersion(EngineMinimum) == nil || !VersionAtLeast(EngineVersion, EngineMinimum) {
+		panic("engine.json 版本无效")
+	}
+}
+
+// parseVersion 解析 vX.Y.Z，格式无效时返回 nil。
+func parseVersion(v string) []int {
+	parts := strings.Split(strings.TrimPrefix(v, "v"), ".")
+	if len(parts) != 3 || !strings.HasPrefix(v, "v") {
+		return nil
+	}
+	result := make([]int, 3)
+	for i, p := range parts {
+		n, err := strconv.Atoi(p)
+		if err != nil || n < 0 {
+			return nil
+		}
+		result[i] = n
+	}
+	return result
+}
+
+// VersionAtLeast 比较 vX.Y.Z 版本号；任一方无效时返回 false。
+func VersionAtLeast(v, minimum string) bool {
+	a, b := parseVersion(v), parseVersion(minimum)
+	if a == nil || b == nil {
+		return false
+	}
+	return slices.Compare(a, b) >= 0
+}
+
+// ServerBackend 把界面后端映射为 audio.cpp 的 backend 参数；两种 CUDA 构建都使用 cuda。
+func ServerBackend(backend string) string {
+	if backend == "cuda13" {
+		return "cuda"
+	}
+	return backend
 }
 func Lookup(id string) (ModelPackage, error) {
 	for _, m := range Models {
@@ -99,6 +141,9 @@ func RuntimeArchives(backend string) ([]RuntimeArchive, error) {
 			names = []string{"bin-windows-x64-vulkan-portable.zip"}
 		case "cuda":
 			names = []string{"bin-windows-x64-cuda12.4.zip", "cudart-windows-x64-cuda12.4.zip"}
+		case "cuda13":
+			// CUDA 13 需要较新的驱动，且不再支持部分旧显卡，与 12.4 并列提供。
+			names = []string{"bin-windows-x64-cuda13.3.zip", "cudart-windows-x64-cuda13.3.zip"}
 		}
 	}
 	if runtime.GOOS == "linux" && runtime.GOARCH == "amd64" {

@@ -61,11 +61,12 @@ App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/
 | --- | --- | --- |
 | macOS 14+ · Apple Silicon | `.dmg` | 打开磁盘映像，将 yovoice 拖入 Applications |
 | Windows 10/11 · x64 | `-setup.exe` | 运行安装向导，安装后从开始菜单打开 |
-| Windows 10/11 · x64 · NVIDIA 显卡 | `-cuda-setup.exe` | 内置 CUDA 12.4 内核，约 1 GB，首次启动即用 GPU，无需再在设置中下载 |
+| Windows 10/11 · x64 · NVIDIA 显卡 | `-cuda12.4-setup.exe` | 内置 CUDA 12.4 内核，兼容较旧的显卡与驱动，首次启动即用 GPU |
+| Windows 10/11 · x64 · NVIDIA 显卡 | `-cuda13.3-setup.exe` | 内置 CUDA 13.3 内核，需要较新的驱动，安装包更小 |
 
 Windows 安装器会在缺少时联网安装 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。模型在应用内下载。卸载应用保留 `~/.yovoice` 中的作品和模型。
 
-macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查并后台下载；下载完成后可选择重启安装。
+macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查并后台下载；下载完成后可选择重启安装。Windows 自动更新只下载应用本体（`-update.exe`），保留已安装的内核；新版本推荐更高的内核时，可在 设置 → 推理引擎 中选择升级，仅当内核低于应用要求的最低版本时才必须升级。
 
 ![yovoice macOS 安装界面](docs/images/yovoice-macos-install.png)
 

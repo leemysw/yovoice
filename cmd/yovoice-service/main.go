@@ -45,11 +45,7 @@ func run() error {
 	defer wb.Close()
 	bundled := os.Getenv("WORKBENCH_ENGINE")
 	if runtime.GOOS == "windows" {
-		// CUDA 安装包同时内置 CPU 与 CUDA 内核；先登记 CUDA，首次启动默认使用它。
-		if e = wb.UseBundled("cuda", os.Getenv("WORKBENCH_ENGINE_CUDA")); e != nil {
-			return e
-		}
-		if e = wb.UseBundled("cpu", bundled); e != nil {
+		if e = wb.UseBundled(bundled); e != nil {
 			return e
 		}
 	}

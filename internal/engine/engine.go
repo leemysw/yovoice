@@ -83,7 +83,7 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	if encoderSamples > 0 {
 		entry["session_options"] = map[string]any{"voxcpm2.audiovae_encoder_sample_capacity": encoderSamples}
 	}
-	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": backend, "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{entry}}
+	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": catalog.ServerBackend(backend), "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{entry}}
 	b, err := json.Marshal(config)
 	if err != nil {
 		return err

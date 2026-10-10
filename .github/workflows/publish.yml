@@ -64,12 +64,12 @@ jobs:
           set -euo pipefail
           mkdir release
           # 全部平台构建成功且 macOS 公证通过后才进入发布任务。
-          for name in yovoice-ffmpeg-source.tar.gz yovoice-cli-linux-x64.zip yovoice-cli-macos-arm64.zip yovoice-cli-windows-x64.zip yovoice-macos-arm64.zip yovoice-macos-arm64.dmg yovoice-windows-x64-setup.exe yovoice-windows-x64-cuda-setup.exe; do
+          for name in yovoice-ffmpeg-source.tar.gz yovoice-cli-linux-x64.zip yovoice-cli-macos-arm64.zip yovoice-cli-windows-x64.zip yovoice-macos-arm64.zip yovoice-macos-arm64.dmg yovoice-windows-x64-setup.exe yovoice-windows-x64-update.exe yovoice-windows-x64-cuda12.4-setup.exe yovoice-windows-x64-cuda13.3-setup.exe; do
             test -s "packages/$name"
             mv "packages/$name" "release/${name/yovoice-/yovoice-$TAG-}"
           done
           cd release
-          sha256sum ./*.zip ./*.dmg ./*-setup.exe ./*.tar.gz > SHA256SUMS.txt
+          sha256sum ./*.zip ./*.dmg ./*-setup.exe ./*-update.exe ./*.tar.gz > SHA256SUMS.txt
       - name: Publish application release
         env:
           GH_TOKEN: ${{ github.token }}

@@ -891,7 +891,7 @@
     "defaultMessage": "Reinstall"
   },
   "@yovoice.settings.updateRuntime": {
-    "defaultMessage": "Update runtime"
+    "defaultMessage": "Upgrade to {version}"
   },
   "@yovoice.settings.removeBlocked": {
     "defaultMessage": "Finish related operations before removing this model."
@@ -912,10 +912,13 @@
     "defaultMessage": "Not ready · install the runtime for the selected device"
   },
   "@yovoice.settings.runtimeOutdated": {
-    "defaultMessage": "Update needed · this version requires audio.cpp {version}"
+    "defaultMessage": "Update needed · this version requires audio.cpp {version} or later"
   },
   "@yovoice.settings.runtimeReady": {
     "defaultMessage": "Installed · ready to generate"
+  },
+  "@yovoice.settings.runtimeUpgradable": {
+    "defaultMessage": "Ready · optional upgrade to audio.cpp {version}"
   },
   "@yovoice.settings.source.huggingface": {
     "defaultMessage": "Hugging Face"
