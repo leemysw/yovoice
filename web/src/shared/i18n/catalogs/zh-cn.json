@@ -2173,5 +2173,167 @@
   },
   "@yovoice.music.updateEngine": {
     "defaultMessage": "更新内核"
+  },
+  "@yovoice.error.scoreInvalid": {
+    "defaultMessage": "乐谱格式不正确：请检查速度、拍号、声部和音符位置（最多 512 小节、32 个声部、20000 个音符、10 分钟）。"
+  },
+  "@yovoice.error.midiInvalid": {
+    "defaultMessage": "无法读取这个 MIDI 文件，请使用含音符的标准类型 0 或 1 MIDI。"
+  },
+  "@yovoice.activity.rendering": {
+    "defaultMessage": "正在渲染声部（{done}/{total}）"
+  },
+  "@yovoice.project.score": {
+    "defaultMessage": "编曲"
+  },
+  "@yovoice.project.new.score": {
+    "defaultMessage": "新建编曲"
+  },
+  "@yovoice.score.arrangement": {
+    "defaultMessage": "编曲"
+  },
+  "@yovoice.score.barCount": {
+    "defaultMessage": "{count} 小节"
+  },
+  "@yovoice.score.bars": {
+    "defaultMessage": "第 {start}–{end} 小节"
+  },
+  "@yovoice.score.copyPrompt": {
+    "defaultMessage": "复制 Agent 提示词"
+  },
+  "@yovoice.score.copyPromptHint": {
+    "defaultMessage": "让 AI Agent 写出乐谱 JSON，再导入这里或用命令行渲染。"
+  },
+  "@yovoice.score.promptCopied": {
+    "defaultMessage": "已复制"
+  },
+  "@yovoice.score.downloadSoundFont": {
+    "defaultMessage": "下载"
+  },
+  "@yovoice.score.drumKit": {
+    "defaultMessage": "鼓组"
+  },
+  "@yovoice.score.duration": {
+    "defaultMessage": "时长 {time}"
+  },
+  "@yovoice.score.empty": {
+    "defaultMessage": "按小节和拍写下每个声部的音符，渲染出混音和分轨。可以导入 MIDI 或 Agent 写好的乐谱，也可以从示例开始。"
+  },
+  "@yovoice.score.example": {
+    "defaultMessage": "填入示例"
+  },
+  "@yovoice.score.export": {
+    "defaultMessage": "导出"
+  },
+  "@yovoice.score.exportMidi": {
+    "defaultMessage": "MIDI 文件（.mid）"
+  },
+  "@yovoice.score.exportJson": {
+    "defaultMessage": "乐谱 JSON（.json）"
+  },
+  "@yovoice.score.file": {
+    "defaultMessage": "MIDI 或乐谱文件"
+  },
+  "@yovoice.score.import": {
+    "defaultMessage": "导入 MIDI 或乐谱"
+  },
+  "@yovoice.score.instrument": {
+    "defaultMessage": "音色"
+  },
+  "@yovoice.score.key": {
+    "defaultMessage": "调性"
+  },
+  "@yovoice.score.keyPlaceholder": {
+    "defaultMessage": "例如 D 小调"
+  },
+  "@yovoice.score.level": {
+    "defaultMessage": "电平"
+  },
+  "@yovoice.score.levelOf": {
+    "defaultMessage": "{name} 的目标电平"
+  },
+  "@yovoice.score.meter": {
+    "defaultMessage": "拍号"
+  },
+  "@yovoice.score.noSections": {
+    "defaultMessage": "暂无段落。在乐谱里写入段落可标出前奏、展开和回落。"
+  },
+  "@yovoice.score.noteCount": {
+    "defaultMessage": "{count} 个音符"
+  },
+  "@yovoice.score.play": {
+    "defaultMessage": "发声"
+  },
+  "@yovoice.score.playTrack": {
+    "defaultMessage": "{name} 发声"
+  },
+  "@yovoice.score.render": {
+    "defaultMessage": "渲染配乐"
+  },
+  "@yovoice.score.renderHint": {
+    "defaultMessage": "每个声部用音色库渲染，按角色对齐电平后混音；分轨可用命令行 --stems 导出。"
+  },
+  "@yovoice.score.rhythm": {
+    "defaultMessage": "速度与拍号"
+  },
+  "@yovoice.score.roleColumn": {
+    "defaultMessage": "角色"
+  },
+  "@yovoice.score.rollLabel": {
+    "defaultMessage": "{tracks} 个声部、{notes} 个音符的总览"
+  },
+  "@yovoice.score.sections": {
+    "defaultMessage": "段落"
+  },
+  "@yovoice.score.soundFont": {
+    "defaultMessage": "音色库"
+  },
+  "@yovoice.score.soundFontRequired": {
+    "defaultMessage": "渲染需要先下载音色库（{size}）。"
+  },
+  "@yovoice.score.tempo": {
+    "defaultMessage": "速度（BPM）"
+  },
+  "@yovoice.score.trackColumn": {
+    "defaultMessage": "声部"
+  },
+  "@yovoice.score.trackHint": {
+    "defaultMessage": "主奏在前，铺底和琶音退后。"
+  },
+  "@yovoice.score.trackName": {
+    "defaultMessage": "声部 {n}"
+  },
+  "@yovoice.score.tracks": {
+    "defaultMessage": "声部"
+  },
+  "@yovoice.score.role.melody": {
+    "defaultMessage": "旋律"
+  },
+  "@yovoice.score.role.piano": {
+    "defaultMessage": "钢琴"
+  },
+  "@yovoice.score.role.strings": {
+    "defaultMessage": "弦乐"
+  },
+  "@yovoice.score.role.bass": {
+    "defaultMessage": "低音"
+  },
+  "@yovoice.score.role.drums": {
+    "defaultMessage": "鼓"
+  },
+  "@yovoice.score.role.pad": {
+    "defaultMessage": "铺底"
+  },
+  "@yovoice.score.role.arp": {
+    "defaultMessage": "琶音"
+  },
+  "@yovoice.score.role.other": {
+    "defaultMessage": "其他"
+  },
+  "@yovoice.settings.modelDesc.music": {
+    "defaultMessage": "根据风格描述和歌词生成歌曲或纯音乐。"
+  },
+  "@yovoice.settings.modelDesc.soundfont": {
+    "defaultMessage": "用于渲染编曲的 General MIDI 音色库，含 128 种乐器和鼓组。"
   }
 }

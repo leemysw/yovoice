@@ -13,7 +13,6 @@ import (
 	"strings"
 	"yovoice/internal/catalog"
 	"yovoice/internal/platform"
-	"yovoice/internal/schema"
 	"yovoice/internal/score"
 	"yovoice/internal/store"
 	"yovoice/internal/workbench"
@@ -68,19 +67,7 @@ func runScore(ctx context.Context, args []string, out, progress io.Writer) error
 	if _, err := os.Lstat(*output); err == nil {
 		return fmt.Errorf("输出文件已存在：%s", *output)
 	}
-	data, err := os.ReadFile(input)
-	if err != nil {
-		return err
-	}
-	var s schema.Score
-	if ext := strings.ToLower(filepath.Ext(input)); ext == ".mid" || ext == ".midi" {
-		s, err = score.FromMIDI(data)
-	} else {
-		err = json.Unmarshal(data, &s)
-		if err == nil {
-			err = schema.ValidateScore(&s)
-		}
-	}
+	s, err := score.Read(input)
 	if err != nil {
 		return fmt.Errorf("读取 %s：%w", input, err)
 	}
@@ -88,18 +75,12 @@ func runScore(ctx context.Context, args []string, out, progress io.Writer) error
 		return err
 	}
 	switch command {
-	case "midi":
-		b, e := score.MIDI(s)
+	case "midi", "from-midi":
+		b, e := score.Encode(*output, s)
 		if e != nil {
 			return e
 		}
 		err = writeNew(*output, b)
-	case "from-midi":
-		b, e := json.MarshalIndent(s, "", "  ")
-		if e != nil {
-			return e
-		}
-		err = writeNew(*output, append(b, '\n'))
 	case "render":
 		path, e := installedSoundFont(*root, soundFont)
 		if e != nil {

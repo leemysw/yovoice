@@ -76,6 +76,19 @@ yovoice voices list --json
 
 失败时 stderr 返回错误，退出码为 1；Ctrl-C 的退出码为 130。
 
+## 编曲
+
+用乐谱 JSON 或 MIDI 渲染配乐，需要先下载音色库，不需要推理引擎：
+
+```sh
+yovoice models download musescore-general-sf2
+yovoice score render score.json --output music.wav --stems stems/
+yovoice score midi score.json --output score.mid
+yovoice score from-midi song.mid --output score.json
+```
+
+乐谱格式、混音约定和 MIDI 导入规则见[编曲](score_zh.md)。
+
 ## 数据目录
 
 默认目录为 `~/.yovoice`，同一时间只能由一个 App、CLI 命令或服务使用。请退出 App，或在每条命令中通过 `--data-dir DIR` 指定独立目录：

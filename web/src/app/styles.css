@@ -398,6 +398,21 @@
   .music-take[aria-current="true"] .song-cover { box-shadow: 0 0 0 calc(var(--border-width) * 2) var(--app-ink); }
   .song-cover { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radius-container); background: var(--app-ink); }
   .project-avatars .song-cover { width: var(--spacing-10); border-radius: var(--radius-element); }
+  /* 编曲作品：音块总览用深底发光块呈现每个声部，声部表按角色色点区分。 */
+  .score-editor { flex: 1; min-height: 0; overflow-y: auto; padding-block: var(--spacing-4) var(--spacing-6); }
+  .score-editor h2 { font-size: var(--app-ui-font); }
+  .score-summary { color: var(--app-muted); font-variant-numeric: tabular-nums; }
+  .score-roll { display: block; width: 100%; padding-block: var(--spacing-2); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-ink); cursor: pointer; }
+  .score-track-name { cursor: pointer; min-width: 0; }
+  .score-track-name.selected b { text-decoration: underline; text-underline-offset: var(--spacing-1); }
+  .score-role-dot { flex: none; width: var(--spacing-3); height: var(--spacing-3); border-radius: var(--radius-full); background: hsl(var(--score-hue) 80% 55%); box-shadow: 0 0 var(--spacing-2) hsl(var(--score-hue) 90% 60% / .6); }
+  .score-tracks .number-field.compact { justify-content: flex-start; gap: var(--spacing-1); }
+  .score-tracks .number-field.compact input { width: calc(var(--spacing-10) * 2); }
+  .score-empty { padding: var(--spacing-8) var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-muted); text-align: center; line-height: 1.8; }
+  .score-sections { border-radius: var(--radius-container); background: var(--app-surface); }
+  .score-section-row { padding: var(--spacing-2) var(--spacing-3); }
+  .score-section-row + .score-section-row { border-top: var(--border-width) solid var(--app-line); }
+  .score-section-time { color: var(--app-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .music-take-duration { font-variant-numeric: tabular-nums; }
   .music-take-style { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }

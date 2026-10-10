@@ -10,6 +10,7 @@ import (
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
 	"yovoice/internal/workbench"
 )
 
@@ -64,6 +65,17 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.ExportProject(p.ID, p.Path)
 	case "project.import":
 		return w.ImportProject(p.Path)
+	case "score.import":
+		return score.Read(p.Path)
+	case "score.export":
+		var input struct {
+			Path  string       `json:"path"`
+			Score schema.Score `json:"score"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return true, score.Write(input.Path, input.Score)
 	case "character.save", "character.preview":
 		var c schema.Character
 		if e := json.Unmarshal(data, &c); e != nil {

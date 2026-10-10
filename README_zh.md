@@ -27,6 +27,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源声音创作工具，在�
 - **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
 - **声音设计与克隆** — VoxCPM2 支持文字设计音色、带风格指导的克隆及参考原文辅助的精细克隆，自动多语言、48 kHz 输出。
 - **音乐生成** — 描述风格、写下带段落标记的歌词，用 ACE-Step 1.5 生成整首歌曲或纯音乐，每次生成都保留为可对比的版本。
+- **编曲** — 按小节和拍写下每个声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染并按角色对齐电平混音；结果可精确复现，可导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
 - **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5、VoxCPM2、OmniVoice、Qwen3-TTS 和 Kokoro，支持模型下载续传与 GGUF 导入。
 - **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
 - **Agent Skill** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
@@ -124,6 +125,7 @@ make app-run
 - [OmniVoice](https://github.com/k2-fsa/OmniVoice) — 声音设计与音色克隆模型。
 - [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — 支持音色克隆、内置音色与文字设计声音。
 - [ACE-Step](https://github.com/ace-step/ACE-Step-1.5) — 根据风格描述与歌词生成音乐。
+- [go-meltysynth](https://github.com/sinshu/go-meltysynth) 与 [MuseScore General](https://musescore.org/en/handbook/3/soundfonts-and-sfz-files#gm_soundfonts) — 编曲渲染使用的 SoundFont 合成器与音色库。
 - Kokoro — 使用内置音色的轻量语音合成模型：[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 与 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)。
 
 ---

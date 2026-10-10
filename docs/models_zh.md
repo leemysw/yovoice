@@ -102,6 +102,10 @@ Kokoro 不支持音色克隆或文字情绪控制。请保留 CLI 安装包中�
 
 上游标注 ACE-Step 的全量 Q8 包会让规划器生成另一首歌，因此只提供 BF16 包。续写、翻唱、局部重绘和分轨提取暂未开放。
 
+## 编曲音色库
+
+“编曲”作品与 `yovoice score render` 使用 MuseScore General 音色库（`musescore-general-sf2`，SF2 · 约 216 MB），包含 128 种 General MIDI 乐器和鼓组，不需要推理内核。用法见[编曲](score_zh.md)。
+
 ## 使用协议
 
 OmniVoice 权重使用 CC-BY-NC 协议，仅限非商业用途。IndexTTS 有独立的[模型协议](../web/public/model-license.txt)。商业使用前请确认所选模型发布方的使用条款。

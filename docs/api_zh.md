@@ -53,6 +53,7 @@ yovoice serve --listen 0.0.0.0:8443 --data-dir ./server-data --tls-cert server.c
 | `get_generation` | 按 `requestId` 查询任务 |
 | `cancel_generation` | 按 `requestId` 请求取消 |
 | `generate` | 兼容同步生成 |
+| `render_score` | 提交 `score` 乐谱和可选 `title`，同步渲染编曲配乐，返回 `id`、`duration`、`downloadPath`；格式见[编曲](score_zh.md) |
 
 长任务优先使用 `submit_generation`。提交前通过 `openssl rand -hex 16` 生成随机 ID 并保存：
 

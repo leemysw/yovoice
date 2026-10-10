@@ -256,6 +256,14 @@ public partial class MainWindow : Window
                 case "project.import":
                     var projectOpen = new OpenFileDialog { Filter = "Yovoice 工程|*.yovoice" };
                     result = projectOpen.ShowDialog(this) == true ? await service.CallAsync(method, new { path = projectOpen.FileName }) : null; break;
+                case "score.import":
+                    var scoreOpen = new OpenFileDialog { Filter = "MIDI 或乐谱|*.mid;*.midi;*.json" };
+                    result = scoreOpen.ShowDialog(this) == true ? await service.CallAsync(method, new { path = scoreOpen.FileName }) : null; break;
+                case "score.export":
+                    // 编曲导出 MIDI 或乐谱 JSON，扩展名由界面指定，写文件交给本地服务。
+                    string scoreFormat = data.TryGetProperty("format", out var formatValue) && formatValue.GetString() == "json" ? "json" : "mid";
+                    var scoreSave = new SaveFileDialog { Filter = scoreFormat == "json" ? "乐谱 JSON|*.json" : "MIDI|*.mid", DefaultExt = "." + scoreFormat, FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "score") + "." + scoreFormat, OverwritePrompt = true };
+                    result = scoreSave.ShowDialog(this) == true ? await service.CallAsync(method, new { path = scoreSave.FileName, score = data.GetProperty("score") }) : false; break;
                 case "audio.export":
                     string encoded = data.GetProperty("base64").GetString() ?? "";
                     if (encoded.Length > 240_000_000) throw new ArgumentException("导出音频超过大小限制。");

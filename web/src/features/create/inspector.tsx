@@ -13,7 +13,7 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { ChevronUp, ChevronRight, LoaderCircle } from 'lucide-react';
 import { ReferenceControls } from './reference-controls';
 import { VoxControls } from './vox-controls';
-import { isMusicModel, isReferenceModel, isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
+import { isVoiceModel, isReferenceModel, isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
 
@@ -70,7 +70,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
     ? (['zh', 'en', 'ja', 'es', 'ar'] as const)
     : (['zh', 'en'] as const)).map(value => ({ value, label: t(`@yovoice.language.${value}`) }));
   // 配音与角色只列语音模型。
-  const voiceModels = catalog.filter(model => !isMusicModel(model.id));
+  const voiceModels = catalog.filter(model => isVoiceModel(model.id));
   const installedModels = voiceModels.filter(model => state.models.some(installed => installed.id === model.id));
   const selectedModel = voiceModels.find(model => model.id === draft.modelId);
   const modelOptions = installedModels.length
