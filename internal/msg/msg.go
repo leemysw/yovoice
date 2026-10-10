@@ -105,6 +105,9 @@ const (
 	ErrVoxReferenceRequired  Code = "@yovoice.error.voxReferenceRequired"
 	ErrVoxParams             Code = "@yovoice.error.voxParams"
 	ErrLegacyRestore         Code = "@yovoice.error.legacyRestore"
+	ErrMusicStyle            Code = "@yovoice.error.musicStyle"
+	ErrMusicLyrics           Code = "@yovoice.error.musicLyrics"
+	ErrMusicParams           Code = "@yovoice.error.musicParams"
 	ErrUnknown               Code = "@yovoice.error.unknown"
 )
 
@@ -167,6 +170,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams,
 		ErrLegacyRestore, ErrUnknown,
 	}
 }

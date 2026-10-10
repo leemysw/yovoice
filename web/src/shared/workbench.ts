@@ -3,6 +3,7 @@ import { draftCopy } from './i18n/draft-copy';
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface SynthesisSettings {
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
+  lyrics?: string; instrumental?: boolean;
   voiceMode?: 'design' | 'clone';
   voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
   modelId: string; voiceId: string | null;
@@ -20,10 +21,10 @@ export interface AudioLane { id: string; name: string; muted: boolean; solo?: bo
 export interface AudioAsset { id: string; name: string; fileName: string; duration: number }
 export interface AudioMarker { id: string; time: number; name: string }
 export interface AudioTimeline { markers?: AudioMarker[]; regenerateMode?: 'ripple' | 'preserve'; assets?: AudioAsset[]; acceptedGenerations?: string[]; tracks: AudioLane[] }
-export type ProjectKind = 'text' | 'story' | 'subtitle';
+export type ProjectKind = 'text' | 'story' | 'subtitle' | 'music';
 export interface Draft extends SynthesisSettings { performance?: CharacterPerformance; id: string; title: string; text: string; kind?: ProjectKind; characterId?: string; createdAt?: string; updatedAt?: string; subtitles?: SubtitleDocument; timeline?: AudioTimeline }
 // 旧字幕作品沿用原始数据，统一归入故事。
-export const projectKind = (draft: Draft): 'text' | 'story' => draft.subtitles || draft.kind === 'story' || draft.kind === 'subtitle' ? 'story' : 'text';
+export const projectKind = (draft: Draft): 'text' | 'story' | 'music' => draft.kind === 'music' ? 'music' : draft.subtitles || draft.kind === 'story' || draft.kind === 'subtitle' ? 'story' : 'text';
 export interface CharacterPreview { id: string; fileName: string; duration: number; settings: SynthesisSettings; text: string }
 export interface Character { performances?: CharacterPerformance[]; id: string; name: string; settings: SynthesisSettings; demoText: string; preview?: CharacterPreview; createdAt?: string; updatedAt?: string }
 export const synthesisSettings = ({ performance: _performance, id: _id, title: _title, text: _text, kind: _kind, characterId: _characterId, createdAt: _createdAt, updatedAt: _updatedAt, subtitles: _subtitles, timeline: _timeline, ...settings }: Draft): SynthesisSettings => structuredClone(settings);
@@ -114,9 +115,11 @@ export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }
 
 export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
+// 音乐模型只用于音乐作品，不出现在配音和角色的模型列表里。
+export const isMusicModel = (id: string) => id.startsWith('ace-step-');
 export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
 export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || id.startsWith('qwen3-tts-');
-export const requiresVoice = (draft: Draft) => isKokoroModel(draft.modelId) ? false : draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
+export const requiresVoice = (draft: Draft) => isKokoroModel(draft.modelId) || isMusicModel(draft.modelId) ? false : draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
 
 // 旧字幕的身份与 Go 保持一致，编辑后不再依赖数组位置。
 export function withCueIds(draft: Draft): Draft {

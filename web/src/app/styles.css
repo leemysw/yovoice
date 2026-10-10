@@ -386,6 +386,20 @@
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
   @media (forced-colors: active) { .waveform line { stroke: CanvasText; } .astryx-button { border: 1px solid ButtonText; } }
   .character-editor { width: 100%; height: 100%; min-height: 0; }
+  /* 音乐作品：创作区可滚动，版本封面是页面唯一的强调色块。 */
+  .music-editor { flex: 1; min-height: 0; overflow-y: auto; padding-block: var(--spacing-4) var(--spacing-6); }
+  .music-editor h2 { font-size: var(--app-ui-font); }
+  .music-style textarea { font-size: calc(var(--app-ui-font) + var(--spacing-0-5)); }
+  .music-tag-group { min-width: var(--spacing-10); }
+  .music-tag.astryx-button { border-radius: var(--radius-full); }
+  .music-section.astryx-button { font-family: ui-monospace, "SF Mono", Consolas, monospace; color: var(--app-muted); }
+  .music-instrumental, .music-empty { padding: var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-muted); line-height: 1.8; }
+  .music-take.astryx-button { height: auto; padding: var(--spacing-2); align-items: stretch; text-align: left; white-space: normal; }
+  .music-take[aria-current="true"] .song-cover { box-shadow: 0 0 0 calc(var(--border-width) * 2) var(--app-ink); }
+  .song-cover { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radius-container); background: var(--app-ink); }
+  .project-avatars .song-cover { width: var(--spacing-10); border-radius: var(--radius-element); }
+  .music-take-duration { font-variant-numeric: tabular-nums; }
+  .music-take-style { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }
 
 /* 页面常驻以保留筛选与编辑位置，隐藏页面的播放器单独暂停。 */

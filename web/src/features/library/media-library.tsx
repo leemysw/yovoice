@@ -19,7 +19,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
   const t = useTranslator();
   const locale = useLocale();
   const voices = page === 'voices';
-  const history = projectKind(project) === 'text' ? state.history.filter(item => item.settings.id === project.id && !item.segment).sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
+  const history = projectKind(project) !== 'story' ? state.history.filter(item => item.settings.id === project.id && !item.segment).sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
   const count = voices ? state.voices.length : history.length;
   const search = query.trim().toLocaleLowerCase();
   const filteredVoices = state.voices.filter(voice => voice.name.toLocaleLowerCase().includes(search));

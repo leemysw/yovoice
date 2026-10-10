@@ -2026,5 +2026,143 @@
   },
   "@yovoice.performance.rename": {
     "defaultMessage": "重命名演绎"
+  },
+  "@yovoice.error.musicStyle": {
+    "defaultMessage": "请用 1–512 字描述风格。"
+  },
+  "@yovoice.error.musicLyrics": {
+    "defaultMessage": "歌词最多 4000 字。"
+  },
+  "@yovoice.error.musicParams": {
+    "defaultMessage": "时长需为 10–300 秒，速度需为 30–300 BPM。"
+  },
+  "@yovoice.project.music": {
+    "defaultMessage": "音乐生成"
+  },
+  "@yovoice.project.new.music": {
+    "defaultMessage": "新建歌曲"
+  },
+  "@yovoice.music.style": {
+    "defaultMessage": "风格"
+  },
+  "@yovoice.music.example": {
+    "defaultMessage": "填入示例"
+  },
+  "@yovoice.music.stylePlaceholder": {
+    "defaultMessage": "描述你想要的声音，例如 city pop, warm synths, chill, female vocals"
+  },
+  "@yovoice.music.tags": {
+    "defaultMessage": "风格标签"
+  },
+  "@yovoice.music.tagGroup.genre": {
+    "defaultMessage": "流派"
+  },
+  "@yovoice.music.tagGroup.mood": {
+    "defaultMessage": "情绪"
+  },
+  "@yovoice.music.tagGroup.instrument": {
+    "defaultMessage": "乐器"
+  },
+  "@yovoice.music.tagGroup.vocal": {
+    "defaultMessage": "人声"
+  },
+  "@yovoice.music.lyrics": {
+    "defaultMessage": "歌词"
+  },
+  "@yovoice.music.insertSection": {
+    "defaultMessage": "插入段落标记"
+  },
+  "@yovoice.music.instrumental": {
+    "defaultMessage": "纯音乐"
+  },
+  "@yovoice.music.instrumentalHint": {
+    "defaultMessage": "纯音乐不演唱歌词，只按风格生成。歌词会保留，关闭后可以继续编辑。"
+  },
+  "@yovoice.music.lyricsPlaceholder": {
+    "defaultMessage": "写下歌词，用 [verse]、[chorus] 等标记段落。留空时由模型自由哼唱。"
+  },
+  "@yovoice.music.takes": {
+    "defaultMessage": "版本"
+  },
+  "@yovoice.music.takeCount": {
+    "defaultMessage": "{count} 个版本"
+  },
+  "@yovoice.music.take": {
+    "defaultMessage": "版本 {n}"
+  },
+  "@yovoice.music.noTakes": {
+    "defaultMessage": "每次生成都会在这里留下一个版本，方便对比和挑选。"
+  },
+  "@yovoice.music.generate": {
+    "defaultMessage": "生成歌曲"
+  },
+  "@yovoice.music.generateHint": {
+    "defaultMessage": "首次生成需要加载模型，耗时更长。"
+  },
+  "@yovoice.music.modelSize": {
+    "defaultMessage": "未安装 · {size}"
+  },
+  "@yovoice.music.duration": {
+    "defaultMessage": "时长"
+  },
+  "@yovoice.music.auto": {
+    "defaultMessage": "自动"
+  },
+  "@yovoice.music.durationAuto": {
+    "defaultMessage": "由模型按歌词规划长度。"
+  },
+  "@yovoice.music.durationFixed": {
+    "defaultMessage": "歌曲越长，生成越慢、占用内存越多。"
+  },
+  "@yovoice.music.language": {
+    "defaultMessage": "演唱语言"
+  },
+  "@yovoice.music.languageName.zh": {
+    "defaultMessage": "普通话"
+  },
+  "@yovoice.music.languageName.en": {
+    "defaultMessage": "英语"
+  },
+  "@yovoice.music.languageName.yue": {
+    "defaultMessage": "粤语"
+  },
+  "@yovoice.music.languageName.ja": {
+    "defaultMessage": "日语"
+  },
+  "@yovoice.music.languageName.ko": {
+    "defaultMessage": "韩语"
+  },
+  "@yovoice.music.languageName.es": {
+    "defaultMessage": "西班牙语"
+  },
+  "@yovoice.music.languageName.fr": {
+    "defaultMessage": "法语"
+  },
+  "@yovoice.music.languageName.de": {
+    "defaultMessage": "德语"
+  },
+  "@yovoice.music.languageName.pt": {
+    "defaultMessage": "葡萄牙语"
+  },
+  "@yovoice.music.languageName.ru": {
+    "defaultMessage": "俄语"
+  },
+  "@yovoice.music.languageName.it": {
+    "defaultMessage": "意大利语"
+  },
+  "@yovoice.music.bpm": {
+    "defaultMessage": "速度（BPM）"
+  },
+  "@yovoice.music.keyscale": {
+    "defaultMessage": "调性"
+  },
+  "@yovoice.music.timesignature": {
+    "defaultMessage": "拍号"
+  },
+  "@yovoice.music.steps": {
+    "defaultMessage": "采样步数"
+  },
+  "@yovoice.music.advancedHint": {
+    "defaultMessage": "留空或“自动”时由模型决定，通常更自然。"
   }
 }
