@@ -50,7 +50,8 @@ func run() error {
 		}
 	}
 	existing := wb.Store.Read()
-	if _, e = os.Stat(bundled); runtime.GOOS == "darwin" && e == nil && (existing.RuntimePath == nil || strings.HasSuffix(*existing.RuntimePath, "/Contents/Resources/engine/audiocpp_server")) {
+	// macOS 内置 Metal 内核同时支持 CPU 与 Metal；数据目录中的内核过期时回退到内置内核。
+	if _, e = os.Stat(bundled); runtime.GOOS == "darwin" && e == nil && (existing.RuntimePath == nil || strings.HasSuffix(*existing.RuntimePath, "/Contents/Resources/engine/audiocpp_server") || !workbench.RuntimeReady(existing)) {
 		if e = wb.Store.Update(func(s *schema.State) {
 			s.RuntimePath = &bundled
 			backend := s.Preferences.Backend
