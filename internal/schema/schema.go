@@ -240,7 +240,14 @@ type State struct {
 	RuntimePath    *string            `json:"runtimePath"`
 	RuntimeBackend *string            `json:"runtimeBackend"`
 	RuntimeVersion *string            `json:"runtimeVersion"`
-	Activity       *Activity          `json:"activity"`
+	// Runtimes 按后端记录下载安装的内核，切换计算设备后再切回时直接复用。
+	Runtimes map[string]InstalledRuntime `json:"runtimes,omitempty"`
+	Activity *Activity                   `json:"activity"`
+}
+
+type InstalledRuntime struct {
+	Path    string `json:"path"`
+	Version string `json:"version"`
 }
 
 func DefaultState() State {

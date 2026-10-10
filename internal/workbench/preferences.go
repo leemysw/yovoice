@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"strings"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
@@ -42,10 +43,11 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 		return e
 	}
 	return w.Store.Update(func(s *schema.State) {
+		if s.Preferences.Backend != p.Backend {
+			diag.Log(w.Store.Root, "preferences.backend", "from", s.Preferences.Backend, "to", p.Backend)
+		}
 		s.Preferences = p
-		if bundled, ok := w.bundled[p.Backend]; ok && value(s.RuntimeBackend) != p.Backend {
-			useRuntime(s, bundled.path, p.Backend, bundled.version)
-		} else if runtime.GOOS == "darwin" && s.RuntimePath != nil {
+		if !w.selectRuntime(s) && runtime.GOOS == "darwin" && s.RuntimePath != nil {
 			s.RuntimeBackend = ptr(p.Backend)
 		}
 	}, true)

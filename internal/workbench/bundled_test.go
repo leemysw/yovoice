@@ -166,3 +166,93 @@ func TestLegacyRuntimeVersion(t *testing.T) {
 		t.Fatal("应从安装目录名补记旧内核版本")
 	}
 }
+
+// 切到 CPU 再切回时复用已下载的 GPU 内核，重启时也不把它当作残留删除（#25）。
+func TestSwitchBackendKeepsInstalledRuntime(t *testing.T) {
+	gpu := map[string]string{"windows": "cuda", "linux": "vulkan"}[runtime.GOOS]
+	if gpu == "" {
+		t.Skip("当前平台没有可下载的 GPU 内核")
+	}
+	root := t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	bundled := writeBundled(t, filepath.Join(t.TempDir(), "engine"), "cpu", catalog.EngineVersion)
+	must(t, w.UseBundled(bundled))
+	downloaded := writeBundled(t, filepath.Join(root, "runtime", catalog.EngineVersion+"-"+gpu+"-1"), "", "")
+	install := func() {
+		must(t, w.Store.Update(func(s *schema.State) {
+			s.Preferences.Backend = gpu
+			useRuntime(s, downloaded, gpu, catalog.EngineVersion)
+			w.rememberRuntime(s)
+		}, true))
+	}
+	toggle := func(message string) {
+		t.Helper()
+		p := w.Store.Read().Preferences
+		p.Backend = "cpu"
+		must(t, w.SavePreferences(p))
+		if value(w.Store.Read().RuntimePath) != bundled {
+			t.Fatal("切到 CPU 应使用内置内核")
+		}
+		p.Backend = gpu
+		must(t, w.SavePreferences(p))
+		if s := w.Store.Read(); value(s.RuntimePath) != downloaded || !RuntimeReady(s) {
+			t.Fatal(message)
+		}
+	}
+	install()
+	toggle("切回 GPU 应复用已下载的内核")
+	// 旧版本状态没有按后端登记，切换前登记当前内核。
+	must(t, w.Store.Update(func(s *schema.State) { s.Runtimes = nil }, true))
+	toggle("旧状态切回 GPU 也应复用已下载的内核")
+
+	p := w.Store.Read().Preferences
+	p.Backend = "cpu"
+	must(t, w.SavePreferences(p))
+	w.Close()
+	w, err = New(root)
+	must(t, err)
+	defer w.Close()
+	must(t, w.UseBundled(bundled))
+	if _, err := os.Stat(downloaded); err != nil {
+		t.Fatal("选中 CPU 时重启不应删除已下载的 GPU 内核", err)
+	}
+	p.Backend = gpu
+	must(t, w.SavePreferences(p))
+	if value(w.Store.Read().RuntimePath) != downloaded {
+		t.Fatal("重启后切回 GPU 应复用已下载的内核")
+	}
+}
+
+// 旧版本切换设备后丢失登记的内核，只要文件仍在，启动时按目录名找回。
+func TestAdoptUnregisteredRuntime(t *testing.T) {
+	gpu := map[string]string{"windows": "cuda", "linux": "vulkan"}[runtime.GOOS]
+	if gpu == "" {
+		t.Skip("当前平台没有可下载的 GPU 内核")
+	}
+	root := t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	w.Close()
+	write := func(dir string) string {
+		path := filepath.Join(root, "runtime", dir, executableName())
+		must(t, os.MkdirAll(filepath.Dir(path), 0700))
+		must(t, os.WriteFile(path, []byte("test executable"), 0600))
+		return path
+	}
+	old := write("v0.7.3-" + gpu + "-1")
+	latest := write(filepath.Join(catalog.EngineVersion+"-"+gpu+"-2", "bin"))
+	w, err = New(root)
+	must(t, err)
+	defer w.Close()
+	must(t, w.UseBundled(writeBundled(t, filepath.Join(t.TempDir(), "engine"), "cpu", catalog.EngineVersion)))
+	p := w.Store.Read().Preferences
+	p.Backend = gpu
+	must(t, w.SavePreferences(p))
+	if s := w.Store.Read(); value(s.RuntimePath) != latest || !RuntimeReady(s) {
+		t.Fatal("应找回版本最新的已解压内核")
+	}
+	if _, err := os.Stat(old); !os.IsNotExist(err) {
+		t.Fatal("同一后端的旧内核应被清理")
+	}
+}

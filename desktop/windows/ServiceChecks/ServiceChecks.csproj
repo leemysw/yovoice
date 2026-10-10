@@ -4,6 +4,7 @@
     <Compile Include="../VoiceWorkbench/ServiceCallException.cs" Link="ServiceCallException.cs"/>
     <Compile Include="../VoiceWorkbench/HostLog.cs" Link="HostLog.cs"/>
     <Compile Include="../VoiceWorkbench/DraftRecovery.cs" Link="DraftRecovery.cs"/>
+    <Compile Include="../VoiceWorkbench/ServiceWire.cs" Link="ServiceWire.cs"/>
     <EmbeddedResource Include="../../../web/src/shared/i18n/catalogs/zh-cn.json" LogicalName="yovoice.messages.zh-cn.json"/>
   </ItemGroup>
 </Project>
