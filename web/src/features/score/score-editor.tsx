@@ -47,7 +47,7 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
   }
   async function exportScore(format: 'mid' | 'json') {
     try {
-      if (isDesktop) { await call('score.export', { name: draft.title, format, score }); return; }
+      if (isDesktop) { await call('score.export', { name: fileName, format, score }); return; }
       if (format === 'mid') download(scoreToMidi(score) as BlobPart, 'audio/midi', `${fileName}.mid`);
       else download(JSON.stringify(score, null, 2), 'application/json', `${fileName}.json`);
     } catch (error) { onError((error as Error).message); }
