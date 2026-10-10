@@ -116,6 +116,18 @@ public sealed class LocalService : IDisposable
         await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(10));
         HostLog.Write(Root, "service.shutdown_completed");
     }
+    // 正常关停失败时使用：先关闭标准输入让服务自行退出，超时则结束进程。
+    public void Stop()
+    {
+        stopped.Cancel();
+        if (process is not { HasExited: false }) return;
+        try
+        {
+            process.StandardInput.Close();
+            if (!process.WaitForExit(5000)) process.Kill(true);
+        }
+        catch (Exception error) when (error is InvalidOperationException or IOException or System.ComponentModel.Win32Exception) { HostLog.Write(Root, "service.stop_failed", error); }
+    }
     public void Dispose()
     {
         stopped.Cancel();

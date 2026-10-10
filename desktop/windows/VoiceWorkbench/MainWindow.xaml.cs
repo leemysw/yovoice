@@ -86,7 +86,16 @@ public partial class MainWindow : Window
                 HostLog.Write(service.Root, "exit.completed");
                 shutdownComplete = true; Close();
             }
-            catch (Exception error) { HostLog.Write(service.Root, "exit.failed", error); shuttingDown = false; updater.CancelInstall(); AppDialog.Show(this, "未能安全保存", error.Message + "\n\n请稍后重试退出。"); }
+            catch (Exception error)
+            {
+                HostLog.Write(service.Root, "exit.failed", error);
+                updater.CancelInstall();
+                // 服务停止或更新准备失败时必须留出退出路径，否则只能用任务管理器结束。
+                if (!AppDialog.Show(this, "未能安全退出", error.Message + "\n\n可以稍后重试，或直接结束本地服务后退出；未保存的编辑可能丢失。", "仍要退出", "返回")) { shuttingDown = false; return; }
+                service.Stop();
+                HostLog.Write(service.Root, "exit.forced");
+                shutdownComplete = true; Close();
+            }
         };
         Closed += (_, _) => { closed = true; tray.Visible = false; tray.Dispose(); trayMenu.Dispose(); trayIcon.Dispose(); updater.Dispose(); service.Dispose(); web?.Dispose(); };
     }
