@@ -1,74 +1,148 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { HStack } from '@astryxdesign/core/Layout';
 
-// 同一作品总得到同一张唱片：配色、图案和纹路都由作品 ID 派生。
+// 同一作品总得到同一张唱片：风格、配色和每一笔都由作品 ID 派生。
 function random(seed: string) {
   let state = 2166136261;
   for (const char of seed) state = Math.imul(state ^ char.charCodeAt(0), 16777619) >>> 0;
   return () => (state = (Math.imul(state, 1664525) + 1013904223) >>> 0) / 4294967296;
 }
 
-// 唱片标签的配色组：饱和、对比强，一张唱片取一组。
-const palettes = [
-  ['#F25C2A', '#F7C548', '#2E86AB', '#F4EBD9'],
-  ['#E63946', '#F1FAEE', '#A8DADC', '#1D3557'],
-  ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF'],
-  ['#7B2CBF', '#E0AAFF', '#FF9E00', '#240046'],
-  ['#06D6A0', '#118AB2', '#FFD166', '#EF476F'],
-  ['#FF4D6D', '#FFB3C1', '#590D22', '#FFF0F3'],
-  ['#2A9D8F', '#E9C46A', '#F4A261', '#264653'],
-  ['#FB5607', '#FFBE0B', '#3A86FF', '#8338EC'],
+// 配色参考印刷品与唱片封套：一个底色加几种油墨，彼此协调而不是一味高饱和。
+interface Palette { paper: string; inks: string[] }
+const palettes: Palette[] = [
+  { paper: '#F3EEE3', inks: ['#FF48B0', '#0078BF', '#FFE800'] }, // 孔版印刷：荧光粉、蓝、黄
+  { paper: '#EFE6D8', inks: ['#D9481C', '#1E3D8F', '#F2B134', '#2E2A27'] }, // 马蒂斯剪纸
+  { paper: '#14142B', inks: ['#693668', '#A74482', '#F84AA7', '#FFB86B'] }, // 黄昏
+  { paper: '#0F2027', inks: ['#2C5364', '#8FB8A8', '#EDE6D6', '#E07A5F'] }, // 北欧冬日
+  { paper: '#FAEDCD', inks: ['#1F2A24', '#3C6E47', '#D4A373', '#BC4749'] }, // 森林
+  { paper: '#F4F1EA', inks: ['#111111', '#E4572E', '#8A8A8A'] }, // 黑墨加一点朱红
+  { paper: '#03045E', inks: ['#0077B6', '#00B4D8', '#90E0EF', '#FFD6A5'] }, // 深海
+  { paper: '#FFF4E0', inks: ['#FB5607', '#FF006E', '#8338EC', '#3A86FF'] }, // 柑橘与电光
+  { paper: '#1A1A1A', inks: ['#E9D8A6', '#EE9B00', '#CA6702', '#9B2226'] }, // 爵士唱片
+  { paper: '#E8EDDF', inks: ['#242423', '#F5CB5C', '#CFDBD5', '#6A994E'] }, // 包豪斯
 ];
 
-type Pattern = (c: CanvasRenderingContext2D, x: number, y: number, r: number, colors: string[], next: () => number) => void;
+// 平滑的伪噪声场：几组随机方向和频率的正弦叠加，值域约 -1..1。
+function field(next: () => number, waves = 4) {
+  const terms = Array.from({ length: waves }, () => ({ a: (next() - .5) * 9, b: (next() - .5) * 9, p: next() * Math.PI * 2, w: .5 + next() }));
+  const total = terms.reduce((sum, t) => sum + t.w, 0);
+  return (x: number, y: number) => terms.reduce((sum, t) => sum + Math.sin(t.a * x + t.b * y + t.p) * t.w, 0) / total;
+}
 
-const patterns: Pattern[] = [
-  // 同心色环
-  (c, x, y, r, colors, next) => {
-    const rings = 3 + Math.floor(next() * 4);
-    for (let i = rings; i > 0; i--) { c.beginPath(); c.arc(x, y, r * i / rings, 0, Math.PI * 2); c.fillStyle = colors[i % colors.length]; c.fill(); }
-  },
-  // 放射扇面
-  (c, x, y, r, colors, next) => {
-    const slices = 6 + Math.floor(next() * 10), turn = next() * Math.PI;
-    for (let i = 0; i < slices; i++) {
-      c.beginPath(); c.moveTo(x, y); c.arc(x, y, r, turn + i / slices * Math.PI * 2, turn + (i + 1) / slices * Math.PI * 2); c.closePath();
-      c.fillStyle = colors[i % 2 === 0 ? 0 : 1 + (i >> 1) % (colors.length - 1)]; c.fill();
+type Style = (c: CanvasRenderingContext2D, s: number, p: Palette, next: () => number) => void;
+
+const styles: Style[] = [
+  // 地形等高线：色带之间描细线，像一张彩色地形图。
+  (c, s, p, next) => {
+    const f = field(next, 5), bands = 6 + Math.floor(next() * 6), colors = [p.paper, ...p.inks].map(hexRGB);
+    const image = c.createImageData(s, s);
+    for (let py = 0; py < s; py++) for (let px = 0; px < s; px++) {
+      const v = (f(px / s, py / s) + 1) / 2 * bands, band = Math.floor(v), edge = v - band < .07;
+      const [r, g, b] = edge ? colors[colors.length - 1] : colors[band % (colors.length - 1)];
+      const i = (py * s + px) * 4; image.data[i] = r; image.data[i + 1] = g; image.data[i + 2] = b; image.data[i + 3] = 255;
     }
+    c.putImageData(image, 0, 0);
   },
-  // 叠在一起的圆点
-  (c, x, y, r, colors, next) => {
-    c.fillStyle = colors[3]; c.fillRect(x - r, y - r, r * 2, r * 2);
-    for (let i = 0; i < 4 + Math.floor(next() * 4); i++) {
-      c.beginPath(); c.arc(x + (next() - .5) * r * 1.6, y + (next() - .5) * r * 1.6, r * (.2 + next() * .5), 0, Math.PI * 2);
-      c.fillStyle = colors[i % 3]; c.globalAlpha = .85; c.fill(); c.globalAlpha = 1;
+  // 流场：几百条细线顺着噪声场流动，像风或水的轨迹。
+  (c, s, p, next) => {
+    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
+    const f = field(next, 3), turn = 2 + next() * 3;
+    c.lineCap = 'round';
+    for (let i = 0; i < 420; i++) {
+      let x = next() * s, y = next() * s;
+      c.beginPath(); c.moveTo(x, y);
+      for (let step = 0; step < 36; step++) { const a = f(x / s, y / s) * Math.PI * turn; x += Math.cos(a) * s / 90; y += Math.sin(a) * s / 90; c.lineTo(x, y); }
+      c.strokeStyle = p.inks[i % p.inks.length]; c.globalAlpha = .35 + next() * .5; c.lineWidth = s / 260 + next() * s / 180; c.stroke();
     }
+    c.globalAlpha = 1;
   },
-  // 斜条纹
-  (c, x, y, r, colors, next) => {
-    const width = r * (.18 + next() * .2), angle = next() * Math.PI;
-    c.save(); c.translate(x, y); c.rotate(angle);
-    for (let i = -6; i <= 6; i++) { c.fillStyle = colors[(i + 12) % colors.length]; c.fillRect(i * width - width / 2, -r * 1.5, width, r * 3); }
+  // 柔光渐变：几团纯色先叠好再整体模糊，颜色彼此晕开而不发灰，中间留一道细细的地平线。
+  (c, s, p, next) => {
+    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
+    c.filter = `blur(${Math.round(s / 7)}px)`;
+    for (const ink of p.inks.slice(0, 3)) {
+      c.beginPath(); c.ellipse(next() * s, next() * s, s * (.25 + next() * .3), s * (.2 + next() * .3), next() * Math.PI, 0, Math.PI * 2);
+      c.fillStyle = ink; c.fill();
+    }
+    c.filter = 'none';
+    c.globalAlpha = .6; c.fillStyle = p.paper; c.fillRect(0, Math.round(s * (.55 + next() * .3)), s, Math.max(1, s / 160)); c.globalAlpha = 1;
+  },
+  // 丝网半调：两种油墨的网点各自成形，叠印处变深，略微错版。
+  (c, s, p, next) => {
+    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
+    // 深色底上改用滤色叠印，网点才看得见。
+    c.globalCompositeOperation = luminance(p.paper) < .4 ? 'screen' : 'multiply';
+    for (let layer = 0; layer < 2; layer++) {
+      const cx = (.25 + next() * .5) * s, cy = (.25 + next() * .5) * s, radius = s * (.3 + next() * .35), angle = (layer ? 45 : 15) * Math.PI / 180, cell = s / 34;
+      const shift = (next() - .5) * s / 40;
+      c.fillStyle = p.inks[layer % p.inks.length];
+      c.save(); c.translate(s / 2, s / 2); c.rotate(angle);
+      for (let gx = -s; gx < s; gx += cell) for (let gy = -s; gy < s; gy += cell) {
+        // 网点坐标转回画布坐标，按到中心的距离决定网点大小。
+        const x = gx * Math.cos(angle) - gy * Math.sin(angle) + s / 2, y = gx * Math.sin(angle) + gy * Math.cos(angle) + s / 2;
+        const d = Math.hypot(x - cx, y - cy) / radius, size = Math.max(0, 1 - d) * cell * .62 + (layer ? 0 : (y / s) * cell * .18);
+        if (size > .3) { c.beginPath(); c.arc(gx + shift, gy + shift, size, 0, Math.PI * 2); c.fill(); }
+      }
+      c.restore();
+    }
+    c.globalCompositeOperation = 'source-over';
+  },
+  // 欧普波纹：两色条纹被正弦扭曲，像七十年代的唱片封套。
+  (c, s, p, next) => {
+    const [a, b] = [p.inks[0], next() > .5 ? p.paper : p.inks[1]], bands = 14 + Math.floor(next() * 12);
+    const amp = s * (.03 + next() * .08), freq = 1 + next() * 3, twist = next() * 4, vertical = next() > .5;
+    c.fillStyle = b; c.fillRect(0, 0, s, s); c.fillStyle = a;
+    c.save(); if (vertical) { c.translate(s, 0); c.rotate(Math.PI / 2); }
+    for (let i = -2; i < bands + 2; i += 2) {
+      const top = (y0: number) => (x: number) => y0 + Math.sin(x / s * Math.PI * 2 * freq + y0 / s * twist) * amp;
+      const t = top(i * s / bands), u = top((i + 1) * s / bands);
+      c.beginPath(); c.moveTo(0, t(0));
+      for (let x = 0; x <= s; x += 3) c.lineTo(x, t(x));
+      for (let x = s; x >= 0; x -= 3) c.lineTo(x, u(x));
+      c.closePath(); c.fill();
+    }
     c.restore();
   },
-  // 包豪斯式半圆拼贴
-  (c, x, y, r, colors, next) => {
-    const turn = Math.floor(next() * 4) * Math.PI / 2;
-    c.fillStyle = colors[0]; c.fillRect(x - r, y - r, r * 2, r * 2);
-    c.beginPath(); c.arc(x, y, r, turn, turn + Math.PI); c.fillStyle = colors[1]; c.fill();
-    c.beginPath(); c.arc(x + Math.cos(turn) * r * .5, y + Math.sin(turn) * r * .5, r * .5, turn + Math.PI, turn + Math.PI * 2); c.fillStyle = colors[2]; c.fill();
-    c.beginPath(); c.arc(x - Math.cos(turn) * r * .45, y - Math.sin(turn) * r * .45, r * .22, 0, Math.PI * 2); c.fillStyle = colors[3]; c.fill();
+  // 瑞士构成：网格上一枚大圆、一块色面、几条细线和一个小点。
+  (c, s, p, next) => {
+    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
+    const grid = s / 6, pick = () => Math.floor(next() * 6) * grid;
+    c.globalCompositeOperation = 'multiply';
+    c.fillStyle = p.inks[1 % p.inks.length]; c.fillRect(pick(), pick(), grid * (2 + Math.floor(next() * 3)), grid * (1 + Math.floor(next() * 4)));
+    c.beginPath(); c.arc(grid * (2 + next() * 2), grid * (2 + next() * 2), grid * (1.6 + next() * 1.2), 0, Math.PI * 2); c.fillStyle = p.inks[0]; c.fill();
+    c.globalCompositeOperation = 'source-over';
+    c.strokeStyle = p.inks[p.inks.length - 1]; c.lineWidth = Math.max(1, s / 200);
+    for (let i = 0; i < 3 + Math.floor(next() * 4); i++) { const y = pick() + grid / 2; c.beginPath(); c.moveTo(next() * grid, y); c.lineTo(s - next() * grid * 2, y); c.stroke(); }
+    c.beginPath(); c.arc(pick() + grid / 2, pick() + grid / 2, grid * .22, 0, Math.PI * 2); c.fillStyle = p.inks[2 % p.inks.length]; c.fill();
   },
 ];
 
-// 同一种子总画出同一幅图：封套和唱片标签共用这一幅。
-function drawArt(c: CanvasRenderingContext2D, x: number, y: number, r: number, seed: string) {
-  const next = random(`${seed}:art`);
-  const colors = palettes[Math.floor(next() * palettes.length)].slice().sort(() => next() - .5);
-  c.fillStyle = colors[0]; c.fillRect(x - r, y - r, r * 2, r * 2);
-  patterns[Math.floor(next() * patterns.length)](c, x, y, r, colors, next);
-  const grain = random(`${seed}:grain`), area = r * 2;
-  for (let i = 0; i < area * area / 4; i++) { c.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 10%)' : 'rgb(0 0 0 / 10%)'; c.fillRect(x - r + grain() * area, y - r + grain() * area, 1, 1); }
+function hexRGB(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1, 7), 16);
+  return [n >> 16 & 255, n >> 8 & 255, n & 255];
+}
+
+function luminance(hex: string) {
+  const [r, g, b] = hexRGB(hex);
+  return (r * .299 + g * .587 + b * .114) / 255;
+}
+
+// 每个作品画一次，封套和唱片标签共用；纸张颗粒最后统一叠上。
+const arts = new Map<string, HTMLCanvasElement>();
+function art(seed: string, size: number) {
+  const key = `${seed}:${size}`;
+  let canvas = arts.get(key);
+  if (canvas) return canvas;
+  canvas = document.createElement('canvas'); canvas.width = canvas.height = size;
+  const c = canvas.getContext('2d')!, next = random(`${seed}:art`);
+  const palette = palettes[Math.floor(next() * palettes.length)];
+  styles[Math.floor(next() * styles.length)](c, size, { paper: palette.paper, inks: palette.inks.slice().sort(() => next() - .5) }, next);
+  const grain = random(`${seed}:grain`);
+  for (let i = 0; i < size * size / 3; i++) { c.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 9%)' : 'rgb(0 0 0 / 9%)'; c.fillRect(grain() * size, grain() * size, 1, 1); }
+  if (arts.size > 200) arts.clear();
+  arts.set(key, canvas);
+  return canvas;
 }
 
 export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boolean) {
@@ -85,18 +159,16 @@ export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boole
   }
   c.beginPath(); c.arc(x, y, r * .97, 0, Math.PI * 2); c.strokeStyle = 'rgb(255 255 255 / 10%)'; c.lineWidth = 1; c.stroke();
   if (!label) return;
-  // 标签与封套同一幅图，中心是轴孔。
-  const lr = r * .38;
+  // 标签取封套画面的中心部分，中心是轴孔。
+  const lr = r * .38, source = art(seed, 192);
   c.save(); c.beginPath(); c.arc(x, y, lr, 0, Math.PI * 2); c.clip();
-  drawArt(c, x, y, lr, seed);
+  c.drawImage(source, source.width * .3, source.height * .3, source.width * .4, source.height * .4, x - lr, y - lr, lr * 2, lr * 2);
   c.restore();
   c.beginPath(); c.arc(x, y, Math.max(2, r * .045), 0, Math.PI * 2); c.fillStyle = '#141414'; c.fill();
 }
 
 function drawSleeve(canvas: HTMLCanvasElement, seed: string) {
-  const c = canvas.getContext('2d');
-  // 半径取到对角线，让同心环和扇面也铺满方形封套。
-  if (c) drawArt(c, canvas.width / 2, canvas.height / 2, canvas.width * .72, seed);
+  canvas.getContext('2d')?.drawImage(art(seed, canvas.width), 0, 0);
 }
 
 // 作品封面：歌曲和编曲是随机图案的封套，唱片从封套里探出一截，悬停时滑出并转动；
