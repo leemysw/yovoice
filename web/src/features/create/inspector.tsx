@@ -13,7 +13,7 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { ChevronUp, ChevronRight, LoaderCircle } from 'lucide-react';
 import { ReferenceControls } from './reference-controls';
 import { VoxControls } from './vox-controls';
-import { isReferenceModel, isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
+import { isMusicModel, isReferenceModel, isVoxModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
 
@@ -69,11 +69,13 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
   const languageOptions = (draft.modelId.startsWith('index-2.5')
     ? (['zh', 'en', 'ja', 'es', 'ar'] as const)
     : (['zh', 'en'] as const)).map(value => ({ value, label: t(`@yovoice.language.${value}`) }));
-  const installedModels = catalog.filter(model => state.models.some(installed => installed.id === model.id));
-  const selectedModel = catalog.find(model => model.id === draft.modelId);
+  // 配音与角色只列语音模型。
+  const voiceModels = catalog.filter(model => !isMusicModel(model.id));
+  const installedModels = voiceModels.filter(model => state.models.some(installed => installed.id === model.id));
+  const selectedModel = voiceModels.find(model => model.id === draft.modelId);
   const modelOptions = installedModels.length
     ? [...(selectedModel && !installedModels.some(model => model.id === selectedModel.id) ? [selectedModel] : []), ...installedModels]
-    : catalog;
+    : voiceModels;
   return <VStack as="aside" className={embedded ? undefined : "inspector"} gap={0}>
     {!embedded ? <VStack className="generation-action" gap={3}>
       {generationAction ?? (generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" /> : <Button label={t('@yovoice.create.generate')} variant="primary" width="100%" size="lg" aria-keyshortcuts="Control+Enter" isDisabled={busy || !(draft.subtitles ? draft.subtitles.cues.some(cue => cue.text.trim()) : draft.text.trim())} onClick={generate} />)}

@@ -91,6 +91,17 @@ yovoice generate --model kokoro-82m-q8 --speaker zf_xiaobei --text "你好，欢
 
 Kokoro 不支持音色克隆或文字情绪控制。请保留 CLI 安装包中的 `tools/` 目录。安装引擎和模型后，生成过程可离线运行。完整多语言模型首次加载可能较慢。
 
+## 音乐生成
+
+桌面端的“音乐生成”作品使用 ACE-Step 1.5 Turbo（`ace-step-1.5-turbo-bf16`，约 10.1 GB），需要 v0.9.1 及以上的推理内核。
+
+- **风格**：一句描述加若干标签，例如 `city pop, warm synths, chill, female vocals`，最多 512 字。
+- **歌词**：用 `[verse]`、`[chorus]`、`[bridge]` 等标记段落，最多 4000 字；打开“纯音乐”后只生成伴奏，歌词仍会保留。
+- **时长与语言**：时长可选自动或 10–300 秒；演唱语言需与歌词一致。
+- **编曲细节**：速度（30–300 BPM）、调性、拍号默认由模型规划，也可手动指定。
+
+上游标注 ACE-Step 的全量 Q8 包会让规划器生成另一首歌，因此只提供 BF16 包。续写、翻唱、局部重绘和分轨提取暂未开放。
+
 ## 使用协议
 
 OmniVoice 权重使用 CC-BY-NC 协议，仅限非商业用途。IndexTTS 有独立的[模型协议](../web/public/model-license.txt)。商业使用前请确认所选模型发布方的使用条款。

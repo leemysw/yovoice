@@ -108,6 +108,9 @@ func TestOmniAndQwenRequests(t *testing.T) {
 func TestModelVariantsAndOptions(t *testing.T) {
 	for _, m := range catalog.Models {
 		t.Run(m.ID, func(t *testing.T) {
+			if m.Family == "ace_step" {
+				t.Skip("音乐模型参数由 TestMusicRequest 覆盖")
+			}
 			d := schema.DefaultDraft()
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"
@@ -153,6 +156,58 @@ func TestModelVariantsAndOptions(t *testing.T) {
 		d.VoiceDescription = invalid
 		if schema.Validate(d) == nil {
 			t.Fatal("拒绝无效或互斥的音色属性", invalid)
+		}
+	}
+}
+
+func TestMusicRequest(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.Kind, d.ModelID, d.Text, d.Lyrics, d.SynthesisLanguage = "music", "ace-step-1.5-turbo-bf16", "city pop, 温暖的合成器", "[verse]\n晚风吹过招牌", "zh"
+	// 自动值不下发，由 ACE-Step 规划器决定。
+	d.ModelOptions = map[string]map[string]any{"ace_step": {"duration_seconds": float64(60), "bpm": float64(0), "keyscale": "auto", "timesignature": "4"}}
+	seed := 7
+	d.Seed = &seed
+	p, err := BuildRequest(d, "", "")
+	must(t, err)
+	r := p["request"].(map[string]any)
+	o := r["options"].(map[string]any)
+	if r["text"] != d.Text || r["language"] != "zh" || o["route"] != "text2music" || o["lyrics"] != d.Lyrics || o["duration_seconds"] != float64(60) || o["timesignature"] != "4" || o["seed"] != 7 {
+		t.Fatal(r)
+	}
+	if _, ok := o["bpm"]; ok {
+		t.Fatal(o)
+	}
+	if _, ok := o["keyscale"]; ok {
+		t.Fatal(o)
+	}
+	if _, ok := r["voice_ref"]; ok || d.RequiresVoice() {
+		t.Fatal("音乐生成不需要参考音色", r)
+	}
+	d.Instrumental = true
+	p, err = BuildRequest(d, "", "")
+	must(t, err)
+	if p["request"].(map[string]any)["options"].(map[string]any)["lyrics"] != "[Instrumental]" {
+		t.Fatal(p)
+	}
+	for _, patch := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.Text = " " },
+		func(d *schema.Draft) { d.Text = string(make([]rune, 513)) },
+		func(d *schema.Draft) { d.Lyrics = string(make([]rune, 4001)) },
+		func(d *schema.Draft) { d.SynthesisLanguage = "klingon" },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["duration_seconds"] = float64(5) },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["duration_seconds"] = float64(301) },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["bpm"] = float64(20) },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["keyscale"] = "H major" },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["lyrics"] = "绕过校验" },
+	} {
+		invalid := d
+		invalid.ModelOptions = map[string]map[string]any{"ace_step": {}}
+		for k, v := range d.ModelOptions["ace_step"] {
+			invalid.ModelOptions["ace_step"][k] = v
+		}
+		patch(&invalid)
+		if schema.Validate(invalid) == nil {
+			t.Fatal("应拒绝无效音乐参数", invalid.Text[:min(len(invalid.Text), 20)], invalid.ModelOptions)
 		}
 	}
 }

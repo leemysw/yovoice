@@ -531,5 +531,18 @@
       "zm_098",
       "zm_100"
     ]
+  },
+  {
+    "id": "ace-step-1.5-turbo-bf16",
+    "name": "ACE-Step 1.5 Turbo",
+    "family": "ace_step",
+    "task": "gen",
+    "engineMinimum": "v0.9.1",
+    "version": "1.5",
+    "precision": "BF16",
+    "revision": "e479ac197bae727f69574261a8025696bc51de48",
+    "remotePath": "ACE-Step1.5-GGUF/turbo/ace-step-1.5-turbo-bf16.gguf",
+    "size": 10090398272,
+    "sha256": "93974239a29a1a821b3cc1b1ca7e1c6229b1a900a0e44a1a9770bb2271d2be5f"
   }
 ]

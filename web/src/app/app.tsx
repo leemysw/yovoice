@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { call, subscribe } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
-import { createDraft, emptyState, withCueIds, type EngineInfo, type ModelPackage, type State } from '../shared/workbench';
+import { createDraft, emptyState, isMusicModel, withCueIds, type EngineInfo, type ModelPackage, type State } from '../shared/workbench';
 import { isUiLocale } from '../shared/i18n/locale';
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './locale-shell';
 import { useDraftSession } from './use-draft-session';
@@ -24,7 +24,7 @@ export function App() {
           next = { ...next, preferences: { ...next.preferences, uiLocale: bootLocale } };
         } catch (e) { setError(noticeMessage(e)); }
       }
-      const defaultModelId = next.models[0]?.id ?? result.catalog[0]?.id ?? 'index-2.5-q8';
+      const defaultModelId = next.models.find(m => !isMusicModel(m.id))?.id ?? result.catalog[0]?.id ?? 'index-2.5-q8';
       const initial = next.drafts.find(d => d.id === localStorage.getItem('yovoice-active-project')) ?? next.drafts[0];
       setState(next); setCatalog(result.catalog); setEngine(result.engine ?? { version: '', minimum: '' }); setDraft(withCueIds(initial ?? createDraft(true, next.preferences.uiLocale, defaultModelId))); setDraftPersisted(!!initial);
       setReady(true);

@@ -14,18 +14,20 @@ import (
 const Revision = "6d5436fc85f7a20c2e9f4e472b7f3a532f686444"
 
 type ModelPackage struct {
-	Revision   string   `json:"revision,omitempty"`
-	Voices     []string `json:"voices,omitempty"`
-	Variant    string   `json:"variant,omitempty"`
-	Task       string   `json:"task,omitempty"`
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Family     string   `json:"family"`
-	Version    string   `json:"version"`
-	Precision  string   `json:"precision"`
-	RemotePath string   `json:"remotePath"`
-	Size       int64    `json:"size"`
-	SHA256     string   `json:"sha256"`
+	Revision string `json:"revision,omitempty"`
+	// EngineMinimum 是该模型需要的最低内核版本，为空时只要求应用的最低版本。
+	EngineMinimum string   `json:"engineMinimum,omitempty"`
+	Voices        []string `json:"voices,omitempty"`
+	Variant       string   `json:"variant,omitempty"`
+	Task          string   `json:"task,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Family        string   `json:"family"`
+	Version       string   `json:"version"`
+	Precision     string   `json:"precision"`
+	RemotePath    string   `json:"remotePath"`
+	Size          int64    `json:"size"`
+	SHA256        string   `json:"sha256"`
 }
 
 //go:embed catalog.json

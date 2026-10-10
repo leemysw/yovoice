@@ -257,7 +257,7 @@ func (w *Workbench) ImportProject(path string) (schema.Draft, error) {
 	if _, err = pack.Draft.SubtitleDrafts(); err != nil {
 		return schema.Draft{}, bad
 	}
-	if !schema.ValidID(pack.Draft.ID) || schema.TextLen(pack.Draft.Title) > 120 || schema.TextLen(pack.Draft.Text) > 12000 || schema.TextLen(pack.Draft.EmotionText) > 500 || schema.TextLen(pack.Draft.VoiceDescription) > 500 || schema.TextLen(pack.Draft.ReferenceText) > 2000 || !slices.Contains([]string{"", "text", "story", "subtitle"}, pack.Draft.Kind) {
+	if !schema.ValidID(pack.Draft.ID) || schema.TextLen(pack.Draft.Title) > 120 || schema.TextLen(pack.Draft.Text) > 12000 || schema.TextLen(pack.Draft.EmotionText) > 500 || schema.TextLen(pack.Draft.VoiceDescription) > 500 || schema.TextLen(pack.Draft.ReferenceText) > 2000 || schema.TextLen(pack.Draft.Lyrics) > 4000 || !slices.Contains([]string{"", "text", "story", "subtitle", "music"}, pack.Draft.Kind) {
 		return schema.Draft{}, bad
 	}
 	ids, voiceIDs := map[string]string{}, map[string]bool{}

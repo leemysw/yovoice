@@ -23,6 +23,9 @@ type SynthesisSettings struct {
 	Speaker           string                    `json:"speaker,omitempty"`
 	SynthesisLanguage string                    `json:"synthesisLanguage,omitempty"`
 	OmniSpeed         float64                   `json:"omniSpeed,omitempty"`
+	// 音乐作品中 Text 是风格描述，歌词单独保存；纯音乐时保留歌词但不演唱。
+	Lyrics       string `json:"lyrics,omitempty"`
+	Instrumental bool   `json:"instrumental,omitempty"`
 
 	VoiceMode         string    `json:"voiceMode"`
 	VoxMode           string    `json:"voxMode"`

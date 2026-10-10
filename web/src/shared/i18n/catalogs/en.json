@@ -2026,5 +2026,152 @@
   },
   "@yovoice.performance.rename": {
     "defaultMessage": "Rename performance"
+  },
+  "@yovoice.error.musicStyle": {
+    "defaultMessage": "Describe the style in 1–512 characters."
+  },
+  "@yovoice.error.musicLyrics": {
+    "defaultMessage": "Lyrics can be up to 4000 characters."
+  },
+  "@yovoice.error.musicParams": {
+    "defaultMessage": "Duration must be 10–300 seconds and tempo 30–300 BPM."
+  },
+  "@yovoice.project.music": {
+    "defaultMessage": "Music generation"
+  },
+  "@yovoice.project.new.music": {
+    "defaultMessage": "New song"
+  },
+  "@yovoice.music.style": {
+    "defaultMessage": "Style"
+  },
+  "@yovoice.music.example": {
+    "defaultMessage": "Try an example"
+  },
+  "@yovoice.music.stylePlaceholder": {
+    "defaultMessage": "Describe the sound, e.g. city pop, warm synths, chill, female vocals"
+  },
+  "@yovoice.music.tags": {
+    "defaultMessage": "Style tags"
+  },
+  "@yovoice.music.tagGroup.genre": {
+    "defaultMessage": "Genre"
+  },
+  "@yovoice.music.tagGroup.mood": {
+    "defaultMessage": "Mood"
+  },
+  "@yovoice.music.tagGroup.instrument": {
+    "defaultMessage": "Instruments"
+  },
+  "@yovoice.music.tagGroup.vocal": {
+    "defaultMessage": "Vocals"
+  },
+  "@yovoice.music.lyrics": {
+    "defaultMessage": "Lyrics"
+  },
+  "@yovoice.music.insertSection": {
+    "defaultMessage": "Insert section marker"
+  },
+  "@yovoice.music.instrumental": {
+    "defaultMessage": "Instrumental"
+  },
+  "@yovoice.music.instrumentalHint": {
+    "defaultMessage": "Instrumental tracks ignore the lyrics and follow the style only. Your lyrics are kept; turn this off to keep editing them."
+  },
+  "@yovoice.music.lyricsPlaceholder": {
+    "defaultMessage": "Write lyrics and mark sections with [verse], [chorus] and so on. Leave empty to let the model hum along."
+  },
+  "@yovoice.music.takes": {
+    "defaultMessage": "Versions"
+  },
+  "@yovoice.music.takeCount": {
+    "defaultMessage": "{count} versions"
+  },
+  "@yovoice.music.take": {
+    "defaultMessage": "Version {n}"
+  },
+  "@yovoice.music.noTakes": {
+    "defaultMessage": "Each generation becomes a version here, so you can compare and keep the best one."
+  },
+  "@yovoice.music.generate": {
+    "defaultMessage": "Generate song"
+  },
+  "@yovoice.music.generateHint": {
+    "defaultMessage": "The first song loads the model and takes longer."
+  },
+  "@yovoice.music.modelSize": {
+    "defaultMessage": "Not installed · {size}"
+  },
+  "@yovoice.music.duration": {
+    "defaultMessage": "Duration"
+  },
+  "@yovoice.music.auto": {
+    "defaultMessage": "Auto"
+  },
+  "@yovoice.music.durationAuto": {
+    "defaultMessage": "The model plans the length from the lyrics."
+  },
+  "@yovoice.music.durationFixed": {
+    "defaultMessage": "Longer songs take more time and memory."
+  },
+  "@yovoice.music.language": {
+    "defaultMessage": "Vocal language"
+  },
+  "@yovoice.music.languageName.zh": {
+    "defaultMessage": "Mandarin"
+  },
+  "@yovoice.music.languageName.en": {
+    "defaultMessage": "English"
+  },
+  "@yovoice.music.languageName.yue": {
+    "defaultMessage": "Cantonese"
+  },
+  "@yovoice.music.languageName.ja": {
+    "defaultMessage": "Japanese"
+  },
+  "@yovoice.music.languageName.ko": {
+    "defaultMessage": "Korean"
+  },
+  "@yovoice.music.languageName.es": {
+    "defaultMessage": "Spanish"
+  },
+  "@yovoice.music.languageName.fr": {
+    "defaultMessage": "French"
+  },
+  "@yovoice.music.languageName.de": {
+    "defaultMessage": "German"
+  },
+  "@yovoice.music.languageName.pt": {
+    "defaultMessage": "Portuguese"
+  },
+  "@yovoice.music.languageName.ru": {
+    "defaultMessage": "Russian"
+  },
+  "@yovoice.music.languageName.it": {
+    "defaultMessage": "Italian"
+  },
+  "@yovoice.music.bpm": {
+    "defaultMessage": "Tempo (BPM)"
+  },
+  "@yovoice.music.keyscale": {
+    "defaultMessage": "Key"
+  },
+  "@yovoice.music.timesignature": {
+    "defaultMessage": "Time signature"
+  },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Sampling steps"
+  },
+  "@yovoice.music.advancedHint": {
+    "defaultMessage": "Leave these on Auto to let the model choose; it usually sounds more natural."
+  },
+  "@yovoice.error.engineUpgradeRequired": {
+    "defaultMessage": "This model needs inference engine {version} or later. Update the engine in Settings."
+  },
+  "@yovoice.music.engineRequired": {
+    "defaultMessage": "Music generation needs inference engine {version} or later."
+  },
+  "@yovoice.music.updateEngine": {
+    "defaultMessage": "Update engine"
   }
 }

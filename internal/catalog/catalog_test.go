@@ -67,3 +67,12 @@ func TestVersionAtLeast(t *testing.T) {
 		t.Error("两种 CUDA 构建都应使用 audio.cpp 的 cuda 后端")
 	}
 }
+
+// 模型要求的内核版本必须能被推荐版本满足，否则用户无法通过更新内核使用该模型。
+func TestModelEngineMinimum(t *testing.T) {
+	for _, m := range Models {
+		if m.EngineMinimum != "" && (parseVersion(m.EngineMinimum) == nil || !VersionAtLeast(EngineVersion, m.EngineMinimum)) {
+			t.Errorf("%s 的 engineMinimum %q 无效或高于推荐版本 %s", m.ID, m.EngineMinimum, EngineVersion)
+		}
+	}
+}

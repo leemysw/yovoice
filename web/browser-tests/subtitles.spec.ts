@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedState } from './seed';
 import { SubtitleParser } from '../src/features/create/subtitle-parser';
 import { emptyState, synthesisSettings } from '../src/shared/workbench';
 
@@ -24,7 +25,7 @@ test('导入新作品、统一角色映射、逐句分配和重载持久化', as
   const state = emptyState();
   state.characters = [{ id: 'a'.repeat(32), name: '旁白角色', settings: { ...synthesisSettings(state.drafts[0]), modelId: 'voxcpm2-q8', voiceDescription: '温柔' }, demoText: '' }];
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '故事配音', exact: true }).click();
@@ -88,7 +89,7 @@ test('选择台词编辑对应说话人，末尾新增继承上一句并持久�
     cues: ['1', '2', '1'].map((speakerId, index) => ({ start: index * 1000, end: (index + 1) * 1000, text: ['第一句', '第二句', '第三句'][index], speakerId })),
   };
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByLabel('第 1 句台词', { exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Alice', exact: true })).toBeVisible();
@@ -130,7 +131,7 @@ test('空白台词删除后恢复相邻焦点，支持跨页和删除最后一�
   draft.subtitles = { speakers: [{ id: '1', sourceName: 'Alice' }], cues };
   draft.text = cues.map(cue => cue.text).join('\n');
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByRole('button', { name: '下一页', exact: true }).click();
   await page.getByLabel('第 51 句台词', { exact: true }).press('Backspace');

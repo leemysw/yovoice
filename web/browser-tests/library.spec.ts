@@ -1,4 +1,5 @@
 import { openProjectHistory } from './project-actions';
+import { seedState } from './seed';
 import { test, expect } from '@playwright/test';
 import { emptyState } from '../src/shared/workbench';
 
@@ -57,7 +58,6 @@ test('从生成记录保存参考音频，删除生成记录后仍保留素材�
   state.history = [{ id, title: '历史旁白', fileName: id + '.wav', createdAt: new Date().toISOString(), duration: 1, settings: { ...state.drafts[0], text: '历史片段实际的台词。' } }];
   await page.goto('/');
   await page.evaluate(async state => {
-    localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
     const data = new ArrayBuffer(32044); const view = new DataView(data);
     const text = (at: number, value: string) => [...value].forEach((c, i) => view.setUint8(at + i, c.charCodeAt(0)));
     text(0, 'RIFF'); view.setUint32(4, 32036, true); text(8, 'WAVEfmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, 16000, true); view.setUint32(28, 32000, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, 32000, true);
@@ -67,7 +67,7 @@ test('从生成记录保存参考音频，删除生成记录后仍保留素材�
       req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([data], { type: 'audio/wav' }), state.history[0].fileName); tx.oncomplete = () => { db.close(); resolve(); }; tx.onerror = () => reject(tx.error); };
     });
   }, state);
-  await page.reload();
+  await seedState(page, state); await page.reload();
   await expect(page.getByRole('button', { name: '保存为参考音频', exact: true })).toHaveCount(0);
   await page.locator('.recent-projects .project-link').first().click();
   await openProjectHistory(page);

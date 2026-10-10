@@ -11,6 +11,9 @@ import (
 
 func TextLen(s string) int { return len(utf16.Encode([]rune(s))) }
 func Validate(d Draft) error {
+	if m, e := catalog.Lookup(d.ModelID); e == nil && m.Family == "ace_step" {
+		return validateMusic(d)
+	}
 	if strings.TrimSpace(d.Text) == "" || TextLen(d.Text) > 12000 {
 		return msg.Err(msg.ErrTextRequired, nil)
 	}
@@ -123,13 +126,47 @@ func Validate(d Draft) error {
 	}
 	return nil
 }
+
+// MusicLanguages 是 ACE-Step 规划器接受的演唱语言；unknown 交给模型判断。
+var MusicLanguages = []string{"ar", "az", "bg", "bn", "ca", "cs", "da", "de", "el", "en", "es", "fa", "fi", "fr", "he", "hi", "hr", "ht", "hu", "id", "is", "it", "ja", "ko", "la", "lt", "ms", "ne", "nl", "no", "pa", "pl", "pt", "ro", "ru", "sa", "sk", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur", "vi", "yue", "zh", "unknown"}
+
+func validateMusic(d Draft) error {
+	if strings.TrimSpace(d.Title) == "" || TextLen(d.Title) > 120 {
+		return msg.Err(msg.ErrTitleLength, nil)
+	}
+	if strings.TrimSpace(d.Text) == "" || TextLen(d.Text) > 512 {
+		return msg.Err(msg.ErrMusicStyle, nil)
+	}
+	if TextLen(d.Lyrics) > 4000 {
+		return msg.Err(msg.ErrMusicLyrics, nil)
+	}
+	if d.SynthesisLanguage != "" && !slices.Contains(MusicLanguages, d.SynthesisLanguage) {
+		return msg.Err(msg.ErrLanguageUnsupported, nil)
+	}
+	o, err := d.GenerationOptions("ace_step")
+	if err != nil {
+		return err
+	}
+	// 0 表示交给规划器决定；指定时需落在规划器可采样的范围内。
+	if v, ok := o["duration_seconds"].(float64); ok && v < 10 {
+		return msg.Err(msg.ErrMusicParams, nil)
+	}
+	if v, ok := o["bpm"].(float64); ok && v < 30 {
+		return msg.Err(msg.ErrMusicParams, nil)
+	}
+	if d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647) {
+		return msg.Err(msg.ErrParamsOutOfRange, nil)
+	}
+	return nil
+}
+
 func InRange(v, min, max float64) bool {
 	return !math.IsNaN(v) && !math.IsInf(v, 0) && v >= min && v <= max
 }
 
 func (d Draft) RequiresVoice() bool {
 	m, err := catalog.Lookup(d.ModelID)
-	if err == nil && m.Family == "kokoro_tts" {
+	if err == nil && (m.Family == "kokoro_tts" || m.Family == "ace_step") {
 		return false
 	}
 	if err == nil && m.Family == "omnivoice" {
