@@ -352,8 +352,9 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       { label: t('@yovoice.timeline.balance'), isDisabled: !duration, onClick: () => void (async () => { try { const audio = context.current ??= new AudioContext(); for (const c of value.tracks.flatMap(t => t.clips)) await load(Timeline.sourceKey(c), audio); edit(Timeline.balance(value, history, buffers.current)); } catch (e) { onError((e as Error).message); } })() },
     ] },
   ];
+  // 菜单打开时 Esc 交给菜单关闭：macOS 上右键菜单打开后焦点可能仍在剪辑上，不能在这里拦下。
   return <VStack as="footer" className="multitrack audio-panel" gap={0} style={{ height: panel.size }} onKeyDown={e => {
-    if (e.key === 'Escape' && !e.defaultPrevented && !(e.target as Element).closest('[role=menu], [role=dialog]') && !exportOpen && !historyTrack) { finishGesture(false); setSelected(''); setSelection([]); setRange(undefined); e.stopPropagation(); }
+    if (e.key === 'Escape' && !e.defaultPrevented && !(e.target as Element).closest('[role=menu], [role=dialog]') && !document.querySelector('[role=menu]') && !exportOpen && !historyTrack) { finishGesture(false); setSelected(''); setSelection([]); setRange(undefined); e.stopPropagation(); }
   }}>
     <input ref={input} type="file" hidden accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={async e => {
       const file = e.target.files?.[0]; e.target.value = '';
