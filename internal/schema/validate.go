@@ -11,6 +11,9 @@ import (
 
 func TextLen(s string) int { return len(utf16.Encode([]rune(s))) }
 func Validate(d Draft) error {
+	if d.Kind == "score" {
+		return validateScoreDraft(d)
+	}
 	if m, e := catalog.Lookup(d.ModelID); e == nil && m.Family == "ace_step" {
 		return validateMusic(d)
 	}

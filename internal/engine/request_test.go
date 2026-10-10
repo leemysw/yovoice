@@ -111,6 +111,9 @@ func TestModelVariantsAndOptions(t *testing.T) {
 			if m.Family == "ace_step" {
 				t.Skip("音乐模型参数由 TestMusicRequest 覆盖")
 			}
+			if m.Family == "soundfont" {
+				t.Skip("音色库由编曲渲染使用，不经过推理引擎")
+			}
 			d := schema.DefaultDraft()
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"

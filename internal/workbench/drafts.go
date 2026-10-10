@@ -23,7 +23,7 @@ func (w *Workbench) saveDraft(d schema.Draft) (err error) {
 		diag.Log(w.Store.Root, "draft.save", "project_id", d.ID, "model_id", d.ModelID, "text_length", schema.TextLen(d.Text), "stage", stage, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))
 	}()
 	d.EnsureCueIDs()
-	if !slices.Contains([]string{"", "text", "story", "subtitle", "music"}, d.Kind) {
+	if !slices.Contains([]string{"", "text", "story", "subtitle", "music", "score"}, d.Kind) {
 		return msg.Err(msg.ErrDraftLimits, nil)
 	}
 	stage = "validate_assets"
@@ -39,7 +39,7 @@ func (w *Workbench) saveDraft(d schema.Draft) (err error) {
 		return err
 	}
 	stage = "validate_limits"
-	if !schema.ValidID(d.ID) || schema.TextLen(d.Text) > 12000 || schema.TextLen(d.Title) > 120 || schema.TextLen(d.EmotionText) > 500 || schema.TextLen(d.VoiceDescription) > 500 || schema.TextLen(d.ReferenceText) > 2000 || schema.TextLen(d.Lyrics) > 4000 {
+	if !schema.ValidID(d.ID) || schema.TextLen(d.Text) > 12000 || schema.TextLen(d.Title) > 120 || schema.TextLen(d.EmotionText) > 500 || schema.TextLen(d.VoiceDescription) > 500 || schema.TextLen(d.ReferenceText) > 2000 || schema.TextLen(d.Lyrics) > 4000 || !schema.ScoreWithinLimits(d.Score) {
 		return msg.Err(msg.ErrDraftLimits, nil)
 	}
 	stage = "persist"

@@ -544,5 +544,18 @@
     "remotePath": "ACE-Step1.5-GGUF/turbo/ace-step-1.5-turbo-bf16.gguf",
     "size": 10090398272,
     "sha256": "93974239a29a1a821b3cc1b1ca7e1c6229b1a900a0e44a1a9770bb2271d2be5f"
+  },
+  {
+    "id": "musescore-general-sf2",
+    "name": "MuseScore General",
+    "family": "soundfont",
+    "task": "instrument",
+    "version": "0.2",
+    "precision": "SF2",
+    "repo": "datasets/mileslilly/soundfonts",
+    "revision": "4692e2717d8cff5e6b800b47c5ff0f574383529b",
+    "remotePath": "MuseScore_General.sf2",
+    "size": 215614036,
+    "sha256": "ee51d2c4b1525e70f19a45909c4fd7a2e26d91d115fa89dbf5a6bc413d8b9bf3"
   }
 ]

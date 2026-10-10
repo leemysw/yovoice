@@ -35,6 +35,7 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
   yovoice voices list
   yovoice voices import FILE [--name NAME]
   yovoice generate --text-file FILE --reference AUDIO --output WAV
+  yovoice score render|midi|from-midi FILE --output FILE（编曲，详见 yovoice score --help）
 生成选项：--text TEXT（与 --text-file 二选一）、--voice ID（与 --reference 二选一）、
   --model ID、--seed N；IndexTTS：--language zh|en|ja|es|ar、--speed 1、--emotion-text TEXT。
 VoxCPM2：--vox-mode design|clone|continuation、--voice-description TEXT、
@@ -73,6 +74,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	}
 	command := args[0]
 	args = args[1:]
+	if command == "score" {
+		return runScore(ctx, args, out, progress)
+	}
 	operand := ""
 	if command == "models" || command == "voices" {
 		if len(args) == 0 {

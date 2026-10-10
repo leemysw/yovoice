@@ -9,6 +9,7 @@ import (
 	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/testkit"
 )
 
 // 历史快照不携带时间轴，作品自身的时间轴保持不变。
@@ -82,5 +83,36 @@ func TestMusicGenerationRequiresEngineVersion(t *testing.T) {
 	state := wb.Store.Read()
 	if state.Activity == nil || state.Activity.Status != "completed" || len(state.History) != 1 || state.History[0].Settings.Lyrics != d.Lyrics || state.Drafts[0].Kind != "music" {
 		t.Fatalf("%+v", state.Activity)
+	}
+}
+
+// 编曲作品不需要推理内核：装好音色库即可渲染为一个版本，未装音色库时提示下载。
+func TestScoreRendersWithoutEngine(t *testing.T) {
+	wb, err := New(t.TempDir())
+	must(t, err)
+	defer wb.Close()
+	d := schema.DefaultDraft()
+	d.Kind, d.ModelID, d.Title = "score", "musescore-general-sf2", "片头"
+	d.Score = &schema.Score{Tempo: 120, TimeSignature: []int{4, 4}, Tracks: []schema.ScoreTrack{{ID: "piano", Name: "钢琴", Role: "piano", Notes: []schema.ScoreNote{{Bar: 1, Beat: 1, Pitch: 62, Length: 2, Velocity: 90}}}}}
+	var ce *msg.CallError
+	if err := wb.Generate(d); !errors.As(err, &ce) || ce.Code != msg.ErrModelRequired {
+		t.Fatalf("未装音色库应提示下载：%v", err)
+	}
+	font := filepath.Join(wb.Store.Root, "models", "test.sf2")
+	must(t, os.WriteFile(font, testkit.SoundFont(), 0600))
+	must(t, wb.Store.Update(func(s *schema.State) { s.Models = []schema.InstalledModel{{ID: "musescore-general-sf2", Path: font}} }, true))
+	broken := d
+	broken.Score = &schema.Score{Tempo: 120, TimeSignature: []int{4, 4}}
+	if err := wb.Generate(broken); !errors.As(err, &ce) || ce.Code != msg.ErrScoreInvalid {
+		t.Fatalf("空乐谱应校验失败：%v", err)
+	}
+	must(t, wb.Generate(d))
+	<-wb.Done()
+	state := wb.Store.Read()
+	if state.Activity == nil || state.Activity.Status != "completed" || len(state.History) != 1 || state.History[0].Settings.Score == nil || state.Drafts[0].Kind != "score" {
+		t.Fatalf("%+v", state.Activity)
+	}
+	if g := state.History[0]; g.Duration < 3.99 || g.Duration > 4.01 { // 一小节 2 秒加 2 秒收尾
+		t.Fatal(g.Duration)
 	}
 }

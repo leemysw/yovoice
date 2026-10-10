@@ -20,13 +20,14 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 	// 仅后端保留、界面有意不读写的字段。
 	goOnly := map[string][]string{
 		"AudioClip":    {"fadeIn", "fadeOut"}, // 旧版淡化，读取时忽略
-		"ModelPackage": {"revision"},          // 下载时固定的仓库修订号
+		"ModelPackage": {"revision", "repo"},  // 下载时固定的仓库与修订号
 	}
 	for _, value := range []any{
 		schema.SynthesisSettings{}, schema.SubtitleSpeaker{}, schema.CharacterPerformance{}, schema.SubtitleCue{}, schema.SubtitleDocument{},
 		schema.AudioClip{}, schema.AudioLane{}, schema.AudioAsset{}, schema.AudioMarker{}, schema.AudioTimeline{}, schema.Draft{},
 		schema.CharacterPreview{}, schema.Character{}, schema.Voice{}, schema.InstalledModel{}, schema.Generation{},
 		schema.GenerationSegment{}, schema.Activity{}, schema.Preferences{}, schema.State{}, catalog.ModelPackage{},
+		schema.Score{}, schema.ScoreSection{}, schema.ScoreTrack{}, schema.Humanize{}, schema.ScoreRamp{}, schema.ScoreNote{},
 	} {
 		typ := reflect.TypeOf(value)
 		ts, ok := interfaces[typ.Name()]

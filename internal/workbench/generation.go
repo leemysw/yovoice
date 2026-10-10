@@ -80,6 +80,9 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 			diag.Log(w.Store.Root, "generation.rejected", "project_id", d.ID, "error", diag.Error(err))
 		}
 	}()
+	if d.Kind == "score" {
+		return w.startScore(d, saveDraft)
+	}
 	d.EnsureCueIDs()
 	original := d
 	if cueID != "" {

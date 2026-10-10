@@ -131,6 +131,8 @@ type Draft struct {
 	Text        string            `json:"text"`
 	Subtitles   *SubtitleDocument `json:"subtitles,omitempty"`
 	Timeline    *AudioTimeline    `json:"timeline,omitempty"`
+	// Score 仅编曲作品使用，ModelID 指向渲染所用的音色库。
+	Score *Score `json:"score,omitempty"`
 }
 
 func DefaultDraft() Draft {
