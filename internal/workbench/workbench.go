@@ -50,6 +50,10 @@ func New(root string) (*Workbench, error) {
 		return download.Proxy(req, preferences.ProxyURL)
 	}
 	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}, bundled: map[string]bundledRuntime{}}
+	// 先找回已解压的内核再清理，避免把仍可使用的 GPU 内核当作残留删除。
+	if e = w.adoptRuntimes(); e != nil {
+		return nil, e
+	}
 	w.removeStale()
 	if e = w.recordLegacyRuntimeVersion(); e != nil {
 		return nil, e
