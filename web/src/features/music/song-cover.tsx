@@ -13,13 +13,13 @@ export function drawCover(canvas: HTMLCanvasElement, seed: string, time = 0) {
   const next = random(seed); const { width, height } = canvas;
   const hue = Math.floor(next() * 360), accent = (hue + 40 + next() * 120) % 360;
   const ground = context.createLinearGradient(0, 0, width, height);
-  ground.addColorStop(0, `hsl(${hue} 55% 16%)`); ground.addColorStop(1, `hsl(${accent} 60% 30%)`);
+  ground.addColorStop(0, `hsl(${hue} 30% 12%)`); ground.addColorStop(1, `hsl(${accent} 32% 26%)`);
   context.fillStyle = ground; context.fillRect(0, 0, width, height);
   const x = width * (0.25 + next() * 0.5), y = height * (0.3 + next() * 0.4), rings = 7 + Math.floor(next() * 6);
   for (let i = rings; i > 0; i--) {
     context.beginPath();
     context.arc(x, y, (i / rings) * width * 0.62 + Math.sin(time / 600 + i) * width * 0.006, 0, Math.PI * 2);
-    context.fillStyle = `hsl(${(hue + i * 14) % 360} 80% ${30 + i * 4}% / ${0.18 + (rings - i) * 0.03})`;
+    context.fillStyle = `hsl(${(hue + i * 14) % 360} 42% ${30 + i * 4}% / ${0.16 + (rings - i) * 0.03})`;
     context.fill();
   }
   context.lineWidth = Math.max(1, width / 120);
@@ -27,8 +27,14 @@ export function drawCover(canvas: HTMLCanvasElement, seed: string, time = 0) {
     const base = height * (0.62 + line * 0.09), amplitude = height * (0.02 + next() * 0.05), frequency = 2 + next() * 5;
     context.beginPath();
     for (let px = 0; px <= width; px += 2) context.lineTo(px, base + Math.sin(px / width * Math.PI * frequency + time / 500 + line) * amplitude);
-    context.strokeStyle = `hsl(${accent} 90% 85% / ${0.55 - line * 0.15})`;
+    context.strokeStyle = `hsl(${accent} 60% 88% / ${0.55 - line * 0.15})`;
     context.stroke();
+  }
+  // 胶片颗粒：同一封面颗粒位置固定。
+  const grain = random(`${seed}:grain`), dots = Math.floor(width * height / 40);
+  for (let i = 0; i < dots; i++) {
+    context.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 7%)' : 'rgb(0 0 0 / 12%)';
+    context.fillRect(Math.floor(grain() * width), Math.floor(grain() * height), 1, 1);
   }
 }
 

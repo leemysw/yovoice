@@ -2527,5 +2527,11 @@
   },
   "@yovoice.error.aiResultInvalid": {
     "defaultMessage": "The AI result could not be used: {detail}. Try again or rephrase."
+  },
+  "@yovoice.music.allTags": {
+    "defaultMessage": "All tags"
+  },
+  "@yovoice.music.fewerTags": {
+    "defaultMessage": "Fewer tags"
   }
 }

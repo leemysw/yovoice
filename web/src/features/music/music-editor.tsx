@@ -5,7 +5,7 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Switch } from '@astryxdesign/core/Switch';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, Play, Sparkles, WandSparkles } from 'lucide-react';
+import { AudioLines, ChevronDown, ChevronUp, Play, Sparkles, WandSparkles } from 'lucide-react';
 import { call } from '../../shared/lib/client';
 import { AIDialog } from '../../shared/ui/ai-dialog';
 import { formatTime, type Draft, type Generation, type State, type UiLocale } from '../../shared/workbench';
@@ -23,12 +23,17 @@ export function MusicEditor({ draft, state, change, locale, takes, current, sele
 }) {
   const t = useTranslator();
   const [writing, setWriting] = useState(false);
+  const [allTags, setAllTags] = useState(false);
   const lyrics = useRef<HTMLTextAreaElement>(null);
   const tags = splitTags(draft.text);
   const toggleTag = (tag: string) => {
     const next = tags.includes(tag) ? tags.filter(item => item !== tag) : [...tags, tag];
     change({ text: next.join(', ').slice(0, 512) });
   };
+  // 默认只显示一行：已选标签在前，其余用流派补足。
+  const known: readonly string[] = Object.values(styleTags).flat();
+  const quickTags = [...tags.filter(tag => known.includes(tag)), ...styleTags.genre.filter(tag => !tags.includes(tag))].slice(0, Math.max(8, tags.length));
+  const tagButton = (tag: string) => <Button key={tag} className="music-tag" size="sm" variant={tags.includes(tag) ? 'primary' : 'secondary'} aria-pressed={tags.includes(tag)} label={tag} onClick={() => toggleTag(tag)} />;
   // 在光标处插入段落标记；标记单独占一行，便于 ACE-Step 识别结构。
   const insertSection = (section: string) => {
     const element = lyrics.current; const value = draft.lyrics ?? '';
@@ -60,10 +65,11 @@ export function MusicEditor({ draft, state, change, locale, takes, current, sele
       </HStack>
       <TextArea className="music-style" label={t('@yovoice.music.style')} isLabelHidden value={draft.text} maxLength={512} rows={2} hasSpellCheck={false} placeholder={t('@yovoice.music.stylePlaceholder')} onChange={text => change({ text: text.slice(0, 512) })} />
       <VStack gap={2} role="group" aria-label={t('@yovoice.music.tags')}>
-        {(Object.keys(styleTags) as (keyof typeof styleTags)[]).map(group => <HStack key={group} gap={2} vAlign="center" wrap="wrap">
+        {allTags ? (Object.keys(styleTags) as (keyof typeof styleTags)[]).map(group => <HStack key={group} gap={2} vAlign="center" wrap="wrap">
           <small className="music-tag-group">{t(`@yovoice.music.tagGroup.${group}`)}</small>
-          {styleTags[group].map(tag => <Button key={tag} className="music-tag" size="sm" variant={tags.includes(tag) ? 'primary' : 'secondary'} aria-pressed={tags.includes(tag)} label={tag} onClick={() => toggleTag(tag)} />)}
-        </HStack>)}
+          {styleTags[group].map(tag => tagButton(tag))}
+        </HStack>) : <HStack gap={2} vAlign="center" wrap="wrap">{quickTags.map(tag => tagButton(tag))}</HStack>}
+        <HStack><Button size="sm" variant="ghost" icon={allTags ? <ChevronUp /> : <ChevronDown />} label={t(allTags ? '@yovoice.music.fewerTags' : '@yovoice.music.allTags')} onClick={() => setAllTags(!allTags)} /></HStack>
       </VStack>
     </VStack>
     <VStack gap={3}>

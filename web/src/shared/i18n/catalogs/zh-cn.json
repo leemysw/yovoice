@@ -2527,5 +2527,11 @@
   },
   "@yovoice.error.aiResultInvalid": {
     "defaultMessage": "AI 的结果无法使用：{detail}。请重试或换个说法。"
+  },
+  "@yovoice.music.allTags": {
+    "defaultMessage": "全部标签"
+  },
+  "@yovoice.music.fewerTags": {
+    "defaultMessage": "收起标签"
   }
 }

@@ -24,7 +24,7 @@ test('新建四种作品、取消导入、卡片菜单与重命名独立保存',
   const row = page.locator('.project-library-row').filter({ hasText: '雨夜故事' });
   await expect(row.getByRole('button', { name: '雨夜故事', exact: true })).toBeVisible();
   await expect(row).not.toContainText('故事配音');
-  await expect(row.locator('time')).toContainText('创建于');
+  await expect(row.locator('time')).toHaveAttribute('title', /创建于/);
   await row.getByRole('button', { name: '更多操作' }).click();
   await page.getByRole('menuitem', { name: '重命名', exact: true }).click();
   await page.getByRole('dialog').getByLabel('作品名称').fill('雨夜');

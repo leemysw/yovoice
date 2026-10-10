@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Avatar } from '@astryxdesign/core/Avatar';
 import { Button } from '@astryxdesign/core/Button';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
@@ -88,9 +90,14 @@ export function AISettings({ state, run }: { state: State; run: (task: () => Pro
     </VStack>
     {providers.length ? <VStack className="ai-providers" gap={0} role="list" aria-label={t('@yovoice.ai.providers')}>
       {providers.map(p => <HStack key={p.id} className="ai-provider-row" role="listitem" gap={3} vAlign="center" wrap="wrap">
+        <Avatar name={p.preset === 'custom' ? p.name : presets.find(x => x.key === p.preset)?.name ?? p.name} shape="rounded" tooltip={false} />
         <VStack className="grow" gap={0}>
-          <HStack gap={2} vAlign="center"><b>{p.name}</b>{p.id === state.aiProviderID ? <small className="ready">{t('@yovoice.ai.inUse')}</small> : null}</HStack>
-          <small>{p.model || t('@yovoice.ai.noModel')} · {p.lastTest ? p.lastTest.ok ? t('@yovoice.ai.lastTestOk') : t('@yovoice.ai.lastTestFailed') : t('@yovoice.ai.untested')}</small>
+          <HStack gap={2} vAlign="center"><b>{p.name}</b>{p.id === state.aiProviderID ? <small className="ai-in-use">{t('@yovoice.ai.inUse')}</small> : null}</HStack>
+          <HStack gap={2} vAlign="center">
+            <small className="ai-model">{p.model || t('@yovoice.ai.noModel')}</small>
+            <StatusDot variant={p.lastTest ? p.lastTest.ok ? 'success' : 'error' : 'neutral'} label={p.lastTest ? p.lastTest.ok ? t('@yovoice.ai.lastTestOk') : t('@yovoice.ai.lastTestFailed') : t('@yovoice.ai.untested')} />
+            <small>{p.lastTest ? p.lastTest.ok ? t('@yovoice.ai.lastTestOk') : t('@yovoice.ai.lastTestFailed') : t('@yovoice.ai.untested')}</small>
+          </HStack>
         </VStack>
         {p.id !== state.aiProviderID ? <Button size="sm" variant="secondary" label={t('@yovoice.ai.use')} onClick={() => run(() => call('ai.provider.use', { id: p.id }))} /> : null}
         <Button size="sm" variant="ghost" isIconOnly icon={<Pencil />} label={t('@yovoice.ai.editNamed', { name: p.name })} onClick={() => setEditing({ ...p, key: '' })} />

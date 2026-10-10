@@ -5,14 +5,15 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Copy, Folder, History, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Copy, Folder, History, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
-import { createDraft, projectKind, type Draft, type UiLocale } from '../../shared/workbench';
+import { createDraft, formatTime, projectKind, type Draft, type UiLocale } from '../../shared/workbench';
 import { call, isDesktop } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { SpeakerAvatar } from '../create/subtitles';
 import { createMusicDraft } from '../music/music-draft';
-import { createScoreDraft } from '../score/score-draft';
+import { createScoreDraft, scoreDuration } from '../score/score-draft';
+import { ScoreThumb } from '../score/score-thumb';
 import { SongCover } from '../music/song-cover';
 import { LibraryEmpty, LibraryPage } from './library-layout';
 
@@ -53,6 +54,16 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
   const [error, setError] = useState('');
   const filtered = drafts.filter(d => projectKind(d) === kind && d.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
     .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
+  // 卡片上方的一行等宽细节：故事的角色和台词数、语音字数、歌曲风格、编曲速度与时长。
+  const projectMeta = (draft: Draft) => kind === 'story' ? [t('@yovoice.subtitle.cues', { count: draft.subtitles?.cues.length ?? 0 }), ...(draft.subtitles?.speakers ?? []).slice(0, 3).map(s => s.sourceName)].join(' · ')
+    : kind === 'music' ? [draft.instrumental ? t('@yovoice.music.instrumental') : '', draft.text.split(/[,，]/)[0]?.trim()].filter(Boolean).join(' · ') || t('@yovoice.project.music')
+    : kind === 'score' ? draft.score?.tracks.length ? `${draft.score.tempo} BPM · ${formatTime(scoreDuration(draft.score))}` : t('@yovoice.project.score')
+    : t('@yovoice.app.charCount', { count: [...draft.text].length });
+  // 摘录：歌曲取第一句歌词，编曲列出声部，其余取正文。
+  const excerpt = (draft: Draft) => kind === 'music' ? (draft.lyrics ?? '').split('\n').map(line => line.trim()).find(line => line && !/^\[.*\]$/.test(line)) ?? ''
+    : kind === 'score' ? (draft.score?.tracks ?? []).map(track => track.name).join(' · ') : draft.text.trim();
+  // 按最近修改的月份分组；没有日期的旧作品不显示分组。
+  const monthOf = (draft?: Draft) => { const stamp = draft?.updatedAt ?? draft?.createdAt; return stamp ? new Date(stamp).toLocaleDateString(document.documentElement.lang || undefined, { year: 'numeric', month: 'long' }) : ''; };
   async function update(next: Draft) {
     setBusy(true); setError('');
     try { await save(next); setRenaming(null); }
@@ -60,32 +71,46 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
     finally { setBusy(false); }
   }
   return <>
-    <LibraryPage title={t(`@yovoice.project.${kind}`)} layout="grid" actions={create}
+    <LibraryPage title={t(`@yovoice.project.${kind}`)} layout="tickets" actions={create}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.project.search')} hasItems={drafts.some(d => projectKind(d) === kind)} hasResults={filtered.length > 0}
       noResults={t('@yovoice.library.noSearchResults')}
       empty={<LibraryEmpty icon={<Folder />} title={t('@yovoice.project.empty')} action={create} />}>
-      {filtered.map(draft => <VStack key={draft.id} className="library-entry project-library-row" gap={3}>
-        <HStack gap={3} vAlign="center">
-          <HStack className="project-avatars" gap={0} wrap="wrap" aria-hidden="true">
-            {kind === 'music' || kind === 'score' ? <SongCover seed={draft.id} size={96} /> : draft.subtitles?.speakers.length ? draft.subtitles.speakers.map(speaker => <SpeakerAvatar key={speaker.id} seed={speaker.characterId ?? `${draft.id}:${speaker.id}`} />) : <SpeakerAvatar seed={draft.characterId ?? draft.id} />}
+      {filtered.map((draft, index) => {
+        const stamp = draft.updatedAt ?? draft.createdAt, date = new Date(stamp ?? 0);
+        const month = monthOf(draft), newMonth = !!month && month !== monthOf(filtered[index - 1]);
+        return <VStack key={draft.id} gap={2}>
+          {newMonth ? <small className="ticket-month eyebrow">{month}</small> : null}
+          <HStack className="library-entry project-library-row ticket" gap={0}>
+            <HStack className="ticket-main grow" gap={4} vAlign="center">
+              <HStack className="project-avatars ticket-cover" gap={0} hAlign="center" vAlign="center" aria-hidden="true">
+                {kind === 'music' ? <SongCover seed={draft.id} size={96} /> : kind === 'score' ? <ScoreThumb score={draft.score} /> : draft.subtitles?.speakers.length ? draft.subtitles.speakers.slice(0, 3).map(speaker => <SpeakerAvatar key={speaker.id} seed={speaker.characterId ?? `${draft.id}:${speaker.id}`} />) : <SpeakerAvatar seed={draft.characterId ?? draft.id} />}
+              </HStack>
+              <VStack className="grow ticket-body" gap={1}>
+                <small className="eyebrow">{projectMeta(draft)}</small>
+                <Button variant="ghost" className="project-title" label={draft.title} tooltip={draft.title} onClick={() => open(draft)} />
+                {excerpt(draft) ? <p className="project-excerpt">「{excerpt(draft)}」</p> : null}
+              </VStack>
+            </HStack>
+            <VStack className="ticket-stub" gap={0} hAlign="center" vAlign="center">
+              {stamp ? <time className="project-created" dateTime={stamp} title={t('@yovoice.project.created', { date: new Date(draft.createdAt ?? date).toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) })}>
+                <b className="ticket-day">{date.getDate()}</b>
+                <small className="eyebrow">{date.getFullYear()}.{String(date.getMonth() + 1).padStart(2, '0')}</small>
+              </time> : null}
+              <HStack className="library-entry-actions ticket-actions" gap={0}>
+                <DropdownMenu presentation="popover" alignment="end" menuWidth="calc(var(--spacing-10) * 4)" hasChevron={false}
+                  button={{ label: t('@yovoice.project.more'), icon: <MoreHorizontal />, isIconOnly: true, variant: 'ghost', size: 'sm' }}
+                  items={[
+                  ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError(noticeMessage(e))) }] : []),
+                    { id: 'rename', label: t('@yovoice.project.renameShort'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setError(''); setRenaming(draft); } },
+                    { id: 'copy', label: t('@yovoice.project.copyShort'), icon: <Copy className="project-menu-icon" strokeWidth={1.5} />, onClick: () => copy(draft) },
+                    ...(kind !== 'story' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
+                    { id: 'delete', label: t('@yovoice.action.delete'), icon: <Trash2 className="project-menu-icon" strokeWidth={1.5} />, variant: 'destructive', onClick: () => remove(draft) },
+                  ]} />
+              </HStack>
+            </VStack>
           </HStack>
-          <Button variant="ghost" className="grow project-title" label={draft.title} tooltip={draft.title} onClick={() => open(draft)} />
-          <HStack className="library-entry-actions" gap={0}>
-            <DropdownMenu presentation="popover" alignment="end" menuWidth="calc(var(--spacing-10) * 4)" hasChevron={false}
-              button={{ label: t('@yovoice.project.more'), icon: <MoreVertical />, isIconOnly: true, variant: 'ghost', size: 'sm' }}
-              items={[
-              ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError(noticeMessage(e))) }] : []),
-                { id: 'rename', label: t('@yovoice.project.renameShort'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setError(''); setRenaming(draft); } },
-                { id: 'copy', label: t('@yovoice.project.copyShort'), icon: <Copy className="project-menu-icon" strokeWidth={1.5} />, onClick: () => copy(draft) },
-                ...(kind !== 'story' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
-                { id: 'delete', label: t('@yovoice.action.delete'), icon: <Trash2 className="project-menu-icon" strokeWidth={1.5} />, variant: 'destructive', onClick: () => remove(draft) },
-              ]} />
-          </HStack>
-        </HStack>
-        {draft.createdAt ? <time className="project-created" dateTime={draft.createdAt}>{t('@yovoice.project.created', { date: new Date(draft.createdAt).toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) })}</time> : null}
-        {draft.text.trim() ? <p className="project-excerpt">{draft.text}</p> : null}
-
-      </VStack>)}
+        </VStack>;
+      })}
     </LibraryPage>
     {renaming ? <AppDialog title={t('@yovoice.project.rename')} busy={busy} error={formatNotice(t, error)} onClose={() => setRenaming(null)} actions={<>
       <Button label={t('@yovoice.action.cancel')} isDisabled={busy} onClick={() => setRenaming(null)} />

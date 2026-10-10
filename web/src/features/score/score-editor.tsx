@@ -1,11 +1,11 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Switch } from '@astryxdesign/core/Switch';
 import { Table, pixel, proportional } from '@astryxdesign/core/Table';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ClipboardCopy, Download, FileMusic, Sparkles, WandSparkles } from 'lucide-react';
+import { ClipboardCopy, Download, Ellipsis, FileMusic, Sparkles, WandSparkles } from 'lucide-react';
 import { Selector } from '../../shared/selector';
 import { AIDialog } from '../../shared/ui/ai-dialog';
 import { call, isDesktop } from '../../shared/lib/client';
@@ -13,7 +13,7 @@ import { formatTime, type Draft, type Score, type ScoreRole, type ScoreTrack, ty
 import { agentPrompt, exampleScore, noteCount, scoreBars, scoreDuration, scoreRoles, targetLevel } from './score-draft';
 import { gmPrograms } from './score-instruments';
 import { midiToScore, scoreToMidi } from './score-midi';
-import { ScoreRoll, roleHue } from './score-roll';
+import { ScoreRoll } from './score-roll';
 
 type Row = { index: number; track: ScoreTrack } & Record<string, unknown>;
 
@@ -65,13 +65,16 @@ export function ScoreEditor({ draft, state, change, locale, onError, configureAI
     <HStack hAlign="between" vAlign="center" gap={2} wrap="wrap">
       <VStack gap={0}><h2>{t('@yovoice.score.arrangement')}</h2><small className="score-summary">{summary}</small></VStack>
       <HStack gap={2} vAlign="center" wrap="wrap">
+        {copied ? <small role="status">{t('@yovoice.score.promptCopied')}</small> : null}
         {notes ? aiButton('sm') : null}
-        <Button size="sm" variant="secondary" icon={<FileMusic />} label={t('@yovoice.score.import')} onClick={() => void importScore()} />
         <DropdownMenu hasChevron alignment="end" button={{ size: 'sm', variant: 'secondary', icon: <Download />, label: t('@yovoice.score.export'), isDisabled: !notes }} items={[
           { id: 'mid', label: t('@yovoice.score.exportMidi'), onClick: () => void exportScore('mid') },
           { id: 'json', label: t('@yovoice.score.exportJson'), onClick: () => void exportScore('json') },
         ]} />
-        <Button size="sm" variant="ghost" icon={<ClipboardCopy />} label={copied ? t('@yovoice.score.promptCopied') : t('@yovoice.score.copyPrompt')} tooltip={t('@yovoice.score.copyPromptHint')} onClick={() => void copyPrompt()} />
+        <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <Ellipsis />, label: t('@yovoice.project.more') }} items={[
+          { id: 'import', label: t('@yovoice.score.import'), icon: <FileMusic />, onClick: () => void importScore() },
+          { id: 'prompt', label: t('@yovoice.score.copyPrompt'), icon: <ClipboardCopy />, onClick: () => void copyPrompt() },
+        ]} />
       </HStack>
       <input ref={input} hidden type="file" accept=".mid,.midi,.json" aria-label={t('@yovoice.score.file')} onChange={async event => {
         const file = event.target.files?.[0]; event.target.value = '';
@@ -89,7 +92,7 @@ export function ScoreEditor({ draft, state, change, locale, onError, configureAI
         <HStack hAlign="between" vAlign="center"><h2>{t('@yovoice.score.tracks')}</h2><small>{t('@yovoice.score.trackHint')}</small></HStack>
         <Table<Row> className="score-tracks" density="compact" hasHover idKey={row => row.track.id} data={score.tracks.map((track, index) => ({ index, track }))} columns={[
           { key: 'name', header: t('@yovoice.score.trackColumn'), width: proportional(2), renderCell: ({ track }) => <HStack gap={2} vAlign="center" className={`score-track-name ${track.id === selected ? 'selected' : ''}`} onClick={() => setSelected(track.id)}>
-            <span className="score-role-dot" style={{ '--score-hue': roleHue[track.role ?? 'other'] } as CSSProperties} aria-hidden="true" />
+            <span className={`score-role-dot ${track.role === 'melody' ? 'lead' : ''}`} aria-hidden="true" />
             <VStack gap={0}><b>{track.name}</b><small>{roleLabel(track.role ?? 'other')} · {t('@yovoice.score.noteCount', { count: track.notes.length })}</small></VStack>
           </HStack> },
           { key: 'program', header: t('@yovoice.score.instrument'), width: proportional(2), renderCell: ({ track }) => track.drums ? <small>{t('@yovoice.score.drumKit')}</small>

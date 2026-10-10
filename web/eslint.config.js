@@ -4,7 +4,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'test-results', 'playwright-report'] },
+  // yovoice-paper.* 由 astryx theme build 生成。
+  { ignores: ['dist', 'test-results', 'playwright-report', 'src/app/yovoice-paper.*'] },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
