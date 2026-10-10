@@ -28,9 +28,10 @@ try {
     if (Get-Process -Id $settings.ParentId -ErrorAction SilentlyContinue) { throw '应用尚未退出，取消更新。' }
     if (!(Test-Path -LiteralPath $settings.CommitPath)) { throw '退出未完成，取消更新。' }
     Confirm-Package
-    New-Item -ItemType Directory -Path $staging | Out-Null
-    # 在运行安装器前保留完整旧目录；失败时恢复安装文件和卸载器。
-    Copy-Item -LiteralPath $target -Destination $backup -Recurse
+    New-Item -ItemType Directory -Path $backup | Out-Null
+    # 在运行安装器前备份旧目录；失败时恢复安装文件和卸载器。更新包不含内核，
+    # engine 目录（CUDA 内核约 2 GB）原地保留，不参与备份与恢复。
+    Get-ChildItem -LiteralPath $target -Force | Where-Object { $_.Name -ne 'engine' } | Copy-Item -Destination $backup -Recurse
     $installationStarted = $true
     $setup = Start-Process -FilePath $package -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', '/NOCLOSEAPPLICATIONS', "/DIR=`"$target`"") -Wait -PassThru
     if ($setup.ExitCode -ne 0) { throw "安装失败：$($setup.ExitCode)" }
@@ -50,8 +51,9 @@ catch {
     Add-Content -LiteralPath $settings.LogPath -Value "$(Get-Date -Format o) $($_.Exception.Message)"
     if (!$committed -and $installationStarted -and (Test-Path -LiteralPath $backup)) {
         try {
-            if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
-            Move-Item -LiteralPath $backup -Destination $target
+            Get-ChildItem -LiteralPath $target -Force | Where-Object { $_.Name -ne 'engine' } | Remove-Item -Recurse -Force
+            Get-ChildItem -LiteralPath $backup -Force | Move-Item -Destination $target
+            Remove-Item -LiteralPath $backup -Recurse -Force
             Start-Process -FilePath (Join-Path $target 'yovoice.exe') -WorkingDirectory $target | Out-Null
         }
         catch { Add-Content -LiteralPath $settings.LogPath -Value "恢复失败，旧版本保留在 $backup。$($_.Exception.Message)" }

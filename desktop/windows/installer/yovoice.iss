@@ -1,4 +1,9 @@
-; 由打包脚本传入版本、应用目录和经过签名校验的 WebView2 安装器。
+; 由打包脚本传入版本、应用目录、输出文件名和经过签名校验的 WebView2 安装器。
+; 完整安装包携带一个内核（CPU、CUDA 12.4 或 CUDA 13.3）；定义 AppOnly 时生成只含应用本体的更新包，
+; 覆盖安装时保留已安装的内核。
+#ifndef OutputName
+  #define OutputName "yovoice-windows-x64-setup"
+#endif
 [Setup]
 AppId=yovoice.Desktop
 AppName=yovoice
@@ -14,7 +19,7 @@ AppMutex=Local\VoiceWorkbench.Desktop
 CloseApplications=yes
 RestartApplications=no
 OutputDir={#OutputDir}
-OutputBaseFilename=yovoice-windows-x64-setup
+OutputBaseFilename={#OutputName}
 SetupIconFile=..\VoiceWorkbench\Resources\AppIcon.ico
 UninstallDisplayIcon={app}\yovoice.exe
 WizardStyle=modern
@@ -23,6 +28,12 @@ SolidCompression=yes
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
+
+#ifndef AppOnly
+[InstallDelete]
+; 不同内核的完整安装包可互相覆盖安装，先移除旧内核，避免混入其他构建的 DLL。
+Type: filesandordirs; Name: "{app}\engine"
+#endif
 
 [Files]
 Source: "{#AppDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -36,6 +47,16 @@ Name: "{autodesktop}\yovoice"; Filename: "{app}\yovoice.exe"; WorkingDir: "{app}
 Filename: "{app}\yovoice.exe"; Description: "Launch yovoice"; Flags: nowait postinstall skipifsilent
 
 [Code]
+#ifdef AppOnly
+// 更新包不含内核，只能覆盖已有安装；首次安装需使用完整安装包。
+function InitializeSetup(): Boolean;
+begin
+  Result := RegKeyExists(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\yovoice.Desktop_is1');
+  if not Result then
+    SuppressibleMsgBox('This update package requires an existing yovoice installation. Please download a full -setup.exe installer.', mbError, MB_OK, IDOK);
+end;
+#endif
+
 function HasRuntime(Root: Integer): Boolean;
 var
   Version: String;

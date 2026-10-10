@@ -453,7 +453,7 @@
     "defaultMessage": "Wait for the current operation to finish, or cancel it first."
   },
   "@yovoice.error.cpuBundleInvalid": {
-    "defaultMessage": "Bundled CPU runtime is not a valid file."
+    "defaultMessage": "Bundled runtime is not a valid file."
   },
   "@yovoice.error.cropRangeInvalid": {
     "defaultMessage": "Crop end time must be greater than start time."
@@ -600,7 +600,7 @@
     "defaultMessage": "Install the inference engine in Settings first."
   },
   "@yovoice.error.runtimeRequired": {
-    "defaultMessage": "Install the inference runtime for the selected device first."
+    "defaultMessage": "Install or update the inference runtime for the selected device first."
   },
   "@yovoice.error.runtimeUnique": {
     "defaultMessage": "The runtime archive did not contain exactly one inference server."
@@ -890,6 +890,9 @@
   "@yovoice.settings.reinstallRuntime": {
     "defaultMessage": "Reinstall"
   },
+  "@yovoice.settings.updateRuntime": {
+    "defaultMessage": "Upgrade to {version}"
+  },
   "@yovoice.settings.removeBlocked": {
     "defaultMessage": "Finish related operations before removing this model."
   },
@@ -908,8 +911,14 @@
   "@yovoice.settings.runtimeMissing": {
     "defaultMessage": "Not ready · install the runtime for the selected device"
   },
+  "@yovoice.settings.runtimeOutdated": {
+    "defaultMessage": "Update needed · this version requires audio.cpp {version} or later"
+  },
   "@yovoice.settings.runtimeReady": {
     "defaultMessage": "Installed · ready to generate"
+  },
+  "@yovoice.settings.runtimeUpgradable": {
+    "defaultMessage": "Ready · optional upgrade to audio.cpp {version}"
   },
   "@yovoice.settings.source.huggingface": {
     "defaultMessage": "Hugging Face"

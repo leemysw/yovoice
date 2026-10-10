@@ -23,7 +23,7 @@ import { ConfirmDelete } from '../shared/ui/app-dialog';
 import { call, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { formatNotice } from '../shared/i18n/format';
-import { isKokoroModel, isReferenceModel, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, withCueIds, type Character, type Draft, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { isKokoroModel, isReferenceModel, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, withCueIds, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { SidebarNav } from './sidebar-nav';
 import { Notifications } from './notifications';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
@@ -32,7 +32,7 @@ const Settings = lazy(() => import('../features/settings/settings').then(module 
 const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
 // 工作台界面：导航、页面切换与各页面之间的协作；作品保存由 useDraftSession 负责。
-export function WorkbenchChrome({ state, catalog, ready, session, error, setError }: { state: State; catalog: ModelPackage[]; ready: boolean; session: DraftSession; error: string; setError: (message: string) => void }) {
+export function WorkbenchChrome({ state, catalog, engine, ready, session, error, setError }: { state: State; catalog: ModelPackage[]; engine: EngineInfo; ready: boolean; session: DraftSession; error: string; setError: (message: string) => void }) {
   const t = useTranslator();
   const locale = useLocale();
   const { draft, setDraft, draftPersisted, setDraftPersisted, saving, saveFailed, change, persistDraft, deleteTarget, setDeleteTarget, deleting, deleteError, deleteDraft } = session;
@@ -82,11 +82,11 @@ export function WorkbenchChrome({ state, catalog, ready, session, error, setErro
     if (state.activity?.status === 'running') return;
     if (draft.subtitles) {
       const missing = draft.subtitles.speakers.map(s => ({ ...draft, ...s.settings })).find(d => !state.models.some(m => m.id === d.modelId));
-      if (missing || !state.runtimePath || state.runtimeBackend !== state.preferences.backend) { openSettings(missing?.modelId ?? draft.modelId, missing ? 'models' : 'engine'); return; }
+      if (missing || !runtimeUsable(runtimeStatus(state, engine))) { openSettings(missing?.modelId ?? draft.modelId, missing ? 'models' : 'engine'); return; }
       run(async () => { await persistDraft(draft); await call('generation.start', draft); }); return;
     }
     if (requiresVoice(draft) && !state.voices.some(voice => voice.id === draft.voiceId)) { setVoicePicker('voice'); return; }
-    if (!state.runtimePath || state.runtimeBackend !== state.preferences.backend || !state.models.some(m => m.id === draft.modelId)) {
+    if (!runtimeUsable(runtimeStatus(state, engine)) || !state.models.some(m => m.id === draft.modelId)) {
       openSettings(draft.modelId, !state.models.some(m => m.id === draft.modelId) ? 'models' : 'engine'); return;
     }
     run(async () => { await persistDraft(draft); await call('generation.start', draft); });
@@ -224,7 +224,7 @@ export function WorkbenchChrome({ state, catalog, ready, session, error, setErro
             <CharacterLibrary controls={libraryTabs} active={page === 'characters' && !voiceTarget && !characterActive} create={createVoice} state={state} catalog={catalog} edit={editCharacter} apply={setVoiceTarget} onError={onError} />
           </VStack>
           <VStack className="page-panel" gap={0} style={{ display: page === 'settings' ? 'flex' : 'none' }}>
-            <Suspense fallback={<p role="status">{t('@yovoice.app.loadingSettings')}</p>}><Settings focus={settingsFocus} state={state} catalog={catalog} draft={draft} run={run} /></Suspense>
+            <Suspense fallback={<p role="status">{t('@yovoice.app.loadingSettings')}</p>}><Settings focus={settingsFocus} state={state} catalog={catalog} engine={engine} draft={draft} run={run} /></Suspense>
           </VStack>
           {(['voices', 'history'] as const).map(destination => <VStack key={destination} id={destination === 'voices' ? 'reference-library-panel' : undefined} className="page-panel" gap={0} style={{ display: page === destination ? 'flex' : 'none' }}>
             <MediaLibrary page={destination} project={draft} controls={destination === 'voices' ? libraryTabs : <HStack gap={2} vAlign="center">

@@ -15,7 +15,9 @@ ensure_app_stopped() {
     fi
 }
 ensure_app_stopped
-digest=639926715b1cb537f82aa31656aabbae5d9a85ac36568c402026968f3072e2b3
+# audio.cpp 版本与校验值统一取自服务端运行时清单。
+engine_name="bin-macos-$arch-metal.tar.gz"
+read -r engine_version engine_archive digest < <(python3 -c 'import json,sys; e=json.load(open("internal/catalog/engine.json")); n="audio-"+e["version"]+"-"+sys.argv[1]; print(e["version"], n, e["archives"][n])' "$engine_name")
 pnpm --dir web run build
 configuration="${CONFIGURATION:-debug}"
 swift build --package-path desktop/macos -c "$configuration" --arch arm64
@@ -31,8 +33,8 @@ cp desktop/macos/Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 cp desktop/macos/Resources/install-update.sh "$app/Contents/Resources/install-update.sh"
 rm -rf "$app/Contents/Resources/web"
 cp -R web/dist "$app/Contents/Resources/web"
-archive="artifacts/downloads/audio-v0.7.4-bin-macos-$arch-metal.tar.gz"
-if [[ ! -f "$archive" ]]; then curl -fL --retry 3 "https://github.com/0xShug0/audio.cpp/releases/download/v0.7.4/$(basename "$archive")" -o "$archive.part"; mv "$archive.part" "$archive"; fi
+archive="artifacts/downloads/$engine_archive"
+if [[ ! -f "$archive" ]]; then curl -fL --retry 3 "https://github.com/0xShug0/audio.cpp/releases/download/$engine_version/$engine_archive" -o "$archive.part"; mv "$archive.part" "$archive"; fi
 actual=$(shasum -a 256 "$archive" | cut -d ' ' -f 1)
 if [[ "$actual" != "$digest" ]]; then echo 'audio.cpp 校验失败，请删除下载缓存后重试'; exit 1; fi
 # 仅携带推理服务、模型描述和许可证，不打包 Python 工具或模型权重。

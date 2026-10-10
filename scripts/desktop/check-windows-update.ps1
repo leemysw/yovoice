@@ -55,6 +55,7 @@ exit $LASTEXITCODE
         if ((Get-Content -LiteralPath (Join-Path $target 'marker')).Trim() -ne $expected) { throw "$mode 未保留预期版本" }
         if (($result -eq 0) -ne ($mode -eq 'success')) { throw "$mode 退出码错误：$result" }
         if ((Get-Content -LiteralPath (Join-Path $target 'unins000.exe')).Trim() -ne 'old') { throw '卸载器未保留' }
+        if ((Get-Content -LiteralPath (Join-Path $target 'engine/audiocpp_server.exe')).Trim() -ne 'old') { throw "$mode 未保留内核" }
         if (Get-ChildItem -LiteralPath $directory -Filter '.yovoice-update.*') { throw "$mode 残留替换目录" }
     }
     Write-Host 'Windows 更新成功、安装失败、重启失败、未确认退出、退出取消及校验失败检查通过。'

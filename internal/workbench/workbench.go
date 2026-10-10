@@ -25,14 +25,15 @@ type Workbench struct {
 	// 持有期间不执行转码、下载或推理等耗时操作。锁顺序：先 edit 后 mu。
 	edit sync.Mutex
 	// mu 保护后台操作的取消函数与完成通道。
-	mu         sync.Mutex
-	cancel     context.CancelFunc
-	done       chan struct{}
-	closed     bool
-	closeOnce  sync.Once
-	engine     *engine.Engine
-	client     *http.Client
-	bundledCPU string
+	mu        sync.Mutex
+	cancel    context.CancelFunc
+	done      chan struct{}
+	closed    bool
+	closeOnce sync.Once
+	engine    *engine.Engine
+	client    *http.Client
+	// bundled 记录随安装包分发的内核，键为后端；启动时登记，之后只读。
+	bundled map[string]bundledRuntime
 }
 
 func New(root string) (*Workbench, error) {
@@ -48,8 +49,11 @@ func New(root string) (*Workbench, error) {
 		}
 		return download.Proxy(req, preferences.ProxyURL)
 	}
-	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}}
+	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}, bundled: map[string]bundledRuntime{}}
 	w.removeStale()
+	if e = w.recordLegacyRuntimeVersion(); e != nil {
+		return nil, e
+	}
 	return w, nil
 }
 

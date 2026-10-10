@@ -9,7 +9,7 @@ import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Download, FolderOpen, FolderCog, FilePlus, Check, Cpu, ArrowUpRight, Pause, Trash2 } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
-import { formatSize, type ModelPackage, type State, type Draft, type UiLocale } from '../../shared/workbench';
+import { formatSize, runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale } from '../../shared/workbench';
 import { CallError } from '../../shared/lib/call-error';
 
 function downloadStatusLabel(t: (key: string) => string, downloading: boolean, received: number, size: number, status: string) {
@@ -18,7 +18,7 @@ function downloadStatusLabel(t: (key: string) => string, downloading: boolean, r
   return t('@yovoice.settings.download.paused');
 }
 
-export function Settings({ state, catalog, draft, run, focus }: { focus?: { tab: string; modelId: string; request: number }; state: State; catalog: ModelPackage[]; draft: Draft; run: (task: () => Promise<unknown>) => void }) {
+export function Settings({ state, catalog, engine, draft, run, focus }: { focus?: { tab: string; modelId: string; request: number }; state: State; catalog: ModelPackage[]; engine: EngineInfo; draft: Draft; run: (task: () => Promise<unknown>) => void }) {
   const t = useTranslator();
   const [license, setLicense] = useState<string | null>(null);
   const [tab, setTab] = useState('general'); const busy = state.activity?.status === 'running';
@@ -38,7 +38,9 @@ export function Settings({ state, catalog, draft, run, focus }: { focus?: { tab:
     finally { setSavingProxy(false); }
   });
   useEffect(() => setProxyURL(preferences.proxyURL ?? ''), [preferences.proxyURL]);
-  const runtimeReady = !!state.runtimePath && state.runtimeBackend === preferences.backend;
+  const runtime = runtimeStatus(state, engine);
+  // 显示已安装内核的版本；尚未安装时显示将要安装的推荐版本。
+  const runtimeVersion = state.runtimeVersion ?? engine.version;
   return <VStack className="settings-page" gap={6}>
     <header><h1>{t('@yovoice.settings.title')}</h1></header>
     <TabList value={tab} onChange={setTab} role="tablist" hasDivider><Tab value="general" label={t('@yovoice.settings.tabGeneral')} panelId="general-panel" /><Tab value="models" label={t('@yovoice.settings.tabModels')} panelId="models-panel" /><Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" /></TabList>
@@ -98,10 +100,10 @@ export function Settings({ state, catalog, draft, run, focus }: { focus?: { tab:
       })}</section>
       <HStack gap={3} vAlign="center" wrap="wrap"><small>{t('@yovoice.settings.licenseBlurb')}</small><Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="secondary" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></HStack>
     </VStack> : <VStack className="engine-settings" gap={5} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
-      <HStack className="runtime-heading" gap={3} vAlign="center"><Cpu size={22} strokeWidth={1.5} /><h2>audio.cpp</h2><small>v0.7.4</small></HStack>
+      <HStack className="runtime-heading" gap={3} vAlign="center"><Cpu size={22} strokeWidth={1.5} /><h2>audio.cpp</h2>{runtimeVersion ? <small>{runtimeVersion}</small> : null}</HStack>
       <VStack gap={0}>
-        <HStack className="engine-setting-row" hAlign="between" vAlign="center" gap={4} wrap="wrap"><h3>{t('@yovoice.settings.computeDevice')}</h3><Selector size="sm" label={t('@yovoice.settings.computeDevice')} isLabelHidden value={preferences.backend} options={[{ value: 'cpu', label: 'CPU' }, ...(isMac ? [{ value: 'metal', label: 'Apple GPU · Metal' }] : [{ value: 'cuda', label: 'NVIDIA GPU · CUDA 12.4' }, { value: 'vulkan', label: t('@yovoice.settings.backend.vulkan') }])]} onChange={backend => run(() => call('preferences.save', { ...preferences, backend }))} isDisabled={busy} width="min(100%, calc(var(--spacing-10) * 6))" className="compute-device" /></HStack>
-        <HStack className="engine-setting-row" hAlign="between" gap={4} vAlign="center" wrap="wrap"><VStack className="grow" gap={1}><h3>{t('@yovoice.settings.runtime')}</h3><small>{runtimeReady ? t('@yovoice.settings.runtimeReady') : t('@yovoice.settings.runtimeMissing')}</small></VStack><Button size="sm" label={runtimeReady ? t('@yovoice.settings.reinstallRuntime') : t('@yovoice.settings.installRuntime')} isDisabled={busy} onClick={() => run(() => call('runtime.install'))} /></HStack>
+        <HStack className="engine-setting-row" hAlign="between" vAlign="center" gap={4} wrap="wrap"><h3>{t('@yovoice.settings.computeDevice')}</h3><Selector size="sm" label={t('@yovoice.settings.computeDevice')} isLabelHidden value={preferences.backend} options={[{ value: 'cpu', label: 'CPU' }, ...(isMac ? [{ value: 'metal', label: 'Apple GPU · Metal' }] : [{ value: 'cuda', label: 'NVIDIA GPU · CUDA 12.4' }, { value: 'cuda13', label: 'NVIDIA GPU · CUDA 13.3' }, { value: 'vulkan', label: t('@yovoice.settings.backend.vulkan') }])]} onChange={backend => run(() => call('preferences.save', { ...preferences, backend }))} isDisabled={busy} width="min(100%, calc(var(--spacing-10) * 6))" className="compute-device" /></HStack>
+        <HStack className="engine-setting-row" hAlign="between" gap={4} vAlign="center" wrap="wrap"><VStack className="grow" gap={1}><h3>{t('@yovoice.settings.runtime')}</h3><small>{runtime === 'ready' ? t('@yovoice.settings.runtimeReady') : runtime === 'upgradable' ? t('@yovoice.settings.runtimeUpgradable', { version: engine.version }) : runtime === 'outdated' ? t('@yovoice.settings.runtimeOutdated', { version: engine.minimum }) : t('@yovoice.settings.runtimeMissing')}</small></VStack><Button size="sm" label={runtime === 'ready' ? t('@yovoice.settings.reinstallRuntime') : runtime === 'missing' ? t('@yovoice.settings.installRuntime') : t('@yovoice.settings.updateRuntime', { version: engine.version })} isDisabled={busy} onClick={() => run(() => call('runtime.install'))} /></HStack>
         <HStack className="engine-setting-row" hAlign="between" gap={4} vAlign="center"><h3>{t('@yovoice.settings.diagnostics')}</h3><Button size="sm" label={t('@yovoice.settings.openLogs')} icon={<ArrowUpRight size={15} />} variant="secondary" onClick={() => run(() => call('logs.open'))} /></HStack>
       </VStack>
     </VStack>}

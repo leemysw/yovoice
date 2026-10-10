@@ -62,10 +62,12 @@ Choose the package for your platform from the repository’s [Releases](../../re
 | --- | --- | --- |
 | macOS 14+ · Apple Silicon | `.dmg` | Open the disk image and drag yovoice to Applications |
 | Windows 10/11 · x64 | `-setup.exe` | Run the installer, then open yovoice from the Start menu |
+| Windows 10/11 · x64 · NVIDIA GPU | `-cuda12.4-setup.exe` | Bundles the CUDA 12.4 runtime; works with older GPUs and drivers and uses the GPU from first launch |
+| Windows 10/11 · x64 · NVIDIA GPU | `-cuda13.3-setup.exe` | Bundles the CUDA 13.3 runtime; needs a newer driver, smaller download |
 
 The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
 
-Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready.
+Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready. Windows updates download only the app (`-update.exe`) and keep the installed runtime; when a release recommends a newer runtime you can upgrade it in Settings → Inference engine, and it is required only when the runtime is below the minimum version the app needs.
 
 ![Install yovoice on macOS](docs/images/yovoice-macos-install.png)
 

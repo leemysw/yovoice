@@ -9,15 +9,15 @@ yovoice status --json
 yovoice setup
 ```
 
-`setup` 下载并校验 audio.cpp v0.7.4，不下载模型。默认 Mac 使用 Metal，Windows/Linux 使用 CPU。
+`setup` 下载并校验 audio.cpp v0.9.1，不下载模型。默认 Mac 使用 Metal，Windows/Linux 使用 CPU。
 
 | 平台 | 可选后端 | 命令 |
 | --- | --- | --- |
 | macOS Apple Silicon | Metal、CPU | `yovoice setup --backend metal` 或 `--backend cpu` |
-| Windows x64 | CPU、Vulkan、CUDA 12.4 | `yovoice setup --backend cpu`、`--backend vulkan` 或 `--backend cuda` |
+| Windows x64 | CPU、Vulkan、CUDA 12.4、CUDA 13.3 | `yovoice setup --backend cpu`、`--backend vulkan`、`--backend cuda`（12.4）或 `--backend cuda13`（13.3） |
 | Linux x64 | CPU、Vulkan | `yovoice setup --backend cpu` 或 `--backend vulkan` |
 
-GPU 后端需要兼容的硬件与系统驱动。Linux 使用上游 Ubuntu x64 portable 包；不提供 Linux ARM64 包。切换后端时重新执行 `setup`。下载地址为 [audio.cpp v0.7.4 Releases](https://github.com/0xShug0/audio.cpp/releases/tag/v0.7.4)，CLI 自动选择平台包并校验 SHA-256，无需手动解压。
+GPU 后端需要兼容的硬件与系统驱动。Linux 使用上游 Ubuntu x64 portable 包；不提供 Linux ARM64 包。切换后端或升级 yovoice 后内核版本变化时，重新执行 `setup`（`status` 中 `state.runtimeVersion` 与 `engineVersion` 不一致即需要更新）。下载地址为 [audio.cpp v0.9.1 Releases](https://github.com/0xShug0/audio.cpp/releases/tag/v0.9.1)，CLI 自动选择平台包并校验 SHA-256，无需手动解压。
 
 ## 下载或登记模型
 

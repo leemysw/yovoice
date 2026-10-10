@@ -28,7 +28,7 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
 用法：
   yovoice serve [--listen 127.0.0.1:8080] [--tls-cert FILE --tls-key FILE] [--generation-timeout 30m]
   yovoice status [--data-dir DIR] [--json]
-  yovoice setup [--backend metal|cpu|vulkan|cuda]
+  yovoice setup [--backend metal|cpu|vulkan|cuda|cuda13]
   yovoice models list
   yovoice models download MODEL [--source modelscope|huggingface|mirror]
   yovoice models import FILE
@@ -367,7 +367,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	case "serve":
 		return serveAPI(ctx, w, address, os.Getenv("YOVOICE_API_TOKEN"), cert, key, generationTimeout, out)
 	case "status":
-		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": catalog.EngineVersion}
+		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": catalog.EngineVersion, "engineMinimum": catalog.EngineMinimum, "ready": workbench.RuntimeReady(w.Store.Read())}
 	case "models list":
 		result = map[string]any{"catalog": catalog.Models, "installed": w.Store.Read().Models, "generationOptions": catalog.GenerationOptions}
 	case "voices list":

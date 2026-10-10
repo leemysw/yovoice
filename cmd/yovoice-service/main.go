@@ -14,6 +14,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/desktop"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -44,12 +45,13 @@ func run() error {
 	defer wb.Close()
 	bundled := os.Getenv("WORKBENCH_ENGINE")
 	if runtime.GOOS == "windows" {
-		if e = wb.UseBundledCPU(bundled); e != nil {
+		if e = wb.UseBundled(bundled); e != nil {
 			return e
 		}
 	}
 	existing := wb.Store.Read()
-	if _, e = os.Stat(bundled); runtime.GOOS == "darwin" && e == nil && (existing.RuntimePath == nil || strings.HasSuffix(*existing.RuntimePath, "/Contents/Resources/engine/audiocpp_server")) {
+	// macOS 内置 Metal 内核同时支持 CPU 与 Metal；数据目录中的内核过期时回退到内置内核。
+	if _, e = os.Stat(bundled); runtime.GOOS == "darwin" && e == nil && (existing.RuntimePath == nil || strings.HasSuffix(*existing.RuntimePath, "/Contents/Resources/engine/audiocpp_server") || !workbench.RuntimeReady(existing)) {
 		if e = wb.Store.Update(func(s *schema.State) {
 			s.RuntimePath = &bundled
 			backend := s.Preferences.Backend
@@ -58,6 +60,9 @@ func run() error {
 				s.Preferences.Backend = backend
 			}
 			s.RuntimeBackend = &backend
+			// 内置 Metal 内核随应用更新，版本始终与当前应用一致。
+			version := catalog.EngineVersion
+			s.RuntimeVersion = &version
 		}, true); e != nil {
 			return e
 		}

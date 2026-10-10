@@ -10,6 +10,7 @@ public sealed record UpdateRelease(
     bool Draft, bool Prerelease, UpdateAsset[] Assets)
 {
     public string Version => Tag[1..];
+    // 自动更新只下载不含内核的更新包，保留已安装的 CPU 或 CUDA 内核；内核在设置中单独升级。
     public UpdateAsset? Package(string current)
     {
         if (Draft || Prerelease) return null;
@@ -17,7 +18,7 @@ public sealed record UpdateRelease(
             !System.Version.TryParse(Version, out var latest) || !System.Version.TryParse(current, out var running))
             throw new IOException("更新版本号无效。");
         if (latest <= running) return null;
-        return Asset($"yovoice-{Tag}-windows-x64-setup.exe");
+        return Asset($"yovoice-{Tag}-windows-x64-update.exe");
     }
     public UpdateAsset Asset(string name)
     {

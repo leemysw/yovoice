@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
@@ -48,6 +49,7 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 		s.Models = []schema.InstalledModel{{ID: d.ModelID, Path: modelPath}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
+		s.RuntimeVersion = ptr(catalog.EngineVersion)
 	}, true))
 	before := w.Store.Read().Drafts
 	previewID, err := w.PreviewCharacter(c)

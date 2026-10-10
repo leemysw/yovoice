@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"yovoice/internal/catalog"
+	"yovoice/internal/workbench"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -17,7 +18,7 @@ func (a *API) newMCPHandler() http.Handler {
 	server := mcp.NewServer(&mcp.Implementation{Name: "yovoice", Version: "1.0.0"}, nil)
 	mcp.AddTool(server, &mcp.Tool{Name: "status", Description: "查看推理引擎及当前任务状态"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
 		s := a.Workbench.Store.Read()
-		return nil, map[string]any{"engineVersion": catalog.EngineVersion, "activity": s.Activity, "ready": s.RuntimePath != nil}, nil
+		return nil, map[string]any{"engineVersion": catalog.EngineVersion, "engineMinimum": catalog.EngineMinimum, "activity": s.Activity, "runtimeVersion": s.RuntimeVersion, "ready": workbench.RuntimeReady(s)}, nil
 	})
 	mcp.AddTool(server, &mcp.Tool{Name: "list_models", Description: "查询模型 ID、安装状态和高级参数定义；生成前选择已安装模型"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, map[string]any{"catalog": catalog.Models, "installed": a.Workbench.Store.Read().Models, "generationOptions": catalog.GenerationOptions}, nil

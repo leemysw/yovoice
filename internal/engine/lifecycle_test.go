@@ -74,7 +74,7 @@ func TestEngineLifecycle(t *testing.T) {
 		for _, backend := range []string{"cpu", "vulkan"} {
 			a, err := catalog.RuntimeArchives(backend)
 			must(t, err)
-			if len(a) != 1 || a[0].Name != "audio-v0.7.4-bin-ubuntu-x64-"+backend+"-portable.tar.gz" || len(a[0].Hash) != 64 {
+			if len(a) != 1 || a[0].Name != "audio-"+catalog.EngineVersion+"-bin-ubuntu-x64-"+backend+"-portable.tar.gz" || len(a[0].Hash) != 64 {
 				t.Fatal(a)
 			}
 		}

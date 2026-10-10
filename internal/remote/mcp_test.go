@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 
@@ -71,6 +72,7 @@ func TestMCPRemoteWorkflow(t *testing.T) {
 		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
+		s.RuntimeVersion = ptr(catalog.EngineVersion)
 		s.Preferences.Backend = "cpu"
 	}, true))
 	generated := call("generate", map[string]any{"text": "通过 MCP 生成", "settings": map[string]any{"voiceId": voice.ID}})

@@ -239,6 +239,7 @@ type State struct {
 	Preferences    Preferences        `json:"preferences"`
 	RuntimePath    *string            `json:"runtimePath"`
 	RuntimeBackend *string            `json:"runtimeBackend"`
+	RuntimeVersion *string            `json:"runtimeVersion"`
 	Activity       *Activity          `json:"activity"`
 }
 

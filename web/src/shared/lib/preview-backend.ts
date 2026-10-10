@@ -42,7 +42,7 @@ export function subscribePreview(listener: (state: State) => void) { listeners.a
 
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
-  if (method === 'state.get') return { state, catalog, desktop: false } as T;
+  if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);
     if (!character.name.trim() || character.name.length > 120 || character.demoText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
