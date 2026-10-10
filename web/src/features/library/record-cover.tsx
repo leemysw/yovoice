@@ -2,7 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { HStack } from '@astryxdesign/core/Layout';
 
 // 同一作品总得到同一张唱片：风格、配色和每一笔都由作品 ID 派生。
-function random(seed: string) {
+export function random(seed: string) {
   let state = 2166136261;
   for (const char of seed) state = Math.imul(state ^ char.charCodeAt(0), 16777619) >>> 0;
   return () => (state = (Math.imul(state, 1664525) + 1013904223) >>> 0) / 4294967296;
@@ -130,7 +130,7 @@ function luminance(hex: string) {
 
 // 每个作品画一次，封套和唱片标签共用；纸张颗粒最后统一叠上。
 const arts = new Map<string, HTMLCanvasElement>();
-function art(seed: string, size: number) {
+export function art(seed: string, size: number) {
   const key = `${seed}:${size}`;
   let canvas = arts.get(key);
   if (canvas) return canvas;
@@ -238,9 +238,10 @@ function drawSleeve(canvas: HTMLCanvasElement, seed: string, title: string) {
   c.fillStyle = edge; c.fillRect(0, 0, s, s);
 }
 
-// 作品封面：歌曲和编曲是随机图案的封套，唱片从封套里探出一截，悬停时滑出并转动；
-// 传入 children 时不画封套，直接做成以头像为标签的黑胶唱片。
-export function RecordCover({ seed, title = '', children }: { seed: string; title?: string; children?: ReactNode }) {
+// 作品封面：歌曲、编曲和故事是随机图案的封套，唱片从封套里探出一截，悬停时滑出并转动；
+// 故事在封套上叠出场角色的头像。传入 children 时不画封套，直接做成以 children 为标签的黑胶唱片，
+// 角色库用它把试听头像放在唱片中心，播放时唱片转动。
+export function RecordCover({ seed, title = '', cast, interactive = false, children }: { seed: string; title?: string; cast?: ReactNode; interactive?: boolean; children?: ReactNode }) {
   const disc = useRef<HTMLCanvasElement>(null);
   const sleeve = useRef<HTMLCanvasElement>(null);
   const label = !children;
@@ -248,8 +249,11 @@ export function RecordCover({ seed, title = '', children }: { seed: string; titl
     if (disc.current) drawRecord(disc.current, seed, label);
     if (sleeve.current) drawSleeve(sleeve.current, seed, title);
   }, [seed, label, title]);
-  return <HStack className="record-cover" gap={0} vAlign="center" aria-hidden="true" data-sleeve={label}>
+  // 与 drawSleeve 用同一个随机序列的第一位，角色头像避开标题信息条。
+  const bandTop = random(`${seed}:sleeve`)() > .5;
+  return <HStack className="record-cover" gap={0} vAlign="center" aria-hidden={interactive ? undefined : true} data-sleeve={label}>
     <canvas ref={disc} className="record-disc" width={192} height={192} />
     {label ? <canvas ref={sleeve} className="record-sleeve" width={320} height={320} /> : <HStack className="record-label" gap={0} hAlign="center" vAlign="center">{children}</HStack>}
+    {label && cast ? <HStack className="record-cast" data-band={bandTop ? 'top' : 'bottom'} gap={0} vAlign="center">{cast}</HStack> : null}
   </HStack>;
 }

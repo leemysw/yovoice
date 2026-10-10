@@ -7,7 +7,11 @@ import { Clock3, Mic, Play, Plus, X, MoreHorizontal } from 'lucide-react';
 import { formatTime, projectKind, type Draft, type Generation, type State, type Track, type Voice } from '../../shared/workbench';
 import { MediaActions } from '../media/media-actions';
 import { Player } from '../media/player';
-import { LibraryEmpty, LibraryEntry, LibraryPage } from './library-layout';
+import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from './library-layout';
+import { WaveRing } from './wave-ring';
+
+// 存根用的短时长：不足一小时显示 m:ss。
+const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
 
 export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, reuse, onError, controls, project }: {
   controls?: ReactNode; project: Draft;
@@ -30,12 +34,16 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
   return <LibraryPage controls={voices ? controls : undefined} title={voices ? t('@yovoice.library.voicesTitle') : `${project.title} · ${t('@yovoice.history.versions')}`}
     actions={voices && count > 0 ? <Button label={t('@yovoice.library.addVoice')} size="sm" icon={<Plus />} onClick={addVoice} /> : voices ? undefined : controls}
     query={query} onQueryChange={onQueryChange} searchLabel={t(voices ? '@yovoice.library.searchVoices' : '@yovoice.library.searchHistory')}
-    hasItems={count > 0} hasResults={(voices ? filteredVoices : filteredHistory).length > 0} layout={voices ? 'grid' : 'list'}
+    hasItems={count > 0} hasResults={(voices ? filteredVoices : filteredHistory).length > 0} layout={voices ? 'tickets' : 'list'}
     noResults={t('@yovoice.library.noSearchResults')}
-    empty={<LibraryEmpty icon={voices ? <Mic /> : <Clock3 />} title={t(voices ? '@yovoice.library.emptyVoicesTitle' : '@yovoice.library.emptyHistoryTitle')}
-      action={voices ? <Button label={t('@yovoice.library.addFirstVoice')} variant="primary" onClick={addVoice} /> : null} />}>
-    {voices ? filteredVoices.map(voice => <LibraryEntry key={voice.id} title={voice.name} description={voice.referenceText} metadata={<small className="time">{formatTime(voice.duration)}</small>}
-      avatar={<Player compact avatar={{ seed: voice.id, label: t('@yovoice.app.audition', { name: voice.name }), select: () => audition({ ...voice, kind: 'voices', subtitle: t('@yovoice.app.subtitleReference') }) }} suspended={suspended} track={track?.id === voice.id ? track : null} onError={onError} />}
+    empty={<LibraryEmpty icon={<Clock3 />} art={voices ? <WaveRing seed="empty-voice" duration={12}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Mic /></HStack></WaveRing> : undefined} title={t(voices ? '@yovoice.library.emptyVoicesTitle' : '@yovoice.library.emptyHistoryTitle')}
+      action={voices ? <Button label={t('@yovoice.library.addFirstVoice')} size="sm" icon={<Plus />} onClick={addVoice} /> : null} />}>
+    {/* 参考音频：头像外围一圈声波，点卡片试听；存根显示时长。 */}
+    {voices ? filteredVoices.map((voice, index) => <Ticket key={voice.id} index={index} className="voice-row"
+      cover={<WaveRing seed={voice.id} duration={voice.duration}><Player compact avatar={{ seed: voice.id, label: t('@yovoice.app.audition', { name: voice.name }), select: () => audition({ ...voice, kind: 'voices', subtitle: t('@yovoice.app.subtitleReference') }) }} suspended={suspended} track={track?.id === voice.id ? track : null} onError={onError} /></WaveRing>}
+      eyebrow={[voice.fileName.split('.').pop()?.toUpperCase(), voice.source].filter(Boolean).join(' · ')}
+      title={<h3 title={voice.name}>{voice.name}</h3>} excerpt={voice.referenceText?.trim()}
+      stub={<TicketStamp value={clock(voice.duration)} unit={t('@yovoice.library.duration')} />}
       actions={<MediaActions onEdit={() => editVoice(voice)} item={{ ...voice, kind: 'voices' }} beforeDelete={stop} onError={onError} />} />)
       : filteredHistory.map(item => <VStack key={item.id} className="history-item" gap={0}>
             <HStack className="history-row" gap={3} vAlign="center">
