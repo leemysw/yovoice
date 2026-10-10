@@ -289,11 +289,11 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
     return !!button && !!popup && popup.y >= button.y + button.height;
   }).toBeTruthy();
   await page.keyboard.press('Escape');
-  await page.evaluate(state => {
-    state.models = [{ id: 'index-2.5-q8', path: '/models/index.gguf', managed: false }];
-    state.activity = { errorCode: null, errorParams: null, kind: 'download', modelId: 'index-2-q8', code: '@yovoice.activity.verifying', params: null, status: 'running', received: 3633888608, total: 3633888608 };
-    localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
-  }, emptyState());
+  // 在下一次加载前写入状态，避免当前页面的自动保存在刷新前覆盖它。
+  const state = emptyState();
+  state.models = [{ id: 'index-2.5-q8', path: '/models/index.gguf', managed: false }];
+  state.activity = { errorCode: null, errorParams: null, kind: 'download', modelId: 'index-2-q8', code: '@yovoice.activity.verifying', params: null, status: 'running', received: 3633888608, total: 3633888608 };
+  await page.addInitScript(value => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('voice-workbench-v1', value); } }, JSON.stringify(state));
   await page.reload();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('tab', { name: '模型', exact: true }).click();
