@@ -453,8 +453,8 @@
 /* 页面常驻以保留筛选与编辑位置，隐藏页面的播放器单独暂停。 */
 .page-panel { height: 100%; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
 /* 作品卡片做成票根：左边封面与摘录，右边虚线撕口后的日期存根。 */
-.ticket.library-entry { max-width: none; padding: 0; border: 0; border-radius: var(--radius-container); background: var(--app-paper); transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease; }
-.ticket.library-entry:hover,.ticket.library-entry:focus-within { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); transform: translateY(calc(var(--border-width) * -1)); }
+.ticket.library-entry { max-width: none; padding: 0; border: 0; border-radius: var(--radius-container); background: var(--app-paper); transition: background 150ms ease, box-shadow 150ms ease; }
+.ticket.library-entry:hover,.ticket.library-entry:focus-within { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); }
 .ticket-main { padding: var(--spacing-3); min-width: 0; }
 .ticket-cover { position: relative; flex-shrink: 0; width: calc(var(--spacing-10) * 2); height: calc(var(--spacing-10) * 2); border-radius: var(--radius-element); background: var(--app-film); color: var(--app-on-film); overflow: hidden; box-shadow: var(--shadow-low); }
 .ticket-cover::after { content: ''; position: absolute; inset: 0; background-image: var(--app-grain); opacity: .18; mix-blend-mode: overlay; pointer-events: none; }
