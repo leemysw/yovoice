@@ -116,7 +116,10 @@ func TestBundledCUDA(t *testing.T) {
 		}
 	}
 	// 之前下载的旧版内核在安装内置 CUDA 内核后被替换。
-	must(t, w.Store.Update(func(s *schema.State) { useRuntime(s, "old-cuda", "cuda13", "v0.0.1") }, true))
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Preferences.Backend = "cuda13"
+		useRuntime(s, "old-cuda", "cuda13", "v0.0.1")
+	}, true))
 	must(t, w.UseBundled(path))
 	if value(w.Store.Read().RuntimePath) != path || !RuntimeReady(w.Store.Read()) {
 		t.Fatal("内置 CUDA 应替换旧版下载内核")
