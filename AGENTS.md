@@ -40,7 +40,7 @@ MORE CLI:
 - 始终用中文回复，代码注释使用中文。
 - Go 按对象职责划分，Windows C# 只处理原生窗口与文件对话框；避免仅有一个实现的接口和预留架构。
 - 修改推理映射或下载逻辑后运行 `go test -race ./...`。
-- 界面修改运行 `pnpm --dir web run build` 和 `pnpm --dir web test`。
+- 界面修改运行 `pnpm --dir web run lint`、`pnpm --dir web run build` 和 `pnpm --dir web test`。
 - 不将浏览器预览和交叉编译视为 Windows 实机推理已验证。
 
 ## 版本记录

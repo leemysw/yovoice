@@ -8,7 +8,8 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "test": "playwright test",
-    "check": "pnpm run build && pnpm test"
+    "lint": "eslint .",
+    "check": "pnpm run lint && pnpm run build && pnpm test"
   },
   "dependencies": {
     "@astryxdesign/core": "0.6.1",
@@ -20,12 +21,17 @@
   },
   "devDependencies": {
     "@astryxdesign/cli": "0.6.1",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "1.63.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.1.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.1",
     "vite": "^7.3.1"
   },
   "packageManager": "pnpm@9.15.2",

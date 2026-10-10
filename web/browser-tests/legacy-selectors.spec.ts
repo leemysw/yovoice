@@ -111,7 +111,7 @@ test('兼容菜单随容器滚动和窗口缩放重定位，靠底部时向上�
 });
 
 for (const platform of ['macos', 'windows']) {
-  test(`${platform} 支持定位时模型选择框在下方展开，作品不再提供归档筛选`, async ({ page }, testInfo) => {
+  test(`${platform} 支持定位时模型选择框在下方展开，作品不再提供归档筛选`, async ({ page }) => {
     await page.addInitScript(platform => Object.assign(window, { __workbenchPlatform: platform }), platform);
     await page.goto('/');
     const model = page.getByRole('combobox', { name: '模型', exact: true });
