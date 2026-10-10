@@ -49,6 +49,7 @@ On Windows without GNU Make, use PowerShell:
 ```powershell
 ./scripts/desktop/build-windows.ps1
 ./scripts/desktop/build-windows.ps1 -Package
+./scripts/desktop/build-windows.ps1 -Package -Cuda  # also build the installer with the bundled CUDA runtime
 python scripts/package-cli.py
 ```
 

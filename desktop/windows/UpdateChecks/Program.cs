@@ -16,6 +16,12 @@ Reject(() => (release with { Tag = "v../../1.0.0" }).Package("0.1.0"));
 Reject(() => (release with { Assets = [] }).Package("0.1.0"));
 Reject(() => (release with { Assets = [asset with { Url = new Uri("https://example.com/update.exe") }] }).Package("0.1.0"));
 Reject(() => (release with { Assets = [asset with { Name = "yovoice-v0.10.0-windows-x64.zip" }] }).Package("0.1.0"));
+// CUDA 安装包只更新到 CUDA 安装包，不会退回不含 CUDA 内核的普通安装包。
+string cudaName = "yovoice-v0.10.0-windows-x64-cuda-setup.exe";
+var cudaAsset = new UpdateAsset(cudaName, new Uri($"https://github.com/leemysw/yovoice/releases/download/v0.10.0/{cudaName}"));
+Require((release with { Assets = [asset, cudaAsset] }).Package("0.9.9", cuda: true) == cudaAsset);
+Require((release with { Assets = [asset, cudaAsset] }).Package("0.9.9") == asset);
+Reject(() => release.Package("0.9.9", cuda: true));
 string hash = new('a', 64);
 Require(UpdateRelease.Checksum($"{new string('b', 64)}  ./other.exe\n{hash}  ./{name}\n", name) == hash);
 Reject(() => UpdateRelease.Checksum($"{hash}  ./other.exe", name));

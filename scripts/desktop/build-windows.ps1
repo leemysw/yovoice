@@ -1,4 +1,4 @@
-﻿param([string]$Configuration = "Release", [switch]$Package)
+﻿param([string]$Configuration = "Release", [switch]$Package, [switch]$Cuda)
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 $destination = [IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/windows-x64'))
@@ -108,4 +108,8 @@ Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md $destination
 # Windows 仅分发 Setup，清除旧构建遗留的便携包。
 Remove-Item "artifacts/yovoice-windows-x64.zip" -ErrorAction SilentlyContinue
 
-if ($Package) { & "$PSScriptRoot/package-windows.ps1" -Version $version }
+if ($Package) {
+    & "$PSScriptRoot/package-windows.ps1" -Version $version
+    # 另生成内置 CUDA 内核的安装包，供 NVIDIA 显卡用户免下载使用。
+    if ($Cuda) { & "$PSScriptRoot/package-windows.ps1" -Version $version -Cuda }
+}

@@ -40,7 +40,7 @@ func TestEngineVersionConsistent(t *testing.T) {
 		}
 	}
 	hardcoded := regexp.MustCompile(`audio-v\d+\.\d+\.\d+-|releases/download/v\d+\.\d+\.\d+/|[0-9a-f]{64}`)
-	for _, script := range []string{"build-macos.sh", "build-windows.ps1"} {
+	for _, script := range []string{"build-macos.sh", "build-windows.ps1", "package-windows.ps1"} {
 		b, err := os.ReadFile(repoFile(t, "scripts", "desktop", script))
 		if err != nil {
 			t.Fatal(err)

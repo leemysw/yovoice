@@ -1,4 +1,7 @@
-; 由打包脚本传入版本、应用目录和经过签名校验的 WebView2 安装器。
+; 由打包脚本传入版本、应用目录和经过签名校验的 WebView2 安装器；CUDA 安装包另行指定输出文件名。
+#ifndef OutputName
+  #define OutputName "yovoice-windows-x64-setup"
+#endif
 [Setup]
 AppId=yovoice.Desktop
 AppName=yovoice
@@ -14,7 +17,7 @@ AppMutex=Local\VoiceWorkbench.Desktop
 CloseApplications=yes
 RestartApplications=no
 OutputDir={#OutputDir}
-OutputBaseFilename=yovoice-windows-x64-setup
+OutputBaseFilename={#OutputName}
 SetupIconFile=..\VoiceWorkbench\Resources\AppIcon.ico
 UninstallDisplayIcon={app}\yovoice.exe
 WizardStyle=modern
@@ -23,6 +26,10 @@ SolidCompression=yes
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
+
+[InstallDelete]
+; 普通与 CUDA 安装包可互相覆盖安装，先移除旧的 CUDA 内核，避免残留过期文件。
+Type: filesandordirs; Name: "{app}\engine-cuda"
 
 [Files]
 Source: "{#AppDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

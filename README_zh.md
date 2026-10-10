@@ -61,6 +61,7 @@ App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/
 | --- | --- | --- |
 | macOS 14+ · Apple Silicon | `.dmg` | 打开磁盘映像，将 yovoice 拖入 Applications |
 | Windows 10/11 · x64 | `-setup.exe` | 运行安装向导，安装后从开始菜单打开 |
+| Windows 10/11 · x64 · NVIDIA 显卡 | `-cuda-setup.exe` | 内置 CUDA 12.4 内核，约 1 GB，首次启动即用 GPU，无需再在设置中下载 |
 
 Windows 安装器会在缺少时联网安装 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。模型在应用内下载。卸载应用保留 `~/.yovoice` 中的作品和模型。
 

@@ -453,7 +453,7 @@
     "defaultMessage": "请等待当前操作结束，或先取消。"
   },
   "@yovoice.error.cpuBundleInvalid": {
-    "defaultMessage": "内置 CPU 内核不是有效文件。"
+    "defaultMessage": "内置内核不是有效文件。"
   },
   "@yovoice.error.cropRangeInvalid": {
     "defaultMessage": "裁剪结束时间必须大于开始时间。"

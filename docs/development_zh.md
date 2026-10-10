@@ -49,6 +49,7 @@ Windows 未安装 GNU Make 时，可在 PowerShell 中运行：
 ```powershell
 ./scripts/desktop/build-windows.ps1
 ./scripts/desktop/build-windows.ps1 -Package
+./scripts/desktop/build-windows.ps1 -Package -Cuda  # 另生成内置 CUDA 内核的安装包
 python scripts/package-cli.py
 ```
 

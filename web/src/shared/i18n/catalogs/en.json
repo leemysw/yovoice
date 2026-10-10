@@ -453,7 +453,7 @@
     "defaultMessage": "Wait for the current operation to finish, or cancel it first."
   },
   "@yovoice.error.cpuBundleInvalid": {
-    "defaultMessage": "Bundled CPU runtime is not a valid file."
+    "defaultMessage": "Bundled runtime is not a valid file."
   },
   "@yovoice.error.cropRangeInvalid": {
     "defaultMessage": "Crop end time must be greater than start time."

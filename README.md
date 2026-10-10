@@ -62,6 +62,7 @@ Choose the package for your platform from the repository’s [Releases](../../re
 | --- | --- | --- |
 | macOS 14+ · Apple Silicon | `.dmg` | Open the disk image and drag yovoice to Applications |
 | Windows 10/11 · x64 | `-setup.exe` | Run the installer, then open yovoice from the Start menu |
+| Windows 10/11 · x64 · NVIDIA GPU | `-cuda-setup.exe` | Bundles the CUDA 12.4 runtime (about 1 GB) and uses the GPU from first launch, with no extra download in settings |
 
 The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
 

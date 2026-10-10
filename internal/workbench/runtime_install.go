@@ -23,8 +23,9 @@ func useRuntime(s *schema.State, path, backend string) {
 	s.RuntimePath, s.RuntimeBackend, s.RuntimeVersion = ptr(path), ptr(backend), ptr(catalog.EngineVersion)
 }
 
-// UseBundledCPU 在服务启动时登记内置内核，保留用户已安装的 GPU 内核。
-func (w *Workbench) UseBundledCPU(path string) error {
+// UseBundled 在服务启动时登记安装包内置的内核。首次启动直接采用并选中该后端；
+// 之后仅在所选后端与之相同时接管，保留用户另行安装的其他后端内核。
+func (w *Workbench) UseBundled(backend, path string) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) || path == "" {
 		return nil
@@ -35,10 +36,13 @@ func (w *Workbench) UseBundledCPU(path string) error {
 	if !info.Mode().IsRegular() {
 		return msg.Err(msg.ErrCPUBundleInvalid, nil)
 	}
-	w.bundledCPU = path
+	w.bundled[backend] = path
 	return w.Store.Update(func(s *schema.State) {
-		if s.RuntimePath == nil || s.Preferences.Backend == "cpu" {
-			useRuntime(s, path, "cpu")
+		if s.RuntimePath == nil {
+			s.Preferences.Backend = backend
+		}
+		if s.Preferences.Backend == backend {
+			useRuntime(s, path, backend)
 		}
 	}, true)
 }
