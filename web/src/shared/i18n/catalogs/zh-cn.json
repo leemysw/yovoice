@@ -2164,5 +2164,14 @@
   },
   "@yovoice.music.advancedHint": {
     "defaultMessage": "留空或“自动”时由模型决定，通常更自然。"
+  },
+  "@yovoice.error.engineUpgradeRequired": {
+    "defaultMessage": "该模型需要 {version} 及以上的推理内核，请在设置中更新内核。"
+  },
+  "@yovoice.music.engineRequired": {
+    "defaultMessage": "音乐生成需要 {version} 及以上的推理内核。"
+  },
+  "@yovoice.music.updateEngine": {
+    "defaultMessage": "更新内核"
   }
 }

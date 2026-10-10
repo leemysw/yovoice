@@ -20,6 +20,18 @@ func RuntimeReady(s schema.State) bool {
 	return s.RuntimePath != nil && value(s.RuntimeBackend) == s.Preferences.Backend && catalog.VersionAtLeast(value(s.RuntimeVersion), catalog.EngineMinimum)
 }
 
+// modelEngineReady 检查已安装内核是否满足模型自身的版本要求，例如音乐模型需要较新的内核。
+func modelEngineReady(s schema.State, id string) error {
+	m, err := catalog.Lookup(id)
+	if err != nil {
+		return err
+	}
+	if m.EngineMinimum != "" && !catalog.VersionAtLeast(value(s.RuntimeVersion), m.EngineMinimum) {
+		return msg.Err(msg.ErrEngineUpgradeRequired, msg.Params{"version": m.EngineMinimum})
+	}
+	return nil
+}
+
 func useRuntime(s *schema.State, path, backend, version string) {
 	s.RuntimePath, s.RuntimeBackend, s.RuntimeVersion = ptr(path), ptr(backend), ptr(version)
 }

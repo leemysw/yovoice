@@ -2164,5 +2164,14 @@
   },
   "@yovoice.music.advancedHint": {
     "defaultMessage": "Leave these on Auto to let the model choose; it usually sounds more natural."
+  },
+  "@yovoice.error.engineUpgradeRequired": {
+    "defaultMessage": "This model needs inference engine {version} or later. Update the engine in Settings."
+  },
+  "@yovoice.music.engineRequired": {
+    "defaultMessage": "Music generation needs inference engine {version} or later."
+  },
+  "@yovoice.music.updateEngine": {
+    "defaultMessage": "Update engine"
   }
 }

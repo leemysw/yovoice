@@ -7,16 +7,16 @@ import { LoaderCircle } from 'lucide-react';
 import { Selector, SelectorOption } from '../../shared/selector';
 import definitions from '../../shared/lib/generation-options.json';
 import { formatActivity } from '../../shared/i18n/format';
-import { formatSize, formatTime, isMusicModel, type Draft, type ModelPackage, type State } from '../../shared/workbench';
+import { formatSize, formatTime, isMusicModel, modelEngineReady, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';
 import { durationPresets, musicLanguages } from './music-draft';
 
 const optionValues = (key: string) => definitions.ace_step.find(spec => spec.key === key)?.values ?? [];
 
 // 音乐检查器：常用的时长和演唱语言放在外面，速度、调性、拍号等交给规划器自动决定，按需展开。
-export function MusicInspector({ draft, state, catalog, change, generate, cancel, settings, close, advanced, setAdvanced, header }: {
+export function MusicInspector({ draft, state, catalog, change, generate, cancel, settings, upgradeEngine, close, advanced, setAdvanced, header }: {
   draft: Draft; state: State; catalog: ModelPackage[]; change: (patch: Partial<Draft>) => void; header?: ReactNode;
-  generate: () => void; cancel: () => void; settings: () => void; close: () => void; advanced: boolean; setAdvanced: (value: boolean) => void;
+  generate: () => void; cancel: () => void; settings: () => void; upgradeEngine: () => void; close: () => void; advanced: boolean; setAdvanced: (value: boolean) => void;
 }) {
   const t = useTranslator();
   const busy = state.activity?.status === 'running';
@@ -35,6 +35,9 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   const update = (key: string, value: string | number) => change({ modelOptions: { ...draft.modelOptions, ace_step: { ...options, [key]: value } } });
   const duration = Number(option('duration_seconds', 0));
   const models = catalog.filter(model => isMusicModel(model.id));
+  const model = models.find(item => item.id === draft.modelId);
+  // 已装内核过旧时提前说明原因，生成按钮仍可点击并跳转到内核设置。
+  const engineOutdated = !!state.runtimePath && !modelEngineReady(state, model);
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
     <VStack className="generation-action" gap={3}>
       {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
@@ -43,7 +46,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
         <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
-      </HStack> : <small>{t('@yovoice.music.generateHint')}</small>}
+      </HStack> : engineOutdated ? <HStack gap={2} vAlign="center" hAlign="between" wrap="wrap"><small className="grow">{t('@yovoice.music.engineRequired', { version: model?.engineMinimum })}</small><Button size="sm" label={t('@yovoice.music.updateEngine')} onClick={upgradeEngine} /></HStack> : <small>{t('@yovoice.music.generateHint')}</small>}
     </VStack>
     <VStack className="inspector-scroll" gap={5}>
       {header}

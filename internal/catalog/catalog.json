@@ -537,6 +537,7 @@
     "name": "ACE-Step 1.5 Turbo",
     "family": "ace_step",
     "task": "gen",
+    "engineMinimum": "v0.9.1",
     "version": "1.5",
     "precision": "BF16",
     "revision": "e479ac197bae727f69574261a8025696bc51de48",

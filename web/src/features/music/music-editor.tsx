@@ -38,7 +38,7 @@ export function MusicEditor({ draft, change, locale, takes, current, select }: {
     <VStack gap={3}>
       <HStack hAlign="between" vAlign="center" gap={2} wrap="wrap">
         <h2>{t('@yovoice.music.style')}</h2>
-        {empty ? <Button size="sm" variant="secondary" icon={<Sparkles />} label={t('@yovoice.music.example')} onClick={() => { const example = createMusicDraft(locale); change({ text: example.text, lyrics: example.lyrics, synthesisLanguage: example.synthesisLanguage }); }} /> : null}
+        {empty ? <Button size="sm" variant="secondary" icon={<Sparkles />} label={t('@yovoice.music.example')} onClick={() => { const example = createMusicDraft(locale); change({ text: example.text, lyrics: example.lyrics, synthesisLanguage: example.synthesisLanguage, ...(draft.title === createMusicDraft(locale, false).title ? { title: example.title } : {}) }); }} /> : null}
       </HStack>
       <TextArea className="music-style" label={t('@yovoice.music.style')} isLabelHidden value={draft.text} maxLength={512} rows={2} hasSpellCheck={false} placeholder={t('@yovoice.music.stylePlaceholder')} onChange={text => change({ text: text.slice(0, 512) })} />
       <VStack gap={2} role="group" aria-label={t('@yovoice.music.tags')}>

@@ -25,7 +25,7 @@ import { ConfirmDelete } from '../shared/ui/app-dialog';
 import { call, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { formatNotice } from '../shared/i18n/format';
-import { isKokoroModel, isMusicModel, isReferenceModel, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, withCueIds, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { isKokoroModel, isMusicModel, isReferenceModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, withCueIds, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { SidebarNav } from './sidebar-nav';
 import { Notifications } from './notifications';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
@@ -88,7 +88,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
       run(async () => { await persistDraft(draft); await call('generation.start', draft); }); return;
     }
     if (requiresVoice(draft) && !state.voices.some(voice => voice.id === draft.voiceId)) { setVoicePicker('voice'); return; }
-    if (!runtimeUsable(runtimeStatus(state, engine)) || !state.models.some(m => m.id === draft.modelId)) {
+    if (!runtimeUsable(runtimeStatus(state, engine)) || !state.models.some(m => m.id === draft.modelId) || !modelEngineReady(state, catalog.find(m => m.id === draft.modelId))) {
       openSettings(draft.modelId, !state.models.some(m => m.id === draft.modelId) ? 'models' : 'engine'); return;
     }
     run(async () => { await persistDraft(draft); await call('generation.start', draft); });
@@ -191,7 +191,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const currentCharacter = state.characters.find(c => c.id === (activeSpeaker?.characterId ?? selectedCharacter));
   const currentPerformance = activeSpeaker ? activeCue?.performance : draft.performance;
   const performances = currentCharacter?.performances ?? [];
-  const inspector = music ? <MusicInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} close={() => setShowInspector(false)} advanced={advanced} setAdvanced={setAdvanced} /> : <Inspector libraryActions={<VStack gap={2}>
+  const inspector = music ? <MusicInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} upgradeEngine={() => openSettings(draft.modelId, 'engine')} close={() => setShowInspector(false)} advanced={advanced} setAdvanced={setAdvanced} /> : <Inspector libraryActions={<VStack gap={2}>
     {activeSpeaker ? <HStack gap={2} vAlign="center"><SpeakerAvatar seed={activeSpeaker.characterId ?? `${draft.id}:${activeSpeaker.id}`} /><h3>{activeSpeaker.sourceName || t('@yovoice.subtitle.speaker', { n: draft.subtitles!.speakers.indexOf(activeSpeaker) + 1 })}</h3></HStack> : null}
     <Selector label={t('@yovoice.character.choose')} isLabelHidden placeholder={t('@yovoice.character.choose')} value={activeSpeaker?.characterId ?? selectedCharacter ?? ''}
       options={[...state.characters.map(c => ({ value: c.id, label: c.name })), ...(state.characters.length ? [{ type: 'divider' as const }] : []), { value: 'new-voice', label: t('@yovoice.character.new'), icon: Plus }]}
