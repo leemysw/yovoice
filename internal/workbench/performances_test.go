@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
@@ -65,6 +66,7 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 		s.Models = []schema.InstalledModel{{ID: d.ModelID, Path: modelPath}, {ID: "omnivoice-q8", Path: modelPath}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
+		s.RuntimeVersion = ptr(catalog.EngineVersion)
 	}, true))
 	must(t, w.generateAudio(d, "", "two", ""))
 	done := w.Done()

@@ -44,8 +44,7 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 	return w.Store.Update(func(s *schema.State) {
 		s.Preferences = p
 		if p.Backend == "cpu" && w.bundledCPU != "" {
-			s.RuntimePath = ptr(w.bundledCPU)
-			s.RuntimeBackend = ptr("cpu")
+			useRuntime(s, w.bundledCPU, "cpu")
 		} else if runtime.GOOS == "darwin" && s.RuntimePath != nil {
 			s.RuntimeBackend = ptr(p.Backend)
 		}

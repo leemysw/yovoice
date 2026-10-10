@@ -87,7 +87,7 @@ jobs:
           path: |
             artifacts/downloads/audio-*.zip
             artifacts/downloads/audio-*.tar.gz
-          key: audio-cpp-${{ matrix.platform }}-${{ hashFiles('scripts/desktop/build-windows.ps1', 'scripts/desktop/build-macos.sh') }}
+          key: audio-cpp-${{ matrix.platform }}-${{ hashFiles('internal/catalog/engine.json', 'scripts/desktop/build-windows.ps1', 'scripts/desktop/build-macos.sh') }}
       - uses: actions/cache@v4
         with:
           path: |

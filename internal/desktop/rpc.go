@@ -38,7 +38,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	}
 	switch method {
 	case "state.get":
-		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "desktop": true}, nil
+		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "engineVersion": catalog.EngineVersion, "desktop": true}, nil
 	case "draft.save", "generation.start":
 		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {

@@ -20,7 +20,7 @@ python3 scripts/desktop/check-macos-service.py
 - 原生菜单、Cmd+C/V/A/Z、Cmd+Enter 生成、关闭前保存和任务取消。
 - 原生 WAV/GGUF/文件夹选择、音频文件定位、日志目录。
 - 本地 HTTP 服务随机端口、每次启动独立 HttpOnly 凭证、来源检查、状态推送和音频 Range 请求。
-- 内置 audio.cpp v0.7.4 Metal 服务及许可证；模型仍需下载或导入。
+- 内置 audio.cpp Metal 服务（版本见 `internal/catalog/engine.json`）及许可证；模型仍需下载或导入。
 - 设置提供 CPU / Metal 后端；按架构下载并校验运行包，安装在独立目录。
 - 单实例窗口激活、服务数据目录锁、宿主异常退出后通过管道 EOF 清理服务和推理进程。
 
@@ -28,7 +28,7 @@ python3 scripts/desktop/check-macos-service.py
 
 ## 分发边界
 
-独立更新目前仍固定 v0.7.4，尚不包含远程版本发现与跨版本回退界面。
+内核版本随应用固定，不单独更新；应用升级 audio.cpp 后，数据目录中重新安装的旧内核会提示更新。
 
 原生冒烟测试覆盖 UI 启动、桥接、WAV 导入/解码、保存及退出；它不等价于 IndexTTS 模型实机生成测试。不支持 Intel Mac。
 

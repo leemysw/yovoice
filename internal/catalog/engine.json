@@ -1,0 +1,12 @@
+{
+  "version": "v0.9.1",
+  "archives": {
+    "audio-v0.9.1-bin-ubuntu-x64-cpu-portable.tar.gz": "a73fed5d83b9d411b7b2aac1556396b81fcba57efcb4f03bc3d690ab0db8bfef",
+    "audio-v0.9.1-bin-ubuntu-x64-vulkan-portable.tar.gz": "1aae59b03d10c0fa289fe11f4529ef8325bec4dad5c003652b99c23f3d9f5e32",
+    "audio-v0.9.1-bin-macos-arm64-metal.tar.gz": "960436787b84bf137a70ea1713ac460207ef2ac7b2617380fb7a1f4650d1100d",
+    "audio-v0.9.1-bin-windows-x64-cpu-portable.zip": "2fccc73dc97af84da1e81c3af545fa619348a46d023ea7d927ba80bc8680d2a0",
+    "audio-v0.9.1-bin-windows-x64-vulkan-portable.zip": "423226fa8a0fd09de8534a6bc146ea8758801c8937e406dafa6bffb6bfb22f73",
+    "audio-v0.9.1-bin-windows-x64-cuda12.4.zip": "f32a40f8fb14ac4772c9c25525f97715db228979178e51654da73aa65005c0ef",
+    "audio-v0.9.1-cudart-windows-x64-cuda12.4.zip": "8bfdce7cb00b5a51560b5ab0d444344d86a2f0d7e2727bb7f18c15ef4734451b"
+  }
+}

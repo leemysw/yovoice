@@ -600,7 +600,7 @@
     "defaultMessage": "请先在设置中安装推理引擎。"
   },
   "@yovoice.error.runtimeRequired": {
-    "defaultMessage": "请先安装当前设备对应的推理运行时。"
+    "defaultMessage": "请先安装或更新当前设备对应的推理内核。"
   },
   "@yovoice.error.runtimeUnique": {
     "defaultMessage": "运行库未包含唯一的推理服务。"
@@ -890,6 +890,9 @@
   "@yovoice.settings.reinstallRuntime": {
     "defaultMessage": "重新安装"
   },
+  "@yovoice.settings.updateRuntime": {
+    "defaultMessage": "更新内核"
+  },
   "@yovoice.settings.removeBlocked": {
     "defaultMessage": "请先结束相关操作，再移除此模型。"
   },
@@ -907,6 +910,9 @@
   },
   "@yovoice.settings.runtimeMissing": {
     "defaultMessage": "未就绪 · 请安装所选设备的内核"
+  },
+  "@yovoice.settings.runtimeOutdated": {
+    "defaultMessage": "需要更新 · 当前版本要求 audio.cpp {version}"
   },
   "@yovoice.settings.runtimeReady": {
     "defaultMessage": "已安装 · 可以开始生成"

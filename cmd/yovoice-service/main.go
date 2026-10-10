@@ -14,6 +14,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/desktop"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -58,6 +59,9 @@ func run() error {
 				s.Preferences.Backend = backend
 			}
 			s.RuntimeBackend = &backend
+			// 内置 Metal 内核随应用更新，版本始终与当前应用一致。
+			version := catalog.EngineVersion
+			s.RuntimeVersion = &version
 		}, true); e != nil {
 			return e
 		}

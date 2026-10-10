@@ -89,9 +89,9 @@ Use `make check-core` for Go formatting, static analysis and tests with the race
 
   Transport packages only decode requests and call public `Workbench` methods; they never touch its internal state. `testkit` is for tests only.
 - Desktop calls run concurrently. `Workbench` serializes short read-validate-write transactions with an edit lock; conversion, downloads, inference and project import/export run without it. Only one background operation runs at a time.
-- The model catalog, generation options and OmniVoice attributes are embedded in the Go service and imported by the UI. Keep `internal/catalog/*.json` and `web/src/shared/lib/*.json` identical.
+- The model catalog, generation options and OmniVoice attributes are embedded in the Go service and imported by the UI. Keep `internal/catalog/*.json` and `web/src/shared/lib/*.json` identical (`engine.json` is used only by the service and build scripts and has no UI copy).
 - Declare message codes in `internal/msg`, add them to `msg.All`, and provide copy in both UI languages.
-- When upgrading audio.cpp, update `EngineVersion`, the runtime archive checksums and the build scripts in `scripts/desktop/` together.
+- To upgrade audio.cpp, edit only `internal/catalog/engine.json` (version and runtime archive checksums); runtime installs and the build scripts in `scripts/desktop/` read it. The installed runtime version is stored in the state, and the UI asks for an update when it differs.
 
 `go test` enforces the last three.
 

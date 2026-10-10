@@ -600,7 +600,7 @@
     "defaultMessage": "Install the inference engine in Settings first."
   },
   "@yovoice.error.runtimeRequired": {
-    "defaultMessage": "Install the inference runtime for the selected device first."
+    "defaultMessage": "Install or update the inference runtime for the selected device first."
   },
   "@yovoice.error.runtimeUnique": {
     "defaultMessage": "The runtime archive did not contain exactly one inference server."
@@ -890,6 +890,9 @@
   "@yovoice.settings.reinstallRuntime": {
     "defaultMessage": "Reinstall"
   },
+  "@yovoice.settings.updateRuntime": {
+    "defaultMessage": "Update runtime"
+  },
   "@yovoice.settings.removeBlocked": {
     "defaultMessage": "Finish related operations before removing this model."
   },
@@ -907,6 +910,9 @@
   },
   "@yovoice.settings.runtimeMissing": {
     "defaultMessage": "Not ready · install the runtime for the selected device"
+  },
+  "@yovoice.settings.runtimeOutdated": {
+    "defaultMessage": "Update needed · this version requires audio.cpp {version}"
   },
   "@yovoice.settings.runtimeReady": {
     "defaultMessage": "Installed · ready to generate"

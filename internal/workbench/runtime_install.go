@@ -12,6 +12,17 @@ import (
 	"yovoice/internal/schema"
 )
 
+// RuntimeReady 判断已安装内核与所选后端、当前应用要求的 audio.cpp 版本一致。
+// 应用升级 audio.cpp 后，数据目录里下载的旧 GPU 内核需要重新安装。
+func RuntimeReady(s schema.State) bool {
+	return s.RuntimePath != nil && value(s.RuntimeBackend) == s.Preferences.Backend && value(s.RuntimeVersion) == catalog.EngineVersion
+}
+
+// useRuntime 登记可执行内核；内置内核随应用发布，与 EngineVersion 一致。
+func useRuntime(s *schema.State, path, backend string) {
+	s.RuntimePath, s.RuntimeBackend, s.RuntimeVersion = ptr(path), ptr(backend), ptr(catalog.EngineVersion)
+}
+
 // UseBundledCPU 在服务启动时登记内置内核，保留用户已安装的 GPU 内核。
 func (w *Workbench) UseBundledCPU(path string) error {
 	info, err := os.Stat(path)
@@ -27,8 +38,7 @@ func (w *Workbench) UseBundledCPU(path string) error {
 	w.bundledCPU = path
 	return w.Store.Update(func(s *schema.State) {
 		if s.RuntimePath == nil || s.Preferences.Backend == "cpu" {
-			s.RuntimePath = ptr(path)
-			s.RuntimeBackend = ptr("cpu")
+			useRuntime(s, path, "cpu")
 		}
 	}, true)
 }
@@ -104,7 +114,7 @@ func (w *Workbench) InstallRuntime() error {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		if err = w.Store.Update(func(s *schema.State) { s.RuntimePath = ptr(executable); s.RuntimeBackend = ptr(backend) }, true); err != nil {
+		if err = w.Store.Update(func(s *schema.State) { useRuntime(s, executable, backend) }, true); err != nil {
 			return err
 		}
 		// 每次安装解压到新目录，旧版本已不再引用，及时清理避免重复安装持续占用磁盘。

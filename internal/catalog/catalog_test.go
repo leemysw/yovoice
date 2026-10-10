@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -28,27 +29,27 @@ func TestSharedDataMatchesWeb(t *testing.T) {
 	}
 }
 
-// 升级 audio.cpp 时，服务端在线安装与桌面打包脚本必须使用同一版本。
+// 升级 audio.cpp 时只改 engine.json：在线安装与桌面打包脚本都从清单读取版本和校验值。
 func TestEngineVersionConsistent(t *testing.T) {
-	pattern := regexp.MustCompile(`audio-(v\d+\.\d+\.\d+)-|releases/download/(v\d+\.\d+\.\d+)/`)
-	for name := range archives {
-		if m := pattern.FindStringSubmatch(name); m == nil || m[1] != EngineVersion {
-			t.Errorf("运行时包 %s 与 EngineVersion %s 不一致", name, EngineVersion)
+	if !regexp.MustCompile(`^v\d+\.\d+\.\d+$`).MatchString(EngineVersion) {
+		t.Fatalf("EngineVersion %q 格式无效", EngineVersion)
+	}
+	for name, hash := range archives {
+		if !strings.HasPrefix(name, "audio-"+EngineVersion+"-") || !regexp.MustCompile(`^[0-9a-f]{64}$`).MatchString(hash) {
+			t.Errorf("运行时包 %s 与 EngineVersion %s 不一致或校验值无效", name, EngineVersion)
 		}
 	}
+	hardcoded := regexp.MustCompile(`audio-v\d+\.\d+\.\d+-|releases/download/v\d+\.\d+\.\d+/|[0-9a-f]{64}`)
 	for _, script := range []string{"build-macos.sh", "build-windows.ps1"} {
 		b, err := os.ReadFile(repoFile(t, "scripts", "desktop", script))
 		if err != nil {
 			t.Fatal(err)
 		}
-		matches := pattern.FindAllStringSubmatch(string(b), -1)
-		if len(matches) == 0 {
-			t.Errorf("%s 未引用 audio.cpp 版本", script)
+		if !bytes.Contains(b, []byte("internal/catalog/engine.json")) {
+			t.Errorf("%s 未读取运行时清单", script)
 		}
-		for _, m := range matches {
-			if version := m[1] + m[2]; version != EngineVersion {
-				t.Errorf("%s 使用 audio.cpp %s，EngineVersion 为 %s", script, version, EngineVersion)
-			}
+		if m := hardcoded.Find(b); m != nil {
+			t.Errorf("%s 写死了 audio.cpp 版本或校验值：%s", script, m)
 		}
 	}
 }

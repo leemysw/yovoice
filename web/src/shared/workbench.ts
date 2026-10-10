@@ -74,7 +74,7 @@ export interface Activity {
 export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean }
 export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
-  preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; activity: Activity | null;
+  preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; activity: Activity | null;
 }
 
 export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId = 'index-2.5-q8'): Draft => {
@@ -90,7 +90,11 @@ export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId
   intervalSilenceMs: 200, doSample: true, numBeams: 3, lengthPenalty: 0, seed: null,
 };
 };
-export const emptyState = (): State => ({ characters: [], previews: [], drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: 'zh-CN' }, runtimePath: null, runtimeBackend: null, activity: null });
+export const emptyState = (): State => ({ characters: [], previews: [], drafts: [createDraft(true)], voices: [], models: [], history: [], preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: 'zh-CN' }, runtimePath: null, runtimeBackend: null, runtimeVersion: null, activity: null });
+// 内核需与所选设备一致，且版本与当前应用要求的 audio.cpp 相同；升级应用后旧 GPU 内核需要更新。
+export type RuntimeStatus = 'ready' | 'missing' | 'outdated';
+export const runtimeStatus = (state: State, engineVersion: string): RuntimeStatus =>
+  !state.runtimePath || state.runtimeBackend !== state.preferences.backend ? 'missing' : state.runtimeVersion === engineVersion ? 'ready' : 'outdated';
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }

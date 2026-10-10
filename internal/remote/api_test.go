@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
@@ -57,6 +58,7 @@ func TestRemoteAPI(t *testing.T) {
 		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
+		s.RuntimeVersion = ptr(catalog.EngineVersion)
 		s.Preferences.Backend = "cpu"
 	}, true))
 	for _, body := range []string{`{"text":"hi","path":"/etc/passwd"}`, `{"text":"hi"} {}`, `{"text":""}`} {

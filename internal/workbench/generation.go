@@ -119,7 +119,7 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 		return nil, e
 	}
 
-	if s.RuntimePath == nil || value(s.RuntimeBackend) != s.Preferences.Backend {
+	if !RuntimeReady(s) {
 		return nil, msg.Err(msg.ErrRuntimeRequired, nil)
 	}
 	if saveDraft {

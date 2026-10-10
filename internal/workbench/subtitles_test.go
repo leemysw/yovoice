@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
@@ -36,6 +37,7 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 		s.Models = []schema.InstalledModel{model}
 		s.RuntimePath = &executable
 		s.RuntimeBackend = ptr("cpu")
+		s.RuntimeVersion = ptr(catalog.EngineVersion)
 	}, true))
 	parts, err := w.prepareSynthesis(d, w.Store.Read())
 	must(t, err)

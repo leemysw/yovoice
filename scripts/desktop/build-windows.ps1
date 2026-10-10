@@ -67,12 +67,15 @@ New-Item -ItemType Directory -Force -Path "$destination/service" | Out-Null
 $env:CGO_ENABLED = "0"
 go build -trimpath -ldflags="-s -w" -o "$destination/service/yovoice-service.exe" ./cmd/yovoice-service
 if ($LASTEXITCODE -ne 0) { throw "Go 服务构建失败" }
-# 内置 CPU 便携运行包；GPU 内核由用户在应用内按需下载。
-$archiveName = "audio-v0.7.4-bin-windows-x64-cpu-portable.zip"
+# 内置 CPU 便携运行包；GPU 内核由用户在应用内按需下载。版本与校验值取自服务端运行时清单。
+$engine = Get-Content internal/catalog/engine.json -Raw | ConvertFrom-Json
+$archiveName = "audio-$($engine.version)-bin-windows-x64-cpu-portable.zip"
+$expectedHash = $engine.archives.$archiveName
+if (!$expectedHash) { throw "运行时清单缺少 $archiveName" }
 $archive = Join-Path (Get-Location) "artifacts/downloads/$archiveName"
 New-Item -ItemType Directory -Force -Path (Split-Path $archive -Parent) | Out-Null
 if (!(Test-Path $archive)) {
-    Invoke-WebRequest "https://github.com/0xShug0/audio.cpp/releases/download/v0.7.4/$archiveName" -OutFile "$archive.part"
+    Invoke-WebRequest "https://github.com/0xShug0/audio.cpp/releases/download/$($engine.version)/$archiveName" -OutFile "$archive.part"
     Move-Item "$archive.part" $archive -Force
 }
 # 直接使用 .NET 流式校验，避免依赖 PowerShell 模块中的 Get-FileHash。
@@ -83,7 +86,7 @@ try {
         $archiveHash = [BitConverter]::ToString($sha256.ComputeHash($stream)).Replace('-', '').ToLowerInvariant()
     } finally { $stream.Dispose() }
 } finally { $sha256.Dispose() }
-if ($archiveHash -ne "d241c56ba78fd3c1b28bf289792fb8ec258d36586b4e0c8d667080ec248c0d2f") {
+if ($archiveHash -ne $expectedHash) {
     throw "CPU 内核校验失败，请删除 $archive 后重试"
 }
 $runtime = Join-Path $destination "engine"
