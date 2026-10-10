@@ -33,8 +33,9 @@ func (d Draft) GenerationOptions(family string) (map[string]any, error) {
 		if !valid {
 			return nil, msg.Err(msg.ErrParamsOutOfRange, nil)
 		}
-		// 0 表示自动分段或时长，不向引擎传递无效的零值。
-		if (key == "text_chunk_size" || key == "duration") && value == float64(0) {
+		// 0 与 auto 表示自动分段、时长或由音乐规划器决定，不向引擎传递。
+		zero := key == "text_chunk_size" || key == "duration" || key == "duration_seconds" || key == "bpm"
+		if (zero && value == float64(0)) || value == "auto" {
 			continue
 		}
 		out[key] = value

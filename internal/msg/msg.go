@@ -34,6 +34,7 @@ const (
 	ActivityGenerate        Code = "@yovoice.activity.generate"
 	ActivitySynthesizing    Code = "@yovoice.activity.synthesizing"
 	ActivitySavingAudio     Code = "@yovoice.activity.savingAudio"
+	ActivityRendering       Code = "@yovoice.activity.rendering"
 	ActivityCompleted       Code = "@yovoice.activity.completed"
 	ActivityCancelled       Code = "@yovoice.activity.cancelled"
 	ActivityPaused          Code = "@yovoice.activity.paused"
@@ -105,6 +106,12 @@ const (
 	ErrVoxReferenceRequired  Code = "@yovoice.error.voxReferenceRequired"
 	ErrVoxParams             Code = "@yovoice.error.voxParams"
 	ErrLegacyRestore         Code = "@yovoice.error.legacyRestore"
+	ErrMusicStyle            Code = "@yovoice.error.musicStyle"
+	ErrMusicLyrics           Code = "@yovoice.error.musicLyrics"
+	ErrMusicParams           Code = "@yovoice.error.musicParams"
+	ErrScoreInvalid          Code = "@yovoice.error.scoreInvalid"
+	ErrMidiInvalid           Code = "@yovoice.error.midiInvalid"
+	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
 	ErrUnknown               Code = "@yovoice.error.unknown"
 )
 
@@ -149,7 +156,7 @@ func All() []Code {
 		ErrVoiceDescriptionRequired, ErrOmniAttributes, ErrSpeakerInvalid,
 		ActivityDownload, ActivityDownloading, ActivityVerifying, ActivityImport,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
-		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio,
+		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,
 		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted,
 		ErrBusy, ErrProxyURL, ErrModelDirAbsolute, ErrModelDirSpace,
 		ErrDownloadHTTP, ErrDownloadRange, ErrDownloadSize, ErrDownloadIncomplete,
@@ -167,6 +174,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrMidiInvalid,
 		ErrLegacyRestore, ErrUnknown,
 	}
 }

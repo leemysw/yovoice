@@ -15,6 +15,7 @@ import (
 	"time"
 	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
+	"yovoice/internal/testkit"
 	"yovoice/internal/workbench"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -44,7 +45,7 @@ func TestMCPRemoteWorkflow(t *testing.T) {
 	defer session.Close()
 	tools, err := session.ListTools(ctx, nil)
 	must(t, err)
-	if len(tools.Tools) != 8 {
+	if len(tools.Tools) != 9 {
 		t.Fatal(len(tools.Tools))
 	}
 	call := func(name string, args any) *mcp.CallToolResult {
@@ -95,6 +96,29 @@ func TestMCPRemoteWorkflow(t *testing.T) {
 	response.Body.Close()
 	if response.StatusCode != 401 {
 		t.Fatal("音频绕过认证")
+	}
+
+	// Agent 通过 render_score 提交乐谱，渲染结果与语音一样经认证下载。
+	font := filepath.Join(wb.Store.Root, "models", "test.sf2")
+	must(t, os.WriteFile(font, testkit.SoundFont(), 0600))
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, schema.InstalledModel{ID: "musescore-general-sf2", Path: font})
+	}, true))
+	rendered := call("render_score", map[string]any{"title": "片头", "score": map[string]any{"tempo": 120, "timeSignature": []int{4, 4}, "tracks": []any{
+		map[string]any{"id": "piano", "name": "钢琴", "role": "piano", "program": 0, "notes": []any{map[string]any{"bar": 1, "beat": 1, "pitch": 60, "length": 4, "velocity": 90}}},
+	}}})
+	b, err = json.Marshal(rendered.StructuredContent)
+	must(t, err)
+	var score struct {
+		Duration     float64 `json:"duration"`
+		DownloadPath string  `json:"downloadPath"`
+	}
+	must(t, json.Unmarshal(b, &score))
+	response, err = httpClient.Get(server.URL + score.DownloadPath)
+	must(t, err)
+	response.Body.Close()
+	if response.StatusCode != 200 || score.Duration < 3.9 || score.Duration > 4.1 {
+		t.Fatal(response.StatusCode, score.Duration)
 	}
 
 	// 两代协议均使用短请求提交和轮询，任务不依赖 MCP 会话存活。

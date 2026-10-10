@@ -299,5 +299,75 @@
       "max": 120,
       "step": 1
     }
+  ],
+  "ace_step": [
+    {
+      "key": "duration_seconds",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 300,
+      "step": 1
+    },
+    {
+      "key": "bpm",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 300,
+      "step": 1
+    },
+    {
+      "key": "keyscale",
+      "type": "select",
+      "default": "auto",
+      "values": [
+        "auto",
+        "C major",
+        "C minor",
+        "C# major",
+        "C# minor",
+        "D major",
+        "D minor",
+        "Eb major",
+        "Eb minor",
+        "E major",
+        "E minor",
+        "F major",
+        "F minor",
+        "F# major",
+        "F# minor",
+        "G major",
+        "G minor",
+        "Ab major",
+        "Ab minor",
+        "A major",
+        "A minor",
+        "Bb major",
+        "Bb minor",
+        "B major",
+        "B minor"
+      ]
+    },
+    {
+      "key": "timesignature",
+      "type": "select",
+      "default": "auto",
+      "values": [
+        "auto",
+        "2",
+        "3",
+        "4",
+        "6"
+      ]
+    },
+    {
+      "key": "num_inference_steps",
+      "type": "number",
+      "default": 8,
+      "min": 1,
+      "max": 20,
+      "step": 1
+    }
   ]
 }

@@ -11,17 +11,20 @@ import { createDraft, projectKind, type Draft, type UiLocale } from '../../share
 import { call, isDesktop } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { SpeakerAvatar } from '../create/subtitles';
+import { createMusicDraft } from '../music/music-draft';
+import { createScoreDraft } from '../score/score-draft';
+import { SongCover } from '../music/song-cover';
 import { LibraryEmpty, LibraryPage } from './library-layout';
 
 export function NewProject({ locale, modelId, create, onError, button, kind }: {
-  kind?: 'text' | 'story'; locale: UiLocale; modelId?: string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
+  kind?: 'text' | 'story' | 'music' | 'score'; locale: UiLocale; modelId?: string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
   button?: Omit<ComponentProps<typeof Button>, 'onClick' | 'label'> & { label?: string };
 }) {
   const t = useTranslator();
   const [busy, setBusy] = useState(false);
-  async function start(kind: 'text' | 'story') {
+  async function start(kind: 'text' | 'story' | 'music' | 'score') {
     setBusy(true);
-    const next: Draft = { ...createDraft(false, locale, modelId), kind };
+    const next: Draft = kind === 'music' ? createMusicDraft(locale, false) : kind === 'score' ? createScoreDraft(locale, false) : { ...createDraft(false, locale, modelId), kind };
     if (kind === 'story') next.subtitles = { speakers: [{ id: crypto.randomUUID(), sourceName: t('@yovoice.library.narrator') }], cues: [] };
     try { await create(next); }
     catch (error) { onError((error as Error).message); }
@@ -33,12 +36,14 @@ export function NewProject({ locale, modelId, create, onError, button, kind }: {
     items={[
       { id: 'story', label: t('@yovoice.project.story'), onClick: () => void start('story') },
       { id: 'text', label: t('@yovoice.project.text'), onClick: () => void start('text') },
+      { id: 'music', label: t('@yovoice.project.music'), onClick: () => void start('music') },
+      { id: 'score', label: t('@yovoice.project.score'), onClick: () => void start('score') },
       ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), onClick: () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); } }] : []),
     ]} />;
 }
 
 export function Projects({ drafts, kind, open, create, copy, save, remove, history, onError }: { onError: (error: string) => void;
-  drafts: Draft[]; kind: 'text' | 'story'; open: (draft: Draft) => void; create: ReactNode;
+  drafts: Draft[]; kind: 'text' | 'story' | 'music' | 'score'; open: (draft: Draft) => void; create: ReactNode;
   history: (draft: Draft) => void; copy: (draft: Draft) => void; save: (draft: Draft) => Promise<void>; remove: (draft: Draft) => void;
 }) {
   const t = useTranslator();
@@ -62,7 +67,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
       {filtered.map(draft => <VStack key={draft.id} className="library-entry project-library-row" gap={3}>
         <HStack gap={3} vAlign="center">
           <HStack className="project-avatars" gap={0} wrap="wrap" aria-hidden="true">
-            {draft.subtitles?.speakers.length ? draft.subtitles.speakers.map(speaker => <SpeakerAvatar key={speaker.id} seed={speaker.characterId ?? `${draft.id}:${speaker.id}`} />) : <SpeakerAvatar seed={draft.characterId ?? draft.id} />}
+            {kind === 'music' || kind === 'score' ? <SongCover seed={draft.id} size={96} /> : draft.subtitles?.speakers.length ? draft.subtitles.speakers.map(speaker => <SpeakerAvatar key={speaker.id} seed={speaker.characterId ?? `${draft.id}:${speaker.id}`} />) : <SpeakerAvatar seed={draft.characterId ?? draft.id} />}
           </HStack>
           <Button variant="ghost" className="grow project-title" label={draft.title} tooltip={draft.title} onClick={() => open(draft)} />
           <HStack className="library-entry-actions" gap={0}>
@@ -72,7 +77,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
               ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError(noticeMessage(e))) }] : []),
                 { id: 'rename', label: t('@yovoice.project.renameShort'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setError(''); setRenaming(draft); } },
                 { id: 'copy', label: t('@yovoice.project.copyShort'), icon: <Copy className="project-menu-icon" strokeWidth={1.5} />, onClick: () => copy(draft) },
-                ...(kind === 'text' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
+                ...(kind !== 'story' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
                 { id: 'delete', label: t('@yovoice.action.delete'), icon: <Trash2 className="project-menu-icon" strokeWidth={1.5} />, variant: 'destructive', onClick: () => remove(draft) },
               ]} />
           </HStack>

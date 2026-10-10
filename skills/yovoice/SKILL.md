@@ -1,6 +1,6 @@
 ---
 name: yovoice
-description: 使用 yovoice 本地 CLI 或远程 HTTP API／MCP 生成语音，用于配音、旁白、朗读、声音设计和音色克隆，无需桌面 App。
+description: 使用 yovoice 本地 CLI 或远程 HTTP API／MCP 生成语音，用于配音、旁白、朗读、声音设计和音色克隆；也可写乐谱渲染配乐。无需桌面 App。
 ---
 
 # yovoice 配音
@@ -50,3 +50,7 @@ yovoice generate --text-file narration.txt --reference voice.wav --model index-2
 命令阻塞到完成，进度在 stderr，stdout 只有最终 JSON；失败返回非零退出码，错误 JSON 在 stderr。Ctrl-C 取消当前命令并清理引擎，不提供跨进程取消命令。不要因首次模型加载慢反复启动任务。
 
 成功后使用 JSON 的绝对 `path` 和 `duration` 交付音频；能够播放时展示播放器。没有实际试听，不宣称音质验证通过。参数错误先修正，下载或推理失败保留错误和日志线索，不无条件循环重试。输出文件默认拒绝覆盖，重新生成使用新文件名。
+
+## 编曲配乐
+
+用户需要配乐、垫底音乐或把 MIDI 渲染为音频时，阅读[编曲参考](references/score.md)：写乐谱 JSON，用 `yovoice score render` 渲染混音和分轨。

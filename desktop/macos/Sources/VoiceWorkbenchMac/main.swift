@@ -277,6 +277,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             data["path"] = url.path
             message["data"] = data
         }
+        if method == "score.export" {
+            // 编曲导出 MIDI 或乐谱 JSON，扩展名由界面指定，写文件交给本地服务。
+            let format = (data["format"] as? String) == "json" ? "json" : "mid"
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [UTType(filenameExtension: format) ?? .data]
+            panel.nameFieldStringValue = (data["name"] as? String ?? "score") + "." + format
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            data["path"] = url.path
+            message["data"] = data
+        }
+        if method == "score.import" {
+            let panel = NSOpenPanel()
+            panel.allowedContentTypes = ["mid", "midi", "json"].compactMap { UTType(filenameExtension: $0) }
+            panel.allowsMultipleSelection = false
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": NSNull()] }
+            data["path"] = url.path
+            message["data"] = data
+        }
         if method == "project.import" {
             let panel = NSOpenPanel()
             panel.allowedContentTypes = [UTType(filenameExtension: "yovoice") ?? .data]

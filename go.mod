@@ -2,7 +2,10 @@ module yovoice
 
 go 1.26.0
 
-require github.com/modelcontextprotocol/go-sdk v1.8.0
+require (
+	github.com/modelcontextprotocol/go-sdk v1.8.0
+	github.com/sinshu/go-meltysynth v0.0.0-20230205031334-05d311382fc4
+)
 
 require (
 	github.com/google/jsonschema-go v0.4.3 // indirect

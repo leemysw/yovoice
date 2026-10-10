@@ -76,6 +76,19 @@ Progress is written to stderr and results to stdout as JSON:
 
 Failures return an error on stderr and exit code 1; Ctrl-C returns 130.
 
+## Score
+
+Render music from score JSON or MIDI. It needs the sound font but not the inference engine:
+
+```sh
+yovoice models download musescore-general-sf2
+yovoice score render score.json --output music.wav --stems stems/
+yovoice score midi score.json --output score.mid
+yovoice score from-midi song.mid --output score.json
+```
+
+See [Score](score.md) for the format, mixing defaults and MIDI import rules.
+
 ## Data directory
 
 The default directory is `~/.yovoice`. Only one app, CLI command, or server can use a directory at a time. Quit the app, or use a separate directory with `--data-dir DIR` on every command:

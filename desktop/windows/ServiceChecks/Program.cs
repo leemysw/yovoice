@@ -12,6 +12,12 @@ foreach (var json in new[] { "\"旧版错误\"", "{}", "42", "null", """{"code":
     using var document = JsonDocument.Parse(json);
     Require(new ServiceCallException(document.RootElement).Message.Length > 0);
 }
+// 界面转发的作品带本地时区时间戳，“+08:00”须原样送达 Go 服务，否则保存失败（#25）。
+using (var page = JsonDocument.Parse("""{"id":"test","title":"清晨","createdAt":"2026-10-10T11:17:28.2505085+08:00"}"""))
+{
+    string body = ServiceWire.Request("draft.save", page.RootElement);
+    Require(body.Contains("+08:00") && !body.Contains("\\u") && JsonDocument.Parse(body).RootElement.GetProperty("data").GetProperty("title").GetString() == "清晨");
+}
 string folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
 try
@@ -32,4 +38,4 @@ try
     try { DraftRecovery.Save(Path.Combine(folder, "missing", "backup.json"), draft); throw new Exception("备份失败必须阻止退出。"); } catch (IOException) { }
 }
 finally { Directory.Delete(folder, true); }
-Console.WriteLine("结构化错误保真、错误提示、恢复备份和备份失败保护检查通过。");
+Console.WriteLine("请求时间戳保真、结构化错误保真、错误提示、恢复备份和备份失败保护检查通过。");

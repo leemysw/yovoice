@@ -51,3 +51,39 @@ func TestCallDecodesAndLogsFailures(t *testing.T) {
 		t.Fatal("应拒绝无法解析的音频", asset)
 	}
 }
+
+// 宿主选好路径后转发 score.export / score.import：MIDI 与乐谱 JSON 往返一致；覆盖已有文件由保存对话框确认。
+func TestScoreFilesRoundTrip(t *testing.T) {
+	w, err := workbench.New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	s := schema.Score{Tempo: 90, TimeSignature: []int{3, 4}, Tracks: []schema.ScoreTrack{{ID: "p", Name: "钢琴", Program: 0, Notes: []schema.ScoreNote{{Bar: 1, Beat: 1, Pitch: 60, Length: 1, Velocity: 80}, {Bar: 2, Beat: 2.5, Pitch: 64, Length: .5, Velocity: 70}}}}}
+	dir := t.TempDir()
+	for _, name := range []string{"曲子.mid", "曲子.json"} {
+		path := filepath.Join(dir, name)
+		raw, err := json.Marshal(map[string]any{"path": path, "score": s})
+		must(t, err)
+		if _, err = Call(context.Background(), w, "score.export", raw); err != nil {
+			t.Fatal(name, err)
+		}
+		if _, err = Call(context.Background(), w, "score.export", raw); err != nil {
+			t.Fatal("再次导出应替换原文件", name, err)
+		}
+		result, err := Call(context.Background(), w, "score.import", json.RawMessage(`{"path":`+strconvQuote(path)+`}`))
+		if err != nil {
+			t.Fatal(name, err)
+		}
+		back := result.(schema.Score)
+		if back.Tempo != 90 || len(back.Tracks) != 1 || len(back.Tracks[0].Notes) != 2 || back.Tracks[0].Notes[1].Beat != 2.5 {
+			t.Fatalf("%s 往返不一致：%+v", name, back)
+		}
+	}
+	var callErr *msg.CallError
+	bad := filepath.Join(dir, "坏.mid")
+	must(t, os.WriteFile(bad, []byte("MThd broken"), 0600))
+	if _, err = Call(context.Background(), w, "score.import", json.RawMessage(`{"path":`+strconvQuote(bad)+`}`)); !errors.As(err, &callErr) || callErr.Code != msg.ErrMidiInvalid {
+		t.Fatal("损坏的 MIDI 应返回 midiInvalid", err)
+	}
+}
+
+func strconvQuote(s string) string { b, _ := json.Marshal(s); return string(b) }

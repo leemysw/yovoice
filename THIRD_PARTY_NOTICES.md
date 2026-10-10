@@ -15,6 +15,15 @@
 - [Qwen3-TTS 12Hz 1.7B Base](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base): Apache-2.0.
 - Weights are downloaded separately from audio.cpp GGUF repositories and are not included in yovoice installers.
 
+## ACE-Step
+
+- [ACE-Step 1.5](https://huggingface.co/ACE-Step/Ace-Step1.5)：MIT，音乐生成模型。权重从 audio.cpp GGUF 仓库单独下载，不随应用安装包分发。
+
+## 编曲
+
+- [go-meltysynth](https://github.com/sinshu/go-meltysynth)（提交 05d311382fc4）：MIT，Copyright (C) 2021–2022 Nobuaki Tanaka，纯 Go SoundFont 合成器，编译进 yovoice 服务与 CLI，见[原始许可](https://github.com/sinshu/go-meltysynth/blob/main/LICENSE.txt)。
+- [MuseScore General](https://ftp.osuosl.org/pub/musescore/soundfont/MuseScore_General/) 0.2：MIT，Copyright (c) S. Christian Collins，General MIDI 音色库。用户在设置或 CLI 中单独下载，不随应用安装包分发。
+
 ## Kokoro 与发音资源
 
 - [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 和 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)：Apache-2.0，模型单独导入，不随应用安装包分发。

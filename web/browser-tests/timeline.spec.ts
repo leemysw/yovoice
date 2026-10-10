@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
+import { seedState } from './seed';
 import { emptyState, type AudioTimeline } from '../src/shared/workbench';
 import { Timeline, TimelineHistory } from '../src/features/media/timeline';
 
@@ -82,8 +83,7 @@ test('多轨分割、移动、静音播放、调整高度和重载', async ({ pa
   const draft = state.drafts[0];
   state.history = ['片段 A', '片段 B'].map((title, index) => ({ id: String(index + 1).repeat(32), title, fileName: 'timeline.wav', createdAt: '2026-09-27T10:00:00Z', duration: 2, settings: draft }));
   await page.goto('/');
-  await page.evaluate(async state => {
-    localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
+  await page.evaluate(async () => {
     const data = new ArrayBuffer(64044); const view = new DataView(data);
     const text = (at: number, text: string) => [...text].forEach((c, i) => view.setUint8(at + i, c.charCodeAt(0)));
     text(0, 'RIFF'); view.setUint32(4, 64036, true); text(8, 'WAVEfmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, 16000, true); view.setUint32(28, 32000, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, 64000, true);
@@ -94,8 +94,8 @@ test('多轨分割、移动、静音播放、调整高度和重载', async ({ pa
       req.onerror = () => reject(req.error);
       req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([data], { type: 'audio/wav' }), 'timeline.wav'); tx.oncomplete = () => { db.close(); resolve(); }; };
     });
-  }, state);
-  await page.reload();
+  });
+  await seedState(page, state); await page.reload();
   const playerBefore = await page.locator('.player').boundingBox();
   expect(playerBefore!.height).toBe(148);
   const settingsBox = (await page.getByTestId('nav-settings').boundingBox())!;
@@ -211,8 +211,7 @@ test('分段音轨自动呈现、裁剪和删除持久化、按编辑结果导�
   draft.subtitles = { speakers: [{ id: 'speaker-1', sourceName: '旁白' }, { id: 'speaker-2', sourceName: '人物' }], cues: [{ id: 'cue-1', speakerId: 'speaker-1', start: 0, end: 2000, text: '第一句' }, { id: 'cue-2', speakerId: 'speaker-2', start: 2000, end: 4000, text: '第二句' }] };
   state.history = [2, 1].map(index => ({ id: String(index).repeat(32), title: index === 1 ? '第一句' : '第二句', fileName: 'segments.wav', createdAt: `2026-09-27T10:00:0${index}Z`, duration: 2, settings: { ...draft, subtitles: undefined, text: index === 1 ? '第一句' : '第二句' }, segment: { batchId: '3'.repeat(32), index: index - 1, cueId: `cue-${index}`, speakerId: `speaker-${index}`, speakerName: index === 1 ? '旁白' : '人物' } }));
   await page.goto('/');
-  await page.evaluate(async state => {
-    localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
+  await page.evaluate(async () => {
     const modulePath = '/src/shared/lib/sound.ts'; const { encodeWav } = await import(/* @vite-ignore */ modulePath);
     const audio = new AudioBuffer({ length: 48000, sampleRate: 24000, numberOfChannels: 1 }); audio.getChannelData(0).fill(0.25);
     const blob = encodeWav(audio);
@@ -220,8 +219,8 @@ test('分段音轨自动呈现、裁剪和删除持久化、按编辑结果导�
       const req = indexedDB.open('voice-workbench-audio', 1); req.onupgradeneeded = () => req.result.createObjectStore('audio'); req.onerror = () => reject(req.error);
       req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(blob, 'segments.wav'); tx.oncomplete = () => { db.close(); resolve(); }; };
     });
-  }, state);
-  await page.reload();
+  });
+  await seedState(page, state); await page.reload();
   await expect(page.locator('.multitrack-clip')).toHaveCount(2);
   await page.locator('.multitrack-clip').first().click();
   await expect(page.getByRole('button', { name: '重新生成片段', exact: true })).toBeEnabled();

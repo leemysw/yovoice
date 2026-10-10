@@ -23,6 +23,9 @@ type SynthesisSettings struct {
 	Speaker           string                    `json:"speaker,omitempty"`
 	SynthesisLanguage string                    `json:"synthesisLanguage,omitempty"`
 	OmniSpeed         float64                   `json:"omniSpeed,omitempty"`
+	// 音乐作品中 Text 是风格描述，歌词单独保存；纯音乐时保留歌词但不演唱。
+	Lyrics       string `json:"lyrics,omitempty"`
+	Instrumental bool   `json:"instrumental,omitempty"`
 
 	VoiceMode         string    `json:"voiceMode"`
 	VoxMode           string    `json:"voxMode"`
@@ -128,6 +131,8 @@ type Draft struct {
 	Text        string            `json:"text"`
 	Subtitles   *SubtitleDocument `json:"subtitles,omitempty"`
 	Timeline    *AudioTimeline    `json:"timeline,omitempty"`
+	// Score 仅编曲作品使用，ModelID 指向渲染所用的音色库。
+	Score *Score `json:"score,omitempty"`
 }
 
 func DefaultDraft() Draft {
@@ -240,7 +245,14 @@ type State struct {
 	RuntimePath    *string            `json:"runtimePath"`
 	RuntimeBackend *string            `json:"runtimeBackend"`
 	RuntimeVersion *string            `json:"runtimeVersion"`
-	Activity       *Activity          `json:"activity"`
+	// Runtimes 按后端记录下载安装的内核，切换计算设备后再切回时直接复用。
+	Runtimes map[string]InstalledRuntime `json:"runtimes,omitempty"`
+	Activity *Activity                   `json:"activity"`
+}
+
+type InstalledRuntime struct {
+	Path    string `json:"path"`
+	Version string `json:"version"`
 }
 
 func DefaultState() State {

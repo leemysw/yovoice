@@ -77,7 +77,7 @@ public sealed class LocalService : IDisposable
     public async Task<JsonElement> CallAsync(string method, object data)
     {
         using var request = Request(HttpMethod.Post, "api/call");
-        request.Content = new StringContent(JsonSerializer.Serialize(new { id = Guid.NewGuid().ToString(), method, data }), Encoding.UTF8, "application/json");
+        request.Content = new StringContent(ServiceWire.Request(method, data), Encoding.UTF8, "application/json");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(stopped.Token);
         timeout.CancelAfter(TimeSpan.FromSeconds(120));
         using var response = await client.SendAsync(request, timeout.Token);

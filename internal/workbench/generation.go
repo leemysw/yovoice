@@ -80,6 +80,9 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 			diag.Log(w.Store.Root, "generation.rejected", "project_id", d.ID, "error", diag.Error(err))
 		}
 	}()
+	if d.Kind == "score" {
+		return w.startScore(d, saveDraft)
+	}
 	d.EnsureCueIDs()
 	original := d
 	if cueID != "" {
@@ -121,6 +124,11 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 
 	if !RuntimeReady(s) {
 		return nil, msg.Err(msg.ErrRuntimeRequired, nil)
+	}
+	for _, part := range parts {
+		if e = modelEngineReady(s, part.model.ID); e != nil {
+			return nil, e
+		}
 	}
 	if saveDraft {
 		if e = w.saveDraft(original); e != nil {

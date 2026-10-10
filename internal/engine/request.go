@@ -14,6 +14,23 @@ func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error)
 		return nil, e
 	}
 	m, _ := catalog.Lookup(d.ModelID)
+	if m.Family == "ace_step" {
+		o, _ := d.GenerationOptions(m.Family)
+		o["route"] = "text2music"
+		// ACE-Step 以 [Instrumental] 标记纯音乐；保存的歌词不随开关丢失。
+		o["lyrics"] = strings.TrimSpace(d.Lyrics)
+		if d.Instrumental {
+			o["lyrics"] = "[Instrumental]"
+		}
+		if d.Seed != nil {
+			o["seed"] = *d.Seed
+		}
+		r := map[string]any{"text": strings.TrimSpace(d.Text), "options": o}
+		if d.SynthesisLanguage != "" {
+			r["language"] = d.SynthesisLanguage
+		}
+		return map[string]any{"model": "index", "request": r}, nil
+	}
 	if m.Family == "kokoro_tts" {
 		o, _ := d.GenerationOptions(m.Family)
 		if _, ok := o["text_chunk_size"]; !ok {

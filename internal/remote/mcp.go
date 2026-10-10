@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"yovoice/internal/catalog"
+	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -95,6 +96,28 @@ func (a *API) newMCPHandler() http.Handler {
 		}
 		job, err := a.submitJob(in.RequestID, d)
 		return nil, job, err
+	})
+	mcp.AddTool(server, &mcp.Tool{Name: "render_score", Description: "把编曲乐谱渲染为混音 WAV，返回 id、duration 和 downloadPath。乐谱以小节和拍为单位：tempo、timeSignature、可选 sections（段落及变速），tracks 每个声部含 program（GM 音色号）或 drums、role（melody/piano/strings/bass/drums/pad/arp/other，决定默认电平）、notes（bar、beat 从 1 开始、pitch 为 MIDI 音高、length 以拍计、velocity），可选 level、pan、reverb、humanize、dynamics。需先安装音色库 musescore-general-sf2"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
+		Title string       `json:"title,omitempty" jsonschema:"作品标题"`
+		Score schema.Score `json:"score" jsonschema:"乐谱"`
+	}) (*mcp.CallToolResult, any, error) {
+		if !a.busy.TryLock() {
+			return nil, nil, fmt.Errorf("推理服务繁忙，请稍后重试")
+		}
+		defer a.busy.Unlock()
+		d := schema.DefaultDraft()
+		d.Kind, d.ModelID, d.Title, d.Score = "score", "musescore-general-sf2", in.Title, &in.Score
+		if d.Title == "" {
+			d.Title = "API 编曲"
+		}
+		if err := schema.Validate(d); err != nil {
+			return nil, nil, err
+		}
+		g, err := a.generateAudio(ctx, d)
+		if err != nil {
+			return nil, nil, err
+		}
+		return nil, map[string]any{"id": g.ID, "duration": g.Duration, "downloadPath": "/v1/audio/" + g.ID}, nil
 	})
 	for _, name := range []string{"get_generation", "cancel_generation"} {
 		mcp.AddTool(server, &mcp.Tool{Name: name, Description: map[string]string{"get_generation": "按 requestId 查询任务；建议每2–5秒查询，completed 后使用 downloadPath 下载", "cancel_generation": "按 requestId 取消任务；取消后查询至终态，终态任务保持不变"}[name]}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {

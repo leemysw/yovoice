@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -39,11 +40,15 @@ func (w *Workbench) removeStale() {
 	w.removeStaleRuntimes()
 }
 
-// removeStaleRuntimes 删除当前运行时以外的安装目录。
+// removeStaleRuntimes 删除当前运行时与各后端已登记内核以外的安装目录。
 func (w *Workbench) removeStaleRuntimes() {
-	current := ""
-	if path := w.Store.Read().RuntimePath; path != nil {
-		current = filepath.Clean(*path)
+	s := w.Store.Read()
+	used := []string{}
+	if s.RuntimePath != nil {
+		used = append(used, filepath.Clean(*s.RuntimePath))
+	}
+	for _, r := range s.Runtimes {
+		used = append(used, filepath.Clean(r.Path))
 	}
 	dir := filepath.Join(w.Store.Root, "runtime")
 	entries, err := os.ReadDir(dir)
@@ -52,7 +57,7 @@ func (w *Workbench) removeStaleRuntimes() {
 	}
 	for _, entry := range entries {
 		path := filepath.Join(dir, entry.Name())
-		if !entry.IsDir() || !runtimeDir.MatchString(entry.Name()) || current == path || strings.HasPrefix(current, path+string(filepath.Separator)) {
+		if !entry.IsDir() || !runtimeDir.MatchString(entry.Name()) || slices.ContainsFunc(used, func(p string) bool { return p == path || strings.HasPrefix(p, path+string(filepath.Separator)) }) {
 			continue
 		}
 		_ = os.RemoveAll(path)

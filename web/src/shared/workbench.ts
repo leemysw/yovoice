@@ -3,6 +3,7 @@ import { draftCopy } from './i18n/draft-copy';
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface SynthesisSettings {
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
+  lyrics?: string; instrumental?: boolean;
   voiceMode?: 'design' | 'clone';
   voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
   modelId: string; voiceId: string | null;
@@ -20,13 +21,22 @@ export interface AudioLane { id: string; name: string; muted: boolean; solo?: bo
 export interface AudioAsset { id: string; name: string; fileName: string; duration: number }
 export interface AudioMarker { id: string; time: number; name: string }
 export interface AudioTimeline { markers?: AudioMarker[]; regenerateMode?: 'ripple' | 'preserve'; assets?: AudioAsset[]; acceptedGenerations?: string[]; tracks: AudioLane[] }
-export type ProjectKind = 'text' | 'story' | 'subtitle';
-export interface Draft extends SynthesisSettings { performance?: CharacterPerformance; id: string; title: string; text: string; kind?: ProjectKind; characterId?: string; createdAt?: string; updatedAt?: string; subtitles?: SubtitleDocument; timeline?: AudioTimeline }
+// 编曲乐谱与 Go 的 schema.Score 一致：位置以小节和拍计，拍从 1 开始，音高为 MIDI 音高。
+export interface ScoreNote { bar: number; beat: number; pitch: number; length: number; velocity: number }
+export interface ScoreRamp { start: number; end: number; from: number; to: number }
+export interface Humanize { velocity?: number; timingMs?: number }
+export type ScoreRole = 'melody' | 'piano' | 'strings' | 'bass' | 'drums' | 'pad' | 'arp' | 'other';
+export interface ScoreTrack { id: string; name: string; role?: ScoreRole; program: number; drums?: boolean; level?: number; pan?: number; reverb?: number; mute?: boolean; humanize?: Humanize; dynamics?: ScoreRamp[]; notes: ScoreNote[] }
+export interface ScoreSection { name: string; start: number; end: number; tempo?: number }
+export interface Score { tempo: number; timeSignature: number[]; key?: string; sections?: ScoreSection[]; tracks: ScoreTrack[] }
+export type ProjectKind = 'text' | 'story' | 'subtitle' | 'music' | 'score';
+export interface Draft extends SynthesisSettings { performance?: CharacterPerformance; id: string; title: string; text: string; kind?: ProjectKind; characterId?: string; createdAt?: string; updatedAt?: string; subtitles?: SubtitleDocument; timeline?: AudioTimeline; score?: Score }
+export type ProjectPage = 'text' | 'story' | 'music' | 'score';
 // 旧字幕作品沿用原始数据，统一归入故事。
-export const projectKind = (draft: Draft): 'text' | 'story' => draft.subtitles || draft.kind === 'story' || draft.kind === 'subtitle' ? 'story' : 'text';
+export const projectKind = (draft: Draft): ProjectPage => draft.kind === 'music' || draft.kind === 'score' ? draft.kind : draft.subtitles || draft.kind === 'story' || draft.kind === 'subtitle' ? 'story' : 'text';
 export interface CharacterPreview { id: string; fileName: string; duration: number; settings: SynthesisSettings; text: string }
 export interface Character { performances?: CharacterPerformance[]; id: string; name: string; settings: SynthesisSettings; demoText: string; preview?: CharacterPreview; createdAt?: string; updatedAt?: string }
-export const synthesisSettings = ({ performance: _performance, id: _id, title: _title, text: _text, kind: _kind, characterId: _characterId, createdAt: _createdAt, updatedAt: _updatedAt, subtitles: _subtitles, timeline: _timeline, ...settings }: Draft): SynthesisSettings => structuredClone(settings);
+export const synthesisSettings = ({ performance: _performance, id: _id, title: _title, text: _text, kind: _kind, characterId: _characterId, createdAt: _createdAt, updatedAt: _updatedAt, subtitles: _subtitles, timeline: _timeline, score: _score, ...settings }: Draft): SynthesisSettings => structuredClone(settings);
 // 参数键的序列化顺序不影响试听是否过期。
 export const stableJSON = (value: unknown): string => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
 // 与 Go 的可选字段默认值对齐，保留 seed=0 与自动随机种子的区别。
@@ -46,7 +56,7 @@ export function cueAudioStatus(draft: Draft, history: Generation[], cue: Subtitl
   return generation.settings.text === cue.text && generation.segment?.speakerId === cue.speakerId && stableJSON(comparableSettings(synthesisSettings(generation.settings))) === stableJSON(comparableSettings(cueSettings(draft, cue))) ? 'ready' : 'stale';
 }
 export interface Voice { referenceText?: string; source?: string; sourceGenerationId?: string; id: string; name: string; fileName: string; duration: number }
-export interface ModelPackage { voices?: string[]; variant?: string; task?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
+export interface ModelPackage { voices?: string[]; variant?: string; task?: string; engineMinimum?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
 export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface GenerationSegment { cueId: string; speakerId: string; speakerName: string; batchId: string; index: number; targetClipId?: string; placement?: 'ripple' | 'preserve' }
 export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft }
@@ -74,7 +84,7 @@ export interface Activity {
 export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean }
 export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
-  preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; activity: Activity | null;
+  preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null;
 }
 
 export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId = 'index-2.5-q8'): Draft => {
@@ -94,7 +104,7 @@ export const emptyState = (): State => ({ characters: [], previews: [], drafts: 
 // version 是推荐安装的 audio.cpp 版本，minimum 是当前应用可用的最低版本。
 export interface EngineInfo { version: string; minimum: string }
 // 服务未报告版本要求（如浏览器预览）时不做限制。
-const versionAtLeast = (value: string | null, minimum: string) => {
+export const versionAtLeast = (value: string | null, minimum: string) => {
   if (!minimum) return true;
   const parse = (v: string | null) => /^v(\d+)\.(\d+)\.(\d+)$/.exec(v ?? '')?.slice(1).map(Number);
   const a = parse(value), b = parse(minimum);
@@ -109,14 +119,21 @@ export const runtimeStatus = (state: State, engine: EngineInfo): RuntimeStatus =
     : !versionAtLeast(state.runtimeVersion, engine.minimum) ? 'outdated'
       : versionAtLeast(state.runtimeVersion, engine.version) ? 'ready' : 'upgradable';
 export const runtimeUsable = (status: RuntimeStatus) => status === 'ready' || status === 'upgradable';
+// 部分模型（如音乐）需要比应用最低版本更新的内核。
+export const modelEngineReady = (state: State, model?: ModelPackage) => !model?.engineMinimum || versionAtLeast(state.runtimeVersion, model.engineMinimum);
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }
 
 export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
+// 音乐模型只用于音乐作品，不出现在配音和角色的模型列表里。
+export const isMusicModel = (id: string) => id.startsWith('ace-step-');
+// 音色库只供编曲作品渲染使用。
+export const isSoundFont = (id: string) => id.endsWith('-sf2');
+export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id);
 export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
 export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || id.startsWith('qwen3-tts-');
-export const requiresVoice = (draft: Draft) => isKokoroModel(draft.modelId) ? false : draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
+export const requiresVoice = (draft: Draft) => isKokoroModel(draft.modelId) || !isVoiceModel(draft.modelId) ? false : draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
 
 // 旧字幕的身份与 Go 保持一致，编辑后不再依赖数组位置。
 export function withCueIds(draft: Draft): Draft {

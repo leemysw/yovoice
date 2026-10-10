@@ -53,6 +53,7 @@ Change the address and token, and use `https://` when TLS is enabled. Authentica
 | `get_generation` | Query a task by `requestId` |
 | `cancel_generation` | Request cancellation by `requestId` |
 | `generate` | Synchronous generation for compatible clients |
+| `render_score` | Render a `score` (with optional `title`) to a mixed WAV synchronously; returns `id`, `duration`, `downloadPath`. See [Score](score.md) for the format |
 
 Prefer `submit_generation` for long-running tasks. Generate a random ID with `openssl rand -hex 16` and save it before submitting:
 

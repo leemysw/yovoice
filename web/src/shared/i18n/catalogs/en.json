@@ -2026,5 +2026,314 @@
   },
   "@yovoice.performance.rename": {
     "defaultMessage": "Rename performance"
+  },
+  "@yovoice.error.musicStyle": {
+    "defaultMessage": "Describe the style in 1–512 characters."
+  },
+  "@yovoice.error.musicLyrics": {
+    "defaultMessage": "Lyrics can be up to 4000 characters."
+  },
+  "@yovoice.error.musicParams": {
+    "defaultMessage": "Duration must be 10–300 seconds and tempo 30–300 BPM."
+  },
+  "@yovoice.project.music": {
+    "defaultMessage": "Music generation"
+  },
+  "@yovoice.project.new.music": {
+    "defaultMessage": "New song"
+  },
+  "@yovoice.music.style": {
+    "defaultMessage": "Style"
+  },
+  "@yovoice.music.example": {
+    "defaultMessage": "Try an example"
+  },
+  "@yovoice.music.stylePlaceholder": {
+    "defaultMessage": "Describe the sound, e.g. city pop, warm synths, chill, female vocals"
+  },
+  "@yovoice.music.tags": {
+    "defaultMessage": "Style tags"
+  },
+  "@yovoice.music.tagGroup.genre": {
+    "defaultMessage": "Genre"
+  },
+  "@yovoice.music.tagGroup.mood": {
+    "defaultMessage": "Mood"
+  },
+  "@yovoice.music.tagGroup.instrument": {
+    "defaultMessage": "Instruments"
+  },
+  "@yovoice.music.tagGroup.vocal": {
+    "defaultMessage": "Vocals"
+  },
+  "@yovoice.music.lyrics": {
+    "defaultMessage": "Lyrics"
+  },
+  "@yovoice.music.insertSection": {
+    "defaultMessage": "Insert section marker"
+  },
+  "@yovoice.music.instrumental": {
+    "defaultMessage": "Instrumental"
+  },
+  "@yovoice.music.instrumentalHint": {
+    "defaultMessage": "Instrumental tracks ignore the lyrics and follow the style only. Your lyrics are kept; turn this off to keep editing them."
+  },
+  "@yovoice.music.lyricsPlaceholder": {
+    "defaultMessage": "Write lyrics and mark sections with [verse], [chorus] and so on. Leave empty to let the model hum along."
+  },
+  "@yovoice.music.takes": {
+    "defaultMessage": "Versions"
+  },
+  "@yovoice.music.takeCount": {
+    "defaultMessage": "{count} versions"
+  },
+  "@yovoice.music.take": {
+    "defaultMessage": "Version {n}"
+  },
+  "@yovoice.music.noTakes": {
+    "defaultMessage": "Each generation becomes a version here, so you can compare and keep the best one."
+  },
+  "@yovoice.music.generate": {
+    "defaultMessage": "Generate song"
+  },
+  "@yovoice.music.generateHint": {
+    "defaultMessage": "The first song loads the model and takes longer."
+  },
+  "@yovoice.music.modelSize": {
+    "defaultMessage": "Not installed · {size}"
+  },
+  "@yovoice.music.duration": {
+    "defaultMessage": "Duration"
+  },
+  "@yovoice.music.auto": {
+    "defaultMessage": "Auto"
+  },
+  "@yovoice.music.durationAuto": {
+    "defaultMessage": "The model plans the length from the lyrics."
+  },
+  "@yovoice.music.durationFixed": {
+    "defaultMessage": "Longer songs take more time and memory."
+  },
+  "@yovoice.music.language": {
+    "defaultMessage": "Vocal language"
+  },
+  "@yovoice.music.languageName.zh": {
+    "defaultMessage": "Mandarin"
+  },
+  "@yovoice.music.languageName.en": {
+    "defaultMessage": "English"
+  },
+  "@yovoice.music.languageName.yue": {
+    "defaultMessage": "Cantonese"
+  },
+  "@yovoice.music.languageName.ja": {
+    "defaultMessage": "Japanese"
+  },
+  "@yovoice.music.languageName.ko": {
+    "defaultMessage": "Korean"
+  },
+  "@yovoice.music.languageName.es": {
+    "defaultMessage": "Spanish"
+  },
+  "@yovoice.music.languageName.fr": {
+    "defaultMessage": "French"
+  },
+  "@yovoice.music.languageName.de": {
+    "defaultMessage": "German"
+  },
+  "@yovoice.music.languageName.pt": {
+    "defaultMessage": "Portuguese"
+  },
+  "@yovoice.music.languageName.ru": {
+    "defaultMessage": "Russian"
+  },
+  "@yovoice.music.languageName.it": {
+    "defaultMessage": "Italian"
+  },
+  "@yovoice.music.bpm": {
+    "defaultMessage": "Tempo (BPM)"
+  },
+  "@yovoice.music.keyscale": {
+    "defaultMessage": "Key"
+  },
+  "@yovoice.music.timesignature": {
+    "defaultMessage": "Time signature"
+  },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Sampling steps"
+  },
+  "@yovoice.music.advancedHint": {
+    "defaultMessage": "Leave these on Auto to let the model choose; it usually sounds more natural."
+  },
+  "@yovoice.error.engineUpgradeRequired": {
+    "defaultMessage": "This model needs inference engine {version} or later. Update the engine in Settings."
+  },
+  "@yovoice.music.engineRequired": {
+    "defaultMessage": "Music generation needs inference engine {version} or later."
+  },
+  "@yovoice.music.updateEngine": {
+    "defaultMessage": "Update engine"
+  },
+  "@yovoice.error.scoreInvalid": {
+    "defaultMessage": "The score is invalid: check tempo, meter, tracks and note positions (up to 512 bars, 32 tracks, 20,000 notes, 10 minutes)."
+  },
+  "@yovoice.error.midiInvalid": {
+    "defaultMessage": "This MIDI file can't be read. Use a standard type 0 or 1 MIDI file with notes."
+  },
+  "@yovoice.activity.rendering": {
+    "defaultMessage": "Rendering tracks ({done}/{total})"
+  },
+  "@yovoice.project.score": {
+    "defaultMessage": "Score"
+  },
+  "@yovoice.project.new.score": {
+    "defaultMessage": "New score"
+  },
+  "@yovoice.score.arrangement": {
+    "defaultMessage": "Arrangement"
+  },
+  "@yovoice.score.barCount": {
+    "defaultMessage": "{count} bars"
+  },
+  "@yovoice.score.bars": {
+    "defaultMessage": "Bars {start}–{end}"
+  },
+  "@yovoice.score.copyPrompt": {
+    "defaultMessage": "Copy Agent prompt"
+  },
+  "@yovoice.score.copyPromptHint": {
+    "defaultMessage": "Ask an AI Agent to write the score JSON, then import it here or render it with the CLI."
+  },
+  "@yovoice.score.promptCopied": {
+    "defaultMessage": "Copied"
+  },
+  "@yovoice.score.downloadSoundFont": {
+    "defaultMessage": "Download"
+  },
+  "@yovoice.score.drumKit": {
+    "defaultMessage": "Drum kit"
+  },
+  "@yovoice.score.duration": {
+    "defaultMessage": "Length {time}"
+  },
+  "@yovoice.score.empty": {
+    "defaultMessage": "Write each part as notes in bars and beats, then render a mixed track with stems. Import MIDI or a score written by an Agent, or start from the example."
+  },
+  "@yovoice.score.example": {
+    "defaultMessage": "Use example"
+  },
+  "@yovoice.score.export": {
+    "defaultMessage": "Export"
+  },
+  "@yovoice.score.exportMidi": {
+    "defaultMessage": "MIDI file (.mid)"
+  },
+  "@yovoice.score.exportJson": {
+    "defaultMessage": "Score JSON (.json)"
+  },
+  "@yovoice.score.file": {
+    "defaultMessage": "MIDI or score file"
+  },
+  "@yovoice.score.import": {
+    "defaultMessage": "Import MIDI or score"
+  },
+  "@yovoice.score.instrument": {
+    "defaultMessage": "Instrument"
+  },
+  "@yovoice.score.key": {
+    "defaultMessage": "Key"
+  },
+  "@yovoice.score.keyPlaceholder": {
+    "defaultMessage": "e.g. D minor"
+  },
+  "@yovoice.score.level": {
+    "defaultMessage": "Level"
+  },
+  "@yovoice.score.levelOf": {
+    "defaultMessage": "Target level of {name}"
+  },
+  "@yovoice.score.meter": {
+    "defaultMessage": "Meter"
+  },
+  "@yovoice.score.noSections": {
+    "defaultMessage": "No sections. Add sections in the score to mark intro, build and outro."
+  },
+  "@yovoice.score.noteCount": {
+    "defaultMessage": "{count} notes"
+  },
+  "@yovoice.score.play": {
+    "defaultMessage": "Play"
+  },
+  "@yovoice.score.playTrack": {
+    "defaultMessage": "Play {name}"
+  },
+  "@yovoice.score.render": {
+    "defaultMessage": "Render music"
+  },
+  "@yovoice.score.renderHint": {
+    "defaultMessage": "Each track is rendered with the sound font, levelled by role and mixed. Export stems with the CLI's --stems option."
+  },
+  "@yovoice.score.rhythm": {
+    "defaultMessage": "Tempo and meter"
+  },
+  "@yovoice.score.roleColumn": {
+    "defaultMessage": "Role"
+  },
+  "@yovoice.score.rollLabel": {
+    "defaultMessage": "Overview of {tracks} tracks and {notes} notes"
+  },
+  "@yovoice.score.sections": {
+    "defaultMessage": "Sections"
+  },
+  "@yovoice.score.soundFont": {
+    "defaultMessage": "Sound font"
+  },
+  "@yovoice.score.soundFontRequired": {
+    "defaultMessage": "Rendering needs the sound font ({size})."
+  },
+  "@yovoice.score.tempo": {
+    "defaultMessage": "Tempo (BPM)"
+  },
+  "@yovoice.score.trackColumn": {
+    "defaultMessage": "Track"
+  },
+  "@yovoice.score.trackHint": {
+    "defaultMessage": "Lead parts sit forward; pads and arpeggios sit back."
+  },
+  "@yovoice.score.trackName": {
+    "defaultMessage": "Track {n}"
+  },
+  "@yovoice.score.tracks": {
+    "defaultMessage": "Tracks"
+  },
+  "@yovoice.score.role.melody": {
+    "defaultMessage": "Melody"
+  },
+  "@yovoice.score.role.piano": {
+    "defaultMessage": "Piano"
+  },
+  "@yovoice.score.role.strings": {
+    "defaultMessage": "Strings"
+  },
+  "@yovoice.score.role.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.score.role.drums": {
+    "defaultMessage": "Drums"
+  },
+  "@yovoice.score.role.pad": {
+    "defaultMessage": "Pad"
+  },
+  "@yovoice.score.role.arp": {
+    "defaultMessage": "Arpeggio"
+  },
+  "@yovoice.score.role.other": {
+    "defaultMessage": "Other"
+  },
+  "@yovoice.settings.modelDesc.music": {
+    "defaultMessage": "Generates songs and instrumentals from a style description and lyrics."
+  },
+  "@yovoice.settings.modelDesc.soundfont": {
+    "defaultMessage": "General MIDI sound font for rendering scores, with 128 instruments and drum kits."
   }
 }

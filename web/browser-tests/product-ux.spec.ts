@@ -2,11 +2,11 @@ import { openProjectHistory } from './project-actions';
 import { test, expect } from '@playwright/test';
 import { emptyState, synthesisSettings } from '../src/shared/workbench';
 
-test('新建两种作品、取消导入、卡片菜单与重命名独立保存', async ({ page }, testInfo) => {
+test('新建四种作品、取消导入、卡片菜单与重命名独立保存', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByTestId('nav-new').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByRole('menuitem')).toHaveCount(2);
+  await expect(page.getByRole('menuitem')).toHaveCount(4);
   await page.screenshot({ path: testInfo.outputPath('new-project-menu.png'), animations: 'disabled' });
   await page.keyboard.press('Escape');
   await expect(page.getByRole('menu')).toHaveCount(0);

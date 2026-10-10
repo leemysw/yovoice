@@ -91,6 +91,21 @@ The default chunk size is 64 characters. Adjust it with `--option 'text_chunk_si
 
 Kokoro does not support voice cloning or text-guided emotion control. Keep the CLI package's `tools/` directory intact. Generation works offline after the engine and model are installed. Full multilingual models may take longer to load the first time.
 
+## Music generation
+
+Music projects in the desktop app use ACE-Step 1.5 Turbo (`ace-step-1.5-turbo-bf16`, about 10.1 GB) and need inference engine v0.9.1 or later.
+
+- **Style**: a short description plus tags such as `city pop, warm synths, chill, female vocals`, up to 512 characters.
+- **Lyrics**: mark sections with `[verse]`, `[chorus]`, `[bridge]` and so on, up to 4000 characters. Turn on Instrumental to generate music without vocals; your lyrics are kept.
+- **Duration and language**: choose Auto or 10–300 seconds, and a vocal language that matches the lyrics.
+- **Arrangement**: tempo (30–300 BPM), key and time signature are planned by the model unless you set them.
+
+Upstream reports that a fully quantized Q8 ACE-Step package makes the planner produce a different song, so only the BF16 package is offered. Continuation, covers, repainting and stem extraction are not available yet.
+
+## Score sound font
+
+Score projects and `yovoice score render` use the MuseScore General sound font (`musescore-general-sf2`, SF2 · about 216 MB) with all 128 General MIDI instruments and drum kits; no inference engine is needed. See [Score](score.md).
+
 ## Licenses
 
 OmniVoice weights are licensed under CC-BY-NC for non-commercial use. IndexTTS has a separate [model license](../web/public/model-license.txt). Check the model publisher's license before using generated speech commercially.

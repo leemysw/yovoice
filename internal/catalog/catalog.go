@@ -14,18 +14,23 @@ import (
 const Revision = "6d5436fc85f7a20c2e9f4e472b7f3a532f686444"
 
 type ModelPackage struct {
-	Revision   string   `json:"revision,omitempty"`
-	Voices     []string `json:"voices,omitempty"`
-	Variant    string   `json:"variant,omitempty"`
-	Task       string   `json:"task,omitempty"`
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Family     string   `json:"family"`
-	Version    string   `json:"version"`
-	Precision  string   `json:"precision"`
-	RemotePath string   `json:"remotePath"`
-	Size       int64    `json:"size"`
-	SHA256     string   `json:"sha256"`
+	Revision string `json:"revision,omitempty"`
+	// Repo 为空时来自 audio.cpp 的模型仓库；音色库等其他资源写明 Hugging Face 仓库路径，
+	// ModelScope 没有镜像时改用 hf-mirror。
+	Repo string `json:"repo,omitempty"`
+	// EngineMinimum 是该模型需要的最低内核版本，为空时只要求应用的最低版本。
+	EngineMinimum string   `json:"engineMinimum,omitempty"`
+	Voices        []string `json:"voices,omitempty"`
+	Variant       string   `json:"variant,omitempty"`
+	Task          string   `json:"task,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Family        string   `json:"family"`
+	Version       string   `json:"version"`
+	Precision     string   `json:"precision"`
+	RemotePath    string   `json:"remotePath"`
+	Size          int64    `json:"size"`
+	SHA256        string   `json:"sha256"`
 }
 
 //go:embed catalog.json
@@ -108,6 +113,15 @@ func (m ModelPackage) URL(source string) (string, error) {
 	revision := m.Revision
 	if revision == "" {
 		revision = Revision
+	}
+	if m.Repo != "" {
+		switch source {
+		case "huggingface":
+			return "https://huggingface.co/" + m.Repo + "/resolve/" + revision + "/" + m.RemotePath, nil
+		case "mirror", "modelscope":
+			return "https://hf-mirror.com/" + m.Repo + "/resolve/" + revision + "/" + m.RemotePath, nil
+		}
+		return "", msg.Err(msg.ErrDownloadSource, nil)
 	}
 	switch source {
 	case "huggingface":
