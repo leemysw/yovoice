@@ -1,6 +1,6 @@
 import { PlaybackToolbar, TrackZoom } from './playback-toolbar';
 import { formatNotice } from '../../shared/i18n/format';
-import { useEffect, useLayoutEffect, useRef, useState, useReducer, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, useReducer, type PointerEvent as ReactPointerEvent } from 'react';
 import { Popover } from '@astryxdesign/core/Popover';
 import { Selector } from '../../shared/selector';
 import { AudioLevel } from './audio-level';
@@ -78,7 +78,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
   const fitExtent = Math.max(duration * 1.2 + 2, 10);
   const minZoom = 10 / fitExtent;
   const fitAll = () => { zoomAnchor.current = null; setExtent(fitExtent); setZoom(minZoom); if (scrollRef.current) scrollRef.current.scrollLeft = 0; };
-  useEffect(() => { if (duration > extent - 1) setExtent(Math.max(duration * 1.2 + 2, 10)); }, [duration]);
+  useEffect(() => { if (duration > extent - 1) setExtent(Math.max(duration * 1.2 + 2, 10)); }, [duration, extent]);
   const zoomTo = (next: number, anchorX?: number) => {
     const ruler = rulerRef.current?.getBoundingClientRect(), scroll = scrollRef.current?.getBoundingClientRect();
     if (ruler && scroll) { const x = anchorX ?? scroll.left + scroll.width / 2; zoomAnchor.current = { time: (x - ruler.left) / ruler.width * scale, x }; }
@@ -119,20 +119,24 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
     sources.current = [];
     setPlaying(false); setLoading(false); playbackCue?.(-1);
   };
+  // 卸载时释放播放节点、拖动帧、解码缓存与音频上下文。
+  const release = useEffectEvent(() => {
+    operation.current++; cancelAnimationFrame(frame.current); abort.current?.abort();
+    if (gesture.current) cancelAnimationFrame(gesture.current.raf); gesture.current = null;
+    for (const source of sources.current) { source.stop(); source.disconnect(); }
+    sources.current = []; buffers.current.clear();
+    const current = context.current; context.current = null;
+    if (current) void current.close();
+  });
   useEffect(() => {
     abort.current = new AbortController();
-    return () => {
-      operation.current++; cancelAnimationFrame(frame.current); abort.current?.abort();
-      if (gesture.current) cancelAnimationFrame(gesture.current.raf); gesture.current = null;
-      for (const source of sources.current) { source.stop(); source.disconnect(); }
-      sources.current = []; buffers.current.clear();
-      const current = context.current; context.current = null;
-      if (current) void current.close();
-    };
+    return () => release();
   }, []);
-  useEffect(() => { if (suspended) { stop(); finishGesture(false); } }, [suspended]);
-  useEffect(() => { stop(); finishGesture(false); setTrimPreview(null); }, [value]);
-  useEffect(() => { if (edits.record(value, selected)) refreshEdits(); }, [value]);
+  // 暂停或时间线被外部替换时，中止播放与未完成的拖动。
+  const halt = useEffectEvent(() => { stop(); finishGesture(false); });
+  const recordEdit = useEffectEvent((next: AudioTimeline) => { if (edits.record(next, selected)) refreshEdits(); });
+  useEffect(() => { if (suspended) halt(); }, [suspended]);
+  useEffect(() => { halt(); setTrimPreview(null); recordEdit(value); }, [value]);
   const edit = (next: AudioTimeline) => {
     if (!edits.record(next, selected)) return;
     stop(); refreshEdits(); change(next);
@@ -199,13 +203,16 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
     } finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
   };
   const sourceIds = [...new Set(value.tracks.flatMap(track => track.clips.map(c => Timeline.sourceKey(c))))].sort().join(',');
+  // 波形只随音频源与缩放级别重算，加载与报错使用最新的回调。
+  const loadSource = useEffectEvent((id: string, audio: AudioContext) => load(id, audio));
+  const reportError = useEffectEvent((message: string) => onError(message));
   useEffect(() => {
     let active = true;
     const audio = context.current ??= new AudioContext();
     void (async () => {
       for (const id of sourceIds.split(',').filter(Boolean)) {
         try {
-          const buffer = await load(id, audio);
+          const buffer = await loadSource(id, audio);
           if (!active) return;
           const samples = buffer.getChannelData(0);
           const stride = Math.max(1, Math.ceil(samples.length / (400 * zoom)));
@@ -215,7 +222,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
             return peak;
           });
           setPeaks(previous => ({ ...previous, [id]: waveform }));
-        } catch (error) { if (active) onError((error as Error).message); }
+        } catch (error) { if (active) reportError((error as Error).message); }
       }
     })();
     return () => { active = false; };
@@ -310,7 +317,8 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
   const moveGesture = (e: ReactPointerEvent<HTMLElement>) => { const g = gesture.current; if (!g) return; g.clientX = e.clientX; g.clientY = e.clientY; g.alt = e.altKey; g.moved ||= Math.abs(e.clientX - g.x) + Math.abs(e.clientY - g.y) > 3; if (g.moved) g.apply(e.clientX - g.x + scrollRef.current!.scrollLeft - g.scroll, e.clientY - g.y + scrollRef.current!.scrollTop - g.vertical, e.altKey); };
   const pointerHandlers = { onPointerMove: moveGesture, onPointerUp: () => finishGesture(true), onPointerCancel: () => finishGesture(false), onLostPointerCapture: (e: ReactPointerEvent<HTMLElement>) => { if (e.target === e.currentTarget) finishGesture(false); } };
   const updateTrack = (id: string, patch: Partial<AudioLane>) => edit({ ...value, tracks: value.tracks.map(t => t.id === id ? { ...t, ...patch } : t) });
-  useEffect(() => {
+  // 只响应台词列表的选择；由选中片段反向同步的台词不再回跳。
+  const followCue = useEffectEvent((selectedCue: number | undefined) => {
     if (selectedCue === undefined || cueFromClip.current === selectedCue) { cueFromClip.current = undefined; return; }
     const id = draft.subtitles?.cues[selectedCue]?.id;
     const linked = value.tracks.flatMap(t => t.clips).find(c => history.find(g => g.id === c.generationId)?.segment?.cueId === id);
@@ -318,7 +326,8 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
     setSelected(linked.id); setSelection([linked.id]); seek(linked.start); setRange(undefined);
     const element = scrollRef.current?.querySelector<HTMLElement>(`[data-clip-id="${linked.id}"]`);
     element?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  }, [selectedCue, cueSelectionRevision]);
+  });
+  useEffect(() => followCue(selectedCue), [selectedCue, cueSelectionRevision]);
   const regenerateClip = async () => {
     if (!cue?.id || !clip || !editable || busy || exporting) return; stop(); setRegenerating(true);
     try { await regenerate(cue.id, clip.id); } catch (error) { onError((error as Error).message); } finally { setRegenerating(false); }
