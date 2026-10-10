@@ -1,4 +1,5 @@
 import { openProjectHistory } from './project-actions';
+import { seedState } from './seed';
 import { emptyState } from '../src/shared/workbench';
 import { test, expect } from '@playwright/test';
 
@@ -289,11 +290,10 @@ test('下载进度归属具体精度，菜单不覆盖触发按钮', async ({ pa
     return !!button && !!popup && popup.y >= button.y + button.height;
   }).toBeTruthy();
   await page.keyboard.press('Escape');
-  // 在下一次加载前写入状态，避免当前页面的自动保存在刷新前覆盖它。
   const state = emptyState();
   state.models = [{ id: 'index-2.5-q8', path: '/models/index.gguf', managed: false }];
   state.activity = { errorCode: null, errorParams: null, kind: 'download', modelId: 'index-2-q8', code: '@yovoice.activity.verifying', params: null, status: 'running', received: 3633888608, total: 3633888608 };
-  await page.addInitScript(value => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('voice-workbench-v1', value); } }, JSON.stringify(state));
+  await seedState(page, state);
   await page.reload();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('tab', { name: '模型', exact: true }).click();
@@ -366,8 +366,7 @@ test('版本切换仅试听，不改正文参数且不再显示版本操作菜�
     { id: 'other', title: '其他作品', fileName: 'history.wav', createdAt: '2026-09-15T08:00:00Z', duration: 1, settings: { ...draft, id: 'other' } },
   ];
   await page.goto('/');
-  await page.evaluate(async state => {
-    localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
+  await page.evaluate(async () => {
     const bytes = new Uint8Array(32044); const view = new DataView(bytes.buffer);
     const text = (offset: number, value: string) => bytes.set(new TextEncoder().encode(value), offset);
     text(0, 'RIFF'); view.setUint32(4, 32036, true); text(8, 'WAVEfmt '); view.setUint32(16, 16, true);
@@ -379,8 +378,8 @@ test('版本切换仅试听，不改正文参数且不再显示版本操作菜�
       request.onerror = () => reject(request.error);
       request.onsuccess = () => { const db = request.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([bytes], { type: 'audio/wav' }), 'history.wav'); tx.oncomplete = () => { db.close(); resolve(); }; };
     });
-  }, state);
-  await page.reload();
+  });
+  await seedState(page, state); await page.reload();
   const selector = page.getByRole('combobox', { name: '当前作品历史' });
   await expect(selector).toContainText('版本 2');
   await expect(page.locator('.player-history').getByRole('combobox', { name: '当前作品历史' })).toBeVisible();
@@ -466,7 +465,7 @@ test('参考音频重命名和删除未引用素材', async ({ page }, testInfo)
   const state = emptyState();
   state.voices = [{ id: 'voice', name: '测试音色', fileName: 'voice.wav', duration: 3 }];
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByRole('button', { name: '声音库', exact: true }).click();
   await page.getByRole('tab', { name: '参考音频', exact: true }).click();
@@ -492,7 +491,7 @@ test('角色库和历史仅列表滚动，标题位置保持固定', async ({ pa
   state.voices = Array.from({ length: 30 }, (_, i) => ({ id: `voice-${i}`, name: `声音 ${i}`, fileName: `${i}.wav`, duration: 3 }));
   state.history = Array.from({ length: 30 }, (_, i) => ({ id: `history-${i}`, title: `历史 ${i}`, fileName: `${i}.wav`, createdAt: '2026-09-15T10:00:00Z', duration: 3, settings: { ...state.drafts[0], text: `历史 ${i}` } }));
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   // 测试历史没有音频文件，先关闭缺失音频提示，再核对常态布局。
   const closeNotice = page.getByRole('button', { name: '关闭提示', exact: true });

@@ -1,15 +1,15 @@
 import { test, expect, type Page } from '@playwright/test';
+import { seedState } from './seed';
 import { Timeline } from '../src/features/media/timeline';
 import { emptyState, cueAudioStatus, type AudioTimeline, type State } from '../src/shared/workbench';
 
 async function seedTimeline(page: Page, state: State) {
-  await page.evaluate(async state => {
-    localStorage.setItem('voice-workbench-v1', JSON.stringify(state));
+  await page.evaluate(async () => {
     const path = '/src/shared/lib/sound.ts'; const { encodeWav } = await import(/* @vite-ignore */ path);
     const audio = new AudioBuffer({ length: 48000, sampleRate: 24000, numberOfChannels: 1 }); const samples = audio.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = Math.sin(i / 35) * (.12 + .5 * Math.sin(i / 2600) ** 2) * Math.sin(Math.PI * i / samples.length);
     await new Promise<void>((resolve, reject) => { const req = indexedDB.open('voice-workbench-audio', 1); req.onupgradeneeded = () => req.result.createObjectStore('audio'); req.onerror = () => reject(req.error); req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(encodeWav(audio), 'g.wav'); tx.oncomplete = () => { db.close(); resolve(); }; }; });
-  }, state); await page.reload();
+  }); await seedState(page, state); await page.reload();
 }
 
 test('多选保持相对位置，锁轨保护，波纹删除不影响其他轨', () => {
