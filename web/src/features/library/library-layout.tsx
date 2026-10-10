@@ -7,14 +7,14 @@ import { Search } from 'lucide-react';
 export function LibraryPage({ title, actions, controls, query, onQueryChange, searchLabel, empty, noResults, hasItems, hasResults, layout = 'list', children }: {
   title: string; actions?: ReactNode; controls?: ReactNode; query: string; onQueryChange: (query: string) => void;
   searchLabel: string; empty: ReactNode; noResults: string; hasItems: boolean; hasResults: boolean;
-  layout?: 'grid' | 'list'; children: ReactNode;
+  layout?: 'grid' | 'list' | 'tickets'; children: ReactNode;
 }) {
   return <VStack className="library-page" gap={6}>
     <HStack className="library-heading" hAlign="between" vAlign="center" wrap="wrap" gap={3}><h1>{title}</h1>{actions}</HStack>
     {controls ? <VStack className="library-controls" gap={0}>{controls}</VStack> : null}
     {hasItems ? <TextInput label={searchLabel} isLabelHidden placeholder={searchLabel} startIcon={<Search />} hasClear value={query} onChange={onQueryChange} /> : null}
-    <VStack className={`library-content ${!hasItems ? 'empty-state' : layout === 'grid' ? 'voice-library-list' : 'history-list'}`} gap={0}>
-      {!hasItems ? empty : !hasResults ? <p role="status">{noResults}</p> : layout === 'grid' ? <Grid columns={{ minWidth: 280, max: 4 }} gap={4} align="start">{children}</Grid> : children}
+    <VStack className={`library-content ${!hasItems ? 'empty-state' : layout === 'grid' ? 'voice-library-list' : layout === 'tickets' ? 'ticket-list' : 'history-list'}`} gap={0}>
+      {!hasItems ? empty : !hasResults ? <p role="status">{noResults}</p> : layout === 'grid' ? <Grid columns={{ minWidth: 280, max: 4 }} gap={4} align="start">{children}</Grid> : layout === 'tickets' ? <VStack gap={3}>{children}</VStack> : children}
     </VStack>
   </VStack>;
 }

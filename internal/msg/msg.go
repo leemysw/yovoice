@@ -112,7 +112,16 @@ const (
 	ErrScoreInvalid          Code = "@yovoice.error.scoreInvalid"
 	ErrMidiInvalid           Code = "@yovoice.error.midiInvalid"
 	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
-	ErrUnknown               Code = "@yovoice.error.unknown"
+	// AI 服务（可选）：未配置、鉴权、限流、网络、响应异常与结果无效。
+	ErrAIProviderInvalid Code = "@yovoice.error.aiProviderInvalid"
+	ErrAINotConfigured   Code = "@yovoice.error.aiNotConfigured"
+	ErrAIAuth            Code = "@yovoice.error.aiAuth"
+	ErrAIRateLimit       Code = "@yovoice.error.aiRateLimit"
+	ErrAINetwork         Code = "@yovoice.error.aiNetwork"
+	ErrAIResponse        Code = "@yovoice.error.aiResponse"
+	ErrAIModelsPath      Code = "@yovoice.error.aiModelsPath"
+	ErrAIResultInvalid   Code = "@yovoice.error.aiResultInvalid"
+	ErrUnknown           Code = "@yovoice.error.unknown"
 )
 
 // Params carries ICU values. Keys match catalog placeholders.
@@ -175,6 +184,7 @@ func All() []Code {
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
 		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrMidiInvalid,
+		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid,
 		ErrLegacyRestore, ErrUnknown,
 	}
 }

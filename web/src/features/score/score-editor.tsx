@@ -1,18 +1,19 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Switch } from '@astryxdesign/core/Switch';
 import { Table, pixel, proportional } from '@astryxdesign/core/Table';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ClipboardCopy, Download, FileMusic, Sparkles } from 'lucide-react';
+import { ClipboardCopy, Download, Ellipsis, FileMusic, Sparkles, WandSparkles } from 'lucide-react';
 import { Selector } from '../../shared/selector';
+import { AIDialog } from '../../shared/ui/ai-dialog';
 import { call, isDesktop } from '../../shared/lib/client';
-import { formatTime, type Draft, type Score, type ScoreRole, type ScoreTrack, type UiLocale } from '../../shared/workbench';
+import { formatTime, type Draft, type Score, type ScoreRole, type ScoreTrack, type State, type UiLocale } from '../../shared/workbench';
 import { agentPrompt, exampleScore, noteCount, scoreBars, scoreDuration, scoreRoles, targetLevel } from './score-draft';
 import { gmPrograms } from './score-instruments';
 import { midiToScore, scoreToMidi } from './score-midi';
-import { ScoreRoll, roleHue } from './score-roll';
+import { ScoreRoll } from './score-roll';
 
 type Row = { index: number; track: ScoreTrack } & Record<string, unknown>;
 
@@ -30,12 +31,13 @@ function download(data: BlobPart, type: string, name: string) {
 }
 
 // 编曲区：曲子概要、导入导出、按段落着色的音块总览，以及逐声部的音色和电平。
-export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (error: string) => void }) {
+export function ScoreEditor({ draft, state, change, locale, onError, configureAI }: { draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (error: string) => void; configureAI: () => void }) {
   const t = useTranslator();
   const score = draft.score!;
   const input = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<string>();
   const [copied, setCopied] = useState(false);
+  const [composing, setComposing] = useState(false);
   const notes = noteCount(score);
   const replace = (next: Score) => { setSelected(undefined); change({ score: next }); };
   const updateTrack = (id: string, patch: Partial<ScoreTrack>) => change({ score: { ...score, tracks: score.tracks.map(track => track.id === id ? { ...track, ...patch } : track) } });
@@ -56,18 +58,23 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
     try { await navigator.clipboard.writeText(agentPrompt(locale, draft)); setCopied(true); setTimeout(() => setCopied(false), 2000); }
     catch (error) { onError((error as Error).message); }
   }
+  const aiButton = (size?: 'sm') => <Button size={size} variant={size ? 'secondary' : 'primary'} icon={<WandSparkles />} label={t('@yovoice.ai.scoreAction')} onClick={() => setComposing(true)} />;
   const summary = [score.key, `${score.tempo} BPM`, score.timeSignature.join('/'), t('@yovoice.score.barCount', { count: scoreBars(score) }), formatTime(scoreDuration(score))].filter(Boolean).join(' · ');
   const roleLabel = (role: ScoreRole) => t(`@yovoice.score.role.${role}`);
   return <VStack className="score-editor" gap={5}>
     <HStack hAlign="between" vAlign="center" gap={2} wrap="wrap">
       <VStack gap={0}><h2>{t('@yovoice.score.arrangement')}</h2><small className="score-summary">{summary}</small></VStack>
       <HStack gap={2} vAlign="center" wrap="wrap">
-        <Button size="sm" variant="secondary" icon={<FileMusic />} label={t('@yovoice.score.import')} onClick={() => void importScore()} />
+        {copied ? <small role="status">{t('@yovoice.score.promptCopied')}</small> : null}
+        {notes ? aiButton('sm') : null}
         <DropdownMenu hasChevron alignment="end" button={{ size: 'sm', variant: 'secondary', icon: <Download />, label: t('@yovoice.score.export'), isDisabled: !notes }} items={[
           { id: 'mid', label: t('@yovoice.score.exportMidi'), onClick: () => void exportScore('mid') },
           { id: 'json', label: t('@yovoice.score.exportJson'), onClick: () => void exportScore('json') },
         ]} />
-        <Button size="sm" variant="ghost" icon={<ClipboardCopy />} label={copied ? t('@yovoice.score.promptCopied') : t('@yovoice.score.copyPrompt')} tooltip={t('@yovoice.score.copyPromptHint')} onClick={() => void copyPrompt()} />
+        <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <Ellipsis />, label: t('@yovoice.project.more') }} items={[
+          { id: 'import', label: t('@yovoice.score.import'), icon: <FileMusic />, onClick: () => void importScore() },
+          { id: 'prompt', label: t('@yovoice.score.copyPrompt'), icon: <ClipboardCopy />, onClick: () => void copyPrompt() },
+        ]} />
       </HStack>
       <input ref={input} hidden type="file" accept=".mid,.midi,.json" aria-label={t('@yovoice.score.file')} onChange={async event => {
         const file = event.target.files?.[0]; event.target.value = '';
@@ -85,7 +92,7 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
         <HStack hAlign="between" vAlign="center"><h2>{t('@yovoice.score.tracks')}</h2><small>{t('@yovoice.score.trackHint')}</small></HStack>
         <Table<Row> className="score-tracks" density="compact" hasHover idKey={row => row.track.id} data={score.tracks.map((track, index) => ({ index, track }))} columns={[
           { key: 'name', header: t('@yovoice.score.trackColumn'), width: proportional(2), renderCell: ({ track }) => <HStack gap={2} vAlign="center" className={`score-track-name ${track.id === selected ? 'selected' : ''}`} onClick={() => setSelected(track.id)}>
-            <span className="score-role-dot" style={{ '--score-hue': roleHue[track.role ?? 'other'] } as CSSProperties} aria-hidden="true" />
+            <span className={`score-role-dot ${track.role === 'melody' ? 'lead' : ''}`} aria-hidden="true" />
             <VStack gap={0}><b>{track.name}</b><small>{roleLabel(track.role ?? 'other')} · {t('@yovoice.score.noteCount', { count: track.notes.length })}</small></VStack>
           </HStack> },
           { key: 'program', header: t('@yovoice.score.instrument'), width: proportional(2), renderCell: ({ track }) => track.drums ? <small>{t('@yovoice.score.drumKit')}</small>
@@ -98,9 +105,21 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
     </> : <VStack className="score-empty" gap={3} hAlign="center">
       <p>{t('@yovoice.score.empty')}</p>
       <HStack gap={2} wrap="wrap" hAlign="center">
-        <Button variant="primary" icon={<Sparkles />} label={t('@yovoice.score.example')} onClick={() => replace(exampleScore(locale))} />
+        {aiButton()}
+        <Button variant="secondary" icon={<Sparkles />} label={t('@yovoice.score.example')} onClick={() => replace(exampleScore(locale))} />
         <Button variant="secondary" icon={<FileMusic />} label={t('@yovoice.score.import')} onClick={() => void importScore()} />
       </HStack>
     </VStack>}
+    {composing ? <ScoreAIDialog state={state} locale={locale} seconds={notes ? Math.round(scoreDuration(score)) : 60} replace={replace} configure={configureAI} close={() => setComposing(false)} /> : null}
   </VStack>;
+}
+
+// AI 写谱：描述需求和时长，结果替换当前编曲。
+function ScoreAIDialog({ state, locale, seconds: initial, replace, configure, close }: { state: State; locale: UiLocale; seconds: number; replace: (score: Score) => void; configure: () => void; close: () => void }) {
+  const t = useTranslator();
+  const [seconds, setSeconds] = useState(Math.min(Math.max(initial, 10), 600));
+  return <AIDialog title={t('@yovoice.ai.scoreTitle')} hint={t('@yovoice.ai.scoreHint')} placeholder={t('@yovoice.ai.scorePlaceholder')} submitLabel={t('@yovoice.ai.scoreSubmit')} state={state} configure={configure} close={close}
+    submit={async brief => replace(await call<Score>('ai.score', { brief, seconds, locale }))}>
+    <label className="number-field">{t('@yovoice.ai.scoreSeconds')}<input type="number" min={10} max={600} step={5} value={seconds} onChange={event => { const value = Number(event.target.value); if (value >= 10 && value <= 600) setSeconds(value); }} /></label>
+  </AIDialog>;
 }

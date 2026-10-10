@@ -2335,5 +2335,203 @@
   },
   "@yovoice.settings.modelDesc.soundfont": {
     "defaultMessage": "用于渲染编曲的 General MIDI 音色库，含 128 种乐器和鼓组。"
+  },
+  "@yovoice.settings.tabAI": {
+    "defaultMessage": "AI"
+  },
+  "@yovoice.ai.title": {
+    "defaultMessage": "AI 服务"
+  },
+  "@yovoice.ai.optional": {
+    "defaultMessage": "可选"
+  },
+  "@yovoice.ai.intro": {
+    "defaultMessage": "接入大模型后，可在编曲中让 AI 写谱、在音乐生成中让 AI 写歌词。请求从本机直接发往你选择的服务。"
+  },
+  "@yovoice.ai.providers": {
+    "defaultMessage": "AI 服务"
+  },
+  "@yovoice.ai.empty": {
+    "defaultMessage": "还没有 AI 服务。在下方添加一个；Ollama 等本地服务无需密钥。"
+  },
+  "@yovoice.ai.addProvider": {
+    "defaultMessage": "添加服务"
+  },
+  "@yovoice.ai.editProvider": {
+    "defaultMessage": "编辑服务"
+  },
+  "@yovoice.ai.customProvider": {
+    "defaultMessage": "自定义（兼容接口）"
+  },
+  "@yovoice.ai.provider": {
+    "defaultMessage": "服务"
+  },
+  "@yovoice.ai.name": {
+    "defaultMessage": "名称"
+  },
+  "@yovoice.ai.baseURL": {
+    "defaultMessage": "接口地址"
+  },
+  "@yovoice.ai.format": {
+    "defaultMessage": "协议"
+  },
+  "@yovoice.ai.formatName.chat_completions": {
+    "defaultMessage": "OpenAI Chat Completions"
+  },
+  "@yovoice.ai.formatName.responses": {
+    "defaultMessage": "OpenAI Responses"
+  },
+  "@yovoice.ai.formatName.anthropic_messages": {
+    "defaultMessage": "Anthropic Messages"
+  },
+  "@yovoice.ai.modelsPath": {
+    "defaultMessage": "模型列表路径"
+  },
+  "@yovoice.ai.key": {
+    "defaultMessage": "API 密钥"
+  },
+  "@yovoice.ai.keyOptional": {
+    "defaultMessage": "本地服务通常无需填写"
+  },
+  "@yovoice.ai.keyStored": {
+    "defaultMessage": "只保存在本机，与项目和状态文件分开。"
+  },
+  "@yovoice.ai.getKey": {
+    "defaultMessage": "获取密钥"
+  },
+  "@yovoice.ai.model": {
+    "defaultMessage": "模型"
+  },
+  "@yovoice.ai.modelPlaceholder": {
+    "defaultMessage": "填写模型名，或获取模型列表"
+  },
+  "@yovoice.ai.availableModels": {
+    "defaultMessage": "可用模型（{count}）"
+  },
+  "@yovoice.ai.pickModel": {
+    "defaultMessage": "选择模型"
+  },
+  "@yovoice.ai.fetchModels": {
+    "defaultMessage": "获取模型"
+  },
+  "@yovoice.ai.test": {
+    "defaultMessage": "测试"
+  },
+  "@yovoice.ai.testOk": {
+    "defaultMessage": "连接成功，模型已回复。"
+  },
+  "@yovoice.ai.testFailed": {
+    "defaultMessage": "测试失败：{reason}"
+  },
+  "@yovoice.ai.inUse": {
+    "defaultMessage": "使用中"
+  },
+  "@yovoice.ai.noModel": {
+    "defaultMessage": "未选择模型"
+  },
+  "@yovoice.ai.lastTestOk": {
+    "defaultMessage": "测试通过"
+  },
+  "@yovoice.ai.lastTestFailed": {
+    "defaultMessage": "测试未通过"
+  },
+  "@yovoice.ai.untested": {
+    "defaultMessage": "未测试"
+  },
+  "@yovoice.ai.use": {
+    "defaultMessage": "使用"
+  },
+  "@yovoice.ai.editNamed": {
+    "defaultMessage": "编辑 {name}"
+  },
+  "@yovoice.ai.deleteNamed": {
+    "defaultMessage": "删除 {name}"
+  },
+  "@yovoice.ai.deleteTitle": {
+    "defaultMessage": "删除这个 AI 服务？"
+  },
+  "@yovoice.ai.deleteBody": {
+    "defaultMessage": "将从本机移除 {name} 及其保存的密钥。"
+  },
+  "@yovoice.ai.configure": {
+    "defaultMessage": "设置 AI"
+  },
+  "@yovoice.ai.notConfigured": {
+    "defaultMessage": "这个功能需要大模型。请先在“设置 › AI”中添加服务并选择模型。"
+  },
+  "@yovoice.ai.working": {
+    "defaultMessage": "{model} 正在写… {time}"
+  },
+  "@yovoice.ai.brief": {
+    "defaultMessage": "你想要什么"
+  },
+  "@yovoice.ai.via": {
+    "defaultMessage": "使用 {name} · {model}"
+  },
+  "@yovoice.ai.scoreAction": {
+    "defaultMessage": "AI 写谱"
+  },
+  "@yovoice.ai.scoreTitle": {
+    "defaultMessage": "AI 写谱"
+  },
+  "@yovoice.ai.scoreHint": {
+    "defaultMessage": "描述情绪、乐器和结构。结果会替换当前编曲。"
+  },
+  "@yovoice.ai.scorePlaceholder": {
+    "defaultMessage": "例如：旅行 vlog 片头，温暖舒缓的钢琴，后半段加入柔和的弦乐"
+  },
+  "@yovoice.ai.scoreSeconds": {
+    "defaultMessage": "时长（秒）"
+  },
+  "@yovoice.ai.scoreSubmit": {
+    "defaultMessage": "开始写谱"
+  },
+  "@yovoice.ai.lyricsAction": {
+    "defaultMessage": "AI 写歌词"
+  },
+  "@yovoice.ai.lyricsTitle": {
+    "defaultMessage": "AI 写歌词"
+  },
+  "@yovoice.ai.lyricsHint": {
+    "defaultMessage": "描述主题和感觉，AI 会填写风格、歌词和标题。"
+  },
+  "@yovoice.ai.lyricsHintInstrumental": {
+    "defaultMessage": "描述主题和感觉，AI 会填写风格和标题。"
+  },
+  "@yovoice.ai.lyricsPlaceholder": {
+    "defaultMessage": "例如：一首关于夏夜海边兜风的城市流行"
+  },
+  "@yovoice.ai.lyricsSubmit": {
+    "defaultMessage": "开始写"
+  },
+  "@yovoice.error.aiProviderInvalid": {
+    "defaultMessage": "AI 服务配置无效，请检查地址、名称和模型。"
+  },
+  "@yovoice.error.aiNotConfigured": {
+    "defaultMessage": "还没有可用的 AI 服务，请在“设置 › AI”中添加服务并选择模型。"
+  },
+  "@yovoice.error.aiAuth": {
+    "defaultMessage": "AI 服务拒绝了密钥（HTTP {status}），请检查 API 密钥。"
+  },
+  "@yovoice.error.aiRateLimit": {
+    "defaultMessage": "AI 服务限流或额度不足，请稍后重试。"
+  },
+  "@yovoice.error.aiNetwork": {
+    "defaultMessage": "无法连接 AI 服务：{detail}"
+  },
+  "@yovoice.error.aiResponse": {
+    "defaultMessage": "AI 服务返回错误（HTTP {status}）：{detail}"
+  },
+  "@yovoice.error.aiModelsPath": {
+    "defaultMessage": "这个服务没有模型列表，请直接填写模型名。"
+  },
+  "@yovoice.error.aiResultInvalid": {
+    "defaultMessage": "AI 的结果无法使用：{detail}。请重试或换个说法。"
+  },
+  "@yovoice.music.allTags": {
+    "defaultMessage": "全部标签"
+  },
+  "@yovoice.music.fewerTags": {
+    "defaultMessage": "收起标签"
   }
 }

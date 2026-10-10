@@ -15,6 +15,8 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
   // 标签与风格描述双向同步。
   const tags = page.getByRole('group', { name: '风格标签' });
   await expect(tags.getByRole('button', { name: 'city pop', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(tags.getByRole('button', { name: 'piano', exact: true })).toHaveCount(0);
+  await tags.getByRole('button', { name: '全部标签', exact: true }).click();
   await tags.getByRole('button', { name: 'piano', exact: true }).click();
   await expect(style).toHaveValue(/, piano$/);
   await tags.getByRole('button', { name: 'city pop', exact: true }).click();

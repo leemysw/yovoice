@@ -126,6 +126,35 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.ForgetModel(p.ID)
 	case "runtime.install":
 		return true, w.InstallRuntime()
+	case "ai.provider.save":
+		var input workbench.AIProviderInput
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return w.SaveAIProvider(input)
+	case "ai.provider.delete":
+		return true, w.DeleteAIProvider(p.ID)
+	case "ai.provider.use":
+		return true, w.UseAIProvider(p.ID)
+	case "ai.models":
+		return w.AIModels(ctx, p.ID)
+	case "ai.test":
+		return w.TestAIProvider(ctx, p.ID)
+	case "ai.score":
+		var input workbench.ScoreBrief
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return w.ComposeScore(ctx, input)
+	case "ai.lyrics":
+		var input workbench.LyricsBrief
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return w.WriteLyrics(ctx, input)
+	case "ai.cancel":
+		w.CancelAI()
+		return true, nil
 	case "operation.cancel":
 		w.Cancel()
 		return true, nil

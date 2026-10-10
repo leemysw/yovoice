@@ -205,6 +205,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         decisionHandler(trusted(navigationAction.request.url) ? .allow : .cancel)
     }
+    // 页面不开新窗口；本地页面打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url, url.scheme == "https", trusted(webView.url) { NSWorkspace.shared.open(url) }
+        return nil
+    }
     #if DEBUG
     // 本地原生冒烟测试使用独立数据目录；发行构建不开放脚本入口。
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -368,7 +373,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("\(cookieName)=\(token)", forHTTPHeaderField: "Cookie")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        request.timeoutInterval = 120
+        // AI 写谱等请求要等模型整段返回，期间没有数据，放宽到略长于服务端的 4 分钟上限。
+        request.timeoutInterval = (body["method"] as? String)?.hasPrefix("ai.") == true ? 270 : 120
         let (data, response) = try await URLSession.shared.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw failure(HostL10n.t("err.serviceRequest")) }
         if data.isEmpty { return [:] }

@@ -75,7 +75,8 @@ test('菜单、多选快捷键、锁轨与标尺选区单次试听', async ({ pa
   await page.locator('.multitrack-clip').first().click({ button: 'right' });
   const context = page.getByRole('menu', { name: '剪辑菜单' });
   await expect(context).toBeVisible(); await expect(context.getByRole('menuitem', { name: /复制一份/ })).toBeEnabled();
-  await page.keyboard.press('Escape');
+  // 菜单完全关闭后再点，否则点击可能落在菜单的外部关闭层上。
+  await page.keyboard.press('Escape'); await expect(context).toHaveCount(0);
   await page.locator('.multitrack-clip').nth(1).click({ modifiers: ['Meta'] });
   await expect(page.locator('.multitrack-region[data-selected="true"]')).toHaveCount(2);
   await page.keyboard.press('Meta+d'); await expect(page.locator('.multitrack-clip')).toHaveCount(4);

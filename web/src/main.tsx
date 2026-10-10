@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral/built';
 import '@astryxdesign/core/reset.css';
 import '@astryxdesign/core/astryx.css';
-import '@astryxdesign/theme-neutral/theme.css';
-import './app/styles.css';
 import { App } from './app/app';
-createRoot(document.getElementById('root')!).render(<React.StrictMode><Theme theme={neutralTheme} mode="light"><App /></Theme></React.StrictMode>);
+import { yovoicePaperTheme } from './app/yovoice-paper';
+import './app/yovoice-paper.css';
+import './app/styles.css';
+createRoot(document.getElementById('root')!).render(<React.StrictMode><Theme theme={yovoicePaperTheme} mode="light"><App /></Theme></React.StrictMode>);
