@@ -75,7 +75,8 @@ test('菜单、多选快捷键、锁轨与标尺选区单次试听', async ({ pa
   await page.locator('.multitrack-clip').first().click({ button: 'right' });
   const context = page.getByRole('menu', { name: '剪辑菜单' });
   await expect(context).toBeVisible(); await expect(context.getByRole('menuitem', { name: /复制一份/ })).toBeEnabled();
-  // 菜单完全关闭后再点，否则点击可能落在菜单的外部关闭层上。
+  // macOS 上右键菜单打开后焦点可能仍在剪辑上，Esc 也要能关闭菜单。
+  await page.locator('.multitrack-clip').first().focus();
   await page.keyboard.press('Escape'); await expect(context).toHaveCount(0);
   await page.locator('.multitrack-clip').nth(1).click({ modifiers: ['Meta'] });
   await expect(page.locator('.multitrack-region[data-selected="true"]')).toHaveCount(2);

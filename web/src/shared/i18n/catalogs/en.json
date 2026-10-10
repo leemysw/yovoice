@@ -2337,40 +2337,22 @@
     "defaultMessage": "General MIDI sound font for rendering scores, with 128 instruments and drum kits."
   },
   "@yovoice.settings.tabAI": {
-    "defaultMessage": "AI"
-  },
-  "@yovoice.ai.title": {
-    "defaultMessage": "AI service"
-  },
-  "@yovoice.ai.optional": {
-    "defaultMessage": "Optional"
+    "defaultMessage": "AI services"
   },
   "@yovoice.ai.intro": {
     "defaultMessage": "Connect a large language model to let AI write arrangements in Score and lyrics in Music. Requests go straight from this computer to the service you choose."
   },
-  "@yovoice.ai.providers": {
-    "defaultMessage": "AI services"
-  },
-  "@yovoice.ai.empty": {
-    "defaultMessage": "No AI service yet. Add one below; local services such as Ollama need no key."
-  },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "Add service"
   },
-  "@yovoice.ai.editProvider": {
-    "defaultMessage": "Edit service"
-  },
   "@yovoice.ai.customProvider": {
-    "defaultMessage": "Custom (compatible API)"
-  },
-  "@yovoice.ai.provider": {
-    "defaultMessage": "Service"
+    "defaultMessage": "Custom service"
   },
   "@yovoice.ai.name": {
     "defaultMessage": "Name"
   },
   "@yovoice.ai.baseURL": {
-    "defaultMessage": "API address"
+    "defaultMessage": "Endpoint"
   },
   "@yovoice.ai.format": {
     "defaultMessage": "Protocol"
@@ -2391,7 +2373,7 @@
     "defaultMessage": "API key"
   },
   "@yovoice.ai.keyOptional": {
-    "defaultMessage": "Not needed for most local services"
+    "defaultMessage": "Usually not needed for local services"
   },
   "@yovoice.ai.keyStored": {
     "defaultMessage": "Stored only on this computer, separate from projects and state."
@@ -2405,15 +2387,6 @@
   "@yovoice.ai.modelPlaceholder": {
     "defaultMessage": "Model name, or fetch the list"
   },
-  "@yovoice.ai.availableModels": {
-    "defaultMessage": "Available models ({count})"
-  },
-  "@yovoice.ai.pickModel": {
-    "defaultMessage": "Choose a model"
-  },
-  "@yovoice.ai.fetchModels": {
-    "defaultMessage": "Fetch models"
-  },
   "@yovoice.ai.test": {
     "defaultMessage": "Test"
   },
@@ -2425,24 +2398,6 @@
   },
   "@yovoice.ai.inUse": {
     "defaultMessage": "In use"
-  },
-  "@yovoice.ai.noModel": {
-    "defaultMessage": "No model chosen"
-  },
-  "@yovoice.ai.lastTestOk": {
-    "defaultMessage": "Test passed"
-  },
-  "@yovoice.ai.lastTestFailed": {
-    "defaultMessage": "Test failed"
-  },
-  "@yovoice.ai.untested": {
-    "defaultMessage": "Not tested"
-  },
-  "@yovoice.ai.use": {
-    "defaultMessage": "Use"
-  },
-  "@yovoice.ai.editNamed": {
-    "defaultMessage": "Edit {name}"
   },
   "@yovoice.ai.deleteNamed": {
     "defaultMessage": "Delete {name}"
@@ -2457,7 +2412,7 @@
     "defaultMessage": "Set up AI"
   },
   "@yovoice.ai.notConfigured": {
-    "defaultMessage": "This feature uses a large language model. Add an AI service and choose a model in Settings › AI first."
+    "defaultMessage": "This feature needs a language model. Add a service and choose a model in Settings › AI services first."
   },
   "@yovoice.ai.working": {
     "defaultMessage": "{model} is writing… {time}"
@@ -2533,5 +2488,83 @@
   },
   "@yovoice.music.fewerTags": {
     "defaultMessage": "Fewer tags"
+  },
+  "@yovoice.settings.tabSoundfonts": {
+    "defaultMessage": "Sound fonts"
+  },
+  "@yovoice.settings.downloads": {
+    "defaultMessage": "Downloads"
+  },
+  "@yovoice.settings.downloaded": {
+    "defaultMessage": "Downloaded"
+  },
+  "@yovoice.settings.available": {
+    "defaultMessage": "Available"
+  },
+  "@yovoice.settings.importLocal": {
+    "defaultMessage": "Import a local model"
+  },
+  "@yovoice.settings.importLocalHint": {
+    "defaultMessage": "Already have a GGUF file? Import it instead of downloading."
+  },
+  "@yovoice.settings.soundfontIntro": {
+    "defaultMessage": "General MIDI sound fonts used to render scores, managed separately from voice and music models."
+  },
+  "@yovoice.settings.uiLocaleHint": {
+    "defaultMessage": "Takes effect immediately."
+  },
+  "@yovoice.settings.proxyHint": {
+    "defaultMessage": "Used for model and runtime downloads and AI services."
+  },
+  "@yovoice.settings.preferences": {
+    "defaultMessage": "Preferences"
+  },
+  "@yovoice.ai.added": {
+    "defaultMessage": "Added"
+  },
+  "@yovoice.ai.addable": {
+    "defaultMessage": "Available"
+  },
+  "@yovoice.ai.notAdded": {
+    "defaultMessage": "Not added"
+  },
+  "@yovoice.ai.enable": {
+    "defaultMessage": "Use for AI features"
+  },
+  "@yovoice.ai.replaceKey": {
+    "defaultMessage": "Replace key"
+  },
+  "@yovoice.ai.clearKey": {
+    "defaultMessage": "Clear key"
+  },
+  "@yovoice.ai.keyNotSet": {
+    "defaultMessage": "No key set"
+  },
+  "@yovoice.ai.getKeyFrom": {
+    "defaultMessage": "Get an API key from {name}"
+  },
+  "@yovoice.ai.syncModels": {
+    "defaultMessage": "Sync model list"
+  },
+  "@yovoice.ai.searchModels": {
+    "defaultMessage": "Search models"
+  },
+  "@yovoice.ai.noModels": {
+    "defaultMessage": "No model list yet. Type a model name or sync the list."
+  },
+  "@yovoice.ai.currentModel": {
+    "defaultMessage": "Current model"
+  },
+  "@yovoice.ai.saveProvider": {
+    "defaultMessage": "Add service"
+  },
+  "@yovoice.ai.saveChanges": {
+    "defaultMessage": "Save changes"
+  },
+  "@yovoice.ai.removeProvider": {
+    "defaultMessage": "Remove service"
+  },
+  "@yovoice.ai.unsaved": {
+    "defaultMessage": "Unsaved changes"
   }
 }

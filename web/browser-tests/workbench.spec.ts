@@ -13,7 +13,7 @@ test('代理地址失焦自动保存，开关与地址重载后保留', async ({
   await expect(enabled).toBeDisabled();
   await expect(save).toHaveCount(0);
   await address.fill('  http://127.0.0.1:7890  ');
-  await page.getByRole('heading', { name: '网络代理' }).click();
+  await page.getByText('网络代理', { exact: true }).click();
   await expect(address).toHaveValue('http://127.0.0.1:7890');
   await page.reload();
   await page.getByTestId('nav-settings').click();
@@ -88,7 +88,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('tab', { name: '模型', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(25);
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(24);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
   await page.getByRole('button', { name: '关闭协议' }).click();
@@ -234,6 +234,8 @@ test('单选与设置标签支持方向键，弹窗错误就地显示', async ({
   await page.keyboard.press('Enter');
   await expect(page.getByRole('tabpanel', { name: '模型', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: '界面语言', exact: true })).toHaveCount(0);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: '音色库', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab', { name: '推理引擎', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
