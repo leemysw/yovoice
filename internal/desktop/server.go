@@ -101,7 +101,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "audio/wav")
-		http.ServeFile(w, r, path)
+		// 隐藏 io.ReaderFrom，避免 Windows sendfile 与连接后台读在 Go 1.26 中的数据竞争。
+		http.ServeFile(struct{ http.ResponseWriter }{w}, r, path)
 	case r.URL.Path == "/shutdown" && r.Method == "POST":
 		s.lifetime()
 		s.stop()

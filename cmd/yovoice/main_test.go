@@ -88,7 +88,8 @@ func TestStandalone(t *testing.T) {
 	output := filepath.Join(root, "result.wav")
 	var out, progress bytes.Buffer
 	args := []string{"generate", "--text", "你好", "--reference", ref, "--output", output, "--data-dir", root, "--json"}
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	// 整个用例串行启动十余次假引擎，Windows 加 -race 时接近 15 秒，仅作为卡死保护。
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	if e = run(ctx, args, &out, &progress); e != nil {
 		t.Fatal(e)
