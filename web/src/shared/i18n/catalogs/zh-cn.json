@@ -2566,5 +2566,11 @@
   },
   "@yovoice.ai.unsaved": {
     "defaultMessage": "有未保存的更改"
+  },
+  "@yovoice.library.performanceUnit": {
+    "defaultMessage": "种演绎"
+  },
+  "@yovoice.library.duration": {
+    "defaultMessage": "时长"
   }
 }

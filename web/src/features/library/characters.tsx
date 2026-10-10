@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { AudioLines, Ellipsis, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AppDialog, ConfirmDelete } from '../../shared/ui/app-dialog';
-import { LibraryEmpty, LibraryEntry, LibraryPage } from './library-layout';
+import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from './library-layout';
+import { RecordCover } from './record-cover';
 import { Studio } from '../create/studio';
 import { Selector } from '../../shared/selector';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
@@ -135,17 +136,21 @@ export function CharacterLibrary({ state, catalog, create, edit, apply, onError,
   const characters = state.characters ?? [];
   const filtered = characters.filter(c => c.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   return <>
-    <LibraryPage title={t('@yovoice.nav.library')} controls={controls} layout="grid"
+    <LibraryPage title={t('@yovoice.nav.library')} controls={controls} layout="tickets"
       actions={characters.length ? <Button label={t('@yovoice.character.create')} size="sm" icon={<Plus />} onClick={create} /> : undefined}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.character.search')}
       hasItems={characters.length > 0} hasResults={filtered.length > 0} noResults={t('@yovoice.character.noResults')}
       empty={<LibraryEmpty icon={<AudioLines />} title={t('@yovoice.character.empty')} action={<Button label={t('@yovoice.character.create')} variant="primary" onClick={create} />} />}>
-      {filtered.map(c => <LibraryEntry key={c.id} title={`${c.name} · ${catalog.find(m => m.id === c.settings.modelId)?.name ?? c.settings.modelId}`}
-        avatar={<Player compact avatar={{ seed: c.id, label: t('@yovoice.character.listen'), disabled: !c.preview, select: () => setPlaying(c.id) }} suspended={!active || !!deleting} track={playing === c.id && c.preview ? { id: c.preview.id, name: c.name, fileName: c.preview.fileName, kind: 'outputs', subtitle: '', playRequest: 1 } : null} onError={onError} />}
+      {/* 角色是一张单曲唱片：头像是唱片标签，点卡片试听，播放时唱片转动；存根记着有几种演绎。 */}
+      {filtered.map((c, index) => <Ticket key={c.id} index={index} className="character-row"
+        cover={<RecordCover seed={c.id} interactive><Player compact avatar={{ seed: c.id, label: t('@yovoice.character.listen'), disabled: !c.preview, select: () => setPlaying(c.id) }} suspended={!active || !!deleting} track={playing === c.id && c.preview ? { id: c.preview.id, name: c.name, fileName: c.preview.fileName, kind: 'outputs', subtitle: '', playRequest: 1 } : null} onError={onError} /></RecordCover>}
+        eyebrow={[catalog.find(m => m.id === c.settings.modelId)?.name ?? c.settings.modelId, t(!c.preview ? '@yovoice.character.emptyPreview' : previewStale(c) ? '@yovoice.character.stale' : '@yovoice.character.ready')].join(' · ')}
+        title={<h3 title={c.name}>{c.name}</h3>} excerpt={c.demoText.trim()}
+        stub={<TicketStamp value={(c.performances?.length ?? 0) + 1} unit={t('@yovoice.library.performanceUnit')} />}
         actions={<>
+          <Button size="sm" label={t('@yovoice.character.apply')} onClick={() => apply(c)} />
           <Button size="sm" variant="ghost" isIconOnly icon={<Pencil />} label={t('@yovoice.character.edit')} onClick={() => { setPlaying(null); edit(c); }} />
           <Button size="sm" variant="ghost" isIconOnly icon={<Trash2 />} label={t('@yovoice.character.delete')} onClick={() => { setError(''); setDeleting(c); }} />
-          <Button size="sm" label={t('@yovoice.character.apply')} onClick={() => apply(c)} />
         </>} />)}
     </LibraryPage>
     {deleting ? <ConfirmDelete title={t('@yovoice.character.delete')} description={`${deleting.name} — ${t('@yovoice.character.deleteConfirm')}`}

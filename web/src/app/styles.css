@@ -285,10 +285,8 @@
   .avatar-toggle:not(:disabled):hover .avatar-art::after,.avatar-toggle:focus-visible .avatar-art::after,.avatar-player[data-playing="true"] .avatar-art::after { opacity: 1; }
   @media (prefers-reduced-motion: reduce) { .library-entry { transition: none; } }
   .library-avatar { width: var(--spacing-12); height: var(--spacing-12); border-radius: var(--radius-full); flex-shrink: 0; }
-  .library-entry-body { flex: 1; min-width: 0; }
   .library-entry h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; font-weight: var(--font-weight-bold); }
   .library-entry .time { white-space: nowrap; color: var(--app-muted); font-family: var(--app-mono); font-size: var(--font-size-xs); }
-  .library-description { color: var(--app-muted); font-size: var(--app-small-font); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .media-actions { flex-shrink: 0; }
   .library-preview { width: 100%; min-width: 0; padding: var(--spacing-2) 0; margin-bottom: var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); }
   .library-preview .preview-play { border-radius: var(--radius-full); background: var(--app-white); color: var(--app-wave); flex-shrink: 0; }
@@ -464,19 +462,57 @@
 .ticket.library-entry:hover,.ticket.library-entry:focus-within { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); }
 .ticket-main { padding: var(--spacing-3); min-width: 0; }
 /* 封面：语音作品是以头像为标签的黑胶唱片；歌曲和编曲是随机图案的封套，唱片从右侧探出，悬停时滑出并转动。 */
-.ticket-cover { position: relative; flex-shrink: 0; height: calc(var(--spacing-10) * 2); }
+.ticket-cover { flex-shrink: 0; height: calc(var(--spacing-10) * 2); }
 .record-cover { position: relative; width: calc(var(--spacing-10) * 2); height: 100%; }
 .record-disc { display: block; width: 100%; height: 100%; border-radius: var(--radius-full); box-shadow: var(--shadow-low); }
 .record-label { position: absolute; inset: 20%; border-radius: var(--radius-full); overflow: hidden; }
-.record-label .subtitle-avatar { width: 100%; height: 100%; }
+/* 只有唱片没有封套时（角色库），唱片和标签叠在同一格里居中；不设定位，试听按钮的点击层能铺满整张卡片。 */
+.record-cover[data-sleeve="false"] { position: static; display: grid; place-items: center; }
+.record-cover[data-sleeve="false"] > * { grid-area: 1 / 1; }
+.record-cover[data-sleeve="false"] .record-label { position: static; inset: auto; width: 60%; height: 60%; overflow: visible; }
+.record-cover:has(.avatar-player[data-playing="true"]) .record-disc { animation: record-spin 4s linear infinite; }
+/* 故事封套上的出场角色：头像叠成一排，避开标题信息条。 */
+.record-cast { position: absolute; inset-inline-start: var(--spacing-2); z-index: 1; }
+.record-cast[data-band="top"] { bottom: var(--spacing-2); }
+.record-cast[data-band="bottom"] { top: var(--spacing-2); }
+.record-cast .subtitle-avatar { width: var(--spacing-6); height: var(--spacing-6); border-radius: var(--radius-full); box-shadow: 0 0 0 calc(var(--border-width) * 2) var(--app-white), var(--shadow-low); }
+.record-cast .subtitle-avatar + .subtitle-avatar { margin-inline-start: calc(var(--spacing-2) * -1); }
+.record-cast .library-avatar { width: 100%; height: 100%; }
+/* 语音作品的磁带：两个卷轴单独一层，悬停时转动，磁带略微倾斜。 */
+.tape-cover { position: relative; width: calc(var(--spacing-10) * 3); height: 100%; transition: rotate var(--duration-medium) var(--ease-standard); }
+.tape-body { display: block; width: 100%; height: 100%; border-radius: var(--radius-inner); box-shadow: var(--shadow-med); }
+.tape-hub { position: absolute; top: 40.3%; width: 15.7%; height: 23.6%; }
+.tape-hub[data-side="left"] { left: 27.7%; }
+.tape-hub[data-side="right"] { left: 56.6%; }
+.ticket:hover .tape-cover { rotate: -2deg; }
+.ticket:hover .tape-hub { animation: record-spin 1.6s linear infinite; }
+/* 参考音频的声波环：头像居中，播放时整圈缓慢转动并起伏。 */
+.wave-ring { display: grid; place-items: center; width: calc(var(--spacing-10) * 2); height: 100%; }
+.wave-ring > * { grid-area: 1 / 1; }
+.wave-ring-bars { width: 100%; height: 100%; transition: scale var(--duration-medium) var(--ease-standard); }
+.ticket:hover .wave-ring-bars { scale: 1.04; }
+.wave-ring:has(.avatar-player[data-playing="true"]) .wave-ring-bars { animation: ring-turn 12s linear infinite, ring-pulse var(--duration-slow) ease-in-out infinite alternate; }
+@keyframes ring-turn { to { rotate: 1turn; } }
+@keyframes ring-pulse { from { scale: .96; } to { scale: 1.06; } }
 .record-cover[data-sleeve="true"] { width: calc(var(--spacing-10) * 2 + var(--spacing-6)); }
 .record-cover[data-sleeve="true"] .record-sleeve { position: absolute; inset-block: 0; inset-inline-start: 0; width: calc(var(--spacing-10) * 2); height: 100%; border-radius: var(--radius-inner); box-shadow: var(--shadow-med); }
 .record-cover[data-sleeve="true"] .record-disc { position: absolute; inset-inline-end: 0; width: 90%; height: auto; aspect-ratio: 1; transition: translate var(--duration-medium) ease; }
 .ticket:hover .record-cover[data-sleeve="true"] .record-disc { translate: var(--spacing-2) 0; animation: record-spin 6s linear infinite; }
 @keyframes record-spin { to { transform: rotate(1turn); } }
-@media (prefers-reduced-motion: reduce) { .ticket:hover .record-cover[data-sleeve="true"] .record-disc { translate: none; animation: none; } }
+/* 列表入场：卡片依次浮起；只在入场期间生效，不在卡片上留下变换，弹出菜单定位不受影响。 */
+.ticket-list .ticket { animation: ticket-in var(--duration-medium) var(--ease-standard) backwards; animation-delay: calc(var(--duration-fast) / 4 * var(--ticket-index, 0)); }
+@keyframes ticket-in { from { opacity: 0; translate: 0 var(--spacing-3); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticket:hover .record-cover[data-sleeve="true"] .record-disc { translate: none; animation: none; }
+  .ticket-list .ticket,.ticket:hover .tape-hub,.record-cover .record-disc,.wave-ring-bars { animation: none !important; }
+  .ticket:hover .tape-cover,.ticket:hover .wave-ring-bars { rotate: none; scale: none; }
+}
 .ticket-body { min-width: 0; }
 .ticket-body .eyebrow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ticket-body h3 { font-size: var(--font-size-lg); letter-spacing: -.01em; }
+.ticket-stamp { pointer-events: none; }
+.ticket-inline-actions { flex-shrink: 0; margin: 0; }
+.record-cast .subtitle-avatar { width: var(--spacing-5); height: var(--spacing-5); }
 .ticket-stub { position: relative; flex-shrink: 0; width: calc(var(--spacing-10) * 2.5); padding: var(--spacing-3) var(--spacing-2); border-inline-start: calc(var(--border-width) * 2) dashed var(--color-border-emphasized); }
 /* 撕口两端的半圆缺口，颜色与白纸内容区一致。 */
 .ticket-stub::before,.ticket-stub::after { content: ''; position: absolute; left: calc(var(--spacing-2) * -1 - var(--border-width)); width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); background: var(--app-white); }
@@ -495,7 +531,7 @@
 .project-title:focus-visible::after { outline: var(--border-width) solid currentColor; }
 .project-excerpt { color: var(--app-muted); font-family: var(--app-serif); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; overflow-wrap: anywhere; white-space: normal; }
 @media (prefers-reduced-motion: reduce) { .ticket.library-entry { transition: none; } .ticket.library-entry:hover { transform: none; } }
-@media (max-width: 600px) { .ticket-main { gap: var(--spacing-3); padding: var(--spacing-2); } .ticket-cover { height: calc(var(--spacing-10) * 1.4); } .record-cover { width: calc(var(--spacing-10) * 1.4); } .record-cover[data-sleeve="true"] { width: calc(var(--spacing-10) * 1.4 + var(--spacing-4)); } .record-cover[data-sleeve="true"] .record-sleeve { width: calc(var(--spacing-10) * 1.4); } .ticket-stub { width: calc(var(--spacing-10) * 1.6); } .ticket-day { font-size: var(--font-size-2xl); } }
+@media (max-width: 600px) { .ticket-main { gap: var(--spacing-3); padding: var(--spacing-2); } .ticket-cover { height: calc(var(--spacing-10) * 1.4); } .record-cover { width: calc(var(--spacing-10) * 1.4); } .record-cover[data-sleeve="true"] { width: calc(var(--spacing-10) * 1.4 + var(--spacing-4)); } .record-cover[data-sleeve="true"] .record-sleeve { width: calc(var(--spacing-10) * 1.4); } .tape-cover { width: calc(var(--spacing-10) * 2.1); } .wave-ring { width: calc(var(--spacing-10) * 1.4); } .ticket-stub { width: calc(var(--spacing-10) * 1.6); } .ticket-day { font-size: var(--font-size-2xl); } }
 
 .project-menu-icon { width: var(--spacing-4); height: var(--spacing-4); }
 

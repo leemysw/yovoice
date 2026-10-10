@@ -1,7 +1,7 @@
 import { useState, type ReactNode, type ComponentProps } from 'react';
 import { formatNotice } from '../../shared/i18n/format';
 import { Button } from '@astryxdesign/core/Button';
-import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { VStack } from '@astryxdesign/core/Layout';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
@@ -14,7 +14,8 @@ import { SpeakerAvatar } from '../create/subtitles';
 import { createMusicDraft } from '../music/music-draft';
 import { createScoreDraft, scoreDuration } from '../score/score-draft';
 import { RecordCover } from './record-cover';
-import { LibraryEmpty, LibraryPage } from './library-layout';
+import { LibraryEmpty, LibraryPage, Ticket } from './library-layout';
+import { TapeCover } from './tape-cover';
 
 export function NewProject({ locale, modelId, create, onError, button, kind }: {
   kind?: 'text' | 'story' | 'music' | 'score'; locale: UiLocale; modelId?: string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
@@ -77,38 +78,30 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
       {filtered.map((draft, index) => {
         const stamp = draft.updatedAt ?? draft.createdAt, date = new Date(stamp ?? 0);
         const month = monthOf(draft), newMonth = !!month && month !== monthOf(filtered[index - 1]);
+        const lead = draft.subtitles?.speakers ?? [];
+        const avatarSeed = (id: string, characterId?: string) => characterId ?? `${draft.id}:${id}`;
+        // 歌曲和编曲是唱片封套；故事是封套上站着出场角色的有声唱片；语音是一盒写着标题的磁带。
+        const cover = kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} title={draft.title} />
+          : kind === 'story' ? <RecordCover seed={draft.id} title={draft.title} cast={lead.slice(0, 3).map(s => <SpeakerAvatar key={s.id} seed={avatarSeed(s.id, s.characterId)} />)} />
+          : <TapeCover seed={draft.id} title={draft.title} />;
         return <VStack key={draft.id} gap={2}>
           {newMonth ? <small className="ticket-month eyebrow">{month}</small> : null}
-          <HStack className="library-entry project-library-row ticket" gap={0}>
-            <HStack className="ticket-main grow" gap={4} vAlign="center">
-              {/* 歌曲和编曲用随机图案做唱片标签；语音作品用说话人头像做标签。 */}
-              <HStack className="project-avatars ticket-cover" gap={0} vAlign="center">
-                {kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} title={draft.title} /> : <RecordCover seed={draft.id}><SpeakerAvatar seed={draft.subtitles?.speakers[0] ? draft.subtitles.speakers[0].characterId ?? `${draft.id}:${draft.subtitles.speakers[0].id}` : draft.characterId ?? draft.id} /></RecordCover>}
-              </HStack>
-              <VStack className="grow ticket-body" gap={1}>
-                <small className="eyebrow">{projectMeta(draft)}</small>
-                <Button variant="ghost" className="project-title" label={draft.title} tooltip={draft.title} onClick={() => open(draft)} />
-                {excerpt(draft) ? <p className="project-excerpt">「{excerpt(draft)}」</p> : null}
-              </VStack>
-            </HStack>
-            <VStack className="ticket-stub" gap={0} hAlign="center" vAlign="center">
-              {stamp ? <time className="project-created" dateTime={stamp} title={t('@yovoice.project.created', { date: new Date(draft.createdAt ?? date).toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) })}>
-                <b className="ticket-day">{date.getDate()}</b>
-                <small className="eyebrow">{date.getFullYear()}.{String(date.getMonth() + 1).padStart(2, '0')}</small>
-              </time> : null}
-              <HStack className="library-entry-actions ticket-actions" gap={0}>
-                <DropdownMenu presentation="popover" alignment="end" menuWidth="calc(var(--spacing-10) * 4)" hasChevron={false}
-                  button={{ label: t('@yovoice.project.more'), icon: <MoreHorizontal />, isIconOnly: true, variant: 'ghost', size: 'sm' }}
-                  items={[
-                  ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError(noticeMessage(e))) }] : []),
-                    { id: 'rename', label: t('@yovoice.project.renameShort'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setError(''); setRenaming(draft); } },
-                    { id: 'copy', label: t('@yovoice.project.copyShort'), icon: <Copy className="project-menu-icon" strokeWidth={1.5} />, onClick: () => copy(draft) },
-                    ...(kind !== 'story' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
-                    { id: 'delete', label: t('@yovoice.action.delete'), icon: <Trash2 className="project-menu-icon" strokeWidth={1.5} />, variant: 'destructive', onClick: () => remove(draft) },
-                  ]} />
-              </HStack>
-            </VStack>
-          </HStack>
+          <Ticket className={`project-library-row ticket-${kind}`} coverClassName="project-avatars" index={index} cover={cover}
+            eyebrow={projectMeta(draft)} excerpt={excerpt(draft)}
+            title={<Button variant="ghost" className="project-title" label={draft.title} tooltip={draft.title} onClick={() => open(draft)} />}
+            stub={stamp ? <time className="project-created" dateTime={stamp} title={t('@yovoice.project.created', { date: new Date(draft.createdAt ?? date).toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) })}>
+              <b className="ticket-day">{date.getDate()}</b>
+              <small className="eyebrow">{date.getFullYear()}.{String(date.getMonth() + 1).padStart(2, '0')}</small>
+            </time> : null}
+            stubActions={<DropdownMenu presentation="popover" alignment="end" menuWidth="calc(var(--spacing-10) * 4)" hasChevron={false}
+              button={{ label: t('@yovoice.project.more'), icon: <MoreHorizontal />, isIconOnly: true, variant: 'ghost', size: 'sm' }}
+              items={[
+                ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void save(draft).then(() => call('project.export', { id: draft.id, name: draft.title })).catch(e => onError(noticeMessage(e))) }] : []),
+                { id: 'rename', label: t('@yovoice.project.renameShort'), icon: <Pencil className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setError(''); setRenaming(draft); } },
+                { id: 'copy', label: t('@yovoice.project.copyShort'), icon: <Copy className="project-menu-icon" strokeWidth={1.5} />, onClick: () => copy(draft) },
+                ...(kind !== 'story' ? [{ id: 'history', label: t('@yovoice.history.versions'), icon: <History className="project-menu-icon" strokeWidth={1.5} />, onClick: () => history(draft) }] : []),
+                { id: 'delete', label: t('@yovoice.action.delete'), icon: <Trash2 className="project-menu-icon" strokeWidth={1.5} />, variant: 'destructive', onClick: () => remove(draft) },
+              ]} />} />
         </VStack>;
       })}
     </LibraryPage>

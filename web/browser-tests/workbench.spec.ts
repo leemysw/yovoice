@@ -498,7 +498,7 @@ test('角色库和历史仅列表滚动，标题位置保持固定', async ({ pa
   // 测试历史没有音频文件，先关闭缺失音频提示，再核对常态布局。
   const closeNotice = page.getByRole('button', { name: '关闭提示', exact: true });
   await closeNotice.click();
-  for (const [name, selector, last] of [['声音库', '#reference-library-panel .voice-library-list', '声音 29'], ['历史版本', '.library-page:visible .history-list', '历史 29']]) {
+  for (const [name, selector, last] of [['声音库', '#reference-library-panel .ticket-list', '声音 29'], ['历史版本', '.library-page:visible .history-list', '历史 29']]) {
     if (name === '历史版本') await page.locator('.recent-projects .project-link').first().click();
     if (name === '历史版本') await openProjectHistory(page); else await page.getByRole('button', { name, exact: true }).click();
     if (name === '声音库') await page.getByRole('tab', { name: '参考音频', exact: true }).click();
@@ -512,8 +512,9 @@ test('角色库和历史仅列表滚动，标题位置保持固定', async ({ pa
       const entries = list.locator('.library-entry');
       const first = (await entries.nth(0).boundingBox())!;
       const second = (await entries.nth(1).boundingBox())!;
-      expect(second.x).toBeGreaterThan(first.x);
-      expect(second.y).toBe(first.y);
+      // 参考音频与作品同为票根列表，逐行排列。
+      expect(second.x).toBe(first.x);
+      expect(second.y).toBeGreaterThan(first.y + first.height - 1);
       await expect(page.getByText('30 个音色', { exact: true })).toHaveCount(0);
       const tab = page.getByRole('tab', { name: '参考音频', exact: true });
       const tabBox = (await tab.boundingBox())!;

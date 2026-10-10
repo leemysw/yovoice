@@ -2566,5 +2566,11 @@
   },
   "@yovoice.ai.unsaved": {
     "defaultMessage": "Unsaved changes"
+  },
+  "@yovoice.library.performanceUnit": {
+    "defaultMessage": "styles"
+  },
+  "@yovoice.library.duration": {
+    "defaultMessage": "length"
   }
 }
