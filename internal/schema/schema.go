@@ -248,6 +248,9 @@ type State struct {
 	// Runtimes 按后端记录下载安装的内核，切换计算设备后再切回时直接复用。
 	Runtimes map[string]InstalledRuntime `json:"runtimes,omitempty"`
 	Activity *Activity                   `json:"activity"`
+	// AIProviders 为可选的大模型服务，AIProviderID 指向当前使用的服务。
+	AIProviders  []AIProvider `json:"aiProviders,omitempty"`
+	AIProviderID string       `json:"aiProviderID,omitempty"`
 }
 
 type InstalledRuntime struct {

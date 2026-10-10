@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"fmt"
 	"math"
 	"slices"
 	"strings"
@@ -146,50 +147,78 @@ func ScoreWithinLimits(s *Score) bool {
 }
 
 func ValidateScore(s *Score) error {
-	bad := msg.Err(msg.ErrScoreInvalid, nil)
-	if s == nil || s.Tempo < 30 || s.Tempo > 300 || len(s.TimeSignature) != 2 || len(s.Tracks) == 0 || len(s.Tracks) > ScoreMaxTracks || TextLen(s.Key) > 40 {
-		return bad
+	if ScoreIssue(s) != "" {
+		return msg.Err(msg.ErrScoreInvalid, nil)
 	}
-	if s.TimeSignature[0] < 1 || s.TimeSignature[0] > 16 || !slices.Contains([]int{2, 4, 8, 16}, s.TimeSignature[1]) {
-		return bad
+	return nil
+}
+
+// ScoreIssue 返回乐谱第一处不合规的英文说明，合规时返回空串；AI 写谱时据此要求模型修正。
+func ScoreIssue(s *Score) string {
+	if s == nil {
+		return "score is empty"
+	}
+	if s.Tempo < 30 || s.Tempo > 300 {
+		return "tempo must be 30-300"
+	}
+	if len(s.TimeSignature) != 2 || s.TimeSignature[0] < 1 || s.TimeSignature[0] > 16 || !slices.Contains([]int{2, 4, 8, 16}, s.TimeSignature[1]) {
+		return "timeSignature must be [1-16, 2|4|8|16]"
+	}
+	if TextLen(s.Key) > 40 {
+		return "key must be at most 40 characters"
+	}
+	if len(s.Tracks) == 0 || len(s.Tracks) > ScoreMaxTracks {
+		return fmt.Sprintf("score needs 1-%d tracks", ScoreMaxTracks)
 	}
 	for _, section := range s.Sections {
 		if strings.TrimSpace(section.Name) == "" || TextLen(section.Name) > 40 || section.Start < 1 || section.End < section.Start || section.End > ScoreMaxBars || (section.Tempo != 0 && (section.Tempo < 30 || section.Tempo > 300)) {
-			return bad
+			return fmt.Sprintf("section %q needs a name, 1 <= start <= end <= %d and tempo 30-300 if set", section.Name, ScoreMaxBars)
 		}
 	}
 	notes, ids := 0, map[string]bool{}
+	per := s.BeatsPerBar()
 	for _, t := range s.Tracks {
-		if t.ID == "" || len(t.ID) > 64 || ids[t.ID] || strings.TrimSpace(t.Name) == "" || TextLen(t.Name) > 40 || t.Program < 0 || t.Program > 127 {
-			return bad
+		if t.ID == "" || len(t.ID) > 64 || ids[t.ID] {
+			return fmt.Sprintf("track id %q must be unique and 1-64 characters", t.ID)
 		}
 		ids[t.ID] = true
+		if strings.TrimSpace(t.Name) == "" || TextLen(t.Name) > 40 {
+			return fmt.Sprintf("track %q needs a name of at most 40 characters", t.ID)
+		}
+		if t.Program < 0 || t.Program > 127 {
+			return fmt.Sprintf("track %q program must be 0-127", t.ID)
+		}
 		if _, ok := ScoreRoles[t.Role]; t.Role != "" && !ok {
-			return bad
+			return fmt.Sprintf("track %q role must be one of melody, piano, strings, bass, drums, pad, arp, other", t.ID)
 		}
 		if t.Level < -60 || t.Level > 0 || t.Pan < -1 || t.Pan > 1 || t.Reverb < 0 || t.Reverb > 1 {
-			return bad
+			return fmt.Sprintf("track %q needs level -60..0, pan -1..1, reverb 0..1", t.ID)
 		}
 		if h := t.Humanize; h != nil && (h.Velocity < 0 || h.Velocity > 40 || h.TimingMs < 0 || h.TimingMs > 50) {
-			return bad
+			return fmt.Sprintf("track %q humanize needs velocity 0-40 and timingMs 0-50", t.ID)
 		}
 		for _, r := range t.Dynamics {
 			if r.Start < 1 || r.End < r.Start || r.End > ScoreMaxBars || r.From < 0 || r.From > 1 || r.To < 0 || r.To > 1 {
-				return bad
+				return fmt.Sprintf("track %q dynamics need 1 <= start <= end and from/to 0-1", t.ID)
 			}
 		}
-		per := s.BeatsPerBar()
 		for _, n := range t.Notes {
-			if n.Bar < 1 || n.Bar > ScoreMaxBars || n.Beat < 1 || n.Beat >= per+1 || n.Pitch < 0 || n.Pitch > 127 || n.Length <= 0 || n.Length > 64 || n.Velocity < 1 || n.Velocity > 127 {
-				return bad
+			if n.Bar < 1 || n.Bar > ScoreMaxBars || n.Beat < 1 || n.Beat >= per+1 {
+				return fmt.Sprintf("track %q note at bar %d beat %g: bar must be 1-%d and beat 1 to below %g", t.ID, n.Bar, n.Beat, ScoreMaxBars, per+1)
+			}
+			if n.Pitch < 0 || n.Pitch > 127 || n.Length <= 0 || n.Length > 64 || n.Velocity < 1 || n.Velocity > 127 {
+				return fmt.Sprintf("track %q note at bar %d beat %g needs pitch 0-127, length 0-64 beats, velocity 1-127", t.ID, n.Bar, n.Beat)
 			}
 		}
 		notes += len(t.Notes)
 	}
-	if notes == 0 || notes > ScoreMaxNotes || s.Bars() > ScoreMaxBars || s.Duration() > ScoreMaxSeconds {
-		return bad
+	if notes == 0 || notes > ScoreMaxNotes {
+		return fmt.Sprintf("score needs 1-%d notes", ScoreMaxNotes)
 	}
-	return nil
+	if s.Bars() > ScoreMaxBars || s.Duration() > ScoreMaxSeconds {
+		return fmt.Sprintf("score must be at most %d bars and %d seconds", ScoreMaxBars, int(ScoreMaxSeconds))
+	}
+	return ""
 }
 
 func validateScoreDraft(d Draft) error {

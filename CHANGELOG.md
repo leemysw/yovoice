@@ -8,6 +8,7 @@
 
 - 新增“音乐生成”作品：用风格描述和标签定调，写下带段落标记的歌词（或切换为纯音乐），选择时长和演唱语言，由 ACE-Step 1.5 Turbo 生成整首歌曲；每次生成保留为带专属封面的版本，可试听、对比和导出。速度、调性、拍号默认交给模型决定，也可手动指定。音乐模型需要 v0.9.1 内核，旧内核会提示在设置中更新。
 - 新增“编曲”作品：按小节和拍写下每个声部的音符，或导入 MIDI、让 Agent 写谱，用 MuseScore General 音色库逐声部渲染，按角色对齐电平后混音。音块总览按段落着色并显示段落起止时间，声部表可换音色、调电平、关闭发声；可导出 MIDI 或乐谱 JSON。编曲不需要推理内核，同一份乐谱每次渲染结果相同。
+- 新增可选的 AI 服务（设置 › AI）：内置 DeepSeek、通义千问、智谱、Kimi、豆包、MiniMax、OpenAI、Anthropic、OpenRouter，支持 Ollama、LM Studio 等本地服务和兼容 Chat Completions / Responses / Anthropic Messages 的自定义接口，可获取模型列表和测试连接；密钥单独保存在本机。配置后，编曲可“AI 写谱”（结果自动检查，不合规时让模型修正一次），音乐生成可“AI 写歌词”填写风格、歌词和标题；请求可随时取消。
 - CLI 新增 `yovoice score render|midi|from-midi`，可输出混音和分轨；远程服务 MCP 新增 `render_score` 工具；Agent Skill 新增编曲参考。
 
 ### Fixed

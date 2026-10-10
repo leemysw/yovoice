@@ -1,0 +1,107 @@
+[
+  {
+    "key": "deepseek",
+    "name": "DeepSeek",
+    "format": "chat_completions",
+    "baseURL": "https://api.deepseek.com",
+    "modelsPath": "/models",
+    "keyURL": "https://platform.deepseek.com/api_keys",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "qwen",
+    "name": "通义千问 · 百炼",
+    "format": "chat_completions",
+    "baseURL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://bailian.console.aliyun.com/?apiKey=1",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "glm",
+    "name": "智谱 GLM",
+    "format": "chat_completions",
+    "baseURL": "https://open.bigmodel.cn/api/paas/v4",
+    "modelsPath": "/models",
+    "keyURL": "https://open.bigmodel.cn/usercenter/apikeys",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "kimi",
+    "name": "Kimi · Moonshot",
+    "format": "chat_completions",
+    "baseURL": "https://api.moonshot.cn/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://platform.moonshot.cn/console/api-keys",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "doubao",
+    "name": "豆包 · 火山方舟",
+    "format": "chat_completions",
+    "baseURL": "https://ark.cn-beijing.volces.com/api/v3",
+    "modelsPath": "/models",
+    "keyURL": "https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "minimax",
+    "name": "MiniMax",
+    "format": "chat_completions",
+    "baseURL": "https://api.minimaxi.com/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://platform.minimaxi.com/user-center/basic-information/interface-key",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "openai",
+    "name": "OpenAI",
+    "format": "chat_completions",
+    "baseURL": "https://api.openai.com/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://platform.openai.com/api-keys",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "anthropic",
+    "name": "Anthropic",
+    "format": "anthropic_messages",
+    "baseURL": "https://api.anthropic.com",
+    "modelsPath": "/v1/models",
+    "keyURL": "https://console.anthropic.com/settings/keys",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "openrouter",
+    "name": "OpenRouter",
+    "format": "chat_completions",
+    "baseURL": "https://openrouter.ai/api/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://openrouter.ai/keys",
+    "endpoint": "fixed"
+  },
+  {
+    "key": "ollama",
+    "name": "Ollama",
+    "format": "chat_completions",
+    "baseURL": "http://127.0.0.1:11434/v1",
+    "modelsPath": "/models",
+    "endpoint": "local"
+  },
+  {
+    "key": "lmstudio",
+    "name": "LM Studio",
+    "format": "chat_completions",
+    "baseURL": "http://127.0.0.1:1234/v1",
+    "modelsPath": "/models",
+    "endpoint": "local"
+  },
+  {
+    "key": "custom",
+    "name": "Custom",
+    "format": "chat_completions",
+    "baseURL": "",
+    "modelsPath": "/models",
+    "endpoint": "custom"
+  }
+]

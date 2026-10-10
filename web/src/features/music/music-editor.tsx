@@ -1,23 +1,28 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Grid } from '@astryxdesign/core/Grid';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Switch } from '@astryxdesign/core/Switch';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, Play, Sparkles } from 'lucide-react';
-import { formatTime, type Draft, type Generation, type UiLocale } from '../../shared/workbench';
-import { createMusicDraft, lyricSections, styleTags } from './music-draft';
+import { AudioLines, Play, Sparkles, WandSparkles } from 'lucide-react';
+import { call } from '../../shared/lib/client';
+import { AIDialog } from '../../shared/ui/ai-dialog';
+import { formatTime, type Draft, type Generation, type State, type UiLocale } from '../../shared/workbench';
+import { createMusicDraft, lyricSections, musicLanguages, styleTags } from './music-draft';
+
+interface Lyrics { title: string; style: string; lyrics: string; language: string }
 import { SongCover } from './song-cover';
 
 const splitTags = (style: string) => style.split(/[,，]/).map(tag => tag.trim()).filter(Boolean);
 
 // 音乐创作区：风格描述 + 标签、带段落标记的歌词，以及每次生成的版本封面。
-export function MusicEditor({ draft, change, locale, takes, current, select }: {
-  draft: Draft; change: (patch: Partial<Draft>) => void; locale: UiLocale;
-  takes: Generation[]; current?: string; select: (take: Generation) => void;
+export function MusicEditor({ draft, state, change, locale, takes, current, select, configureAI }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale;
+  takes: Generation[]; current?: string; select: (take: Generation) => void; configureAI: () => void;
 }) {
   const t = useTranslator();
+  const [writing, setWriting] = useState(false);
   const lyrics = useRef<HTMLTextAreaElement>(null);
   const tags = splitTags(draft.text);
   const toggleTag = (tag: string) => {
@@ -34,11 +39,24 @@ export function MusicEditor({ draft, change, locale, takes, current, select }: {
     requestAnimationFrame(() => { element?.focus(); element?.setSelectionRange(start + tag.length, start + tag.length); });
   };
   const empty = !draft.text.trim() && !draft.lyrics?.trim();
+  // AI 写歌词：填入风格与歌词；标题仍是默认值时一并替换，歌词语言只接受 ACE-Step 支持的。
+  async function writeLyrics(brief: string) {
+    const result = await call<Lyrics>('ai.lyrics', { brief, instrumental: !!draft.instrumental, language: draft.synthesisLanguage ?? '', locale });
+    change({
+      ...(result.style ? { text: result.style } : {}),
+      ...(!draft.instrumental && result.lyrics ? { lyrics: result.lyrics } : {}),
+      ...((musicLanguages as readonly string[]).includes(result.language) ? { synthesisLanguage: result.language } : {}),
+      ...(result.title && draft.title === createMusicDraft(locale, false).title ? { title: result.title } : {}),
+    });
+  }
   return <VStack className="music-editor" gap={6}>
     <VStack gap={3}>
       <HStack hAlign="between" vAlign="center" gap={2} wrap="wrap">
         <h2>{t('@yovoice.music.style')}</h2>
+        <HStack gap={2} vAlign="center" wrap="wrap">
+        <Button size="sm" variant="secondary" icon={<WandSparkles />} label={t('@yovoice.ai.lyricsAction')} onClick={() => setWriting(true)} />
         {empty ? <Button size="sm" variant="secondary" icon={<Sparkles />} label={t('@yovoice.music.example')} onClick={() => { const example = createMusicDraft(locale); change({ text: example.text, lyrics: example.lyrics, synthesisLanguage: example.synthesisLanguage, ...(draft.title === createMusicDraft(locale, false).title ? { title: example.title } : {}) }); }} /> : null}
+        </HStack>
       </HStack>
       <TextArea className="music-style" label={t('@yovoice.music.style')} isLabelHidden value={draft.text} maxLength={512} rows={2} hasSpellCheck={false} placeholder={t('@yovoice.music.stylePlaceholder')} onChange={text => change({ text: text.slice(0, 512) })} />
       <VStack gap={2} role="group" aria-label={t('@yovoice.music.tags')}>
@@ -75,5 +93,6 @@ export function MusicEditor({ draft, change, locale, takes, current, select }: {
         </Button>)}
       </Grid> : <p className="music-empty">{t('@yovoice.music.noTakes')}</p>}
     </VStack>
+    {writing ? <AIDialog title={t('@yovoice.ai.lyricsTitle')} hint={t(draft.instrumental ? '@yovoice.ai.lyricsHintInstrumental' : '@yovoice.ai.lyricsHint')} placeholder={t('@yovoice.ai.lyricsPlaceholder')} submitLabel={t('@yovoice.ai.lyricsSubmit')} state={state} configure={configureAI} close={() => setWriting(false)} submit={writeLyrics} /> : null}
   </VStack>;
 }

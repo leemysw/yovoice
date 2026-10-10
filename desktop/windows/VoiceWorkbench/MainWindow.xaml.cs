@@ -208,7 +208,13 @@ public partial class MainWindow : Window
             string sidebar = File.Exists(sidebarFile) ? await File.ReadAllTextAsync(sidebarFile) : "";
             await core.AddScriptToExecuteOnDocumentCreatedAsync("window.__workbenchMediaBase = '/media/'; const savedSidebar = " + JsonSerializer.Serialize(sidebar) + "; if (savedSidebar) localStorage.setItem('astryx-resizable:workbench-sidebar', savedSidebar);");
             core.NavigationStarting += (_, args) => { if (!Trusted(args.Uri)) args.Cancel = true; };
-            core.NewWindowRequested += (_, args) => { args.Handled = true; };
+            // 页面不开新窗口；用户点击打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+            core.NewWindowRequested += (_, args) =>
+            {
+                args.Handled = true;
+                if (args.IsUserInitiated && Uri.TryCreate(args.Uri, UriKind.Absolute, out var link) && link.Scheme == Uri.UriSchemeHttps)
+                    Process.Start(new ProcessStartInfo(link.AbsoluteUri) { UseShellExecute = true });
+            };
             core.PermissionRequested += (_, args) => args.State = Trusted(args.Uri) && args.PermissionKind == CoreWebView2PermissionKind.Microphone ? CoreWebView2PermissionState.Allow : CoreWebView2PermissionState.Deny;
             core.WebMessageReceived += async (_, args) => await HandleMessageAsync(args);
             // 浏览器进程失效时必须重建控件，任务和草稿继续由 Go 服务持有。

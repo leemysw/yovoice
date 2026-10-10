@@ -2335,5 +2335,197 @@
   },
   "@yovoice.settings.modelDesc.soundfont": {
     "defaultMessage": "General MIDI sound font for rendering scores, with 128 instruments and drum kits."
+  },
+  "@yovoice.settings.tabAI": {
+    "defaultMessage": "AI"
+  },
+  "@yovoice.ai.title": {
+    "defaultMessage": "AI service"
+  },
+  "@yovoice.ai.optional": {
+    "defaultMessage": "Optional"
+  },
+  "@yovoice.ai.intro": {
+    "defaultMessage": "Connect a large language model to let AI write arrangements in Score and lyrics in Music. Requests go straight from this computer to the service you choose."
+  },
+  "@yovoice.ai.providers": {
+    "defaultMessage": "AI services"
+  },
+  "@yovoice.ai.empty": {
+    "defaultMessage": "No AI service yet. Add one below; local services such as Ollama need no key."
+  },
+  "@yovoice.ai.addProvider": {
+    "defaultMessage": "Add service"
+  },
+  "@yovoice.ai.editProvider": {
+    "defaultMessage": "Edit service"
+  },
+  "@yovoice.ai.customProvider": {
+    "defaultMessage": "Custom (compatible API)"
+  },
+  "@yovoice.ai.provider": {
+    "defaultMessage": "Service"
+  },
+  "@yovoice.ai.name": {
+    "defaultMessage": "Name"
+  },
+  "@yovoice.ai.baseURL": {
+    "defaultMessage": "API address"
+  },
+  "@yovoice.ai.format": {
+    "defaultMessage": "Protocol"
+  },
+  "@yovoice.ai.formatName.chat_completions": {
+    "defaultMessage": "OpenAI Chat Completions"
+  },
+  "@yovoice.ai.formatName.responses": {
+    "defaultMessage": "OpenAI Responses"
+  },
+  "@yovoice.ai.formatName.anthropic_messages": {
+    "defaultMessage": "Anthropic Messages"
+  },
+  "@yovoice.ai.modelsPath": {
+    "defaultMessage": "Model list path"
+  },
+  "@yovoice.ai.key": {
+    "defaultMessage": "API key"
+  },
+  "@yovoice.ai.keyOptional": {
+    "defaultMessage": "Not needed for most local services"
+  },
+  "@yovoice.ai.keyStored": {
+    "defaultMessage": "Stored only on this computer, separate from projects and state."
+  },
+  "@yovoice.ai.getKey": {
+    "defaultMessage": "Get a key"
+  },
+  "@yovoice.ai.model": {
+    "defaultMessage": "Model"
+  },
+  "@yovoice.ai.modelPlaceholder": {
+    "defaultMessage": "Model name, or fetch the list"
+  },
+  "@yovoice.ai.availableModels": {
+    "defaultMessage": "Available models ({count})"
+  },
+  "@yovoice.ai.pickModel": {
+    "defaultMessage": "Choose a model"
+  },
+  "@yovoice.ai.fetchModels": {
+    "defaultMessage": "Fetch models"
+  },
+  "@yovoice.ai.test": {
+    "defaultMessage": "Test"
+  },
+  "@yovoice.ai.testOk": {
+    "defaultMessage": "Connected. The model replied."
+  },
+  "@yovoice.ai.testFailed": {
+    "defaultMessage": "Test failed: {reason}"
+  },
+  "@yovoice.ai.inUse": {
+    "defaultMessage": "In use"
+  },
+  "@yovoice.ai.noModel": {
+    "defaultMessage": "No model chosen"
+  },
+  "@yovoice.ai.lastTestOk": {
+    "defaultMessage": "Test passed"
+  },
+  "@yovoice.ai.lastTestFailed": {
+    "defaultMessage": "Test failed"
+  },
+  "@yovoice.ai.untested": {
+    "defaultMessage": "Not tested"
+  },
+  "@yovoice.ai.use": {
+    "defaultMessage": "Use"
+  },
+  "@yovoice.ai.editNamed": {
+    "defaultMessage": "Edit {name}"
+  },
+  "@yovoice.ai.deleteNamed": {
+    "defaultMessage": "Delete {name}"
+  },
+  "@yovoice.ai.deleteTitle": {
+    "defaultMessage": "Delete this AI service?"
+  },
+  "@yovoice.ai.deleteBody": {
+    "defaultMessage": "{name} and its stored key will be removed from this computer."
+  },
+  "@yovoice.ai.configure": {
+    "defaultMessage": "Set up AI"
+  },
+  "@yovoice.ai.notConfigured": {
+    "defaultMessage": "This feature uses a large language model. Add an AI service and choose a model in Settings › AI first."
+  },
+  "@yovoice.ai.working": {
+    "defaultMessage": "{model} is writing… {time}"
+  },
+  "@yovoice.ai.brief": {
+    "defaultMessage": "What do you want?"
+  },
+  "@yovoice.ai.via": {
+    "defaultMessage": "Uses {name} · {model}"
+  },
+  "@yovoice.ai.scoreAction": {
+    "defaultMessage": "AI compose"
+  },
+  "@yovoice.ai.scoreTitle": {
+    "defaultMessage": "Compose with AI"
+  },
+  "@yovoice.ai.scoreHint": {
+    "defaultMessage": "Describe the mood, instruments and structure. The result replaces the current arrangement."
+  },
+  "@yovoice.ai.scorePlaceholder": {
+    "defaultMessage": "e.g. A warm, slow piano piece for a travel vlog intro, with soft strings joining in the second half"
+  },
+  "@yovoice.ai.scoreSeconds": {
+    "defaultMessage": "Length (seconds)"
+  },
+  "@yovoice.ai.scoreSubmit": {
+    "defaultMessage": "Compose"
+  },
+  "@yovoice.ai.lyricsAction": {
+    "defaultMessage": "AI lyrics"
+  },
+  "@yovoice.ai.lyricsTitle": {
+    "defaultMessage": "Write lyrics with AI"
+  },
+  "@yovoice.ai.lyricsHint": {
+    "defaultMessage": "Describe the theme and feeling. AI fills in the style, lyrics and title."
+  },
+  "@yovoice.ai.lyricsHintInstrumental": {
+    "defaultMessage": "Describe the theme and feeling. AI fills in the style and title."
+  },
+  "@yovoice.ai.lyricsPlaceholder": {
+    "defaultMessage": "e.g. A city pop song about a summer night drive by the sea"
+  },
+  "@yovoice.ai.lyricsSubmit": {
+    "defaultMessage": "Write"
+  },
+  "@yovoice.error.aiProviderInvalid": {
+    "defaultMessage": "The AI service settings are invalid. Check the address, name and model."
+  },
+  "@yovoice.error.aiNotConfigured": {
+    "defaultMessage": "No AI service is set up. Add one and choose a model in Settings › AI."
+  },
+  "@yovoice.error.aiAuth": {
+    "defaultMessage": "The AI service rejected the key (HTTP {status}). Check the API key."
+  },
+  "@yovoice.error.aiRateLimit": {
+    "defaultMessage": "The AI service is rate limiting or out of quota. Try again later."
+  },
+  "@yovoice.error.aiNetwork": {
+    "defaultMessage": "Could not reach the AI service: {detail}"
+  },
+  "@yovoice.error.aiResponse": {
+    "defaultMessage": "The AI service returned an error (HTTP {status}): {detail}"
+  },
+  "@yovoice.error.aiModelsPath": {
+    "defaultMessage": "This service has no model list. Enter the model name directly."
+  },
+  "@yovoice.error.aiResultInvalid": {
+    "defaultMessage": "The AI result could not be used: {detail}. Try again or rephrase."
   }
 }

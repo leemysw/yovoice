@@ -28,6 +28,7 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 		schema.CharacterPreview{}, schema.Character{}, schema.Voice{}, schema.InstalledModel{}, schema.Generation{},
 		schema.GenerationSegment{}, schema.Activity{}, schema.Preferences{}, schema.State{}, catalog.ModelPackage{},
 		schema.Score{}, schema.ScoreSection{}, schema.ScoreTrack{}, schema.Humanize{}, schema.ScoreRamp{}, schema.ScoreNote{},
+		schema.AIProvider{}, schema.AITest{},
 	} {
 		typ := reflect.TypeOf(value)
 		ts, ok := interfaces[typ.Name()]
