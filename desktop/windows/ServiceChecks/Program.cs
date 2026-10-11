@@ -17,6 +17,20 @@ using (var page = JsonDocument.Parse("""{"id":"test","title":"清晨","createdAt
 {
     string body = ServiceWire.Request("draft.save", page.RootElement);
     Require(body.Contains("+08:00") && !body.Contains("\\u") && JsonDocument.Parse(body).RootElement.GetProperty("data").GetProperty("title").GetString() == "清晨");
+    using (var malformed = JsonDocument.Parse("""{"createdAt":"2026-10-10T11:17:28.2505085\\\\u002B08:00"}"""))
+    {
+        string fixedBody = ServiceWire.Request("draft.save", malformed.RootElement);
+        Require(JsonDocument.Parse(fixedBody).RootElement.GetProperty("data").GetProperty("createdAt").GetString() == "2026-10-10T11:17:28.2505085+08:00");
+    }
+
+    // ExecuteScriptAsync 可能返回对象 JSON，也可能返回被 JSON.stringify 包装的一层字符串；
+    // 两种形式都必须还原为包含原始时区偏移的对象。
+    string scriptObject = JsonSerializer.Serialize(page.RootElement);
+    foreach (string scriptResult in new[] { scriptObject, JsonSerializer.Serialize(scriptObject) })
+    {
+        JsonElement? result = ServiceWire.ReadScriptResult(scriptResult);
+        Require(result is JsonElement value && value.GetProperty("createdAt").GetString() == "2026-10-10T11:17:28.2505085+08:00");
+    }
 }
 string folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);

@@ -64,9 +64,10 @@ public partial class MainWindow : Window
                 if (web?.CoreWebView2 is not null)
                 {
                     string json = await web.CoreWebView2.ExecuteScriptAsync("window.__workbenchDraft ?? null");
-                    if (json != "null")
+                    JsonElement? draft = ServiceWire.ReadScriptResult(json);
+                    if (draft is JsonElement value && value.ValueKind != JsonValueKind.Null)
                     {
-                        try { HostLog.Write(service.Root, "exit.save_started"); await service.CallAsync("draft.save", JsonSerializer.Deserialize<JsonElement>(json)); HostLog.Write(service.Root, "exit.save_completed"); }
+                        try { HostLog.Write(service.Root, "exit.save_started"); await service.CallAsync("draft.save", value); HostLog.Write(service.Root, "exit.save_completed"); }
                         catch (Exception error)
                         {
                             HostLog.Write(service.Root, "exit.save_failed", error);

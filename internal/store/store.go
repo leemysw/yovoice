@@ -231,6 +231,12 @@ func Migrate(legacy, target string) error {
 		}
 		state.RuntimePath = rebase(state.RuntimePath)
 		state.Preferences.ModelDirectory = rebase(state.Preferences.ModelDirectory)
+		for backend, installed := range state.Runtimes {
+			if path := rebase(&installed.Path); path != nil {
+				installed.Path = *path
+			}
+			state.Runtimes[backend] = installed
+		}
 		for i := range state.Models {
 			state.Models[i].Path = *rebase(&state.Models[i].Path)
 		}
