@@ -153,8 +153,9 @@ final class AppUpdater {
                 let archive = directory.appendingPathComponent(asset.name)
                 menuItem.title = HostL10n.t("menu.downloadingUpdate", release.version)
                 if !FileManager.default.fileExists(atPath: archive.path) {
-                    try await UpdateDownload.run(request(asset.browser_download_url, timeout: 600), to: archive) { [weak self] received, total in
-                        Task { @MainActor in self?.progress(received, total) }
+                    // 外层检查任务在下载期间本就持有 self，进度回调直接引用即可（AppUpdater 运行在主线程，可跨线程传递）。
+                    try await UpdateDownload.run(request(asset.browser_download_url, timeout: 600), to: archive) { received, total in
+                        Task { @MainActor in self.progress(received, total) }
                     }
                 }
                 menuItem.title = HostL10n.t("menu.verifyingUpdate")
