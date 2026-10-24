@@ -128,6 +128,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.engineStartFailed` 引擎启动失败，请检查运行库或更换计算设备。
 - `error.engineStartTimeout` 引擎启动超时，请打开日志查看详情。
 - `error.engineNoAudio` 引擎没有返回音频。
+- `error.engineCrashed` 推理引擎在生成时意外退出，可以直接重试；反复出现时请关闭占用内存或显卡的程序，或换用更小的模型。（{detail}）
 - `error.cpuBundleInvalid` 内置内核不是有效文件。
 - `error.backendUnsupported` 不支持的计算设备或平台。
 - `error.platformArch` 不支持的平台架构。

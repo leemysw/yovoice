@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "エンジンから音声が返されませんでした。"
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "生成中に推論エンジンが予期せず終了しました。再試行できます。繰り返し起きる場合は、メモリや GPU を使うアプリを閉じるか、より小さいモデルに切り替えてください。（{detail}）"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "エンジンの起動に失敗しました。ランタイムを確認するか、計算デバイスを切り替えてください。"
   },

@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "Le moteur n’a renvoyé aucun audio."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "Le moteur d’inférence s’est arrêté de façon inattendue pendant la génération. Réessayez ; si cela se répète, fermez les apps qui utilisent la mémoire ou le GPU, ou choisissez un modèle plus petit. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "Le moteur n’a pas pu démarrer. Vérifiez le moteur d’inférence ou changez d’appareil de calcul."
   },

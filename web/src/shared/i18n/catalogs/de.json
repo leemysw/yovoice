@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "Die Engine hat kein Audio zurückgegeben."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "Die Inferenz-Engine wurde beim Generieren unerwartet beendet. Versuche es erneut; tritt es wiederholt auf, schließe Apps, die Arbeitsspeicher oder GPU belegen, oder wähle ein kleineres Modell. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "Engine konnte nicht starten. Prüfen Sie die Runtime oder wechseln Sie das Rechengerät."
   },

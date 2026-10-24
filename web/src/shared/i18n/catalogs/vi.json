@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "Công cụ không trả về âm thanh."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "Công cụ suy luận đã thoát bất ngờ khi đang tạo. Bạn có thể thử lại; nếu lặp lại, hãy đóng ứng dụng đang dùng bộ nhớ hoặc GPU, hoặc chọn mô hình nhỏ hơn. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "Không khởi động được công cụ. Kiểm tra môi trường chạy hoặc đổi thiết bị tính toán."
   },

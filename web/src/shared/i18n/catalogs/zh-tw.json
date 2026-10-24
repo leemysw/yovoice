@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "引擎沒有傳回音訊。"
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "推理引擎在生成時意外結束，可以直接重試；反覆出現時請關閉佔用記憶體或顯示卡的程式，或改用較小的模型。（{detail}）"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "引擎啟動失敗，請檢查執行環境或更換運算裝置。"
   },

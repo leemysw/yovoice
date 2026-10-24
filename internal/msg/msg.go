@@ -98,6 +98,7 @@ const (
 	ErrEngineStartFailed     Code = "@yovoice.error.engineStartFailed"
 	ErrEngineStartTimeout    Code = "@yovoice.error.engineStartTimeout"
 	ErrEngineNoAudio         Code = "@yovoice.error.engineNoAudio"
+	ErrEngineCrashed         Code = "@yovoice.error.engineCrashed"
 	ErrCPUBundleInvalid      Code = "@yovoice.error.cpuBundleInvalid"
 	ErrBackendUnsupported    Code = "@yovoice.error.backendUnsupported"
 	ErrPlatformArch          Code = "@yovoice.error.platformArch"
@@ -223,7 +224,7 @@ func All() []Code {
 		ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelForgetBlocked,
 		ErrDownloadSource, ErrRuntimeRequired, ErrRuntimeMissing, ErrRuntimeUnique,
 		ErrRuntimeArchivePath, ErrRuntimeArchiveLink, ErrRuntimeArchiveSize,
-		ErrEngineStartFailed, ErrEngineStartTimeout, ErrEngineNoAudio,
+		ErrEngineStartFailed, ErrEngineStartTimeout, ErrEngineNoAudio, ErrEngineCrashed,
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,

@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "The engine returned no audio."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "The inference engine quit unexpectedly while generating. You can retry; if it keeps happening, close apps using memory or the GPU, or switch to a smaller model. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "Engine failed to start. Check the runtime or switch compute device."
   },

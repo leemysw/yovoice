@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "O motor não retornou áudio."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "O mecanismo de inferência foi encerrado inesperadamente durante a geração. Tente novamente; se continuar, feche apps que usam memória ou GPU, ou use um modelo menor. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "Falha ao iniciar o motor. Verifique o runtime ou troque o dispositivo de computação."
   },

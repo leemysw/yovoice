@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "엔진이 오디오를 반환하지 않았습니다."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "생성 중 추론 엔진이 예기치 않게 종료되었습니다. 다시 시도할 수 있으며, 계속 발생하면 메모리나 GPU를 사용하는 앱을 닫거나 더 작은 모델로 바꾸세요. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "엔진을 시작하지 못했습니다. 런타임을 확인하거나 연산 장치를 바꾸세요."
   },

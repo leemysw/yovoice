@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "Il motore non ha restituito alcun audio."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "Il motore di inferenza si è chiuso inaspettatamente durante la generazione. Riprova; se succede ancora, chiudi le app che usano memoria o GPU, oppure usa un modello più piccolo. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "Avvio del motore non riuscito. Controlla il runtime o cambia dispositivo di calcolo."
   },

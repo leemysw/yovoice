@@ -482,6 +482,9 @@
   "@yovoice.error.engineNoAudio": {
     "defaultMessage": "El motor no devolvió audio."
   },
+  "@yovoice.error.engineCrashed": {
+    "defaultMessage": "El motor de inferencia se cerró inesperadamente al generar. Puedes reintentar; si se repite, cierra apps que usen memoria o GPU, o usa un modelo más pequeño. ({detail})"
+  },
   "@yovoice.error.engineStartFailed": {
     "defaultMessage": "No se pudo iniciar el motor. Comprueba el entorno o cambia de dispositivo de cómputo."
   },

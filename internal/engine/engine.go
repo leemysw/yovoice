@@ -551,7 +551,7 @@ func (e *Engine) run(ctx context.Context, payload map[string]any) (taskResult, e
 	req.Header.Set("Content-Type", "application/json")
 	res, err := e.client.Do(req)
 	if err != nil {
-		return result, err
+		return result, e.crashed(ctx, err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
@@ -559,6 +559,61 @@ func (e *Engine) run(ctx context.Context, payload map[string]any) (taskResult, e
 		_ = os.WriteFile(filepath.Join(e.root, "logs", "last-inference-error.txt"), b, 0600)
 		return result, msg.Err(msg.ErrGenerateFailed, nil)
 	}
-	err = json.NewDecoder(io.LimitReader(res.Body, 256<<20)).Decode(&result)
-	return result, err
+	if err = json.NewDecoder(io.LimitReader(res.Body, 256<<20)).Decode(&result); err != nil {
+		return result, e.crashed(ctx, err)
+	}
+	return result, nil
+}
+
+// crashed 判断推理中途断开的连接是不是引擎进程退出造成的：Windows 上表现为“远程主机强迫关闭了一个现有的连接”，
+// 容易被误认为网络问题。引擎随即退出时改报“引擎意外退出”，并附上 engine.log 的最后一行（通常是断言或内存分配失败）；
+// 等它退出也让退出日志先于调用方的 stop 记下，意外退出不会被记成主动停止。
+func (e *Engine) crashed(ctx context.Context, err error) error {
+	if ctx.Err() != nil {
+		return err
+	}
+	var exit error
+	select {
+	case exit = <-e.done:
+	case <-time.After(2 * time.Second):
+		return err
+	}
+	detail := lastLogError(filepath.Join(e.root, "logs", "engine.log"))
+	if detail == "" && exit != nil {
+		detail = exit.Error()
+	}
+	if detail == "" {
+		detail = err.Error()
+	}
+	return msg.Err(msg.ErrEngineCrashed, msg.Params{"detail": detail})
+}
+
+// lastLogError 返回本次引擎输出的最后一行错误（断言、内存不足等），只读最后 4 KB；没有时返回空。
+func lastLogError(path string) string {
+	f, err := os.Open(path)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	if info, err := f.Stat(); err == nil && info.Size() > 4096 {
+		_, _ = f.Seek(-4096, io.SeekEnd)
+	}
+	b, _ := io.ReadAll(f)
+	lines := strings.Split(strings.TrimSpace(string(b)), "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		line := strings.TrimSpace(lines[i])
+		if strings.HasPrefix(line, "=====") {
+			return ""
+		}
+		lower := strings.ToLower(line)
+		for _, mark := range []string{"assert", "error", "failed", "abort", "exception", "out of memory"} {
+			if strings.Contains(lower, mark) {
+				if len(line) > 300 {
+					line = line[:300]
+				}
+				return line
+			}
+		}
+	}
+	return ""
 }
