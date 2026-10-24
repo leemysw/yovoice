@@ -16,9 +16,28 @@ const updateListeners = new Set<(update: unknown) => void>();
 // 宿主的状态连接可能早于页面建立，页面没收到完整推送时以 state.get 的结果为基础；在此之前的增量直接忽略。
 let latest: State | null = null;
 const publish = (state: State) => { latest = state; listeners.forEach(fn => fn(state)); };
+// 推送兜底：开始生成后服务会立即推送进度，5 秒内一条推送都没收到，说明宿主的状态推送断了（Windows 上出现过生成完成界面不动）。
+// 此时记入服务日志，并改为每 3 秒拉取一次完整状态，收到推送后停止拉取。
+const watchedCalls = new Set(['generation.start', 'generation.cue']);
+let lastEvent = 0;
+let polling: ReturnType<typeof setInterval> | undefined;
+function streamAlive() {
+  lastEvent = Date.now();
+  if (!polling) return;
+  clearInterval(polling); polling = undefined;
+  reportDesktop('state_stream_resumed', '', '');
+}
+function watchStream(method: string, since: number) {
+  setTimeout(() => {
+    if (lastEvent >= since || polling) return;
+    reportDesktop('state_stream_silent', method, 'no state event within 5s, polling state.get');
+    polling = setInterval(() => { void desktopCall<{ state: State }>('state.get', {}).then(result => { if (polling) publish(result.state); }).catch(() => undefined); }, 3000);
+  }, Math.max(0, since + 5000 - Date.now()));
+}
 native?.addEventListener('message', ({ data }) => {
-  if (data.event === 'state') { publish(data.state); return; }
+  if (data.event === 'state') { streamAlive(); publish(data.state); return; }
   if (data.event === 'patch') {
+    streamAlive();
     if (!latest) return;
     const next = { ...latest, ...data.patch } as Record<string, unknown>;
     for (const key of data.removed ?? []) delete next[key];
@@ -49,7 +68,9 @@ export function desktopCall<T>(method: string, data: unknown): Promise<T> {
       pending.delete(id); reportDesktop('timeout', method, 'no reply within 120s');
       reject(new CallError('@yovoice.error.unknown', { detail: 'desktop timeout' }));
     }, 120000);
-    pending.set(id, { resolve: value => { if (method === 'state.get' && !latest) latest = (value as { state?: State }).state ?? null; resolve(value as T); }, reject, timer }); native!.postMessage({ id, method, data });
+    // 进度推送可能早于调用回复到达，计时从发出请求算起；调用失败时没有推送，不计。
+    const sent = Date.now();
+    pending.set(id, { resolve: value => { if (method === 'state.get' && !latest) latest = (value as { state?: State }).state ?? null; if (watchedCalls.has(method)) watchStream(method, sent); resolve(value as T); }, reject, timer }); native!.postMessage({ id, method, data });
   });
 }
 

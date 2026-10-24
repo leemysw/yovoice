@@ -196,20 +196,35 @@ public sealed class LocalService : IDisposable
     }
     private async Task ReadEventsAsync()
     {
+        // 推送断开时界面不再更新（生成完成却没有反应），因此连接、断开与出错都记入宿主日志；
+        // 重连每秒一次，连续失败只记第一次。任何异常都不能让循环退出，否则只有重启应用才能恢复。
+        bool failing = false;
         while (!stopped.IsCancellationRequested)
         {
+            long received = 0;
             try
             {
                 using var request = Request(HttpMethod.Get, "api/state-events");
-                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, stopped.Token);
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, stopped.Token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
-                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync(stopped.Token));
-                while (await reader.ReadLineAsync(stopped.Token) is { } line)
-                    if (line.StartsWith("data: ", StringComparison.Ordinal)) StateChanged?.Invoke(line[6..]);
+                HostLog.Write(Root, "service.events_connected");
+                failing = false;
+                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync(stopped.Token).ConfigureAwait(false));
+                while (await reader.ReadLineAsync(stopped.Token).ConfigureAwait(false) is { } line)
+                {
+                    if (!line.StartsWith("data: ", StringComparison.Ordinal)) continue;
+                    received++;
+                    StateChanged?.Invoke(line[6..]);
+                }
+                HostLog.Write(Root, "service.events_ended:" + received);
             }
             catch (OperationCanceledException) when (stopped.IsCancellationRequested) { return; }
-            catch (Exception error) when (error is HttpRequestException or IOException) { }
-            try { await Task.Delay(1000, stopped.Token); } catch (OperationCanceledException) { return; }
+            catch (Exception error)
+            {
+                if (!failing) HostLog.Write(Root, "service.events_failed:" + received, error);
+                failing = true;
+            }
+            try { await Task.Delay(1000, stopped.Token).ConfigureAwait(false); } catch (OperationCanceledException) { return; }
         }
     }
     public async Task ShutdownAsync()

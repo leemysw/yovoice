@@ -582,6 +582,6 @@ public partial class MainWindow : Window
     {
         if (closed || web?.CoreWebView2 is null) return;
         try { web.CoreWebView2.PostWebMessageAsJson(json); }
-        catch (InvalidOperationException) { }
+        catch (Exception error) when (error is InvalidOperationException or COMException or ArgumentException) { HostLog.Write(service.Root, "web.post_failed", error); }
     }
 }
