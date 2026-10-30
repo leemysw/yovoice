@@ -148,4 +148,4 @@ The models the app can install, their files, checksums, generation options and e
 - `internal/catalog/generation_options.json` and `omni_attributes.json`: per-model controls. The UI imports these same files (and `catalog.json`, `internal/llm/presets.json`) through the Vite alias `@internal` instead of keeping copies.
 - `internal/catalog/engine.json`: recommended and minimum audio.cpp versions with archive checksums.
 
-Adding a model is therefore mostly data: describe the package in the catalog, map its parameters in `engine/request.go` and expose its options in the UI. `go test` checks that the Go and UI copies match.
+Adding a model is therefore mostly data: describe the package in the catalog, map its parameters in `engine/request.go` and expose its options in the UI. The UI imports these files directly through the `@internal` alias, so there is no second copy to keep in sync.

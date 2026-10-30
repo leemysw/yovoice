@@ -148,4 +148,4 @@ sequenceDiagram
 - `internal/catalog/generation_options.json` 与 `omni_attributes.json`：各模型的控件；界面经 Vite 别名 `@internal` 直接引用这些文件（以及 `catalog.json`、`internal/llm/presets.json`），不再保存副本。
 - `internal/catalog/engine.json`：推荐和最低的 audio.cpp 版本及压缩包校验和。
 
-因此新增模型主要是改数据：在目录中描述模型包，在 `engine/request.go` 中映射参数，并在界面中提供选项。`go test` 会检查 Go 与界面两份副本是否一致。
+因此新增模型主要是改数据：在目录中描述模型包，在 `engine/request.go` 中映射参数，并在界面中提供选项。界面通过 `@internal` 别名直接引用这些文件，不再保留第二份副本。

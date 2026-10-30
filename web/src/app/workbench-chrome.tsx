@@ -235,7 +235,12 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     void call('preferences.save', { ...state.preferences, introSeen: state.preferences.introSeen || introDone, tourSeen: true }).catch(e => setError(noticeMessage(e)));
   };
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
-  useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
+  // 开场画面按需加载：等它的代码到位再收起启动动画，避免先露出一帧主界面。
+  useEffect(() => {
+    if (error) dismissSplash(true);
+    else if (showIntro) void import('./intro-screen').then(() => dismissSplash(true));
+    else if (ready) dismissSplash();
+  }, [ready, error, showIntro]);
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(current, state.history)); }, [state.history, draft.id, ready, setDraft]);
   const generate = () => {
     if (state.activity?.status === 'running') return;
