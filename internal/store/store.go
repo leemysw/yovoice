@@ -85,29 +85,41 @@ func New(root string) (store *Store, err error) {
 // open 打开状态库；首次运行新版本时从旧版 state.json 导入，数据库损坏或丢失时从备份恢复。
 func (s *Store) open() error {
 	path := filepath.Join(s.Root, DatabaseFile)
-	if _, e := os.Stat(path); os.IsNotExist(e) {
-		if _, be := os.Stat(filepath.Join(s.Root, backupFile)); be == nil {
-			// 状态库不在而备份还在（恢复中途失败、同步盘或杀毒软件临时移走文件）：先从备份恢复。
-			// 此时绝不能新建空库，否则启动后的备份刷新会用空库覆盖唯一的副本，全部数据丢失。
-			if e = s.restoreMissing(path); e != nil {
+	info, e := os.Stat(path)
+	_, backupErr := os.Stat(filepath.Join(s.Root, backupFile))
+	hasBackup := backupErr == nil
+	// 0 字节的库文件是复制或恢复中途被打断留下的：SQLite 会在空文件上建表并通过检查，启动后再用这份空库刷新备份，
+	// 数据就全丢了。有备份时与丢失同样处理，空文件移走留存。
+	empty := e == nil && info.Size() == 0
+	switch {
+	case (os.IsNotExist(e) || empty) && hasBackup:
+		// 状态库不在而备份还在（恢复中途失败、同步盘或杀毒软件临时移走文件）：先从备份恢复。
+		// 此时绝不能新建空库，否则启动后的备份刷新会用空库覆盖唯一的副本。
+		reason := "database missing"
+		if empty {
+			reason = "database empty"
+			if e = os.Rename(path, filepath.Join(s.Root, "yovoice.corrupt-"+timestamp()+".db")); e != nil {
 				return e
-			}
-		} else {
-			state, found, e := readLegacy(s.Root)
-			if e != nil {
-				return e
-			}
-			if e = createDB(path, state, nil); e != nil {
-				return e
-			}
-			if found {
-				diag.Log(s.Root, "state.imported", "source", legacyState)
 			}
 		}
-	} else if e != nil {
+		if e = s.restoreMissing(path, reason); e != nil {
+			return e
+		}
+	case os.IsNotExist(e):
+		state, found, le := readLegacy(s.Root)
+		if le != nil {
+			return le
+		}
+		if le = createDB(path, state, nil); le != nil {
+			return le
+		}
+		if found {
+			diag.Log(s.Root, "state.imported", "source", legacyState)
+		}
+	case e != nil:
 		return e
 	}
-	e := s.load(path)
+	e = s.load(path)
 	if corrupt(e) {
 		if e = s.restore(path, e); e == nil {
 			if e = s.load(path); corrupt(e) {
@@ -165,16 +177,18 @@ func (s *Store) settleDeleted() {
 	}
 }
 
-// restoreMissing 在状态库文件丢失时用备份补回；遗留的回滚日志属于丢失的那份库，移走以免被应用到备份上。
-func (s *Store) restoreMissing(path string) error {
-	stamp := time.Now().Format("20060102-150405.000000000")
-	if e := os.Rename(path+"-journal", filepath.Join(s.Root, "yovoice.corrupt-"+stamp+".db-journal")); e != nil && !os.IsNotExist(e) {
+// timestamp 给损坏快照等留存文件命名。
+func timestamp() string { return time.Now().Format("20060102-150405.000000000") }
+
+// restoreMissing 在状态库文件丢失（或已移走）时用备份补回；遗留的回滚日志属于丢失的那份库，移走以免被应用到备份上。
+func (s *Store) restoreMissing(path, reason string) error {
+	if e := os.Rename(path+"-journal", filepath.Join(s.Root, "yovoice.corrupt-"+timestamp()+".db-journal")); e != nil && !os.IsNotExist(e) {
 		return e
 	}
 	if e := copyFile(filepath.Join(s.Root, backupFile), path); e != nil {
 		return e
 	}
-	diag.Log(s.Root, "state.recovered", "source", backupFile, "reason", "database missing")
+	diag.Log(s.Root, "state.recovered", "source", backupFile, "reason", reason)
 	pruneCorrupt(s.Root, keepCorrupt)
 	return nil
 }
@@ -186,7 +200,7 @@ func (s *Store) restore(path string, cause error) error {
 		diag.Log(s.Root, "state.corrupt", "error", diag.Error(cause))
 		return msg.Err(msg.ErrStateCorrupt, nil)
 	}
-	corruptPath := filepath.Join(s.Root, "yovoice.corrupt-"+time.Now().Format("20060102-150405.000000000")+".db")
+	corruptPath := filepath.Join(s.Root, "yovoice.corrupt-"+timestamp()+".db")
 	if e := os.Rename(path, corruptPath); e != nil {
 		return e
 	}
@@ -202,13 +216,21 @@ func (s *Store) restore(path string, cause error) error {
 	return nil
 }
 
+// copyFile 把 src 复制为 dst：先写同目录的临时文件再改名，中途被打断不会在 dst 留下半个（或 0 字节的）库文件；
+// dst 已存在时不覆盖。
 func copyFile(src, dst string) error {
+	if _, e := os.Lstat(dst); e == nil {
+		return fmt.Errorf("%s 已存在", dst)
+	}
 	in, e := os.Open(src)
 	if e != nil {
 		return e
 	}
 	defer in.Close()
-	out, e := os.OpenFile(dst, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+	tmp := filepath.Join(filepath.Dir(dst), fmt.Sprintf(".yovoice-restore-%d.db", os.Getpid()))
+	_ = os.Remove(tmp)
+	defer os.Remove(tmp)
+	out, e := os.OpenFile(tmp, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 	if e != nil {
 		return e
 	}
@@ -219,9 +241,13 @@ func copyFile(src, dst string) error {
 		e = ce
 	}
 	if e != nil {
-		_ = os.Remove(dst)
+		return e
 	}
-	return e
+	if e = os.Rename(tmp, dst); e != nil {
+		return e
+	}
+	platform.SyncDir(filepath.Dir(dst))
+	return nil
 }
 
 // settleActivity 整理上次会话遗留的操作：运行中的标记为中断，失败提示属于上次会话，重启后不再冒充本次操作的错误。
