@@ -32,9 +32,9 @@ type generationJob struct {
 	created     time.Time
 }
 
-// errJobConflict 与 errJobMissing 没有对应的消息码，HTTP 分别映射为 409 与 404。
-var errJobConflict = errors.New("任务 ID 已用于不同参数，或推理服务繁忙")
-var errJobMissing = errors.New("任务不存在或已过期")
+// errJobConflict 与 errJobMissing 带稳定错误码，HTTP 分别映射为 409 与 404。
+var errJobConflict = msg.Err(msg.ErrJobConflict, nil)
+var errJobMissing = msg.Err(msg.ErrJobMissing, nil)
 
 // errorString 给任务记录写稳定的失败原因：结构化错误用错误码（带 detail 时附在括号内），其余用原文。
 func errorString(err error) string {

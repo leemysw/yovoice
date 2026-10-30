@@ -503,6 +503,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "생성에 실패했습니다. 모델, VRAM, 참조 오디오를 확인하세요. 로그는 설정에서 열 수 있습니다."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "요청 ID가 다른 매개변수로 이미 사용되었거나 서비스가 사용 중입니다."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "작업이 존재하지 않거나 만료되었습니다."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "이 모델은 해당 언어를 지원하지 않습니다."
   },

@@ -144,6 +144,8 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.voxReferenceRequired` 精细克隆需要参考音频的原文。
 - `error.voxParams` VoxCPM2 生成参数超出范围。
 - `error.legacyRestore` 旧数据无法读取。
+- `error.jobMissing` 任务不存在或已过期。
+- `error.jobConflict` 任务 ID 已用于不同参数，或推理服务繁忙。
 - `error.musicStyle` 请用 1–512 字描述风格。
 - `error.musicLyrics` 歌词最多 4000 字。
 - `error.musicParams` 音乐参数超出当前模型的范围，请检查时长、速度或重绘区间。

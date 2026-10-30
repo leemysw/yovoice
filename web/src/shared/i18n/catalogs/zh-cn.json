@@ -503,6 +503,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "生成失败，请检查模型、显存和参考音频。可在设置中打开日志。"
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "任务 ID 已用于不同参数，或推理服务繁忙。"
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "任务不存在或已过期。"
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "当前模型不支持此语言。"
   },

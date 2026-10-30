@@ -503,6 +503,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "Generierung fehlgeschlagen. Prüfen Sie Modell, VRAM und Referenzaudio. Logs finden Sie in den Einstellungen."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "Die Anfrage-ID wurde bereits mit anderen Parametern verwendet, oder der Dienst ist ausgelastet."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "Die Aufgabe existiert nicht oder ist abgelaufen."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "Dieses Modell unterstützt diese Sprache nicht."
   },

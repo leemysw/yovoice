@@ -503,6 +503,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "Tạo thất bại. Kiểm tra mô hình, VRAM và âm thanh tham chiếu. Mở nhật ký trong Cài đặt."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "ID yêu cầu đã được dùng với tham số khác, hoặc dịch vụ đang bận."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "Tác vụ không tồn tại hoặc đã hết hạn."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "Mô hình này không hỗ trợ ngôn ngữ đó."
   },

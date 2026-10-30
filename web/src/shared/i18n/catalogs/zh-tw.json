@@ -503,6 +503,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "生成失敗，請檢查模型、顯示記憶體和參考音訊。可在設定中開啟記錄檔。"
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "任務 ID 已用於不同參數，或推理服務繁忙。"
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "任務不存在或已過期。"
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "目前模型不支援此語言。"
   },
