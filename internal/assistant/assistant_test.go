@@ -209,6 +209,58 @@ func TestCrashAndRecover(t *testing.T) {
 	}
 }
 
+// 进程发出 result 后立刻退出：最后几行不能丢，Ask 必须拿到成功结果与文本，而不是“assistant exited”。
+// 事件回调故意放慢（界面推送本就有延迟），让进程退出时读循环还没处理到 result 行；
+// 之后进程已自行退出，Stop 不再按 PID 杀进程，也不能卡住。
+func TestResultThenExitDeliversResult(t *testing.T) {
+	manager, cfg := fakeManager(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{{
+		Delta: "进行中",
+	}, {
+		Assistant: "完成了。",
+	}, {
+		Result: "success",
+	}, {
+		Crash: 1,
+	}}}})
+	var events int
+	result, err := manager.Ask(context.Background(), *cfg, "写一段", func(Event) {
+		events++
+		time.Sleep(100 * time.Millisecond)
+	})
+	must(t, err)
+	if result.Subtype != "success" || !strings.Contains(result.Text, "完成了。") || events != 2 {
+		t.Fatalf("结果不对：%+v，事件 %d", result, events)
+	}
+	manager.mu.Lock()
+	proc := manager.proc
+	manager.mu.Unlock()
+	if proc == nil {
+		t.Fatal("成功结束的一轮不应清掉进程")
+	}
+	select {
+	case <-proc.done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("进程应已退出")
+	}
+	stopped := make(chan struct{})
+	go func() {
+		manager.Stop()
+		close(stopped)
+	}()
+	select {
+	case <-stopped:
+	case <-time.After(5 * time.Second):
+		t.Fatal("进程已退出后 Stop 不应卡住")
+	}
+	if _, err = os.Stat(pidPath(manager.root)); !os.IsNotExist(err) {
+		t.Fatal("结束后应删除 pid 文件", err)
+	}
+	// 退出后再 Ask 要能重新启动。
+	if _, err = manager.Ask(context.Background(), *cfg, "再来", nil); err != nil {
+		t.Fatal("退出后应能重新启动", err)
+	}
+}
+
 func TestProtocolGarbage(t *testing.T) {
 	manager, cfg := fakeManager(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{{
 		BadLine: "这不是 JSON",

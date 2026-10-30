@@ -419,7 +419,8 @@ func (w *Workbench) runAI(task schema.AITask, providerID string, work func(conte
 	go func() {
 		defer close(done)
 		defer cancel()
-		result, err := work(ctx)
+		var result any
+		err := diag.Catch(w.Store.Root, "ai.task", func() (e error) { result, e = work(ctx); return e })
 		var raw json.RawMessage
 		if err == nil {
 			if raw, err = json.Marshal(result); err != nil {

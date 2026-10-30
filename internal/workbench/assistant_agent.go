@@ -275,7 +275,23 @@ func (w *Workbench) proposalLabel(action, target, value string) (string, error) 
 }
 
 // ResolveAssistantProposal 处理用户对提议卡片的选择：确认则执行，否则标记为已忽略；只处理仍待确认的提议。
+// 同一提议先在锁内占住再查状态，并发的两次确认只有一次会执行。
 func (w *Workbench) ResolveAssistantProposal(id string, confirm bool) error {
+	w.chat.mu.Lock()
+	if w.chat.resolving[id] {
+		w.chat.mu.Unlock()
+		return msg.Err(msg.ErrBusy, nil)
+	}
+	if w.chat.resolving == nil {
+		w.chat.resolving = map[string]bool{}
+	}
+	w.chat.resolving[id] = true
+	w.chat.mu.Unlock()
+	defer func() {
+		w.chat.mu.Lock()
+		delete(w.chat.resolving, id)
+		w.chat.mu.Unlock()
+	}()
 	proposal := w.findProposal(id)
 	if proposal == nil || proposal.State != "pending" {
 		return msg.Err(msg.ErrRequestInvalid, nil)
@@ -295,8 +311,7 @@ func (w *Workbench) ResolveAssistantProposal(id string, confirm bool) error {
 		}
 	}
 	diag.Log(w.Store.Root, "assistant.proposal", "action", next.Action, "state", next.State)
-	w.storeProposal(next)
-	return nil
+	return w.storeProposal(next)
 }
 
 // runProposal 执行用户确认的操作，与界面按钮走同一个应用服务。
@@ -365,8 +380,8 @@ func (w *Workbench) findProposal(id string) *schema.AssistantProposal {
 	return nil
 }
 
-// storeProposal 写回提议的新状态：进行中的一轮更新实时状态，已保存的会话更新记录。
-func (w *Workbench) storeProposal(p schema.AssistantProposal) {
+// storeProposal 写回提议的新状态：进行中的一轮更新实时状态，已保存的会话更新记录；记录写不进去时返回错误。
+func (w *Workbench) storeProposal(p schema.AssistantProposal) error {
 	w.chat.mu.Lock()
 	var snapshot *schema.AssistantTurn
 	if turn := w.chat.turn; turn != nil {
@@ -378,7 +393,7 @@ func (w *Workbench) storeProposal(p schema.AssistantProposal) {
 	if snapshot != nil {
 		w.publishLive(func(live *schema.AssistantLive) { live.Turn = snapshot })
 	}
-	_ = w.Store.Update(func(s *schema.State) {
+	return w.Store.Update(func(s *schema.State) {
 		if s.AssistantSessions == nil {
 			return
 		}

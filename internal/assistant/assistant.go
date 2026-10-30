@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
@@ -219,6 +220,8 @@ type process struct {
 
 	bridge *bridge
 
+	// seq 生成宿主发起的 control_request ID；同一进程内不能重复，否则 waiters 会串。
+	seq     atomic.Int64
 	ctrlMu  sync.Mutex
 	waiters map[string]chan wireControlResponse
 
@@ -303,49 +306,89 @@ func startProcess(ctx context.Context, root string, options Options, cfg Config)
 	if err != nil {
 		return nil, err
 	}
-	stdout, err := cmd.StdoutPipe()
+	// stdout 用自建管道而不是 StdoutPipe：Wait 一看到进程退出就会关掉 StdoutPipe 的读端，
+	// 读循环可能还没读完最后几行（例如 result）。自建管道由读循环读到 EOF 后自己关闭。
+	pr, pw, err := os.Pipe()
 	if err != nil {
 		return nil, err
 	}
+	cmd.Stdout = pw
 	stderr, err := diag.OpenProcessLog(filepath.Join(root, "logs", "assistant.log"), "assistant "+cfg.Model)
 	if err != nil {
+		pr.Close()
+		pw.Close()
 		return nil, err
 	}
 	cmd.Stderr = stderr
 	if err = cmd.Start(); err != nil {
+		pr.Close()
+		pw.Close()
 		stderr.Close()
 		return nil, err
 	}
+	// 写端已交给子进程；父进程不再持有，子进程退出后读端才能读到 EOF。
+	pw.Close()
 	// 服务崩溃或被强制结束时不能留下助手进程：Windows 绑定作业对象，其他系统记录 PID 供下次启动清理。
 	if err = platform.TieToParent(cmd); err != nil {
 		diag.Log(root, "assistant.tie_failed", "error", diag.Error(err))
 	}
-	_ = os.WriteFile(pidPath(root), []byte(strconv.Itoa(cmd.Process.Pid)), 0600)
+	if err = os.WriteFile(pidPath(root), []byte(strconv.Itoa(cmd.Process.Pid)), 0600); err != nil {
+		diag.Log(root, "assistant.pid_write_failed", "error", diag.Error(err))
+	}
 	p := &process{root: root, cfg: cfg, cmd: cmd, stdin: stdin, waiters: map[string]chan wireControlResponse{}, toolIDs: map[string]string{}}
 	// done 只关闭不发值：先发值再关闭时，读走值的一方和随后检查 done 的一方之间有空档，会把已退出的进程当成还活着。
 	p.done = make(chan struct{})
-	go func() {
-		_ = cmd.Wait()
-		stderr.Close()
-		close(p.done)
-	}()
 	// 命令行不含密钥，可安全记录；Env 不落日志。
 	diag.Log(root, "assistant.started", "pid", cmd.Process.Pid, "model", cfg.Model, "tools", list)
-	p.bridge = newBridge(context.Background(), options.NewServer(), p.writeLine)
-	go p.readLoop(stdout)
+	p.bridge = newBridge(context.Background(), root, options.NewServer(), p.writeLine)
+	// readDone 在读循环结束后关闭；等待 goroutine 据此保证 done 关闭时本轮输出已全部派发。
+	readDone := make(chan struct{})
+	go func() {
+		defer close(readDone)
+		defer pr.Close()
+		// 读循环 panic 时本轮不能悬着：转成错误结束进程，等待方据此得到“assistant exited”。
+		if err := diag.Catch(root, "assistant.read", func() error { p.readLoop(pr); return nil }); err != nil {
+			p.fail(err)
+		}
+	}()
+	diag.Go(root, "assistant.wait", func() {
+		defer close(p.done)
+		defer stderr.Close()
+		_ = cmd.Wait()
+		// 进程退出后等读循环读到 EOF，让最后几行（含 result）先派发；
+		// 孙进程继承了管道写端时 EOF 可能迟迟不来，最多等 3 秒。
+		select {
+		case <-readDone:
+		case <-time.After(3 * time.Second):
+		}
+	})
 	handshake, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-	if _, err = p.call(handshake, "init-1", map[string]any{"subtype": "initialize", "sdkMcpServers": []string{"yovoice"}}); err != nil {
+	if _, err = p.call(handshake, p.requestID("init"), map[string]any{"subtype": "initialize", "sdkMcpServers": []string{"yovoice"}}); err != nil {
 		p.stop()
 		return nil, err
 	}
 	return p, nil
 }
 
+// requestID 生成宿主发起的 control_request ID，如 init-1、interrupt-3。
+func (p *process) requestID(kind string) string {
+	return kind + "-" + strconv.FormatInt(p.seq.Add(1), 10)
+}
+
+// kill 结束子进程；进程已退出时跳过：PID 可能已被复用，按旧 PID 杀会误伤别的进程。
+func (p *process) kill() {
+	select {
+	case <-p.done:
+	default:
+		platform.KillProcess(p.cmd)
+	}
+}
+
 // stop 结束子进程并等待退出；幂等。
 func (p *process) stop() {
 	p.stopOnce.Do(func() {
-		platform.KillProcess(p.cmd)
+		p.kill()
 		<-p.done
 		if p.bridge != nil {
 			p.bridge.close()
@@ -363,7 +406,7 @@ func (p *process) fail(err error) {
 	}
 	p.writeMu.Unlock()
 	diag.Log(p.root, "assistant.protocol_failed", "error", diag.Error(err))
-	platform.KillProcess(p.cmd)
+	p.kill()
 }
 
 // writeLine 向 ocho 的 stdin 写一行 JSON。
@@ -405,6 +448,15 @@ func (p *process) call(ctx context.Context, id string, request any) (wireControl
 		p.ctrlMu.Unlock()
 		return wireControlResponse{}, ctx.Err()
 	case <-p.done:
+		// done 关闭前读循环已派发完全部输出；响应与退出同时就绪时 select 随机选边，这里优先取响应。
+		select {
+		case res := <-ch:
+			if res.Subtype != "success" {
+				return res, msg.Err(msg.ErrAIResponse, msg.Params{"status": 0, "detail": "control request " + id + " failed: " + res.Subtype})
+			}
+			return res, nil
+		default:
+		}
 		return wireControlResponse{}, p.exitError("waiting for control response")
 	}
 }
@@ -421,7 +473,7 @@ func (p *process) exitError(what string) error {
 }
 
 func (p *process) setModel(ctx context.Context, model string) error {
-	if _, err := p.call(ctx, "set-model-1", map[string]any{"subtype": "set_model", "model": model}); err != nil {
+	if _, err := p.call(ctx, p.requestID("set-model"), map[string]any{"subtype": "set_model", "model": model}); err != nil {
 		return err
 	}
 	p.cfg.Model = model
@@ -449,13 +501,22 @@ func (p *process) ask(ctx context.Context, text string, onEvent func(Event)) (Re
 	if err := p.writeLine(map[string]any{"type": "user", "message": map[string]any{"role": "user", "content": text}}); err != nil {
 		return Result{}, err
 	}
-	select {
-	case res := <-state.result:
+	finish := func(res Result) (Result, error) {
 		if res.Subtype != "success" {
 			return Result{Subtype: res.Subtype}, msg.Err(msg.ErrAIResponse, msg.Params{"status": 0, "detail": "turn ended with " + res.Subtype})
 		}
 		return Result{Subtype: res.Subtype, Text: state.text.String()}, nil
+	}
+	select {
+	case res := <-state.result:
+		return finish(res)
 	case <-p.done:
+		// done 关闭前读循环已派发完全部输出；result 与退出同时就绪时 select 随机选边，这里优先取 result。
+		select {
+		case res := <-state.result:
+			return finish(res)
+		default:
+		}
 		return Result{}, p.exitError("during turn")
 	case <-ctx.Done():
 		// 取消后调用方不再关心本轮输出：先停止派发，再请 ocho 中断，最多等一小段时间拿 result，拿不到就结束进程。
@@ -464,7 +525,7 @@ func (p *process) ask(ctx context.Context, text string, onEvent func(Event)) (Re
 		p.turnMu.Unlock()
 		interruptCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		_, _ = p.call(interruptCtx, "interrupt-"+strconv.FormatInt(time.Now().UnixNano(), 36), map[string]any{"subtype": "interrupt"})
+		_, _ = p.call(interruptCtx, p.requestID("interrupt"), map[string]any{"subtype": "interrupt"})
 		select {
 		case <-state.result:
 		case <-time.After(5 * time.Second):
@@ -489,8 +550,8 @@ type wireControlRequest struct {
 	Message    json.RawMessage `json:"message"`
 }
 
-// readLoop 逐行读取 ocho 的 stdout 并分发消息，直到进程退出。
-func (p *process) readLoop(stdout io.ReadCloser) {
+// readLoop 逐行读取 ocho 的 stdout 并分发消息，直到读到 EOF（子进程退出且写端全部关闭）或协议出错。
+func (p *process) readLoop(stdout io.Reader) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 0, 64*1024), 16<<20)
 	for scanner.Scan() {

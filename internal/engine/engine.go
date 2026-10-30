@@ -103,8 +103,13 @@ func (e *Engine) Stop() {
 func (e *Engine) stop() {
 	if e.process != nil {
 		e.stopping.Store(true)
-		platform.KillProcess(e.process)
-		<-e.done
+		select {
+		case <-e.done:
+			// 进程已自行退出：PID 可能已被别的程序复用，不能再按它结束。
+		default:
+			platform.KillProcess(e.process)
+			<-e.done
+		}
 		e.process = nil
 		e.key = ""
 		_ = os.Remove(pidPath(e.root))
@@ -169,7 +174,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		return err
 	}
 	path := filepath.Join(e.root, "runtime", "server.json")
-	if err = os.WriteFile(path, b, 0600); err != nil {
+	if err = platform.WriteFileAtomic(path, b, 0600); err != nil {
 		return err
 	}
 	c := exec.Command(executable, "--config", path, "--no-ui")
@@ -206,13 +211,16 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	if err := platform.TieToParent(c); err != nil {
 		diag.Log(e.root, "engine.tie_failed", "error", diag.Error(err))
 	}
-	_ = os.WriteFile(pidPath(e.root), []byte(strconv.Itoa(c.Process.Pid)), 0600)
+	if err := os.WriteFile(pidPath(e.root), []byte(strconv.Itoa(c.Process.Pid)), 0600); err != nil {
+		// 没有 PID 文件，服务崩溃后下次启动无法回收这个推理进程，至少留下记录。
+		diag.Log(e.root, "engine.pid_write_failed", "error", diag.Error(err))
+	}
 	e.process = c
 	e.done = make(chan error, 1)
 	e.stopping = new(atomic.Bool)
 	done, stopping, pid, launched := e.done, e.stopping, c.Process.Pid, time.Now()
 	diag.Log(e.root, "engine.started", "family", family, "task", task, "backend", backend, "pid", pid)
-	go func() {
+	diag.Go(e.root, "engine.wait", func() {
 		err := c.Wait()
 		event := "engine.exited"
 		if stopping.Load() {
@@ -226,7 +234,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		diag.Log(e.root, event, "family", family, "pid", pid, "uptime_s", int(time.Since(launched).Seconds()), "exit", exit)
 		done <- err
 		close(done)
-	}()
+	})
 	e.endpoint = fmt.Sprintf("http://127.0.0.1:%d/", port)
 	attempts := 120
 	if family == "kokoro_tts" {

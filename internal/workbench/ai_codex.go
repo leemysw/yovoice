@@ -30,7 +30,7 @@ func (w *Workbench) LoginCodex() error {
 	diag.Log(w.Store.Root, "ai.codex_login_started")
 	go func() {
 		started := time.Now()
-		err := llm.CodexLogin(ctx)
+		err := diag.Catch(w.Store.Root, "ai.codex_login", func() error { return llm.CodexLogin(ctx) })
 		diag.Log(w.Store.Root, "ai.codex_login_finished", "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))
 		w.ai.mu.Lock()
 		w.ai.codexLogin = nil

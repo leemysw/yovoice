@@ -57,6 +57,8 @@ type chatState struct {
 	queue   []chatMessage
 	// turn 是当前一轮的实时数据；事件回调与工具处理器并发读写，由锁保护。
 	turn *chatTurn
+	// resolving 是正在执行确认操作的提议 ID：同一提议的重复确认在执行完成前被拒绝，不会执行两次。
+	resolving map[string]bool
 }
 
 // chatTurn 是一轮对话的实时状态：blocks 为已定稿的内容块，pending 为尚未定稿的流式增量
@@ -89,9 +91,9 @@ func (w *Workbench) SendAssistant(text string, context AssistantContext) error {
 	if err != nil {
 		return err
 	}
-	// 用户消息立即入库：标题取首条用户消息，会话时间随之更新。
+	// 用户消息立即入库：标题取首条用户消息，会话时间随之更新。写不进去就不开始这一轮，让用户看到保存失败。
 	now := time.Now().UTC()
-	_ = w.Store.Update(func(s *schema.State) {
+	if err := w.Store.Update(func(s *schema.State) {
 		session := assistantSessionByID(*s, sessionID)
 		if session == nil {
 			return
@@ -101,7 +103,9 @@ func (w *Workbench) SendAssistant(text string, context AssistantContext) error {
 		if session.Title == "" {
 			session.Title = sessionTitle(text)
 		}
-	}, true)
+	}, true); err != nil {
+		return err
+	}
 	w.chat.mu.Lock()
 	if w.chat.stopped {
 		w.chat.mu.Unlock()
@@ -113,7 +117,7 @@ func (w *Workbench) SendAssistant(text string, context AssistantContext) error {
 	w.chat.mu.Unlock()
 	w.publishQueued()
 	if start {
-		go w.chatLoop()
+		diag.Go(w.Store.Root, "assistant.chat", w.chatLoop)
 	}
 	return nil
 }
@@ -159,10 +163,14 @@ func (w *Workbench) NewAssistantSession() (schema.AssistantSession, error) {
 			s.AssistantSessions.Sessions = s.AssistantSessions.Sessions[:len(s.AssistantSessions.Sessions)-excess]
 		}
 	}, true)
+	if err != nil {
+		return session, err
+	}
+	// 状态已提交才删目录：状态没删掉而目录没了，会话的助手时间线就找不回来了。
 	for _, id := range removed {
 		_ = os.RemoveAll(assistantSessionDir(w.Store.Root, id))
 	}
-	return session, err
+	return session, nil
 }
 
 // OpenAssistantSession 切换到某个会话；下一轮对话用该会话的助手时间线（子进程按配置目录重启）。
@@ -206,11 +214,14 @@ func (w *Workbench) DeleteAssistantSession(id string) error {
 			}
 		}
 	}, true)
+	if err != nil {
+		return err
+	}
 	if !found {
 		return msg.Err(msg.ErrRequestInvalid, nil)
 	}
 	_ = os.RemoveAll(assistantSessionDir(w.Store.Root, id))
-	return err
+	return nil
 }
 
 // ensureAssistantSession 返回当前会话 ID；没有会话时新建一个。
@@ -289,7 +300,16 @@ func (w *Workbench) chatLoop() {
 		ctx, cancel := context.WithCancel(context.Background())
 		w.chat.cancel = cancel
 		w.chat.mu.Unlock()
-		w.runTurn(ctx, next)
+		// 一轮里的 panic 只让这一轮失败，循环继续处理后面的消息。
+		if err := diag.Catch(w.Store.Root, "assistant.turn", func() error { w.runTurn(ctx, next); return nil }); err != nil {
+			w.chat.mu.Lock()
+			w.chat.turn = nil
+			w.chat.mu.Unlock()
+			var ce *msg.CallError
+			errors.As(err, &ce)
+			w.appendChat(next.sessionID, schema.AssistantMessage{ID: schema.NewID(), Role: "assistant", Status: "failed", ErrorCode: ce.Code, ErrorParams: ce.Params, CreatedAt: time.Now().UTC()})
+			w.publishLive(func(live *schema.AssistantLive) { live.Turn = nil })
+		}
 		cancel()
 	}
 }
@@ -436,9 +456,10 @@ func (w *Workbench) publishLive(change func(*schema.AssistantLive)) {
 }
 
 // appendChat 把一条消息追加进某个会话并持久化；会话已被删除时丢弃，超过上限时丢弃最旧的消息。
+// 写入失败记入诊断日志：这条消息会从记录里消失，排查时要能看到原因。
 func (w *Workbench) appendChat(sessionID string, m schema.AssistantMessage) {
 	now := time.Now().UTC()
-	_ = w.Store.Update(func(s *schema.State) {
+	if err := w.Store.Update(func(s *schema.State) {
 		session := assistantSessionByID(*s, sessionID)
 		if session == nil {
 			return
@@ -448,7 +469,9 @@ func (w *Workbench) appendChat(sessionID string, m schema.AssistantMessage) {
 			session.Messages = session.Messages[excess:]
 		}
 		session.UpdatedAt = now
-	}, true)
+	}, true); err != nil {
+		diag.Log(w.Store.Root, "assistant.persist_failed", "session_id", sessionID, "role", m.Role, "error", diag.Error(err))
+	}
 }
 
 // snapshot 返回可安全广播的实时状态副本（定稿块在前、流式增量在后）；调用方持有 chat.mu。

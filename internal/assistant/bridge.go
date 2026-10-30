@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"yovoice/internal/diag"
 
 	"github.com/modelcontextprotocol/go-sdk/jsonrpc"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -14,6 +15,7 @@ import (
 // 再把 server 的响应包回 control_response。ocho 是 MCP 客户端，两侧按原始 JSON-RPC 转发，
 // 不做第二次会话协商。
 type bridge struct {
+	root  string // 数据目录，后台 goroutine 的 panic 日志写到这里
 	conn  mcp.Connection
 	write func(any) error
 
@@ -21,16 +23,16 @@ type bridge struct {
 	pending map[jsonrpc.ID]string // server 侧 JSON-RPC 请求 id → ocho control_request id
 }
 
-func newBridge(ctx context.Context, server *mcp.Server, write func(any) error) *bridge {
+func newBridge(ctx context.Context, root string, server *mcp.Server, write func(any) error) *bridge {
 	serverSide, clientSide := mcp.NewInMemoryTransports()
-	go func() { _ = server.Run(ctx, serverSide) }()
+	diag.Go(root, "assistant.mcp_server", func() { _ = server.Run(ctx, serverSide) })
 	conn, err := clientSide.Connect(ctx)
 	if err != nil {
 		// InMemoryTransport 的 Connect 不会失败；保险起见仍处理。
 		conn = nil
 	}
-	b := &bridge{conn: conn, write: write, pending: map[jsonrpc.ID]string{}}
-	go b.readLoop(ctx)
+	b := &bridge{root: root, conn: conn, write: write, pending: map[jsonrpc.ID]string{}}
+	diag.Go(root, "assistant.mcp_bridge", func() { b.readLoop(ctx) })
 	return b
 }
 
