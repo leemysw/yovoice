@@ -4,31 +4,32 @@
 
 ## [Unreleased]
 
+### English
+
+- Safer data: when the state database is missing but a backup exists, yovoice restores from the backup instead of creating an empty database that overwrites it; quitting midway through deleting media no longer removes audio still in use; edits made while the data folder is being moved are no longer lost, and saving keeps working after a failed move.
+- More reliable downloads: transient network errors, server hiccups and stalls resume and retry automatically; pausing or cancelling no longer deletes a fully downloaded file; after switching the download source, the file is checked to be the same one before resuming.
+- Quitting no longer hangs: an in-progress data folder move is stopped first instead of waiting for the copy to finish, and an internal error in one operation no longer makes every later operation unresponsive.
+- Cleaner cleanup: removing a model also deletes the temporary files left by downloads and updates, and “Clean residuals” reclaims expired temporary files in the models folder; a failed Kokoro pronunciation library update keeps the existing version.
+- More reliable assistant: a message that fails to save shows an error instead of silently disappearing; the same proposal is never executed twice; the last lines of a reply are no longer lost when the assistant process exits.
+- Remote API errors now return a JSON error code with a status code matched to the error type (bad parameters no longer return 500); the CLI prints the error code and parameters on failure.
+- Ocho panel: a message that fails to send (too long, the assistant is busy, the service is unreachable) stays in the input box and the reason shows inside the panel; starting, switching or deleting a chat, picking a model, confirming a proposal and playing a result also report failures in place. Messages are capped at 2000 characters while typing.
+- Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
+- Robustness: a corrupted sidebar-width record no longer blanks the app at startup; a failure inside the player, voice picker, Ocho panel, dialogs, intro or tour only affects that part; when a lazily loaded part can't be fetched, "Try again" reloads the page. Book import no longer creates duplicate chapters when you retry after a partial failure, and the create page no longer crashes when a Voxtral model is missing from the catalog.
+- Smaller fixes: timeline, resource and update dialogs show their own errors; the melody score reports when it can't be checked or the staff can't render; melody preview and reply playback no longer keep playing after being stopped; durations such as 59.6 s show 1:00 instead of 0:60; the story editor keeps your page while playing; several missing translations added.
+- Smaller install and faster first screen: the 1.9 MB icon source no longer ships inside the app, the music, timeline, score, book-import and onboarding pages load on demand, the assistant's avatar libraries stay out of the main bundle, and translator notes are stripped from the component language packs.
+
+### 简体中文
+
 - 数据更稳妥：状态库文件丢失而备份还在时自动从备份恢复，不再新建空库覆盖备份；删除素材中途退出不再误删仍在使用的音频；数据目录迁移期间的改动不再丢失，迁移失败后可继续正常保存。
 - 下载更可靠：网络抖动、服务器临时出错或长时间没有数据时自动续传重试；暂停或取消后不会再误删已经下完的文件；更换下载来源后会核对是否同一文件再续传。
 - 退出不再卡住：关闭时先中止正在进行的数据目录迁移，不必等复制完成；某个操作内部出错也不会让之后的操作全部无响应。
 - 清理更干净：移除模型时一并删除下载和更新留下的临时文件，“清理残留”也会回收模型目录里过期的临时文件；Kokoro 发音库更新失败时保留原有版本。
 - 助手更可靠：消息保存失败会提示而不是悄悄丢失；同一提议不会被重复执行；助手进程结束前的最后几行回复不再丢失。
 - 远程接口的错误统一返回 JSON 错误码并按类型区分状态码，参数错误不再报 500；命令行失败时输出错误码与参数。
-### English
-
-- Ocho panel: a message that fails to send (too long, the assistant is busy, the service is unreachable) stays in the input box and the reason shows inside the panel; starting, switching or deleting a chat, picking a model, confirming a proposal and playing a result also report failures in place. Messages are capped at 2000 characters while typing.
-- Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
-- Robustness: a corrupted sidebar-width record no longer blanks the app at startup; a failure inside the player, voice picker, Ocho panel, dialogs, intro or tour only affects that part; when a lazily loaded part can't be fetched, "Try again" reloads the page. Book import no longer creates duplicate chapters when you retry after a partial failure, and the create page no longer crashes when a Voxtral model is missing from the catalog.
-- Smaller fixes: timeline, resource and update dialogs show their own errors; the melody score reports when it can't be checked or the staff can't render; melody preview and reply playback no longer keep playing after being stopped; durations such as 59.6 s show 1:00 instead of 0:60; the story editor keeps your page while playing; several missing translations added.
-
-### 简体中文
-
 - Ocho 面板：消息发送失败（过长、助手忙、服务不可用）时内容留在输入框里，原因显示在面板内；新建、切换、删除对话，选择模型，确认提案和试听结果失败也都就地提示。输入时按 2000 字上限截断。
 - 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
 - 稳定性：侧栏宽度记录损坏不再导致启动白屏；播放页、声音选择、Ocho 面板、各对话框、开场画面和引导出错只影响它自己；按需加载的部分取不到代码时“重试”会重新加载页面。导入小说中途失败后重试不再重复创建已入库的章节；目录里没有当前 Voxtral 模型时创作页不再崩溃。
 - 其他修复：时间线、资源和更新对话框在框内显示自己的错误；旋律谱无法校验或五线谱无法渲染时给出说明；旋律试听和回复试听停止后不再继续出声；59.6 秒这类时长显示 1:00 而不是 0:60；故事配音播放中翻页不再被拉回；补齐若干缺失的翻译。
-### English
-
-- Smaller install and faster first screen: the 1.9 MB icon source no longer ships inside the app, the music, timeline, score, book-import and onboarding pages load on demand, the assistant's avatar libraries stay out of the main bundle, and translator notes are stripped from the component language packs.
-
-### 简体中文
-
 - 安装包更小、首屏更快：1.9 MB 的图标源图不再打进应用；音乐、时间线、编曲、导入书稿和开场引导页面按需加载，助手形象库不再进入主包，组件语言包去掉了给译者看的说明。
 
 ## [0.5.0] - 2026-10-28
