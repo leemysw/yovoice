@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { ChatComposer, ChatMessage, ChatMessageBubble, ChatMessageList, ChatSendButton } from '@astryxdesign/core/Chat';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
@@ -7,7 +7,7 @@ import { Text } from '@astryxdesign/core/Text';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { ChevronDown, ChevronLeft, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen, SquarePen, TextQuote, Trash2, X } from 'lucide-react';
-import { call, mediaUrl, releaseMediaUrl } from '../../shared/lib/client';
+import { call } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
 import { assistantUsable, codexProvider, type AssistantBlock, type AssistantContext, type State, type Generation } from '../../shared/workbench';
 import { messageBlocks, turnCards } from './assistant-model';
@@ -15,6 +15,7 @@ import { AssistantTurn } from './assistant-turn';
 import type { usePanelFrame } from './assistant-frame';
 import { AssistantAvatar } from './assistant-avatar';
 import { clearAssistantSelection, takeAssistantFocus, useAssistantSelection } from './assistant-focus';
+import { useReplyAudio } from './use-reply-audio';
 import { Selector } from '../../shared/selector';
 import voiceArt from '../../assets/assistant/empty-voice.webp';
 import musicArt from '../../assets/assistant/empty-music.webp';
@@ -27,17 +28,6 @@ import { useAssistantLive } from '../../shared/lib/assistant-live';
 
 // 一条消息最多的字数，与服务端一致。
 const messageLimit = 2000;
-
-interface ActivePlayback { element: HTMLAudioElement; id: string; url: string }
-
-// 停下正在试听的回复音频并释放它的地址：暂停、切换到别的结果、卸载都走这里。
-function stopPlayback(ref: RefObject<ActivePlayback | null>) {
-  const active = ref.current;
-  ref.current = null;
-  if (!active) return;
-  active.element.pause();
-  releaseMediaUrl(active.url);
-}
 
 /** 助手要求打开某作品时由应用层执行（面板自己不掌握页面状态）。 */
 export interface AssistantPanelActions {
@@ -72,11 +62,8 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   // 面板内的错误提示：发送、会话操作、切换模型或试听失败时显示在输入区上方。
   const [error, setError] = useState('');
   const fail = (e: unknown) => setError(formatCallError(t, e));
-  const audioRef = useRef<ActivePlayback | null>(null);
-  // 试听请求的序号：快速连点时只有最后一次会播放，卸载后回来的结果直接丢弃。
-  const playToken = useRef(0);
-  const [playing, setPlaying] = useState<string | null>(null);
-  useEffect(() => () => { playToken.current++; stopPlayback(audioRef); }, []);
+  // 回复里生成结果的试听：播放状态与音频元素都在 hook 里，失败提示落到面板内的错误条。
+  const { playing, play } = useReplyAudio(setError);
   useEffect(() => { if (running) setHistoryOpen(false); }, [running]);
 
   // 输入框在提交时就会清空：超长、会话忙等发送失败时把内容放回去（用户没有另起新内容的话），错误显示在面板内；
@@ -107,30 +94,6 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     void call('assistant.delete', { id }).catch(fail);
   };
   const cancel = () => { void call('assistant.cancel').catch(fail); };
-
-  // 试听回复里的生成结果：再点一次暂停；取地址期间又点了别的或面板已卸载时不再播放，失败时清掉引用并提示。
-  const play = async (item: Generation) => {
-    const token = ++playToken.current;
-    const same = audioRef.current?.id === item.id;
-    stopPlayback(audioRef);
-    setPlaying(null);
-    if (same) return;
-    let url: string;
-    try { url = await mediaUrl('outputs', item.fileName); }
-    catch (e) { if (token === playToken.current) fail(e); return; }
-    if (token !== playToken.current) { releaseMediaUrl(url); return; }
-    const element = new Audio(url);
-    audioRef.current = { element, id: item.id, url };
-    setPlaying(item.id);
-    element.onended = () => { if (audioRef.current?.element === element) { stopPlayback(audioRef); setPlaying(null); } };
-    try { await element.play(); }
-    catch (e) {
-      if (audioRef.current?.element !== element) return;
-      stopPlayback(audioRef);
-      setPlaying(null);
-      if ((e as DOMException).name !== 'AbortError') setError(t('@yovoice.error.audioPlayFailed'));
-    }
-  };
 
   // 当前作品总是随消息带上；输入框左下角用来切换 AI 服务里的模型，与设置页共用同一份当前模型。
   const choice = (id: string, model: string) => `${id}\n${model}`;
