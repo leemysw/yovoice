@@ -10,7 +10,8 @@ import { useAssistantLive } from '../../shared/lib/assistant-live';
 import { turnActivity, turnPhase } from './assistant-model';
 import { AssistantAvatar, AssistantOrb } from './assistant-avatar';
 import { AssistantPanel, type AssistantPanelActions, type QuickAction } from './assistant-panel';
-import { AssistantNudge, type Nudge } from './assistant-nudge';
+import { AssistantNudge } from './assistant-nudge';
+import type { Nudge } from './use-assistant-nudge';
 
 // 助手停靠位：收起时是右下角的小入口（Ocho 形象 + 名称，运行中显示此刻在做什么），可移走，移走后才由标题栏右上角接替入口，
 // 展开后是浮窗；浮窗可拖动、缩放、拉高，位置单独记住，入口始终停在右下角。

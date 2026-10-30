@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### English
+
+- Smaller install and faster first screen: the 1.9 MB icon source no longer ships inside the app, the music, timeline, score, book-import and onboarding pages load on demand, the assistant's avatar libraries stay out of the main bundle, and translator notes are stripped from the component language packs.
+
+### 简体中文
+
+- 安装包更小、首屏更快：1.9 MB 的图标源图不再打进应用；音乐、时间线、编曲、导入书稿和开场引导页面按需加载，助手形象库不再进入主包，组件语言包去掉了给译者看的说明。
+
 ## [0.5.0] - 2026-10-28
 
 ### English

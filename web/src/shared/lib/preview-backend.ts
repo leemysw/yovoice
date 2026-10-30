@@ -3,9 +3,14 @@ import aiPresets from '@internal/llm/presets.json';
 import { performanceSettings, createDraft, emptyState, newId, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, type AssistantContext, type Activity, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile } from '../workbench';
 import { encodeWav } from './sound';
 import { download } from './client';
+import { assertUploadSize } from './upload-limit';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
-import { auditedMethods, encodeError, previewExportLogs, previewLog, previewQueryLogs } from './preview-logs';
+import { encodeError, previewExportLogs, previewLog, previewQueryLogs } from './preview-logs';
+import audited from '@internal/desktop/audited.json';
+
+// 与 Go 服务同一份清单（internal/desktop/audited.json）：这些方法无论成败都留一条日志。
+const auditedMethods = new Set<string>(audited);
 
 // 模型目录与 Go 服务同源：桌面端由 state.get 带回，预览直接读同一份文件。
 const catalog = catalogFile.models;
@@ -14,7 +19,6 @@ const catalog = catalogFile.models;
 // 作品状态存于 localStorage（主副本加恢复备份），音频存于 IndexedDB。
 const primaryKey = 'voice-workbench-v1';
 const backupKey = 'voice-workbench-backup';
-const maxUploadBytes = 20 * 1024 * 1024;
 
 // 预览不监听端口：本机接口只记录开关与端口，用于演示设置页。
 let localApi: LocalAPIStatus = { enabled: false, port: 8080, token: 'preview'.padEnd(64, '0'), running: false };
@@ -611,10 +615,6 @@ function previewInspectMelody(abc: string): MelodyInspection {
   if (!bars) return { issue: { code: 'group', detail: '' } };
   const score = { tempo, timeSignature: [meter[0], meter[1]] as [number, number], tracks: [{ id: 'vocal', name: 'Vocal', role: 'melody' as const, program: 53, notes }] };
   return { tempo, meter: [meter[0], meter[1]], key: header('K'), bars, seconds: bars * meter[0] * 60 / tempo, chords, score };
-}
-
-export function assertUploadSize(file: Blob) {
-  if (file.size > maxUploadBytes) throw new CallError('@yovoice.error.audioTooLarge');
 }
 
 export async function previewImportTimeline(file: File, name: string): Promise<AudioAsset> {
