@@ -1,187 +1,85 @@
-import { lazy, Suspense, useCallback, useEffect, useEffectEvent, useRef, useState, type ReactNode, type CSSProperties } from 'react';
-import { useResizable } from '@astryxdesign/core/Resizable';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import { AppShell } from '@astryxdesign/core/AppShell';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
-import { PanelLeft, PanelRight, Check, Disc3, FolderOpen, History, Plus, LoaderCircle, MoreHorizontal, Save } from 'lucide-react';
+import { PanelLeft, PanelRight, Check, Disc3, FolderOpen, History, LoaderCircle, MoreHorizontal } from 'lucide-react';
 import { NewProject, Projects } from '../features/library/projects';
-import { VoiceTarget } from '../features/library/voice-target';
 import { MediaLibrary } from '../features/library/media-library';
 import { CharacterEditor, CharacterLibrary } from '../features/library/characters';
-import { VoiceEditor } from '../features/library/voice-editor';
 import { Studio } from '../features/create/studio';
-import { SubtitleImport, SubtitleEditor, SpeakerAvatar } from '../features/create/subtitles';
-import { Inspector } from '../features/create/inspector';
+import { SubtitleImport, SubtitleEditor } from '../features/create/subtitles';
 import { musicModelId } from '../features/music/music-draft';
 import { soundFontId } from '../features/score/score-draft';
 import { SfxEditor } from '../features/sfx/sfx-editor';
 import { sfxModelId } from '../features/sfx/sfx-draft';
-import { SelectionAction, type TextSelection } from '../features/create/selection-action';
 import { Timeline } from '../features/media/timeline';
 import { Player } from '../features/media/player';
-import { Selector } from '../shared/selector';
-import { ConfirmDelete } from '../shared/ui/app-dialog';
 import { call, exportOutput, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
-import { dismissSplash } from '../shared/lib/splash';
-import { formatNotice } from '../shared/i18n/format';
-import { isAligner, isIndexModel, isYuE, modelEngineReady, runtimeStatus, runtimeUsable, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden, assistantUsable, newId } from '../shared/workbench';
+import { isYuE, projectKind, createDraft, synthesisSettings, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, preferredModel, newId } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
 import { quickActions } from '../features/assistant/assistant-launch';
-import { reportPlayhead, takeAssistantFocus, trackAssistantFocus } from '../features/assistant/assistant-focus';
-import { useAssistantNudge, type Nudge } from '../features/assistant/use-assistant-nudge';
+import { reportPlayhead } from '../features/assistant/assistant-focus';
 import { SidebarNav } from './sidebar-nav';
 import { PageBoundary } from '../shared/ui/page-boundary';
-import { Notifications } from './notifications';
-import { UpdateDialogHost } from '../features/update/update-dialog';
-import { UpdateNotice } from '../features/update/update-notice';
-import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
+import type { Pronunciation } from './pronunciation-dialog';
 import type { DraftSession } from './use-draft-session';
-import { watchAssistantLive } from '../shared/lib/assistant-live';
 import { AudioCheckBadge } from '../features/media/audio-check';
-import { readLocal, removeLocal, writeLocal } from '../shared/lib/local-store';
+import { useWorkbenchNavigation } from './use-workbench-navigation';
+import { useStoryCueEditing } from './use-story-cue-editing';
+import { useAssistantBridge } from './use-assistant-bridge';
+import { useOnboarding } from './use-onboarding';
+import { useGenerate } from './use-generate';
+import { useCharacterFlow } from './use-character-flow';
+import { InspectorSlot } from './inspector-slot';
+import { WorkbenchOverlays, type VoicePickerMode } from './workbench-overlays';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
-// 页面级组件按需加载：音乐、编曲、时间线、导入书稿与首次引导只在用到时取回，首屏主包只含外壳与语音编辑。
+// 页面级组件按需加载：音乐、编曲、时间线与导入书稿只在用到时取回，首屏主包只含外壳与语音编辑。
 const MusicEditor = lazy(() => import('../features/music/music-editor').then(module => ({ default: module.MusicEditor })));
-const MusicInspector = lazy(() => import('../features/music/music-inspector').then(module => ({ default: module.MusicInspector })));
-const NowPlaying = lazy(() => import('../features/music/now-playing').then(module => ({ default: module.NowPlaying })));
 const ScoreEditor = lazy(() => import('../features/score/score-editor').then(module => ({ default: module.ScoreEditor })));
 const ScoreDock = lazy(() => import('../features/score/score-arrangement').then(module => ({ default: module.ScoreDock })));
-const ScoreInspector = lazy(() => import('../features/score/score-inspector').then(module => ({ default: module.ScoreInspector })));
 const TimelineEditor = lazy(() => import('../features/media/timeline-editor').then(module => ({ default: module.TimelineEditor })));
 const BookImport = lazy(() => import('../features/library/book-import').then(module => ({ default: module.BookImport })));
-const IntroScreen = lazy(() => import('./intro-screen').then(module => ({ default: module.IntroScreen })));
-const GuideTour = lazy(() => import('./guide-tour').then(module => ({ default: module.GuideTour })));
-const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
 // 工作台界面：导航、页面切换与各页面之间的协作；作品保存由 useDraftSession 负责。
+// 导航与面板、助手衔接、开场引导、生成校验、台词编辑与角色流程各在自己的 hook 里，这里只做拼装；hook 的调用顺序即 effect 的执行顺序。
 export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready, session, error, setError }: { state: State; catalog: ModelPackage[]; catalogRevision: string; engine: EngineInfo; ready: boolean; session: DraftSession; error: string; setError: (message: string) => void }) {
   const t = useTranslator();
-  const { draft, setDraft, draftPersisted, setDraftPersisted, saving, saveFailed, change, persistDraft, setActive, deleteTarget, setDeleteTarget, deleting, deleteError, deleteDraft } = session;
-  const navigation = useResizable({ defaultSize: 224, minSize: 180, maxSize: 360, collapsible: true, autoSaveId: 'workbench-sidebar' });
-  const { isCollapsed, expand, collapse } = navigation;
-  const toggleSidebar = useCallback(() => { if (isCollapsed) expand(); else collapse(); }, [isCollapsed, expand, collapse]);
-  useEffect(() => {
-    window.addEventListener('workbench-toggle-sidebar', toggleSidebar);
-    return () => window.removeEventListener('workbench-toggle-sidebar', toggleSidebar);
-  }, [toggleSidebar]);
+  const { draft, setDraft, draftPersisted, setDraftPersisted, saving, saveFailed, change, persistDraft, setActive, setDeleteTarget } = session;
+  const { navigation, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel } = useWorkbenchNavigation({ draft, catalog, setActive, setError });
   const previousVoices = useRef<Voice[]>([]);
-  const [page, setPage] = useState(() => {
-    if (isDesktop) {
-      const saved = readLocal('yovoice-active-page');
-      const listPages = ['text', 'story', 'music', 'score', 'sfx', 'characters', 'settings'];
-      return saved && listPages.includes(saved) ? saved : 'text';
-    }
-    return 'create';
-  });
-  useEffect(() => {
-    writeLocal('yovoice-active-page', page);
-  }, [page]);
-  // 页面第一次打开时才挂载，之后保持挂载（切走只隐藏），切回来时保留编辑、滚动与播放状态；启动时只渲染当前页。
-  const [visited, setVisited] = useState(() => new Set([page]));
-  if (!visited.has(page)) setVisited(new Set(visited).add(page));
-  // 作品只在编辑页和版本记录页处于打开状态。
-  useEffect(() => setActive(page === 'create' || page === 'history'), [page, setActive]);
-  const [settingsFocus, setSettingsFocus] = useState<{ tab: string; modelId: string; request: number } | undefined>();
-  // 缺的是音色库时打开独立的音色库页，其余模型在“模型”页。
-  const openSettings = (modelId = draft.modelId, requested = 'models') => { const family = catalog.find(m => m.id === modelId)?.family; const tab = requested === 'models' && family ? modelTab(family) : requested; setSettingsFocus({ tab, modelId, request: performance.now() }); setPage('settings'); };
-  const [voicePicker, setVoicePicker] = useState<'voice' | 'emotion' | 'add' | null>(null);
+  const [voicePicker, setVoicePicker] = useState<VoicePickerMode>(null);
   const [previewTrack, setPreviewTrack] = useState<Track | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
   // 编曲视图与底部播放器共用播放位置：播放器上报进度，点标尺发出跳转请求。
   const [playback, setPlayback] = useState({ time: 0, playing: false }); const [seekRequest, setSeekRequest] = useState<{ time: number; nonce: number }>(); const [advanced, setAdvanced] = useState(false);
   const [pronunciation, setPronunciation] = useState<Pronunciation | null>(null);
-  const [showInspector, setShowInspector] = useState(false);
-  // 助手面板：开关与展开状态跨启动保留；⌘J/Ctrl+J、宿主标题栏按钮与编辑器 AI 写作栏都能打开。
-  const [assistantOpen, setAssistantOpen] = useState(() => readLocal('yovoice-assistant-open') === 'true');
-  const [assistantExpanded, setAssistantExpanded] = useState(() => readLocal('yovoice-assistant-expanded') === 'true');
-  // 右下角入口与标题栏入口二选一：入口在时标题栏不重复显示，移走后才由标题栏接替；浮窗打开时两处入口都收起。
-  const [launcherHidden, setLauncherHidden] = useState(() => readLocal('yovoice-assistant-launcher') === 'hidden');
-  const showLauncher = (show: boolean) => {
-    setLauncherHidden(!show);
-    writeLocal('yovoice-assistant-launcher', show ? 'shown' : 'hidden');
-  };
-  useEffect(() => { writeLocal('yovoice-assistant-open', String(assistantOpen)); writeLocal('yovoice-assistant-expanded', String(assistantExpanded)); }, [assistantOpen, assistantExpanded]);
-  // 在设置中隐藏 Ocho 后，浮窗、各处入口、快捷键与主动提示都不再出现。
-  const assistantHidden = featureHidden(state.preferences, 'assistant');
-  useEffect(() => {
-    if (assistantHidden) return;
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); setAssistantOpen(open => !open); }
-    };
-    const onToggle = () => setAssistantOpen(open => !open);
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('workbench-toggle-assistant', onToggle);
-    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('workbench-toggle-assistant', onToggle); };
-  }, [assistantHidden]);
-  // 编辑页的当前页面键（text/story/music/score），其余页面直接用页面名。
-  const assistantPage = page === 'create' || page === 'history' ? projectKind(draft) : page === 'voices' ? 'voices' : page;
-  const askAssistantPanel = { openWork: (workId: string) => { const target = state.drafts.find(item => item.id === workId); if (target) selectDraft(target); }, openSettings: () => openSettings(draft.modelId, 'ai') };
-  // 助手要求界面跳转（open_work/open_page）与保存了正打开的作品，各消费一次；只订阅变化，流式输出时不重绘整个界面。
-  const consumedNav = useRef<string | undefined>(undefined);
-  const applyAssistantNav = useEffectEvent((nav: NonNullable<State['assistantLive']>['nav']) => {
-    if (!nav) return;
-    if (nav.workId) askAssistantPanel.openWork(nav.workId);
-    else if (nav.page) setPage(nav.page);
-  });
-  // 助手保存了正打开的作品：本地没有未保存修改时，编辑器即时换上新内容。
-  const consumedUpdate = useRef<string | undefined>(undefined);
-  const applyAssistantUpdate = useEffectEvent((update: NonNullable<State['assistantLive']>['update']) => {
-    if (!update) return;
-    if (update.workId !== draft.id || page !== 'create' || session.saving || window.__workbenchDraft !== undefined) return;
-    const fresh = state.drafts.find(item => item.id === update.workId);
-    if (fresh) { setDraft(fresh); setDraftPersisted(true); }
-  });
-  // 新请求先记入状态，与同一次推送里的作品列表一起渲染后再处理，打开刚创建的作品时才能找到它。
-  const [liveRequest, setLiveRequest] = useState<Pick<NonNullable<State['assistantLive']>, 'nav' | 'update'>>({});
-  useEffect(() => watchAssistantLive(live => {
-    const nav = live?.nav, update = live?.update;
-    if (nav && nav.id !== consumedNav.current) { consumedNav.current = nav.id; setLiveRequest(current => ({ ...current, nav })); }
-    if (update && update.id !== consumedUpdate.current) { consumedUpdate.current = update.id; setLiveRequest(current => ({ ...current, update })); }
-  }), []);
-  useEffect(() => applyAssistantNav(liveRequest.nav), [liveRequest.nav]);
-  useEffect(() => applyAssistantUpdate(liveRequest.update), [liveRequest.update]);
-
-  // 宽屏下右侧检查器的收起状态，跨作品、跨启动保留。
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => readLocal('workbench-inspector-collapsed') === '1');
-  const toggleInspector = useCallback(() => setInspectorCollapsed(current => {
-    const next = !current;
-    writeLocal('workbench-inspector-collapsed', next ? '1' : '0');
-    return next;
-  }), []);
-  // 窗口右上角的右侧面板开关：创作区较窄时检查器已自动收起（见 styles.css 的 studio 容器查询），开关改为展开或收回检查器。
-  const toggleInspectorPanel = useCallback(() => {
-    // 角色编辑器离开后只隐藏不卸载，它的 .studio 宽度为 0，需取当前可见的创作区。
-    const studio = Array.from(document.querySelectorAll<HTMLElement>('.studio')).find(element => element.clientWidth > 0);
-    if (studio && studio.clientWidth <= 860) setShowInspector(current => !current);
-    else toggleInspector();
-  }, [toggleInspector]);
-  useEffect(() => {
-    // 只有工作区有右侧面板；列表、设置等页面忽略开关，不跳回上次的作品。
-    const handleToggle = () => { if (page === 'create') toggleInspectorPanel(); };
-    window.addEventListener('workbench-toggle-inspector', handleToggle);
-    return () => window.removeEventListener('workbench-toggle-inspector', handleToggle);
-  }, [page, toggleInspectorPanel]);
-  // 标题栏的右侧面板开关由宿主绘制：离开工作区时让宿主隐藏它。
-  useEffect(() => { if (isDesktop) void call('inspector.available', { available: page === 'create' }).catch(() => undefined); }, [page]);
-  useEffect(() => { if (isDesktop) void call('assistant.entry', { visible: launcherHidden && !assistantOpen && !assistantHidden }).catch(() => undefined); }, [launcherHidden, assistantOpen, assistantHidden]);
   const editor = useRef<HTMLTextAreaElement>(null); const previousHistory = useRef<string | undefined>(undefined); const knownHistory = useRef(new Set<string>());
   const onError = useCallback((message: string) => setError(message), [setError]);
-  // 侧栏宽度由 useResizable 记在本机，桌面端再同步给宿主绘制标题栏；记录损坏时删掉它跳过，不让每次启动都卡在这里。
-  useEffect(() => {
-    const key = 'astryx-resizable:workbench-sidebar';
-    const saved = readLocal(key);
-    if (!saved) return;
-    let layout: unknown;
-    try { layout = JSON.parse(saved); } catch { removeLocal(key); return; }
-    if (isDesktop) void call('sidebar.save', layout).catch(error => setError(noticeMessage(error)));
-  }, [navigation.size, navigation.isCollapsed, setError]);
   const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(noticeMessage(e))); }, [setError]);
+  async function newDraft(next: Draft) {
+    if (draftPersisted) await persistDraft(draft); await persistDraft(next);
+    setDraft(next); setPage('create');
+  }
+  // 整本书导入的多个章节作品：倒序保存让第一章排在最前，最后打开第一章。
+  // saved 记下已入库的章节：中途失败后重试时跳过它们，不重复创建。
+  async function importBook(drafts: Draft[], saved: Set<string>) {
+    for (const item of drafts.slice(1).reverse()) {
+      if (saved.has(item.id)) continue;
+      await call('draft.save', item);
+      saved.add(item.id);
+    }
+    await newDraft(drafts[0]);
+  }
+  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item.id === draft.id ? draft : item); setDraftPersisted(true); setPage('create'); }); }
+  const cues = useStoryCueEditing({ draft, setDraft, setDraftPersisted, page });
+  const { playingCue, setPlayingCue, cueSelection, selectedCue, selectCue } = cues;
+  const { assistantOpen, setAssistantOpen, assistantExpanded, setAssistantExpanded, launcherHidden, showLauncher, assistantHidden, assistantPage, askAssistantPanel, assistantContext, nudge, dismissNudge, actOnNudge } = useAssistantBridge({ state, page, setPage, draft, setDraft, setDraftPersisted, saving, openSettings, selectDraft, cue: cues.focusCue, setError });
   useEffect(() => {
     if (!ready) return;
     const removed = previousVoices.current.filter(v => !state.voices.some(next => next.id === v.id));
@@ -199,166 +97,18 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     setTrack(refresh); setPreviewTrack(refresh);
   }, [state.voices, state.history, ready, setDraft]);
   useEffect(() => { setPreviewTrack(null); setTrack(current => current ? { ...current, playRequest: undefined } : null); }, [page]);
-  // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来。
-  // 首次启动在界面就绪后显示开场画面；点击「开始探索」后记入偏好，以后只显示简短的加载动画。
-  // 设置里的「重新播放」只当场再看一次，不改动已保存的偏好。
-  const [introDone, setIntroDone] = useState(false);
-  const [introReplay, setIntroReplay] = useState(false);
-  useEffect(() => {
-    const replay = () => setIntroReplay(true);
-    window.addEventListener('workbench-show-intro', replay);
-    return () => window.removeEventListener('workbench-show-intro', replay);
-  }, []);
-  const showIntro = ready && !error && ((!state.preferences.introSeen && !introDone) || introReplay);
-  const finishIntro = () => {
-    setIntroReplay(false);
-    if (state.preferences.introSeen || introDone) return;
-    setIntroDone(true);
-    void call('preferences.save', { ...state.preferences, introSeen: true }).catch(e => setError(noticeMessage(e)));
-  };
-  // 功能引导紧接开场画面出现，看完或跳过后记入偏好；设置里的「重新查看」只当场再看一次。
-  const [tourDone, setTourDone] = useState(false);
-  const [tourReplay, setTourReplay] = useState(false);
-  useEffect(() => {
-    const replay = () => setTourReplay(true);
-    window.addEventListener('workbench-show-tour', replay);
-    return () => window.removeEventListener('workbench-show-tour', replay);
-  }, []);
-  const showTour = ready && !error && !showIntro && ((!state.preferences.tourSeen && !tourDone) || tourReplay);
-  // 引导高亮侧栏入口，侧栏收起时先展开。
-  useEffect(() => { if (showTour && isCollapsed) expand(); }, [showTour, isCollapsed, expand]);
-  const finishTour = () => {
-    setTourReplay(false);
-    if (state.preferences.tourSeen || tourDone) return;
-    setTourDone(true);
-    // 开场画面刚保存的 introSeen 可能还没回到状态里，一并带上，避免被覆盖。
-    void call('preferences.save', { ...state.preferences, introSeen: state.preferences.introSeen || introDone, tourSeen: true }).catch(e => setError(noticeMessage(e)));
-  };
-  // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
-  // 开场画面按需加载：等它的代码到位再收起启动动画，避免先露出一帧主界面。
-  useEffect(() => {
-    if (error) dismissSplash(true);
-    else if (showIntro) void import('./intro-screen').then(() => dismissSplash(true));
-    else if (ready) dismissSplash();
-  }, [ready, error, showIntro]);
+  const { showIntro, finishIntro, showTour, finishTour } = useOnboarding({ state, ready, error, isCollapsed, expand, setError });
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(current, state.history)); }, [state.history, draft.id, ready, setDraft]);
-  const generate = () => {
-    if (state.activity?.status === 'running') return;
-    // 还没准备好时：缺参考音频直接打开声音选择，缺模型或推理引擎跳到设置里对应的页面。
-    if (draft.subtitles) {
-      const missing = draft.subtitles.speakers.map(s => ({ ...draft, ...s.settings })).find(d => !state.models.some(m => m.id === d.modelId));
-      if (missing || !runtimeUsable(runtimeStatus(state, engine))) { openSettings(missing?.modelId ?? draft.modelId, missing ? 'models' : 'engine'); return; }
-      run(async () => { await persistDraft(draft); await call('generation.start', draft); }); return;
-    }
-    // 编曲只需要音色库，不经过推理引擎。
-    if (projectKind(draft) === 'score') {
-      if (!state.models.some(m => m.id === draft.modelId)) { openSettings(draft.modelId, 'models'); return; }
-      run(async () => { await persistDraft(draft); await call('generation.start', draft); }); return;
-    }
-    if (requiresVoice(draft) &&!state.voices.some(voice => voice.id === draft.voiceId)) { setVoicePicker('voice'); return; }
-    if (!runtimeUsable(runtimeStatus(state, engine)) || !state.models.some(m => m.id === draft.modelId) || !modelEngineReady(state, catalog.find(m => m.id === draft.modelId))) {
-      openSettings(draft.modelId, !state.models.some(m => m.id === draft.modelId) ? 'models' : 'engine'); return;
-    }
-    run(async () => { await persistDraft(draft); await call('generation.start', draft); });
-  };
-  // Ctrl/⌘+Enter 在创作页生成，对话框或角色编辑器打开时不响应。
-  const generateShortcut = useEffectEvent((event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && page === 'create' && !Array.from(document.querySelectorAll('[role=dialog], [data-character-active=true]')).some(e => e.getClientRects().length > 0)) { event.preventDefault(); generate(); } });
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => generateShortcut(event);
-    window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
-  }, []);
-  async function newDraft(next: Draft) {
-    if (draftPersisted) await persistDraft(draft); await persistDraft(next);
-    setDraft(next); setPage('create');
-  }
-  // 整本书导入的多个章节作品：倒序保存让第一章排在最前，最后打开第一章。
-  // saved 记下已入库的章节：中途失败后重试时跳过它们，不重复创建。
-  async function importBook(drafts: Draft[], saved: Set<string>) {
-    for (const item of drafts.slice(1).reverse()) {
-      if (saved.has(item.id)) continue;
-      await call('draft.save', item);
-      saved.add(item.id);
-    }
-    await newDraft(drafts[0]);
-  }
-  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item.id === draft.id ? draft : item); setDraftPersisted(true); setPage('create'); }); }
-  function selectVoice(voice: Voice) { if (voicePicker !== 'add') change(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); }
-  function annotate(selection: TextSelection) {
-    setPronunciation({ ...selection, sound: '' });
-  }
+  const generate = useGenerate({ state, engine, catalog, draft, page, openSettings, run, persistDraft, setVoicePicker });
   const generations = state.history.filter(item => item.settings.id === draft.id);
   const activity = state.activity; const busy = activity?.status === 'running';
-  const [playingCue, setPlayingCue] = useState(-1);
-  const [cueSelection, setCueSelection] = useState<{ draftId: string; index: number; revision: number } | null>(null);
-  const selectedCue = cueSelection?.draftId === draft.id ? Math.min(cueSelection.index, (draft.subtitles?.cues.length ?? 1) - 1) : 0;
-  // 故事配音里选中的台词随上下文带上，Ocho 据此理解“这句”。
-  const focusCue = page === 'create' && draft.subtitles?.cues.length ? (() => {
-    const cue = draft.subtitles.cues[selectedCue];
-    return { index: selectedCue + 1, total: draft.subtitles.cues.length, speaker: draft.subtitles.speakers.find(item => item.id === cue.speakerId)?.sourceName, text: cue.text };
-  })() : undefined;
-  const assistantContext: AssistantContext = { page: assistantPage, workId: page === 'create' ? draft.id : '', workTitle: page === 'create' ? draft.title : '', workKind: page === 'create' ? projectKind(draft) : '', locale: state.preferences.uiLocale, cue: focusCue };
-  useEffect(() => trackAssistantFocus(), []);
-  // 主动提示：面板关着、开着主动提示且助手可用时，生成或下载结束会在右下角冒出建议。
-  const assistantReady = !state.assistantMissing && assistantUsable(state.aiProviders?.find(item => item.id === state.aiProviderID));
-  const [nudge, dismissNudge] = useAssistantNudge(state, assistantReady && !assistantHidden && !assistantOpen && !state.preferences.assistantQuiet);
-  const actOnNudge = (next: Nudge) => {
-    dismissNudge();
-    setAssistantOpen(true);
-    void call('assistant.send', { text: next.prompt, context: { ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page, ...takeAssistantFocus() } }).catch(e => setError(noticeMessage(e)));
-  };
-  const activeCue = draft.subtitles?.cues[selectedCue];
-  const activeSpeaker = draft.subtitles?.speakers.find(speaker => speaker.id === activeCue?.speakerId) ?? draft.subtitles?.speakers[0];
-  const inspectorDraft = activeSpeaker ? { ...draft, ...(activeCue ? cueSettings(draft, activeCue) : activeSpeaker.settings), text: activeCue?.text ?? '' } : draft;
-  const selectCue = (index: number) => setCueSelection(current => ({ draftId: draft.id, index, revision: (current?.revision ?? 0) + 1 }));
-  // 已选演绎只修改当前句子的快照，默认参数仍归当前说话人。
-  const changeSpeaker = (patch: Partial<Draft>) => { setDraftPersisted(true); setDraft(current => {
-    if (!activeSpeaker || !current.subtitles || current.id !== draft.id) return { ...current, ...patch, performance: current.performance ? { ...current.performance, settings: synthesisSettings({ ...current, ...patch }) } : undefined };
-    const { text, ...settings } = patch;
-    if (activeCue?.performance) {
-      const cues = current.subtitles.cues.map((cue, index) => index === selectedCue ? { ...cue, text: text ?? cue.text, performance: { ...cue.performance!, settings: performanceSettings(activeSpeaker.settings ?? synthesisSettings(current), { ...cue.performance!, settings: { ...cueSettings(current, cue), ...settings } }) } } : cue);
-      const joined = cues.map(c => c.text).join('\n');
-      return joined.length > 12000 ? current : { ...current, text: joined, subtitles: { ...current.subtitles, cues } };
-    }
-    const cues = current.subtitles.cues.map((cue, index) => index === selectedCue && text !== undefined ? { ...cue, text } : cue);
-    const joined = cues.map(cue => cue.text).join('\n');
-    if (joined.length > 12000) return current;
-    return { ...current, text: joined, subtitles: { ...current.subtitles, cues, speakers: current.subtitles.speakers.map(speaker => speaker.id === activeSpeaker.id && Object.keys(settings).length ? { ...speaker, settings: synthesisSettings({ ...current, ...speaker.settings, ...settings }) } : speaker) } };
-  }); };
-  const [voiceTarget, setVoiceTarget] = useState<Character | null>(null);
   const projectList = state.drafts.map(d => d.id === draft.id ? { ...draft, createdAt: d.createdAt, updatedAt: d.updatedAt } : d);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [historyQuery, setHistoryQuery] = useState('');
   const openHistory = (item: Draft) => run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item); setDraftPersisted(true); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
-  const [characterEditor, setCharacterEditor] = useState<Character | null>(null);
-  const characterActive = !!characterEditor && page === 'characters';
-  const characterReturnPage = useRef('create');
-  const characterOrigin = useRef<{ draftId: string; speakerId: string } | null>(null);
+  const { characterEditor, setCharacterEditor, characterActive, characterReturnPage, characterOrigin, selectedCharacter, applyCharacter, editCharacter, openCharacter, characterFromGeneration, createVoice, voiceTarget, setVoiceTarget, applyToTarget } = useCharacterFlow({ t, state, page, setPage, session, newDraft, projectList, cues });
   const [voiceEditor, setVoiceEditor] = useState<Voice | Generation | null>(null);
   const [nowPlaying, setNowPlaying] = useState<Generation | null>(null);
-  const selectedCharacter = draft.characterId ?? null;
-  const applyCharacter = (c: Character) => {
-    if (activeSpeaker) {
-      setDraft(current => ({ ...current, subtitles: { ...current.subtitles!, cues: current.subtitles!.cues.map(cue => cue.speakerId === activeSpeaker.id ? { ...cue, performance: undefined } : cue), speakers: current.subtitles!.speakers.map(s => s.id === activeSpeaker.id ? { ...s, characterId: c.id, settings: structuredClone(c.settings) } : s) } }));
-    } else { change({ ...c.settings, characterId: c.id, performance: undefined }); }
-  };
-  const editCharacter = (character: Character) => { if (characterEditor) { setPage('characters'); return; } characterOrigin.current = page === 'create' ? { draftId: draft.id, speakerId: activeSpeaker?.id ?? '' } : null; characterReturnPage.current = page; setCharacterEditor(character); setPage('characters'); };
-  const openCharacter = () => {
-    editCharacter({ id: newId(), name: activeSpeaker?.sourceName || draft.title, settings: synthesisSettings(inspectorDraft), demoText: t('@yovoice.character.example') });
-  };
-  // 把一条生成结果用到的声音设置存为角色：模型、参考音色、声音设计描述和全部参数一起带上，在角色编辑器里确认后保存。
-  const characterFromGeneration = (item: Generation) => editCharacter({ id: newId(), name: item.title, settings: structuredClone(synthesisSettings(item.settings)), demoText: item.settings.text.slice(0, 120) || t('@yovoice.character.example') });
-  const createVoice = () => {
-    const defaults = createDraft(false, state.preferences.uiLocale);
-    editCharacter({ id: newId(), name: t('@yovoice.library.newVoice'), settings: synthesisSettings({ ...defaults, modelId: state.models.find(m => m.id.startsWith('omnivoice-'))?.id ?? 'omnivoice-q8', voiceMode: 'design' }), demoText: t('@yovoice.character.example') });
-  };
-  async function applyToTarget(voice: Character, draftId: string, speakerId: string) {
-    const source = draftId === 'new' ? { ...createDraft(false, state.preferences.uiLocale), kind: 'text' as const } : projectList.find(d => d.id === draftId);
-    if (!source || (source.subtitles && !source.subtitles.speakers.some(s => s.id === speakerId))) throw new Error('@yovoice.error.draftIDInvalid');
-    const next = source.subtitles ? { ...source, subtitles: { ...source.subtitles, cues: source.subtitles.cues.map(cue => cue.speakerId === speakerId ? { ...cue, performance: undefined } : cue), speakers: source.subtitles.speakers.map(s => s.id === speakerId ? { ...s, characterId: voice.id, settings: structuredClone(voice.settings) } : s) } } : { ...source, ...structuredClone(voice.settings), characterId: voice.id, performance: undefined };
-    if (draftId === draft.id) { await persistDraft(next); setDraft(next); setPage('create'); }
-    else await newDraft(next);
-    if (next.subtitles) setCueSelection(current => ({ draftId: next.id, index: Math.max(0, next.subtitles!.cues.findIndex(c => c.speakerId === speakerId)), revision: (current?.revision ?? 0) + 1 }));
-  }
   const libraryTabs = <TabList value={page === 'voices' ? 'voices' : 'characters'} onChange={setPage} role="tablist" hasDivider>
     <Tab value="characters" label={t('@yovoice.library.voicesTab')} panelId="voice-library-panel" />
     <Tab value="voices" label={t('@yovoice.library.referencesTab')} panelId="reference-library-panel" />
@@ -419,22 +169,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const instrumental = music || scoring || soundEffects;
   // 侧栏与下方各个浮层各自包一层边界：任一处渲染出错只影响它自己，工作区照常可用。
   const sidebar = <PageBoundary name="sidebar" resetKey={draft.id}><SidebarNav page={page} setPage={setPage} catalog={catalog} catalogRevision={catalogRevision} openSettings={openSettings} newDraft={<NewProject hidden={state.preferences.hiddenFeatures} locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} button={{ 'data-testid': 'nav-new', className: 'new-project', width: '100%', size: 'md' }} />} state={state} draft={draft} selectDraft={selectDraft} removeDraft={setDeleteTarget} resizable={navigation.props} /></PageBoundary>;
-  const currentCharacter = state.characters.find(c => c.id === (activeSpeaker?.characterId ?? selectedCharacter));
-  const currentPerformance = activeSpeaker ? activeCue?.performance : draft.performance;
-  const performances = currentCharacter?.performances ?? [];
-  const inspector = <Suspense fallback={null}>{scoring ? <ScoreInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} close={() => setShowInspector(false)} /> : music || soundEffects ? <MusicInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} upgradeEngine={() => openSettings(draft.modelId, 'engine')} close={() => setShowInspector(false)} advanced={advanced} setAdvanced={setAdvanced} soundEffects={soundEffects} /> : <Inspector libraryActions={<VStack gap={2}>
-    {activeSpeaker ? <HStack gap={2} vAlign="center"><SpeakerAvatar seed={activeSpeaker.characterId ?? `${draft.id}:${activeSpeaker.id}`} /><h3>{activeSpeaker.sourceName || t('@yovoice.subtitle.speaker', { n: draft.subtitles!.speakers.indexOf(activeSpeaker) + 1 })}</h3></HStack> : null}
-    <Selector label={t('@yovoice.character.choose')} isLabelHidden placeholder={t('@yovoice.character.choose')} value={activeSpeaker?.characterId ?? selectedCharacter ?? ''}
-      options={[...state.characters.map(c => ({ value: c.id, label: c.name })), ...(state.characters.length ? [{ type: 'divider' as const }] : []), { value: 'new-voice', label: t('@yovoice.character.new'), icon: Plus }, { value: 'save-voice', label: t('@yovoice.character.saveAs'), icon: Save }]}
-      onChange={id => { if (id === 'new-voice') { createVoice(); return; } if (id === 'save-voice') { openCharacter(); return; } const voice = state.characters.find(c => c.id === id); if (voice) applyCharacter(voice); }} />
-    {performances.length || currentPerformance ? <Selector label={t('@yovoice.performance.label')} value={currentPerformance?.id ?? ''}
-      options={[{ value: '', label: t('@yovoice.performance.default'), disabled: !activeSpeaker && !currentCharacter }, ...performances.map(p => ({ value: p.id, label: p.name })), ...(currentPerformance && !performances.some(p => p.id === currentPerformance.id) ? [{ value: currentPerformance.id, label: currentPerformance.name }] : [])]}
-      onChange={id => {
-        const performance = structuredClone(performances.find(p => p.id === id));
-        if (activeSpeaker) setDraft(current => ({ ...current, subtitles: { ...current.subtitles!, cues: current.subtitles!.cues.map((cue, index) => index === selectedCue ? { ...cue, performance } : cue) } }));
-        else if (currentCharacter) change({ ...performanceSettings(currentCharacter.settings, performance), performance });
-      }} /> : null}
-  </VStack>} catalog={catalog} close={() => setShowInspector(false)} draft={inspectorDraft} state={state} change={changeSpeaker} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(inspectorDraft.modelId)} advanced={advanced} setAdvanced={setAdvanced} />}</Suspense>;
+  const inspector = <InspectorSlot draft={draft} setDraft={setDraft} change={change} state={state} catalog={catalog} generate={generate} run={run} openSettings={openSettings} setShowInspector={setShowInspector} advanced={advanced} setAdvanced={setAdvanced} cues={cues} selectedCharacter={selectedCharacter} setVoicePicker={setVoicePicker} audition={audition} createVoice={createVoice} openCharacter={openCharacter} applyCharacter={applyCharacter} />;
   // 播放器工具栏右侧：打开当前音频所在位置（导出在“更多”菜单里），查看历史（语音生成是“历史生成”，音乐与编曲是本作品的“版本记录”），删除在历史里处理；音乐另有播放页。
   const historyLabel = t(projectKind(draft) === 'text' ? '@yovoice.history.generations' : '@yovoice.history.versions');
   const playerActions = projectKind(draft) === 'story' ? undefined : <HStack gap={2} vAlign="center">
@@ -501,20 +236,6 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
       </VStack>} /></VStack>
     </VStack></AppShell>
     {ready && !assistantHidden ? <PageBoundary name="assistant"><Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense></PageBoundary> : null}
-    <PageBoundary name="notifications" resetKey={error}><Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}
-      aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /></Notifications></PageBoundary>
-    <PageBoundary name="update-dialog"><UpdateDialogHost /></PageBoundary>
-    {ready && !draft.subtitles && !instrumental && isIndexModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <PageBoundary name="selection-action"><SelectionAction key={draft.id} editor={editor} onEdit={annotate} /></PageBoundary> : null}
-
-    {voiceTarget ? <PageBoundary name="voice-target"><VoiceTarget voice={voiceTarget} drafts={projectList} apply={applyToTarget} close={() => setVoiceTarget(null)} /></PageBoundary> : null}
-    {deleteTarget ? <ConfirmDelete title={t('@yovoice.app.deleteProjectTitle')} description={t('@yovoice.app.deleteProjectBody', { title: deleteTarget.title })}
-      confirmLabel={t('@yovoice.app.deleteProjectConfirm')} busy={deleting} error={formatNotice(t, deleteError)} onClose={() => setDeleteTarget(null)} onConfirm={() => void deleteDraft()} /> : null}
-    {nowPlaying ? <PageBoundary name="now-playing"><Suspense fallback={null}><NowPlaying item={nowPlaying} title={nowPlaying.title} versions={state.history.filter(item => item.settings.id === nowPlaying.settings.id && !item.segment)}
-      aligner={state.models.some(model => isAligner(model.id))} activity={activity} getAligner={() => { setNowPlaying(null); openSettings(catalog.find(model => model.family === 'lyric_align')?.id, 'models'); }} close={() => setNowPlaying(null)} /></Suspense></PageBoundary> : null}
-    {voiceEditor ? <PageBoundary name="voice-editor"><VoiceEditor item={voiceEditor} close={() => setVoiceEditor(null)} /></PageBoundary> : null}
-    {voicePicker ? <PageBoundary name="voice-picker"><Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={voice => { if ((activeSpeaker || draft.performance) && voicePicker !== 'add') { changeSpeaker(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); } else selectVoice(voice); }} /></Suspense></PageBoundary> : null}
-    {pronunciation ? <PageBoundary name="pronunciation"><PronunciationDialog pronunciation={pronunciation} setPronunciation={setPronunciation} draft={draft} change={change} editor={editor} /></PageBoundary> : null}
-    {showIntro ? <PageBoundary name="intro"><Suspense fallback={null}><IntroScreen onStart={finishIntro} /></Suspense></PageBoundary> : null}
-    {showTour ? <PageBoundary name="tour"><Suspense fallback={null}><GuideTour hidden={state.preferences.hiddenFeatures} onClose={finishTour} /></Suspense></PageBoundary> : null}
+    <WorkbenchOverlays state={state} catalog={catalog} ready={ready} error={error} setError={setError} page={page} run={run} session={session} selectDraft={selectDraft} instrumental={instrumental} voicePicker={voicePicker} setVoicePicker={setVoicePicker} editor={editor} pronunciation={pronunciation} setPronunciation={setPronunciation} voiceTarget={voiceTarget} setVoiceTarget={setVoiceTarget} projectList={projectList} applyToTarget={applyToTarget} nowPlaying={nowPlaying} setNowPlaying={setNowPlaying} openSettings={openSettings} voiceEditor={voiceEditor} setVoiceEditor={setVoiceEditor} cues={cues} showIntro={showIntro} finishIntro={finishIntro} showTour={showTour} finishTour={finishTour} />
   </VStack>;
 }
