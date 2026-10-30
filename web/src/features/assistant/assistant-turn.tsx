@@ -80,14 +80,16 @@ function ProposalCard({ card, onResolve }: { card: AssistantToolCard; onResolve:
   const destructive = proposal.action.startsWith('delete_');
   const icon = destructive ? <Trash2 size={15} /> : proposal.action.startsWith('install_') ? <Download size={15} /> : proposal.action === 'cleanup_storage' ? <Eraser size={15} /> : <Settings2 size={15} />;
   const [busy, setBusy] = useState(false);
-  // 失败时恢复按钮，用户可以再试；成功后卡片随状态更新变成结果行。
-  const resolve = (confirm: boolean) => { setBusy(true); onResolve(proposal.id, confirm).catch(() => setBusy(false)); };
+  const [error, setError] = useState('');
+  // 失败时恢复按钮并把原因写在卡片上，用户可以再试；成功后卡片随状态更新变成结果行。
+  const resolve = (confirm: boolean) => { setBusy(true); setError(''); onResolve(proposal.id, confirm).catch((e: unknown) => { setBusy(false); setError(formatCallError(t, e)); }); };
   return <VStack className="assistant-proposal" gap={2} data-state={proposal.state} data-testid="assistant-proposal" role="group" aria-label={card.summary}>
     <HStack gap={2} vAlign="center">
       <StackItem as="span" className="assistant-proposal-icon" data-tone={destructive ? 'danger' : undefined} aria-hidden>{icon}</StackItem>
       <Text type="inherit" color="inherit" className="assistant-proposal-title grow">{card.summary}</Text>
     </HStack>
     {proposal.reason ? <small className="assistant-proposal-reason">{proposal.reason}</small> : null}
+    {error ? <small className="assistant-note" data-tone="danger" role="alert">{error}</small> : null}
     {proposal.state === 'pending'
       ? <HStack gap={2} hAlign="end">
         <Button size="sm" variant="ghost" label={t('@yovoice.assistant.proposal.dismiss')} isDisabled={busy} onClick={() => resolve(false)} />

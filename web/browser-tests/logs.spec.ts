@@ -44,7 +44,8 @@ test('日志页显示关键操作，筛选错误并查看详情与导出', async
   await panel.getByRole('row').nth(1).getByRole('button', { name: '详情', exact: true }).click();
   const detail = page.getByRole('dialog', { name: 'character.save' });
   await expect(detail).toContainText('@yovoice.error.characterInvalid');
-  await detail.getByRole('button', { name: '关闭', exact: true }).click();
+  // 详情框标题栏的 X 与底部按钮都叫“关闭”，点底部的。
+  await detail.getByRole('button', { name: '关闭', exact: true }).last().click();
 
   await panel.getByRole('combobox', { name: '级别', exact: true }).click();
   await page.getByRole('option', { name: '全部级别', exact: true }).click();

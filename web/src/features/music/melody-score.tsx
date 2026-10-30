@@ -19,17 +19,19 @@ type Notice = { kind: 'truncated' | 'cover' };
 type View = 'staff' | 'tracks' | 'source';
 
 // 谱面校验与换算只在 Go 里做一份：编辑稍停后请后端检查，返回概要、问题位置和换算出的轨道。
+// 校验本身失败（服务不可用等）与谱面有问题不同：error 带回原因，界面说明无法校验，而不是悄悄当作没有谱。
 function useInspection(abc: string) {
   const [inspection, setInspection] = useState<MelodyInspection | null>(null);
+  const [error, setError] = useState<unknown>(null);
   useEffect(() => {
-    if (!abc.trim()) { setInspection(null); return; }
+    if (!abc.trim()) { setInspection(null); setError(null); return; }
     let live = true;
     const timer = setTimeout(() => {
-      void call<MelodyInspection>('melody.inspect', { abc }).then(value => { if (live) setInspection(value); }).catch(() => { if (live) setInspection(null); });
+      call<MelodyInspection>('melody.inspect', { abc }).then(value => { if (live) { setInspection(value); setError(null); } }, (e: unknown) => { if (live) { setInspection(null); setError(e); } });
     }, 250);
     return () => { live = false; clearTimeout(timer); };
   }, [abc]);
-  return inspection;
+  return { inspection, error };
 }
 
 // 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
@@ -39,7 +41,7 @@ export function MelodyScore({ draft, state, change, onError }: {
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
-  const inspection = useInspection(abc);
+  const { inspection, error: inspectError } = useInspection(abc);
   const [view, setView] = useState<View>('staff');
   const root = useRef<HTMLDivElement>(null);
   const anchor = useRef<{ element: HTMLElement; top: number } | null>(null);
@@ -94,7 +96,7 @@ export function MelodyScore({ draft, state, change, onError }: {
     if (abc.trim()) replace(melody.abc, t('@yovoice.melody.replace')); else change({ abc: melody.abc });
     setNotice(melody.truncated ? { kind: 'truncated' } : melody.source === 'cover' ? { kind: 'cover' } : null);
     switchView('tracks');
-    void call('melody.dismiss', { id: melody.id });
+    void call('melody.dismiss', { id: melody.id }).catch(fail);
   };
   // 作品里还没有谱时，写好的谱直接填入；已有谱时等用户决定是否替换。
   const settle = useEffectEvent(() => { if (pending && !abc.trim()) apply(pending); });
@@ -118,11 +120,11 @@ export function MelodyScore({ draft, state, change, onError }: {
       const picked = event.target.files?.[0]; event.target.value = '';
       if (picked) void attempt(() => coverMelodyFile(draft.id, picked));
     }} />
-    <input ref={file} hidden type="file" accept=".abc,.txt,text/plain" aria-label={t('@yovoice.melody.abcFile')} onChange={async event => {
+    <input ref={file} hidden type="file" accept=".abc,.txt,text/plain" aria-label={t('@yovoice.melody.abcFile')} onChange={event => {
       const picked = event.target.files?.[0]; event.target.value = '';
       if (!picked) return;
       if (picked.size > maxLength) { fail(new CallError('@yovoice.error.melodyInvalid', { code: 'length' })); return; }
-      replace((await picked.text()).replace(/\r\n?/g, '\n'), t('@yovoice.melody.import')); setNotice(null);
+      void attempt(async () => { replace((await picked.text()).replace(/\r\n?/g, '\n'), t('@yovoice.melody.import')); setNotice(null); });
     }} />
   </>;
   const progress = working ? <HStack className="melody-progress" gap={2} vAlign="center" role="status">
@@ -171,7 +173,7 @@ export function MelodyScore({ draft, state, change, onError }: {
 
     {pending && abc.trim() ? <HStack className="melody-notice" data-tone="info" gap={3} vAlign="center" wrap="wrap" role="status">
       <VStack className="grow" gap={0}><b>{t(pending.source === 'cover' ? '@yovoice.melody.readyCover' : '@yovoice.melody.readyPlan')}</b><small>{t('@yovoice.melody.readyReplace')}</small></VStack>
-      <Button size="sm" variant="ghost" label={t('@yovoice.ai.discard')} onClick={() => void call('melody.dismiss', { id: pending.id })} />
+      <Button size="sm" variant="ghost" label={t('@yovoice.ai.discard')} onClick={() => void call('melody.dismiss', { id: pending.id }).catch(fail)} />
       <Button size="sm" variant="primary" label={t('@yovoice.melody.replace')} onClick={() => apply(pending)} />
     </HStack> : null}
 
@@ -193,6 +195,9 @@ export function MelodyScore({ draft, state, change, onError }: {
       {inspection?.issue ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert">
         <CircleAlert size={16} aria-hidden="true" />
         <VStack className="grow" gap={0}><b>{t('@yovoice.melody.invalid')}</b><small>{formatMelodyIssue(t, inspection.issue)}</small></VStack>
+      </HStack> : inspectError ? <HStack className="melody-notice" data-tone="warning" gap={2} vAlign="start" role="alert">
+        <CircleAlert size={16} aria-hidden="true" />
+        <VStack className="grow" gap={0}><b>{t('@yovoice.melody.inspectFailed')}</b><small>{formatCallError(t, inspectError)}</small></VStack>
       </HStack> : null}
       {view === 'staff' && !inspection?.issue ? <MelodyStaff abc={abc} label={t('@yovoice.melody.viewStaff')} time={preview.time} active={preview.status !== 'idle'} seek={preview.seek} />
         : view === 'tracks' && score ? <ScoreArrangement readOnly score={score} selected={selected} select={setSelected} updateTrack={() => {}}

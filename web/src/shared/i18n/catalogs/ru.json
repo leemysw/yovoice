@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Размер"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Шаги вывода"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Этой модели нужен движок инференса {version} или новее. Обновите движок в настройках."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Импортируйте книгу в формате TXT, Markdown или EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} глав уже сохранено; при повторе они не будут созданы заново."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "ИИ распределяет роли"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "ИИ не смог распределить роли"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "ИИ создаёт изображение"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "ИИ создал изображение"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "ИИ не смог создать изображение"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Пишется партитура мелодии"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 пока не может спеть эти ноты"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Не удалось проверить партитуру"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Не удалось отобразить нотный стан. Переключитесь на дорожки или исходный текст."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Вокал"

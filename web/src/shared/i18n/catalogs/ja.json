@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "拍子"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "推論ステップ数"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "このモデルには推論エンジン {version} 以降が必要です。設定でエンジンを更新してください。"
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "TXT、Markdown、EPUB 形式の小説を取り込んでください。"
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} 章は保存済みです。再試行しても重複して作成されません。"
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "AI が配役中"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI の配役に失敗しました"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "AI が画像を生成中"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "AI が画像を生成しました"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "AI の画像生成に失敗しました"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "メロディ譜を作成中"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 はまだこの譜面を歌えません"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "譜面を検証できません"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "五線譜を描画できません。トラックまたはソース表示に切り替えてください。"
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "ボーカル"

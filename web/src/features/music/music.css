@@ -274,6 +274,23 @@
     animation: now-playing-rise var(--duration-medium) var(--ease-standard) both;
   }
   .now-playing-sync-count { color: var(--now-playing-ink); font-variant-numeric: tabular-nums; }
+  /* 页内错误提示：停在顶栏下方居中，与校准条同一玻璃质感；控件随静置隐藏时它仍然可见。 */
+  .now-playing-notice {
+    position: absolute;
+    top: calc(var(--spacing-12) + var(--spacing-4));
+    left: 50%;
+    z-index: 2;
+    transform: translateX(-50%);
+    max-width: calc(100% - var(--spacing-12));
+    padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) var(--spacing-4);
+    border-radius: var(--radius-full);
+    background: var(--now-playing-glass);
+    backdrop-filter: blur(var(--spacing-3)) saturate(1.8) brightness(1.16);
+    box-shadow: var(--now-playing-glass-edge);
+    color: var(--now-playing-ink);
+    animation: now-playing-rise var(--duration-medium) var(--ease-standard) both;
+  }
+  .now-playing-notice > svg { flex: none; color: var(--color-text-red); }
   .now-playing .now-playing-mark.astryx-button { background: var(--now-playing-ink); color: hsl(var(--now-playing-hue) 30% 10%); }
   .now-playing .now-playing-mark.astryx-button:hover:not(:disabled) { background: var(--now-playing-ink); filter: brightness(1.08); }
   @media (max-width: 760px) {

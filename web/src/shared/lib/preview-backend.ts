@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, type AssistantContext, type Activity, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, type AssistantContext, type Activity, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type MessageCode, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
@@ -52,10 +52,14 @@ function publish() {
 
 export function subscribePreview(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
 
-// 开发预览的测试钩子：浏览器测试据此模拟生成或下载的进度变化（预览没有推理引擎），并读取最近一条消息附带的上下文。
+// 开发预览的测试钩子：浏览器测试据此模拟生成或下载的进度变化（预览没有推理引擎），并读取最近一条消息附带的上下文；
+// __previewFail 让某个方法的下一次调用按给定消息码失败，用来验证界面的错误处理。
+declare global { interface Window { __previewFail?: (method: string, code?: MessageCode) => void } }
+const forcedFailures = new Map<string, MessageCode>();
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   Object.assign(window, {
     __previewActivity: (slot: 'activity' | 'modelActivity', activity: Activity | null) => { preview()[slot] = activity; publish(); },
+    __previewFail: (method: string, code: MessageCode = '@yovoice.error.unknown') => { forcedFailures.set(method, code); },
   });
 }
 
@@ -126,6 +130,8 @@ function previewAssets(state: State): Asset[] {
 }
 
 async function dispatch<T>(method: string, data: unknown): Promise<T> {
+  const forced = forcedFailures.get(method);
+  if (forced) { forcedFailures.delete(method); throw new CallError(forced); }
   if (method === 'assets.list') return previewAssets(preview()) as T;
   if (method === 'assets.image') throw new CallError('@yovoice.error.audioMissing');
   if (method === 'assets.delete') {

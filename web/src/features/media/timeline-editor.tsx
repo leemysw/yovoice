@@ -40,7 +40,10 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
   const [importing, setImporting] = useState(false);
   const [historyTrack, setHistoryTrack] = useState('');
   const [historyQuery, setHistoryQuery] = useState('');
+  // 两个导入对话框各自的错误：对话框是模态的，会盖住全局通知，错误在框内显示。
+  const [historyError, setHistoryError] = useState('');
   const [generationTrack, setGenerationTrack] = useState('');
+  const [generationError, setGenerationError] = useState('');
   const [generationKind, setGenerationKind] = useState<'text' | 'sfx' | 'music'>('sfx');
   const [generationQuery, setGenerationQuery] = useState('');
   const [generationPreview, setGenerationPreview] = useState<Track | null>(null);
@@ -153,7 +156,8 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
   // 暂停或时间线被外部替换时，中止播放与未完成的拖动。
   const halt = useEffectEvent(() => { stop(); finishGesture(false); });
   const recordEdit = useEffectEvent((next: AudioTimeline) => { if (edits.record(next, selected)) refreshEdits(); });
-  useEffect(() => { if (suspended) halt(); }, [suspended]);
+  // 时间线不可见时停止播放并让音频上下文休眠，不占用音频线程；再播放时 play 会先恢复它。
+  useEffect(() => { if (suspended) { halt(); void context.current?.suspend().catch(() => undefined); } }, [suspended]);
   useEffect(() => { halt(); setTrimPreview(null); recordEdit(value); }, [value]);
   const edit = (next: AudioTimeline) => {
     if (!edits.record(next, selected)) return;
@@ -221,6 +225,11 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
     } finally { releaseMediaUrl(url); }
   };
   const sourceIds = [...new Set(value.tracks.flatMap(track => track.clips.map(c => Timeline.sourceKey(c))))].sort().join(',');
+  // 片段不再引用的音频源，解码缓存随之丢弃，长时间编辑不会越积越多；波形峰值很小，保留以便撤销时复用。
+  useEffect(() => {
+    const used = new Set(sourceIds.split(',').filter(Boolean));
+    for (const id of [...buffers.current.keys()]) if (!used.has(id)) buffers.current.delete(id);
+  }, [sourceIds]);
   // 读取音频源的波形（最高缩放级别的峰值），结果缓存，加载使用最新的音频源列表。
   const loadWave = useEffectEvent(async (id: string, signal: AbortSignal): Promise<Waveform> => {
     const cached = waves.current.get(id);
@@ -284,7 +293,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
         else frame.current = requestAnimationFrame(tick);
       };
       tick();
-    } catch (error) { if (token === operation.current) { stop(); onError((error as Error).message); } }
+    } catch (error) { if (token === operation.current) { stop(); onError(noticeMessage(error)); } }
   };
   const seek = (next: number) => { stop(); setTime(next); };
   const addTrack = () => edit({ ...value, tracks: [...value.tracks, { id: crypto.randomUUID(), name: t('@yovoice.timeline.track', { n: value.tracks.length + 1 }), muted: false, clips: [] }] });
@@ -298,7 +307,9 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
     const nextClip: AudioClip = { id: crypto.randomUUID(), ...source, start, offset: 0 };
     edit({ ...current, assets: asset ? [...(current.assets ?? []), asset] : current.assets, tracks: current.tracks.map(t => t.id === trackId ? { ...t, clips: [...t.clips, nextClip] } : t) });
   };
-  const closeGenerations = () => { setGenerationPreview(null); setGenerationTrack(''); };
+  const closeGenerations = () => { setGenerationPreview(null); setGenerationTrack(''); setGenerationError(''); };
+  // 浏览器解码不了的格式单独说明，其余按消息码显示。
+  const importError = (error: unknown) => (error as Error)?.name === 'EncodingError' ? '@yovoice.error.browserDecode' : noticeMessage(error);
   const generationHistory = generationTrack ? history.flatMap(generation => {
     if (generation.segment || generation.settings.id === draft.id) return [];
     const source = drafts.find(item => item.id === generation.settings.id);
@@ -309,11 +320,11 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
   const importGeneration = async (generation: Generation) => {
     const trackId = generationTrack;
     if (!trackId || importing) return;
-    stop(); setGenerationPreview(null); uploadTrack.current = trackId; setImporting(true);
+    stop(); setGenerationPreview(null); setGenerationError(''); uploadTrack.current = trackId; setImporting(true);
     try {
       const asset = await importTimelineGeneration(generation.id);
       if (!abort.current?.signal.aborted) { append(trackId, { assetId: asset.id, duration: asset.duration }, asset); closeGenerations(); }
-    } catch (error) { onError((error as Error).name === 'EncodingError' ? '@yovoice.error.browserDecode' : (error as Error).message); }
+    } catch (error) { setGenerationError(importError(error)); }
     finally { setImporting(false); }
   };
   const selectClip = (c: AudioClip, event?: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }) => {
@@ -321,7 +332,8 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
     else if (event?.shiftKey && selected) {
       const all = value.tracks.flatMap(t => [...t.clips].sort((a, b) => a.start - b.start));
       const a = all.findIndex(v => v.id === selected), b = all.findIndex(v => v.id === c.id);
-      setSelection(all.slice(Math.min(a, b), Math.max(a, b) + 1).map(c => c.id));
+      // 上一次选中的片段已不在时间线上时，范围无从算起，只选这一个。
+      if (a < 0 || b < 0) setSelection([c.id]); else setSelection(all.slice(Math.min(a, b), Math.max(a, b) + 1).map(c => c.id));
     } else setSelection([c.id]);
     setSelected(c.id); setActiveLane(value.tracks.findIndex(t => t.clips.some(v => v.id === c.id)));
 
@@ -373,7 +385,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
   useEffect(() => followCue(selectedCue), [selectedCue, cueSelectionRevision]);
   const regenerateClip = async () => {
     if (!cue?.id || !clip || !editable || busy || exporting) return; stop(); setRegenerating(true);
-    try { await regenerate(cue.id, clip.id); } catch (error) { onError((error as Error).message); } finally { setRegenerating(false); }
+    try { await regenerate(cue.id, clip.id); } catch (error) { onError(noticeMessage(error)); } finally { setRegenerating(false); }
   };
   const menuItems = [
     { type: 'section' as const, items: [
@@ -392,7 +404,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
       { label: t('@yovoice.player.zoomFit'), onClick: fitAll },
       { label: t('@yovoice.timeline.fitSelection'), isDisabled: !range && !selectedIds.length, onClick: fitSelection },
       ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void exportProject().catch(e => onError(noticeMessage(e))) }] : []),
-      { label: t('@yovoice.timeline.balance'), isDisabled: !duration, onClick: () => void (async () => { try { const audio = context.current ??= new AudioContext(); for (const c of value.tracks.flatMap(t => t.clips)) await load(Timeline.sourceKey(c), audio); edit(Timeline.balance(value, history, buffers.current)); } catch (e) { onError((e as Error).message); } })() },
+      { label: t('@yovoice.timeline.balance'), isDisabled: !duration, onClick: () => void (async () => { try { const audio = context.current ??= new AudioContext(); for (const c of value.tracks.flatMap(t => t.clips)) await load(Timeline.sourceKey(c), audio); edit(Timeline.balance(value, history, buffers.current)); } catch (e) { onError(noticeMessage(e)); } })() },
     ] },
   ];
   // 菜单打开时 Esc 交给菜单关闭：macOS 上右键菜单打开后焦点可能仍在剪辑上，不能在这里拦下。
@@ -407,22 +419,22 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
       try {
         const asset = await importTimelineFile(file);
         if (!abort.current?.signal.aborted) append(trackId, { assetId: asset.id, duration: asset.duration }, asset);
-      } catch (error) { onError((error as Error).name === 'EncodingError' ? '@yovoice.error.browserDecode' : (error as Error).message); }
+      } catch (error) { onError(importError(error)); }
       finally { setImporting(false); }
     }} />
-    {historyTrack ? <AppDialog title={t('@yovoice.timeline.fromHistory')} closeLabel={t('@yovoice.action.close')} onClose={() => setHistoryTrack('')}>
+    {historyTrack ? <AppDialog title={t('@yovoice.timeline.fromHistory')} closeLabel={t('@yovoice.action.close')} error={formatNotice(t, historyError)} onClose={() => setHistoryTrack('')}>
       <TextInput label={t('@yovoice.timeline.searchHistory')} isLabelHidden placeholder={t('@yovoice.timeline.searchHistory')} value={historyQuery} onChange={setHistoryQuery} hasClear />
       <VStack className="timeline-history-list" gap={1}>
         {history.filter(g => projectKind(draft) === 'text' && !g.segment && g.settings.id === draft.id && g.title.toLocaleLowerCase().includes(historyQuery.trim().toLocaleLowerCase())).map(g => <HStack key={g.id} gap={2} vAlign="center">
           <Button className="grow text-left" variant="ghost" label={g.title} onClick={() => {
             try { append(historyTrack, { generationId: g.id, duration: g.duration }); setHistoryTrack(''); }
-            catch (error) { onError((error as Error).message); }
+            catch (error) { setHistoryError(noticeMessage(error)); }
           }} /><small className="muted">{formatTime(g.duration)} · {new Date(g.createdAt).toLocaleString()}</small>
         </HStack>)}
         {!history.some(g => projectKind(draft) === 'text' && !g.segment && g.settings.id === draft.id && g.title.toLocaleLowerCase().includes(historyQuery.trim().toLocaleLowerCase())) ? <HStack className="grow timeline-history-empty" hAlign="center" vAlign="center"><p className="muted">{t('@yovoice.timeline.noHistory')}</p></HStack> : null}
       </VStack>
     </AppDialog> : null}
-    {generationTrack ? <AppDialog title={t('@yovoice.timeline.fromYovoice')} width={640} busy={importing} closeLabel={t('@yovoice.action.close')} onClose={closeGenerations}>
+    {generationTrack ? <AppDialog title={t('@yovoice.timeline.fromYovoice')} width={640} busy={importing} closeLabel={t('@yovoice.action.close')} error={formatNotice(t, generationError)} onClose={closeGenerations}>
       <SegmentedControl size="sm" layout="fill" label={t('@yovoice.timeline.fromYovoice')} value={generationKind} onChange={value => { setGenerationPreview(null); setGenerationKind(value as typeof generationKind); }}>
         <SegmentedControlItem value="text" label={t('@yovoice.project.text')} />
         <SegmentedControlItem value="sfx" label={t('@yovoice.project.sfx')} />
@@ -432,7 +444,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
       <VStack className="timeline-history-list" gap={1}>
         {generationHistory.map(({ generation, name }) => <HStack key={generation.id} data-generation-id={generation.id} gap={2} vAlign="center">
           <VStack className="grow timeline-generation-label" gap={0}><b title={name}>{name}</b><small className="muted">{formatTime(generation.duration)} · {new Date(generation.createdAt).toLocaleString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</small></VStack>
-          <Player inline={{ label: t('@yovoice.app.audition', { name }), select: () => setGenerationPreview({ id: generation.id, name, fileName: generation.fileName, kind: 'outputs', subtitle: '', playRequest: performance.now() }) }} track={generationPreview?.id === generation.id ? generationPreview : null} suspended={importing} onError={message => { setGenerationPreview(null); onError(message); }} />
+          <Player inline={{ label: t('@yovoice.app.audition', { name }), select: () => setGenerationPreview({ id: generation.id, name, fileName: generation.fileName, kind: 'outputs', subtitle: '', playRequest: performance.now() }) }} track={generationPreview?.id === generation.id ? generationPreview : null} suspended={importing} onError={message => { setGenerationPreview(null); setGenerationError(message); }} />
           <Button size="sm" variant="secondary" icon={<Plus />} label={t('@yovoice.timeline.addGeneration')} isDisabled={importing} onClick={() => void importGeneration(generation)} />
         </HStack>)}
         {!generationHistory.length ? <HStack className="grow timeline-history-empty" hAlign="center" vAlign="center"><p className="muted">{t('@yovoice.timeline.noHistory')}</p></HStack> : null}
@@ -467,7 +479,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
         if (peak > 1 && (preventClipping || loudness)) for (let channel = 0; channel < result.numberOfChannels; channel++) { const samples = result.getChannelData(channel); for (let i = 0; i < samples.length; i++) samples[i] *= 0.99 / peak; }
         if (peak > 1 && !preventClipping && !loudness && peakDb === undefined) { setExportError(t('@yovoice.timeline.clipping')); return; }
         if (await saveAudio(encodeWav(result), exportName, loudness ? Number(loudness) : undefined)) setExportOpen(false);
-      } catch (error) { setExportError((error as Error).message); } finally { setExporting(false); }
+      } catch (error) { setExportError(noticeMessage(error)); } finally { setExporting(false); }
     }} />}><TextInput label={t('@yovoice.timeline.exportName')} value={exportName} onChange={setExportName} /><Selector label={t('@yovoice.timeline.exportType')} value={exportFormat} onChange={v => { setExportFormat(v as typeof exportFormat); setExportError(''); setPeakDb(undefined); }} options={[{ value: 'wav', label: t('@yovoice.timeline.formatWav') }, { value: 'srt', label: t('@yovoice.timeline.formatSrt') }, { value: 'vtt', label: t('@yovoice.timeline.formatVtt') }]} /><Selector label={t('@yovoice.timeline.exportScope')} value={exportScope} onChange={v => { setExportScope(v); setExportError(''); setPeakDb(undefined); }} options={[{ value: 'all', label: t('@yovoice.timeline.all') }, ...(range ? [{ value: 'range', label: t('@yovoice.timeline.range') }] : []), ...value.tracks.map(t => ({ value: `track:${t.id}`, label: t.name })), ...(draft.subtitles?.speakers ?? []).map((s, i) => ({ value: `role:${s.id}`, label: s.sourceName || t('@yovoice.subtitle.speaker', { n: i + 1 }) }))]} />{exportFormat === 'wav' ? <>{isDesktop ? <Selector label={t('@yovoice.timeline.loudness')} value={loudness} onChange={value => { setLoudness(value); writeLocal('yovoice.exportLoudness', value); setExportError(''); setPeakDb(undefined); }} description={loudness ? t('@yovoice.timeline.loudnessHint') : undefined}
         options={[{ value: '', label: t('@yovoice.timeline.loudnessOff') }, { value: '-18', label: t('@yovoice.timeline.loudnessAudiobook') }, { value: '-16', label: t('@yovoice.timeline.loudnessPodcast') }, { value: '-14', label: t('@yovoice.timeline.loudnessVideo') }]} /> : null}
         {loudness ? null : <label><input type="checkbox" checked={preventClipping} onChange={e => { setPreventClipping(e.target.checked); setPeakDb(undefined); }} /> {t('@yovoice.timeline.preventClipping')}</label>}{peakDb !== undefined ? <small>{t('@yovoice.timeline.peak')}: {Number.isFinite(peakDb) ? peakDb.toFixed(1) : '−∞'} dBFS</small> : null}</> : <><label><input type="checkbox" checked={captionSpeaker} onChange={e => setCaptionSpeaker(e.target.checked)} /> {t('@yovoice.timeline.captionSpeaker')}</label><small>{t('@yovoice.timeline.captionHint')}</small></>}</AppDialog> : null}
@@ -575,8 +587,8 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
                 button={{ size: 'sm', variant: 'secondary', className: 'timeline-audio-button', icon: <FileAudio />, label: t('@yovoice.timeline.audio'), 'aria-label': t('@yovoice.timeline.importTo', { name: track.name }), isLoading: importing && uploadTrack.current === track.id, isDisabled: importing || track.locked }}
                 items={[
                   { label: t('@yovoice.timeline.upload'), icon: Upload, onClick: () => { uploadTrack.current = track.id; input.current?.click(); } },
-                  { label: t('@yovoice.timeline.fromYovoice'), icon: AudioLines, onClick: () => { stop(); setGenerationPreview(null); setGenerationQuery(''); setGenerationKind('sfx'); setGenerationTrack(track.id); } },
-                  ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.timeline.fromHistory'), icon: History, onClick: () => { stop(); setHistoryQuery(''); setHistoryTrack(track.id); } }] : []),
+                  { label: t('@yovoice.timeline.fromYovoice'), icon: AudioLines, onClick: () => { stop(); setGenerationPreview(null); setGenerationQuery(''); setGenerationError(''); setGenerationKind('sfx'); setGenerationTrack(track.id); } },
+                  ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.timeline.fromHistory'), icon: History, onClick: () => { stop(); setHistoryQuery(''); setHistoryError(''); setHistoryTrack(track.id); } }] : []),
                 ]} />
             </HStack>
           </VStack>

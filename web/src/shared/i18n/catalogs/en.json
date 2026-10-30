@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Time signature"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Inference steps"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "This model needs inference engine {version} or later. Update the engine in Settings."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Import a book as TXT, Markdown or EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} chapters are already saved; retrying won't create them again."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "AI is casting roles"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI casting failed"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "AI is generating an image"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "AI finished the image"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "AI image generation failed"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Writing the melody score"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 can't sing this score yet"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Couldn't check the score"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Couldn't render the staff. Switch to the tracks or source view."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Vocal"

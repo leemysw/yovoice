@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "박자"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "추론 단계 수"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "이 모델에는 추론 엔진 {version} 이상이 필요합니다. 설정에서 엔진을 업데이트하세요."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "TXT, Markdown 또는 EPUB 형식의 소설을 가져오세요."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count}개 장은 이미 저장되었습니다. 다시 시도해도 중복 생성되지 않습니다."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "AI가 배역을 나누는 중"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI 배역 나누기 실패"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "AI가 이미지를 생성하는 중"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "AI가 이미지를 생성했습니다"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "AI 이미지 생성 실패"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "멜로디 악보 작성 중"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2가 아직 이 악보를 부를 수 없습니다"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "악보를 확인할 수 없습니다"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "오선보를 그릴 수 없습니다. 트랙 또는 소스 보기로 전환하세요."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "보컬"

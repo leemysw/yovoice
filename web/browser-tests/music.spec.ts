@@ -330,6 +330,23 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
 });
 
 // 播放页的歌词时间状态、校准、对齐、逐字编辑和导出都收在顶栏的“歌词工具”菜单里；status 是菜单分组标题里的时间来源说明。
+// 往预览的音频库写入一段指定秒数的 220 Hz 正弦波，给播放页用。
+async function seedTone(page: Page, name: string, seconds: number) {
+  await page.evaluate(async ([name, seconds]) => {
+    const rate = 8000, bytes = new Uint8Array(44 + rate * seconds * 2); const view = new DataView(bytes.buffer);
+    const text = (offset: number, value: string) => bytes.set(new TextEncoder().encode(value), offset);
+    text(0, 'RIFF'); view.setUint32(4, bytes.length - 8, true); text(8, 'WAVEfmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, rate * seconds * 2, true);
+    for (let i = 0; i < rate * seconds; i++) view.setInt16(44 + i * 2, Math.round(Math.sin(i * 220 * Math.PI * 2 / rate) * 4000), true);
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('voice-workbench-audio', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('audio');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => { const db = request.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([bytes], { type: 'audio/wav' }), name); tx.oncomplete = () => { db.close(); resolve(); }; };
+    });
+  }, [name, seconds] as const);
+}
+
 async function lyricTools(page: Page, playing: Locator, status?: string, item?: RegExp) {
   await playing.getByRole('button', { name: '歌词工具', exact: true }).click();
   const menu = page.getByRole('menu');
@@ -344,19 +361,7 @@ test('播放页逐行校准歌词：按键标记、撤销，校准结果随版�
   state.drafts = [draft];
   state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: 6, settings: { ...draft, lyrics: '[intro]\n\n[verse]\n第一句\n第二句\n\n[chorus]\n第三句' } }];
   await page.goto('/');
-  await page.evaluate(async () => {
-    const rate = 8000, seconds = 6, bytes = new Uint8Array(44 + rate * seconds * 2); const view = new DataView(bytes.buffer);
-    const text = (offset: number, value: string) => bytes.set(new TextEncoder().encode(value), offset);
-    text(0, 'RIFF'); view.setUint32(4, bytes.length - 8, true); text(8, 'WAVEfmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
-    view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, rate * seconds * 2, true);
-    for (let i = 0; i < rate * seconds; i++) view.setInt16(44 + i * 2, Math.round(Math.sin(i * 220 * Math.PI * 2 / rate) * 4000), true);
-    await new Promise<void>((resolve, reject) => {
-      const request = indexedDB.open('voice-workbench-audio', 1);
-      request.onupgradeneeded = () => request.result.createObjectStore('audio');
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => { const db = request.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([bytes], { type: 'audio/wav' }), 'song.wav'); tx.oncomplete = () => { db.close(); resolve(); }; };
-    });
-  });
+  await seedTone(page, 'song.wav', 6);
   await seedState(page, state); await page.reload();
   await page.locator('.player .transport').getByRole('button', { name: '播放页', exact: true }).click();
   const playing = page.getByRole('dialog', { name: `${draft.title} · 播放页` });
@@ -387,6 +392,41 @@ test('播放页逐行校准歌词：按键标记、撤销，校准结果随版�
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).history[0].lyricTimes)).toBeUndefined();
   await playing.getByRole('button', { name: '关闭播放页', exact: true }).click();
   await expect(playing).toHaveCount(0);
+});
+
+test('播放页校准歌词：保存失败时标记都还在、错误显示在页内，撤销一行重标后保存成功才退出校准', async ({ page }) => {
+  const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32) };
+  const state = emptyState();
+  state.drafts = [draft];
+  state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: 6, settings: { ...draft, lyrics: '[intro]\n\n[verse]\n第一句\n第二句\n\n[chorus]\n第三句' } }];
+  await page.goto('/');
+  await seedTone(page, 'song.wav', 6);
+  await seedState(page, state); await page.reload();
+  await page.locator('.player .transport').getByRole('button', { name: '播放页', exact: true }).click();
+  const playing = page.getByRole('dialog', { name: `${draft.title} · 播放页` });
+  await lyricTools(page, playing, undefined, /^校准歌词/);
+  const sync = playing.getByRole('group', { name: '校准歌词' });
+  await expect(sync).toContainText('1 / 4 行');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await expect(sync).toContainText('3 / 4 行');
+  // 标完最后一行时保存失败：校准条还在、四行标记都保留，错误显示在播放页里而不是被全屏弹窗挡住的全局通知。
+  await page.evaluate(() => window.__previewFail!('generation.lyricTimes', '@yovoice.error.stateSaveFailed'));
+  await page.keyboard.press('ArrowDown');
+  const notice = playing.getByTestId('now-playing-notice');
+  await expect(notice).toContainText('状态保存失败');
+  await expect(sync).toContainText('4 / 4 行');
+  await expect(page.locator('.notifications .notice')).toHaveCount(0);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).history[0].lyricTimes)).toBeUndefined();
+  // 撤销一行再标记：这次保存成功，退出校准并收起提示。
+  await page.keyboard.press('Backspace');
+  await expect(sync).toContainText('3 / 4 行');
+  await page.keyboard.press('ArrowDown');
+  await expect(sync).toHaveCount(0);
+  await expect(notice).toHaveCount(0);
+  await lyricTools(page, playing, '歌词时间已校准');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).history[0].lyricTimes as number[]);
+  expect(saved).toHaveLength(4);
 });
 
 test('播放页智能对齐歌词：没装对齐模型时去设置下载，装好后逐字对齐并随版本保存，清除校准一并清除', async ({ page }) => {

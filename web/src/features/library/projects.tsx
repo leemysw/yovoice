@@ -49,7 +49,7 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
     const next: Draft = modelFor ? { ...base, modelId: modelFor(kind) } : base;
     if (kind === 'story') next.subtitles = { speakers: [{ id: crypto.randomUUID(), sourceName: t('@yovoice.library.narrator') }], cues: [] };
     try { await create(next); }
-    catch (error) { onError((error as Error).message); }
+    catch (error) { onError(noticeMessage(error)); }
     finally { setBusy(false); }
   }
   if (kind) return <Button label={t(`@yovoice.project.new.${kind}`)} icon={<Plus />} size="sm" {...button} isLoading={busy} onClick={() => void start(kind)} />;
@@ -99,7 +99,7 @@ export function Projects({ drafts, kind, title, controls, open, create, copy, sa
   async function update(next: Draft) {
     setBusy(true); setError('');
     try { await save(next); setRenaming(null); }
-    catch (error) { setError((error as Error).message); }
+    catch (error) { setError(noticeMessage(error)); }
     finally { setBusy(false); }
   }
   return <>

@@ -177,14 +177,19 @@ export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio,
     setSelected(index); setView({ start: windowStart, end: windowEnd });
     const origin = event.clientX, perSecond = box.getBoundingClientRect().width / span, before = lines;
     const target = event.currentTarget; target.setPointerCapture(event.pointerId);
+    // 只有真的拖动过才记一步撤销，点一下字块不产生空记录。
+    let moved = false;
     const move = (moveEvent: globalThis.PointerEvent) => {
+      if (moveEvent.clientX === origin && !moved) return;
+      moved = true;
       const delta = (moveEvent.clientX - origin) / perSecond;
       const start = mode === 'end' ? word.start : word.start + delta, end = mode === 'start' ? word.end : word.end + delta;
       setLines(settle(before, line, index, start, end, duration));
     };
     const up = () => {
       target.removeEventListener('pointermove', move); target.removeEventListener('pointerup', up); target.removeEventListener('pointercancel', up);
-      setHistory(entries => [...entries.slice(-49), before]); setView(null);
+      if (moved) setHistory(entries => [...entries.slice(-49), before]);
+      setView(null);
     };
     target.addEventListener('pointermove', move); target.addEventListener('pointerup', up); target.addEventListener('pointercancel', up);
   };

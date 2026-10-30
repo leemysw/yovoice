@@ -7,3 +7,7 @@ export function readLocal(key: string): string | null {
 export function writeLocal(key: string, value: string) {
   try { localStorage.setItem(key, value); } catch { /* 只在本次生效 */ }
 }
+
+export function removeLocal(key: string) {
+  try { localStorage.removeItem(key); } catch { /* 存储不可用时无需清理 */ }
+}

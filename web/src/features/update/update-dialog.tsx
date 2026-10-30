@@ -6,6 +6,7 @@ import { Spinner } from '@astryxdesign/core/Spinner';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { ArrowUpRight } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
+import { formatCallError } from '../../shared/i18n/format';
 import { checkForUpdate, formatBytes, installUpdate, releaseUrl, updatePercent, useAppUpdate, type AppUpdate } from './app-update';
 import { ReleaseNotes } from './release-notes';
 import { isUiLocale } from '../../shared/i18n/locale';
@@ -32,6 +33,8 @@ export function UpdateDialogHost() {
   const locale = isUiLocale(current) ? current : 'en';
   const update = useAppUpdate();
   const [open, setOpen] = useState(false);
+  // 检查或安装请求本身失败（宿主没有回应）时在对话框里说明；更新流程的失败由 update.status 表达。
+  const [error, setError] = useState('');
   useEffect(() => {
     const show = () => setOpen(true);
     window.addEventListener('workbench-show-update', show);
@@ -39,6 +42,7 @@ export function UpdateDialogHost() {
   }, []);
   if (!open || !update) return null;
   const close = () => setOpen(false);
+  const act = (job: () => Promise<unknown>) => { setError(''); job().catch((e: unknown) => setError(formatCallError(t, e))); };
   const { status } = update;
   const busy = status === 'checking' || status === 'downloading' || status === 'verifying';
   const fresh = !!update.version && update.version !== update.current;
@@ -53,15 +57,15 @@ export function UpdateDialogHost() {
   const versionLine = fresh ? t('@yovoice.update.versionChange', { current: update.current, version: update.version ?? '' }) : t('@yovoice.update.currentVersion', { version: update.current });
   const actions = status === 'ready' ? <>
     <Button label={t('@yovoice.update.later')} onClick={close} />
-    <Button label={t('@yovoice.update.restart')} variant="primary" data-testid="update-restart" onClick={() => void installUpdate()} />
+    <Button label={t('@yovoice.update.restart')} variant="primary" data-testid="update-restart" onClick={() => act(installUpdate)} />
   </> : status === 'failed' ? <>
     <Button label={t('@yovoice.update.openDownloads')} icon={<ArrowUpRight size={15} />} onClick={() => window.open(releaseUrl(null), '_blank')} />
-    <Button label={t('@yovoice.update.retry')} variant="primary" onClick={() => void checkForUpdate()} />
+    <Button label={t('@yovoice.update.retry')} variant="primary" onClick={() => act(checkForUpdate)} />
   </> : status === 'idle' || status === 'latest' ? <>
     <Button label={t('@yovoice.update.close')} onClick={close} />
-    <Button label={t('@yovoice.update.check')} variant="primary" onClick={() => void checkForUpdate()} />
+    <Button label={t('@yovoice.update.check')} variant="primary" onClick={() => act(checkForUpdate)} />
   </> : <Button label={busy ? t('@yovoice.update.background') : t('@yovoice.update.close')} isDisabled={status === 'installing'} onClick={close} />;
-  return <AppDialog title={title} width={560} busy={status === 'installing'} closeLabel={t('@yovoice.update.close')} onClose={close} actions={actions}>
+  return <AppDialog title={title} width={560} busy={status === 'installing'} closeLabel={t('@yovoice.update.close')} error={error} onClose={close} actions={actions}>
     <VStack gap={4} data-testid="update-dialog">
       <small className="muted">{versionLine}{published && (fresh || status === 'latest') ? ` · ${t('@yovoice.update.published', { date: published })}` : ''}</small>
       {status === 'checking' ? <HStack gap={2} vAlign="center"><Spinner size="sm" aria-label={t('@yovoice.update.checking')} /><small>{t('@yovoice.update.checking')}</small></HStack> : null}

@@ -10,7 +10,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { Token } from '@astryxdesign/core/Token';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { FileText, FolderOpen, Image as ImageIcon, MoreHorizontal, Play, RefreshCw, Trash2 } from 'lucide-react';
-import { call, isDesktop } from '../../shared/lib/client';
+import { call, isDesktop, logEvent } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatCallError } from '../../shared/i18n/format';
 import { AppDialog } from '../../shared/ui/app-dialog';
@@ -49,6 +49,9 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // 删除失败的原因显示在确认框里，不弹全局通知。
+  const [deleteError, setDeleteError] = useState('');
+  const confirm = () => { setDeleteError(''); setConfirming(true); };
   const [outcome, setOutcome] = useState<{ deleted: number; freed: number; failed: { asset: Asset; result: AssetResult }[] } | null>(null);
   const [showFailures, setShowFailures] = useState(false);
   const [track, setTrack] = useState<Track | null>(null);
@@ -58,8 +61,10 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
     setLoading(true);
     try { setAssets(await call<Asset[]>('assets.list') ?? []); } finally { setLoading(false); }
   }), [run]);
-  // 进入页面时读取；生成、删除或导入改变了状态时重新汇总（文件大小只有后端知道）。
-  useEffect(() => { if (active) load(); }, [active, load, state.history, state.voices, state.drafts]);
+  // 进入页面时读取；生成、删除或导入改变了资源列表时重新汇总（文件大小只有后端知道）。
+  // 只看 id 和作品名的变化：编辑正文触发的自动保存不会反复拉取整张列表。
+  const revision = useMemo(() => JSON.stringify([state.history.map(g => g.id), state.voices.map(v => v.id), state.drafts.map(d => [d.id, d.title, ...(d.timeline?.assets ?? []).map(a => a.id)])]), [state.history, state.voices, state.drafts]);
+  useEffect(() => { if (active) load(); }, [active, load, revision]);
   // 列表刷新后去掉已不存在的勾选项。
   useEffect(() => setSelected(current => new Set([...current].filter(key => assets.some(a => rowKey(a) === key && canDelete(a))))), [assets]);
 
@@ -88,7 +93,10 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
       return direction === 'ascending' ? order : -order;
     });
   }, [assets, kind, project, usage, text, sort, locale]);
-  const pageRows: Row[] = filtered.slice((page - 1) * pageSize, page * pageSize).map(asset => ({ key: rowKey(asset), asset }));
+  // 删除或筛选后列表变短时，页码收敛到最后一页。
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pages);
+  const pageRows: Row[] = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize).map(asset => ({ key: rowKey(asset), asset }));
   const deletable = filtered.filter(canDelete);
   const picked = assets.filter(a => selected.has(rowKey(a)));
   const pickedBytes = picked.reduce((sum, a) => sum + Math.max(a.bytes, 0), 0);
@@ -134,28 +142,31 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
         ...(isDesktop && a.media !== 'images' && a.bytes >= 0 ? [{ id: 'reveal', label: t('@yovoice.assets.reveal'), icon: <FolderOpen size={16} strokeWidth={1.5} />,
           onClick: () => { void call('media.reveal', { kind: a.media, id: a.id }).catch(e => onError(noticeMessage(e))); } }] : []),
         ...(canDelete(a) ? [{ id: 'delete', label: t('@yovoice.assets.delete'), icon: <Trash2 size={16} strokeWidth={1.5} />, variant: 'destructive' as const,
-          onClick: () => { setSelected(new Set([rowKey(a)])); setConfirming(true); } }] : []),
+          onClick: () => { setSelected(new Set([rowKey(a)])); confirm(); } }] : []),
       ];
       return items.length ? <DropdownMenu presentation="popover" alignment="end" hasChevron={false} menuWidth="max-content" items={items}
         button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal size={15} />, label: t('@yovoice.assets.more', { name: a.name }) }} /> : null;
     } },
   ];
 
-  const remove = () => run(async () => {
-    setDeleting(true);
+  const remove = async () => {
+    setDeleting(true); setDeleteError('');
     try {
       const items = picked.map(a => ({ kind: a.kind, id: a.id }));
       const results = await call<AssetResult[]>('assets.delete', { items });
       const byKey = new Map(picked.map(a => [rowKey(a), a]));
-      const failed = results.filter(r => r.error).map(result => ({ asset: byKey.get(`${result.kind}:${result.id}`)!, result }));
-      const done = results.filter(r => !r.error).map(r => byKey.get(`${r.kind}:${r.id}`)!);
+      // 服务端只会返回请求过的项；万一对不上，跳过并记日志，不让整页崩掉。
+      const resolve = (r: AssetResult) => { const asset = byKey.get(`${r.kind}:${r.id}`); if (!asset) logEvent('assets_delete_unmatched', `${r.kind}:${r.id}`); return asset; };
+      const failed = results.flatMap(result => { const asset = result.error ? resolve(result) : undefined; return asset ? [{ asset, result }] : []; });
+      const done = results.flatMap(r => { const asset = r.error ? undefined : resolve(r); return asset ? [asset] : []; });
       setOutcome({ deleted: done.length, freed: done.reduce((sum, a) => sum + Math.max(a.bytes, 0), 0), failed });
       setShowFailures(failed.length > 0);
       if (track && done.some(a => a.id === track.id)) setTrack(null);
       setSelected(new Set()); setConfirming(false);
       load();
-    } finally { setDeleting(false); }
-  });
+    } catch (e) { setDeleteError(formatCallError(t, e)); }
+    finally { setDeleting(false); }
+  };
 
   // 一行工具栏：搜索与筛选在左，合计与刷新在右；表格区域自己滚动，表头、分页和试听条固定。
   return <VStack className="settings-panel assets-page" gap={3} data-testid="assets-page" id="assets-panel" role="tabpanel" aria-label={t('@yovoice.nav.assets')}>
@@ -170,7 +181,7 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
       <HStack className="grow" hAlign="end" vAlign="center" gap={1}>
         {selected.size > 0 ? <>
           <Button size="sm" variant="ghost" label={t('@yovoice.assets.clearSelection')} onClick={() => setSelected(new Set())} />
-          <Button size="sm" variant="destructive" icon={<Trash2 size={15} />} label={t('@yovoice.assets.deleteSelected')} onClick={() => setConfirming(true)} />
+          <Button size="sm" variant="destructive" icon={<Trash2 size={15} />} label={t('@yovoice.assets.deleteSelected')} onClick={confirm} />
         </> : <>
           {outcome ? <small className="asset-muted" role="status">{t('@yovoice.assets.deleted', { count: outcome.deleted, size: formatBytes(outcome.freed) })}
             {outcome.failed.length ? <> {t('@yovoice.assets.skipped', { count: outcome.failed.length })} <Button size="sm" variant="ghost" label={t('@yovoice.assets.showSkipped')} onClick={() => setShowFailures(true)} /></> : null}</small>
@@ -183,11 +194,11 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
       <Table<Row> data={pageRows} columns={columns} idKey="key" density="compact" textOverflow="truncate" hasHover plugins={{ selection, sortable }}
         emptyState={loading ? false : <EmptyState title={t(assets.length ? '@yovoice.assets.noMatch' : '@yovoice.assets.empty')} />} />
     </VStack>
-    {filtered.length > pageSize ? <Pagination size="sm" variant="count" page={page} pageSize={pageSize} totalItems={filtered.length} onChange={setPage} label={t('@yovoice.assets.pages')} /> : null}
+    {filtered.length > pageSize ? <Pagination size="sm" variant="count" page={currentPage} pageSize={pageSize} totalItems={filtered.length} onChange={setPage} label={t('@yovoice.assets.pages')} /> : null}
     {track ? <Player track={track} suspended={!active} onError={onError} reveal={false} /> : null}
 
-    {confirming ? <AppDialog title={t('@yovoice.assets.deleteTitle', { count: picked.length })} busy={deleting} onClose={() => setConfirming(false)}
-      actions={<><Button label={t('@yovoice.action.cancel')} onClick={() => setConfirming(false)} /><Button variant="destructive" label={t('@yovoice.assets.deleteConfirm')} isLoading={deleting} onClick={remove} /></>}>
+    {confirming ? <AppDialog title={t('@yovoice.assets.deleteTitle', { count: picked.length })} busy={deleting} error={deleteError} onClose={() => setConfirming(false)}
+      actions={<><Button label={t('@yovoice.action.cancel')} isDisabled={deleting} onClick={() => setConfirming(false)} /><Button variant="destructive" label={t('@yovoice.assets.deleteConfirm')} isLoading={deleting} onClick={() => void remove()} /></>}>
       <p>{t('@yovoice.assets.deleteBody', { size: formatBytes(pickedBytes) })}</p>
     </AppDialog> : null}
     {showFailures && outcome ? <AppDialog title={t('@yovoice.assets.skippedTitle')} onClose={() => setShowFailures(false)}

@@ -172,7 +172,7 @@ export function ScoreArrangement({ score, selected, select, label, updateTrack, 
               // 段落直接标在时间轴上：名称、起始时间与小节范围，变速段落附上速度。
               const start = scoreSeconds(score, section.start), end = scoreSeconds(score, section.end + 1);
               const detail = `${t('@yovoice.score.bars', { start: section.start, end: section.end })}${section.tempo ? ` · ${section.tempo} BPM` : ''}`;
-              return <VStack key={`${section.name}-${section.start}`} className="score-ruler-section" role="listitem" data-odd={i % 2 === 1} gap={0} style={{ flexGrow: Math.max(.01, end - start) } as CSSProperties}>
+              return <VStack key={`${i}-${section.start}`} className="score-ruler-section" role="listitem" data-odd={i % 2 === 1} gap={0} style={{ flexGrow: Math.max(.01, end - start) } as CSSProperties}>
                 <b>{section.name || ' '}</b><small>{formatTime(start)} · {detail}</small>
               </VStack>;
             })}
@@ -190,7 +190,8 @@ export function ScoreArrangement({ score, selected, select, label, updateTrack, 
               : <Selector label={t('@yovoice.score.instrumentOf', { name: track.name })} isLabelHidden size="sm" variant="ghost" hasSearch className="score-instrument" value={String(track.program)}
                 options={gmPrograms.map((name, program) => ({ value: String(program), label: name }))} renderValue={option => <Piano size={14} aria-label={option.label} role="img"><title>{option.label}</title></Piano>}
                 onChange={value => updateTrack(track.id, { program: Number(value) })} />}
-            <label className="number-field compact" title={t('@yovoice.score.levelOf', { name: track.name })}><input type="number" aria-label={t('@yovoice.score.levelOf', { name: track.name })} min={-60} max={0} step={1} value={targetLevel(track)} onChange={event => { const level = Number(event.target.value); if (level >= -60 && level < 0) updateTrack(track.id, { level }); }} /><small aria-hidden="true">dB</small></label>
+            {/* 电平只接受 -60 到 -1 dB：0 表示未设置，所以上限是 -1。 */}
+            <label className="number-field compact" title={t('@yovoice.score.levelOf', { name: track.name })}><input type="number" aria-label={t('@yovoice.score.levelOf', { name: track.name })} min={-60} max={-1} step={1} value={targetLevel(track)} onChange={event => { const level = Number(event.target.value); if (level >= -60 && level < 0) updateTrack(track.id, { level }); }} /><small aria-hidden="true">dB</small></label>
             <Button size="sm" variant="ghost" isIconOnly className="score-mute" aria-pressed={!track.mute} icon={track.mute ? <VolumeX /> : <Volume2 />}
               label={t('@yovoice.score.playTrack', { name: track.name })} tooltip={t('@yovoice.score.playTrack', { name: track.name })} onClick={() => updateTrack(track.id, { mute: !track.mute || undefined })} />
             </>}

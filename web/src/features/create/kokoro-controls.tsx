@@ -36,7 +36,7 @@ export function KokoroControls({ draft, model, change, advanced, setAdvanced }: 
   return <VStack gap={4}>
     <Selector label={t('@yovoice.create.language')} value={language}
       options={[...new Set(voices.map(voice => languages[voice[0]]))].map(value => ({ value, label: t(`@yovoice.language.${value}`) }))}
-      onChange={value => selectVoice(voices.find(voice => languages[voice[0]] === value)!)} />
+      onChange={value => { const next = voices.find(voice => languages[voice[0]] === value); if (next) selectVoice(next); }} />
     <Selector label={t('@yovoice.reference.speaker')} value={speaker}
       options={voices.filter(voice => languages[voice[0]] === language).map(value => ({ value, label: value }))} onChange={selectVoice} />
     <Switch label={t('@yovoice.create.blendVoices')} size="sm" value={!!blend} isDisabled={!second} labelPosition="start" labelSpacing="spread"
