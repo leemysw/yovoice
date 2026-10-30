@@ -7,7 +7,7 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { BookOpen, LoaderCircle, Settings2, UsersRound } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
-import { call } from '../../shared/lib/client';
+import { call, CallError } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
 import { aiServiceHidden, createDraft, formatTime, type Draft, type State } from '../../shared/workbench';
 import { Player } from '../media/player';
@@ -25,7 +25,7 @@ const unknownKey = '@unknown';
  * 规则识别离线完成；配置了 AI 服务时可让 AI 补全说话人和角色特征，并按特征从声音库选角。
  */
 export function BookImport({ state, modelId, configureAI, create, onError }: {
-  state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[]) => Promise<void>; onError: (error: string) => void;
+  state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[], saved: Set<string>) => Promise<void>; onError: (error: string) => void;
 }) {
   const t = useTranslator();
   const input = useRef<HTMLInputElement>(null);
@@ -43,11 +43,14 @@ export function BookImport({ state, modelId, configureAI, create, onError }: {
       const file = event.target.files?.[0]; event.target.value = '';
       if (file) void open(file);
     }} />
-    {book ? <BookDialog key={book.title + book.chapters.length} book={book} state={state} modelId={modelId} configureAI={configureAI} create={create} close={() => setBook(null)} /> : null}
+    {book ? <BookDialog key={book.title + book.chapters.length} book={book} state={state} modelId={modelId} configureAI={configureAI} create={create} close={() => setBook(null)} onError={onError} /> : null}
   </>;
 }
 
-function BookDialog({ book, state, modelId, configureAI, create, close }: { book: Manuscript; state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[]) => Promise<void>; close: () => void }) {
+// create 的第二个参数记录已入库的章节 id：逐章保存中途失败后再点创建，沿用同一批作品，已保存的不再重复创建。
+function BookDialog({ book, state, modelId, configureAI, create, close, onError }: {
+  book: Manuscript; state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[], saved: Set<string>) => Promise<void>; close: () => void; onError: (error: string) => void;
+}) {
   const t = useTranslator();
   const characters = useMemo(() => state.characters ?? [], [state.characters]);
   const [step, setStep] = useState<'chapters' | 'cast'>('chapters');
@@ -90,31 +93,44 @@ function BookDialog({ book, state, modelId, configureAI, create, close }: { book
   const settle = useEffectEvent(() => {
     if (!task || task.status === 'running') return;
     if (task.status === 'completed') {
-      const result = task.result as CastResult;
-      const next = script.map((c, ci) => ({ ...c, lines: c.lines.map((l, li) => l.quote ? { ...l, speaker: result.lines[ci]?.[li] ?? l.speaker } : l) }));
-      const found = castRoles(next, result.roles.map(r => ({ ...r, lines: 0, sample: '' })));
-      setScript(next); setRoles(found);
-      setCast(proposeCast(['', ...found.filter(r => r.name !== unknownKey).map(r => r.name)], characters, result.voices));
-      if (result.failed) setError(t('@yovoice.book.aiPartial', { count: result.failed }));
+      const result = task.result as Partial<CastResult> | undefined;
+      // 结果结构对不上（服务版本不一致或内容被截断）时按失败处理，不让界面崩掉。
+      if (!Array.isArray(result?.lines) || !Array.isArray(result.roles)) setError(formatCallError(t, new CallError('@yovoice.error.unknown', { detail: 'cast result invalid' })));
+      else {
+        const next = script.map((c, ci) => ({ ...c, lines: c.lines.map((l, li) => l.quote ? { ...l, speaker: result.lines?.[ci]?.[li] ?? l.speaker } : l) }));
+        const found = castRoles(next, result.roles.map(r => ({ ...r, lines: 0, sample: '' })));
+        setScript(next); setRoles(found);
+        setCast(proposeCast(['', ...found.filter(r => r.name !== unknownKey).map(r => r.name)], characters, result.voices ?? {}));
+        if (result.failed) setError(t('@yovoice.book.aiPartial', { count: result.failed }));
+      }
     } else if (task.status === 'failed') setError(formatCallError(t, task));
-    void call('ai.dismiss', { id: task.id });
+    void call('ai.dismiss', { id: task.id }).catch(e => setError(formatCallError(t, e)));
   });
   useEffect(() => settle(), [task?.status, task?.id]);
   const running = task?.status === 'running';
   function dismiss() {
-    if (running) void call('ai.cancel');
+    // 对话框随即关闭，取消失败只能走全局提示。
+    if (running) void call('ai.cancel').catch(e => onError(formatCallError(t, e)));
     close();
   }
 
+  // 上一次创建用的作品列表：内容没变时重试沿用同一批（id 不变），saved 里是其中已入库的章节。
+  const attempt = useRef<{ key: string; drafts: Draft[]; saved: Set<string> } | null>(null);
   async function finish() {
     setBusy(true); setError('');
     try {
       const narrator = t('@yovoice.library.narrator');
       const named = script.map(c => ({ ...c, lines: c.lines.map(l => l.speaker === unknownKey ? { ...l, speaker: t('@yovoice.book.unknown') } : l) }));
       const assigned = Object.fromEntries(Object.entries(cast).map(([name, id]) => [name === unknownKey ? t('@yovoice.book.unknown') : name, id]));
-      await create(bookDrafts(title.trim() || book.title, named, assigned, characters, narrator, () => createDraft(false, state.preferences.uiLocale, modelId)));
+      const name = title.trim() || book.title;
+      const key = JSON.stringify([name, named, assigned, modelId, state.preferences.uiLocale]);
+      if (attempt.current?.key !== key) attempt.current = { key, drafts: bookDrafts(name, named, assigned, characters, narrator, () => createDraft(false, state.preferences.uiLocale, modelId)), saved: new Set() };
+      await create(attempt.current.drafts, attempt.current.saved);
       close();
-    } catch (e) { setError(formatCallError(t, e)); setBusy(false); }
+    } catch (e) {
+      const saved = attempt.current?.saved.size ?? 0;
+      setError(saved ? `${formatCallError(t, e)} ${t('@yovoice.book.savedPartial', { count: saved })}` : formatCallError(t, e)); setBusy(false);
+    }
   }
 
   const narration = script.flatMap(c => c.lines).filter(l => !l.speaker).length;
@@ -162,7 +178,7 @@ function BookDialog({ book, state, modelId, configureAI, create, close }: { book
         <b>{t('@yovoice.book.summary', { chapters: script.length, roles: roles.filter(r => r.name !== unknownKey).length, lines: script.reduce((sum, c) => sum + c.lines.length, 0) })}</b>
         <small className="muted">{running && task ? t('@yovoice.book.aiRunning', { model: task.model, done: task.done ?? 0, total: task.total || '…', time: formatTime(Math.floor((Date.now() - Date.parse(task.startedAt)) / 1000)) }) : t('@yovoice.book.castHelp')}</small>
       </VStack>
-      {aiServiceHidden(state.preferences) ? null : running ? <><LoaderCircle className="generation-spinner" size={16} aria-hidden /><Button size="sm" label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('ai.cancel')} /></>
+      {aiServiceHidden(state.preferences) ? null : running ? <><LoaderCircle className="generation-spinner" size={16} aria-hidden /><Button size="sm" label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('ai.cancel').catch(e => setError(formatCallError(t, e)))} /></>
         : provider?.model ? <Button size="sm" variant="secondary" icon={<UsersRound />} label={t('@yovoice.book.aiCast')} isDisabled={elsewhere} onClick={() => void runAI()} />
         : <Button size="sm" variant="secondary" icon={<Settings2 />} label={t('@yovoice.ai.configure')} onClick={() => { dismiss(); configureAI(); }} />}
     </HStack>

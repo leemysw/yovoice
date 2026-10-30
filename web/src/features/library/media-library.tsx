@@ -20,8 +20,8 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 // 版本记录一次先渲染的条数，更早的点“显示更早的”再展开，记录很多时打开页面和状态推送都不用重建整张列表。
 const historyBatch = 30;
 
-// 存根用的短时长：不足一小时显示 m:ss。
-const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
+// 存根用的短时长：不足一小时显示 m:ss。先把总秒数取整再拆分，59.6 秒显示 1:00 而不是 0:60。
+const clock = (seconds: number) => { const total = Math.round(seconds); return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`; };
 
 export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, saveCharacter, reuse, exportItem, play, onError, controls, project }: {
   controls?: ReactNode; project: Draft;

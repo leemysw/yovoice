@@ -21,8 +21,9 @@ export function MediaActions({ item, beforeDelete, onError, onEdit }: { onEdit?:
     if (busy) return;
     setBusy(true); setError('');
     try {
-      if (action === 'delete') beforeDelete();
       await call(action === 'rename' ? 'media.rename' : 'media.delete', { kind: item.kind, id: item.id, name: name.trim() });
+      // 删除成功后才停掉它的试听；删除失败时播放不受影响。
+      if (action === 'delete') beforeDelete();
       setAction(null);
     } catch (e) { setError(formatCallError(t, e)); }
     finally { setBusy(false); }
