@@ -21,17 +21,19 @@ export function IntroScreen({ onStart }: { onStart: () => void }) {
   const root = useRef<HTMLElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [leaving, setLeaving] = useState(false);
+  // 淡出结束后进入主界面的定时器；画面在此之前被卸载（如加载出错）时取消，不再回调。
+  const leaveTimer = useRef(0);
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const stop = canvas.current ? playParticles(canvas.current, reduced) : () => {};
     // 按钮出现后把焦点交给它，键盘用户直接按回车即可进入。
     const timer = window.setTimeout(() => root.current?.querySelector<HTMLButtonElement>('button.intro-cta')?.focus(), reduced ? 0 : buttonDelayMs);
-    return () => { stop(); window.clearTimeout(timer); };
+    return () => { stop(); window.clearTimeout(timer); window.clearTimeout(leaveTimer.current); };
   }, []);
   const start = () => {
     if (leaving) return;
     setLeaving(true);
-    window.setTimeout(onStart, leaveMs);
+    leaveTimer.current = window.setTimeout(onStart, leaveMs);
   };
   return <VStack ref={root} as="section" className="intro-screen" data-leaving={leaving || undefined} role="dialog" aria-modal="true" aria-label="yovoice" gap={0}>
     <canvas ref={canvas} className="intro-canvas" aria-hidden />
