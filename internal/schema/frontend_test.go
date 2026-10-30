@@ -2,6 +2,7 @@ package schema_test
 
 import (
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"slices"
@@ -12,11 +13,9 @@ import (
 	"yovoice/internal/testkit"
 )
 
-// 界面在 web/src/shared/workbench.ts 手写镜像这些结构；字段名不一致时保存会静默丢失数据。
+// 界面在 web/src/shared/workbench/ 下手写镜像这些结构；字段名不一致时保存会静默丢失数据。
 func TestFrontendTypesMatchSchema(t *testing.T) {
-	source, err := os.ReadFile(testkit.RepoFile(t, "web", "src", "shared", "workbench.ts"))
-	testkit.Must(t, err)
-	interfaces := tsInterfaces(string(source))
+	interfaces := tsInterfaces(readTypeScript(t, testkit.RepoFile(t, "web", "src", "shared", "workbench")))
 	// 仅后端保留、界面有意不读写的字段。
 	goOnly := map[string][]string{
 		"AudioClip":    {"fadeIn", "fadeOut"},              // 旧版淡化，读取时忽略
@@ -38,7 +37,7 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 		typ := reflect.TypeOf(value)
 		ts, ok := interfaces[typ.Name()]
 		if !ok {
-			t.Errorf("workbench.ts 缺少接口 %s", typ.Name())
+			t.Errorf("shared/workbench 缺少接口 %s", typ.Name())
 			continue
 		}
 		fields := jsonFields(typ)
@@ -53,6 +52,23 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 			}
 		}
 	}
+}
+
+// readTypeScript 拼接目录下全部 .ts 文件：类型按职责分在多个文件里，接口在哪个文件不重要。
+func readTypeScript(t *testing.T, dir string) string {
+	entries, err := os.ReadDir(dir)
+	testkit.Must(t, err)
+	var all strings.Builder
+	for _, entry := range entries {
+		if !strings.HasSuffix(entry.Name(), ".ts") {
+			continue
+		}
+		source, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+		testkit.Must(t, err)
+		all.Write(source)
+		all.WriteByte('\n')
+	}
+	return all.String()
 }
 
 // jsonFields 返回结构体序列化后的字段名，展开匿名嵌入的结构体。
