@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 	"yovoice/internal/catalog"
+	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
@@ -63,7 +64,16 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	if err := run(ctx, os.Args[1:], os.Stdout, os.Stderr); err != nil {
-		_ = json.NewEncoder(os.Stderr).Encode(map[string]string{"error": err.Error()})
+		// 业务错误除文本外附上稳定错误码与参数，脚本据此判断原因，不必解析中文。
+		out := map[string]any{"error": err.Error()}
+		var ce *msg.CallError
+		if errors.As(err, &ce) {
+			out["code"] = ce.Code
+			if len(ce.Params) > 0 {
+				out["params"] = ce.Params
+			}
+		}
+		_ = json.NewEncoder(os.Stderr).Encode(out)
 		if errors.Is(err, context.Canceled) {
 			os.Exit(130)
 		}
@@ -502,7 +512,7 @@ func waitOperation(ctx context.Context, w *workbench.Workbench, out io.Writer, a
 			return nil
 		case "failed":
 			if a.ErrorCode != nil {
-				return errors.New(string(*a.ErrorCode))
+				return msg.Err(*a.ErrorCode, a.ErrorParams)
 			}
 			return fmt.Errorf("操作失败")
 		case "cancelled":
