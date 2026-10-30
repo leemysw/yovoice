@@ -184,3 +184,28 @@ test('助手：当前服务是 ChatGPT 订阅时提前说明，并可在面板�
   await expect(notice).toHaveCount(0);
   await expect(panel.getByRole('textbox')).toBeVisible();
 });
+
+test('助手：发送失败时内容回到输入框、面板内提示，重发成功后清空；单条消息最多 2000 字', async ({ page }) => {
+  await page.goto('/');
+  await configureAI(page);
+  await page.keyboard.press('ControlOrMeta+j');
+  const panel = page.getByTestId('assistant-panel');
+  const input = panel.getByRole('textbox');
+  // 让下一次 assistant.send 失败（如会话忙）：内容回到输入框里，错误显示在面板内而不是全局通知。
+  await page.evaluate(() => window.__previewFail!('assistant.send', '@yovoice.error.busy'));
+  await input.fill('看看作品列表');
+  await input.press('Enter');
+  const notice = panel.getByTestId('assistant-error');
+  await expect(notice).toContainText('请等待当前操作结束');
+  await expect(input).toHaveText('看看作品列表');
+  await expect(page.locator('.notifications .notice')).toHaveCount(0);
+  // 不改动直接重发：成功后输入框清空，提示收起。
+  await input.press('Enter');
+  await expect(input).toHaveText('');
+  await expect(notice).toHaveCount(0);
+  await expect(panel.getByText('看看作品列表', { exact: true }).first()).toBeVisible();
+  await expect(panel.getByRole('textbox')).toBeVisible();
+  // 超过 2000 字的部分在输入时就截掉。
+  await input.fill('字'.repeat(2010));
+  await expect.poll(async () => (await input.textContent())?.length).toBe(2000);
+});

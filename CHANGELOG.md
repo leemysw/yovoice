@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+### English
+
+- Ocho panel: a message that fails to send (too long, the assistant is busy, the service is unreachable) stays in the input box and the reason shows inside the panel; starting, switching or deleting a chat, picking a model, confirming a proposal and playing a result also report failures in place. Messages are capped at 2000 characters while typing.
+- Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
+- Robustness: a corrupted sidebar-width record no longer blanks the app at startup; a failure inside the player, voice picker, Ocho panel, dialogs, intro or tour only affects that part; when a lazily loaded part can't be fetched, "Try again" reloads the page. Book import no longer creates duplicate chapters when you retry after a partial failure, and the create page no longer crashes when a Voxtral model is missing from the catalog.
+- Smaller fixes: timeline, resource and update dialogs show their own errors; the melody score reports when it can't be checked or the staff can't render; melody preview and reply playback no longer keep playing after being stopped; durations such as 59.6 s show 1:00 instead of 0:60; the story editor keeps your page while playing; several missing translations added.
+
+### 简体中文
+
+- Ocho 面板：消息发送失败（过长、助手忙、服务不可用）时内容留在输入框里，原因显示在面板内；新建、切换、删除对话，选择模型，确认提案和试听结果失败也都就地提示。输入时按 2000 字上限截断。
+- 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
+- 稳定性：侧栏宽度记录损坏不再导致启动白屏；播放页、声音选择、Ocho 面板、各对话框、开场画面和引导出错只影响它自己；按需加载的部分取不到代码时“重试”会重新加载页面。导入小说中途失败后重试不再重复创建已入库的章节；目录里没有当前 Voxtral 模型时创作页不再崩溃。
+- 其他修复：时间线、资源和更新对话框在框内显示自己的错误；旋律谱无法校验或五线谱无法渲染时给出说明；旋律试听和回复试听停止后不再继续出声；59.6 秒这类时长显示 1:00 而不是 0:60；故事配音播放中翻页不再被拉回；补齐若干缺失的翻译。
+
 ## [0.5.0] - 2026-10-28
 
 ### English

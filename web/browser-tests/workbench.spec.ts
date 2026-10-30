@@ -477,3 +477,42 @@ test('已下载模型有新版本时显示轻提示，可关闭并重新下载�
   await expect(page.getByTestId('model-update-notice')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').models?.[0]?.sha256)).not.toBe('0'.repeat(64));
 });
+
+test('侧栏宽度记录损坏时照常启动，并清掉损坏的记录', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => { localStorage.setItem('astryx-resizable:workbench-sidebar', '{not json'); });
+  await page.goto('/');
+  await expect(page.getByLabel('作品名称')).toHaveValue('清晨旁白');
+  // 损坏的记录被删掉；侧栏之后重新写入的必须是合法 JSON。
+  await expect.poll(() => page.evaluate(() => {
+    const saved = localStorage.getItem('astryx-resizable:workbench-sidebar');
+    if (saved === null) return 'cleared';
+    try { JSON.parse(saved); return 'valid'; } catch { return saved; }
+  })).toMatch(/^(cleared|valid)$/);
+  expect(errors).toEqual([]);
+});
+
+test('浮层出错只影响浮层：声音选择的代码没加载到时其余界面照常，重试会重新加载页面', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByLabel('作品名称')).toHaveValue('清晨旁白');
+  // 让按需加载的声音选择器取不到代码，相当于离线或更新后旧文件已不存在。
+  await page.route('**/voice-picker.tsx*', route => route.abort());
+  await page.getByRole('button', { name: '添加参考音频', exact: true }).click();
+  const boundary = page.locator('.page-error');
+  await expect(boundary).toBeVisible();
+  await expect(boundary).toContainText('这个页面出错了');
+  await expect(boundary).toHaveAttribute('data-chunk', 'true');
+  // 侧栏、编辑区与检查器都还在，没有整页白屏。
+  await expect(page.getByLabel('作品名称')).toHaveValue('清晨旁白');
+  await expect(page.getByTestId('nav-settings')).toBeVisible();
+  await expect(page.getByRole('button', { name: '生成语音', exact: true })).toBeVisible();
+  // React.lazy 记住了失败结果，这时的“重试”是重新加载页面；恢复网络后页面回到正常状态。
+  await page.unroute('**/voice-picker.tsx*');
+  await page.evaluate(() => { (window as unknown as { __marker?: number }).__marker = 1; });
+  await boundary.getByRole('button', { name: '重试', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __marker?: number }).__marker)).toBeUndefined();
+  await expect(page.getByLabel('作品名称')).toHaveValue('清晨旁白');
+  await expect(page.locator('.page-error')).toHaveCount(0);
+  await page.getByRole('button', { name: '添加参考音频', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+});
