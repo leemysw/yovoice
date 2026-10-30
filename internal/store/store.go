@@ -33,6 +33,8 @@ type Store struct {
 	subscribers map[chan struct{}]bool
 	// frozen 在数据目录迁移完成后置位：新目录已是重启后的数据源，旧目录不再接受持久化写入，避免重启前的修改静默丢失。
 	frozen bool
+	// cloneFailed 记录已经报告过状态无法序列化，避免每次读取都写日志。
+	cloneFailed bool
 }
 
 // backupInterval 控制运行期间刷新 yovoice.backup.db 的最短间隔；每次打开时也会刷新一次。
@@ -51,16 +53,11 @@ func New(root string) (store *Store, err error) {
 			return nil, e
 		}
 	}
-	for _, d := range []string{"voices", "outputs"} {
-		files, _ := filepath.Glob(filepath.Join(root, d, "*.deleted"))
-		for _, file := range files {
-			_ = os.Remove(file)
-		}
-	}
 	s := &Store{Root: root, subscribers: map[chan struct{}]bool{}}
 	if err = s.open(); err != nil {
 		return nil, err
 	}
+	s.settleDeleted()
 	s.state.Activity = settleActivity(s.state.Activity)
 	s.state.ModelActivity = settleActivity(s.state.ModelActivity)
 	// AI 任务、旋律谱结果与助手对话的实时状态只属于本次会话，助手消息记录保留。
@@ -85,19 +82,27 @@ func New(root string) (store *Store, err error) {
 	return s, nil
 }
 
-// open 打开状态库；首次运行新版本时从旧版 state.json 导入，数据库损坏时从备份恢复。
+// open 打开状态库；首次运行新版本时从旧版 state.json 导入，数据库损坏或丢失时从备份恢复。
 func (s *Store) open() error {
 	path := filepath.Join(s.Root, DatabaseFile)
 	if _, e := os.Stat(path); os.IsNotExist(e) {
-		state, found, e := readLegacy(s.Root)
-		if e != nil {
-			return e
-		}
-		if e = createDB(path, state, nil); e != nil {
-			return e
-		}
-		if found {
-			diag.Log(s.Root, "state.imported", "source", legacyState)
+		if _, be := os.Stat(filepath.Join(s.Root, backupFile)); be == nil {
+			// 状态库不在而备份还在（恢复中途失败、同步盘或杀毒软件临时移走文件）：先从备份恢复。
+			// 此时绝不能新建空库，否则启动后的备份刷新会用空库覆盖唯一的副本，全部数据丢失。
+			if e = s.restoreMissing(path); e != nil {
+				return e
+			}
+		} else {
+			state, found, e := readLegacy(s.Root)
+			if e != nil {
+				return e
+			}
+			if e = createDB(path, state, nil); e != nil {
+				return e
+			}
+			if found {
+				diag.Log(s.Root, "state.imported", "source", legacyState)
+			}
 		}
 	} else if e != nil {
 		return e
@@ -131,6 +136,46 @@ func (s *Store) load(path string) error {
 		return e
 	}
 	s.db = db
+	return nil
+}
+
+// settleDeleted 处理删除中途退出留下的 .deleted 文件：记录仍引用它且原文件不在时改回原名，否则才删除。
+// 一律删除会丢掉状态库里还在使用的音频。
+func (s *Store) settleDeleted() {
+	refs := s.state.MediaRefs()
+	for _, kind := range []string{"voices", "outputs"} {
+		files, _ := filepath.Glob(filepath.Join(s.Root, kind, "*.deleted"))
+		for _, file := range files {
+			original := strings.TrimSuffix(file, ".deleted")
+			if refs[kind][filepath.Base(original)] {
+				if _, e := os.Stat(original); e == nil {
+					// 原文件还在，这份是过期的删除标记。
+					_ = os.Remove(file)
+					continue
+				}
+				if e := os.Rename(file, original); e != nil {
+					diag.Log(s.Root, "media.restore_failed", "path", file, "error", diag.Error(e))
+				} else {
+					diag.Log(s.Root, "media.restored", "kind", kind, "name", filepath.Base(original))
+				}
+				continue
+			}
+			_ = os.Remove(file)
+		}
+	}
+}
+
+// restoreMissing 在状态库文件丢失时用备份补回；遗留的回滚日志属于丢失的那份库，移走以免被应用到备份上。
+func (s *Store) restoreMissing(path string) error {
+	stamp := time.Now().Format("20060102-150405.000000000")
+	if e := os.Rename(path+"-journal", filepath.Join(s.Root, "yovoice.corrupt-"+stamp+".db-journal")); e != nil && !os.IsNotExist(e) {
+		return e
+	}
+	if e := copyFile(filepath.Join(s.Root, backupFile), path); e != nil {
+		return e
+	}
+	diag.Log(s.Root, "state.recovered", "source", backupFile, "reason", "database missing")
+	pruneCorrupt(s.Root, keepCorrupt)
 	return nil
 }
 
@@ -197,13 +242,35 @@ func settleActivity(a *schema.Activity) *schema.Activity {
 	}
 	return a
 }
-func clone(s schema.State) schema.State {
-	b, _ := json.Marshal(s)
+
+// clone 经 JSON 往返做深拷贝；状态无法序列化（例如出现 NaN）时返回错误，不能把零值状态当成当前状态。
+func clone(s schema.State) (schema.State, error) {
+	b, e := json.Marshal(s)
+	if e != nil {
+		return schema.State{}, e
+	}
 	var r schema.State
-	_ = json.Unmarshal(b, &r)
+	if e = json.Unmarshal(b, &r); e != nil {
+		return schema.State{}, e
+	}
+	return r, nil
+}
+
+// Read 返回当前状态的副本。状态无法序列化时退而返回浅拷贝（切片与内存状态共享，只读使用）：
+// 返回零值会让清理逻辑把所有文件当成未引用而删除。
+func (s *Store) Read() schema.State {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	r, e := clone(s.state)
+	if e != nil {
+		if !s.cloneFailed {
+			s.cloneFailed = true
+			diag.Log(s.Root, "state.read_failed", "error", diag.Error(e))
+		}
+		return s.state
+	}
 	return r
 }
-func (s *Store) Read() schema.State { s.mu.Lock(); defer s.mu.Unlock(); return clone(s.state) }
 
 // ReadJSON 直接返回当前状态的 JSON，供状态推送使用，省去 Read 复制后再序列化的一轮。
 func (s *Store) ReadJSON() ([]byte, error) {
@@ -231,7 +298,11 @@ func (s *Store) Update(change func(*schema.State), persist bool) (err error) {
 	if e := s.checkWritable(); e != nil {
 		return e
 	}
-	next := clone(s.state)
+	next, e := clone(s.state)
+	if e != nil {
+		// 拷贝失败时拒绝提交：在零值状态上修改再写库会清空所有表。
+		return e
+	}
 	change(&next)
 	snap, e := encode(&next)
 	if e != nil {
@@ -293,6 +364,10 @@ func (s *Store) writeError(e error) error {
 	if diskFull(e) {
 		return msg.Err(msg.ErrDiskFull, nil)
 	}
+	if unwritable(e) {
+		// 文件只读或无法打开（权限被改、文件被占用）：归为状态保存失败，细节留在日志里。
+		return msg.Err(msg.ErrStateSaveFailed, msg.Params{"detail": e.Error()})
+	}
 	return e
 }
 
@@ -301,6 +376,13 @@ func (s *Store) Freeze() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.frozen = true
+}
+
+// Thaw 撤销 Freeze：数据目录迁移在冻结后失败时，旧目录仍是数据源，恢复持久化写入。
+func (s *Store) Thaw() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.frozen = false
 }
 
 // Close 关闭状态库；之后的持久化写入返回错误，内存读取仍可用。

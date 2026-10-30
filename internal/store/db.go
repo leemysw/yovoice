@@ -174,25 +174,37 @@ type errCorrupt struct{ detail string }
 
 func (e errCorrupt) Error() string { return "database corrupt: " + e.detail }
 
+// sqliteCode 返回 SQLite 主错误码；不是 SQLite 错误时为 0。
+func sqliteCode(e error) int {
+	var se *sqlite.Error
+	if errors.As(e, &se) {
+		return se.Code() & 0xff
+	}
+	return 0
+}
+
 // corrupt 判断错误是否表示数据库文件本身已损坏或不是数据库。
 func corrupt(e error) bool {
 	if _, ok := e.(errCorrupt); ok {
 		return true
 	}
-	var se *sqlite.Error
-	if errors.As(e, &se) {
-		switch se.Code() & 0xff {
-		case 11, 26: // SQLITE_CORRUPT, SQLITE_NOTADB
-			return true
-		}
+	switch sqliteCode(e) {
+	case 11, 26: // SQLITE_CORRUPT, SQLITE_NOTADB
+		return true
 	}
 	return false
 }
 
 // diskFull 判断错误是否为磁盘已满（SQLITE_FULL）。
-func diskFull(e error) bool {
-	var se *sqlite.Error
-	return errors.As(e, &se) && se.Code()&0xff == 13
+func diskFull(e error) bool { return sqliteCode(e) == 13 }
+
+// unwritable 判断错误是否为数据库只读或无法打开（SQLITE_READONLY、SQLITE_CANTOPEN）。
+func unwritable(e error) bool {
+	switch sqliteCode(e) {
+	case 8, 14:
+		return true
+	}
+	return false
 }
 
 // load 读取全部表并组装状态；缺失的设置保持默认值。
