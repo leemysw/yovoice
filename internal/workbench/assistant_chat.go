@@ -286,11 +286,23 @@ func (w *Workbench) stopChat() {
 
 // chatLoop 依次处理排队消息，队列清空后退出。
 func (w *Workbench) chatLoop() {
+	// 循环在一轮之外 panic（由 diag.Go 记录）时复位状态：running 留着为真，之后的消息就永远等不到新的循环。
+	exited := false
+	defer func() {
+		if exited {
+			return
+		}
+		w.chat.mu.Lock()
+		w.chat.running, w.chat.cancel, w.chat.turn = false, nil, nil
+		w.chat.mu.Unlock()
+		w.publishLive(func(live *schema.AssistantLive) { live.Turn, live.Queued = nil, 0 })
+	}()
 	for {
 		w.chat.mu.Lock()
 		if w.chat.stopped || len(w.chat.queue) == 0 {
 			w.chat.running = false
 			w.chat.cancel = nil
+			exited = true
 			w.chat.mu.Unlock()
 			w.publishLive(func(live *schema.AssistantLive) { live.Turn, live.Queued = nil, 0 })
 			return

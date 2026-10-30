@@ -173,3 +173,28 @@ func TestPanicInCallReleasesLock(t *testing.T) {
 		t.Fatal("panic 后读锁未释放，关闭卡住")
 	}
 }
+
+// 在途调用不响应取消时，关闭最多等 drainTimeout，超时记录日志后继续，不会无限等待。
+func TestCloseGivesUpDrainingAfterTimeout(t *testing.T) {
+	handler, _, _ := newServer(t)
+	saved := drainTimeout
+	drainTimeout = 200 * time.Millisecond
+	defer func() { drainTimeout = saved }()
+	handler.calls.RLock()
+	defer handler.calls.RUnlock()
+	finished := make(chan struct{})
+	go func() {
+		defer close(finished)
+		handler.Close()
+	}()
+	select {
+	case <-finished:
+	case <-time.After(5 * time.Second):
+		t.Fatal("在途调用卡住时关闭应在超时后继续")
+	}
+	b, err := os.ReadFile(filepath.Join(handler.Workbench.Store.Root, "logs", "service.log"))
+	must(t, err)
+	if !strings.Contains(string(b), `"rpc.drain_timeout"`) {
+		t.Fatal("缺少排空超时诊断")
+	}
+}

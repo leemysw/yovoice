@@ -124,9 +124,29 @@ func liveModelPaths(s schema.State, root string) []string {
 }
 
 // removeStaleStaging 删除模型目录里不再属于任何有效模型、且超过保留期的临时文件。
+// 移除模型时改名待删的文件或目录（多文件模型整个目录改名，里面的文件不带后缀）不会再被任何人使用，直接整体回收。
 func removeStaleStaging(dir string, cutoff time.Time, live []string, report *CleanupReport) {
 	_ = filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
-		if err != nil || entry.IsDir() {
+		if err != nil || path == dir {
+			return nil
+		}
+		if strings.HasSuffix(path, deletingSuffix) {
+			size := int64(0)
+			if entry.IsDir() {
+				size = dirSize(path)
+			} else if info, e := entry.Info(); e == nil {
+				size = info.Size()
+			}
+			if os.RemoveAll(path) == nil {
+				report.CleanedCount++
+				report.FreedBytes += size
+			}
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.IsDir() {
 			return nil
 		}
 		target := stagingTarget(path)
