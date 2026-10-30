@@ -12,8 +12,10 @@ func Classify(err error) error {
 	if err == nil {
 		return nil
 	}
-	if _, ok := err.(*CallError); ok {
-		return err
+	// 被 %w 包装过的业务错误同样保留原错误码，不退化成“未知错误”。
+	var ce *CallError
+	if errors.As(err, &ce) {
+		return ce
 	}
 	if diskFull(err) {
 		return Err(ErrDiskFull, nil)

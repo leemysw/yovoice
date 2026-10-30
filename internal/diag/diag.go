@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -34,7 +35,7 @@ func Level(event string, fields ...any) slog.Level {
 			return slog.LevelError
 		}
 	}
-	for _, suffix := range []string{"_failed", "_rejected", "_denied", ".failed", ".corrupt", ".error", ".crashed"} {
+	for _, suffix := range []string{"_failed", "_rejected", "_denied", ".failed", ".corrupt", ".error", ".crashed", ".panic"} {
 		if strings.HasSuffix(event, suffix) {
 			return slog.LevelError
 		}
@@ -104,6 +105,32 @@ func OpenProcessLog(path, title string) (*os.File, error) {
 	}
 	_, _ = fmt.Fprintf(f, "\n===== %s %s =====\n", time.Now().Format(time.RFC3339), title)
 	return f, nil
+}
+
+// Go 在新 goroutine 中运行 fn：后台任务里的 panic 记成 <name>.panic 事件（带堆栈），不让整个服务退出。
+func Go(root, name string, fn func()) {
+	go func() {
+		defer Recover(root, name)
+		fn()
+	}()
+}
+
+// Recover 供 defer 直接调用：捕获当前 goroutine 的 panic 并记录带堆栈的诊断日志。
+func Recover(root, name string) {
+	if r := recover(); r != nil {
+		Log(root, name+".panic", "panic", fmt.Sprint(r), "stack", string(debug.Stack()))
+	}
+}
+
+// Catch 运行 fn 并把其中的 panic 转成错误返回：后台操作据此报告失败，而不是让服务崩溃或让调用方永远等不到结果。
+func Catch(root, name string, fn func() error) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			Log(root, name+".panic", "panic", fmt.Sprint(r), "stack", string(debug.Stack()))
+			err = msg.Err(msg.ErrUnknown, msg.Params{"detail": fmt.Sprintf("panic: %v", r)})
+		}
+	}()
+	return fn()
 }
 
 // 业务错误保留稳定错误码及参数，普通错误保留底层系统原因。

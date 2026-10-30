@@ -62,17 +62,13 @@ func Query(root string, f Filter) (Page, error) {
 	minimum := levelRank[strings.ToUpper(f.Level)]
 	modules := map[string]bool{}
 	var matched []Entry
-	diagnosticMu.Lock()
-	defer diagnosticMu.Unlock()
-	for _, name := range []string{"service.log.1", "service.log"} {
-		file, err := os.Open(filepath.Join(root, "logs", name))
-		if os.IsNotExist(err) {
-			continue
-		}
-		if err != nil {
-			return Page{}, err
-		}
-		scanner := bufio.NewScanner(file)
+	// 锁只保护读取与轮转不交错；两份日志最多十几 MB，整体读入后解析放在锁外，不让所有写日志的调用等着解析。
+	contents, err := readLogs(root)
+	if err != nil {
+		return Page{}, err
+	}
+	for _, content := range contents {
+		scanner := bufio.NewScanner(bytes.NewReader(content))
 		scanner.Buffer(make([]byte, 64<<10), 1<<20)
 		for scanner.Scan() {
 			line := scanner.Bytes()
@@ -89,7 +85,6 @@ func Query(root string, f Filter) (Page, error) {
 			}
 			matched = append(matched, entry)
 		}
-		_ = file.Close()
 		if err := scanner.Err(); err != nil {
 			return Page{}, err
 		}
@@ -104,6 +99,24 @@ func Query(root string, f Filter) (Page, error) {
 		page.Entries = matched[f.Offset:min(len(matched), f.Offset+f.Limit)]
 	}
 	return page, nil
+}
+
+// readLogs 在锁内读取滚动的 service.log.1 与当前的 service.log，顺序为旧到新；不存在的跳过。
+func readLogs(root string) ([][]byte, error) {
+	diagnosticMu.Lock()
+	defer diagnosticMu.Unlock()
+	var contents [][]byte
+	for _, name := range []string{"service.log.1", "service.log"} {
+		content, err := os.ReadFile(filepath.Join(root, "logs", name))
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		contents = append(contents, content)
+	}
+	return contents, nil
 }
 
 func parse(line []byte) (Entry, bool) {
