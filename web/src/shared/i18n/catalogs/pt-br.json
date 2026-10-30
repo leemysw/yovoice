@@ -281,18 +281,6 @@
   "@yovoice.draft.copySuffix": {
     "defaultMessage": " · Cópia"
   },
-  "@yovoice.draft.defaultEmotionText": {
-    "defaultMessage": "Suave e tranquila, como se falasse com alguém conhecido."
-  },
-  "@yovoice.draft.exampleText": {
-    "defaultMessage": "A luz da manhã escorrega pelas cortinas,\ne o quarto vai clareando devagar.\n\nSirva-se de uma xícara de chá quentinho\ne deixe os pensamentos desacelerarem por um instante.\n\nHoje, começamos com uma boa voz."
-  },
-  "@yovoice.draft.exampleTitle": {
-    "defaultMessage": "Narração matinal"
-  },
-  "@yovoice.draft.untitled": {
-    "defaultMessage": "Sem título"
-  },
   "@yovoice.emotion.afraid": {
     "defaultMessage": "Com medo"
   },
@@ -1004,9 +992,6 @@
   "@yovoice.reference.transcriptHelp": {
     "defaultMessage": "Uma transcrição precisa ajuda na clonagem; deixe em branco para usar só a voz."
   },
-  "@yovoice.reference.designPlaceholder": {
-    "defaultMessage": "Por exemplo: female, young adult, moderate pitch. Deixe em branco para uma voz automática."
-  },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "Multilíngue · Design e clonagem de voz"
   },
@@ -1021,9 +1006,6 @@
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10 idiomas · Clonagem de voz de referência"
-  },
-  "@yovoice.reference.designHelp": {
-    "defaultMessage": "Use atributos separados por vírgula, como male/female, young adult/middle-aged, low pitch/moderate pitch, whisper; descrições livres não são suportadas."
   },
   "@yovoice.options.text_chunk_size": {
     "defaultMessage": "Tamanho do bloco de texto (0 usa o padrão do modelo)"
@@ -1340,9 +1322,6 @@
   "@yovoice.error.referenceTextRequired": {
     "defaultMessage": "A clonagem do {model} exige a transcrição completa da referência."
   },
-  "@yovoice.reference.omniTranscriptHelp": {
-    "defaultMessage": "A transcrição deve corresponder ao áudio de referência."
-  },
   "@yovoice.settings.modelDesc.kokoro": {
     "defaultMessage": "Vozes predefinidas · Multilíngue"
   },
@@ -1384,9 +1363,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "Olá, prazer em conhecer você. Vamos contar a nossa história para o mundo."
-  },
-  "@yovoice.character.save": {
-    "defaultMessage": "Salvar personagem"
   },
   "@yovoice.character.copy": {
     "defaultMessage": "Salvar personagem como"
@@ -1571,14 +1547,8 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Excluir clipe"
   },
-  "@yovoice.timeline.hint": {
-    "defaultMessage": "Selecione um clipe para dividi-lo no cursor de reprodução. Arraste clipes para movê-los no tempo ou entre faixas."
-  },
   "@yovoice.timeline.tracks": {
     "defaultMessage": "Faixas"
-  },
-  "@yovoice.timeline.name": {
-    "defaultMessage": "Nome de {name}"
   },
   "@yovoice.timeline.mute": {
     "defaultMessage": "Silenciar {name}"
@@ -1616,17 +1586,11 @@
   "@yovoice.project.story": {
     "defaultMessage": "Narração de história"
   },
-  "@yovoice.project.subtitle": {
-    "defaultMessage": "Narração de legendas"
-  },
   "@yovoice.project.search": {
     "defaultMessage": "Buscar projetos"
   },
   "@yovoice.project.empty": {
     "defaultMessage": "Nenhum projeto ainda"
-  },
-  "@yovoice.project.copy": {
-    "defaultMessage": "Duplicar projeto"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Renomear projeto"
@@ -1705,9 +1669,6 @@
   },
   "@yovoice.timeline.redo": {
     "defaultMessage": "Refazer"
-  },
-  "@yovoice.timeline.trim": {
-    "defaultMessage": "Intervalo de corte"
   },
   "@yovoice.timeline.trimStart": {
     "defaultMessage": "Ponto de entrada (s)"
@@ -2224,9 +2185,6 @@
   },
   "@yovoice.ai.keyOptional": {
     "defaultMessage": "Geralmente não é necessária para serviços locais"
-  },
-  "@yovoice.ai.getKey": {
-    "defaultMessage": "Obter uma chave"
   },
   "@yovoice.ai.model": {
     "defaultMessage": "Modelo"
@@ -3704,9 +3662,6 @@
   "@yovoice.assets.clearSelection": {
     "defaultMessage": "Limpar seleção"
   },
-  "@yovoice.assets.deleteOne": {
-    "defaultMessage": "Excluir {name}"
-  },
   "@yovoice.assets.deleteTitle": {
     "defaultMessage": "Excluir {count} recursos?"
   },
@@ -4012,9 +3967,6 @@
   },
   "@yovoice.check.quiet": {
     "defaultMessage": "volume baixo ({loudness} LUFS); escolha uma loudness alvo ao exportar"
-  },
-  "@yovoice.check.dc": {
-    "defaultMessage": "deslocamento DC"
   },
   "@yovoice.timeline.loudness": {
     "defaultMessage": "Loudness"

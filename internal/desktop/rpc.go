@@ -18,7 +18,7 @@ import (
 // audited 是需要在日志里留痕的关键操作；生成、保存与 AI 任务在各自流程里记录更详细的事件。
 var audited = map[string]bool{
 	"draft.delete": true, "project.export": true, "project.import": true, "score.import": true, "score.export": true,
-	"character.save": true, "character.delete": true, "voice.fromGeneration": true, "voice.update": true, "voice.import": true,
+	"character.save": true, "character.delete": true, "voice.fromGeneration": true, "voice.update": true,
 	"voice.record": true, "timeline.import": true, "timeline.fromGeneration": true, "media.rename": true, "media.delete": true, "generation.lyricTimes": true, "generation.lyricWords": true, "generation.alignLyrics": true,
 	"preferences.save": true, "storage.relocate": true, "storage.cleanup": true, "model.directory": true, "model.download": true,
 	"model.forget": true, "runtime.install": true, "ai.provider.save": true, "ai.provider.delete": true, "ai.provider.use": true,
@@ -130,8 +130,6 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.ImportTimelineGeneration(ctx, p.ID)
 	case "voice.update":
 		return true, w.UpdateVoice(p.ID, p.Name, p.ReferenceText)
-	case "voice.import":
-		return w.ImportVoice(ctx, p.Path, "")
 	case "voice.record", "timeline.import":
 		b, e := base64.StdEncoding.DecodeString(p.Base64)
 		if e != nil {
@@ -143,8 +141,6 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.ImportVoiceFrom(ctx, bytes.NewReader(b), p.Name)
 	case "voice.suggest":
 		return w.SuggestVoiceRange(p.ID)
-	case "generation.check":
-		return w.CheckGeneration(p.ID)
 	case "media.path":
 		return w.MediaFile(p.Kind, p.ID)
 	case "export.path":
@@ -296,8 +292,6 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "ai.cancel":
 		w.CancelAI()
 		return true, nil
-	case "assistant.sessions":
-		return w.SessionsAssistant(), nil
 	case "assistant.open":
 		return true, w.OpenAssistantSession(p.ID)
 	case "assistant.new":

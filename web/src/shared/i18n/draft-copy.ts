@@ -1,4 +1,4 @@
-/** Seed copy for createDraft; keep in sync with @yovoice.draft.* catalog keys. */
+/** createDraft 的种子文案：在 React 之外调用，没有翻译器，所以按语言直接内置，不走 i18n 目录。 */
 export const draftCopy = {
   en: {
     untitled: 'Untitled',

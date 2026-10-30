@@ -281,18 +281,6 @@
   "@yovoice.draft.copySuffix": {
     "defaultMessage": " · 副本"
   },
-  "@yovoice.draft.defaultEmotionText": {
-    "defaultMessage": "温柔、平静，像是在和熟悉的人说话。"
-  },
-  "@yovoice.draft.exampleText": {
-    "defaultMessage": "清晨的阳光穿过窗帘，\n房间渐渐明亮起来。\n\n给自己倒一杯热茶，\n让思绪在片刻的安静里慢下来。\n\n今天，我们从一个好声音开始。"
-  },
-  "@yovoice.draft.exampleTitle": {
-    "defaultMessage": "清晨旁白"
-  },
-  "@yovoice.draft.untitled": {
-    "defaultMessage": "未命名作品"
-  },
   "@yovoice.emotion.afraid": {
     "defaultMessage": "恐惧"
   },
@@ -1004,9 +992,6 @@
   "@yovoice.reference.transcriptHelp": {
     "defaultMessage": "填写准确原文可辅助克隆；留空仅参考音色。"
   },
-  "@yovoice.reference.designPlaceholder": {
-    "defaultMessage": "例如：女, 青年, 中音调；留空自动选择音色。"
-  },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "多语言 · 声音设计与音色克隆"
   },
@@ -1021,9 +1006,6 @@
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10 种语言 · 参考音频克隆"
-  },
-  "@yovoice.reference.designHelp": {
-    "defaultMessage": "填写预定义属性，以逗号分隔，如男/女、青年/中年、低音调/中音调、耳语；不支持自由描述。"
   },
   "@yovoice.options.text_chunk_size": {
     "defaultMessage": "长文分段字数（0 为模型默认）"
@@ -1340,9 +1322,6 @@
   "@yovoice.error.referenceTextRequired": {
     "defaultMessage": "{model} 克隆需要填写参考音频的完整原文。"
   },
-  "@yovoice.reference.omniTranscriptHelp": {
-    "defaultMessage": "原文须与参考音频一致。"
-  },
   "@yovoice.settings.modelDesc.kokoro": {
     "defaultMessage": "内置音色 · 多语言"
   },
@@ -1384,9 +1363,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "你好，很高兴认识你。让我们一起，把故事讲给更多人听。"
-  },
-  "@yovoice.character.save": {
-    "defaultMessage": "保存角色"
   },
   "@yovoice.character.copy": {
     "defaultMessage": "另存角色"
@@ -1571,14 +1547,8 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "删除片段"
   },
-  "@yovoice.timeline.hint": {
-    "defaultMessage": "选择片段，在播放头处分割；拖动片段可调整位置或音轨。"
-  },
   "@yovoice.timeline.tracks": {
     "defaultMessage": "音轨"
-  },
-  "@yovoice.timeline.name": {
-    "defaultMessage": "{name}名称"
   },
   "@yovoice.timeline.mute": {
     "defaultMessage": "静音{name}"
@@ -1616,17 +1586,11 @@
   "@yovoice.project.story": {
     "defaultMessage": "故事配音"
   },
-  "@yovoice.project.subtitle": {
-    "defaultMessage": "字幕配音"
-  },
   "@yovoice.project.search": {
     "defaultMessage": "搜索作品"
   },
   "@yovoice.project.empty": {
     "defaultMessage": "还没有作品"
-  },
-  "@yovoice.project.copy": {
-    "defaultMessage": "复制作品"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "重命名作品"
@@ -1705,9 +1669,6 @@
   },
   "@yovoice.timeline.redo": {
     "defaultMessage": "重做"
-  },
-  "@yovoice.timeline.trim": {
-    "defaultMessage": "截取范围"
   },
   "@yovoice.timeline.trimStart": {
     "defaultMessage": "入点（秒）"
@@ -2224,9 +2185,6 @@
   },
   "@yovoice.ai.keyOptional": {
     "defaultMessage": "本地服务通常无需填写"
-  },
-  "@yovoice.ai.getKey": {
-    "defaultMessage": "获取密钥"
   },
   "@yovoice.ai.model": {
     "defaultMessage": "模型"
@@ -3704,9 +3662,6 @@
   "@yovoice.assets.clearSelection": {
     "defaultMessage": "取消选择"
   },
-  "@yovoice.assets.deleteOne": {
-    "defaultMessage": "删除 {name}"
-  },
   "@yovoice.assets.deleteTitle": {
     "defaultMessage": "删除 {count} 项资源？"
   },
@@ -4012,9 +3967,6 @@
   },
   "@yovoice.check.quiet": {
     "defaultMessage": "音量偏小（{loudness} LUFS），导出时可选目标响度"
-  },
-  "@yovoice.check.dc": {
-    "defaultMessage": "波形偏离中线"
   },
   "@yovoice.timeline.loudness": {
     "defaultMessage": "响度"

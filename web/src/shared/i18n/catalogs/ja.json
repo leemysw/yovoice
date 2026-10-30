@@ -281,18 +281,6 @@
   "@yovoice.draft.copySuffix": {
     "defaultMessage": " · コピー"
   },
-  "@yovoice.draft.defaultEmotionText": {
-    "defaultMessage": "やさしく穏やかに、親しい人に話しかけるように。"
-  },
-  "@yovoice.draft.exampleText": {
-    "defaultMessage": "朝の光がカーテン越しに差し込み、\n部屋が少しずつ明るくなっていく。\n\n温かいお茶を一杯いれて、\nひととき、思いをゆっくりと休ませよう。\n\n今日は、いい声から始めよう。"
-  },
-  "@yovoice.draft.exampleTitle": {
-    "defaultMessage": "朝のナレーション"
-  },
-  "@yovoice.draft.untitled": {
-    "defaultMessage": "無題"
-  },
   "@yovoice.emotion.afraid": {
     "defaultMessage": "恐怖"
   },
@@ -1004,9 +992,6 @@
   "@yovoice.reference.transcriptHelp": {
     "defaultMessage": "正確な書き起こしはクローンの精度を高めます。空欄の場合は声だけを使います。"
   },
-  "@yovoice.reference.designPlaceholder": {
-    "defaultMessage": "例：female, young adult, moderate pitch。空欄なら声を自動で選択します。"
-  },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "多言語 · ボイスデザインとクローン"
   },
@@ -1021,9 +1006,6 @@
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10 言語 · 参照音声からのクローン"
-  },
-  "@yovoice.reference.designHelp": {
-    "defaultMessage": "male/female、young adult/middle-aged、low pitch/moderate pitch、whisper などの属性をカンマ区切りで指定します。自由な記述には対応していません。"
   },
   "@yovoice.options.text_chunk_size": {
     "defaultMessage": "テキストの分割サイズ（0 でモデルの既定値）"
@@ -1340,9 +1322,6 @@
   "@yovoice.error.referenceTextRequired": {
     "defaultMessage": "{model} のクローンには参照音声の完全な書き起こしが必要です。"
   },
-  "@yovoice.reference.omniTranscriptHelp": {
-    "defaultMessage": "書き起こしは参照音声と一致している必要があります。"
-  },
   "@yovoice.settings.modelDesc.kokoro": {
     "defaultMessage": "プリセットボイス · 多言語"
   },
@@ -1384,9 +1363,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "こんにちは、はじめまして。私たちの物語を世界に届けましょう。"
-  },
-  "@yovoice.character.save": {
-    "defaultMessage": "キャラクターを保存"
   },
   "@yovoice.character.copy": {
     "defaultMessage": "キャラクターを別名で保存"
@@ -1571,14 +1547,8 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "クリップを削除"
   },
-  "@yovoice.timeline.hint": {
-    "defaultMessage": "クリップを選択すると再生ヘッドの位置で分割できます。ドラッグで時間やトラックを移動できます。"
-  },
   "@yovoice.timeline.tracks": {
     "defaultMessage": "トラック"
-  },
-  "@yovoice.timeline.name": {
-    "defaultMessage": "{name} の名前"
   },
   "@yovoice.timeline.mute": {
     "defaultMessage": "{name} をミュート"
@@ -1616,17 +1586,11 @@
   "@yovoice.project.story": {
     "defaultMessage": "物語の朗読"
   },
-  "@yovoice.project.subtitle": {
-    "defaultMessage": "字幕の吹き替え"
-  },
   "@yovoice.project.search": {
     "defaultMessage": "作品を検索"
   },
   "@yovoice.project.empty": {
     "defaultMessage": "作品はまだありません"
-  },
-  "@yovoice.project.copy": {
-    "defaultMessage": "作品を複製"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "作品の名前を変更"
@@ -1705,9 +1669,6 @@
   },
   "@yovoice.timeline.redo": {
     "defaultMessage": "やり直す"
-  },
-  "@yovoice.timeline.trim": {
-    "defaultMessage": "トリム範囲"
   },
   "@yovoice.timeline.trimStart": {
     "defaultMessage": "イン点（秒）"
@@ -2224,9 +2185,6 @@
   },
   "@yovoice.ai.keyOptional": {
     "defaultMessage": "ローカルサービスでは通常不要です"
-  },
-  "@yovoice.ai.getKey": {
-    "defaultMessage": "キーを取得"
   },
   "@yovoice.ai.model": {
     "defaultMessage": "モデル"
@@ -3704,9 +3662,6 @@
   "@yovoice.assets.clearSelection": {
     "defaultMessage": "選択を解除"
   },
-  "@yovoice.assets.deleteOne": {
-    "defaultMessage": "{name} を削除"
-  },
   "@yovoice.assets.deleteTitle": {
     "defaultMessage": "{count} 件のアセットを削除しますか？"
   },
@@ -4012,9 +3967,6 @@
   },
   "@yovoice.check.quiet": {
     "defaultMessage": "音量が小さい（{loudness} LUFS）。書き出し時に目標ラウドネスを選べます"
-  },
-  "@yovoice.check.dc": {
-    "defaultMessage": "DC オフセット"
   },
   "@yovoice.timeline.loudness": {
     "defaultMessage": "ラウドネス"

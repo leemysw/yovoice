@@ -366,25 +366,3 @@ func RuntimeArchives(backend string) ([]RuntimeArchive, error) {
 	}
 	return result, nil
 }
-
-// OchoArchiveFor 返回指定平台（仅支持 darwin/arm64、windows/amd64、linux/amd64）
-// 的 ocho 压缩包资产名与摘要，打包脚本据此下载并校验。
-func OchoArchiveFor(goos, goarch string) (RuntimeArchive, error) {
-	var suffix string
-	switch {
-	case goos == "darwin" && goarch == "arm64":
-		suffix = "darwin-arm64.tar.gz"
-	case goos == "windows" && goarch == "amd64":
-		suffix = "windows-amd64.zip"
-	case goos == "linux" && goarch == "amd64":
-		suffix = "linux-amd64.tar.gz"
-	default:
-		return RuntimeArchive{}, msg.Err(msg.ErrPlatformArch, nil)
-	}
-	name := "ocho-" + OchoVersion + "-" + suffix
-	hash, ok := ochoArchives[name]
-	if !ok {
-		return RuntimeArchive{}, msg.Err(msg.ErrPlatformArch, nil)
-	}
-	return RuntimeArchive{name, hash}, nil
-}

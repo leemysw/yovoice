@@ -24,10 +24,6 @@ func Converter() (string, error) {
 	return path, err
 }
 
-func Convert(ctx context.Context, executable, input, output string) error {
-	return ConvertWithLimit(ctx, executable, input, output, 60)
-}
-
 func ConvertWithLimit(ctx context.Context, executable, input, output string, seconds int) error {
 	input, err := filepath.Abs(input)
 	if err != nil {

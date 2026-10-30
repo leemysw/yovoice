@@ -18,7 +18,7 @@
 }
 .astryx-button:not(:disabled, :where(.library-entry, .ticket, .project-library-row) *):active, .nav-item:active, .project-row:active, .astryx-segmented-control-item:active { transform: scale(.975); transition-duration: 70ms, 70ms, 70ms, 70ms, 70ms; transition-timing-function: ease-out; }
 /* 数字等宽：时间、大小、计数在变化时不左右抖动。 */
-.transport, .preview-time, .now-playing, .asset-table, .eyebrow, .saved, time, [data-tabular] { font-variant-numeric: tabular-nums; }
+.transport, .preview-time, .now-playing, .asset-table, .eyebrow, .saved, time { font-variant-numeric: tabular-nums; }
 /* 换行：标题均衡，正文避免孤字成行。 */
 h1, h2, h3, .assistant-empty-title { text-wrap: balance; }
 p, small, .subtitle, .helper, .assistant-answer, .assistant-notice, .assistant-nudge-text, .assistant-empty-hint { text-wrap: pretty; }

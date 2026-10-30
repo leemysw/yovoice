@@ -57,3 +57,8 @@ func TestAudioConversion(t *testing.T) {
 		t.Fatal("转换应响应取消")
 	}
 }
+
+// Convert 按 60 秒上限转换，只有测试在用。
+func Convert(ctx context.Context, executable, input, output string) error {
+	return ConvertWithLimit(ctx, executable, input, output, 60)
+}

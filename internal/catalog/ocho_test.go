@@ -12,26 +12,16 @@ func TestOchoArchives(t *testing.T) {
 	if !regexp.MustCompile(`^v\d+\.\d+\.\d+$`).MatchString(OchoVersion) {
 		t.Fatalf("OchoVersion %q 格式无效", OchoVersion)
 	}
-	for platform, suffix := range map[[2]string]string{
-		{"darwin", "arm64"}:  "darwin-arm64.tar.gz",
-		{"windows", "amd64"}: "windows-amd64.zip",
-		{"linux", "amd64"}:   "linux-amd64.tar.gz",
-	} {
-		archive, err := OchoArchiveFor(platform[0], platform[1])
-		if err != nil {
-			t.Fatalf("%s/%s: %v", platform[0], platform[1], err)
+	digest := regexp.MustCompile(`^[0-9a-f]{64}$`)
+	for _, suffix := range []string{"darwin-arm64.tar.gz", "windows-amd64.zip", "linux-amd64.tar.gz"} {
+		name := "ocho-" + OchoVersion + "-" + suffix
+		hash, ok := ochoArchives[name]
+		if !ok {
+			t.Errorf("清单缺少 %s", name)
+			continue
 		}
-		want := "ocho-" + OchoVersion + "-" + suffix
-		if archive.Name != want {
-			t.Errorf("资产名应为 %s，得到 %s", want, archive.Name)
-		}
-		if !regexp.MustCompile(`^[0-9a-f]{64}$`).MatchString(archive.Hash) {
-			t.Errorf("%s 的摘要 %q 无效", archive.Name, archive.Hash)
-		}
-	}
-	for _, platform := range [][2]string{{"darwin", "amd64"}, {"windows", "arm64"}, {"plan9", "386"}} {
-		if _, err := OchoArchiveFor(platform[0], platform[1]); err == nil {
-			t.Errorf("%s/%s 不受支持，应返回错误", platform[0], platform[1])
+		if !digest.MatchString(hash) {
+			t.Errorf("%s 的摘要 %q 无效", name, hash)
 		}
 	}
 }

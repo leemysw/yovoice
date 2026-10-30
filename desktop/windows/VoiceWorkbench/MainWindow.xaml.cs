@@ -520,9 +520,6 @@ public partial class MainWindow : Window
                     var explorer = new ProcessStartInfo("explorer.exe");
                     explorer.ArgumentList.Add("/select,"); explorer.ArgumentList.Add(path);
                     Process.Start(explorer); result = true; break;
-                case "voice.import":
-                    var audio = new OpenFileDialog { Filter = HostL10n.T("音频文件", "Audio Files") + "|*.wav;*.mp3;*.m4a;*.aac;*.flac;*.ogg;*.opus;*.aiff;*.aif;*.wma;*.webm", Title = HostL10n.T("选择 1–60 秒的音色参考", "Choose a 1–60 Second Voice Reference") };
-                    result = audio.ShowDialog(this) == true ? await service.CallAsync(method, new { path = audio.FileName }) : null; break;
                 case "model.directory":
                     var folder = new OpenFolderDialog { Title = HostL10n.T("选择模型目录", "Choose Model Folder") };
                     result = folder.ShowDialog(this) == true ? await service.CallAsync(method, new { path = folder.FolderName }) : null; break;

@@ -562,3 +562,15 @@ func TestPerformanceFirstNeedsEngine093(t *testing.T) {
 		}
 	}
 }
+
+// ModelDone 返回当前模型下载或导入的完成信号；没有进行中的安装时返回已关闭的通道。只有测试在用。
+func (w *Workbench) ModelDone() <-chan struct{} {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.installDone == nil {
+		closed := make(chan struct{})
+		close(closed)
+		return closed
+	}
+	return w.installDone
+}

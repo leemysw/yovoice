@@ -281,18 +281,6 @@
   "@yovoice.draft.copySuffix": {
     "defaultMessage": " · Bản sao"
   },
-  "@yovoice.draft.defaultEmotionText": {
-    "defaultMessage": "Nhẹ nhàng và điềm tĩnh, như đang trò chuyện với người thân quen."
-  },
-  "@yovoice.draft.exampleText": {
-    "defaultMessage": "Nắng sớm len qua khe rèm,\ncăn phòng dần sáng lên.\n\nRót cho mình một tách trà ấm,\nđể dòng suy nghĩ chậm lại đôi chút.\n\nHôm nay, ta bắt đầu bằng một giọng nói hay."
-  },
-  "@yovoice.draft.exampleTitle": {
-    "defaultMessage": "Lời dẫn buổi sáng"
-  },
-  "@yovoice.draft.untitled": {
-    "defaultMessage": "Chưa đặt tên"
-  },
   "@yovoice.emotion.afraid": {
     "defaultMessage": "Sợ hãi"
   },
@@ -1004,9 +992,6 @@
   "@yovoice.reference.transcriptHelp": {
     "defaultMessage": "Lời thoại chính xác giúp nhân bản tốt hơn; để trống để chỉ dùng giọng."
   },
-  "@yovoice.reference.designPlaceholder": {
-    "defaultMessage": "Ví dụ: female, young adult, moderate pitch. Để trống để dùng giọng tự động."
-  },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "Đa ngôn ngữ · Thiết kế và nhân bản giọng"
   },
@@ -1021,9 +1006,6 @@
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10 ngôn ngữ · Nhân bản giọng tham chiếu"
-  },
-  "@yovoice.reference.designHelp": {
-    "defaultMessage": "Dùng các thuộc tính phân cách bằng dấu phẩy, như male/female, young adult/middle-aged, low pitch/moderate pitch, whisper; không hỗ trợ mô tả tự do."
   },
   "@yovoice.options.text_chunk_size": {
     "defaultMessage": "Kích thước đoạn văn bản (0 dùng mặc định của mô hình)"
@@ -1340,9 +1322,6 @@
   "@yovoice.error.referenceTextRequired": {
     "defaultMessage": "Nhân bản {model} cần có đầy đủ lời thoại tham chiếu."
   },
-  "@yovoice.reference.omniTranscriptHelp": {
-    "defaultMessage": "Lời thoại phải khớp với âm thanh tham chiếu."
-  },
   "@yovoice.settings.modelDesc.kokoro": {
     "defaultMessage": "Giọng có sẵn · Đa ngôn ngữ"
   },
@@ -1384,9 +1363,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "Xin chào, rất vui được gặp bạn. Hãy cùng kể câu chuyện của chúng ta cho thế giới nghe nhé."
-  },
-  "@yovoice.character.save": {
-    "defaultMessage": "Lưu nhân vật"
   },
   "@yovoice.character.copy": {
     "defaultMessage": "Lưu nhân vật thành bản mới"
@@ -1571,14 +1547,8 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Xóa đoạn"
   },
-  "@yovoice.timeline.hint": {
-    "defaultMessage": "Chọn một đoạn để tách tại đầu phát. Kéo đoạn để di chuyển theo thời gian hoặc giữa các rãnh."
-  },
   "@yovoice.timeline.tracks": {
     "defaultMessage": "Rãnh"
-  },
-  "@yovoice.timeline.name": {
-    "defaultMessage": "Tên {name}"
   },
   "@yovoice.timeline.mute": {
     "defaultMessage": "Tắt tiếng {name}"
@@ -1616,17 +1586,11 @@
   "@yovoice.project.story": {
     "defaultMessage": "Kể chuyện"
   },
-  "@yovoice.project.subtitle": {
-    "defaultMessage": "Lồng tiếng phụ đề"
-  },
   "@yovoice.project.search": {
     "defaultMessage": "Tìm dự án"
   },
   "@yovoice.project.empty": {
     "defaultMessage": "Chưa có dự án nào"
-  },
-  "@yovoice.project.copy": {
-    "defaultMessage": "Nhân bản dự án"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Đổi tên dự án"
@@ -1705,9 +1669,6 @@
   },
   "@yovoice.timeline.redo": {
     "defaultMessage": "Làm lại"
-  },
-  "@yovoice.timeline.trim": {
-    "defaultMessage": "Phạm vi cắt"
   },
   "@yovoice.timeline.trimStart": {
     "defaultMessage": "Điểm vào (giây)"
@@ -2224,9 +2185,6 @@
   },
   "@yovoice.ai.keyOptional": {
     "defaultMessage": "Thường không cần cho dịch vụ cục bộ"
-  },
-  "@yovoice.ai.getKey": {
-    "defaultMessage": "Lấy khóa"
   },
   "@yovoice.ai.model": {
     "defaultMessage": "Mô hình"
@@ -3704,9 +3662,6 @@
   "@yovoice.assets.clearSelection": {
     "defaultMessage": "Bỏ chọn"
   },
-  "@yovoice.assets.deleteOne": {
-    "defaultMessage": "Xóa {name}"
-  },
   "@yovoice.assets.deleteTitle": {
     "defaultMessage": "Xóa {count} tài nguyên?"
   },
@@ -4012,9 +3967,6 @@
   },
   "@yovoice.check.quiet": {
     "defaultMessage": "âm lượng nhỏ ({loudness} LUFS); chọn độ lớn mục tiêu khi xuất"
-  },
-  "@yovoice.check.dc": {
-    "defaultMessage": "lệch DC"
   },
   "@yovoice.timeline.loudness": {
     "defaultMessage": "Độ lớn"

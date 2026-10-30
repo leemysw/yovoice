@@ -1,6 +1,6 @@
 // INPUT: Humation 素材与组合契约。
 // OUTPUT: 上游组合头像类型契约。
-// POS: MIT 上游源码快照，来源与本地调整见 AGENTS.md。
+// POS: MIT 上游源码快照，来源与本地调整见同目录 readme.md。
 export type SelectionSlotId = string;
 export type PartOptionId = string;
 export type ColorSlotId = string;

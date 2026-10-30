@@ -227,11 +227,6 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (!voice) throw new CallError('@yovoice.error.audioMissing');
     return { start: 0, end: Math.min(voice.duration, 10) } as T;
   }
-  if (method === 'generation.check') {
-    const item = state.history.find(v => v.id === (data as { id: string }).id);
-    if (!item) throw new CallError('@yovoice.error.audioMissing');
-    return (item.check ?? { loudness: -70, peak: -70 }) as T;
-  }
   if (method === 'media.rename' || method === 'media.delete') {
     const { kind, id, name } = data as { kind: string; id: string; name: string };
     if (!['voices', 'outputs'].includes(kind)) throw new CallError('@yovoice.error.audioKindInvalid');
@@ -306,10 +301,6 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     return true as T;
   }
   if (method === 'storage.directory.open') return true as T;
-  if (method === 'storage.relocate') {
-    mockPendingPath = (data as { path: string }).path;
-    return true as T;
-  }
   if (method === 'storage.cleanup') {
     return { cleanedCount: 0, freedBytes: 0 } as T;
   }
@@ -538,9 +529,6 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       publish();
     }
     return true as T;
-  }
-  if (method === 'assistant.sessions') {
-    return [...(state.assistantSessions?.sessions ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) as T;
   }
   if (method === 'assistant.new') {
     const sessions = state.assistantSessions ?? { currentId: '', sessions: [] };

@@ -134,14 +134,6 @@ func (w *Workbench) CancelAssistant() {
 	}
 }
 
-// SessionsAssistant 返回会话列表，按更新时间从新到旧。
-func (w *Workbench) SessionsAssistant() []schema.AssistantSession {
-	s := w.Store.Read().AssistantSessions
-	sessions := append([]schema.AssistantSession{}, s.Sessions...)
-	sort.SliceStable(sessions, func(i, j int) bool { return sessions[i].UpdatedAt.After(sessions[j].UpdatedAt) })
-	return sessions
-}
-
 // NewAssistantSession 新建空会话并设为当前；超过上限时删除最旧的会话及其配置目录。
 func (w *Workbench) NewAssistantSession() (schema.AssistantSession, error) {
 	session := schema.AssistantSession{ID: schema.NewID(), Messages: []schema.AssistantMessage{}, UpdatedAt: time.Now().UTC()}

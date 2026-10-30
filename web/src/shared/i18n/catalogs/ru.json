@@ -281,18 +281,6 @@
   "@yovoice.draft.copySuffix": {
     "defaultMessage": " · копия"
   },
-  "@yovoice.draft.defaultEmotionText": {
-    "defaultMessage": "Мягко и спокойно, как в разговоре с близким человеком."
-  },
-  "@yovoice.draft.exampleText": {
-    "defaultMessage": "Утренний свет скользит сквозь шторы,\nи комната понемногу светлеет.\n\nНалейте себе чашку тёплого чая\nи позвольте мыслям ненадолго замедлиться.\n\nСегодня мы начинаем с хорошего голоса."
-  },
-  "@yovoice.draft.exampleTitle": {
-    "defaultMessage": "Утреннее чтение"
-  },
-  "@yovoice.draft.untitled": {
-    "defaultMessage": "Без названия"
-  },
   "@yovoice.emotion.afraid": {
     "defaultMessage": "Страх"
   },
@@ -1004,9 +992,6 @@
   "@yovoice.reference.transcriptHelp": {
     "defaultMessage": "Точная расшифровка улучшает клонирование; оставьте пустым, чтобы использовать только голос."
   },
-  "@yovoice.reference.designPlaceholder": {
-    "defaultMessage": "Например: female, young adult, moderate pitch. Оставьте пустым для автоматического голоса."
-  },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "Многоязычная · дизайн и клонирование голоса"
   },
@@ -1021,9 +1006,6 @@
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10 языков · клонирование референсного голоса"
-  },
-  "@yovoice.reference.designHelp": {
-    "defaultMessage": "Перечислите атрибуты через запятую, например male/female, young adult/middle-aged, low pitch/moderate pitch, whisper; произвольные описания не поддерживаются."
   },
   "@yovoice.options.text_chunk_size": {
     "defaultMessage": "Размер фрагмента текста (0 — по умолчанию для модели)"
@@ -1340,9 +1322,6 @@
   "@yovoice.error.referenceTextRequired": {
     "defaultMessage": "Для клонирования в {model} нужна полная расшифровка референса."
   },
-  "@yovoice.reference.omniTranscriptHelp": {
-    "defaultMessage": "Расшифровка должна совпадать с референсным аудио."
-  },
   "@yovoice.settings.modelDesc.kokoro": {
     "defaultMessage": "Готовые голоса · многоязычная"
   },
@@ -1384,9 +1363,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "Здравствуйте, приятно познакомиться! Давайте поделимся нашей историей с миром."
-  },
-  "@yovoice.character.save": {
-    "defaultMessage": "Сохранить персонажа"
   },
   "@yovoice.character.copy": {
     "defaultMessage": "Сохранить персонажа как…"
@@ -1571,14 +1547,8 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Удалить фрагмент"
   },
-  "@yovoice.timeline.hint": {
-    "defaultMessage": "Выберите фрагмент, чтобы разрезать его по курсору. Перетаскивайте фрагменты по времени или между дорожками."
-  },
   "@yovoice.timeline.tracks": {
     "defaultMessage": "Дорожки"
-  },
-  "@yovoice.timeline.name": {
-    "defaultMessage": "Название: {name}"
   },
   "@yovoice.timeline.mute": {
     "defaultMessage": "Выключить звук: {name}"
@@ -1616,17 +1586,11 @@
   "@yovoice.project.story": {
     "defaultMessage": "Чтение историй"
   },
-  "@yovoice.project.subtitle": {
-    "defaultMessage": "Озвучка субтитров"
-  },
   "@yovoice.project.search": {
     "defaultMessage": "Поиск проектов"
   },
   "@yovoice.project.empty": {
     "defaultMessage": "Проектов пока нет"
-  },
-  "@yovoice.project.copy": {
-    "defaultMessage": "Дублировать проект"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Переименовать проект"
@@ -1705,9 +1669,6 @@
   },
   "@yovoice.timeline.redo": {
     "defaultMessage": "Повторить"
-  },
-  "@yovoice.timeline.trim": {
-    "defaultMessage": "Диапазон обрезки"
   },
   "@yovoice.timeline.trimStart": {
     "defaultMessage": "Точка входа (с)"
@@ -2224,9 +2185,6 @@
   },
   "@yovoice.ai.keyOptional": {
     "defaultMessage": "Для локальных сервисов обычно не нужен"
-  },
-  "@yovoice.ai.getKey": {
-    "defaultMessage": "Получить ключ"
   },
   "@yovoice.ai.model": {
     "defaultMessage": "Модель"
@@ -3704,9 +3662,6 @@
   "@yovoice.assets.clearSelection": {
     "defaultMessage": "Снять выделение"
   },
-  "@yovoice.assets.deleteOne": {
-    "defaultMessage": "Удалить {name}"
-  },
   "@yovoice.assets.deleteTitle": {
     "defaultMessage": "Удалить ресурсы ({count})?"
   },
@@ -4012,9 +3967,6 @@
   },
   "@yovoice.check.quiet": {
     "defaultMessage": "тихо ({loudness} LUFS); выберите целевую громкость при экспорте"
-  },
-  "@yovoice.check.dc": {
-    "defaultMessage": "смещение постоянной составляющей"
   },
   "@yovoice.timeline.loudness": {
     "defaultMessage": "Громкость"

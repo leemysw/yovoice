@@ -164,17 +164,3 @@ func decibels(linear float64) float64 {
 	}
 	return max(Silence, 20*math.Log10(linear))
 }
-
-// Measure 测量 WAV 文件的整体响度（LUFS）与真峰值（dBTP），分块读取，长音频也只占固定内存。
-func Measure(path string) (loudness, peak float64, err error) {
-	f, p, e := openPCM(path, 0)
-	if e != nil {
-		return 0, 0, e
-	}
-	defer f.Close()
-	m := NewMeter(p.rate, int(p.channels))
-	if e = p.scan(f, m.Write); e != nil {
-		return 0, 0, e
-	}
-	return m.Loudness(), m.TruePeak(), nil
-}

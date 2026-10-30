@@ -215,18 +215,6 @@ func (w *Workbench) Done() <-chan struct{} {
 	return w.done
 }
 
-// ModelDone 返回当前模型下载或导入的完成信号；没有进行中的安装时返回已关闭的通道。
-func (w *Workbench) ModelDone() <-chan struct{} {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	if w.installDone == nil {
-		closed := make(chan struct{})
-		close(closed)
-		return closed
-	}
-	return w.installDone
-}
-
 func (w *Workbench) Cancel() {
 	diag.Log(w.Store.Root, "operation.cancel_requested")
 	w.mu.Lock()
