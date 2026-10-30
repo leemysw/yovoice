@@ -2,14 +2,13 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Popover } from '@astryxdesign/core/Popover';
 import { TextInput } from '@astryxdesign/core/TextInput';
-import { useTranslator } from '@astryxdesign/core/i18n';
+import type { TranslatorFn } from '@astryxdesign/core/i18n';
 import { Headphones, Lock, SlidersHorizontal, Trash2, Unlock, Volume2, VolumeX } from 'lucide-react';
 import type { AudioLane, AudioTimeline } from '../../shared/workbench';
 import { AudioLevel } from './audio-level';
 
 // 轨头显示音轨名，只留静音与设置两个常用按钮；删除音轨放进设置面板底部，避免挨着静音误点。
-export function TrackHeader({ track, value, edit }: { track: AudioLane; value: AudioTimeline; edit: (next: AudioTimeline) => void }) {
-  const t = useTranslator();
+export function TrackHeader({ t, track, value, edit }: { t: TranslatorFn; track: AudioLane; value: AudioTimeline; edit: (next: AudioTimeline) => void }) {
   const updateTrack = (id: string, patch: Partial<AudioLane>) => edit({ ...value, tracks: value.tracks.map(t => t.id === id ? { ...t, ...patch } : t) });
   return <HStack className="multitrack-label" gap={0} vAlign="center" aria-label={track.name}>
     <small className="multitrack-name grow" title={track.name}>{track.name}</small>

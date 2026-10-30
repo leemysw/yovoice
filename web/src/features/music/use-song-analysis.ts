@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import { mediaUrl, releaseMediaUrl } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import type { Generation } from '../../shared/workbench';
@@ -36,9 +36,9 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
 export interface SongVoice { activity: VocalActivity; duration: number }
 
 // 当前版本的音频：取得媒体地址后整段分析，响度包络在播放中逐帧写进样式变量（--now-playing-level）驱动封面与背景起伏，
-// 人声片段交给歌词自动定位。setNotice 须是 useState 的 setter，它是读取 effect 的依赖，换成每次渲染新建的函数会反复重新读取。
+// 人声片段交给歌词自动定位。setNotice 限定为 useState 的 setter：它是读取 effect 的依赖，每次渲染新建的函数会让音频反复重新读取。
 export function useSongAnalysis({ item, audio, stage, playing, setNotice }: {
-  item: Generation; audio: RefObject<HTMLAudioElement | null>; stage: RefObject<HTMLElement | null>; playing: boolean; setNotice: (value: string) => void;
+  item: Generation; audio: RefObject<HTMLAudioElement | null>; stage: RefObject<HTMLElement | null>; playing: boolean; setNotice: Dispatch<SetStateAction<string>>;
 }) {
   const [url, setUrl] = useState('');
   const envelope = useRef<number[]>([]);

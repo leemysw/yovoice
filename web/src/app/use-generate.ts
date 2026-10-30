@@ -2,10 +2,11 @@ import { useEffect, useEffectEvent } from 'react';
 import { call } from '../shared/lib/client';
 import { modelEngineReady, projectKind, requiresVoice, runtimeStatus, runtimeUsable, type EngineInfo, type ModelPackage, type State } from '../shared/workbench';
 import type { DraftSession } from './use-draft-session';
+import type { VoicePickerMode } from './workbench-overlays';
 
 // 生成前的校验与启动：缺参考音频、模型或推理引擎时先引导到对应位置；Ctrl/⌘+Enter 快捷键只在创作页生效。
 export function useGenerate({ state, engine, catalog, draft, page, openSettings, run, persistDraft, setVoicePicker }: Pick<DraftSession, 'draft' | 'persistDraft'> & {
-  state: State; engine: EngineInfo; catalog: ModelPackage[]; page: string; openSettings: (modelId?: string, requested?: string) => void; run: (action: () => Promise<unknown>) => void; setVoicePicker: (picker: 'voice') => void;
+  state: State; engine: EngineInfo; catalog: ModelPackage[]; page: string; openSettings: (modelId?: string, requested?: string) => void; run: (action: () => Promise<unknown>) => void; setVoicePicker: (picker: VoicePickerMode) => void;
 }) {
   const generate = () => {
     if (state.activity?.status === 'running') return;

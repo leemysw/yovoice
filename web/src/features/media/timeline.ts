@@ -1,4 +1,8 @@
+import { noticeMessage } from '../../shared/lib/call-error';
 import { stableJSON, type AudioClip, type AudioLane, type AudioTimeline, type Draft, type Generation } from '../../shared/workbench';
+
+// 导入音频失败的提示：浏览器解码不了的格式单独说明，其余按消息码显示。
+export const importError = (error: unknown) => (error as Error)?.name === 'EncodingError' ? '@yovoice.error.browserDecode' : noticeMessage(error);
 
 // 时间线可引用的音频源：工程历史里的生成，或导入的音频资源（键为 asset:<id>）。
 export type AudioSource = { title: string; duration: number; fileName: string; segment?: Generation['segment'] };

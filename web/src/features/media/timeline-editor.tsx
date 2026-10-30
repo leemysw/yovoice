@@ -11,14 +11,14 @@ import { Upload, History, FileAudio, Plus, Scissors, Trash2, RefreshCw, Undo2, R
 import { isDesktop, importTimelineFile, importTimelineGeneration } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { projectKind, type AudioAsset, type AudioClip, type AudioTimeline, type Generation, type Draft } from '../../shared/workbench';
-import { Timeline, TimelineHistory, type AudioSource } from './timeline';
+import { Timeline, TimelineHistory, importError, type AudioSource } from './timeline';
 import { useTimelineViewport } from './use-timeline-viewport';
 import { useTimelinePlayback } from './use-timeline-playback';
 import { useTimelineGestures } from './use-timeline-gestures';
 import { useTimelineShortcuts } from './use-timeline-shortcuts';
 import { useClipWaveforms } from './use-clip-waveforms';
 import { TimelineExportDialog } from './timeline-export-dialog';
-import { GenerationImportDialog, HistoryImportDialog, importError } from './timeline-source-dialogs';
+import { GenerationImportDialog, HistoryImportDialog } from './timeline-source-dialogs';
 import { TrackHeader } from './track-header';
 import { ClipRegion, GapHandle, type ClipSharedProps } from './clip-region';
 
@@ -172,7 +172,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
     ] },
   ];
   // 片段与空隙手柄共用的时间线上下文。
-  const clipShared: ClipSharedProps = { value, history, draft, audioSources, scale, time, snap, selectedIds, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit };
+  const clipShared: ClipSharedProps = { t, value, history, draft, audioSources, scale, time, snap, selectedIds, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit };
   // 菜单打开时 Esc 交给菜单关闭：macOS 上右键菜单打开后焦点可能仍在剪辑上，不能在这里拦下。
   return <VStack as="footer" className="multitrack audio-panel" gap={0} style={{ height: panel.size }} onKeyDown={e => {
     if (e.key === 'Escape' && !e.defaultPrevented && !(e.target as Element).closest('[role=menu], [role=dialog]') && !document.querySelector('[role=menu]') && !exportOpen && !historyTrack && !generationTrack) { clearSelection(); e.stopPropagation(); }
@@ -227,7 +227,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
           </VStack>
         </HStack>
         {(trimPreview ?? value).tracks.map(track => <HStack key={track.id} className="multitrack-row" gap={0}>
-          <TrackHeader track={track} value={value} edit={edit} />
+          <TrackHeader t={t} track={track} value={value} edit={edit} />
           <VStack className="multitrack-lane" gap={0} aria-label={track.name} data-lane-id={track.id} onPointerDown={e => {
             if (e.target !== e.currentTarget) return;
             setSelected(''); setSelection([]); setRange(undefined);

@@ -10,9 +10,7 @@ import { formatDateTime, formatNotice } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, projectKind, type Draft, type Generation, type Track } from '../../shared/workbench';
 import { Player } from './player';
-
-// 浏览器解码不了的格式单独说明，其余按消息码显示。
-export const importError = (error: unknown) => (error as Error)?.name === 'EncodingError' ? '@yovoice.error.browserDecode' : noticeMessage(error);
+import { importError } from './timeline';
 
 // 两个导入对话框只在选中目标音轨时挂载，搜索词、筛选与错误随每次打开重置。
 // 对话框是模态的，会盖住全局通知，错误在框内显示。

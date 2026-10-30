@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack } from '@astryxdesign/core/Layout';
-import { useTranslator } from '@astryxdesign/core/i18n';
+import type { TranslatorFn } from '@astryxdesign/core/i18n';
 import { GripVertical } from 'lucide-react';
 import { SpeakerAvatar } from '../create/subtitles';
 import type { AudioClip, AudioLane, AudioTimeline, Draft, Generation } from '../../shared/workbench';
@@ -9,9 +9,9 @@ import { Timeline, type AudioSource } from './timeline';
 import type { Waveform } from './waveform';
 import type { TimelineGestures } from './use-timeline-gestures';
 
-// 片段与空隙手柄共用的时间线上下文：每个片段只额外收自己的 clip 与所在音轨。
+// 片段与空隙手柄共用的时间线上下文：每个片段只额外收自己的 clip 与所在音轨。翻译函数由编辑器传入，片段多时不必各自订阅。
 export type ClipSharedProps = {
-  value: AudioTimeline; history: Generation[]; draft: Draft; audioSources: Map<string, AudioSource>;
+  t: TranslatorFn; value: AudioTimeline; history: Generation[]; draft: Draft; audioSources: Map<string, AudioSource>;
   scale: number; time: number; snap: boolean; selectedIds: string[];
   peaks: Record<string, number[]>; waves: RefObject<Map<string, Waveform>>; unavailable: Record<string, boolean>;
   selectClip: (clip: AudioClip, event?: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }) => void;
@@ -24,8 +24,7 @@ function ClipWaveform({ clip: c, peaks, wave }: { clip: AudioClip; peaks: number
 }
 
 // 音轨上的一个片段：主体按下拖动移动（可跨轨、可吸附），两端手柄裁剪，方向键微调。
-export function ClipRegion({ clip: c, track, value, history, draft, audioSources, scale, time, snap, selectedIds, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit }: ClipSharedProps & { clip: AudioClip; track: AudioLane }) {
-  const t = useTranslator();
+export function ClipRegion({ t, clip: c, track, value, history, draft, audioSources, scale, time, snap, selectedIds, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit }: ClipSharedProps & { clip: AudioClip; track: AudioLane }) {
   const { beginGesture, preview, setGuide, suppressClick } = gestures;
   const key = Timeline.sourceKey(c);
   const source = audioSources.get(key);
@@ -81,8 +80,7 @@ export function ClipRegion({ clip: c, track, value, history, draft, audioSources
 }
 
 // 片段前的空隙手柄：拖动或方向键调整与前一片段的间距；end 是前一片段的结束时间，gap 是空隙长度。
-export function GapHandle({ clip: c, gap, end, track, value, scale, selectClip, gestures, edit }: ClipSharedProps & { clip: AudioClip; gap: number; end: number; track: AudioLane }) {
-  const t = useTranslator();
+export function GapHandle({ t, clip: c, gap, end, track, value, scale, selectClip, gestures, edit }: Pick<ClipSharedProps, 't' | 'value' | 'scale' | 'selectClip' | 'gestures' | 'edit'> & { clip: AudioClip; gap: number; end: number; track: AudioLane }) {
   const { beginGesture, preview } = gestures;
   return <Button size="sm" variant="ghost" isIconOnly icon={<GripVertical />} className="timeline-gap" label={`${t('@yovoice.timeline.gap')} ${gap.toFixed(2)}s`} tooltip={`${gap.toFixed(2)}s`} isDisabled={!!track.locked} style={{ left: `${(end + gap / 2) / scale * 100}%` }} onPointerDown={e => { selectClip(c); const pps = e.currentTarget.closest('.multitrack-lane')!.getBoundingClientRect().width / scale; beginGesture(e, dx => preview(Timeline.gap(value, c.id, Math.max(0, gap + dx / pps)))); }} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); edit(Timeline.gap(value, c.id, Math.max(0, gap + (e.key === 'ArrowRight' ? 0.1 : -0.1)))); } }} />;
 }
