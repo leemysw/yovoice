@@ -194,7 +194,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "storage.info":
 		return w.StorageInfo()
 	case "storage.relocate":
-		return true, w.RelocateStorage(p.Path)
+		return true, w.RelocateStorage(ctx, p.Path)
 	case "storage.cleanup":
 		return w.CleanupResiduals()
 	case "model.directory":

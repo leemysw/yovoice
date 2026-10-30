@@ -1,6 +1,7 @@
 package workbench
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -34,7 +35,7 @@ func TestLegacyPrivateFilesImportedAndRelocated(t *testing.T) {
 	}
 
 	target := filepath.Join(t.TempDir(), "moved")
-	must(t, w.RelocateStorage(target))
+	must(t, w.RelocateStorage(context.Background(), target))
 	// 迁移后旧目录冻结，私有设置同样拒绝写入，避免修改留在旧目录里丢失。
 	if _, err := w.SaveLocalAPI(false, 9091); err == nil {
 		t.Fatal("迁移后应拒绝写入本机接口设置")

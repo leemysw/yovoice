@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sync"
+	"time"
 	"yovoice/internal/schema"
 
 	"github.com/sinshu/go-meltysynth/meltysynth"
@@ -27,16 +28,25 @@ const (
 )
 
 // SoundFont 解析一次后复用：同一音色库可同时给多个声部和多次渲染使用。
+// 以路径为键，文件改动时替换旧条目，缓存不会随文件更新无限增长；卸载模型时由 ForgetSoundFont 释放。
 var soundFonts sync.Map
+
+type cachedSoundFont struct {
+	modTime time.Time
+	size    int64
+	font    *meltysynth.SoundFont
+}
 
 func LoadSoundFont(path string) (*meltysynth.SoundFont, error) {
 	info, e := os.Stat(path)
 	if e != nil {
 		return nil, e
 	}
-	key := path + "|" + info.ModTime().String()
-	if sf, ok := soundFonts.Load(key); ok {
-		return sf.(*meltysynth.SoundFont), nil
+	key := filepath.Clean(path)
+	if cached, ok := soundFonts.Load(key); ok {
+		if c := cached.(cachedSoundFont); c.modTime.Equal(info.ModTime()) && c.size == info.Size() {
+			return c.font, nil
+		}
 	}
 	f, e := os.Open(path)
 	if e != nil {
@@ -47,9 +57,12 @@ func LoadSoundFont(path string) (*meltysynth.SoundFont, error) {
 	if e != nil {
 		return nil, e
 	}
-	soundFonts.Store(key, sf)
+	soundFonts.Store(key, cachedSoundFont{modTime: info.ModTime(), size: info.Size(), font: sf})
 	return sf, nil
 }
+
+// ForgetSoundFont 丢弃某个音色库的缓存，卸载模型后释放内存。
+func ForgetSoundFont(path string) { soundFonts.Delete(filepath.Clean(path)) }
 
 type event struct {
 	at       int

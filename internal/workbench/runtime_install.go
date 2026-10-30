@@ -11,6 +11,7 @@ import (
 	"yovoice/internal/catalog"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 )
 
@@ -175,7 +176,7 @@ func (w *Workbench) InstallRuntime() error {
 				if e != nil {
 					return e
 				}
-				if e = os.WriteFile(target, b, 0600); e != nil {
+				if e = platform.WriteFileAtomic(target, b, 0600); e != nil {
 					return e
 				}
 			}

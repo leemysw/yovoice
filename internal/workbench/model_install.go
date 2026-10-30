@@ -12,6 +12,7 @@ import (
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
 	"yovoice/internal/store"
 )
 
@@ -60,15 +61,11 @@ func (w *Workbench) DownloadModel(id string) error {
 		total += wheel.Size
 	}
 	return w.begin("download", msg.ActivityDownload, msg.Params{"name": m.Name}, ptr(id), func(ctx context.Context) error {
-		dir := value(s.Preferences.ModelDirectory)
-		if dir == "" {
-			dir = filepath.Join(w.Store.Root, "models")
-		}
+		dir, dest := modelDirectory(s, w.Store.Root), modelDestination(s, w.Store.Root, m)
 		// 单文件模型直接放在模型目录；多文件模型放进自己的子目录并保留相对路径。
-		root, dest := dir, filepath.Join(dir, filepath.Base(m.RemotePath))
+		root := dir
 		if len(m.Files) > 0 {
-			root = filepath.Join(dir, m.Directory)
-			dest = root
+			root = dest
 		}
 		if e := os.MkdirAll(root, 0700); e != nil {
 			return e
@@ -137,6 +134,23 @@ func (w *Workbench) DownloadModel(id string) error {
 	})
 }
 
+// modelDirectory 返回下载模型存放的目录：用户设置的模型目录，否则是数据目录下的 models。
+func modelDirectory(s schema.State, root string) string {
+	if dir := value(s.Preferences.ModelDirectory); dir != "" {
+		return dir
+	}
+	return filepath.Join(root, "models")
+}
+
+// modelDestination 返回模型包下载后登记的路径：单文件模型是文件本身，多文件模型是它的子目录。
+func modelDestination(s schema.State, root string, m catalog.ModelPackage) string {
+	dir := modelDirectory(s, root)
+	if len(m.Files) > 0 {
+		return filepath.Join(dir, m.Directory)
+	}
+	return filepath.Join(dir, filepath.Base(m.RemotePath))
+}
+
 // swapModelFiles 用下载校验过的 .new 文件替换旧模型文件。内核可能仍打开着旧文件（Windows 上无法覆盖），
 // 替换前先停内核；生成进行中时返回忙碌，已下载的新文件保留，稍后重试会直接完成替换。
 func (w *Workbench) swapModelFiles(paths []string) error {
@@ -157,28 +171,57 @@ func (w *Workbench) swapModelFiles(paths []string) error {
 	return nil
 }
 
-// ForgetModel 移除模型登记。应用自己下载的模型同时删除文件释放空间；模型目录中原有的模型只解除登记，保留本地文件。
+// ForgetModel 移除模型登记。应用自己下载的模型同时删除文件释放空间（连同下载、更新中途留下的临时文件）；
+// 模型目录中原有的模型只解除登记，保留本地文件。
 // 生成等主操作进行中不能移除（会停止推理引擎）；下载其他模型时可同时移除。
 func (w *Workbench) ForgetModel(id string) error {
+	doomed, err := w.retireModel(id)
+	if err != nil {
+		return err
+	}
+	// 真正删除放在锁外：删几 GB 的模型期间不挡住生成、下载与取消。
+	for _, path := range doomed {
+		if err := os.RemoveAll(path); err != nil {
+			diag.Log(w.Store.Root, "model.files_remove_failed", "model_id", id, "path", path, "error", diag.Error(err))
+		}
+	}
+	return nil
+}
+
+// retireModel 在锁内解除登记，并把要删除的文件改名移出原位（同目录改名瞬间完成），返回待删除的路径。
+// 改名后再开始的同名下载不会与删除赛跑；进程在删除前退出时，带 deletingSuffix 的残留由清理回收。
+func (w *Workbench) retireModel(id string) ([]string, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	state := w.Store.Read()
 	activity := state.ModelActivity
 	if w.cancel != nil || (w.installCancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == id)) {
-		return msg.Err(msg.ErrModelForgetBlocked, nil)
+		return nil, msg.Err(msg.ErrModelForgetBlocked, nil)
 	}
 	w.engine.Stop()
 	if err := w.Store.Update(func(s *schema.State) {
 		s.Models = slices.DeleteFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
 	}, true); err != nil {
-		return err
+		return nil, err
 	}
-	if path := managedModelPath(state, w.Store.Root, id); path != "" {
-		if err := os.RemoveAll(path); err != nil {
-			diag.Log(w.Store.Root, "model.files_remove_failed", "model_id", id, "error", diag.Error(err))
+	path := managedModelPath(state, w.Store.Root, id)
+	if path == "" {
+		return nil, nil
+	}
+	score.ForgetSoundFont(path)
+	var doomed []string
+	for _, candidate := range append([]string{path}, stagingFiles(path)...) {
+		if _, err := os.Lstat(candidate); err != nil {
+			continue
 		}
+		retired := candidate + deletingSuffix
+		if err := os.Rename(candidate, retired); err != nil {
+			// 改不了名就原地删除，仍比留着占空间好。
+			retired = candidate
+		}
+		doomed = append(doomed, retired)
 	}
-	return nil
+	return doomed, nil
 }
 
 // managedModelPath 返回可安全删除的下载模型路径：必须是应用下载的模型，位于模型目录内部（不是目录本身），

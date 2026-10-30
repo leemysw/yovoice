@@ -3,7 +3,7 @@ package audio
 import (
 	"encoding/binary"
 	"math"
-	"os"
+	"yovoice/internal/platform"
 )
 
 // ReadMono 读取 PCM（16/24/32 位整数或 32 位浮点）WAV，多声道取平均，返回 -1~1 的采样与采样率。
@@ -50,7 +50,7 @@ func Resample(samples []float32, from, to int) []float32 {
 	return out
 }
 
-// WriteMono 把采样写成 16 位单声道 WAV。
+// WriteMono 把采样写成 16 位单声道 WAV；整体原子写入，读取方不会看到只写了一半的文件（缓存会被当成截断的音频读走）。
 func WriteMono(path string, samples []float32, rate int) error {
 	b := make([]byte, 44+len(samples)*2)
 	copy(b, "RIFF")
@@ -68,5 +68,5 @@ func WriteMono(path string, samples []float32, rate int) error {
 	for i, v := range samples {
 		binary.LittleEndian.PutUint16(b[44+i*2:], uint16(int16(math.Round(float64(max(-1, min(1, v)))*32767))))
 	}
-	return os.WriteFile(path, b, 0600)
+	return platform.WriteFileAtomic(path, b, 0600)
 }

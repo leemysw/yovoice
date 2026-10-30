@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 )
 
@@ -112,7 +113,7 @@ func (w *Workbench) SaveCharacter(c schema.Character) (schema.Character, error) 
 			if err != nil {
 				return schema.Character{}, err
 			}
-			if err = os.WriteFile(copied, b, 0600); err != nil {
+			if err = platform.WriteFileAtomic(copied, b, 0600); err != nil {
 				return schema.Character{}, err
 			}
 			c.Preview = &next

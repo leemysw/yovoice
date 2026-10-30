@@ -207,7 +207,11 @@ func (w *Workbench) separatedVocals(ctx context.Context, s schema.State, model s
 		return nil, e
 	}
 	voice := audio.Resample(samples, rate, alignRate)
-	_ = audio.WriteMono(cache, voice, alignRate)
+	if e = audio.WriteMono(cache, voice, alignRate); e != nil {
+		// 缓存只是加速，写不进去就不留半个文件，下次重新分离。
+		_ = os.Remove(cache)
+		diag.Log(w.Store.Root, "align.cache_write_failed", "error", diag.Error(e))
+	}
 	return voice, nil
 }
 

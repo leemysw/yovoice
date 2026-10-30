@@ -11,6 +11,7 @@ import (
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 )
 
@@ -52,7 +53,7 @@ func (w *Workbench) importTimelineAudio(ctx context.Context, path, name string) 
 	if err != nil {
 		return schema.AudioAsset{}, err
 	}
-	if err = os.WriteFile(dest, data, 0600); err != nil {
+	if err = platform.WriteFileAtomic(dest, data, 0600); err != nil {
 		return schema.AudioAsset{}, err
 	}
 	return asset, nil

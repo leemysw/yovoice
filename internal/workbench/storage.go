@@ -28,7 +28,10 @@ func (w *Workbench) StorageInfo() (StorageInfo, error) {
 	root := w.Store.Root
 	var info StorageInfo
 	info.Root = root
+	// pendingDataPath 由迁移在编辑锁内写入，读取同样拿锁。
+	w.edit.Lock()
 	info.PendingPath = w.pendingDataPath
+	w.edit.Unlock()
 
 	info.ModelsBytes = dirSize(filepath.Join(root, "models"))
 	info.OutputsBytes = dirSize(filepath.Join(root, "outputs"))
@@ -54,10 +57,11 @@ func dirSize(path string) int64 {
 // RelocateStorage 将数据目录完整复制到新位置，改写内部路径并记录重定向配置，重启后生效。
 // 迁移期间旧目录保持不动：任何一步失败只清理新目录里本次写入的内容，不会损坏现有数据；
 // 新目录成功启动后才由 store.CleanupPrevious 删除旧目录，释放原磁盘空间。
-func (w *Workbench) RelocateStorage(targetPath string) error {
+// ctx 结束（服务关闭、宿主断开）时中止复制，退出不必等几 GB 数据复制完。
+func (w *Workbench) RelocateStorage(ctx context.Context, targetPath string) error {
 	currentRoot := filepath.Clean(w.Store.Root)
 	targetPath = filepath.Clean(targetPath)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	createdTarget, err := w.beginRelocate(currentRoot, targetPath, cancel)
 	if err != nil {
@@ -116,7 +120,8 @@ func (w *Workbench) RelocateStorage(targetPath string) error {
 		return fmt.Errorf("复制数据失败: %w", err)
 	}
 
-	// 收尾阶段持有编辑锁：补齐复制期间新增或修改的文件，再以此刻的状态生成新目录的状态库并冻结旧目录。
+	// 收尾阶段持有编辑锁：补齐复制期间新增或修改的文件，再冻结旧目录并以此刻的状态生成新目录的状态库。
+	// 先冻结再取快照：编辑锁外的持久化写入（后台操作状态、助手记录）才不会落在快照之后、留在旧目录里丢失。
 	w.edit.Lock()
 	defer w.edit.Unlock()
 	if err := copyDirectoryContentsWithProgress(ctx, currentRoot, targetPath, true, nil); err != nil {
@@ -126,6 +131,7 @@ func (w *Workbench) RelocateStorage(targetPath string) error {
 		}
 		return fmt.Errorf("复制数据失败: %w", err)
 	}
+	w.Store.Freeze()
 	snapshot := w.Store.Read()
 
 	// 指向旧目录的绝对路径全部改写到新目录。
@@ -156,17 +162,18 @@ func (w *Workbench) RelocateStorage(targetPath string) error {
 	snapshot.Activity = nil
 	snapshot.ModelActivity = nil
 	if err := w.Store.WriteSnapshot(targetPath, snapshot); err != nil {
+		w.Store.Thaw()
 		cleanupTarget()
 		return fmt.Errorf("写入新目录状态失败: %w", err)
 	}
 
 	if err := store.RecordRelocation(currentRoot, targetPath); err != nil {
+		w.Store.Thaw()
 		cleanupTarget()
 		return fmt.Errorf("写入存储配置失败: %w", err)
 	}
 
-	// 重启前的修改只会写进旧目录，随后被丢弃；冻结持久化写入，让用户明确知道需要重启。
-	w.Store.Freeze()
+	// 重启前的修改只会写进旧目录，随后被丢弃；保持冻结，让用户明确知道需要重启。
 	w.pendingDataPath = targetPath
 	return nil
 }

@@ -2,11 +2,13 @@ package workbench
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"slices"
 	"testing"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -154,13 +156,13 @@ func TestStorageInfoAndRelocate(t *testing.T) {
 	}
 
 	// 不能迁移到相同目录
-	if err := w.RelocateStorage(root); err == nil {
+	if err := w.RelocateStorage(context.Background(), root); err == nil {
 		t.Fatal("应拒绝迁移到相同目录")
 	}
 
 	// 正常迁移到新目录
 	target := filepath.Join(t.TempDir(), "new-data")
-	must(t, w.RelocateStorage(target))
+	must(t, w.RelocateStorage(context.Background(), target))
 
 	infoAfter, err := w.StorageInfo()
 	must(t, err)
@@ -195,12 +197,12 @@ func TestRelocateCopiesWithoutTouchingSourceAndFreezes(t *testing.T) {
 		s.Runtimes = map[string]schema.InstalledRuntime{"cpu": {Path: runtimePath, Version: "1"}}
 	}, true))
 
-	if err, ok := w.RelocateStorage(filepath.Join(root, "inside")).(*msg.CallError); !ok || err.Code != msg.ErrStorageInsideData {
+	if err, ok := w.RelocateStorage(context.Background(), filepath.Join(root, "inside")).(*msg.CallError); !ok || err.Code != msg.ErrStorageInsideData {
 		t.Fatalf("应拒绝迁移到当前数据目录内部，实际: %v", err)
 	}
 
 	target := filepath.Join(t.TempDir(), "moved")
-	must(t, w.RelocateStorage(target))
+	must(t, w.RelocateStorage(context.Background(), target))
 
 	// 旧目录保持完整，重启前仍可回退使用。
 	for _, p := range []string{voice, model, filepath.Join(root, "yovoice.db")} {
@@ -241,7 +243,7 @@ func TestRelocateCopiesWithoutTouchingSourceAndFreezes(t *testing.T) {
 	if err := w.Store.Update(func(*schema.State) {}, true); err == nil {
 		t.Fatal("迁移后应拒绝持久化写入")
 	}
-	if err := w.RelocateStorage(filepath.Join(t.TempDir(), "again")); err == nil {
+	if err := w.RelocateStorage(context.Background(), filepath.Join(t.TempDir(), "again")); err == nil {
 		t.Fatal("重启前应拒绝再次迁移")
 	}
 }
@@ -257,7 +259,7 @@ func TestRelocateRejectsWhileBusy(t *testing.T) {
 		return ctx.Err()
 	}))
 	defer func() { w.Cancel(); <-w.Done() }()
-	if err := w.RelocateStorage(filepath.Join(t.TempDir(), "moved")); err == nil {
+	if err := w.RelocateStorage(context.Background(), filepath.Join(t.TempDir(), "moved")); err == nil {
 		t.Fatal("后台任务进行中应拒绝迁移")
 	}
 }
@@ -532,6 +534,21 @@ func TestForgetModelDeletesOnlyDownloadedFiles(t *testing.T) {
 	if _, err := os.Stat(downloaded); !os.IsNotExist(err) {
 		t.Fatal("应用下载的模型文件应随移除一起删除")
 	}
+	if leftovers, _ := filepath.Glob(filepath.Join(root, "models", "pack*")); len(leftovers) != 0 {
+		t.Fatal("移除后不应留下改名待删的目录", leftovers)
+	}
+	// 单文件模型旁边下载、更新中途留下的临时文件一并删除。
+	single := filepath.Join(root, "models", "single.gguf")
+	for _, name := range append([]string{single}, stagingFiles(single)...) {
+		must(t, os.WriteFile(name, []byte("x"), 0600))
+	}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, schema.InstalledModel{ID: "single", Path: single, Managed: true})
+	}, true))
+	must(t, w.ForgetModel("single"))
+	if leftovers, _ := filepath.Glob(filepath.Join(root, "models", "single*")); len(leftovers) != 0 {
+		t.Fatal("移除后不应留下临时文件", leftovers)
+	}
 	must(t, w.ForgetModel("imported"))
 	if _, err := os.Stat(imported); err != nil {
 		t.Fatal("用户导入的模型文件必须保留", err)
@@ -613,5 +630,94 @@ func TestUnchangedDraftSaveDoesNotWrite(t *testing.T) {
 	saved.Title = "改过"
 	if err = w.SaveDraft(saved); err == nil {
 		t.Fatal("冻结后有改动的保存应失败")
+	}
+}
+
+// 迁移的上下文结束（服务关闭）时立即停止复制并清理目标目录，旧目录仍可继续写入。
+func TestRelocateStopsWhenContextEnds(t *testing.T) {
+	isolateConfig(t)
+	root := t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	defer w.Close()
+	must(t, os.WriteFile(filepath.Join(root, "voices", "keep.wav"), []byte("voice"), 0600))
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	target := filepath.Join(t.TempDir(), "moved")
+	if err := w.RelocateStorage(ctx, target); !errors.Is(err, context.Canceled) {
+		t.Fatalf("应返回上下文取消，实际: %v", err)
+	}
+	if _, err := os.Stat(target); !os.IsNotExist(err) {
+		t.Fatal("中止的迁移应清理目标目录")
+	}
+	must(t, w.Store.Update(func(*schema.State) {}, true))
+	info, err := w.StorageInfo()
+	must(t, err)
+	if info.PendingPath != "" {
+		t.Fatal("中止的迁移不应留下待切换目录")
+	}
+	select {
+	case <-w.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("中止的迁移应释放操作槽位")
+	}
+}
+
+// 清理残留时：模型目录里不属于任何有效模型的旧临时文件被回收，已登记模型的更新文件与最近一次下载的续传片段保留；
+// downloads/ 下的续传片段只在没有后台操作时清理。
+func TestCleanupResidualsHandlesStagingFiles(t *testing.T) {
+	root := t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	defer w.Close()
+	old := time.Now().Add(-48 * time.Hour)
+	write := func(rel string) string {
+		path := filepath.Join(root, filepath.FromSlash(rel))
+		must(t, os.MkdirAll(filepath.Dir(path), 0700))
+		must(t, os.WriteFile(path, []byte("x"), 0600))
+		must(t, os.Chtimes(path, old, old))
+		return path
+	}
+	registered := write("models/keep.gguf")
+	keepNew := write("models/keep.gguf.new")
+	paused := catalog.Models[0]
+	pausedPart := write("models/" + filepath.Base(paused.RemotePath) + ".part")
+	pausedMeta := write("models/" + filepath.Base(paused.RemotePath) + ".part.meta")
+	stalePart := write("models/gone.gguf.part")
+	staleNew := write("models/pack/weights.bin.new.part")
+	deleting := write("models/old.gguf.deleting")
+	plain := write("models/user.gguf")
+	downloadPart := write("downloads/engine.zip.part")
+	downloadFresh := filepath.Join(root, "downloads", "fresh.zip.part")
+	must(t, os.WriteFile(downloadFresh, []byte("x"), 0600))
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, schema.InstalledModel{ID: "keep", Path: registered, Managed: true})
+		s.ModelActivity = &schema.Activity{Kind: "download", Status: "cancelled", Code: msg.ActivityPaused, ModelID: &paused.ID}
+	}, true))
+
+	// 有后台操作时不动 downloads/ 的续传片段。
+	must(t, w.begin("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	first, err := w.CleanupResiduals()
+	must(t, err)
+	if _, err := os.Stat(downloadPart); err != nil {
+		t.Fatal("后台操作进行中不应清理 downloads/ 的续传片段", err)
+	}
+	w.Cancel()
+	<-w.Done()
+
+	report, err := w.CleanupResiduals()
+	must(t, err)
+	for _, path := range []string{stalePart, staleNew, deleting, downloadPart} {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Error("应清理", path)
+		}
+	}
+	for _, path := range []string{registered, keepNew, pausedPart, pausedMeta, plain, downloadFresh} {
+		if _, err := os.Stat(path); err != nil {
+			t.Error("应保留", path, err)
+		}
+	}
+	if total := first.CleanedCount + report.CleanedCount; total != 4 {
+		t.Fatalf("两次清理应共回收 4 个文件，实际 %d", total)
 	}
 }

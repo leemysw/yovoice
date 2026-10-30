@@ -81,11 +81,27 @@ func (w *Workbench) installKokoro(ctx context.Context, source string, progress f
 	if err = os.WriteFile(filepath.Join(staging, kokoroStamp), stamp, 0600); err != nil {
 		return err
 	}
-	if err = os.RemoveAll(dir); err != nil {
-		return err
+	// 旧目录先改名留作后备，新目录就位后再删；中途失败改回原名，不会出现两边都没有的情况。
+	// 后备目录同样以 kokoro- 开头，进程意外退出时由启动清理回收。
+	previous := ""
+	if _, err = os.Stat(dir); err == nil {
+		previous, err = os.MkdirTemp(filepath.Dir(dir), "kokoro-previous-")
+		if err != nil {
+			return err
+		}
+		_ = os.Remove(previous)
+		if err = os.Rename(dir, previous); err != nil {
+			return err
+		}
 	}
 	if err = os.Rename(staging, dir); err != nil {
+		if previous != "" {
+			_ = os.Rename(previous, dir)
+		}
 		return err
+	}
+	if previous != "" {
+		_ = os.RemoveAll(previous)
 	}
 	if !engine.KokoroReady(w.Store.Root) {
 		return msg.Err(msg.ErrRuntimeMissing, nil)

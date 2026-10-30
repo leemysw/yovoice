@@ -1,13 +1,16 @@
 package workbench
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
 	"time"
+	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
+	"yovoice/internal/store"
 )
 
 // 运行时安装目录由 os.MkdirTemp 以“版本-后端-随机数”命名。
@@ -66,6 +69,83 @@ func (w *Workbench) removeStaleRuntimes() {
 		}
 		_ = os.RemoveAll(path)
 	}
+}
+
+// deletingSuffix 标记移除模型时改名待删的文件，进程在删除前退出时由清理回收。
+const deletingSuffix = ".deleting"
+
+// stagingSuffixes 是下载与更新模型时写在目标文件旁的临时文件：续传片段及其来源记录、更新时的新文件、待删除的旧文件。
+var stagingSuffixes = []string{".part", ".part.meta", ".new", ".new.part", ".new.part.meta", deletingSuffix}
+
+// stagingFiles 返回某个模型文件旁可能存在的全部临时文件路径（不含待删除标记）。
+func stagingFiles(target string) []string {
+	var files []string
+	for _, suffix := range stagingSuffixes {
+		if suffix != deletingSuffix {
+			files = append(files, target+suffix)
+		}
+	}
+	return files
+}
+
+// stagingTarget 由临时文件名还原它所属的模型文件路径；不是临时文件时返回空串。
+func stagingTarget(path string) string {
+	for _, suffix := range []string{deletingSuffix, ".new.part.meta", ".new.part", ".new", ".part.meta", ".part"} {
+		if target, ok := strings.CutSuffix(path, suffix); ok {
+			return stagingTargetOrSelf(target)
+		}
+	}
+	return ""
+}
+
+// stagingTargetOrSelf 继续剥掉叠加的后缀（如 weights.gguf.part.deleting），直到得到模型文件本身。
+func stagingTargetOrSelf(path string) string {
+	if inner := stagingTarget(path); inner != "" {
+		return inner
+	}
+	return path
+}
+
+// liveModelPaths 返回临时文件仍有用处的模型位置：已登记的模型（更新用的 .new 稍后替换）与
+// 最近一次下载的模型（暂停后可续传）。
+func liveModelPaths(s schema.State, root string) []string {
+	var live []string
+	for _, m := range s.Models {
+		if m.Path != "" {
+			live = append(live, filepath.Clean(m.Path))
+		}
+	}
+	if a := s.ModelActivity; a != nil && a.ModelID != nil {
+		if m, e := catalog.Lookup(*a.ModelID); e == nil {
+			live = append(live, modelDestination(s, root, m))
+		}
+	}
+	return live
+}
+
+// removeStaleStaging 删除模型目录里不再属于任何有效模型、且超过保留期的临时文件。
+func removeStaleStaging(dir string, cutoff time.Time, live []string, report *CleanupReport) {
+	_ = filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil || entry.IsDir() {
+			return nil
+		}
+		target := stagingTarget(path)
+		if target == "" {
+			return nil
+		}
+		if slices.ContainsFunc(live, func(p string) bool { return store.Within(p, target) }) {
+			return nil
+		}
+		info, err := entry.Info()
+		if err != nil || !info.ModTime().Before(cutoff) {
+			return nil
+		}
+		if os.Remove(path) == nil {
+			report.CleanedCount++
+			report.FreedBytes += info.Size()
+		}
+		return nil
+	})
 }
 
 // CleanupReport 记录清理残留的结果统计。
@@ -241,7 +321,27 @@ func (w *Workbench) CleanupResiduals() (CleanupReport, error) {
 	}
 
 	// 4. downloads/ 只存放临时文件与内核安装包缓存，超过 24 小时的全部回收（内核已解压到 runtime/）。
-	removeStaleFiles(filepath.Join(w.Store.Root, "downloads"), cutoff, func(string) bool { return false }, &report)
+	//    续传片段只在没有后台操作时、持 mu 删除：此刻不可能有下载正要接着写它。
+	downloads := filepath.Join(w.Store.Root, "downloads")
+	removeStaleFiles(downloads, cutoff, func(name string) bool { return stagingTarget(name) != "" }, &report)
+	w.mu.Lock()
+	if w.cancel == nil && w.installCancel == nil {
+		removeStaleFiles(downloads, cutoff, func(name string) bool { return stagingTarget(name) == "" }, &report)
+	}
+	// 5. 模型目录里下载或更新中途留下的临时文件：仍属于已登记模型或最近一次下载的保留，其余超过 24 小时的回收。
+	//    有模型下载在进行时整体跳过，不与它写入的文件赛跑。
+	if w.installCancel == nil {
+		s := w.Store.Read()
+		live := liveModelPaths(s, w.Store.Root)
+		dirs := []string{filepath.Join(w.Store.Root, "models")}
+		if dir := modelDirectory(s, w.Store.Root); !store.SamePath(dir, dirs[0]) {
+			dirs = append(dirs, dir)
+		}
+		for _, dir := range dirs {
+			removeStaleStaging(dir, cutoff, live, &report)
+		}
+	}
+	w.mu.Unlock()
 
 	return report, nil
 }

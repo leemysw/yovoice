@@ -349,7 +349,7 @@ func TestGenerateDuringModelDownload(t *testing.T) {
 		t.Fatal(s.Activity, s.ModelActivity)
 	}
 	// 迁移数据目录需要所有操作都结束。
-	if e = w.RelocateStorage(t.TempDir()); e == nil {
+	if e = w.RelocateStorage(context.Background(), t.TempDir()); e == nil {
 		t.Fatal("下载中不应允许迁移数据目录")
 	}
 }
