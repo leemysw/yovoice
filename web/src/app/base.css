@@ -130,6 +130,8 @@
   .loading { padding: var(--spacing-10); color: var(--app-muted); }
   /* 页面渲染出错时占满原区域，保留导航可用。 */
   .page-error { flex: 1; min-height: 0; padding: var(--spacing-10); text-align: center; color: var(--app-muted); }
+  /* 浮层（助手、播放页、通知等）出错时的兜底块不参与分配工作区高度，只占自身内容的高度。 */
+  .workbench > .page-error { flex: none; }
   .page-error strong { color: var(--app-ink); }
   .page-error p { max-width: calc(var(--spacing-8) * 12); }
   .recording { color: var(--color-text-red); }

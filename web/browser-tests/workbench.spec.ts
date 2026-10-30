@@ -478,7 +478,8 @@ test('已下载模型有新版本时显示轻提示，可关闭并重新下载�
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').models?.[0]?.sha256)).not.toBe('0'.repeat(64));
 });
 
-test('侧栏宽度记录损坏时照常启动，并清掉损坏的记录', async ({ page }) => {
+// 冒烟用例：预览模式不走桌面端的 sidebar.save 解析，这里只验证启动不白屏且记录被修正；解析本身由 try/catch 兜底。
+test('侧栏宽度记录损坏时照常启动（冒烟）', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(() => { localStorage.setItem('astryx-resizable:workbench-sidebar', '{not json'); });
   await page.goto('/');

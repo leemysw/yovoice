@@ -62,8 +62,8 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
     try { setAssets(await call<Asset[]>('assets.list') ?? []); } finally { setLoading(false); }
   }), [run]);
   // 进入页面时读取；生成、删除或导入改变了资源列表时重新汇总（文件大小只有后端知道）。
-  // 只看 id 和作品名的变化：编辑正文触发的自动保存不会反复拉取整张列表。
-  const revision = useMemo(() => JSON.stringify([state.history.map(g => g.id), state.voices.map(v => v.id), state.drafts.map(d => [d.id, d.title, ...(d.timeline?.assets ?? []).map(a => a.id)])]), [state.history, state.voices, state.drafts]);
+  // 只看 id 和名称的变化：编辑正文触发的自动保存不会反复拉取整张列表，改名则会刷新。
+  const revision = useMemo(() => JSON.stringify([state.history.map(g => [g.id, g.title]), state.voices.map(v => [v.id, v.name]), state.drafts.map(d => [d.id, d.title, ...(d.timeline?.assets ?? []).map(a => a.id)])]), [state.history, state.voices, state.drafts]);
   useEffect(() => { if (active) load(); }, [active, load, revision]);
   // 列表刷新后去掉已不存在的勾选项。
   useEffect(() => setSelected(current => new Set([...current].filter(key => assets.some(a => rowKey(a) === key && canDelete(a))))), [assets]);
