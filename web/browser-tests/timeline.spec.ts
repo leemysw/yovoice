@@ -127,7 +127,8 @@ test('多轨分割、移动、静音播放、调整高度和重载', async ({ pa
   const box = await handle.boundingBox();
   await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
   await page.mouse.down(); await page.mouse.move(box!.x + box!.width / 2, box!.y - 90, { steps: 5 }); await page.mouse.up();
-  expect((await page.locator('.multitrack').boundingBox())!.height).toBeGreaterThan(before!.height + 50);
+  // 拖拽结果在松开后才落到面板高度上，用轮询断言等它生效。
+  await expect.poll(async () => (await page.locator('.multitrack').boundingBox())!.height).toBeGreaterThan(before!.height + 50);
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.locator('.multitrack-clip')).toHaveCount(3);
