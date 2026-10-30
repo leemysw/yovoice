@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Signature rythmique"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Étapes d'inférence"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Ce modèle nécessite le moteur d’inférence {version} ou ultérieur. Mettez à jour le moteur dans les Paramètres."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Importez un livre au format TXT, Markdown ou EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} chapitres sont déjà enregistrés ; ils ne seront pas recréés en réessayant."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "L'IA distribue les rôles"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "Échec de la distribution par l'IA"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "L'IA génère une image"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "L'IA a généré l'image"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "Échec de la génération d'image par l'IA"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Écriture de la partition mélodique"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 ne peut pas encore chanter cette partition"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Impossible de vérifier la partition"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Impossible d'afficher la portée. Passez à la vue pistes ou source."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Voix"

@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Taktart"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Inferenzschritte"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Dieses Modell benötigt die Inferenz-Engine {version} oder neuer. Aktualisieren Sie die Engine in den Einstellungen."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Importieren Sie ein Buch als TXT, Markdown oder EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} Kapitel sind bereits gespeichert; beim erneuten Versuch werden sie nicht noch einmal angelegt."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "KI besetzt Rollen"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "KI-Besetzung fehlgeschlagen"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "KI erzeugt ein Bild"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "KI hat das Bild erzeugt"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "KI-Bilderzeugung fehlgeschlagen"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Melodienoten werden geschrieben"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 kann diese Noten noch nicht singen"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Partitur konnte nicht geprüft werden"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Notensystem konnte nicht dargestellt werden. Wechseln Sie zur Spuren- oder Quellansicht."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Gesang"

@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "拍号"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "推理步数"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "该模型需要 {version} 及以上的推理内核，请在设置中更新内核。"
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "请导入 TXT、Markdown 或 EPUB 格式的小说。"
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "已保存 {count} 章，重试时不会重复创建。"
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "AI 正在分角色"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI 分角色失败"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "AI 正在生成图片"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "AI 生成好了图片"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "AI 生成图片失败"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "正在写旋律谱"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 还不能按这份谱演唱"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "无法校验谱面"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "无法渲染五线谱，可切换到轨道或源码视图。"
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "人声旋律"

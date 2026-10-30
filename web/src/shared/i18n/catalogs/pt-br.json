@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Fórmula de compasso"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Passos de inferência"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Este modelo precisa do motor de inferência {version} ou posterior. Atualize o motor em Configurações."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Importe um livro em TXT, Markdown ou EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} capítulos já foram salvos; ao tentar novamente eles não serão criados de novo."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "A IA está distribuindo papéis"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "Falha ao distribuir papéis com IA"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "A IA está gerando uma imagem"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "A IA gerou a imagem"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "Falha ao gerar imagem com IA"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Escrevendo a partitura da melodia"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "O YuE2 ainda não consegue cantar esta partitura"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Não foi possível verificar a partitura"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Não foi possível exibir a pauta. Mude para a visualização de faixas ou de código."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Voz"

@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Indicazione di tempo"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Passi di inferenza"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Questo modello richiede il motore di inferenza {version} o successivo. Aggiorna il motore nelle Impostazioni."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Importa un libro in formato TXT, Markdown o EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} capitoli sono già salvati; riprovando non verranno creati di nuovo."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "L'IA sta assegnando i ruoli"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "Assegnazione con IA non riuscita"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "L'IA sta generando un'immagine"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "L'IA ha generato l'immagine"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "Generazione dell'immagine con IA non riuscita"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Scrittura dello spartito della melodia"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 non può ancora cantare questo spartito"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Impossibile verificare la partitura"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Impossibile mostrare il pentagramma. Passa alla vista tracce o sorgente."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Voce"

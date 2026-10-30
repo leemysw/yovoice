@@ -2051,6 +2051,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Nhịp"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Số bước suy luận"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Mô hình này cần công cụ suy luận {version} trở lên. Hãy cập nhật công cụ trong Cài đặt."
   },
@@ -3083,6 +3086,9 @@
   "@yovoice.book.unsupported": {
     "defaultMessage": "Hãy nhập sách ở định dạng TXT, Markdown hoặc EPUB."
   },
+  "@yovoice.book.savedPartial": {
+    "defaultMessage": "{count} chương đã được lưu; thử lại sẽ không tạo lại chúng."
+  },
   "@yovoice.ai.task.running.cast": {
     "defaultMessage": "AI đang phân vai"
   },
@@ -3091,6 +3097,15 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI phân vai thất bại"
+  },
+  "@yovoice.ai.task.running.image": {
+    "defaultMessage": "AI đang tạo ảnh"
+  },
+  "@yovoice.ai.task.done.image": {
+    "defaultMessage": "AI đã tạo xong ảnh"
+  },
+  "@yovoice.ai.task.failed.image": {
+    "defaultMessage": "AI tạo ảnh thất bại"
   },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Đang viết bản nhạc giai điệu"
@@ -3232,6 +3247,12 @@
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 chưa thể hát bản nhạc này"
+  },
+  "@yovoice.melody.inspectFailed": {
+    "defaultMessage": "Không thể kiểm tra bản nhạc"
+  },
+  "@yovoice.melody.staffFailed": {
+    "defaultMessage": "Không thể hiển thị khuông nhạc. Hãy chuyển sang chế độ xem bản nhạc hoặc mã nguồn."
   },
   "@yovoice.melody.track.vocal": {
     "defaultMessage": "Giọng hát"
