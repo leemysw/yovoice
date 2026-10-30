@@ -1,13 +1,13 @@
-import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Pause, Play, Rewind, SlidersHorizontal, Timer } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, CircleAlert, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Pause, Play, Rewind, SlidersHorizontal, Timer, X } from 'lucide-react';
 import { call, isDesktop, isMac, mediaUrl, saveText, releaseMediaUrl } from '../../shared/lib/client';
-import { formatActivity } from '../../shared/i18n/format';
+import { formatActivity, formatNotice } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Activity, type AlignedWord, type Generation } from '../../shared/workbench';
 import { alignLines, alignedTimeline, alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
@@ -61,12 +61,16 @@ const savedLyricStyle = (): LyricStyle => readLocal(lyricStyleKey) === 'stage' ?
 // versions 是同一作品的各个版本：可以在播放页里切换版本对比试听，切换时保持播放位置，按 B 在最近两个版本之间来回切。
 // 下载了可选的歌词对齐模型时可以一键逐字对齐（分离人声后强制对齐），结果随版本保存，和手动校准以最近一次为准；
 // aligner 表示模型已安装，没装时 getAligner 打开设置里的下载项。activity 是当前后台任务，用来显示对齐进度。
-export function NowPlaying({ item: opened, title: openedTitle, versions = [], aligner = false, activity, getAligner, close, onError }: {
-  item: Generation; title: string; versions?: Generation[]; aligner?: boolean; activity?: Activity | null; getAligner?: () => void; close: () => void; onError: (message: string) => void;
+// 播放页是全屏弹窗，会盖住全局通知：读取、保存、对齐、导出失败都在页内的提示条里显示。
+export function NowPlaying({ item: opened, title: openedTitle, versions = [], aligner = false, activity, getAligner, close }: {
+  item: Generation; title: string; versions?: Generation[]; aligner?: boolean; activity?: Activity | null; getAligner?: () => void; close: () => void;
 }) {
   const t = useTranslator();
   const locale = useLocale();
   const [item, setItem] = useState(opened);
+  // 页内的错误提示：存 noticeMessage 生成的文本，显示时翻译。
+  const [notice, setNotice] = useState('');
+  const fail = (error: unknown) => setNotice(noticeMessage(error));
   // 上一个听的版本，用来 A/B 来回切换。
   const [previous, setPrevious] = useState<Generation | null>(null);
   // 切换版本时记下的位置和播放状态，新音频加载后恢复。
@@ -130,7 +134,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   const running = activity?.status === 'running', aligning = running && activity.task === 'align' && activity.projectId === item.settings.id;
   const alignNow = () => {
     if (!aligner) { getAligner?.(); return; }
-    void call('generation.alignLyrics', { id: item.id, lines: alignLines(timeline, duration) }).catch((error: unknown) => onError(noticeMessage(error)));
+    void call('generation.alignLyrics', { id: item.id, lines: alignLines(timeline, duration) }).catch(fail);
   };
   // 打开即开始播放；浏览器拦截自动播放时停在开头，由用户点播放。
   useEffect(() => {
@@ -144,15 +148,15 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
         envelope.current = result.envelope;
         if (result.activity && result.duration) setVoice({ activity: result.activity, duration: result.duration });
       });
-    }, (error: Error) => { if (!disposed) onError(error.message); });
+    }, (error: unknown) => { if (!disposed) setNotice(noticeMessage(error)); });
     return () => { disposed = true; releaseMediaUrl(resource); };
-  }, [item.fileName, item.duration, onError]);
+  }, [item.fileName, item.duration]);
   // 弹窗打开时焦点落在播放页本身，不选中关闭按钮，空格直接控制播放。
   useEffect(() => {
     const frame = requestAnimationFrame(() => stage.current?.focus({ preventScroll: true }));
     return () => cancelAnimationFrame(frame);
   }, []);
-  const play = () => audio.current?.play().catch((error: DOMException) => { if (error.name !== 'NotAllowedError' && error.name !== 'AbortError') onError('@yovoice.error.audioPlayFailed'); });
+  const play = () => audio.current?.play().catch((error: DOMException) => { if (error.name !== 'NotAllowedError' && error.name !== 'AbortError') setNotice('@yovoice.error.audioPlayFailed'); });
   const toggle = () => {
     const element = audio.current;
     if (!element) return;
@@ -163,22 +167,24 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
     if (audio.current) audio.current.currentTime = next;
     setTime(next);
   };
-  // 退出时先播放收起动画，动画结束再关闭；减少动态效果时直接关闭。
+  // 退出时先播放收起动画，动画结束再关闭；减少动态效果时直接关闭。动画结束事件和兜底的定时器只有一个会真正关闭。
+  const closed = useRef(false);
+  const finish = useCallback(() => { if (closed.current) return; closed.current = true; close(); }, [close]);
   const leave = () => {
     if (leaving) return;
     if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
-    if (reducedMotion()) { close(); return; }
+    if (reducedMotion()) { finish(); return; }
     setLeaving(true);
   };
   useEffect(() => {
     if (!leaving) return;
-    const timer = setTimeout(close, 600);
+    const timer = setTimeout(finish, 600);
     return () => clearTimeout(timer);
-  }, [leaving, close]);
+  }, [leaving, finish]);
 
-  const save = (next: number[] | undefined) => {
-    void call('generation.lyricTimes', { id: item.id, times: next ?? [] }).then(() => { setTimes(next); setAligned(undefined); }, (error: unknown) => onError(noticeMessage(error)));
-  };
+  // 保存校准时间：成功后才更新本地状态并收起提示；失败时在页内提示，调用方据返回值决定是否退出校准。
+  const save = (next: number[] | undefined) => call('generation.lyricTimes', { id: item.id, times: next ?? [] })
+    .then(() => { setTimes(next); setAligned(undefined); setNotice(''); return true; }, (error: unknown) => { fail(error); return false; });
   // 逐字编辑从当前唱到的那一句开始；保存后与对齐结果一样记作逐字时间，替换逐行校准。
   const startEdit = () => {
     const draft = editableLines(timeline), at = activeLyric(draft, time);
@@ -186,19 +192,20 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
     setEdit(draft); stage.current?.focus({ preventScroll: true });
   };
   const saveWords = (words: AlignedWord[]) => {
-    void call('generation.lyricWords', { id: item.id, words }).then(() => { setAligned(words); setTimes(undefined); setEdit(null); }, (error: unknown) => onError(noticeMessage(error)));
+    void call('generation.lyricWords', { id: item.id, words }).then(() => { setAligned(words); setTimes(undefined); setEdit(null); setNotice(''); }, fail);
   };
   // 从头播放开始校准；开头是器乐段落时它从 0 秒开始，自动标好。
   const startSync = () => { setSync(rows[0]?.instrumental ? [0] : []); seek(0); void play(); stage.current?.focus({ preventScroll: true }); };
-  // 标记下一行从当前播放位置开始；最后一行标完即保存并退出校准。
+  // 标记下一行从当前播放位置开始；最后一行标完即保存，保存成功才退出校准，失败时标记都还在，可以撤销一行后重试。
   const mark = () => {
-    if (!sync || !audio.current) return;
+    if (!sync || !audio.current || sync.length >= rows.length) return;
     const next = [...sync, Math.max(audio.current.currentTime, sync.at(-1) ?? 0)];
     if (next.length < rows.length) { setSync(next); return; }
-    setSync(null); save(next);
+    setSync(next);
+    void save(next).then(saved => { if (saved) setSync(null); });
   };
   // 按当前显示的歌词时间（校准、自动定位或估算）导出 LRC；words 为真时导出逐字时间。
-  const exportLrc = (words = false) => { void saveText(lyricsToLrc(timeline, title, words), title, 'lrc').catch((error: unknown) => onError(noticeMessage(error))); };
+  const exportLrc = (words = false) => { void saveText(lyricsToLrc(timeline, title, words), title, 'lrc').catch(fail); };
   const undo = () => {
     if (!sync?.length) return;
     const last = sync.at(-1)!;
@@ -220,24 +227,28 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
     return () => { cancelAnimationFrame(frame); root.style.setProperty('--now-playing-level', '0'); };
   }, [playing]);
   // 逐字点亮：按播放位置把每个字的进度（--word-fill，0~1）和状态（data-sung）直接写到元素上，播放中逐帧更新，不经过 React 渲染。
-  // 用布局阶段的 effect，换行后新出现的字在第一次绘制前就有正确的状态。
-  useLayoutEffect(() => {
+  const paintWords = useEffectEvent(() => {
     const element = audio.current, root = stage.current;
     if (!element || !root) return;
+    const now = element.currentTime;
+    for (const word of root.querySelectorAll<HTMLElement>('[data-word-start]')) {
+      const start = Number(word.dataset.wordStart), end = Number(word.dataset.wordEnd);
+      word.style.setProperty('--word-fill', Math.max(0, Math.min(1, (now - start) / Math.max(.05, end - start))).toFixed(3));
+      const state = now < start ? 'waiting' : now < end ? 'active' : 'done';
+      if (word.dataset.sung !== state) word.dataset.sung = state;
+    }
+  });
+  // 用布局阶段的 effect，换行后新出现的字在第一次绘制前就有正确的状态；播放中的逐帧循环不随 timeupdate 重启。
+  useLayoutEffect(() => {
+    const element = audio.current;
+    if (!element) return;
     let frame = 0;
-    const paint = () => {
-      const now = element.currentTime;
-      for (const word of root.querySelectorAll<HTMLElement>('[data-word-start]')) {
-        const start = Number(word.dataset.wordStart), end = Number(word.dataset.wordEnd);
-        word.style.setProperty('--word-fill', Math.max(0, Math.min(1, (now - start) / Math.max(.05, end - start))).toFixed(3));
-        const state = now < start ? 'waiting' : now < end ? 'active' : 'done';
-        if (word.dataset.sung !== state) word.dataset.sung = state;
-      }
-      if (!element.paused) frame = requestAnimationFrame(paint);
-    };
-    paint();
+    const loop = () => { paintWords(); if (!element.paused) frame = requestAnimationFrame(loop); };
+    loop();
     return () => cancelAnimationFrame(frame);
-  }, [playing, time, current, staged, lines]);
+  }, [playing, current, staged, lines]);
+  // 暂停时拖进度条或点歌词跳转，也要刷新一次逐字状态。
+  useLayoutEffect(() => { if (!playing) paintWords(); }, [time, playing]);
   useKineticLyrics(stage, audio, staged);
   // 桌面端 macOS 打开播放页时让网页铺进标题栏，背景连成一片；控件随静置隐藏时窗口按钮也一起隐藏，关闭时恢复。
   const hidden = idle && !sync && !edit;
@@ -306,7 +317,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
     <VStack ref={stage} tabIndex={-1} className="now-playing" data-playing={playing} data-idle={hidden} data-leaving={leaving || undefined} data-syncing={!!sync || undefined} data-editing={!!edit || undefined} data-host={isDesktop && isMac ? 'macos' : undefined} data-style={staged ? 'stage' : 'scroll'} gap={0}
       style={{ '--now-playing-hue': hue, '--now-playing-accent': accent } as CSSProperties}
       onPointerMove={wake} onPointerDown={wake}
-      onAnimationEnd={event => { if (leaving && event.target === stage.current) close(); }}>
+      onAnimationEnd={event => { if (leaving && event.target === stage.current) finish(); }}>
       <audio hidden ref={audio} src={url || undefined} autoPlay
         onLoadedMetadata={() => {
           const element = audio.current, value = element?.duration;
@@ -349,6 +360,11 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
           {document.fullscreenEnabled ? <Button className="now-playing-glass now-playing-round" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}
         </HStack>
       </HStack>
+      {notice ? <HStack className="now-playing-notice" role="alert" gap={2} vAlign="center" data-testid="now-playing-notice">
+        <CircleAlert size={14} aria-hidden />
+        <small className="grow">{formatNotice(t, notice)}</small>
+        <Button className="now-playing-glass now-playing-round" size="sm" variant="ghost" isIconOnly icon={<X size={14} />} label={t('@yovoice.action.closeNotice')} onClick={() => setNotice('')} />
+      </HStack> : null}
       {staged ? <StackItem as="span" className="now-playing-backdrop" aria-hidden>
         <StackItem as="span" className="now-playing-backdrop-cover"><SongCover seed={item.id} animated={playing} size={96} /></StackItem>
         {scene.shapes.map((shape, index) => <StackItem as="span" key={index} className="now-playing-shape" data-shape={shape.type} data-filled={shape.filled || undefined}

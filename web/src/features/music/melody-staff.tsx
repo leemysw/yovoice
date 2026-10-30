@@ -1,24 +1,28 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
+import { useTranslator } from '@astryxdesign/core/i18n';
 import type { NoteTimingEvent } from 'abcjs';
 
 // 五线谱视图：用 abcjs 按 ABC 谱面排版，人声与伴奏两行成组、和弦标在人声上方；abcjs 按需加载，不进首屏包。
 // 试听时按播放时间高亮正在响的音符，并在谱面框内滚动跟随；点音符跳到对应时间。
+// abcjs 没取到（离线、更新后旧文件已不在）或排版出错时，谱面框里说明无法渲染，其余视图照常。
 export function MelodyStaff({ abc, label, time, active, seek }: {
   abc: string; label: string; time: number; active: boolean; seek: (seconds: number) => void;
 }) {
+  const t = useTranslator();
   const box = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null);
   const timings = useRef<NoteTimingEvent[]>([]);
   const lit = useRef<Element[]>([]);
   const seekRef = useRef(seek);
+  const [failed, setFailed] = useState(false);
   useEffect(() => { seekRef.current = seek; });
 
   useEffect(() => {
     let live = true, observer: ResizeObserver | undefined;
     // 编辑谱面时稍等再排版，避免每个字符都重排整页。
     const timer = setTimeout(() => {
-      void import('abcjs').then(({ default: abcjs }) => {
+      import('abcjs').then(({ default: abcjs }) => {
         if (!live || !host.current) return;
         const element = host.current;
         const render = (staffwidth: number) => abcjs.renderAbc(element, abc, {
@@ -54,7 +58,8 @@ export function MelodyStaff({ abc, label, time, active, seek }: {
         lit.current = [];
         // 只取音符时间表，不启动 abcjs 自己的计时器，进度以试听音频为准。
         timings.current = tune ? new abcjs.TimingCallbacks(tune, {}).noteTimings.filter(event => event.type === 'event' && event.elements?.length) : [];
-      });
+        setFailed(false);
+      }, () => { if (live) setFailed(true); }).catch(() => { if (live) setFailed(true); });
     }, 150);
     return () => { live = false; clearTimeout(timer); observer?.disconnect(); };
   }, [abc]);
@@ -82,5 +87,8 @@ export function MelodyStaff({ abc, label, time, active, seek }: {
     if (top < 0 || top > frame.clientHeight * 0.75) frame.scrollTo({ top: frame.scrollTop + top - frame.clientHeight / 3, behavior: 'smooth' });
   }, [time, active]);
 
-  return <VStack ref={box} className="melody-staff" gap={0} role="img" aria-label={label}><div ref={host} /></VStack>;
+  return <VStack ref={box} className="melody-staff" gap={0} role="img" aria-label={label}>
+    {failed ? <p className="muted" role="alert">{t('@yovoice.melody.staffFailed')}</p> : null}
+    <div ref={host} />
+  </VStack>;
 }
