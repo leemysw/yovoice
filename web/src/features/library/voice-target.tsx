@@ -4,6 +4,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { type Character, type Draft } from '../../shared/workbench';
 
 // 应用声音必须明确作品和角色，不能改写隐藏的当前草稿。
@@ -23,7 +24,7 @@ export function VoiceTarget({ voice, drafts, initial, speakerId, apply, close }:
     <Button label={t('@yovoice.library.apply')} variant="primary" isLoading={busy} isDisabled={target !== 'new' && !draft} onClick={async () => {
       setBusy(true); setError('');
       try { await apply(voice, target, selected); close(); }
-      catch (error) { setError((error as Error).message); }
+      catch (error) { setError(noticeMessage(error)); }
       finally { setBusy(false); }
     }} />
   </>}>

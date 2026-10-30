@@ -5,6 +5,7 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Download, FileMusic, Lightbulb, Upload } from 'lucide-react';
 import { call, isDesktop } from '../../shared/lib/client';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Draft, type Score, type UiLocale } from '../../shared/workbench';
 import { emptyScore, exampleScore, noteCount, scoreBars, scoreDuration } from './score-draft';
 import { midiToScore, scoreToMidi } from './score-midi';
@@ -34,14 +35,14 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
   async function importScore() {
     if (!isDesktop) { input.current?.click(); return; }
     try { const next = await call<Score | null>('score.import'); if (next) replace(next); }
-    catch (error) { onError((error as Error).message); }
+    catch (error) { onError(noticeMessage(error)); }
   }
   async function exportScore(format: 'mid' | 'json') {
     try {
       if (isDesktop) { await call('score.export', { name: fileName, format, score }); return; }
       if (format === 'mid') download(scoreToMidi(score) as BlobPart, 'audio/midi', `${fileName}.mid`);
       else download(JSON.stringify(score, null, 2), 'application/json', `${fileName}.json`);
-    } catch (error) { onError((error as Error).message); }
+    } catch (error) { onError(noticeMessage(error)); }
   }
   const summary = [score.key, `${score.tempo} BPM`, score.timeSignature.join('/'), t('@yovoice.score.barCount', { count: scoreBars(score) }), formatTime(scoreDuration(score))].filter(Boolean).join(' · ');
   return <VStack className="score-editor" gap={5}>
@@ -61,7 +62,7 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
           if (file.size > 4 * 1024 * 1024) throw new Error('@yovoice.error.scoreInvalid');
           const bytes = new Uint8Array(await file.arrayBuffer());
           replace(/\.json$/i.test(file.name) ? parseScore(new TextDecoder().decode(bytes)) : midiToScore(bytes, n => t('@yovoice.score.trackName', { n })));
-        } catch (error) { onError(error instanceof SyntaxError ? '@yovoice.error.scoreInvalid' : (error as Error).message); }
+        } catch (error) { onError(error instanceof SyntaxError ? '@yovoice.error.scoreInvalid' : noticeMessage(error)); }
       }} />
     </HStack>
     {notes ? null

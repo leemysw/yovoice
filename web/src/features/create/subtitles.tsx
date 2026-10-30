@@ -10,6 +10,7 @@ import { Selector } from '../../shared/selector';
 import { cueAudioStatus, cueGeneration, type Generation, type Character, type Draft, type SubtitleDocument } from '../../shared/workbench';
 import { SubtitleParser } from './subtitle-parser';
 import { fileTitle, readTextFile, subtitleAccept } from './file-import';
+import { noticeMessage } from '../../shared/lib/call-error';
 import { AudioCheckBadge } from '../media/audio-check';
 
 const SeededAvatar = lazy(() => import('../../shared/ui/seeded-avatar').then(module => ({ default: module.SeededAvatar })));
@@ -52,7 +53,7 @@ export function SubtitleImport({ onImport, onError, trigger }: { trigger?: (open
       setLoading(true);
       try {
         await onImport(fileTitle(file.name), new SubtitleParser().parse(file.name, await readTextFile(file, '@yovoice.subtitle.invalid')));
-      } catch (error) { onError((error as Error).message); }
+      } catch (error) { onError(noticeMessage(error)); }
       finally { setLoading(false); }
     }} />
   </>;
@@ -63,16 +64,18 @@ export function SubtitleEditor({ draft, characters, change, renderFooter, select
   const [page, setPage] = useState(0);
   const editor = useRef<HTMLElement>(null);
   const pendingFocus = useRef<{ index: number; end: boolean } | null>(null);
-  const lastSpeaker = useRef(draft.subtitles!.cues.at(-1)?.speakerId ?? draft.subtitles!.speakers[0].id);
+  const lastSpeaker = useRef(draft.subtitles!.cues.at(-1)?.speakerId ?? draft.subtitles!.speakers[0]?.id ?? '');
   const [showSpeakers, setShowSpeakers] = useState(false);
   const [showTimes, setShowTimes] = useState(false);
-  const statuses = new Map(draft.subtitles!.cues.map(c => [c.id, c.id === failedCue ? 'failed' : cueAudioStatus(draft, history, c)]));
+  // 台词的 id 是可选的，按位置记状态，没有 id 的台词不会互相串。
+  const statuses = draft.subtitles!.cues.map(c => c.id && c.id === failedCue ? 'failed' : cueAudioStatus(draft, history, c));
+  // 只在播放到的句子变化时翻到它所在的页；用户自己翻页时不拉回去。
   useEffect(() => {
     if (playingCue < 0) return;
     setPage(Math.floor(playingCue / 50));
     const id = requestAnimationFrame(() => editor.current?.querySelector(`[data-cue-index="${playingCue}"]`)?.scrollIntoView({ block: 'nearest' }));
     return () => cancelAnimationFrame(id);
-  }, [playingCue, page]);
+  }, [playingCue]);
 
   const document = draft.subtitles!;
   const update = (next: SubtitleDocument) => {
@@ -123,11 +126,13 @@ export function SubtitleEditor({ draft, characters, change, renderFooter, select
     <VStack gap={1}>
       {document.cues.slice(page * 50, (page + 1) * 50).map((cue, offset) => {
         const index = page * 50 + offset;
-        const speaker = document.speakers.find(s => s.id === cue.speakerId)!;
+        // 说话人被删掉或数据不一致时退回第一位说话人，头像按台词自己的说话人 id 取种子。
+        const speaker = document.speakers.find(s => s.id === cue.speakerId) ?? document.speakers[0];
+        const status = statuses[index];
         return <HStack key={cue.id ?? index} data-cue-index={index} className="subtitle-cue" data-selected={selectedCue === index} data-playing={playingCue === index} onFocusCapture={() => selectCue(index)} onClick={() => selectCue(index)} gap={3} vAlign="start">
-          <DropdownMenu presentation="popover" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, className: 'subtitle-speaker-trigger', label: t('@yovoice.subtitle.lineSpeaker', { n: index + 1 }), icon: <SpeakerAvatar seed={speaker.characterId ?? `${draft.id}:${speaker.id}`} /> }} items={document.speakers.map((s, i) => ({ id: s.id, label: label(i), description: s.sourceName || undefined, icon: <SpeakerAvatar seed={s.characterId ?? `${draft.id}:${s.id}`} />, onClick: () => update({ ...document, cues: document.cues.map((c, j) => j === index ? { ...c, speakerId: s.id, performance: s.id === c.speakerId ? c.performance : undefined } : c) }) }))} />
-          {cue.text.trim() && statuses.get(cue.id) !== 'ready' ? <i className="cue-audio-status" data-status={statuses.get(cue.id)} role="img" aria-label={t(`@yovoice.timeline.${statuses.get(cue.id)}Cue`)} title={t(`@yovoice.timeline.${statuses.get(cue.id)}Cue`)} /> : null}
-          {statuses.get(cue.id) === 'ready' ? <AudioCheckBadge className="cue-audio-check" check={cueGeneration(draft, history, cue)?.check} /> : null}
+          <DropdownMenu presentation="popover" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, className: 'subtitle-speaker-trigger', label: t('@yovoice.subtitle.lineSpeaker', { n: index + 1 }), icon: <SpeakerAvatar seed={speaker?.characterId ?? `${draft.id}:${speaker?.id ?? cue.speakerId}`} /> }} items={document.speakers.map((s, i) => ({ id: s.id, label: label(i), description: s.sourceName || undefined, icon: <SpeakerAvatar seed={s.characterId ?? `${draft.id}:${s.id}`} />, onClick: () => update({ ...document, cues: document.cues.map((c, j) => j === index ? { ...c, speakerId: s.id, performance: s.id === c.speakerId ? c.performance : undefined } : c) }) }))} />
+          {cue.text.trim() && status !== 'ready' ? <i className="cue-audio-status" data-status={status} role="img" aria-label={t(`@yovoice.timeline.${status}Cue`)} title={t(`@yovoice.timeline.${status}Cue`)} /> : null}
+          {status === 'ready' ? <AudioCheckBadge className="cue-audio-check" check={cueGeneration(draft, history, cue)?.check} /> : null}
           <VStack gap={0} className="grow">
             {showTimes ? <small className="subtitle-time">{timestamp(cue.start)} – {timestamp(cue.end)}</small> : null}
             <CueText onSplit={(start, end) => {
