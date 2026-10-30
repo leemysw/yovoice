@@ -117,6 +117,6 @@ func (w *Workbench) ImportTimelineGeneration(ctx context.Context, generationID s
 	if index := slices.IndexFunc(state.Drafts, func(d schema.Draft) bool { return d.ID == generation.Settings.ID }); index >= 0 {
 		workTitle = state.Drafts[index].Title
 	}
-	name := truncateRunes(strings.TrimSpace(workTitle+" · "+generation.Title), 120)
+	name := schema.TruncateRunes(strings.TrimSpace(workTitle+" · "+generation.Title), 120)
 	return w.importTimelineAudio(ctx, path, name)
 }

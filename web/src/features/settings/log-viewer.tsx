@@ -10,7 +10,7 @@ import { useLocale, useTranslator, type TranslatorFn } from '@astryxdesign/core/
 import { ChevronRight, Download, FolderOpen, RefreshCw } from 'lucide-react';
 import { call, isDesktop } from '../../shared/lib/client';
 import { parseCallError } from '../../shared/lib/call-error';
-import { formatCallError } from '../../shared/i18n/format';
+import { formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
 import type { LogEntry, LogLevel, LogPage } from '../../shared/workbench';
@@ -57,7 +57,7 @@ export function LogViewer({ run }: { run: (task: () => Promise<unknown>) => void
   }), [run, level, module, range, query, page]);
   useEffect(() => { load(); }, [load]);
   const filter = (set: (value: string) => void) => (value: string) => { set(value); setPage(1); };
-  const time = (value: string) => new Date(value).toLocaleString(locale, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const time = (value: string) => formatDateTime(value, locale, 'log');
   const levelLabel = (value: LogLevel) => t(`@yovoice.logs.level.${value.toLowerCase()}`);
   const columns: TableColumn<Row>[] = [
     { key: 'time', header: t('@yovoice.logs.time'), width: pixel(136), renderCell: row => <small className="asset-muted">{time(row.entry.time)}</small> },

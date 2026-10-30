@@ -18,7 +18,7 @@ import (
 // RuntimeReady 判断已安装内核与所选后端一致，且版本不低于当前应用要求的最低版本。
 // 应用升级后仍可沿用满足最低版本的内核，升级到推荐版本由用户选择。
 func RuntimeReady(s schema.State) bool {
-	return s.RuntimePath != nil && value(s.RuntimeBackend) == s.Preferences.Backend && catalog.VersionAtLeast(value(s.RuntimeVersion), catalog.EngineMinimum)
+	return s.RuntimePath != nil && schema.Deref(s.RuntimeBackend) == s.Preferences.Backend && catalog.VersionAtLeast(schema.Deref(s.RuntimeVersion), catalog.EngineMinimum)
 }
 
 // modelEngineReady 检查已安装内核是否满足模型自身的版本要求，例如音乐模型需要较新的内核。
@@ -27,7 +27,7 @@ func modelEngineReady(s schema.State, id string) error {
 	if err != nil {
 		return err
 	}
-	if m.EngineMinimum != "" && !catalog.VersionAtLeast(value(s.RuntimeVersion), m.EngineMinimum) {
+	if m.EngineMinimum != "" && !catalog.VersionAtLeast(schema.Deref(s.RuntimeVersion), m.EngineMinimum) {
 		return msg.Err(msg.ErrEngineUpgradeRequired, msg.Params{"version": m.EngineMinimum})
 	}
 	return nil
@@ -85,8 +85,8 @@ func (w *Workbench) selectRuntime(s *schema.State) bool {
 	w.rememberRuntime(s)
 	backend := s.Preferences.Backend
 	path, version := "", ""
-	if s.RuntimePath != nil && value(s.RuntimeBackend) == backend && exists(*s.RuntimePath) {
-		path, version = *s.RuntimePath, value(s.RuntimeVersion)
+	if s.RuntimePath != nil && schema.Deref(s.RuntimeBackend) == backend && exists(*s.RuntimePath) {
+		path, version = *s.RuntimePath, schema.Deref(s.RuntimeVersion)
 	} else if r, ok := s.Runtimes[backend]; ok && exists(r.Path) {
 		path, version = r.Path, r.Version
 	}
@@ -113,7 +113,7 @@ func (w *Workbench) rememberRuntime(s *schema.State) {
 	if s.Runtimes == nil {
 		s.Runtimes = map[string]schema.InstalledRuntime{}
 	}
-	s.Runtimes[*s.RuntimeBackend] = schema.InstalledRuntime{Path: *s.RuntimePath, Version: value(s.RuntimeVersion)}
+	s.Runtimes[*s.RuntimeBackend] = schema.InstalledRuntime{Path: *s.RuntimePath, Version: schema.Deref(s.RuntimeVersion)}
 }
 func (w *Workbench) InstallRuntime() error {
 	backend := w.Store.Read().Preferences.Backend

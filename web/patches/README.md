@@ -8,4 +8,4 @@
 
 补丁同时维护 `src/Layer` 和实际发布的 `dist/Layer`。通过 `pnpm patch` / `pnpm patch-commit` 更新，安装依赖时由 pnpm 自动应用。升级 Astryx 后，先检查上游是否已修复，再决定移除或迁移补丁。
 
-验证：`pnpm --dir web run test legacy-selectors.spec.ts`。测试覆盖缺少锚点定位、菜单避让、滚动、缩放、弹窗、键盘和无 Popover 时的原生兜底。
+验证：`pnpm --dir web run test:all`，弹层相关用例覆盖各页面菜单的打开与选择、键盘关闭，以及窄视口下弹窗按钮保持可见；缺少锚点定位的 WebKit 兜底没有专门用例，升级补丁后需在 macOS / Linux 宿主里手动确认菜单位置。

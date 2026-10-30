@@ -174,10 +174,10 @@ func (w *Workbench) Reconcile() (ReconcileReport, error) {
 
 func clearVoice(settings *schema.SynthesisSettings, id string) bool {
 	changed := false
-	if value(settings.VoiceID) == id {
+	if schema.Deref(settings.VoiceID) == id {
 		settings.VoiceID, changed = nil, true
 	}
-	if value(settings.EmotionVoiceID) == id {
+	if schema.Deref(settings.EmotionVoiceID) == id {
 		settings.EmotionVoiceID, changed = nil, true
 	}
 	return changed

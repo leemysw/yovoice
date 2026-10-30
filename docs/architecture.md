@@ -145,7 +145,7 @@ The default location is `~/.yovoice`. It can be moved in Settings › Storage, a
 The models the app can install, their files, checksums, generation options and engine settings come from JSON files embedded in the service:
 
 - `internal/catalog/catalog.json`: model packages and their files.
-- `internal/catalog/generation_options.json` and `omni_attributes.json`: per-model controls. The UI imports identical copies from `web/src/shared/lib/`.
+- `internal/catalog/generation_options.json` and `omni_attributes.json`: per-model controls. The UI imports these same files (and `catalog.json`, `internal/llm/presets.json`) through the Vite alias `@internal` instead of keeping copies.
 - `internal/catalog/engine.json`: recommended and minimum audio.cpp versions with archive checksums.
 
 Adding a model is therefore mostly data: describe the package in the catalog, map its parameters in `engine/request.go` and expose its options in the UI. `go test` checks that the Go and UI copies match.

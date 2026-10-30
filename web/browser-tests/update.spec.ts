@@ -34,7 +34,7 @@ test('应用更新：发现新版本提示下载进度，就绪后查看更新�
   await notice.getByRole('button', { name: '查看更新内容' }).click();
   const dialog = page.getByTestId('update-dialog');
   await expect(dialog).toContainText('当前 0.2.0 → 新版本 0.3.0');
-  await expect(dialog).toContainText('21.0 MB / 84.0 MB');
+  await expect(dialog).toContainText('20.03 MB / 80.11 MB');
   await expect(dialog.getByTestId('release-notes').locator('li')).toHaveText(['编曲渲染更快，支持 score 命令。', '修复退出保存。']);
   await expect(dialog.getByRole('link', { name: '在 GitHub 查看' })).toHaveAttribute('href', 'https://github.com/leemysw/yovoice/releases/tag/v0.3.0');
   await page.getByRole('button', { name: '在后台继续' }).click();

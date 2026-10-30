@@ -1,4 +1,5 @@
 import { CallError } from '../../shared/lib/call-error';
+import { fileExtension } from '../../shared/lib/file-name';
 import type { SubtitleDocument } from '../../shared/workbench';
 import { SubtitleParser } from './subtitle-parser';
 
@@ -10,7 +11,6 @@ export const maxTextLength = 12000;
 
 export type ImportedFile = { title: string } & ({ kind: 'text'; text: string } | { kind: 'story'; subtitles: SubtitleDocument });
 
-const extension = (name: string) => name.split('.').pop()?.toLowerCase() ?? '';
 export const fileTitle = (name: string) => name.replace(/\.[^.]+$/, '').slice(0, 120);
 
 /** 读取文本文件：按 BOM 识别 UTF-16，否则按 UTF-8，失败时回退 GB18030（Windows 记事本常见的中文编码）。 */
@@ -44,7 +44,7 @@ function tidy(text: string): string {
 
 export async function readImport(file: File): Promise<ImportedFile> {
   const title = fileTitle(file.name);
-  const type = extension(file.name);
+  const type = fileExtension(file.name);
   if (subtitleAccept.split(',').includes(`.${type}`)) {
     return { kind: 'story', title, subtitles: new SubtitleParser().parse(file.name, await readTextFile(file, '@yovoice.subtitle.invalid')) };
   }

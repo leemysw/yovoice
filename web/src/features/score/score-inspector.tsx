@@ -6,7 +6,7 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { LoaderCircle } from 'lucide-react';
 import { Selector } from '../../shared/selector';
 import { formatActivity } from '../../shared/i18n/format';
-import { formatSize, formatTime, isSoundFont, type Draft, type ModelPackage, type Score, type State } from '../../shared/workbench';
+import { formatBytes, formatTime, isSoundFont, type Draft, type ModelPackage, type Score, type State } from '../../shared/workbench';
 import { ModelSelector } from '../create/model-selector';
 import { emptyScore, noteCount, scoreDuration } from './score-draft';
 import { useElapsed } from '../../shared/lib/use-elapsed';
@@ -36,7 +36,7 @@ export function ScoreInspector({ draft, state, catalog, change, generate, cancel
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
         <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
-      </HStack> : !installed && font ? <HStack gap={2} vAlign="center" hAlign="between" wrap="wrap"><small className="grow">{t('@yovoice.score.soundFontRequired', { size: formatSize(font.size) })}</small><Button size="sm" label={t('@yovoice.score.downloadSoundFont')} onClick={settings} /></HStack>
+      </HStack> : !installed && font ? <HStack gap={2} vAlign="center" hAlign="between" wrap="wrap"><small className="grow">{t('@yovoice.score.soundFontRequired', { size: formatBytes(font.size) })}</small><Button size="sm" label={t('@yovoice.score.downloadSoundFont')} onClick={settings} /></HStack>
         : null}
     </VStack>
     <VStack className="inspector-scroll" gap={5}>

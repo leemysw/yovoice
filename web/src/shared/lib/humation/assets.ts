@@ -1,6 +1,6 @@
 // INPUT: Humation 素材与组合契约。
 // OUTPUT: 上游固定版本的全部 SVG 部件。
-// POS: MIT 上游源码快照，来源与本地调整见 AGENTS.md。
+// POS: MIT 上游源码快照，来源与本地调整见同目录 readme.md。
 import type { HumationManifest } from './types';
 
 export const manifest: HumationManifest = {

@@ -23,6 +23,13 @@
 - 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
 - 稳定性：侧栏宽度记录损坏不再导致启动白屏；播放页、声音选择、Ocho 面板、各对话框、开场画面和引导出错只影响它自己；按需加载的部分取不到代码时“重试”会重新加载页面。导入小说中途失败后重试不再重复创建已入库的章节；目录里没有当前 Voxtral 模型时创作页不再崩溃。
 - 其他修复：时间线、资源和更新对话框在框内显示自己的错误；旋律谱无法校验或五线谱无法渲染时给出说明；旋律试听和回复试听停止后不再继续出声；59.6 秒这类时长显示 1:00 而不是 0:60；故事配音播放中翻页不再被拉回；补齐若干缺失的翻译。
+### English
+
+- Smaller install and faster first screen: the 1.9 MB icon source no longer ships inside the app, the music, timeline, score, book-import and onboarding pages load on demand, the assistant's avatar libraries stay out of the main bundle, and translator notes are stripped from the component language packs.
+
+### 简体中文
+
+- 安装包更小、首屏更快：1.9 MB 的图标源图不再打进应用；音乐、时间线、编曲、导入书稿和开场引导页面按需加载，助手形象库不再进入主包，组件语言包去掉了给译者看的说明。
 
 ## [0.5.0] - 2026-10-28
 

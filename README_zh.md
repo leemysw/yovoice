@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/public/icon/voice-workbench-app-icon-v1.png" width="96" alt="yovoice" />
+  <img src="desktop/icon/voice-workbench-app-icon-v1.png" width="96" alt="yovoice" />
 </p>
 <h1 align="center">yovoice</h1>
 <p align="center">把文字，变成有情绪的声音</p>

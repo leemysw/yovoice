@@ -53,10 +53,10 @@ func TestSaveExportNormalizesLoudness(t *testing.T) {
 	must(t, err)
 	path, err := w.ExportPath(id)
 	must(t, err)
-	loudness, peak, err := audio.Measure(path)
+	check, err := audio.Inspect(path, false)
 	must(t, err)
-	if result == nil || result.Limited || math.Abs(loudness+16) > 0.2 || peak > -1 || result.Before > -30 {
-		t.Fatalf("%+v，实测 %.2f LUFS %.2f dBTP", result, loudness, peak)
+	if result == nil || result.Limited || math.Abs(check.Loudness+16) > 0.2 || check.Peak > -1 || result.Before > -30 {
+		t.Fatalf("%+v，实测 %.2f LUFS %.2f dBTP", result, check.Loudness, check.Peak)
 	}
 	if _, _, err = w.SaveExport(bytes.NewReader(wav), -3); err == nil {
 		t.Fatal("不在可选列表里的目标响度应被拒绝")

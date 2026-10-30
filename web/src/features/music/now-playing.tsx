@@ -7,7 +7,7 @@ import { Text } from '@astryxdesign/core/Text';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, CircleAlert, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Pause, Play, Rewind, SlidersHorizontal, Timer, X } from 'lucide-react';
 import { call, isDesktop, isMac, mediaUrl, saveText, releaseMediaUrl } from '../../shared/lib/client';
-import { formatActivity, formatNotice } from '../../shared/i18n/format';
+import { formatActivity, formatDateTime, formatNotice } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Activity, type AlignedWord, type Generation } from '../../shared/workbench';
 import { alignLines, alignedTimeline, alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
@@ -334,7 +334,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
         {ordered.length > 1 ? <HStack className="now-playing-versions" gap={1} vAlign="center">
           <DropdownMenu presentation="popover" alignment="center" menuWidth="max-content"
             button={{ className: 'now-playing-glass', size: 'sm', variant: 'ghost', label: t('@yovoice.app.historyVersion', { n: versionNumber(item) }), tooltip: t('@yovoice.music.compareVersions') }}
-            items={[...ordered].reverse().map(entry => ({ id: entry.id, label: t('@yovoice.app.historyVersion', { n: versionNumber(entry) }), description: new Date(entry.createdAt).toLocaleString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            items={[...ordered].reverse().map(entry => ({ id: entry.id, label: t('@yovoice.app.historyVersion', { n: versionNumber(entry) }), description: formatDateTime(entry.createdAt, locale, 'brief'),
               endContent: entry.id === item.id ? <Check size={14} /> : undefined, onClick: () => switchTo(entry) }))} />
           {previous && previous.id !== item.id ? <Button className="now-playing-glass" size="sm" variant="ghost" icon={<ArrowLeftRight />} label={t('@yovoice.music.switchBack', { n: versionNumber(previous) })} tooltip={t('@yovoice.music.switchBackHint')} onClick={() => switchTo(previous)} /> : null}
         </HStack> : null}

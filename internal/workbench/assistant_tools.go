@@ -49,7 +49,6 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	return server
 }
 
-// workKindOf 把作品的原始 Kind 归并为界面使用的作品类型。
 // modelKind 返回模型适用的作品类型：music、sfx、score 或 text（语音与故事共用）；扒谱和歌词对齐模型不用于生成，返回空。
 func modelKind(id string) string {
 	m, err := catalog.Lookup(id)
@@ -107,19 +106,6 @@ func preferredModel(s schema.State, kind, fallback string) string {
 	return fallback
 }
 
-func workKindOf(d schema.Draft) string {
-	switch d.Kind {
-	case "music", "sfx", "score":
-		return d.Kind
-	case "story", "subtitle":
-		return "story"
-	}
-	if d.Subtitles != nil {
-		return "story"
-	}
-	return "text"
-}
-
 // assistantPages 是 open_page 接受的页面。
 var assistantPages = []string{"text", "story", "music", "sfx", "score", "characters", "voices", "history", "settings"}
 
@@ -129,7 +115,7 @@ func (w *Workbench) listWorksTool(ctx context.Context, req *mcp.CallToolRequest,
 	drafts := w.Store.Read().Drafts
 	works := make([]map[string]any, 0, len(drafts))
 	for _, d := range drafts {
-		kind := workKindOf(d)
+		kind := projectKind(d)
 		if in.Kind != "" && in.Kind != kind {
 			continue
 		}
@@ -141,7 +127,7 @@ func (w *Workbench) listWorksTool(ctx context.Context, req *mcp.CallToolRequest,
 
 // workContent 把作品转成给模型看的内容；时间线只保留选轨所需的摘要，不返回剪辑和素材明细。
 func workContent(d schema.Draft) map[string]any {
-	out := map[string]any{"id": d.ID, "kind": workKindOf(d), "title": d.Title, "text": d.Text, "updatedAt": d.UpdatedAt}
+	out := map[string]any{"id": d.ID, "kind": projectKind(d), "title": d.Title, "text": d.Text, "updatedAt": d.UpdatedAt}
 	settings := map[string]any{"modelId": d.ModelID, "mode": d.Mode, "language": d.Language, "speed": d.Speed}
 	for name, value := range map[string]any{"voiceId": d.VoiceID, "emotionVoiceId": d.EmotionVoiceID, "speaker": d.Speaker, "voiceMode": d.VoiceMode, "voiceDescription": d.VoiceDescription, "referenceText": d.ReferenceText, "lyrics": d.Lyrics, "instrumental": d.Instrumental, "synthesisLanguage": d.SynthesisLanguage, "abc": d.Abc, "seed": d.Seed, "temperature": d.Temperature} {
 		if value != nil && value != "" && value != false {
@@ -297,12 +283,12 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 	if err != nil {
 		return nil, nil, err
 	}
-	kind := workKindOf(d)
+	kind := projectKind(d)
 	var changed []string
 	var melodyChanges *score.ABCChanges
 	patch := func(name string) { changed = append(changed, name) }
 	if in.Title != nil {
-		d.Title = truncateRunes(strings.TrimSpace(*in.Title), 120)
+		d.Title = schema.TruncateRunes(strings.TrimSpace(*in.Title), 120)
 		patch("标题")
 	}
 	if in.Text != nil {
@@ -314,7 +300,7 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 		patch("纯音乐")
 	}
 	if in.Lyrics != nil {
-		d.Lyrics = truncateRunes(*in.Lyrics, 4000)
+		d.Lyrics = schema.TruncateRunes(*in.Lyrics, 4000)
 		if d.Instrumental {
 			for _, line := range strings.Split(d.Lyrics, "\n") {
 				line = strings.TrimSpace(line)
@@ -579,7 +565,7 @@ type generateWorkInput struct {
 
 // needsScoreReview 判断 YuE2 作品是否选了按旋律谱生成（或纯音乐）但还没有谱：这时助手应先出谱让用户确认。
 func needsScoreReview(d schema.Draft) bool {
-	if m, e := catalog.Lookup(d.ModelID); workKindOf(d) != "music" || e != nil || m.Family != "yue2" || strings.TrimSpace(d.Abc) != "" {
+	if m, e := catalog.Lookup(d.ModelID); projectKind(d) != "music" || e != nil || m.Family != "yue2" || strings.TrimSpace(d.Abc) != "" {
 		return false
 	}
 	mode, _ := d.ModelOptions["yue2"]["cot"].(string)
@@ -595,7 +581,7 @@ func (w *Workbench) generateWorkTool(ctx context.Context, req *mcp.CallToolReque
 		return nil, nil, fmt.Errorf("这首歌选的是按旋律谱生成，但作品还没有谱。先用 plan_melody 写谱，get_generation_status 读到 melody.abc 后用 update_work 填入作品，然后请用户在旋律谱里查看、点“试听”听一遍，用户确认后再 generate_work；用户明确说不看谱直接生成时才传 withoutScore=true")
 	}
 	action, actionEN := "生成语音", "generate voice"
-	switch workKindOf(d) {
+	switch projectKind(d) {
 	case "music":
 		action, actionEN = "生成音乐", "generate music"
 	case "sfx":
@@ -604,7 +590,7 @@ func (w *Workbench) generateWorkTool(ctx context.Context, req *mcp.CallToolReque
 		action, actionEN = "渲染配乐", "render the arrangement"
 	}
 	if in.CueID != "" {
-		if workKindOf(d) != "story" || d.Subtitles == nil || !slices.ContainsFunc(d.Subtitles.Cues, func(c schema.SubtitleCue) bool { return c.ID == in.CueID }) {
+		if projectKind(d) != "story" || d.Subtitles == nil || !slices.ContainsFunc(d.Subtitles.Cues, func(c schema.SubtitleCue) bool { return c.ID == in.CueID }) {
 			return nil, nil, fmt.Errorf("cueId 只用于故事配音，且必须是这个作品里的一句；先用 inspect_audio 或 get_work 查看")
 		}
 		w.chatCard("generate_work", fmt.Sprintf("正在重新生成《%s》的一句…", d.Title), fmt.Sprintf("Regenerating one line of %q…", d.Title), "running")
@@ -671,7 +657,7 @@ func (w *Workbench) addTimelineAudioTool(ctx context.Context, req *mcp.CallToolR
 	if err != nil {
 		return nil, nil, err
 	}
-	if workKindOf(d) != "story" {
+	if projectKind(d) != "story" {
 		return nil, nil, fmt.Errorf("add_timeline_audio 只适用于 story 故事配音作品")
 	}
 	if in.Start != nil && !schema.InRange(*in.Start, 0, 86400) {

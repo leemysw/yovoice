@@ -55,7 +55,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await expect(yue).toHaveAttribute('data-model-id', 'yue2-3b-q8');
   await yue.getByRole('radio', { name: 'BF16' }).click();
   await expect(yue).toHaveAttribute('data-model-id', 'yue2-3b-bf16');
-  await expect(yue.locator('.model-size')).toHaveText('7.53 GB');
+  await expect(yue.locator('.model-size')).toHaveText('7.01 GB');
   await expect(page.getByLabel('下载来源', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(18);

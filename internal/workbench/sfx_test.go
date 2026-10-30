@@ -27,7 +27,7 @@ func TestSFXDraftSaveAndArchive(t *testing.T) {
 	if saved.Kind != "sfx" || !saved.Instrumental || saved.ModelOptions["stable_audio"]["duration_seconds"] != float64(5) {
 		t.Fatalf("音效默认值未保存：%+v", saved)
 	}
-	if workKindOf(saved) != "sfx" || projectKind(saved) != "sfx" {
+	if projectKind(saved) != "sfx" {
 		t.Fatal("音效作品分类丢失")
 	}
 	for _, model := range []string{"stable-audio-3-small-music-q8", "index-2.5-q8"} {

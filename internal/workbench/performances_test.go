@@ -34,7 +34,7 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 	c := schema.Character{ID: schema.NewID(), Name: "悟空", Settings: d.SynthesisSettings, Performances: []schema.CharacterPerformance{angry}}
 	c, err = w.SaveCharacter(c)
 	must(t, err)
-	if c.Performances[0].Settings.ModelID != "omnivoice-q8" || value(c.Performances[0].Settings.VoiceID) != emotion.ID {
+	if c.Performances[0].Settings.ModelID != "omnivoice-q8" || schema.Deref(c.Performances[0].Settings.VoiceID) != emotion.ID {
 		t.Fatal("演绎独立模型和参数丢失")
 	}
 	invalid := c
@@ -54,7 +54,7 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 	must(t, w.SaveDraft(d))
 	parts, err := d.SubtitleDrafts()
 	must(t, err)
-	if parts[0].Mode != d.Mode || parts[1].Mode != "reference" || parts[1].EmotionStrength != .9 || value(parts[1].VoiceID) != emotion.ID || parts[1].ModelID != "omnivoice-q8" {
+	if parts[0].Mode != d.Mode || parts[1].Mode != "reference" || parts[1].EmotionStrength != .9 || schema.Deref(parts[1].VoiceID) != emotion.ID || parts[1].ModelID != "omnivoice-q8" {
 		t.Fatal("逐句演绎映射错误")
 	}
 	// 单片段重生成走实际任务调度，保存的是该句演绎参数。
@@ -99,10 +99,10 @@ func TestCharacterPerformancesAndCueSnapshots(t *testing.T) {
 	must(t, err)
 	p := imported.Subtitles.Cues[1].Performance
 	// 同一工作区内重复导入时，内容相同的演绎素材复用原音色。
-	if p.Name != "愤怒" || value(p.Settings.EmotionVoiceID) != emotion.ID {
+	if p.Name != "愤怒" || schema.Deref(p.Settings.EmotionVoiceID) != emotion.ID {
 		t.Fatal("演绎归档未保留或素材未复用")
 	}
-	if _, err = w.MediaFile("voices", value(p.Settings.EmotionVoiceID)); err != nil {
+	if _, err = w.MediaFile("voices", schema.Deref(p.Settings.EmotionVoiceID)); err != nil {
 		t.Fatal("演绎素材未导入", err)
 	}
 }

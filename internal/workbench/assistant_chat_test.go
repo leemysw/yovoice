@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -667,4 +668,12 @@ func TestAssistantAddTimelineAudio(t *testing.T) {
 	if _, _, err = w.addTimelineAudioTool(ctx, toolReq, addTimelineAudioInput{ID: plain.ID, GenerationID: generationID}); err == nil || !strings.Contains(err.Error(), "story") {
 		t.Fatal("非故事作品应被拒绝", err)
 	}
+}
+
+// SessionsAssistant 返回会话列表，按更新时间从新到旧；只有测试在用，生产代码不再提供。
+func (w *Workbench) SessionsAssistant() []schema.AssistantSession {
+	s := w.Store.Read().AssistantSessions
+	sessions := append([]schema.AssistantSession{}, s.Sessions...)
+	sort.SliceStable(sessions, func(i, j int) bool { return sessions[i].UpdatedAt.After(sessions[j].UpdatedAt) })
+	return sessions
 }

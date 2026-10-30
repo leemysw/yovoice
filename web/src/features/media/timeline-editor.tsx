@@ -1,5 +1,5 @@
 import { PlaybackToolbar, TrackZoom } from './playback-toolbar';
-import { formatNotice } from '../../shared/i18n/format';
+import { formatDateTime, formatNotice } from '../../shared/i18n/format';
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, useReducer, type PointerEvent as ReactPointerEvent } from 'react';
 import { Popover } from '@astryxdesign/core/Popover';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -429,7 +429,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
           <Button className="grow text-left" variant="ghost" label={g.title} onClick={() => {
             try { append(historyTrack, { generationId: g.id, duration: g.duration }); setHistoryTrack(''); }
             catch (error) { setHistoryError(noticeMessage(error)); }
-          }} /><small className="muted">{formatTime(g.duration)} · {new Date(g.createdAt).toLocaleString()}</small>
+          }} /><small className="muted">{formatTime(g.duration)} · {formatDateTime(g.createdAt, locale, 'brief')}</small>
         </HStack>)}
         {!history.some(g => projectKind(draft) === 'text' && !g.segment && g.settings.id === draft.id && g.title.toLocaleLowerCase().includes(historyQuery.trim().toLocaleLowerCase())) ? <HStack className="grow timeline-history-empty" hAlign="center" vAlign="center"><p className="muted">{t('@yovoice.timeline.noHistory')}</p></HStack> : null}
       </VStack>
@@ -443,7 +443,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
       <TextInput label={t('@yovoice.timeline.searchHistory')} isLabelHidden placeholder={t('@yovoice.timeline.searchHistory')} value={generationQuery} onChange={setGenerationQuery} hasClear />
       <VStack className="timeline-history-list" gap={1}>
         {generationHistory.map(({ generation, name }) => <HStack key={generation.id} data-generation-id={generation.id} gap={2} vAlign="center">
-          <VStack className="grow timeline-generation-label" gap={0}><b title={name}>{name}</b><small className="muted">{formatTime(generation.duration)} · {new Date(generation.createdAt).toLocaleString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</small></VStack>
+          <VStack className="grow timeline-generation-label" gap={0}><b title={name}>{name}</b><small className="muted">{formatTime(generation.duration)} · {formatDateTime(generation.createdAt, locale, 'brief')}</small></VStack>
           <Player inline={{ label: t('@yovoice.app.audition', { name }), select: () => setGenerationPreview({ id: generation.id, name, fileName: generation.fileName, kind: 'outputs', subtitle: '', playRequest: performance.now() }) }} track={generationPreview?.id === generation.id ? generationPreview : null} suspended={importing} onError={message => { setGenerationPreview(null); setGenerationError(message); }} />
           <Button size="sm" variant="secondary" icon={<Plus />} label={t('@yovoice.timeline.addGeneration')} isDisabled={importing} onClick={() => void importGeneration(generation)} />
         </HStack>)}

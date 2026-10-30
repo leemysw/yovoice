@@ -199,12 +199,6 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, errors.New(T("音频文件不存在。", "The audio file doesn't exist."))
 		}
 		return true, reveal(path)
-	case "voice.import":
-		path := a.pick(chooseOpen, T("选择 1–60 秒的音色参考", "Choose a 1–60 Second Voice Reference"), "", fileFilter{T("音频文件", "Audio Files"), []string{"wav", "mp3", "m4a", "aac", "flac", "ogg", "opus", "aiff", "aif", "wma", "webm"}})
-		if path == "" {
-			return nil, nil
-		}
-		return a.svc.Call(method, map[string]any{"path": path}, 0)
 	case "model.directory":
 		path := a.pick(chooseFolder, T("选择模型目录", "Choose Model Folder"), "")
 		if path == "" {

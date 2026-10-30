@@ -4,7 +4,7 @@ import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Download, FileMusic, Lightbulb, Upload } from 'lucide-react';
-import { call, isDesktop } from '../../shared/lib/client';
+import { call, download, exportName, isDesktop } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Draft, type Score, type UiLocale } from '../../shared/workbench';
 import { emptyScore, exampleScore, noteCount, scoreBars, scoreDuration } from './score-draft';
@@ -18,12 +18,6 @@ function parseScore(text: string): Score {
   return value;
 }
 
-function download(data: BlobPart, type: string, name: string) {
-  const url = URL.createObjectURL(new Blob([data], { type }));
-  const link = document.createElement('a'); link.href = url; link.download = name; link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 // 编曲区：曲子概要与导入导出、一句话交给 AI 写谱，以及 DAW 式的轨道视图（轨头调音色与电平，右侧音块对齐段落）。
 export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (error: string) => void }) {
   const t = useTranslator();
@@ -31,7 +25,7 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
   const input = useRef<HTMLInputElement>(null);
   const notes = noteCount(score);
   const replace = (next: Score) => change({ score: next });
-  const fileName = (draft.title.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || 'score');
+  const fileName = exportName(draft.title, 'score');
   async function importScore() {
     if (!isDesktop) { input.current?.click(); return; }
     try { const next = await call<Score | null>('score.import'); if (next) replace(next); }
@@ -40,8 +34,8 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
   async function exportScore(format: 'mid' | 'json') {
     try {
       if (isDesktop) { await call('score.export', { name: fileName, format, score }); return; }
-      if (format === 'mid') download(scoreToMidi(score) as BlobPart, 'audio/midi', `${fileName}.mid`);
-      else download(JSON.stringify(score, null, 2), 'application/json', `${fileName}.json`);
+      if (format === 'mid') download(new Blob([scoreToMidi(score) as BlobPart], { type: 'audio/midi' }), `${fileName}.mid`);
+      else download(new Blob([JSON.stringify(score, null, 2)], { type: 'application/json' }), `${fileName}.json`);
     } catch (error) { onError(noticeMessage(error)); }
   }
   const summary = [score.key, `${score.tempo} BPM`, score.timeSignature.join('/'), t('@yovoice.score.barCount', { count: scoreBars(score) }), formatTime(scoreDuration(score))].filter(Boolean).join(' · ');

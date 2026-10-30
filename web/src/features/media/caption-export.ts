@@ -3,7 +3,6 @@ import { Timeline } from './timeline';
 
 // 按时间轴上片段的实际播放区间导出字幕，与导出的 WAV 对齐；不使用原字幕文件里的时间。
 export interface Caption { start: number; end: number; text: string; speaker?: string }
-export type CaptionFormat = 'srt' | 'vtt';
 
 // 字幕时间统一取整到毫秒，避免 59.9996 秒进位后出现 60 秒。
 function clock(seconds: number, separator: string) {

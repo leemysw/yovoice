@@ -1,3 +1,4 @@
+import { clamp } from '../shared/lib/math';
 // 首次启动开场的粒子动画：粒子从远处汇成随“声音”起伏的 3D 球体，再聚成应用图标里的五根声波条。
 // 纯 2D canvas 透视投影，不依赖 WebGL；时间单位为秒。
 
@@ -10,7 +11,6 @@ const barsFormedAt = 4.6;
 type Particle = { sx: number; sy: number; sz: number; lat: number; lon: number; bx: number; by: number; bz: number; bar: number; delay: number; size: number };
 
 const ease = (t: number) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-const clamp = (t: number) => Math.max(0, Math.min(1, t));
 
 function particles(): Particle[] {
   return Array.from({ length: count }, (_, i) => {

@@ -27,7 +27,7 @@ func (w *Workbench) melodyWork(id string) (schema.Draft, error) {
 	if err != nil {
 		return d, err
 	}
-	if m, e := catalog.Lookup(d.ModelID); workKindOf(d) != "music" || e != nil || m.Family != "yue2" {
+	if m, e := catalog.Lookup(d.ModelID); projectKind(d) != "music" || e != nil || m.Family != "yue2" {
 		return d, fmt.Errorf("旋律谱只适用于使用 YuE2（modelId 以 yue2- 开头）的音乐作品")
 	}
 	return d, nil

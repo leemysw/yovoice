@@ -2,33 +2,44 @@ import type { AudioAsset, State, Voice } from '../workbench';
 import { toBase64 } from './sound';
 import { CallError, parseCallError } from './call-error';
 import { desktopCall, desktopMediaUrl, isDesktop, isLinux, isMac, reportDesktop, subscribeDesktop } from './bridge';
-import { assertUploadSize, previewCall, previewImportTimeline, previewImportTimelineGeneration, previewImportVoice, previewMediaUrl, subscribePreview } from './preview-backend';
+import { assertUploadSize } from './upload-limit';
 
 // 界面统一的后端入口：桌面端经宿主桥接调用 Go 服务，浏览器预览使用本地模拟后端。
+// 预览后端连同它带的模型目录等数据只在浏览器里用到，按需加载，不进桌面端的首屏包；
+// 加载完成后记住模块，之后的调用与静态引入时一样同步进入预览后端，不多等一拍。
+type PreviewBackend = typeof import('./preview-backend');
+let loaded: PreviewBackend | undefined;
+const preview = () => loaded ? Promise.resolve(loaded) : import('./preview-backend').then(backend => (loaded = backend));
 export { CallError, parseCallError, isDesktop, isLinux, isMac };
 
 export function subscribe(listener: (state: State) => void) {
-  return isDesktop ? subscribeDesktop(listener) : subscribePreview(listener);
+  if (isDesktop) return subscribeDesktop(listener);
+  if (loaded) return loaded.subscribePreview(listener);
+  let unsubscribe: (() => void) | undefined, cancelled = false;
+  void preview().then(backend => { if (!cancelled) unsubscribe = backend.subscribePreview(listener); });
+  return () => { cancelled = true; unsubscribe?.(); };
 }
 
 export function call<T = unknown>(method: string, data: unknown = {}): Promise<T> {
-  return isDesktop ? desktopCall<T>(method, data) : previewCall<T>(method, data);
+  if (isDesktop) return desktopCall<T>(method, data);
+  if (loaded) return loaded.previewCall<T>(method, data);
+  return preview().then(backend => backend.previewCall<T>(method, data));
 }
 
 export async function importTimelineFile(file: File): Promise<AudioAsset> {
   const name = file.name.replace(/\.[^.]+$/, '').slice(0, 120);
-  if (!isDesktop) return previewImportTimeline(file, name);
+  if (!isDesktop) return (await preview()).previewImportTimeline(file, name);
   assertUploadSize(file);
   return call<AudioAsset>('timeline.import', { name, base64: await toBase64(file) });
 }
 
 export async function importTimelineGeneration(generationID: string): Promise<AudioAsset> {
-  if (!isDesktop) return previewImportTimelineGeneration(generationID);
+  if (!isDesktop) return (await preview()).previewImportTimelineGeneration(generationID);
   return call<AudioAsset>('timeline.fromGeneration', { id: generationID });
 }
 
 export async function importVoiceFile(file: File): Promise<Voice> {
-  if (!isDesktop) return previewImportVoice(file);
+  if (!isDesktop) return (await preview()).previewImportVoice(file);
   assertUploadSize(file);
   return call<Voice>('voice.record', { name: file.name.replace(/\.[^.]+$/, ''), base64: await toBase64(file) });
 }
@@ -42,7 +53,7 @@ export async function coverMelodyFile(projectId: string, file: File): Promise<vo
 
 // 音频地址：桌面端是服务上的固定地址，浏览器预览是临时 blob 地址；用完交给 releaseMediaUrl 释放。
 export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promise<string> {
-  return isDesktop ? desktopMediaUrl(kind, file) : previewMediaUrl(file);
+  return isDesktop ? desktopMediaUrl(kind, file) : (await preview()).previewMediaUrl(file);
 }
 
 // 释放 mediaUrl 返回的地址；固定地址无需释放，可以对任何结果调用。
@@ -50,10 +61,11 @@ export function releaseMediaUrl(url: string) {
   if (url.startsWith('blob:')) URL.revokeObjectURL(url);
 }
 
-const exportName = (name: string, fallback = 'yovoice') => name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || fallback;
+// 导出文件名：去掉文件系统不接受的字符并限长，空名用兜底名。
+export const exportName = (name: string, fallback = 'yovoice') => name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || fallback;
 
 // 浏览器预览没有保存对话框，直接交给浏览器下载。
-function download(blob: Blob, fileName: string) {
+export function download(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a'); link.href = url; link.download = fileName; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -62,7 +74,7 @@ function download(blob: Blob, fileName: string) {
 // 只在界面里完成的操作（导出文件等）写入服务日志，事件名记为 client.<event>；上报失败不影响操作本身。
 export function logEvent(event: string, detail = '') {
   if (isDesktop) reportDesktop(event, '', detail);
-  else void previewCall('diag.client', { event, detail }).catch(() => undefined);
+  else void call('diag.client', { event, detail }).catch(() => undefined);
 }
 
 // 导出结果写入日志：保存、取消或失败（失败时原样抛出）。

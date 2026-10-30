@@ -11,7 +11,6 @@
     --focus-outline-offset: var(--spacing-0-5);
     --app-nav: calc(var(--spacing-8) * 7);
     --app-inspector: calc(var(--spacing-8) * 11);
-    --app-player: calc(var(--spacing-10) * 2);
     --app-titlebar: var(--spacing-9);
     --app-editor-font: calc(var(--font-size-base) + var(--spacing-1));
     --app-title-font: var(--spacing-8);
@@ -25,10 +24,6 @@
     --app-accent: var(--color-icon-orange);
     --app-paper: var(--color-background-body);
     --app-mono: var(--font-family-code);
-    /* 胶片色块：深底浅字，用于封面、音块总览等需要“质感”的区域。 */
-    --app-film: var(--color-background-inverted);
-    --app-on-film: var(--color-background-surface);
-    --app-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     --app-white: var(--color-background-surface);
     --app-serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
     --app-font: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
@@ -78,7 +73,7 @@
   .astryx-button[data-size="sm"], .astryx-selector[data-size="sm"] { font-size: var(--app-small-font); }
   .astryx-button[data-size="sm"] svg { width: calc(var(--spacing-3) + var(--spacing-0-5)); height: calc(var(--spacing-3) + var(--spacing-0-5)); flex-shrink: 0; }
   .astryx-button[data-size="md"] svg, .astryx-button:not([data-size]) svg { width: var(--spacing-4); height: var(--spacing-4); flex-shrink: 0; }
-  .astryx-dropdown-menu-item svg, .astryx-menu-item svg, [role="menuitem"] svg, [role="menu"] svg { width: var(--spacing-4); height: var(--spacing-4); flex-shrink: 0; stroke-width: 1.5; }
+  .astryx-dropdown-menu-item svg, [role="menuitem"] svg, [role="menu"] svg { width: var(--spacing-4); height: var(--spacing-4); flex-shrink: 0; stroke-width: 1.5; }
   .astryx-text-area-control { border: 0; background: var(--app-surface); border-radius: var(--radius-container); padding: var(--spacing-3); resize: none; box-shadow: none; }
   .astryx-text-area textarea { line-height: 1.8; font-family: var(--app-font); font-size: var(--app-ui-font); }
   .astryx-segmented-control { width: 100%; padding: calc(var(--spacing-1) / 2); border-radius: var(--radius-element); background: var(--app-surface); border: var(--border-width) solid var(--app-line); }
@@ -107,7 +102,7 @@
   .astryx-selector[data-variant="input"] { border-color: var(--app-line); }
   .dialog-actions > .astryx-button { min-width: calc(var(--spacing-8) * 3); }
   .astryx-app-shell-sidenav { width: var(--app-nav); min-width: 0; padding: 0; overflow: hidden; background: var(--app-paper); }
-  .astryx-app-shell-content,.astryx-layout-content { min-width: 0; min-height: 0; }
+  .astryx-layout-content { min-width: 0; min-height: 0; }
   summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: start; gap: var(--spacing-2); padding-block: var(--spacing-2); }
   summary > svg { flex-shrink: 0; transition: transform var(--duration-fast, 150ms); }
   details[open] > summary > svg { transform: rotate(90deg); }
@@ -154,7 +149,7 @@
     :root { --app-nav: calc(var(--spacing-10) * 4); --app-inspector: calc(var(--spacing-8) * 11); }
   }
   @media (max-width: 600px) {
-    :root { --app-nav: calc(var(--spacing-8) * 2); --app-player: calc(var(--spacing-9) * 2); --app-title-font: var(--font-size-3xl); --app-editor-font: var(--font-size-lg); }
+    :root { --app-nav: calc(var(--spacing-8) * 2); --app-title-font: var(--font-size-3xl); --app-editor-font: var(--font-size-lg); }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }

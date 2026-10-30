@@ -8,7 +8,7 @@ import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { CircleCheck, Download, Pause, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { call } from '../../shared/lib/client';
-import { formatSize, groupModels, modelUpdateAvailable, type Draft, type ModelPackage, type State } from '../../shared/workbench';
+import { formatBytes, groupModels, modelUpdateAvailable, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { SettingsGroup } from '../../shared/ui/settings-group';
 
 function downloadStatusLabel(t: (key: string) => string, downloading: boolean, received: number, size: number, status: string) {
@@ -77,7 +77,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
             {owned.length ? <StatusDot variant={group.some(item => item.id === draft.modelId) ? 'accent' : 'success'} label={group.some(item => item.id === draft.modelId) ? t('@yovoice.settings.inUse') : t('@yovoice.settings.verified')} /> : null}
             <p className="settings-row-title">{model.name}</p>
             {group.length === 1 ? <small className="precision">{model.precision}</small> : null}
-            <small className="model-size">{formatSize(model.size)}</small>
+            <small className="model-size">{formatBytes(model.size)}</small>
             {update ? <Token size="sm" color="gray" label={t('@yovoice.settings.modelUpdateAvailable')} /> : null}
             {ready && !update ? <small className="ready">{inUse ? t('@yovoice.settings.inUse') : t('@yovoice.settings.verified')}</small> : null}
           </HStack>
@@ -97,7 +97,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
         {owned.length ? <small>{t('@yovoice.settings.precisionsInstalled', { list: owned.map(item => item.precision).join(' · ') })}</small> : <small>{t('@yovoice.settings.precisionHint')}</small>}
       </HStack> : null}
       {download ? <VStack className="model-download" gap={2} role="status" aria-label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })}>
-        <HStack hAlign="between" gap={3}><small>{downloadStatusLabel(t, !!downloading, download.received, model.size, download.status)}</small><small className="model-size">{formatSize(download.received)} / {formatSize(model.size)}</small></HStack>
+        <HStack hAlign="between" gap={3}><small>{downloadStatusLabel(t, !!downloading, download.received, model.size, download.status)}</small><small className="model-size">{formatBytes(download.received)} / {formatBytes(model.size)}</small></HStack>
         <progress aria-label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })} value={download.received} max={model.size} />
       </VStack> : null}
     </VStack>;

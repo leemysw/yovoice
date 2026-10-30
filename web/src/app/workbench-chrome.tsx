@@ -8,7 +8,6 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { PanelLeft, PanelRight, Check, Disc3, FolderOpen, History, Plus, LoaderCircle, MoreHorizontal, Save } from 'lucide-react';
 import { NewProject, Projects } from '../features/library/projects';
-import { BookImport } from '../features/library/book-import';
 import { VoiceTarget } from '../features/library/voice-target';
 import { MediaLibrary } from '../features/library/media-library';
 import { CharacterEditor, CharacterLibrary } from '../features/library/characters';
@@ -16,35 +15,26 @@ import { VoiceEditor } from '../features/library/voice-editor';
 import { Studio } from '../features/create/studio';
 import { SubtitleImport, SubtitleEditor, SpeakerAvatar } from '../features/create/subtitles';
 import { Inspector } from '../features/create/inspector';
-import { MusicEditor } from '../features/music/music-editor';
-import { MusicInspector } from '../features/music/music-inspector';
-import { NowPlaying } from '../features/music/now-playing';
 import { musicModelId } from '../features/music/music-draft';
 import { soundFontId } from '../features/score/score-draft';
-import { ScoreEditor } from '../features/score/score-editor';
-import { ScoreDock } from '../features/score/score-arrangement';
-import { ScoreInspector } from '../features/score/score-inspector';
 import { SfxEditor } from '../features/sfx/sfx-editor';
 import { sfxModelId } from '../features/sfx/sfx-draft';
 import { SelectionAction, type TextSelection } from '../features/create/selection-action';
 import { Timeline } from '../features/media/timeline';
-import { TimelineEditor } from '../features/media/timeline-editor';
 import { Player } from '../features/media/player';
 import { Selector } from '../shared/selector';
 import { ConfirmDelete } from '../shared/ui/app-dialog';
 import { call, exportOutput, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { dismissSplash } from '../shared/lib/splash';
-import { IntroScreen } from './intro-screen';
-import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
-import { isAligner, isIndexModel, isYuE, modelEngineReady, runtimeStatus, runtimeUsable, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden, assistantUsable } from '../shared/workbench';
+import { isAligner, isIndexModel, isYuE, modelEngineReady, runtimeStatus, runtimeUsable, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden, assistantUsable, newId } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
 import { quickActions } from '../features/assistant/assistant-launch';
 import { reportPlayhead, takeAssistantFocus, trackAssistantFocus } from '../features/assistant/assistant-focus';
-import { useAssistantNudge, type Nudge } from '../features/assistant/assistant-nudge';
+import { useAssistantNudge, type Nudge } from '../features/assistant/use-assistant-nudge';
 import { SidebarNav } from './sidebar-nav';
 import { PageBoundary } from '../shared/ui/page-boundary';
 import { Notifications } from './notifications';
@@ -56,6 +46,17 @@ import { watchAssistantLive } from '../shared/lib/assistant-live';
 import { AudioCheckBadge } from '../features/media/audio-check';
 import { readLocal, removeLocal, writeLocal } from '../shared/lib/local-store';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
+// 页面级组件按需加载：音乐、编曲、时间线、导入书稿与首次引导只在用到时取回，首屏主包只含外壳与语音编辑。
+const MusicEditor = lazy(() => import('../features/music/music-editor').then(module => ({ default: module.MusicEditor })));
+const MusicInspector = lazy(() => import('../features/music/music-inspector').then(module => ({ default: module.MusicInspector })));
+const NowPlaying = lazy(() => import('../features/music/now-playing').then(module => ({ default: module.NowPlaying })));
+const ScoreEditor = lazy(() => import('../features/score/score-editor').then(module => ({ default: module.ScoreEditor })));
+const ScoreDock = lazy(() => import('../features/score/score-arrangement').then(module => ({ default: module.ScoreDock })));
+const ScoreInspector = lazy(() => import('../features/score/score-inspector').then(module => ({ default: module.ScoreInspector })));
+const TimelineEditor = lazy(() => import('../features/media/timeline-editor').then(module => ({ default: module.TimelineEditor })));
+const BookImport = lazy(() => import('../features/library/book-import').then(module => ({ default: module.BookImport })));
+const IntroScreen = lazy(() => import('./intro-screen').then(module => ({ default: module.IntroScreen })));
+const GuideTour = lazy(() => import('./guide-tour').then(module => ({ default: module.GuideTour })));
 const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
 // 工作台界面：导航、页面切换与各页面之间的协作；作品保存由 useDraftSession 负责。
@@ -337,13 +338,13 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   };
   const editCharacter = (character: Character) => { if (characterEditor) { setPage('characters'); return; } characterOrigin.current = page === 'create' ? { draftId: draft.id, speakerId: activeSpeaker?.id ?? '' } : null; characterReturnPage.current = page; setCharacterEditor(character); setPage('characters'); };
   const openCharacter = () => {
-    editCharacter({ id: crypto.randomUUID().replaceAll('-', ''), name: activeSpeaker?.sourceName || draft.title, settings: synthesisSettings(inspectorDraft), demoText: t('@yovoice.character.example') });
+    editCharacter({ id: newId(), name: activeSpeaker?.sourceName || draft.title, settings: synthesisSettings(inspectorDraft), demoText: t('@yovoice.character.example') });
   };
   // 把一条生成结果用到的声音设置存为角色：模型、参考音色、声音设计描述和全部参数一起带上，在角色编辑器里确认后保存。
-  const characterFromGeneration = (item: Generation) => editCharacter({ id: crypto.randomUUID().replaceAll('-', ''), name: item.title, settings: structuredClone(synthesisSettings(item.settings)), demoText: item.settings.text.slice(0, 120) || t('@yovoice.character.example') });
+  const characterFromGeneration = (item: Generation) => editCharacter({ id: newId(), name: item.title, settings: structuredClone(synthesisSettings(item.settings)), demoText: item.settings.text.slice(0, 120) || t('@yovoice.character.example') });
   const createVoice = () => {
     const defaults = createDraft(false, state.preferences.uiLocale);
-    editCharacter({ id: crypto.randomUUID().replaceAll('-', ''), name: t('@yovoice.library.newVoice'), settings: synthesisSettings({ ...defaults, modelId: state.models.find(m => m.id.startsWith('omnivoice-'))?.id ?? 'omnivoice-q8', voiceMode: 'design' }), demoText: t('@yovoice.character.example') });
+    editCharacter({ id: newId(), name: t('@yovoice.library.newVoice'), settings: synthesisSettings({ ...defaults, modelId: state.models.find(m => m.id.startsWith('omnivoice-'))?.id ?? 'omnivoice-q8', voiceMode: 'design' }), demoText: t('@yovoice.character.example') });
   };
   async function applyToTarget(voice: Character, draftId: string, speakerId: string) {
     const source = draftId === 'new' ? { ...createDraft(false, state.preferences.uiLocale), kind: 'text' as const } : projectList.find(d => d.id === draftId);
@@ -416,7 +417,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const currentCharacter = state.characters.find(c => c.id === (activeSpeaker?.characterId ?? selectedCharacter));
   const currentPerformance = activeSpeaker ? activeCue?.performance : draft.performance;
   const performances = currentCharacter?.performances ?? [];
-  const inspector = scoring ? <ScoreInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} close={() => setShowInspector(false)} /> : music || soundEffects ? <MusicInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} upgradeEngine={() => openSettings(draft.modelId, 'engine')} close={() => setShowInspector(false)} advanced={advanced} setAdvanced={setAdvanced} soundEffects={soundEffects} /> : <Inspector libraryActions={<VStack gap={2}>
+  const inspector = <Suspense fallback={null}>{scoring ? <ScoreInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} close={() => setShowInspector(false)} /> : music || soundEffects ? <MusicInspector draft={draft} state={state} catalog={catalog} change={change} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(draft.modelId)} upgradeEngine={() => openSettings(draft.modelId, 'engine')} close={() => setShowInspector(false)} advanced={advanced} setAdvanced={setAdvanced} soundEffects={soundEffects} /> : <Inspector libraryActions={<VStack gap={2}>
     {activeSpeaker ? <HStack gap={2} vAlign="center"><SpeakerAvatar seed={activeSpeaker.characterId ?? `${draft.id}:${activeSpeaker.id}`} /><h3>{activeSpeaker.sourceName || t('@yovoice.subtitle.speaker', { n: draft.subtitles!.speakers.indexOf(activeSpeaker) + 1 })}</h3></HStack> : null}
     <Selector label={t('@yovoice.character.choose')} isLabelHidden placeholder={t('@yovoice.character.choose')} value={activeSpeaker?.characterId ?? selectedCharacter ?? ''}
       options={[...state.characters.map(c => ({ value: c.id, label: c.name })), ...(state.characters.length ? [{ type: 'divider' as const }] : []), { value: 'new-voice', label: t('@yovoice.character.new'), icon: Plus }, { value: 'save-voice', label: t('@yovoice.character.saveAs'), icon: Save }]}
@@ -428,7 +429,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
         if (activeSpeaker) setDraft(current => ({ ...current, subtitles: { ...current.subtitles!, cues: current.subtitles!.cues.map((cue, index) => index === selectedCue ? { ...cue, performance } : cue) } }));
         else if (currentCharacter) change({ ...performanceSettings(currentCharacter.settings, performance), performance });
       }} /> : null}
-  </VStack>} catalog={catalog} close={() => setShowInspector(false)} draft={inspectorDraft} state={state} change={changeSpeaker} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(inspectorDraft.modelId)} advanced={advanced} setAdvanced={setAdvanced} />;
+  </VStack>} catalog={catalog} close={() => setShowInspector(false)} draft={inspectorDraft} state={state} change={changeSpeaker} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(inspectorDraft.modelId)} advanced={advanced} setAdvanced={setAdvanced} />}</Suspense>;
   // 播放器工具栏右侧：打开当前音频所在位置（导出在“更多”菜单里），查看历史（语音生成是“历史生成”，音乐与编曲是本作品的“版本记录”），删除在历史里处理；音乐另有播放页。
   const historyLabel = t(projectKind(draft) === 'text' ? '@yovoice.history.generations' : '@yovoice.history.versions');
   const playerActions = projectKind(draft) === 'story' ? undefined : <HStack gap={2} vAlign="center">
@@ -448,7 +449,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
       change({ text: item.settings.text, lyrics: item.settings.lyrics, abc: item.settings.abc, instrumental: item.settings.instrumental, synthesisLanguage: item.settings.synthesisLanguage, modelOptions: item.settings.modelOptions, seed: item.settings.seed, sourceGenerationId: item.settings.sourceGenerationId });
       setPreviewTrack(null); setPage('create'); return;
     }
-    run(() => newDraft({ ...structuredClone(item.settings), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }));
+    run(() => newDraft({ ...structuredClone(item.settings), id: newId(), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }));
   };
   // 检查器收起时，标题栏保留主操作：生成中显示取消，否则按作品类型显示生成或渲染。
   const generateLabel = scoring ? t('@yovoice.score.render') : soundEffects ? t('@yovoice.music.generateAudio') : music ? t(isYuE(draft.modelId) && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate') : t('@yovoice.create.generate');
@@ -461,18 +462,18 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
       {page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
     <AppShell variant="elevated" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill"><VStack className="app-sheet" gap={0}>
       {characterEditor ? <VStack style={{ display: page === 'characters' ? 'flex' : 'none', height: '100%', minHeight: 0 }} gap={0}><PageBoundary name="character-editor"><CharacterEditor active={page === 'characters'} initial={characterEditor} state={state} catalog={catalog} settings={openSettings} apply={characterOrigin.current ? async saved => { const origin = characterOrigin.current!; await applyToTarget(saved, origin.draftId, origin.speakerId); setCharacterEditor(null); } : undefined} close={() => { setCharacterEditor(null); setPage(characterReturnPage.current); }} /></PageBoundary></VStack> : null}
-      <VStack className="page-panel" style={{ display: characterActive ? 'none' : 'flex' }} gap={0}><Layout height="fill" footer={visited.has('create') ? <VStack gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="timeline" resetKey={draft.id}>{scoring ? <ScoreDock key={draft.id} draft={draft} change={change} playhead={track ? playback : undefined} seek={time => setSeekRequest({ time, nonce: performance.now() })} /> : null}{draft.timeline || projectKind(draft) === 'story' ? <TimelineEditor exportProject={async () => { await persistDraft(draft); await call('project.export', { id: draft.id, name: draft.title }); }} key={draft.id} selectedCue={selectedCue} cueSelectionRevision={cueSelection?.revision ?? 0} playbackCue={setPlayingCue} selectCue={selectCue} draft={draft} busy={busy} regenerate={async (cueId, clipId) => { await persistDraft(draft); await call('generation.cue', { draft, cueId, clipId }); }} value={draft.timeline ?? { tracks: [] }} history={state.history} drafts={projectList} change={timeline => change({ timeline })} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget} onError={onError} /> : <Player onProgress={(time, playing) => { reportPlayhead(time); if (scoring) setPlayback({ time, playing }); }} seekRequest={scoring ? seekRequest : undefined} actions={playerActions} reveal={false} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget || !!nowPlaying} track={track} onError={onError} />}</PageBoundary></VStack> : null} content={<VStack className="content-frame" gap={0}>
+      <VStack className="page-panel" style={{ display: characterActive ? 'none' : 'flex' }} gap={0}><Layout height="fill" footer={visited.has('create') ? <VStack gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="timeline" resetKey={draft.id}><Suspense fallback={null}>{scoring ? <ScoreDock key={draft.id} draft={draft} change={change} playhead={track ? playback : undefined} seek={time => setSeekRequest({ time, nonce: performance.now() })} /> : null}{draft.timeline || projectKind(draft) === 'story' ? <TimelineEditor exportProject={async () => { await persistDraft(draft); await call('project.export', { id: draft.id, name: draft.title }); }} key={draft.id} selectedCue={selectedCue} cueSelectionRevision={cueSelection?.revision ?? 0} playbackCue={setPlayingCue} selectCue={selectCue} draft={draft} busy={busy} regenerate={async (cueId, clipId) => { await persistDraft(draft); await call('generation.cue', { draft, cueId, clipId }); }} value={draft.timeline ?? { tracks: [] }} history={state.history} drafts={projectList} change={timeline => change({ timeline })} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget} onError={onError} /> : <Player onProgress={(time, playing) => { reportPlayhead(time); if (scoring) setPlayback({ time, playing }); }} seekRequest={scoring ? seekRequest : undefined} actions={playerActions} reveal={false} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget || !!nowPlaying} track={track} onError={onError} />}</Suspense></PageBoundary></VStack> : null} content={<VStack className="content-frame" gap={0}>
         {!ready ? <p className="loading" role="status">{t('@yovoice.app.loading')}</p> : <>
 
           {visited.has('create') ? <VStack className="page-panel" gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="create" resetKey={draft.id}>
             <Studio showInspector={showInspector} inspector={inspector} inspectorCollapsed={inspectorCollapsed} collapsedAction={collapsedAction}
           title={<input className="document-title" aria-label={t('@yovoice.app.titleLabel')} maxLength={120} value={draft.title} onChange={e => change({ title: e.target.value })} />}
           writingClassName={`${draft.subtitles ? 'writing-subtitles' : ''} ${draft.timeline ? 'writing-timeline' : ''} ${scoring ? 'writing-score' : ''}`.trim()}>
-          {scoring ? <><ScoreEditor key={draft.id} draft={draft} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : soundEffects ? <><SfxEditor key={draft.id} draft={draft} change={change} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}
+          <Suspense fallback={<p role="status">{t('@yovoice.app.loading')}</p>}>{scoring ? <><ScoreEditor key={draft.id} draft={draft} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : soundEffects ? <><SfxEditor key={draft.id} draft={draft} change={change} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}</Suspense>
         </Studio>
           </PageBoundary></VStack> : null}
           {(['story', 'music', 'score', 'sfx'] as const).filter(kind => visited.has(kind)).map(kind => <VStack key={kind} id={`projects-${kind}-panel`} className="page-panel" gap={0} style={{ display: page === kind ? 'flex' : 'none' }}><PageBoundary name={`projects-${kind}`}>
-            <Projects onError={onError} kind={kind} title={kind === 'story' ? undefined : t('@yovoice.project.music')} controls={kind === 'story' ? undefined : musicTabs} drafts={projectList} open={selectDraft} history={openHistory} create={kind === 'story' ? <HStack gap={2} vAlign="center"><BookImport state={state} modelId={defaultModelId} configureAI={() => openSettings(defaultModelId, 'ai')} create={importBook} onError={onError} /><NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} /></HStack> : <NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} />} copy={item => run(() => newDraft({ ...structuredClone(item), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }))} remove={setDeleteTarget} save={async next => { await persistDraft(draft); await persistDraft(next); if (next.id === draft.id) setDraft(next); }} />
+            <Projects onError={onError} kind={kind} title={kind === 'story' ? undefined : t('@yovoice.project.music')} controls={kind === 'story' ? undefined : musicTabs} drafts={projectList} open={selectDraft} history={openHistory} create={kind === 'story' ? <HStack gap={2} vAlign="center"><Suspense fallback={null}><BookImport state={state} modelId={defaultModelId} configureAI={() => openSettings(defaultModelId, 'ai')} create={importBook} onError={onError} /></Suspense><NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} /></HStack> : <NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} />} copy={item => run(() => newDraft({ ...structuredClone(item), id: newId(), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }))} remove={setDeleteTarget} save={async next => { await persistDraft(draft); await persistDraft(next); if (next.id === draft.id) setDraft(next); }} />
           </PageBoundary></VStack>)}
           {visited.has('characters') ? <VStack id="voice-library-panel" className="page-panel" gap={0} style={{ display: page === 'characters' ? 'flex' : 'none' }}><PageBoundary name="characters">
             <CharacterLibrary controls={libraryTabs} active={page === 'characters' && !voiceTarget && !characterActive} create={createVoice} state={state} catalog={catalog} edit={editCharacter} apply={setVoiceTarget} onError={onError} />
@@ -503,12 +504,12 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     {voiceTarget ? <PageBoundary name="voice-target"><VoiceTarget voice={voiceTarget} drafts={projectList} apply={applyToTarget} close={() => setVoiceTarget(null)} /></PageBoundary> : null}
     {deleteTarget ? <ConfirmDelete title={t('@yovoice.app.deleteProjectTitle')} description={t('@yovoice.app.deleteProjectBody', { title: deleteTarget.title })}
       confirmLabel={t('@yovoice.app.deleteProjectConfirm')} busy={deleting} error={formatNotice(t, deleteError)} onClose={() => setDeleteTarget(null)} onConfirm={() => void deleteDraft()} /> : null}
-    {nowPlaying ? <PageBoundary name="now-playing"><NowPlaying item={nowPlaying} title={nowPlaying.title} versions={state.history.filter(item => item.settings.id === nowPlaying.settings.id && !item.segment)}
-      aligner={state.models.some(model => isAligner(model.id))} activity={activity} getAligner={() => { setNowPlaying(null); openSettings(catalog.find(model => model.family === 'lyric_align')?.id, 'models'); }} close={() => setNowPlaying(null)} /></PageBoundary> : null}
+    {nowPlaying ? <PageBoundary name="now-playing"><Suspense fallback={null}><NowPlaying item={nowPlaying} title={nowPlaying.title} versions={state.history.filter(item => item.settings.id === nowPlaying.settings.id && !item.segment)}
+      aligner={state.models.some(model => isAligner(model.id))} activity={activity} getAligner={() => { setNowPlaying(null); openSettings(catalog.find(model => model.family === 'lyric_align')?.id, 'models'); }} close={() => setNowPlaying(null)} /></Suspense></PageBoundary> : null}
     {voiceEditor ? <PageBoundary name="voice-editor"><VoiceEditor item={voiceEditor} close={() => setVoiceEditor(null)} /></PageBoundary> : null}
     {voicePicker ? <PageBoundary name="voice-picker"><Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={voice => { if ((activeSpeaker || draft.performance) && voicePicker !== 'add') { changeSpeaker(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); } else selectVoice(voice); }} /></Suspense></PageBoundary> : null}
     {pronunciation ? <PageBoundary name="pronunciation"><PronunciationDialog pronunciation={pronunciation} setPronunciation={setPronunciation} draft={draft} change={change} editor={editor} /></PageBoundary> : null}
-    {showIntro ? <PageBoundary name="intro"><IntroScreen onStart={finishIntro} /></PageBoundary> : null}
-    {showTour ? <PageBoundary name="tour"><GuideTour hidden={state.preferences.hiddenFeatures} onClose={finishTour} /></PageBoundary> : null}
+    {showIntro ? <PageBoundary name="intro"><Suspense fallback={null}><IntroScreen onStart={finishIntro} /></Suspense></PageBoundary> : null}
+    {showTour ? <PageBoundary name="tour"><Suspense fallback={null}><GuideTour hidden={state.preferences.hiddenFeatures} onClose={finishTour} /></Suspense></PageBoundary> : null}
   </VStack>;
 }

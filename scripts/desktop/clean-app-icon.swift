@@ -4,7 +4,7 @@ import AppKit
 // 只重建当前素材的透明蒙版，保留底板和声波的原始颜色。
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent()
-let url = root.appendingPathComponent("web/public/icon/voice-workbench-app-icon-v1.png")
+let url = root.appendingPathComponent("desktop/icon/voice-workbench-app-icon-v1.png")
 let bitmap = NSBitmapImageRep(data: try Data(contentsOf: url))!
 let size = 1254
 precondition(bitmap.pixelsWide == size && bitmap.pixelsHigh == size,

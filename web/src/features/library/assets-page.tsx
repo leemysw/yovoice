@@ -12,7 +12,7 @@ import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { FileText, FolderOpen, Image as ImageIcon, MoreHorizontal, Play, RefreshCw, Trash2 } from 'lucide-react';
 import { call, isDesktop, logEvent } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
-import { formatCallError } from '../../shared/i18n/format';
+import { formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
 import { formatBytes, formatTime, type Asset, type AssetKind, type AssetResult, type State, type Track } from '../../shared/workbench';
@@ -114,7 +114,7 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
   const sortable = useTableSortable<Row, SortKey>({ sort, onSortChange: next => { setSort(next as typeof sort); setPage(1); } });
 
   const kindLabel = (value: AssetKind) => t(`@yovoice.assets.kind.${value}`);
-  const time = (value: string) => value && !value.startsWith('0001') ? new Date(value).toLocaleString(locale, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+  const time = (value: string) => value && !value.startsWith('0001') ? formatDateTime(value, locale) : '—';
   const listen = (a: Asset) => setTrack({ id: a.id, name: a.name, fileName: a.fileName, kind: a.media === 'voices' ? 'voices' : 'outputs', subtitle: kindLabel(a.kind), playRequest: performance.now() });
   const preview = (a: Asset) => run(async () => setImage({ name: a.name, src: await call<string>('assets.image', { id: a.id }) }));
   const columns: TableColumn<Row>[] = [

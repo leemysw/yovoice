@@ -5,7 +5,7 @@ import ImageIO
 // 保留原图像素内容；传统 macOS 图标需要把透明留白写进资源。
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent()
-let sourceURL = root.appendingPathComponent("web/public/icon/voice-workbench-app-icon-v1.png")
+let sourceURL = root.appendingPathComponent("desktop/icon/voice-workbench-app-icon-v1.png")
 let source = CGImageSourceCreateWithURL(sourceURL as CFURL, nil)!
 let image = CGImageSourceCreateImageAtIndex(source, 0, nil)!
 // 当前素材的底板边界；先去掉不对称留白，再适配 macOS 的图标画布。

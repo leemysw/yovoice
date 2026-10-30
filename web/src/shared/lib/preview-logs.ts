@@ -6,16 +6,6 @@ const entries: LogEntry[] = [];
 const capacity = 2000;
 const rank: Record<string, number> = { INFO: 1, WARN: 2, ERROR: 3 };
 
-// 与 internal/desktop/rpc.go 的 audited 对应：这些方法无论成败都留一条记录。
-export const auditedMethods = new Set([
-  'draft.delete', 'project.export', 'project.import', 'score.import', 'score.export', 'character.save', 'character.delete',
-  'voice.fromGeneration', 'voice.update', 'voice.import', 'voice.record', 'timeline.import', 'media.rename', 'media.delete',
-  'generation.lyricTimes', 'generation.lyricWords', 'generation.alignLyrics', 'preferences.save', 'storage.relocate', 'storage.cleanup', 'model.directory', 'model.download',
-  'model.forget', 'runtime.install', 'ai.provider.save', 'ai.provider.delete', 'ai.provider.use', 'ai.test', 'ai.connect', 'ai.codex.login',
-  'melody.plan', 'melody.cover', 'melody.dismiss', 'ai.dismiss', 'operation.cancel', 'model.cancel', 'ai.cancel', 'logs.export', 'assets.delete',
-  'assistant.proposal', 'assistant.forget',
-]);
-
 export function logLevel(event: string, fields: Record<string, unknown> = {}): LogLevel {
   if (fields.error != null || /(_failed|_rejected|_denied|\.failed|\.corrupt|\.error|\.crashed)$/.test(event)) return 'ERROR';
   if (/(_skipped|\.slow|_invalid|_killed|\.exited|\.warning|_timeout)$/.test(event)) return 'WARN';

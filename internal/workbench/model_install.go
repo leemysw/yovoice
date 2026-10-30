@@ -136,7 +136,7 @@ func (w *Workbench) DownloadModel(id string) error {
 
 // modelDirectory 返回下载模型存放的目录：用户设置的模型目录，否则是数据目录下的 models。
 func modelDirectory(s schema.State, root string) string {
-	if dir := value(s.Preferences.ModelDirectory); dir != "" {
+	if dir := schema.Deref(s.Preferences.ModelDirectory); dir != "" {
 		return dir
 	}
 	return filepath.Join(root, "models")
@@ -233,7 +233,7 @@ func managedModelPath(s schema.State, root, id string) string {
 	}
 	path := filepath.Clean(s.Models[i].Path)
 	dirs := []string{filepath.Join(root, "models")}
-	if dir := value(s.Preferences.ModelDirectory); dir != "" {
+	if dir := schema.Deref(s.Preferences.ModelDirectory); dir != "" {
 		dirs = append(dirs, dir)
 	}
 	inside := slices.ContainsFunc(dirs, func(dir string) bool { return store.Within(dir, path) && !store.SamePath(dir, path) })

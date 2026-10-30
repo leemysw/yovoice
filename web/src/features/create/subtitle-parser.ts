@@ -1,12 +1,13 @@
 import type { SubtitleDocument } from '../../shared/workbench';
+import { fileExtension } from '../../shared/lib/file-name';
 
 const invalid = () => new Error('@yovoice.subtitle.invalid');
 
 // 字幕只提供明确标注的人名，不从标点或台词内容猜测身份。
 export class SubtitleParser {
   parse(name: string, content: string): SubtitleDocument {
-    const extension = name.split('.').pop()?.toLowerCase();
-    if (!['srt', 'vtt', 'ass', 'ssa'].includes(extension ?? '')) throw invalid();
+    const extension = fileExtension(name);
+    if (!['srt', 'vtt', 'ass', 'ssa'].includes(extension)) throw invalid();
     const result: SubtitleDocument = { speakers: [], cues: [] };
     const source = content.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim();
     const add = (start: number, end: number, text: string, name = '') => {

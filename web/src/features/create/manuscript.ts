@@ -1,4 +1,5 @@
 import { CallError } from '../../shared/lib/call-error';
+import { fileExtension } from '../../shared/lib/file-name';
 import type { Character, Draft, SubtitleDocument, SubtitleSpeaker } from '../../shared/workbench';
 import { fileTitle, markdownText, readTextFile } from './file-import';
 import { readEpub } from './epub';
@@ -23,7 +24,7 @@ const chapterHeading = /^\s*(第[0-9０-９零〇一二两三四五六七八九�
 
 /** 读取书稿：txt、Markdown 按标题行切章，EPUB 按阅读顺序取正文。 */
 export async function readManuscript(file: File): Promise<Manuscript> {
-  const type = file.name.split('.').pop()?.toLowerCase() ?? '';
+  const type = fileExtension(file.name);
   const title = fileTitle(file.name);
   let chapters: ManuscriptChapter[];
   if (type === 'epub') {

@@ -281,18 +281,6 @@
   "@yovoice.draft.copySuffix": {
     "defaultMessage": " · 사본"
   },
-  "@yovoice.draft.defaultEmotionText": {
-    "defaultMessage": "친한 사람과 이야기하듯 부드럽고 차분하게."
-  },
-  "@yovoice.draft.exampleText": {
-    "defaultMessage": "아침 햇살이 커튼 사이로 스며들고,\n방 안이 천천히 밝아집니다.\n\n따뜻한 차 한 잔을 따르며,\n잠시 생각의 속도를 늦춰 보세요.\n\n오늘은 좋은 목소리로 시작합니다."
-  },
-  "@yovoice.draft.exampleTitle": {
-    "defaultMessage": "아침 내레이션"
-  },
-  "@yovoice.draft.untitled": {
-    "defaultMessage": "제목 없음"
-  },
   "@yovoice.emotion.afraid": {
     "defaultMessage": "두려움"
   },
@@ -1004,9 +992,6 @@
   "@yovoice.reference.transcriptHelp": {
     "defaultMessage": "정확한 대본은 클론 품질을 높여 줍니다. 비워 두면 음색만 사용합니다."
   },
-  "@yovoice.reference.designPlaceholder": {
-    "defaultMessage": "예: female, young adult, moderate pitch. 비워 두면 음성이 자동으로 정해집니다."
-  },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "다국어 · 음성 디자인 및 클론"
   },
@@ -1021,9 +1006,6 @@
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10개 언어 · 참조 음성 클론"
-  },
-  "@yovoice.reference.designHelp": {
-    "defaultMessage": "쉼표로 구분한 속성을 사용하세요. 예: male/female, young adult/middle-aged, low pitch/moderate pitch, whisper. 자유 형식 설명은 지원하지 않습니다."
   },
   "@yovoice.options.text_chunk_size": {
     "defaultMessage": "텍스트 분할 크기 (0은 모델 기본값)"
@@ -1340,9 +1322,6 @@
   "@yovoice.error.referenceTextRequired": {
     "defaultMessage": "{model} 클론에는 전체 참조 대본이 필요합니다."
   },
-  "@yovoice.reference.omniTranscriptHelp": {
-    "defaultMessage": "대본은 참조 오디오와 일치해야 합니다."
-  },
   "@yovoice.settings.modelDesc.kokoro": {
     "defaultMessage": "프리셋 음성 · 다국어"
   },
@@ -1384,9 +1363,6 @@
   },
   "@yovoice.character.example": {
     "defaultMessage": "안녕하세요, 만나서 반가워요. 우리 이야기를 더 많은 사람에게 들려줘요."
-  },
-  "@yovoice.character.save": {
-    "defaultMessage": "캐릭터 저장"
   },
   "@yovoice.character.copy": {
     "defaultMessage": "다른 캐릭터로 저장"
@@ -1571,14 +1547,8 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "클립 삭제"
   },
-  "@yovoice.timeline.hint": {
-    "defaultMessage": "클립을 선택하면 재생 헤드 위치에서 분할할 수 있습니다. 클립을 드래그해 시간을 옮기거나 다른 트랙으로 이동하세요."
-  },
   "@yovoice.timeline.tracks": {
     "defaultMessage": "트랙"
-  },
-  "@yovoice.timeline.name": {
-    "defaultMessage": "{name} 이름"
   },
   "@yovoice.timeline.mute": {
     "defaultMessage": "{name} 음소거"
@@ -1616,17 +1586,11 @@
   "@yovoice.project.story": {
     "defaultMessage": "스토리 내레이션"
   },
-  "@yovoice.project.subtitle": {
-    "defaultMessage": "자막 내레이션"
-  },
   "@yovoice.project.search": {
     "defaultMessage": "프로젝트 검색"
   },
   "@yovoice.project.empty": {
     "defaultMessage": "아직 프로젝트가 없습니다"
-  },
-  "@yovoice.project.copy": {
-    "defaultMessage": "프로젝트 복제"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "프로젝트 이름 변경"
@@ -1705,9 +1669,6 @@
   },
   "@yovoice.timeline.redo": {
     "defaultMessage": "다시 실행"
-  },
-  "@yovoice.timeline.trim": {
-    "defaultMessage": "다듬기 범위"
   },
   "@yovoice.timeline.trimStart": {
     "defaultMessage": "시작점 (초)"
@@ -2227,9 +2188,6 @@
   },
   "@yovoice.ai.keyOptional": {
     "defaultMessage": "로컬 서비스에는 보통 필요하지 않습니다"
-  },
-  "@yovoice.ai.getKey": {
-    "defaultMessage": "키 받기"
   },
   "@yovoice.ai.model": {
     "defaultMessage": "모델"
@@ -3725,9 +3683,6 @@
   "@yovoice.assets.clearSelection": {
     "defaultMessage": "선택 해제"
   },
-  "@yovoice.assets.deleteOne": {
-    "defaultMessage": "{name} 삭제"
-  },
   "@yovoice.assets.deleteTitle": {
     "defaultMessage": "자산 {count}개를 삭제할까요?"
   },
@@ -4033,9 +3988,6 @@
   },
   "@yovoice.check.quiet": {
     "defaultMessage": "음량이 작습니다({loudness} LUFS). 내보낼 때 목표 라우드니스를 선택하세요"
-  },
-  "@yovoice.check.dc": {
-    "defaultMessage": "DC 오프셋"
   },
   "@yovoice.timeline.loudness": {
     "defaultMessage": "라우드니스"
