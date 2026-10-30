@@ -1,5 +1,8 @@
 import { stableJSON, type AudioClip, type AudioLane, type AudioTimeline, type Draft, type Generation } from '../../shared/workbench';
 
+// 时间线可引用的音频源：工程历史里的生成，或导入的音频资源（键为 asset:<id>）。
+export type AudioSource = { title: string; duration: number; fileName: string; segment?: Generation['segment'] };
+
 // 所有剪辑使用源音频范围，不改写生成文件。
 export class Timeline {
   static sourceKey(clip: AudioClip): string {
