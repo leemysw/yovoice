@@ -491,6 +491,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "Generazione non riuscita. Controlla il modello, la VRAM e l’audio di riferimento. Apri i log nelle Impostazioni."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "L'ID richiesta è già stato usato con parametri diversi, oppure il servizio è occupato."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "L'attività non esiste o è scaduta."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "Questo modello non supporta la lingua scelta."
   },

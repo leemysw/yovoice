@@ -491,6 +491,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "Generation failed. Check the model, VRAM, and reference audio. Open logs in Settings."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "The request ID was already used with different parameters, or the service is busy."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "The task does not exist or has expired."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "This model does not support that language."
   },

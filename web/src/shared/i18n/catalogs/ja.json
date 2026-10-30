@@ -491,6 +491,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "生成に失敗しました。モデル、VRAM、参照音声を確認してください。ログは設定から開けます。"
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "このリクエスト ID は別のパラメータで使用済みか、サービスがビジー状態です。"
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "タスクが存在しないか、期限切れです。"
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "このモデルはその言語に対応していません。"
   },

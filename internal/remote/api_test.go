@@ -91,10 +91,8 @@ func TestRemoteAPI(t *testing.T) {
 	if w := request("GET", "/v1/audio/"+schema.NewID(), "", "Bearer "+token); w.Code != 404 || errorCode(w) != string(msg.ErrAudioMissing) {
 		t.Fatal(w.Code, w.Body.String())
 	}
-	if w := request("GET", "/v1/jobs/"+schema.NewID(), "", "Bearer "+token); w.Code != 404 {
+	if w := request("GET", "/v1/jobs/"+schema.NewID(), "", "Bearer "+token); w.Code != 404 || errorCode(w) != string(msg.ErrJobMissing) {
 		t.Fatal(w.Code, w.Body.String())
-	} else {
-		errorCode(w)
 	}
 	body := `{"text":"远程生成","voiceId":"` + voice.ID + `"}`
 	if w := request("PUT", "/v1/jobs/not-hex", body, "Bearer "+token); w.Code != 400 || errorCode(w) != string(msg.ErrRequestInvalid) {
@@ -170,10 +168,8 @@ func TestRemoteAPI(t *testing.T) {
 	if same.ID != job.ID {
 		t.Fatal("重试重复生成")
 	}
-	if res := request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "其他文本", 1), "Bearer "+token); res.Code != 409 {
+	if res := request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "其他文本", 1), "Bearer "+token); res.Code != 409 || errorCode(res) != string(msg.ErrJobConflict) {
 		t.Fatal(res.Code, res.Body.String())
-	} else {
-		errorCode(res)
 	}
 	if res := request("GET", job.DownloadPath, "", "Bearer "+token); !bytes.Equal(res.Body.Bytes(), wav()) {
 		t.Fatal("异步音频不正确")

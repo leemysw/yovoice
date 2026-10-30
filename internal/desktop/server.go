@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/workbench"
@@ -49,17 +50,34 @@ func (s *Server) guard(method string, fn func() (any, error)) (result any, err e
 	return fn()
 }
 
+// drainTimeout 是关闭时等待在途调用结束的上限：某个调用不响应取消时记录日志后继续关闭，不必靠宿主强杀。
+var drainTimeout = 5 * time.Second
+
 // Close 关闭服务：先取消在途调用（包括正在复制数据目录的迁移），等它们结束后再释放资源。
 // /shutdown 与信号、标准输入关闭的退出路径共用；幂等。
 func (s *Server) Close() {
 	s.lifetime()
 	s.stop()
-	s.calls.Lock()
-	defer s.calls.Unlock()
+	if s.drain() {
+		defer s.calls.Unlock()
+	}
 	if s.LocalAPI != nil {
 		s.LocalAPI.Close()
 	}
 	s.Workbench.Close()
+}
+
+// drain 在 drainTimeout 内等待在途调用全部结束并拿到写锁；超时返回假，调用方不持锁继续关闭。
+func (s *Server) drain() bool {
+	deadline := time.Now().Add(drainTimeout)
+	for !s.calls.TryLock() {
+		if time.Now().After(deadline) {
+			diag.Log(s.Workbench.Store.Root, "rpc.drain_timeout", "timeout_s", int(drainTimeout.Seconds()))
+			return false
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	return true
 }
 
 // call 先处理本机接口设置，其余方法交给 Call。

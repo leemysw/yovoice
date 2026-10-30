@@ -152,21 +152,17 @@ func apiStatus(err error) int {
 	switch {
 	case errors.Is(err, context.DeadlineExceeded):
 		return http.StatusGatewayTimeout
-	case errors.Is(err, errJobMissing):
-		return http.StatusNotFound
-	case errors.Is(err, errJobConflict):
-		return http.StatusConflict
 	case errors.As(err, &tooLarge):
 		return http.StatusRequestEntityTooLarge
 	case !errors.As(err, &callErr):
 		return http.StatusInternalServerError
 	}
 	switch callErr.Code {
-	case msg.ErrBusy:
+	case msg.ErrBusy, msg.ErrJobConflict:
 		return http.StatusConflict
 	case msg.ErrAudioTooLarge:
 		return http.StatusRequestEntityTooLarge
-	case msg.ErrAudioMissing:
+	case msg.ErrAudioMissing, msg.ErrJobMissing:
 		return http.StatusNotFound
 	}
 	if serverErrors[callErr.Code] {

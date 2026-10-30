@@ -491,6 +491,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "Échec de la génération. Vérifiez le modèle, la VRAM et l’audio de référence. Ouvrez les journaux dans les Paramètres."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "L'ID de requête a déjà été utilisé avec d'autres paramètres, ou le service est occupé."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "La tâche n'existe pas ou a expiré."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "Ce modèle ne prend pas en charge cette langue."
   },

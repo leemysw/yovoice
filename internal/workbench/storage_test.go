@@ -684,14 +684,19 @@ func TestCleanupResidualsHandlesStagingFiles(t *testing.T) {
 	pausedPart := write("models/" + filepath.Base(paused.RemotePath) + ".part")
 	pausedMeta := write("models/" + filepath.Base(paused.RemotePath) + ".part.meta")
 	stalePart := write("models/gone.gguf.part")
-	staleNew := write("models/pack/weights.bin.new.part")
+	staleNew := write("models/gonepack/weights.bin.new.part")
 	deleting := write("models/old.gguf.deleting")
+	// 多文件模型移除中途退出留下的整个目录：文件不带后缀、时间也新，同样整体回收；同名模型重新下载也不影响。
+	packDeleting := filepath.Join(root, "models", "pack.deleting")
+	must(t, os.MkdirAll(packDeleting, 0700))
+	must(t, os.WriteFile(filepath.Join(packDeleting, "weights.bin"), []byte("x"), 0600))
+	pack := write("models/pack/weights.bin")
 	plain := write("models/user.gguf")
 	downloadPart := write("downloads/engine.zip.part")
 	downloadFresh := filepath.Join(root, "downloads", "fresh.zip.part")
 	must(t, os.WriteFile(downloadFresh, []byte("x"), 0600))
 	must(t, w.Store.Update(func(s *schema.State) {
-		s.Models = append(s.Models, schema.InstalledModel{ID: "keep", Path: registered, Managed: true})
+		s.Models = append(s.Models, schema.InstalledModel{ID: "keep", Path: registered, Managed: true}, schema.InstalledModel{ID: "pack", Path: filepath.Dir(pack), Managed: true})
 		s.ModelActivity = &schema.Activity{Kind: "download", Status: "cancelled", Code: msg.ActivityPaused, ModelID: &paused.ID}
 	}, true))
 
@@ -707,17 +712,49 @@ func TestCleanupResidualsHandlesStagingFiles(t *testing.T) {
 
 	report, err := w.CleanupResiduals()
 	must(t, err)
-	for _, path := range []string{stalePart, staleNew, deleting, downloadPart} {
+	for _, path := range []string{stalePart, staleNew, deleting, packDeleting, downloadPart} {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
 			t.Error("应清理", path)
 		}
 	}
-	for _, path := range []string{registered, keepNew, pausedPart, pausedMeta, plain, downloadFresh} {
+	for _, path := range []string{registered, keepNew, pausedPart, pausedMeta, pack, plain, downloadFresh} {
 		if _, err := os.Stat(path); err != nil {
 			t.Error("应保留", path, err)
 		}
 	}
-	if total := first.CleanedCount + report.CleanedCount; total != 4 {
-		t.Fatalf("两次清理应共回收 4 个文件，实际 %d", total)
+	if total := first.CleanedCount + report.CleanedCount; total != 5 {
+		t.Fatalf("两次清理应共回收 5 项，实际 %d", total)
+	}
+}
+
+// 迁移在冻结之后失败（存储配置写不进去）：解除冻结，之后的保存照常，也没有待切换目录。
+func TestRelocateThawsAfterLateFailure(t *testing.T) {
+	isolateConfig(t)
+	root := t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	defer w.Close()
+	cfgPath, err := store.ConfigFile()
+	must(t, err)
+	// 配置目录的位置放一个普通文件，RecordRelocation 建目录时失败。
+	must(t, os.MkdirAll(filepath.Dir(filepath.Dir(cfgPath)), 0700))
+	must(t, os.WriteFile(filepath.Dir(cfgPath), []byte("x"), 0600))
+	target := filepath.Join(t.TempDir(), "moved")
+	if err := w.RelocateStorage(context.Background(), target); err == nil {
+		t.Fatal("存储配置写入失败时迁移应报错")
+	}
+	if _, err := os.Stat(target); !os.IsNotExist(err) {
+		t.Fatal("失败的迁移应清理目标目录")
+	}
+	must(t, w.Store.Update(func(s *schema.State) { s.Drafts[0].Title = "迁移失败后仍可保存" }, true))
+	info, err := w.StorageInfo()
+	must(t, err)
+	if info.PendingPath != "" {
+		t.Fatal("失败的迁移不应留下待切换目录")
+	}
+	select {
+	case <-w.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("失败的迁移应释放操作槽位")
 	}
 }

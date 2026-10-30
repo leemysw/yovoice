@@ -491,6 +491,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "La generación falló. Comprueba el modelo, la VRAM y el audio de referencia. Abre los registros en Ajustes."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "El ID de solicitud ya se usó con otros parámetros o el servicio está ocupado."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "La tarea no existe o ha caducado."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "Este modelo no admite ese idioma."
   },

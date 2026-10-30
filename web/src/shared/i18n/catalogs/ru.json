@@ -491,6 +491,12 @@
   "@yovoice.error.generateFailed": {
     "defaultMessage": "Ошибка генерации. Проверьте модель, видеопамять и референсное аудио. Журналы можно открыть в настройках."
   },
+  "@yovoice.error.jobConflict": {
+    "defaultMessage": "Идентификатор запроса уже использован с другими параметрами, либо сервис занят."
+  },
+  "@yovoice.error.jobMissing": {
+    "defaultMessage": "Задача не существует или устарела."
+  },
   "@yovoice.error.languageUnsupported": {
     "defaultMessage": "Эта модель не поддерживает выбранный язык."
   },

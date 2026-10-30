@@ -35,6 +35,36 @@ func TestMissingDatabaseRestoresFromBackup(t *testing.T) {
 	}
 }
 
+// 0 字节的状态库（恢复或复制中途被打断）同样从备份恢复，空文件留存为损坏快照，备份不会被空库覆盖。
+func TestEmptyDatabaseRestoresFromBackup(t *testing.T) {
+	root := t.TempDir()
+	s, err := New(root)
+	must(t, err)
+	must(t, s.Update(func(state *schema.State) { state.Drafts[0].Title = "备份里的作品" }, true))
+	must(t, s.Close())
+	s, err = New(root)
+	must(t, err)
+	must(t, s.Close())
+	must(t, os.WriteFile(filepath.Join(root, DatabaseFile), nil, 0600))
+	s, err = New(root)
+	must(t, err)
+	if got := s.Read().Drafts[0].Title; got != "备份里的作品" {
+		t.Fatalf("0 字节库未从备份恢复数据: %q", got)
+	}
+	must(t, s.Close())
+	if files, _ := filepath.Glob(filepath.Join(root, "yovoice.corrupt-*.db")); len(files) != 1 {
+		t.Fatal("空文件应留存为损坏快照", files)
+	}
+	// 再删一次库文件：备份仍然完整，没有被空库覆盖。
+	must(t, os.Remove(filepath.Join(root, DatabaseFile)))
+	s, err = New(root)
+	must(t, err)
+	defer s.Close()
+	if got := s.Read().Drafts[0].Title; got != "备份里的作品" {
+		t.Fatalf("备份被覆盖: %q", got)
+	}
+}
+
 // 删除中途退出留下的 .deleted 文件：仍被引用且原文件不在时改回原名，其余才删除。
 func TestDeletedMarkersFollowReferences(t *testing.T) {
 	root := t.TempDir()
