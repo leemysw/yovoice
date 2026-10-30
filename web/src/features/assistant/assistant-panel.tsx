@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { ChatComposer, ChatMessage, ChatMessageBubble, ChatMessageList, ChatSendButton } from '@astryxdesign/core/Chat';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
@@ -6,8 +6,9 @@ import { List, ListItem } from '@astryxdesign/core/List';
 import { Text } from '@astryxdesign/core/Text';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ChevronDown, ChevronLeft, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen, SquarePen, TextQuote, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen, SquarePen, TextQuote, Trash2, X } from 'lucide-react';
 import { call, mediaUrl, releaseMediaUrl } from '../../shared/lib/client';
+import { formatCallError } from '../../shared/i18n/format';
 import { assistantUsable, codexProvider, type AssistantBlock, type AssistantContext, type State, type Generation } from '../../shared/workbench';
 import { messageBlocks, turnCards } from './assistant-model';
 import { AssistantTurn } from './assistant-turn';
@@ -22,6 +23,21 @@ import { useAssistantLive } from '../../shared/lib/assistant-live';
 
 // 助手面板：浮在工作区上的对话卡片，拖标题栏移动、拖左上边角缩放；放大只拉长到窗口高度、宽度不变，向下箭头收起成入口。
 // 对话按会话组织（标题处切换历史），发送、停止、新建、删除经 assistant.* RPC；运行中的一轮按内容块实时渲染。
+// 这些调用失败时在面板内提示，不弹全局通知，也不丢掉正在输入的内容。
+
+// 一条消息最多的字数，与服务端一致。
+const messageLimit = 2000;
+
+interface ActivePlayback { element: HTMLAudioElement; id: string; url: string }
+
+// 停下正在试听的回复音频并释放它的地址：暂停、切换到别的结果、卸载都走这里。
+function stopPlayback(ref: RefObject<ActivePlayback | null>) {
+  const active = ref.current;
+  ref.current = null;
+  if (!active) return;
+  active.element.pause();
+  releaseMediaUrl(active.url);
+}
 
 /** 助手要求打开某作品时由应用层执行（面板自己不掌握页面状态）。 */
 export interface AssistantPanelActions {
@@ -53,58 +69,74 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   const [draft, setDraft] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const audioRef = useRef<{ element: HTMLAudioElement; id: string } | null>(null);
+  // 面板内的错误提示：发送、会话操作、切换模型或试听失败时显示在输入区上方。
+  const [error, setError] = useState('');
+  const fail = (e: unknown) => setError(formatCallError(t, e));
+  const audioRef = useRef<ActivePlayback | null>(null);
+  // 试听请求的序号：快速连点时只有最后一次会播放，卸载后回来的结果直接丢弃。
+  const playToken = useRef(0);
   const [playing, setPlaying] = useState<string | null>(null);
-  useEffect(() => () => { audioRef.current?.element.pause(); audioRef.current = null; }, []);
+  useEffect(() => () => { playToken.current++; stopPlayback(audioRef); }, []);
   useEffect(() => { if (running) setHistoryOpen(false); }, [running]);
 
-  const send = (text: string) => {
+  // 输入框在提交时就会清空：超长、会话忙等发送失败时把内容放回去（用户没有另起新内容的话），错误显示在面板内；
+  // typed 为真表示来自输入框，空状态的快捷建议失败只提示。
+  const send = (text: string, typed = false) => {
     const trimmed = text.trim();
     if (!trimmed || !configured || runtimeMissing) return;
-    setDraft('');
     setHistoryOpen(false);
+    setError('');
     // 选中的文字与播放位置在发送这一刻取出：选区只随这一条消息带上。
-    void call('assistant.send', { text: trimmed, context: { ...context, ...takeAssistantFocus() } }).catch(() => undefined);
+    void call('assistant.send', { text: trimmed, context: { ...context, ...takeAssistantFocus() } })
+      .catch((e: unknown) => { fail(e); if (typed) setDraft(current => current.trim() ? current : text); });
   };
   const selection = useAssistantSelection();
   const resolveProposal = (id: string, confirm: boolean) => call('assistant.proposal', { id, confirm }).then(() => undefined);
   const newSession = () => {
     if (running) return;
     setHistoryOpen(false);
-    void call('assistant.new').catch(() => undefined);
+    void call('assistant.new').catch(fail);
   };
   const openSession = (id: string) => {
     setHistoryOpen(false);
     setDeleting(null);
-    void call('assistant.open', { id }).catch(() => undefined);
+    void call('assistant.open', { id }).catch(fail);
   };
   const deleteSession = (id: string) => {
     setDeleting(null);
-    void call('assistant.delete', { id }).catch(() => undefined);
+    void call('assistant.delete', { id }).catch(fail);
   };
+  const cancel = () => { void call('assistant.cancel').catch(fail); };
 
+  // 试听回复里的生成结果：再点一次暂停；取地址期间又点了别的或面板已卸载时不再播放，失败时清掉引用并提示。
   const play = async (item: Generation) => {
-    const active = audioRef.current;
-    if (active && active.id === item.id) {
-      active.element.pause();
-      audioRef.current = null;
-      setPlaying(null);
-      return;
-    }
-    active?.element.pause();
-    const url = await mediaUrl('outputs', item.fileName);
+    const token = ++playToken.current;
+    const same = audioRef.current?.id === item.id;
+    stopPlayback(audioRef);
+    setPlaying(null);
+    if (same) return;
+    let url: string;
+    try { url = await mediaUrl('outputs', item.fileName); }
+    catch (e) { if (token === playToken.current) fail(e); return; }
+    if (token !== playToken.current) { releaseMediaUrl(url); return; }
     const element = new Audio(url);
-    audioRef.current = { element, id: item.id };
+    audioRef.current = { element, id: item.id, url };
     setPlaying(item.id);
-    element.onended = () => { if (audioRef.current?.id === item.id) { audioRef.current = null; setPlaying(null); } releaseMediaUrl(url); };
-    await element.play().catch(() => setPlaying(null));
+    element.onended = () => { if (audioRef.current?.element === element) { stopPlayback(audioRef); setPlaying(null); } };
+    try { await element.play(); }
+    catch (e) {
+      if (audioRef.current?.element !== element) return;
+      stopPlayback(audioRef);
+      setPlaying(null);
+      if ((e as DOMException).name !== 'AbortError') setError(t('@yovoice.error.audioPlayFailed'));
+    }
   };
 
   // 当前作品总是随消息带上；输入框左下角用来切换 AI 服务里的模型，与设置页共用同一份当前模型。
   const choice = (id: string, model: string) => `${id}\n${model}`;
   const modelOptions = (state.aiProviders ?? []).filter(p => p.model || p.models?.length)
     .map(p => ({ type: 'section' as const, title: p.name, options: [...new Set([p.model, ...(p.models ?? [])].filter(Boolean))].map(model => ({ value: choice(p.id, model), label: model })) }));
-  const pickModel = (value: string) => { const [id, model] = value.split('\n'); void call('ai.provider.use', { id, model }).catch(() => undefined); };
+  const pickModel = (value: string) => { const [id, model] = value.split('\n'); void call('ai.provider.use', { id, model }).catch(fail); };
   // 写作与助手共用当前服务，这里也是切换服务的入口，ChatGPT 订阅照样列出；选中它时面板给出说明并保留选择，方便切回。
   const modelPicker = provider ? <Selector label={t('@yovoice.ai.model')} isLabelHidden size="sm" variant="ghost" className="assistant-model" data-testid="assistant-model"
     value={provider.model ? choice(provider.id, provider.model) : undefined} options={modelOptions} onChange={pickModel}
@@ -167,6 +199,10 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
         </ChatMessage> : null}
       </ChatMessageList>}
     </VStack>
+    {error ? <HStack className="assistant-notice" role="alert" data-tone="danger" data-testid="assistant-error" gap={2} vAlign="center">
+      <Text type="inherit" color="inherit" className="grow">{error}</Text>
+      <Button size="sm" variant="ghost" isIconOnly icon={<X size={14} />} label={t('@yovoice.action.closeNotice')} onClick={() => setError('')} />
+    </HStack> : null}
     {runtimeMissing ? <HStack className="assistant-notice" role="alert" gap={2} vAlign="center">
       <Text type="inherit" color="inherit" className="grow">{t('@yovoice.ai.assistantMissing')}</Text>
     </HStack> : codex ? <VStack className="assistant-notice" gap={2} data-testid="assistant-codex">
@@ -176,10 +212,11 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       <Text type="inherit" color="inherit" className="grow">{t('@yovoice.assistant.setup')}</Text>
       <Button size="sm" variant="secondary" label={t('@yovoice.ai.configure')} onClick={actions.openSettings} />
     </HStack> : <VStack className="assistant-dock-bottom" gap={0}>
-      <ChatComposer className="assistant-composer" density="compact" value={draft} onChange={setDraft}
+      {/* 输入框是可编辑区域而不是 textarea，字数上限在这里截断，与服务端的限制一致。 */}
+      <ChatComposer className="assistant-composer" density="compact" value={draft} onChange={value => setDraft(value.length > messageLimit ? value.slice(0, messageLimit) : value)}
         placeholder={t('@yovoice.assistant.placeholder')} isDisabled={runtimeMissing}
-        isStopShown={running} onStop={() => void call('assistant.cancel').catch(() => undefined)}
-        onSubmit={send} sendButton={<ChatSendButton className="assistant-send" />}
+        isStopShown={running} onStop={cancel}
+        onSubmit={value => send(value, true)} sendButton={<ChatSendButton className="assistant-send" />}
         // 编辑区里选中的文字会随下一条消息带给 Ocho：以引用标签放在输入框里，点 × 不带。
         headerActions={selection ? <Token data-testid="assistant-selection" className="assistant-selection" size="sm" icon={<TextQuote size={12} />}
           label={selection.replace(/\s+/g, ' ')} description={t('@yovoice.assistant.selectionHint')} onRemove={clearAssistantSelection} /> : undefined}

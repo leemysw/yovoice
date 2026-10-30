@@ -59,6 +59,8 @@
 .assistant-history-item:hover .assistant-history-delete, .assistant-history-item:focus-within .assistant-history-delete { opacity: 1; }
 .assistant-queued { flex-shrink: 0; color: var(--app-muted); padding-inline: var(--spacing-1); }
 .assistant-notice { flex-shrink: 0; margin: var(--spacing-2) var(--assistant-inset) var(--spacing-4); padding: var(--spacing-3); border-radius: var(--radius-element); background: var(--app-surface); color: var(--app-muted); font-size: var(--app-small-font); }
+/* 操作失败的提示：与对话框里的错误条同一配色，带关闭按钮，紧挨输入区。 */
+.assistant-notice[data-tone="danger"] { margin-block-end: var(--spacing-2); padding-block: var(--spacing-2); padding-inline-end: var(--spacing-2); background: var(--color-error-muted); color: var(--color-text-primary); }
 .assistant-turn { width: 100%; min-width: 0; align-items: stretch; }
 .assistant-answer { min-width: 0; color: var(--app-ink); line-height: 1.65; overflow-wrap: anywhere; }
 .assistant-status { min-height: var(--spacing-6); color: var(--app-muted); font-size: var(--app-small-font); }
