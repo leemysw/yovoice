@@ -9,9 +9,6 @@ import (
 	"yovoice/internal/platform"
 )
 
-// WebCacheDir 是 Windows 宿主的 WebView2 用户数据目录，完全可再生；宿主运行期间其中文件始终被占用。
-const WebCacheDir = "web-cache"
-
 // dataEntries 是数据目录中由应用创建的条目；清理旧目录时只删除这些，其余内容（用户自行放入的文件）原样保留。
 var dataEntries = []string{"voices", "outputs", "downloads", "runtime", "models", "logs", "service.lock", hostPreferences, backupFile, legacyBackup, legacyMigrated, "local-api.json", "secrets.json", WebCacheDir}
 

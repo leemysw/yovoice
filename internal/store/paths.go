@@ -8,6 +8,9 @@ import (
 	"yovoice/internal/msg"
 )
 
+// WebCacheDir 是 Windows 宿主的 WebView2 用户数据目录，完全可再生；宿主运行期间其中文件始终被占用。
+const WebCacheDir = "web-cache"
+
 // SamePath 判断两个路径是否指向同一位置；Windows 与 macOS 默认文件系统不区分大小写。
 func SamePath(a, b string) bool {
 	a, b = filepath.Clean(a), filepath.Clean(b)
