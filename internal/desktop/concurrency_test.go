@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -137,5 +139,37 @@ func TestShutdownWaitsForCalls(t *testing.T) {
 	case <-finished:
 	case <-time.After(5 * time.Second):
 		t.Fatal("在途调用结束后应完成关闭")
+	}
+}
+
+// 调用里的 panic 转成错误返回并释放读锁：之后的请求与关闭都不受影响。
+func TestPanicInCallReleasesLock(t *testing.T) {
+	handler, server, call := newServer(t)
+	result, err := handler.guard("boom", func() (any, error) { panic("boom") })
+	if result != nil || err == nil || !strings.Contains(fmt.Sprint(err), "@yovoice.error.unknown") {
+		t.Fatalf("panic 应转成未知错误: %v %v", result, err)
+	}
+	if _, err := call("state.get", map[string]any{}); err != nil {
+		t.Fatal("panic 之后的调用应正常", err)
+	}
+	b, err := os.ReadFile(filepath.Join(handler.Workbench.Store.Root, "logs", "service.log"))
+	must(t, err)
+	if !strings.Contains(string(b), `"rpc.panic"`) || !strings.Contains(string(b), `"method":"boom"`) {
+		t.Fatal("缺少 panic 诊断")
+	}
+	finished := make(chan struct{})
+	go func() {
+		defer close(finished)
+		r, err := http.NewRequest("POST", server.URL+"/shutdown", nil)
+		must(t, err)
+		r.AddCookie(&http.Cookie{Name: "vw-" + handler.Secret[:12], Value: handler.Secret})
+		res, err := server.Client().Do(r)
+		must(t, err)
+		res.Body.Close()
+	}()
+	select {
+	case <-finished:
+	case <-time.After(5 * time.Second):
+		t.Fatal("panic 后读锁未释放，关闭卡住")
 	}
 }

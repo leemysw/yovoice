@@ -64,7 +64,7 @@ func run() error {
 	if _, e := wb.Reconcile(); e != nil {
 		diag.Log(root, "state.reconcile_failed", "error", diag.Error(e))
 	}
-	go func() {
+	diag.Go(root, "startup.cleanup", func() {
 		// 数据目录迁移后首次在新目录启动：删除旧目录释放空间，失败时下次启动重试。
 		if hadState {
 			removed, e := store.CleanupPrevious(root)
@@ -79,7 +79,7 @@ func run() error {
 		if report.CleanedCount > 0 || e != nil {
 			diag.Log(root, "storage.residuals_cleaned", "count", report.CleanedCount, "bytes", report.FreedBytes, "error", diag.Error(e))
 		}
-	}()
+	})
 	bundled := os.Getenv("WORKBENCH_ENGINE")
 	// Windows 与 Linux 安装包内置 CPU 内核，GPU 内核在设置中另行下载；macOS 内置的 Metal 内核见下方。
 	if runtime.GOOS != "darwin" {
@@ -133,8 +133,8 @@ func run() error {
 	go func() {
 		defer close(shutdownDone)
 		<-ctx.Done()
-		localAPI.Close()
-		wb.Close()
+		// 与 /shutdown 走同一条路：先取消并排空在途调用，再关闭本机接口与应用服务。
+		handler.Close()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		_ = server.Shutdown(shutdown)

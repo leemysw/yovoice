@@ -68,7 +68,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return nil, msg.Err(msg.ErrRequestInvalid, nil)
 	}
 	if e := json.Unmarshal(data, &p); e != nil {
-		return nil, e
+		return nil, msg.Err(msg.ErrRequestInvalid, nil)
 	}
 	switch method {
 	case "state.get":
@@ -78,7 +78,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "draft.save", "generation.start":
 		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		if method == "draft.save" {
 			return true, w.SaveDraft(d)
@@ -91,7 +91,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			ClipID string       `json:"clipId"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.GenerateCue(input.Draft, input.CueID, input.ClipID)
 	case "draft.delete":
@@ -108,13 +108,13 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Score schema.Score `json:"score"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, score.Write(input.Path, input.Score)
 	case "character.save", "character.preview":
 		var c schema.Character
 		if e := json.Unmarshal(data, &c); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		if method == "character.preview" {
 			return w.PreviewCharacter(c)
@@ -135,7 +135,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "voice.record", "timeline.import":
 		b, e := base64.StdEncoding.DecodeString(p.Base64)
 		if e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		if method == "timeline.import" {
 			return w.ImportTimelineFrom(ctx, bytes.NewReader(b), p.Name)
@@ -188,7 +188,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "preferences.save":
 		preferences := schema.Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: schema.UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.SavePreferences(preferences)
 	case "storage.info":
@@ -208,7 +208,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "ai.provider.save":
 		var input workbench.AIProviderInput
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return w.SaveAIProvider(input)
 	case "ai.provider.delete":
@@ -232,7 +232,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Context workbench.AssistantContext `json:"context"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.SendAssistant(input.Text, input.Context)
 	case "assistant.cancel":
@@ -241,19 +241,19 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "ai.cast":
 		var input workbench.CastBrief
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return w.StartCast(input)
 	case "ai.image":
 		var input workbench.ImageBrief
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return w.StartImage(input)
 	case "melody.plan":
 		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.PlanMelody(d)
 	case "melody.cover":
@@ -262,11 +262,11 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Base64    string `json:"base64"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		b, e := base64.StdEncoding.DecodeString(input.Base64)
 		if e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.CoverMelody(input.ProjectID, bytes.NewReader(b))
 	case "melody.listen":
@@ -274,7 +274,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Abc string `json:"abc"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		file, e := w.ListenMelody(ctx, input.Abc)
 		return map[string]string{"fileName": file}, e
@@ -287,7 +287,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Tempo int    `json:"tempo"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		if method == "melody.inspect" {
 			return workbench.InspectMelody(input.Abc), nil
@@ -310,7 +310,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Confirm bool   `json:"confirm"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.ResolveAssistantProposal(input.ID, input.Confirm)
 	case "assistant.forget":
@@ -324,14 +324,14 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			Detail string `json:"detail"`
 		}
 		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		diag.Log(w.Store.Root, "client."+clip(input.Event, 40), "method", clip(input.Method, 80), "detail", clip(input.Detail, 2000))
 		return true, nil
 	case "logs.query":
 		var filter diag.Filter
 		if e := json.Unmarshal(data, &filter); e != nil {
-			return nil, e
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return diag.Query(w.Store.Root, filter)
 	case "logs.export":

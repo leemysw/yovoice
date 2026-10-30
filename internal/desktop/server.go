@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
+	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/workbench"
 )
@@ -31,6 +33,33 @@ type Server struct {
 func (s *Server) lifetime() context.Context {
 	s.once.Do(func() { s.closing, s.stop = context.WithCancel(context.Background()) })
 	return s.closing
+}
+
+// guard 在读锁内执行一次调用，并把 panic 转成错误返回：任一方法崩溃都不能让读锁悬挂，
+// 否则关闭时的写锁和之后的所有请求都会卡死。
+func (s *Server) guard(method string, fn func() (any, error)) (result any, err error) {
+	s.calls.RLock()
+	defer s.calls.RUnlock()
+	defer func() {
+		if r := recover(); r != nil {
+			diag.Log(s.Workbench.Store.Root, "rpc.panic", "method", method, "panic", fmt.Sprint(r), "stack", string(debug.Stack()))
+			result, err = nil, msg.Err(msg.ErrUnknown, msg.Params{"detail": fmt.Sprintf("panic: %v", r)})
+		}
+	}()
+	return fn()
+}
+
+// Close 关闭服务：先取消在途调用（包括正在复制数据目录的迁移），等它们结束后再释放资源。
+// /shutdown 与信号、标准输入关闭的退出路径共用；幂等。
+func (s *Server) Close() {
+	s.lifetime()
+	s.stop()
+	s.calls.Lock()
+	defer s.calls.Unlock()
+	if s.LocalAPI != nil {
+		s.LocalAPI.Close()
+	}
+	s.Workbench.Close()
 }
 
 // call 先处理本机接口设置，其余方法交给 Call。
@@ -69,15 +98,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, limit)
 	switch {
 	case r.URL.Path == "/api/export-audio" && r.Method == "POST":
-		// loudness 为目标响度（LUFS），不带时原样保存。
-		loudness, _ := strconv.ParseFloat(r.URL.Query().Get("loudness"), 64)
-		s.calls.RLock()
-		id, normalized, err := s.Workbench.SaveExport(r.Body, loudness)
-		s.calls.RUnlock()
-		reply := map[string]any{"id": id}
-		if normalized != nil {
-			reply["normalized"] = normalized
+		// loudness 为目标响度（LUFS），不带时原样保存；带了但不是数字视为请求无效。
+		var loudness float64
+		if raw := r.URL.Query().Get("loudness"); raw != "" {
+			if loudness, e = strconv.ParseFloat(raw, 64); e != nil {
+				http.Error(w, "请求无效。", 400)
+				return
+			}
 		}
+		reply, err := s.guard("export-audio", func() (any, error) {
+			id, normalized, err := s.Workbench.SaveExport(r.Body, loudness)
+			reply := map[string]any{"id": id}
+			if normalized != nil {
+				reply["normalized"] = normalized
+			}
+			return reply, err
+		})
 		if err != nil {
 			reply = map[string]any{"error": msg.Encode(err)}
 		}
@@ -97,9 +133,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 宿主断开或服务关闭时取消调用。
 		ctx, cancel := context.WithCancel(r.Context())
 		release := context.AfterFunc(s.lifetime(), cancel)
-		s.calls.RLock()
-		result, err := s.call(ctx, message.Method, message.Data)
-		s.calls.RUnlock()
+		result, err := s.guard(message.Method, func() (any, error) { return s.call(ctx, message.Method, message.Data) })
 		release()
 		cancel()
 		reply := map[string]any{"id": message.ID, "result": result}
@@ -157,14 +191,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 隐藏 io.ReaderFrom，避免 Windows sendfile 与连接后台读在 Go 1.26 中的数据竞争。
 		http.ServeFile(struct{ http.ResponseWriter }{w}, r, path)
 	case r.URL.Path == "/shutdown" && r.Method == "POST":
-		s.lifetime()
-		s.stop()
-		s.calls.Lock()
-		if s.LocalAPI != nil {
-			s.LocalAPI.Close()
-		}
-		s.Workbench.Close()
-		s.calls.Unlock()
+		s.Close()
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte("{}"))
 		if s.Shutdown != nil {
