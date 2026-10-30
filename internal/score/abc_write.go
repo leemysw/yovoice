@@ -2,6 +2,7 @@ package score
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -342,4 +343,41 @@ func spell(pitch int, signature map[byte]int, local map[byte]int) (string, strin
 		return string(letter+'a'-'A') + strings.Repeat("'", octave-1), accidental
 	}
 	return string(letter) + strings.Repeat(",", -octave), accidental
+}
+
+// StripABCChords 去掉全部和弦记号，旋律、休止和小节保持不变；按谱生成时随之改用 melody 模式。
+func StripABCChords(text string) (string, error) {
+	s, e := ParseABC(text)
+	if e != nil {
+		return "", e
+	}
+	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
+	quoted := regexp.MustCompile(`"[^"\n]*"`)
+	for i := range s.musicLines {
+		lines[i] = quoted.ReplaceAllString(lines[i], "")
+	}
+	out := strings.Join(lines, "\n")
+	result, e := ParseABC(out)
+	if e != nil {
+		return "", e
+	}
+	for vi := range s.Voices {
+		if !slices.Equal(s.Voices[vi].Notes, result.Voices[vi].Notes) {
+			return "", issue("grid", 0, "removing chords changed the melody")
+		}
+	}
+	return out, nil
+}
+
+// SetABCTempo 改写表头速度；拍子内的节奏不变，谱面时长随之变化。
+func SetABCTempo(text string, tempo int) (string, error) {
+	if _, e := ParseABC(text); e != nil {
+		return "", e
+	}
+	if tempo < 30 || tempo > 300 {
+		return "", issue("tempo", 5, "tempo must be 30-300")
+	}
+	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
+	lines[4] = "Q:1/4=" + strconv.Itoa(tempo)
+	return strings.Join(lines, "\n"), nil
 }
