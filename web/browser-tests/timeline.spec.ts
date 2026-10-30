@@ -2,6 +2,9 @@ import { test, expect, type Page, type Locator } from '@playwright/test';
 import { seedState } from './seed';
 import { emptyState } from '../src/shared/workbench';
 
+// 三条用例都要加载并解码音频、反复拖拽和刷新，单跑十几秒，并发排满工作线程时会翻倍，放宽文件内所有用例的时限。
+test.setTimeout(60_000);
+
 async function expectPlaybackHitArea(page: Page) {
   const play = page.locator('.audio-panel .play-main');
   // 播放按钮的上半部也应命中按钮，不能被调高面板的透明区域拦截。
