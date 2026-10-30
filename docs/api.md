@@ -125,7 +125,8 @@ The full reference, with request fields, response schemas and status codes, is s
 - Only one upload or generation runs at a time. Busy requests return 409; no queue is maintained.
 - The latest 100 task records are kept in memory. Restarting loses task status and deduplication records, and interrupted tasks do not resume. Completed audio remains saved. If a task returns 404, check for a restart or an expired record before resubmitting.
 - Asynchronous tasks survive client disconnection. Use the cancel tool or DELETE endpoint to stop one.
-- Invalid parameters return 400, invalid credentials 401, oversized uploads 413, generation failures 500, and synchronous generation timeouts 504.
+- Error responses carry a JSON body `{"error": {"code": "...", "params": {...}}}`. `code` is a stable identifier such as `@yovoice.error.busy`; `params` is optional and holds details, for example `detail` with the parser message for a malformed request body. Only 401, 403 and unknown paths return plain text.
+- Status codes: 400 invalid parameters or references (such as an unknown `voiceId`), 401 authentication failure, 404 unknown task or audio, 409 busy or request ID conflict, 413 oversized upload, 500 generation or engine failure, 504 synchronous generation timeout.
 
 The token grants access to the whole service, including its saved voices and audio. There are no per-user accounts or quotas. Browser cross-origin calls are not supported; only the server's own `/docs/` page may call it from a browser. Each model's license still applies.
 

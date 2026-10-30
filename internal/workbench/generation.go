@@ -2,7 +2,6 @@ package workbench
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"slices"
 	"strings"
@@ -54,10 +53,10 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 		}
 	}
 	if activity := state.Activity; activity != nil && activity.Status == "failed" && activity.ErrorCode != nil {
-		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
-		return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorText(*activity.ErrorCode, activity.ErrorParams))
+		// 原样返回结构化错误码，远程客户端无需读取服务端日志即可区分原因。
+		return schema.Generation{}, msg.Err(*activity.ErrorCode, activity.ErrorParams)
 	}
-	return schema.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
+	return schema.Generation{}, msg.Err(msg.ErrGenerateFailed, nil)
 }
 
 // pruneOrphanHistory 只保留最新的 max 条孤儿历史（接口生成不建作品），时间线仍在使用的版本不计入也不删除。
@@ -98,13 +97,6 @@ func (w *Workbench) pruneTextVersions(draftID string, max int) {
 		}
 	}
 	_ = w.removeGenerations(ids, nil)
-}
-
-func errorText(code msg.Code, params msg.Params) string {
-	if detail, ok := params["detail"]; ok {
-		return fmt.Sprintf("%s (%v)", code, detail)
-	}
-	return string(code)
 }
 
 func (w *Workbench) generateAudio(d schema.Draft, previewID, cueID, clipID string) error {

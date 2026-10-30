@@ -109,7 +109,7 @@ func (a *API) serve(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST" && (r.URL.Path == "/v1/voices" || r.URL.Path == "/v1/generate"):
 		// 单个引擎只运行一个请求，繁忙时直接拒绝，不积压无限队列。
 		if !a.busy.TryLock() {
-			http.Error(w, errBusy.Error(), http.StatusConflict)
+			apiError(w, errBusy)
 			return
 		}
 		defer a.busy.Unlock()
@@ -128,17 +128,67 @@ func apiJSON(w http.ResponseWriter, value any) {
 	_ = json.NewEncoder(w).Encode(value)
 }
 
+// apiError 统一错误响应：正文为 JSON `{"error": {"code", "params"}}`，状态码由 apiStatus 按错误类型映射。
+// 认证、跨域与未知路径的拒绝不经过这里，仍是纯文本。
+func apiError(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(apiStatus(err))
+	_ = json.NewEncoder(w).Encode(map[string]any{"error": msg.Encode(err)})
+}
+
+// serverErrors 是服务端或引擎侧的失败，映射为 500；其余结构化错误都是请求参数或引用校验，映射为 400。
+var serverErrors = map[msg.Code]bool{
+	msg.ErrGenerateFailed: true, msg.ErrEngineCrashed: true, msg.ErrEngineStartFailed: true, msg.ErrEngineStartTimeout: true,
+	msg.ErrEngineNoAudio: true, msg.ErrEngineUpgradeRequired: true, msg.ErrRuntimeRequired: true, msg.ErrRuntimeMissing: true,
+	msg.ErrStateSaveFailed: true, msg.ErrStateCorrupt: true, msg.ErrDiskFull: true, msg.ErrDataRootMissing: true,
+	msg.ErrAudioConverterMissing: true, msg.ErrUnknown: true,
+}
+
+// apiStatus 把错误映射为 HTTP 状态码：超时 504、任务或音频不存在 404、繁忙或任务 ID 冲突 409、上传超限 413、
+// 服务端失败 500、其余参数或引用错误 400；没有错误码的普通错误视为服务端失败。
+func apiStatus(err error) int {
+	var tooLarge *http.MaxBytesError
+	var callErr *msg.CallError
+	switch {
+	case errors.Is(err, context.DeadlineExceeded):
+		return http.StatusGatewayTimeout
+	case errors.Is(err, errJobMissing):
+		return http.StatusNotFound
+	case errors.Is(err, errJobConflict):
+		return http.StatusConflict
+	case errors.As(err, &tooLarge):
+		return http.StatusRequestEntityTooLarge
+	case !errors.As(err, &callErr):
+		return http.StatusInternalServerError
+	}
+	switch callErr.Code {
+	case msg.ErrBusy:
+		return http.StatusConflict
+	case msg.ErrAudioTooLarge:
+		return http.StatusRequestEntityTooLarge
+	case msg.ErrAudioMissing:
+		return http.StatusNotFound
+	}
+	if serverErrors[callErr.Code] {
+		return http.StatusInternalServerError
+	}
+	return http.StatusBadRequest
+}
+
+// requestError 把请求体解析失败归为参数错误并附上原因；校验阶段返回的结构化错误原样保留。
+func requestError(err error) error {
+	var callErr *msg.CallError
+	if errors.As(err, &callErr) {
+		return err
+	}
+	return msg.Err(msg.ErrRequestInvalid, msg.Params{"detail": err.Error()})
+}
+
 func (a *API) upload(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
 	voice, err := a.Workbench.ImportVoiceFrom(r.Context(), r.Body, r.URL.Query().Get("name"))
 	if err != nil {
-		status := http.StatusBadRequest
-		var tooLarge *http.MaxBytesError
-		var callErr *msg.CallError
-		if errors.As(err, &tooLarge) || (errors.As(err, &callErr) && callErr.Code == msg.ErrAudioTooLarge) {
-			status = http.StatusRequestEntityTooLarge
-		}
-		http.Error(w, err.Error(), status)
+		apiError(w, err)
 		return
 	}
 	apiJSON(w, voice)
@@ -148,18 +198,12 @@ func (a *API) generate(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	d, err := decodeGeneration(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), 400)
+		apiError(w, requestError(err))
 		return
 	}
 	g, err := a.generateAudio(r.Context(), d)
 	if err != nil {
-		status := http.StatusInternalServerError
-		if errors.Is(err, context.DeadlineExceeded) {
-			status = http.StatusGatewayTimeout
-		} else if errors.Is(err, errBusy) {
-			status = http.StatusConflict
-		}
-		http.Error(w, err.Error(), status)
+		apiError(w, err)
 		return
 	}
 	a.audio(w, r, g.ID)
@@ -170,24 +214,19 @@ func decodeGeneration(body io.Reader) (schema.Draft, error) {
 	return workbench.DecodeRemoteGeneration(body)
 }
 
-var errBusy = errors.New("推理服务繁忙，请稍后重试")
+// errBusy 是单引擎被占用时的统一错误；界面正在生成或下载时 Synthesize 返回同一错误码，HTTP 都映射为 409。
+var errBusy = msg.Err(msg.ErrBusy, nil)
 
 func (a *API) generateAudio(ctx context.Context, d schema.Draft) (schema.Generation, error) {
 	ctx, cancel := context.WithTimeout(ctx, a.generationTimeout())
 	defer cancel()
-	g, err := a.Workbench.Synthesize(ctx, d)
-	// 桌面应用内置接口与界面共用引擎，界面正在生成或下载时同样按繁忙处理。
-	var callErr *msg.CallError
-	if errors.As(err, &callErr) && callErr.Code == msg.ErrBusy {
-		return g, errBusy
-	}
-	return g, err
+	return a.Workbench.Synthesize(ctx, d)
 }
 
 func (a *API) audio(w http.ResponseWriter, r *http.Request, id string) {
 	path, err := a.Workbench.MediaFile("outputs", id)
 	if err != nil {
-		http.NotFound(w, r)
+		apiError(w, err)
 		return
 	}
 	w.Header().Set("Content-Type", "audio/wav")

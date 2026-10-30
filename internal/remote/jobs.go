@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"yovoice/internal/diag"
+	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
 
@@ -30,8 +32,21 @@ type generationJob struct {
 	created     time.Time
 }
 
+// errJobConflict 与 errJobMissing 没有对应的消息码，HTTP 分别映射为 409 与 404。
 var errJobConflict = errors.New("任务 ID 已用于不同参数，或推理服务繁忙")
 var errJobMissing = errors.New("任务不存在或已过期")
+
+// errorString 给任务记录写稳定的失败原因：结构化错误用错误码（带 detail 时附在括号内），其余用原文。
+func errorString(err error) string {
+	var callErr *msg.CallError
+	if !errors.As(err, &callErr) {
+		return err.Error()
+	}
+	if detail, ok := callErr.Params["detail"]; ok {
+		return fmt.Sprintf("%s (%v)", callErr.Code, detail)
+	}
+	return string(callErr.Code)
+}
 
 func (a *API) generationTimeout() time.Duration {
 	if a.GenerationTimeout > 0 {
@@ -42,7 +57,7 @@ func (a *API) generationTimeout() time.Duration {
 
 func (a *API) submitJob(id string, d schema.Draft) (GenerationJob, error) {
 	if !schema.ValidID(id) {
-		return GenerationJob{}, fmt.Errorf("requestId 必须为 32 位十六进制随机 ID")
+		return GenerationJob{}, msg.Err(msg.ErrRequestInvalid, msg.Params{"detail": "requestId 必须为 32 位十六进制随机 ID"})
 	}
 	data, err := json.Marshal(struct {
 		Text string
@@ -88,12 +103,14 @@ func (a *API) submitJob(id string, d schema.Draft) (GenerationJob, error) {
 	result := job.GenerationJob
 	go func() {
 		defer cancel()
-		g, err := a.generateAudio(ctx, d)
+		// panic 也要落成任务失败并释放单任务槽，否则之后的提交永远返回繁忙。
+		var g schema.Generation
+		err := diag.Catch(a.Workbench.Store.Root, "api.job", func() (e error) { g, e = a.generateAudio(ctx, d); return e })
 		a.jobsMu.Lock()
 		defer a.jobsMu.Unlock()
 		job.Status = "completed"
 		if err != nil {
-			job.Status, job.Error = "failed", err.Error()
+			job.Status, job.Error = "failed", errorString(err)
 			if errors.Is(err, context.DeadlineExceeded) {
 				job.Status = "timed_out"
 			}
@@ -134,7 +151,9 @@ func (a *API) jobHTTP(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		var d schema.Draft
 		d, err = decodeGeneration(http.MaxBytesReader(w, r.Body, 1<<20))
-		if err == nil {
+		if err != nil {
+			err = requestError(err)
+		} else {
 			result, err = a.submitJob(id, d)
 		}
 	case "GET", "DELETE":
@@ -145,14 +164,7 @@ func (a *API) jobHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		code := http.StatusBadRequest
-		if errors.Is(err, errJobConflict) {
-			code = http.StatusConflict
-		}
-		if errors.Is(err, errJobMissing) {
-			code = http.StatusNotFound
-		}
-		http.Error(w, err.Error(), code)
+		apiError(w, err)
 		return
 	}
 	apiJSON(w, result)

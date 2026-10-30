@@ -30,6 +30,22 @@ func TestRemoteAPI(t *testing.T) {
 		api.ServeHTTP(w, r)
 		return w
 	}
+	// 所有错误响应统一为 JSON {"error": {"code": ...}}，返回其中的错误码。
+	errorCode := func(w *httptest.ResponseRecorder) string {
+		t.Helper()
+		if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+			t.Fatalf("错误响应 Content-Type 为 %q：%s", ct, w.Body.String())
+		}
+		var body struct {
+			Error struct {
+				Code string `json:"code"`
+			} `json:"error"`
+		}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil || body.Error.Code == "" {
+			t.Fatalf("错误正文不是 {\"error\":{\"code\":...}}：%s", w.Body.String())
+		}
+		return body.Error.Code
+	}
 	if w := request("GET", "/v1/models", "", ""); w.Code != 401 {
 		t.Fatal(w.Code)
 	}
@@ -62,11 +78,28 @@ func TestRemoteAPI(t *testing.T) {
 		s.Preferences.Backend = "cpu"
 	}, true))
 	for _, body := range []string{`{"text":"hi","path":"/etc/passwd"}`, `{"text":"hi"} {}`, `{"text":""}`} {
-		if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != 400 {
-			t.Fatal(w.Code)
+		w := request("POST", "/v1/generate", body, "Bearer "+token)
+		if w.Code != 400 {
+			t.Fatal(w.Code, w.Body.String())
 		}
+		errorCode(w)
+	}
+	// 引用不存在的音色是客户端错误，返回 400 而不是 500。
+	if w := request("POST", "/v1/generate", `{"text":"hi","voiceId":"`+strings.Repeat("f", 32)+`"}`, "Bearer "+token); w.Code != 400 || errorCode(w) != string(msg.ErrVoiceRequired) {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	if w := request("GET", "/v1/audio/"+schema.NewID(), "", "Bearer "+token); w.Code != 404 || errorCode(w) != string(msg.ErrAudioMissing) {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	if w := request("GET", "/v1/jobs/"+schema.NewID(), "", "Bearer "+token); w.Code != 404 {
+		t.Fatal(w.Code, w.Body.String())
+	} else {
+		errorCode(w)
 	}
 	body := `{"text":"远程生成","voiceId":"` + voice.ID + `"}`
+	if w := request("PUT", "/v1/jobs/not-hex", body, "Bearer "+token); w.Code != 400 || errorCode(w) != string(msg.ErrRequestInvalid) {
+		t.Fatal(w.Code, w.Body.String())
+	}
 	drafts := len(wb.Store.Read().Drafts)
 	result := request("POST", "/v1/generate", body, "Bearer "+token)
 	if result.Code != 200 || !bytes.Equal(result.Body.Bytes(), wav()) {
@@ -97,8 +130,8 @@ func TestRemoteAPI(t *testing.T) {
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
-	if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != http.StatusConflict {
-		t.Fatal(w.Code)
+	if w := request("POST", "/v1/generate", body, "Bearer "+token); w.Code != http.StatusConflict || errorCode(w) != string(msg.ErrBusy) {
+		t.Fatal(w.Code, w.Body.String())
 	}
 	cancel()
 	select {
@@ -138,7 +171,9 @@ func TestRemoteAPI(t *testing.T) {
 		t.Fatal("重试重复生成")
 	}
 	if res := request("PUT", "/v1/jobs/"+id, strings.Replace(body, "远程生成", "其他文本", 1), "Bearer "+token); res.Code != 409 {
-		t.Fatal(res.Code)
+		t.Fatal(res.Code, res.Body.String())
+	} else {
+		errorCode(res)
 	}
 	if res := request("GET", job.DownloadPath, "", "Bearer "+token); !bytes.Equal(res.Body.Bytes(), wav()) {
 		t.Fatal("异步音频不正确")

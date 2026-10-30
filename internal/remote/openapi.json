@@ -63,7 +63,8 @@
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Busy" },
-          "413": { "description": "Audio is larger than 20 MB or longer than allowed", "content": { "text/plain": { "schema": { "type": "string" } } } }
+          "413": { "description": "Audio is larger than 20 MB or longer than allowed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "500": { "description": "Import failed on the server, for example the audio converter is missing or the state file could not be saved", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
       }
     },
@@ -119,8 +120,8 @@
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Busy" },
-          "500": { "description": "Generation failed", "content": { "text/plain": { "schema": { "type": "string" } } } },
-          "504": { "description": "Generation exceeded the server's time limit", "content": { "text/plain": { "schema": { "type": "string" } } } }
+          "500": { "description": "Generation or engine failure", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "504": { "description": "Generation exceeded the server's time limit", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
       }
     },
@@ -134,6 +135,7 @@
         ],
         "responses": {
           "200": { "$ref": "#/components/responses/Audio" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "404": { "$ref": "#/components/responses/NotFound" }
         }
@@ -174,12 +176,27 @@
         "headers": { "X-Yovoice-Generation-ID": { "description": "Generation ID, usable with `/v1/audio/{id}`", "schema": { "type": "string" } } },
         "content": { "audio/wav": { "schema": { "type": "string", "format": "binary" } } }
       },
-      "BadRequest": { "description": "Invalid parameters", "content": { "text/plain": { "schema": { "type": "string" } } } },
+      "BadRequest": { "description": "Invalid parameters or references, for example an unknown voiceId or an ID in the wrong format", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
       "Unauthorized": { "description": "Missing or invalid bearer token", "content": { "text/plain": { "schema": { "type": "string" } } } },
-      "Busy": { "description": "Another upload or generation is running, or the request ID was reused with different parameters", "content": { "text/plain": { "schema": { "type": "string" } } } },
-      "NotFound": { "description": "Not found; job records expire after 100 newer jobs or a server restart", "content": { "text/plain": { "schema": { "type": "string" } } } }
+      "Busy": { "description": "Another upload or generation is running, or the request ID was reused with different parameters", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound": { "description": "Task or audio not found; job records expire after 100 newer jobs or a server restart", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
     },
     "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "description": "Body of every JSON error response",
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code"],
+            "properties": {
+              "code": { "type": "string", "description": "Stable error code, for example @yovoice.error.busy" },
+              "params": { "type": "object", "additionalProperties": true, "description": "Optional details, for example `detail` with the parser message of a malformed request body" }
+            }
+          }
+        }
+      },
       "GenerationRequest": {
         "type": "object",
         "required": ["text"],
