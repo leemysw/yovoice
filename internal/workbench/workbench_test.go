@@ -221,7 +221,7 @@ func TestMigrationAndLock(t *testing.T) {
 	m, e := store.New(target)
 	must(t, e)
 	state := m.Read()
-	if value(state.RuntimePath) != filepath.Join(target, "runtime", "engine") || state.Models[0].Path != filepath.Join(target, "models", "test.gguf") || value(state.Preferences.ModelDirectory) != external {
+	if schema.Deref(state.RuntimePath) != filepath.Join(target, "runtime", "engine") || state.Models[0].Path != filepath.Join(target, "models", "test.gguf") || schema.Deref(state.Preferences.ModelDirectory) != external {
 		t.Fatal(state)
 	}
 	must(t, os.Mkdir(legacy, 0700))
@@ -322,7 +322,7 @@ func TestOperationCancellation(t *testing.T) {
 	w.CancelModel()
 	<-w.ModelDone()
 	s := w.Store.Read()
-	if s.ModelActivity.Status != "cancelled" || s.ModelActivity.Code != msg.ActivityPaused || value(s.ModelActivity.ModelID) != "index-2-q8" || s.Activity.Status != "running" {
+	if s.ModelActivity.Status != "cancelled" || s.ModelActivity.Code != msg.ActivityPaused || schema.Deref(s.ModelActivity.ModelID) != "index-2-q8" || s.Activity.Status != "running" {
 		t.Fatal(s.Activity, s.ModelActivity)
 	}
 	w.Cancel()

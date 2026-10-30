@@ -1,20 +1,14 @@
 import type { LogEntry, LogFilter, LogLevel, LogPage } from '../workbench';
 import { CallError } from './call-error';
+import audited from '@internal/desktop/audited.json';
 
 // 浏览器预览的日志：只在内存里保留本次打开后的关键操作，演示日志页；规则与 Go 服务的 diag 一致。
 const entries: LogEntry[] = [];
 const capacity = 2000;
 const rank: Record<string, number> = { INFO: 1, WARN: 2, ERROR: 3 };
 
-// 与 internal/desktop/rpc.go 的 audited 对应：这些方法无论成败都留一条记录。
-export const auditedMethods = new Set([
-  'draft.delete', 'project.export', 'project.import', 'score.import', 'score.export', 'character.save', 'character.delete',
-  'voice.fromGeneration', 'voice.update', 'voice.record', 'timeline.import', 'media.rename', 'media.delete',
-  'generation.lyricTimes', 'generation.lyricWords', 'generation.alignLyrics', 'preferences.save', 'storage.relocate', 'storage.cleanup', 'model.directory', 'model.download',
-  'model.forget', 'runtime.install', 'ai.provider.save', 'ai.provider.delete', 'ai.provider.use', 'ai.test', 'ai.connect', 'ai.codex.login',
-  'melody.plan', 'melody.cover', 'melody.dismiss', 'ai.dismiss', 'operation.cancel', 'model.cancel', 'ai.cancel', 'logs.export', 'assets.delete',
-  'assistant.proposal', 'assistant.forget',
-]);
+// 与 Go 服务同一份清单（internal/desktop/audited.json）：这些方法无论成败都留一条记录。
+export const auditedMethods = new Set<string>(audited);
 
 export function logLevel(event: string, fields: Record<string, unknown> = {}): LogLevel {
   if (fields.error != null || /(_failed|_rejected|_denied|\.failed|\.corrupt|\.error|\.crashed)$/.test(event)) return 'ERROR';

@@ -2,7 +2,7 @@ import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { ModelOptions } from './model-options';
 import { Selector } from '../../shared/selector';
 import { Slider } from '@astryxdesign/core/Slider';
-import attributes from '../../shared/lib/omni-attributes.json';
+import attributes from '@internal/catalog/omni_attributes.json';
 import { VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';

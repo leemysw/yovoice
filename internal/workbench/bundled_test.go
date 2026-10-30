@@ -34,7 +34,7 @@ func TestBundledCPU(t *testing.T) {
 	writeBundled(t, dir, "cpu", catalog.EngineVersion)
 	must(t, w.UseBundled(path))
 	s := w.Store.Read()
-	if value(s.RuntimePath) != path || value(s.RuntimeBackend) != "cpu" || s.Preferences.Backend != "cpu" || !RuntimeReady(s) {
+	if schema.Deref(s.RuntimePath) != path || schema.Deref(s.RuntimeBackend) != "cpu" || s.Preferences.Backend != "cpu" || !RuntimeReady(s) {
 		t.Fatal("首次启动应使用内置 CPU")
 	}
 	must(t, w.Store.Update(func(s *schema.State) {
@@ -42,19 +42,19 @@ func TestBundledCPU(t *testing.T) {
 		useRuntime(s, "downloaded-cuda", "cuda", catalog.EngineVersion)
 	}, true))
 	must(t, w.UseBundled(path))
-	if value(w.Store.Read().RuntimePath) != "downloaded-cuda" {
+	if schema.Deref(w.Store.Read().RuntimePath) != "downloaded-cuda" {
 		t.Fatal("启动不应覆盖已选 CUDA")
 	}
 	p := w.Store.Read().Preferences
 	p.Backend = "cpu"
 	must(t, w.SavePreferences(p))
-	if value(w.Store.Read().RuntimePath) != path || value(w.Store.Read().RuntimeBackend) != "cpu" {
+	if schema.Deref(w.Store.Read().RuntimePath) != path || schema.Deref(w.Store.Read().RuntimeBackend) != "cpu" {
 		t.Fatal("切回 CPU 应复用内置内核")
 	}
 	must(t, os.RemoveAll(dir))
 	moved := writeBundled(t, filepath.Join(t.TempDir(), "engine"), "cpu", catalog.EngineVersion)
 	must(t, w.UseBundled(moved))
-	if value(w.Store.Read().RuntimePath) != moved {
+	if schema.Deref(w.Store.Read().RuntimePath) != moved {
 		t.Fatal("移动应用后应刷新 CPU 路径")
 	}
 }
@@ -68,7 +68,7 @@ func TestBundledVersion(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "engine")
 	path := writeBundled(t, dir, "cpu", "v0.0.1")
 	must(t, w.UseBundled(path))
-	if s := w.Store.Read(); value(s.RuntimeVersion) != "v0.0.1" || RuntimeReady(s) {
+	if s := w.Store.Read(); schema.Deref(s.RuntimeVersion) != "v0.0.1" || RuntimeReady(s) {
 		t.Fatal("低于最低版本的内置内核应要求更新")
 	}
 	writeBundled(t, dir, "", "")
@@ -85,7 +85,7 @@ func TestBundledVersion(t *testing.T) {
 	downloaded := writeBundled(t, filepath.Join(t.TempDir(), "runtime"), "", "")
 	must(t, w.Store.Update(func(s *schema.State) { useRuntime(s, downloaded, "cpu", "v999.0.0") }, true))
 	must(t, w.UseBundled(path))
-	if value(w.Store.Read().RuntimePath) != downloaded {
+	if schema.Deref(w.Store.Read().RuntimePath) != downloaded {
 		t.Fatal("已升级的内核不应被较旧的内置内核替换")
 	}
 }
@@ -98,7 +98,7 @@ func TestBundledCUDA(t *testing.T) {
 	path := writeBundled(t, filepath.Join(t.TempDir(), "engine"), "cuda13", catalog.EngineVersion)
 	must(t, w.UseBundled(path))
 	s := w.Store.Read()
-	if s.Preferences.Backend != "cuda13" || value(s.RuntimePath) != path || !RuntimeReady(s) {
+	if s.Preferences.Backend != "cuda13" || schema.Deref(s.RuntimePath) != path || !RuntimeReady(s) {
 		t.Fatal("首次启动应使用内置 CUDA")
 	}
 	// CUDA 后端仅在 Windows x64 上可选。
@@ -106,7 +106,7 @@ func TestBundledCUDA(t *testing.T) {
 		p := s.Preferences
 		p.Backend = "cpu"
 		must(t, w.SavePreferences(p))
-		if s := w.Store.Read(); value(s.RuntimePath) != path || !RuntimeReady(s) {
+		if s := w.Store.Read(); schema.Deref(s.RuntimePath) != path || !RuntimeReady(s) {
 			t.Fatal("切到 CPU 应复用内置 CUDA 内核")
 		}
 		p.Backend = "cuda"
@@ -121,7 +121,7 @@ func TestBundledCUDA(t *testing.T) {
 		useRuntime(s, "old-cuda", "cuda13", "v0.0.1")
 	}, true))
 	must(t, w.UseBundled(path))
-	if value(w.Store.Read().RuntimePath) != path || !RuntimeReady(w.Store.Read()) {
+	if schema.Deref(w.Store.Read().RuntimePath) != path || !RuntimeReady(w.Store.Read()) {
 		t.Fatal("内置 CUDA 应替换旧版下载内核")
 	}
 }
@@ -172,12 +172,12 @@ func TestSwitchBackendKeepsInstalledRuntime(t *testing.T) {
 		p := w.Store.Read().Preferences
 		p.Backend = "cpu"
 		must(t, w.SavePreferences(p))
-		if value(w.Store.Read().RuntimePath) != bundled {
+		if schema.Deref(w.Store.Read().RuntimePath) != bundled {
 			t.Fatal("切到 CPU 应使用内置内核")
 		}
 		p.Backend = gpu
 		must(t, w.SavePreferences(p))
-		if s := w.Store.Read(); value(s.RuntimePath) != downloaded || !RuntimeReady(s) {
+		if s := w.Store.Read(); schema.Deref(s.RuntimePath) != downloaded || !RuntimeReady(s) {
 			t.Fatal(message)
 		}
 	}
@@ -200,7 +200,7 @@ func TestSwitchBackendKeepsInstalledRuntime(t *testing.T) {
 	}
 	p.Backend = gpu
 	must(t, w.SavePreferences(p))
-	if value(w.Store.Read().RuntimePath) != downloaded {
+	if schema.Deref(w.Store.Read().RuntimePath) != downloaded {
 		t.Fatal("重启后切回 GPU 应复用已下载的内核")
 	}
 }
@@ -230,7 +230,7 @@ func TestAdoptUnregisteredRuntime(t *testing.T) {
 	p := w.Store.Read().Preferences
 	p.Backend = gpu
 	must(t, w.SavePreferences(p))
-	if s := w.Store.Read(); value(s.RuntimePath) != latest || !RuntimeReady(s) {
+	if s := w.Store.Read(); schema.Deref(s.RuntimePath) != latest || !RuntimeReady(s) {
 		t.Fatal("应找回版本最新的已解压内核")
 	}
 	if _, err := os.Stat(old); !os.IsNotExist(err) {

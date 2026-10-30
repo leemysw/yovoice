@@ -75,8 +75,8 @@ func (w *Workbench) ExportProject(id, path string) error {
 			}
 		}
 		for _, s := range settings {
-			voices[value(s.VoiceID)] = true
-			voices[value(s.EmotionVoiceID)] = true
+			voices[schema.Deref(s.VoiceID)] = true
+			voices[schema.Deref(s.EmotionVoiceID)] = true
 		}
 	}
 	collect(pack.Draft)
@@ -91,14 +91,14 @@ func (w *Workbench) ExportProject(id, path string) error {
 		if characters[c.ID] {
 			pack.Characters = append(pack.Characters, c)
 			for _, p := range c.Performances {
-				voices[value(p.Settings.VoiceID)] = true
-				voices[value(p.Settings.EmotionVoiceID)] = true
+				voices[schema.Deref(p.Settings.VoiceID)] = true
+				voices[schema.Deref(p.Settings.EmotionVoiceID)] = true
 			}
-			voices[value(c.Settings.VoiceID)] = true
-			voices[value(c.Settings.EmotionVoiceID)] = true
+			voices[schema.Deref(c.Settings.VoiceID)] = true
+			voices[schema.Deref(c.Settings.EmotionVoiceID)] = true
 			if c.Preview != nil {
-				voices[value(c.Preview.Settings.VoiceID)] = true
-				voices[value(c.Preview.Settings.EmotionVoiceID)] = true
+				voices[schema.Deref(c.Preview.Settings.VoiceID)] = true
+				voices[schema.Deref(c.Preview.Settings.EmotionVoiceID)] = true
 			}
 		}
 	}
@@ -262,7 +262,7 @@ func (w *Workbench) ImportProject(path string) (schema.Draft, error) {
 	if _, err = pack.Draft.SubtitleDrafts(); err != nil {
 		return schema.Draft{}, bad
 	}
-	if !schema.ValidID(pack.Draft.ID) || schema.TextLen(pack.Draft.Title) > 120 || schema.TextLen(pack.Draft.Text) > 12000 || schema.TextLen(pack.Draft.EmotionText) > 500 || schema.TextLen(pack.Draft.VoiceDescription) > 500 || schema.TextLen(pack.Draft.ReferenceText) > 2000 || schema.TextLen(pack.Draft.Lyrics) > 4000 || !schema.ScoreWithinLimits(pack.Draft.Score) || !slices.Contains([]string{"", "text", "story", "subtitle", "music", "sfx", "score"}, pack.Draft.Kind) {
+	if !schema.ValidID(pack.Draft.ID) || schema.TextLen(pack.Draft.Title) > 120 || schema.TextLen(pack.Draft.Text) > 12000 || schema.TextLen(pack.Draft.EmotionText) > 500 || schema.TextLen(pack.Draft.VoiceDescription) > 500 || schema.TextLen(pack.Draft.ReferenceText) > 2000 || schema.TextLen(pack.Draft.Lyrics) > 4000 || !schema.ScoreWithinLimits(pack.Draft.Score) || !schema.ValidKind(pack.Draft.Kind) {
 		return schema.Draft{}, bad
 	}
 	ids, voiceIDs := map[string]string{}, map[string]bool{}

@@ -101,7 +101,7 @@ func (w *Workbench) StartCast(in CastBrief) (schema.AITask, error) {
 	if !in.valid() {
 		return schema.AITask{}, msg.Err(msg.ErrRequestInvalid, nil)
 	}
-	return w.startAI("cast", "", truncateRunes(strings.TrimSpace(in.Title), 120), func(ctx context.Context) (any, error) { return w.CastBook(ctx, in) })
+	return w.startAI("cast", "", schema.TruncateRunes(strings.TrimSpace(in.Title), 120), func(ctx context.Context) (any, error) { return w.CastBook(ctx, in) })
 }
 
 type castRef struct{ chapter, line int }
@@ -275,18 +275,18 @@ func (w *Workbench) castChunk(ctx context.Context, in CastBrief, chunk []castRef
 			speakers := map[castRef]string{}
 			for key, name := range reply.Speakers {
 				ref, ok := need[strings.Trim(key, "[] ")]
-				name = truncateRunes(strings.TrimSpace(name), 60)
+				name = schema.TruncateRunes(strings.TrimSpace(name), 60)
 				if ok && name != "" {
 					speakers[ref] = name
 				}
 			}
 			var roles []CastRole
 			for _, c := range reply.Characters {
-				c.Name = truncateRunes(strings.TrimSpace(c.Name), 60)
+				c.Name = schema.TruncateRunes(strings.TrimSpace(c.Name), 60)
 				if c.Name == "" || c.Name == castNarrator || c.Name == castUnknown {
 					continue
 				}
-				c.Gender, c.Age, c.Description = truncateRunes(c.Gender, 20), truncateRunes(c.Age, 20), truncateRunes(strings.TrimSpace(c.Description), 60)
+				c.Gender, c.Age, c.Description = schema.TruncateRunes(c.Gender, 20), schema.TruncateRunes(c.Age, 20), schema.TruncateRunes(strings.TrimSpace(c.Description), 60)
 				roles = append(roles, c)
 			}
 			return speakers, roles, nil
@@ -308,9 +308,9 @@ func (w *Workbench) castVoices(ctx context.Context, in CastBrief, roles []CastRo
 	ids := map[string]bool{}
 	for _, v := range in.Voices {
 		ids[v.ID] = true
-		fmt.Fprintf(&b, "- id %s: %s", v.ID, truncateRunes(strings.TrimSpace(v.Name), 60))
+		fmt.Fprintf(&b, "- id %s: %s", v.ID, schema.TruncateRunes(strings.TrimSpace(v.Name), 60))
 		if d := strings.TrimSpace(v.Description); d != "" {
-			fmt.Fprintf(&b, " (%s)", truncateRunes(strings.ReplaceAll(d, "\n", " "), 200))
+			fmt.Fprintf(&b, " (%s)", schema.TruncateRunes(strings.ReplaceAll(d, "\n", " "), 200))
 		}
 		b.WriteString("\n")
 	}

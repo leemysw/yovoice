@@ -85,7 +85,7 @@ func (w *Workbench) inspectAudioTool(ctx context.Context, req *mcp.CallToolReque
 			return nil, nil, fmt.Errorf("没有找到作品或生成记录 %s", in.ID)
 		}
 		title = d.Title
-		if workKindOf(d) == "story" {
+		if projectKind(d) == "story" {
 			targets = currentCueVersions(s, d)
 		} else if i := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.Settings.ID == d.ID }); i >= 0 {
 			targets = []schema.Generation{s.History[i]}

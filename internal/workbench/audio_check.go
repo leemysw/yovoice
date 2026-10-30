@@ -39,7 +39,7 @@ func (w *Workbench) CheckGeneration(id string) (schema.AudioCheck, error) {
 		if e != nil {
 			return schema.AudioCheck{}, e
 		}
-		check := w.checkAudio(path, workKindOf(g.Settings), id)
+		check := w.checkAudio(path, projectKind(g.Settings), id)
 		if check == nil {
 			return schema.AudioCheck{}, msg.Err(msg.ErrAudioFormat, nil)
 		}

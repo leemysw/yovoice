@@ -56,5 +56,4 @@ export const installUpdate = () => updateCall('app.update.install');
 // 宿主菜单与界面入口都通过同一事件打开更新详情。
 export const showUpdateDialog = () => window.dispatchEvent(new Event('workbench-show-update'));
 
-export const formatBytes = (bytes: number) => bytes >= 1e9 ? `${(bytes / 1e9).toFixed(2)} GB` : `${(bytes / 1e6).toFixed(1)} MB`;
 export const updatePercent = (update: AppUpdate) => update.total > 0 ? Math.min(100, Math.floor(update.received / update.total * 100)) : null;

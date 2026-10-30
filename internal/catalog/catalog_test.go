@@ -8,27 +8,6 @@ import (
 	"testing"
 )
 
-// Go 嵌入文件与界面副本必须逐字节一致；修改任一侧后复制到另一侧。
-func TestSharedDataMatchesWeb(t *testing.T) {
-	for core, web := range map[string]string{
-		"catalog.json":            "catalog.json",
-		"generation_options.json": "generation-options.json",
-		"omni_attributes.json":    "omni-attributes.json",
-	} {
-		a, err := os.ReadFile(repoFile(t, "internal", "catalog", core))
-		if err != nil {
-			t.Fatal(err)
-		}
-		b, err := os.ReadFile(repoFile(t, "web", "src", "shared", "lib", web))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !bytes.Equal(a, b) {
-			t.Errorf("internal/catalog/%s 与 web/src/shared/lib/%s 不一致，请同步两份文件", core, web)
-		}
-	}
-}
-
 // 升级 audio.cpp 时只改 engine.json：在线安装与桌面打包脚本都从清单读取版本和校验值。
 func TestEngineVersionConsistent(t *testing.T) {
 	if !regexp.MustCompile(`^v\d+\.\d+\.\d+$`).MatchString(EngineVersion) {

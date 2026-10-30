@@ -1,5 +1,6 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import type { LyricLine } from './lyric-timing';
+import { clamp } from '../../shared/lib/math';
 
 // 浮光样式的逐字动效：一句一屏，字散落在画面中央，唱到时从远处飞入、放大发光，唱过后缩回原位并慢慢偏转、向外漂开。
 // 每个字的位置、倾斜和大小由行号与字序派生，同一句每次显示都一样；动画逐帧写到元素样式上，不经过 React 渲染。
@@ -13,7 +14,6 @@ const moveRate = 11, fadeRate = 14, glowRate = 16;
 
 // 由种子得到 0~1 的伪随机数。
 const random = (seed: number) => { const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return value - Math.floor(value); };
-const clamp = (value: number, low = 0, high = 1) => Math.max(low, Math.min(high, value));
 const easeOutCubic = (value: number) => 1 - (1 - value) ** 3;
 const easeInOut = (value: number) => value < .5 ? 2 * value * value : 1 - (-2 * value + 2) ** 2 / 2;
 // 粗估一个字的宽度（em）：中日韩全角一个字约 1em，其余字母约 .55em。

@@ -559,7 +559,7 @@ func TestVoiceDeletionIgnoresHiddenSubtitleDefaults(t *testing.T) {
 	}, true))
 	// 作品级设置被说话人覆盖后界面不可见，不能阻止删除；删除后清理悬空引用。
 	must(t, w.DeleteMedia("voices", v.ID))
-	if got := w.Store.Read().Drafts[0]; got.VoiceID != nil || value(got.Subtitles.Speakers[0].Settings.VoiceID) != keep.ID {
+	if got := w.Store.Read().Drafts[0]; got.VoiceID != nil || schema.Deref(got.Subtitles.Speakers[0].Settings.VoiceID) != keep.ID {
 		t.Fatal("隐藏引用未清理或误清可见设置")
 	}
 	if err = w.DeleteMedia("voices", keep.ID); err == nil {

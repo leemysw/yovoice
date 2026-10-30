@@ -1,27 +1,19 @@
 package llm
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 	"yovoice/internal/msg"
-	"yovoice/internal/testkit"
 )
 
-// 预设与界面副本逐字节一致。
-func TestPresetsMatchWeb(t *testing.T) {
-	web, err := os.ReadFile(testkit.RepoFile(t, "web", "src", "shared", "lib", "ai-presets.json"))
-	testkit.Must(t, err)
-	if !bytes.Equal(presetsJSON, web) {
-		t.Fatal("internal/llm/presets.json 与 web/src/shared/lib/ai-presets.json 不一致")
-	}
+// 每个预设都完整可用；界面经 @internal 别名直接引用同一份 presets.json，不再保留副本。
+func TestPresetsValid(t *testing.T) {
 	for _, p := range Presets {
 		// 经 CLI 调用的订阅没有地址，只能使用 Codex 协议。
 		if p.Endpoint == "cli" && (p.Format != FormatCodex || p.BaseURL != "") {

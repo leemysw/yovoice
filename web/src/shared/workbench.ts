@@ -203,10 +203,13 @@ export interface AssistantCue { index: number; total: number; speaker?: string; 
 /** 标题为空或仍是任一界面语言的“未命名作品”时视为尚未命名，AI 写作可以顺带起名。 */
 export const isUntitled = (title: string) => !title.trim() || Object.values(draftCopy).some(copy => copy.untitled === title.trim());
 
+/** 新建对象的 ID：32 位十六进制，与 Go 的 schema.NewID 一致。 */
+export const newId = () => crypto.randomUUID().replaceAll('-', '');
+
 export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId = 'index-2.5-q8'): Draft => {
   const copy = draftCopy[seedLocale(locale)];
   return {
-  id: crypto.randomUUID().replaceAll('-', ''),
+  id: newId(),
   title: example ? copy.exampleTitle : copy.untitled,
   text: example ? copy.exampleText : '',
   modelId, voiceId: null, mode: 'text', emotionVoiceId: null,
@@ -238,7 +241,6 @@ export const runtimeUsable = (status: RuntimeStatus) => status === 'ready' || st
 // 部分模型（如音乐）需要比应用最低版本更新的内核。
 export const modelEngineReady = (state: State, model?: ModelPackage) => !model?.engineMinimum || versionAtLeast(state.runtimeVersion, model.engineMinimum);
 export const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
-export const formatSize = (bytes: number) => `${(bytes / 1e9).toFixed(2)} GB`;
 export function formatBytes(bytes: number): string {
   if (!bytes || bytes <= 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];

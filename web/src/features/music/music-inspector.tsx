@@ -5,7 +5,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Check, ChevronRight, ChevronUp, LoaderCircle } from 'lucide-react';
 import { Selector } from '../../shared/selector';
-import definitions from '../../shared/lib/generation-options.json';
+import definitions from '@internal/catalog/generation_options.json';
 import { formatActivity } from '../../shared/i18n/format';
 import { formatTime, isMusicModel, isStableAudio, isYuE, modelEngineReady, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';

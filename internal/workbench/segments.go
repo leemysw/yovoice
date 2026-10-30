@@ -52,7 +52,7 @@ func (w *Workbench) prepareSynthesis(d schema.Draft, state schema.State) ([]synt
 			part.segment = &schema.GenerationSegment{CueID: cue.ID, SpeakerID: cue.SpeakerID, SpeakerName: name, Index: index, Placement: "ripple"}
 		}
 		if draft.RequiresVoice() {
-			part.voice, err = w.MediaFile("voices", value(draft.VoiceID))
+			part.voice, err = w.MediaFile("voices", schema.Deref(draft.VoiceID))
 			if err != nil {
 				return nil, msg.Err(msg.ErrVoiceRequired, nil)
 			}

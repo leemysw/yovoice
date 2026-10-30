@@ -6,7 +6,8 @@ import { Spinner } from '@astryxdesign/core/Spinner';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { ArrowUpRight } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
-import { checkForUpdate, formatBytes, installUpdate, releaseUrl, updatePercent, useAppUpdate, type AppUpdate } from './app-update';
+import { formatBytes } from '../../shared/workbench';
+import { checkForUpdate, installUpdate, releaseUrl, updatePercent, useAppUpdate, type AppUpdate } from './app-update';
 import { ReleaseNotes } from './release-notes';
 import { isUiLocale } from '../../shared/i18n/locale';
 

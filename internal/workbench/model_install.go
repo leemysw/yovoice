@@ -60,7 +60,7 @@ func (w *Workbench) DownloadModel(id string) error {
 		total += wheel.Size
 	}
 	return w.begin("download", msg.ActivityDownload, msg.Params{"name": m.Name}, ptr(id), func(ctx context.Context) error {
-		dir := value(s.Preferences.ModelDirectory)
+		dir := schema.Deref(s.Preferences.ModelDirectory)
 		if dir == "" {
 			dir = filepath.Join(w.Store.Root, "models")
 		}
@@ -190,7 +190,7 @@ func managedModelPath(s schema.State, root, id string) string {
 	}
 	path := filepath.Clean(s.Models[i].Path)
 	dirs := []string{filepath.Join(root, "models")}
-	if dir := value(s.Preferences.ModelDirectory); dir != "" {
+	if dir := schema.Deref(s.Preferences.ModelDirectory); dir != "" {
 		dirs = append(dirs, dir)
 	}
 	inside := slices.ContainsFunc(dirs, func(dir string) bool { return store.Within(dir, path) && !store.SamePath(dir, path) })

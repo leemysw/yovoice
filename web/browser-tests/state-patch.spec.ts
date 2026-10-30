@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
 // 桌面端状态推送：首次全量，之后只推送变化的字段（patch）与被省略的字段（removed），界面在最近的完整状态上合并。
-const catalog = JSON.parse(readFileSync(new URL('../src/shared/lib/catalog.json', import.meta.url), 'utf8'));
+const catalog = JSON.parse(readFileSync(new URL('../../internal/catalog/catalog.json', import.meta.url), 'utf8')).models;
 
 test('增量推送合并进完整状态，宿主连接早于页面时以 state.get 为基础', async ({ page }) => {
   await page.goto('/');

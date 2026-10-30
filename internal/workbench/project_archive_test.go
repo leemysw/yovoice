@@ -42,7 +42,7 @@ func TestProjectArchiveAndRecovery(t *testing.T) {
 		t.Fatal("工程副本版本未隔离")
 	}
 	// 内容完全相同的参考音频与角色直接复用，重复导入不会堆积副本。
-	if copy.CharacterID != c.ID || value(copy.VoiceID) != v.ID || len(state.Voices) != 1 || len(state.Characters) != 1 {
+	if copy.CharacterID != c.ID || schema.Deref(copy.VoiceID) != v.ID || len(state.Voices) != 1 || len(state.Characters) != 1 {
 		t.Fatal("重复导入产生了重复的音色或角色", len(state.Voices), len(state.Characters))
 	}
 	if voices, _ := os.ReadDir(filepath.Join(w.Store.Root, "voices")); len(voices) != 1 {
@@ -55,7 +55,7 @@ func TestProjectArchiveAndRecovery(t *testing.T) {
 	other, err := w.ImportProject(archive)
 	must(t, err)
 	state = w.Store.Read()
-	if other.CharacterID == c.ID || len(state.Characters) != 2 || value(other.VoiceID) != v.ID || value(state.Characters[1].Settings.VoiceID) != v.ID {
+	if other.CharacterID == c.ID || len(state.Characters) != 2 || schema.Deref(other.VoiceID) != v.ID || schema.Deref(state.Characters[1].Settings.VoiceID) != v.ID {
 		t.Fatal("有差异的角色未独立导入")
 	}
 	id := copy.Timeline.Tracks[0].Clips[0].GenerationID

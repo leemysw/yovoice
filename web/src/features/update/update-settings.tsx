@@ -1,6 +1,7 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Text } from '@astryxdesign/core/Text';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
+import { formatDateTime } from '../../shared/i18n/format';
 import { RefreshCw, Star } from 'lucide-react';
 import { SettingsGroup, SettingsRow } from '../../shared/ui/settings-group';
 import { checkForUpdate, installUpdate, projectUrl, showUpdateDialog, useAppUpdate } from './app-update';
@@ -17,7 +18,7 @@ export function UpdateSettings() {
   </SettingsRow>;
   if (!update) return <SettingsGroup title={t('@yovoice.update.group')}>{star}</SettingsGroup>;
   const { status } = update;
-  const checked = update.checkedAt ? new Date(update.checkedAt).toLocaleString(locale, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+  const checked = update.checkedAt ? formatDateTime(update.checkedAt, locale, 'day') : '';
   const hint = status === 'checking' ? t('@yovoice.update.checking')
     : status === 'downloading' || status === 'verifying' ? t('@yovoice.update.foundTitle', { version: update.version ?? '' })
       : status === 'ready' ? t('@yovoice.update.readyTitle', { version: update.version ?? '' })

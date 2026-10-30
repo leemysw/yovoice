@@ -232,7 +232,7 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 		if generatedScore != "" {
 			snapshot.Abc = generatedScore
 		}
-		g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot, Check: w.checkAudio(path, workKindOf(d), id)}
+		g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot, Check: w.checkAudio(path, projectKind(d), id)}
 		if e = w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); e != nil {
 			_ = os.Remove(path)
 			return e

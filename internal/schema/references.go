@@ -3,7 +3,7 @@ package schema
 // VoiceUsers 检查素材的使用范围；已生成的历史版本为独立文件，不作为阻断。
 func (s State) VoiceUsers(id string) []string {
 	uses := func(settings SynthesisSettings) bool {
-		return value(settings.VoiceID) == id || value(settings.EmotionVoiceID) == id
+		return Deref(settings.VoiceID) == id || Deref(settings.EmotionVoiceID) == id
 	}
 	draftUses := func(d Draft) bool {
 		for _, settings := range d.VisibleSettings() {
@@ -116,11 +116,4 @@ func (c *Character) EachSettings(fn func(*SynthesisSettings)) {
 	if c.Preview != nil {
 		fn(&c.Preview.Settings)
 	}
-}
-
-func value(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }

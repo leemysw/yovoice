@@ -2,7 +2,7 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { Selector } from '../../shared/selector';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import definitions from '../../shared/lib/generation-options.json';
+import definitions from '@internal/catalog/generation_options.json';
 import type { Draft } from '../../shared/workbench';
 
 export function ModelOptions({ draft, family, change, omit = [] }: { draft: Draft; family: keyof typeof definitions; change: (patch: Partial<Draft>) => void; omit?: string[] }) {

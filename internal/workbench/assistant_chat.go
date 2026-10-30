@@ -565,7 +565,7 @@ func (w *Workbench) chatMessageText(next chatMessage) string {
 		for i := range s.Drafts {
 			if s.Drafts[i].ID == id {
 				work = &s.Drafts[i]
-				title, kind = work.Title, workKindOf(*work)
+				title, kind = work.Title, projectKind(*work)
 				break
 			}
 		}
@@ -579,10 +579,10 @@ func (w *Workbench) chatMessageText(next chatMessage) string {
 		}
 	}
 	if cue := context.Cue; cue != nil && cue.Index > 0 {
-		line("selected line: #%d of %d, speaker %q: %q", cue.Index, cue.Total, clip(cue.Speaker, 40), clip(cue.Text, 300))
+		line("selected line: #%d of %d, speaker %q: %q", cue.Index, cue.Total, clipLine(cue.Speaker, 40), clipLine(cue.Text, 300))
 	}
 	if selection := strings.TrimSpace(context.Selection); selection != "" {
-		line("selected text: %q", clip(selection, 600))
+		line("selected text: %q", clipLine(selection, 600))
 	}
 	// 播放位置只对打开的作品有意义。
 	if context.Playhead > 0 && strings.TrimSpace(context.WorkID) != "" {
@@ -645,16 +645,12 @@ func paramsText(params msg.Params) string {
 	sort.Strings(keys)
 	parts := make([]string, 0, len(keys))
 	for _, key := range keys {
-		parts = append(parts, fmt.Sprintf("%s=%s", key, clip(fmt.Sprint(params[key]), 120)))
+		parts = append(parts, fmt.Sprintf("%s=%s", key, clipLine(fmt.Sprint(params[key]), 120)))
 	}
 	return "(" + strings.Join(parts, ", ") + ")"
 }
 
-// clip 按字符截断文本并去掉换行。
-func clip(text string, limit int) string {
-	text = strings.Join(strings.Fields(text), " ")
-	if runes := []rune(text); len(runes) > limit {
-		return string(runes[:limit]) + "…"
-	}
-	return text
+// clipLine 先把空白折叠成单个空格再按字符截断，供提示词里的单行摘要使用。
+func clipLine(text string, limit int) string {
+	return schema.Clip(strings.Join(strings.Fields(text), " "), limit)
 }

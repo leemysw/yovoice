@@ -226,10 +226,10 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 				s.Drafts[i].EachSettings(func(settings *schema.SynthesisSettings) { clearVoice(settings, id) })
 			}
 			for i := range s.History {
-				if value(s.History[i].Settings.VoiceID) == id {
+				if schema.Deref(s.History[i].Settings.VoiceID) == id {
 					s.History[i].Settings.VoiceID = nil
 				}
-				if value(s.History[i].Settings.EmotionVoiceID) == id {
+				if schema.Deref(s.History[i].Settings.EmotionVoiceID) == id {
 					s.History[i].Settings.EmotionVoiceID = nil
 				}
 			}

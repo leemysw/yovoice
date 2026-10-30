@@ -11,7 +11,9 @@ import (
 	"yovoice/internal/msg"
 )
 
-const Revision = "874fcb41ececda20bcbc0782d6b4ea7f7d069ea8"
+// Revision 是 Hugging Face 上 audio.cpp 模型仓库的默认提交，模型包未单独指定 revision 时使用；
+// 与模型列表一起保存在 catalog.json，界面的浏览器预览也从那里读取。
+var Revision string
 
 // ModelScopeRevision 固定 ModelScope 上 audio.cpp 模型镜像的提交。镜像会随上游整体刷新，
 // 跟随 master 时文件大小与 SHA256 都会和目录清单对不上，导致下载失败；
@@ -108,6 +110,8 @@ var LegacyModelFiles = map[string]ModelFile{
 	"sgm-v2-sf2":                     {Size: 247406594, SHA256: "86f2dc4b6983257ce7f983e62afedd22ea35e6e53e3f391360d9f125ce1ea088"},
 }
 
+// catalog.json 是模型包目录的唯一来源：默认 revision 与全部模型包；界面经 Vite 别名直接引用同一文件。
+//
 //go:embed catalog.json
 var catalogJSON []byte
 var Models = []ModelPackage{}
@@ -150,9 +154,17 @@ type KokoroWheel struct {
 var kokoroWheels []KokoroWheel
 
 func init() {
-	if e := json.Unmarshal(catalogJSON, &Models); e != nil {
+	var file struct {
+		Revision string         `json:"revision"`
+		Models   []ModelPackage `json:"models"`
+	}
+	if e := json.Unmarshal(catalogJSON, &file); e != nil {
 		panic(e)
 	}
+	if len(file.Revision) != 40 {
+		panic("catalog.json 缺少默认 revision")
+	}
+	Revision, Models = file.Revision, file.Models
 	var engine struct {
 		Version  string            `json:"version"`
 		Minimum  string            `json:"minimum"`

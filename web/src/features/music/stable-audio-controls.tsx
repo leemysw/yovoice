@@ -2,7 +2,7 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { Selector } from '../../shared/selector';
-import definitions from '../../shared/lib/generation-options.json';
+import definitions from '@internal/catalog/generation_options.json';
 import { formatTime, type Draft, type Generation, type ModelPackage } from '../../shared/workbench';
 
 type Edit = 'off' | 'init_audio' | 'inpaint_audio';

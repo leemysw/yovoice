@@ -12,7 +12,7 @@ import { Selector } from '../../shared/selector';
 import { OrcaConnect } from '../../shared/ui/orca-connect';
 import { call, CallError, isDesktop } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
-import aiPresets from '../../shared/lib/ai-presets.json';
+import aiPresets from '@internal/llm/presets.json';
 import { type AIProvider, type AITest, type CodexInfo, type State } from '../../shared/workbench';
 
 export interface AIPreset { key: string; name: string; format: string; baseURL: string; modelsPath: string; keyURL?: string; endpoint: string; plan?: string; icon?: string }

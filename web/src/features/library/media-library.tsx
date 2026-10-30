@@ -5,11 +5,11 @@ import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { Clock3, Disc3, ListChecks, Mic, Plus, Trash2, MoreHorizontal } from 'lucide-react';
-import { projectKind, type Draft, type Generation, type State, type Track, type Voice } from '../../shared/workbench';
+import { formatTime, projectKind, type Draft, type Generation, type State, type Track, type Voice } from '../../shared/workbench';
 import { MediaActions } from '../media/media-actions';
 import { call, CallError } from '../../shared/lib/client';
 import { ConfirmDelete } from '../../shared/ui/app-dialog';
-import { formatCallError } from '../../shared/i18n/format';
+import { formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { Player } from '../media/player';
 import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from './library-layout';
 import { RecordCover } from './record-cover';
@@ -19,9 +19,6 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 
 // 版本记录一次先渲染的条数，更早的点“显示更早的”再展开，记录很多时打开页面和状态推送都不用重建整张列表。
 const historyBatch = 30;
-
-// 存根用的短时长：不足一小时显示 m:ss。
-const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
 
 export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, saveCharacter, reuse, exportItem, play, onError, controls, project }: {
   controls?: ReactNode; project: Draft;
@@ -88,7 +85,6 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
     {count > 1 ? <Button label={t('@yovoice.library.batchDelete')} size="sm" variant="secondary" icon={<ListChecks />} onClick={() => setPicked(new Set())} /> : null}
     <Button label={t('@yovoice.library.addVoice')} size="sm" icon={<Plus />} onClick={addVoice} />
   </HStack>;
-  const dateOptions: Intl.DateTimeFormatOptions = { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
   return <LibraryPage controls={voices ? controls : undefined} title={voices ? t('@yovoice.library.voicesTitle') : quick ? t('@yovoice.history.generations') : `${project.title} · ${t('@yovoice.history.versions')}`}
     actions={voices && count > 0 ? voiceActions : voices ? undefined : controls}
     query={query} onQueryChange={onQueryChange} searchLabel={t(voices ? '@yovoice.library.searchVoices' : quick ? '@yovoice.library.searchGenerations' : '@yovoice.library.searchHistory')}
@@ -101,14 +97,14 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
       cover={<WaveRing seed={voice.id} duration={voice.duration}><Player compact avatar={{ seed: voice.id, label: t('@yovoice.app.audition', { name: voice.name }), select: () => audition({ ...voice, kind: 'voices', subtitle: t('@yovoice.app.subtitleReference') }) }} suspended={suspended} track={track?.id === voice.id ? track : null} onError={onError} /></WaveRing>}
       eyebrow={voice.source === 'generation' ? t('@yovoice.voice.sourceGeneration') : voice.source === 'import' ? t('@yovoice.voice.sourceImport') : undefined}
       title={<h3 onPointerEnter={overflowTitle}>{voice.name}</h3>} excerpt={voice.referenceText?.trim()}
-      stub={<TicketStamp value={clock(voice.duration)} unit={t('@yovoice.library.duration')} />}
+      stub={<TicketStamp value={formatTime(voice.duration)} unit={t('@yovoice.library.duration')} />}
       actions={picked ? <CheckboxInput label={t('@yovoice.library.pickVoice', { name: voice.name })} isLabelHidden value={picked.has(voice.id)} onChange={checked => toggle(voice.id, checked)} />
         : <MediaActions onEdit={() => editVoice(voice)} item={{ ...voice, kind: 'voices' }} beforeDelete={stop} onError={onError} />} />)
       // 历史也用票根：音乐与编曲是唱片（点唱片中心试听，播放时转动），语音是写着正文的磁带（试听时卷轴转动）。
       : filteredHistory.slice(0, shownCount).map((item, index) => {
         const name = heading(item), selected = track?.id === item.id;
         const version = t('@yovoice.app.historyVersion', { n: versions.get(item.id) ?? 0 });
-        const date = new Date(item.createdAt).toLocaleString(locale, dateOptions);
+        const date = formatDateTime(item.createdAt, locale, 'log');
         const listen = () => audition({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: t('@yovoice.app.subtitleOutput') });
         const firstLyric = item.settings.lyrics?.split('\n').map(line => line.trim()).find(line => line && !/^\[[^\]]*\]$/.test(line));
         const excerpt = kind === 'music' ? (item.settings.instrumental ? t('@yovoice.music.instrumental') : firstLyric) : name !== item.settings.text.trim() ? item.settings.text.trim() : undefined;
@@ -118,7 +114,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
             : <RecordCover seed={item.id} interactive><Player compact avatar={{ seed: item.id, label: t('@yovoice.app.audition', { name }), select: listen }} suspended={suspended} track={selected ? track : null} onError={onError} /></RecordCover>}
           eyebrow={<HStack className="history-meta" gap={2}>{quick ? null : <b>{version}</b>}<time dateTime={item.createdAt}>{date}</time></HStack>}
           title={<h3 onPointerEnter={overflowTitle} data-full-text={item.settings.text}>{name}</h3>} excerpt={excerpt}
-          stub={<TicketStamp value={clock(item.duration)} unit={t('@yovoice.library.duration')} />}
+          stub={<TicketStamp value={formatTime(item.duration)} unit={t('@yovoice.library.duration')} />}
           actions={<>
             {quick ? <Player inline={{ label: t('@yovoice.app.audition', { name }), select: listen }} suspended={suspended} track={selected ? track : null} onError={onError} onProgress={(_, playing) => setPlayingId(current => playing ? item.id : current === item.id ? null : current)} /> : null}
             {kind === 'music' ? <Button label={t('@yovoice.music.openNowPlaying', { name })} tooltip={t('@yovoice.music.nowPlaying')} size="sm" variant="ghost" isIconOnly icon={<Disc3 />} onClick={() => { stop(); play(item); }} /> : null}

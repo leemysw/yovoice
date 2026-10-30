@@ -129,7 +129,7 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 	}
 	operationID := schema.NewID()
 	started := time.Now()
-	fields := []any{"operation_id", operationID, "kind", kind, "model_id", value(modelID), "related_ids", requestIDs}
+	fields := []any{"operation_id", operationID, "kind", kind, "model_id", schema.Deref(modelID), "related_ids", requestIDs}
 	diag.Log(w.Store.Root, "operation.started", fields...)
 	*slotCancel = cancel
 	done := make(chan struct{})

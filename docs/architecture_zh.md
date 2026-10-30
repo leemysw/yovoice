@@ -145,7 +145,7 @@ sequenceDiagram
 可安装的模型、文件、校验和、生成选项和引擎设置都来自内嵌在服务中的 JSON 文件：
 
 - `internal/catalog/catalog.json`：模型包及其文件。
-- `internal/catalog/generation_options.json` 与 `omni_attributes.json`：各模型的控件；界面从 `web/src/shared/lib/` 导入相同的副本。
+- `internal/catalog/generation_options.json` 与 `omni_attributes.json`：各模型的控件；界面经 Vite 别名 `@internal` 直接引用这些文件（以及 `catalog.json`、`internal/llm/presets.json`），不再保存副本。
 - `internal/catalog/engine.json`：推荐和最低的 audio.cpp 版本及压缩包校验和。
 
 因此新增模型主要是改数据：在目录中描述模型包，在 `engine/request.go` 中映射参数，并在界面中提供选项。`go test` 会检查 Go 与界面两份副本是否一致。

@@ -50,10 +50,11 @@ export function releaseMediaUrl(url: string) {
   if (url.startsWith('blob:')) URL.revokeObjectURL(url);
 }
 
-const exportName = (name: string, fallback = 'yovoice') => name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || fallback;
+// 导出文件名：去掉文件系统不接受的字符并限长，空名用兜底名。
+export const exportName = (name: string, fallback = 'yovoice') => name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || fallback;
 
 // 浏览器预览没有保存对话框，直接交给浏览器下载。
-function download(blob: Blob, fileName: string) {
+export function download(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a'); link.href = url; link.download = fileName; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);

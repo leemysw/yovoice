@@ -2,7 +2,7 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Selector, SelectorOption } from '../../shared/selector';
-import { formatSize, groupModels, type ModelPackage, type State } from '../../shared/workbench';
+import { formatBytes, groupModels, type ModelPackage, type State } from '../../shared/workbench';
 
 // 可选模型：只列已下载的，当前选中但未下载的也保留；一个都没下载时列出全部，方便首次选择后去下载。
 export function modelChoices(models: ModelPackage[], state: State, current: string) {
@@ -23,7 +23,7 @@ export function ModelSelector({ label, models, state, value, isDisabled, manage,
   // 每组用当前选中的精度，否则用目录里排在前面的那个。
   const options = groups.map(group => {
     const model = group.find(item => item.id === value) ?? group[0];
-    const status = group.length > 1 ? group.map(item => item.precision).join(' · ') : `${model.precision} · ${installed(model) ? t('@yovoice.create.modelInstalled') : formatSize(model.size)}`;
+    const status = group.length > 1 ? group.map(item => item.precision).join(' · ') : `${model.precision} · ${installed(model) ? t('@yovoice.create.modelInstalled') : formatBytes(model.size)}`;
     return { value: model.id, label: name(model), description: status };
   });
   const current = groups.find(group => group.some(item => item.id === value));

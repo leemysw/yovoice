@@ -1,10 +1,14 @@
-import catalog from './catalog.json';
-import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, type AssistantContext, type Activity, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile } from '../workbench';
+import catalogFile from '@internal/catalog/catalog.json';
+import aiPresets from '@internal/llm/presets.json';
+import { performanceSettings, createDraft, emptyState, newId, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, type AssistantContext, type Activity, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile } from '../workbench';
 import { encodeWav } from './sound';
+import { download } from './client';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
 import { auditedMethods, encodeError, previewExportLogs, previewLog, previewQueryLogs } from './preview-logs';
+
+// 模型目录与 Go 服务同源：桌面端由 state.get 带回，预览直接读同一份文件。
+const catalog = catalogFile.models;
 
 // 浏览器预览的本地后端：只保存编辑和音频数据，不模拟桌面推理或模型安装。
 // 作品状态存于 localStorage（主副本加恢复备份），音频存于 IndexedDB。
@@ -70,7 +74,7 @@ function touchSession(state: State): AssistantSession {
   state.assistantSessions = sessions;
   let session = currentSession(state);
   if (!session) {
-    session = { id: crypto.randomUUID().replaceAll('-', ''), title: '', messages: [], updatedAt: new Date().toISOString() };
+    session = { id: newId(), title: '', messages: [], updatedAt: new Date().toISOString() };
     sessions.sessions.unshift(session);
     sessions.currentId = session.id;
   }
@@ -86,9 +90,7 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     return true as T;
   }
   if (method === 'logs.export') {
-    const url = URL.createObjectURL(new Blob([previewExportLogs()], { type: 'application/x-ndjson' }));
-    const link = document.createElement('a'); link.href = url; link.download = 'yovoice-preview-logs.jsonl'; link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    download(new Blob([previewExportLogs()], { type: 'application/x-ndjson' }), 'yovoice-preview-logs.jsonl');
   }
   if (!auditedMethods.has(method)) return dispatch<T>(method, data);
   const started = performance.now(), input = (data ?? {}) as { id?: unknown; kind?: unknown; model?: unknown };
@@ -151,7 +153,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   // 预览不能运行本机程序：Codex 显示为未安装，登录需要桌面端。
   if (method === 'ai.codex.status') return {} as T;
   if (method === 'ai.codex.login') throw new CallError('@yovoice.error.previewDesktopOnly');
-  if (method === 'state.get') return { state, catalog, catalogRevision: '874fcb41ececda20bcbc0782d6b4ea7f7d069ea8', engine: { version: '', minimum: '' }, desktop: false, assistant } as T;
+  if (method === 'state.get') return { state, catalog, catalogRevision: catalogFile.revision, engine: { version: '', minimum: '' }, desktop: false, assistant } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);
     if (!character.name.trim() || character.name.length > 120 || character.demoText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
@@ -310,7 +312,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new CallError('@yovoice.error.localApiPort');
       localApi = { ...localApi, enabled, port };
     }
-    if (method === 'localApi.resetToken') localApi = { ...localApi, token: crypto.randomUUID().replaceAll('-', '').repeat(2) };
+    if (method === 'localApi.resetToken') localApi = { ...localApi, token: newId().repeat(2) };
     localApi = { ...localApi, running: localApi.enabled, url: localApi.enabled ? `http://127.0.0.1:${localApi.port}` : undefined };
     return structuredClone(localApi) as T;
   }
@@ -326,7 +328,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     const preset = aiPresets.find(p => p.key === input.preset);
     if (!preset) throw new CallError('@yovoice.error.aiProviderInvalid');
     const editable = preset.endpoint !== 'fixed';
-    const next: AIProvider = { id: input.id || crypto.randomUUID().replaceAll('-', ''), preset: preset.key, name: input.name?.trim() || preset.name, format: preset.endpoint === 'custom' ? input.format : preset.format, baseURL: editable ? input.baseURL.trim() : preset.baseURL, modelsPath: preset.endpoint === 'custom' ? input.modelsPath : preset.modelsPath, model: input.model?.trim() ?? '' };
+    const next: AIProvider = { id: input.id || newId(), preset: preset.key, name: input.name?.trim() || preset.name, format: preset.endpoint === 'custom' ? input.format : preset.format, baseURL: editable ? input.baseURL.trim() : preset.baseURL, modelsPath: preset.endpoint === 'custom' ? input.modelsPath : preset.modelsPath, model: input.model?.trim() ?? '' };
     // ChatGPT 订阅经本机 Codex CLI，没有服务地址。
     if (next.format !== 'codex_cli' && !/^https?:\/\/[^/]+/.test(next.baseURL)) throw new CallError('@yovoice.error.aiProviderInvalid');
     const providers = state.aiProviders ?? [];
@@ -355,7 +357,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     setTimeout(() => {
       const providers = state.aiProviders ?? [];
       const old = providers.find(p => p.preset === 'orcarouter');
-      const next: AIProvider = { id: old?.id ?? crypto.randomUUID().replaceAll('-', ''), preset: 'orcarouter', name: old?.name ?? 'OrcaRouter', format: 'chat_completions', baseURL: 'https://api.orcarouter.ai/v1', modelsPath: '/models', model: old?.model || 'orcarouter/free', models: old?.models, keyMask: '••••••••' };
+      const next: AIProvider = { id: old?.id ?? newId(), preset: 'orcarouter', name: old?.name ?? 'OrcaRouter', format: 'chat_completions', baseURL: 'https://api.orcarouter.ai/v1', modelsPath: '/models', model: old?.model || 'orcarouter/free', models: old?.models, keyMask: '••••••••' };
       state.aiProviders = old ? providers.map(p => p.id === next.id ? next : p) : [...providers, next];
       state.aiProviderID = next.id; publish();
     }, 300);
@@ -383,7 +385,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: 'cast', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask = { id: newId(), kind: 'cast', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
     state.aiTask = task; publish();
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
@@ -413,7 +415,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       return true as T;
     }
     const chat = touchSession(state);
-    chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'user', text: input.text, createdAt: new Date().toISOString() });
+    chat.messages.push({ id: newId(), role: 'user', text: input.text, createdAt: new Date().toISOString() });
     if (!chat.title) chat.title = input.text.split('\n')[0].slice(0, 24);
     chat.updatedAt = new Date().toISOString();
     const blocks: AssistantBlock[] = [];
@@ -451,14 +453,14 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       const target = state.drafts.find(d => input.text.includes(d.title)) ?? state.drafts[0];
       if (wantsDelete && target) {
         timer(500, () => {
-          blocks.push({ kind: 'tool', card: { tool: 'propose_action', summary: `删除作品《${target.title}》`, state: 'done', proposal: { id: crypto.randomUUID().replaceAll('-', ''), action: 'delete_work', target: target.id, label: target.title, reason: '这是一份重复的草稿。', state: 'pending' } } });
+          blocks.push({ kind: 'tool', card: { tool: 'propose_action', summary: `删除作品《${target.title}》`, state: 'done', proposal: { id: newId(), action: 'delete_work', target: target.id, label: target.title, reason: '这是一份重复的草稿。', state: 'pending' } } });
           commit();
         });
       }
       if (wantsRemember) {
         const text = input.text.replace(/^.*?(记住|remember)[:：，,\s]*/i, '').trim() || input.text;
         timer(500, () => {
-          state.assistantMemory = [...(state.assistantMemory ?? []).filter(memo => memo.text !== text), { id: crypto.randomUUID().replaceAll('-', ''), text, createdAt: new Date().toISOString() }];
+          state.assistantMemory = [...(state.assistantMemory ?? []).filter(memo => memo.text !== text), { id: newId(), text, createdAt: new Date().toISOString() }];
           blocks.push({ kind: 'tool', card: { tool: 'remember_preference', summary: `记住了：${text}`, state: 'done' } });
           commit();
         });
@@ -466,7 +468,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       stream(900, 'text', wantsDelete ? '我放了一张确认卡片，确认后就删除。' : '记下了，以后都按这个来。');
       setTimeout(() => {
         if (!alive()) return;
-        chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: blocksText(blocks), blocks: live.turn?.blocks ?? [], status: 'completed', createdAt: new Date().toISOString() });
+        chat.messages.push({ id: newId(), role: 'assistant', text: blocksText(blocks), blocks: live.turn?.blocks ?? [], status: 'completed', createdAt: new Date().toISOString() });
         chat.updatedAt = new Date().toISOString();
         live.turn = undefined;
         publish();
@@ -480,13 +482,13 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (wantsScore || wantsSong) {
       card(600, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'running');
       timer(700, () => {
-        draftID = crypto.randomUUID().replaceAll('-', '');
+        draftID = newId();
         const draft: Draft = wantsScore
           ? { ...createDraft(false, state.preferences.uiLocale, 'musescore-general-sf2'), id: draftID, kind: 'score', title: '示例小步舞曲', score: { tempo: 100, timeSignature: [4, 4], sections: [], tracks: [] } }
           : { ...createDraft(false, state.preferences.uiLocale, 'ace-step-1.5-turbo-bf16'), id: draftID, kind: 'music', title: '夏夜兜风', text: 'city pop, warm synths', lyrics: '[verse]\n晚风吹过海岸线\n[chorus]\n夏夜一路向前' };
         state.drafts = [draft, ...state.drafts];
-        live.update = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
-        live.nav = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+        live.update = { id: newId(), workId: draftID };
+        live.nav = { id: newId(), workId: draftID };
         publish();
       });
       card(800, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'done');
@@ -496,7 +498,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
           const target = state.drafts.find(d => d.id === draftID);
           if (!target?.score) return;
           target.score = { tempo: 100, timeSignature: [4, 4], sections: [{ name: 'A', start: 1, end: 4 }], tracks: [{ id: 'p', name: '钢琴', role: 'piano', program: 0, notes: [{ bar: 1, beat: 1, pitch: 60, length: 1, velocity: 80 }, { bar: 1, beat: 3, pitch: 64, length: 1, velocity: 76 }, { bar: 2, beat: 1, pitch: 67, length: 2, velocity: 78 }] }] };
-          live.update = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+          live.update = { id: newId(), workId: draftID };
           publish();
         });
         card(1900, 'update_work', '修改了《示例小步舞曲》的乐谱', 'done');
@@ -507,7 +509,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     stream(2200, 'text', wantsScore ? '写好了：四小节钢琴旋律已经写进《示例小步舞曲》，可以直接**渲染**试听。' : '好的，我先看了作品列表。想让我做什么？');
     setTimeout(() => {
       if (!alive()) return;
-      chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: blocksText(blocks), blocks: live.turn?.blocks ?? [], status: 'completed', createdAt: new Date().toISOString() });
+      chat.messages.push({ id: newId(), role: 'assistant', text: blocksText(blocks), blocks: live.turn?.blocks ?? [], status: 'completed', createdAt: new Date().toISOString() });
       chat.updatedAt = new Date().toISOString();
       live.turn = undefined;
       const next = assistantQueue.shift();
@@ -523,7 +525,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (live?.turn) {
       assistantTurnSeq++;
       const chat = currentSession(state);
-      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: blocksText(live.turn.blocks ?? []), blocks: live.turn.blocks ?? [], status: 'cancelled', createdAt: new Date().toISOString() });
+      chat?.messages.push({ id: newId(), role: 'assistant', text: blocksText(live.turn.blocks ?? []), blocks: live.turn.blocks ?? [], status: 'cancelled', createdAt: new Date().toISOString() });
       live.turn = undefined;
       live.queued = 0;
       publish();
@@ -532,7 +534,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   }
   if (method === 'assistant.new') {
     const sessions = state.assistantSessions ?? { currentId: '', sessions: [] };
-    const session: AssistantSession = { id: crypto.randomUUID().replaceAll('-', ''), title: '', messages: [], updatedAt: new Date().toISOString() };
+    const session: AssistantSession = { id: newId(), title: '', messages: [], updatedAt: new Date().toISOString() };
     sessions.sessions = [session, ...sessions.sessions];
     sessions.currentId = session.id;
     state.assistantSessions = sessions;
@@ -621,7 +623,7 @@ export async function previewImportTimeline(file: File, name: string): Promise<A
   try {
     const buffer = await context.decodeAudioData(await file.arrayBuffer());
     if (buffer.duration < 0.01 || buffer.duration > 3600) throw new CallError('@yovoice.timeline.importDuration');
-    const id = crypto.randomUUID().replaceAll('-', '');
+    const id = newId();
     const asset = { id, name, fileName: `import-${id}.wav`, duration: buffer.duration };
     await blobStore(asset.fileName, encodeWav(buffer));
     return asset;
@@ -640,7 +642,7 @@ export async function previewImportTimelineGeneration(generationID: string): Pro
   try {
     const buffer = await context.decodeAudioData(await blob.arrayBuffer());
     if (buffer.duration < 0.01 || buffer.duration > 3600) throw new CallError('@yovoice.timeline.importDuration');
-    const id = crypto.randomUUID().replaceAll('-', '');
+    const id = newId();
     const asset = { id, name, fileName: `import-${id}.wav`, duration: buffer.duration };
     await blobStore(asset.fileName, blob);
     return asset;
@@ -656,7 +658,7 @@ export async function previewImportVoice(file: File): Promise<Voice> {
     // 超过 60 秒的录音：桌面端按清晰度挑一段，预览后端不做测量，固定取开头 10 秒。
     const excerpt = decoded.duration > 60 ? { start: 0, end: 10, total: Math.round(decoded.duration * 100) / 100 } : undefined;
     const wav = excerpt ? encodeWav(decoded, excerpt.start, excerpt.end) : encodeWav(decoded);
-    const id = crypto.randomUUID().replaceAll('-', '');
+    const id = newId();
     const voice: Voice = { id, name: file.name.replace(/\.[^.]+$/, ''), fileName: id + '.wav', duration: excerpt ? excerpt.end - excerpt.start : decoded.duration, ...(excerpt ? { excerpt } : {}) };
     await blobStore(voice.fileName, wav); preview().voices.push(voice); publish(); return voice;
   } finally { await context.close(); }

@@ -15,7 +15,7 @@ import { Player } from '../media/player';
 const VoicePicker = lazy(() => import('../media/voice-picker').then(module => ({ default: module.VoicePicker })));
 import { call } from '../../shared/lib/client';
 import { formatActivity, formatActivityError, formatCallError, formatNotice } from '../../shared/i18n/format';
-import { stableJSON, previewStale, performanceSettings, synthesisSettings, type Character, type Draft, type State, type ModelPackage, type Track } from '../../shared/workbench';
+import { newId, stableJSON, previewStale, performanceSettings, synthesisSettings, type Character, type Draft, type State, type ModelPackage, type Track } from '../../shared/workbench';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 
 export function CharacterEditor({ initial, state, catalog, active = true, close, settings, apply }: { active?: boolean; initial: Character; state: State; catalog: ModelPackage[]; close: (saved?: Character) => void; settings: (modelId?: string) => void; apply?: (saved: Character) => Promise<void> }) {
@@ -61,7 +61,7 @@ export function CharacterEditor({ initial, state, catalog, active = true, close,
   async function save(copy = false, use = false) {
     setSaving(true); setError('');
     try {
-      const saved = await call<Character>('character.save', { ...character, id: copy ? crypto.randomUUID().replaceAll('-', '') : character.id });
+      const saved = await call<Character>('character.save', { ...character, id: copy ? newId() : character.id });
       await cleanup();
       if (use && apply) await apply(saved); else close(saved);
     } catch (e) { setError(formatCallError(t, e)); } finally { setSaving(false); }
@@ -94,7 +94,7 @@ export function CharacterEditor({ initial, state, catalog, active = true, close,
         <HStack gap={2} vAlign="end">
           <Selector label={t('@yovoice.performance.label')} width="100%" value={performanceId} isDisabled={editingBusy} options={[{ value: '', label: t('@yovoice.performance.default') }, ...(character.performances ?? []).map(p => ({ value: p.id, label: p.name }))]} onChange={id => { setPerformanceId(id); setTrack(null); }} />
           <Button size="md" isIconOnly icon={<Plus size={16} />} label={t('@yovoice.performance.add')} isDisabled={editingBusy || (character.performances?.length ?? 0) >= 32} onClick={() => {
-            const id = crypto.randomUUID().replaceAll('-', '');
+            const id = newId();
             let n = 1; while (character.performances?.some(p => p.name === t('@yovoice.performance.numbered', { n }))) n++;
             setCharacter(c => ({ ...c, performances: [...(c.performances ?? []), { id, name: t('@yovoice.performance.numbered', { n }), settings: activeSettings }] })); setPerformanceId(id); setTrack(null);
           }} />

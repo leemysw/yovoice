@@ -11,6 +11,35 @@ import (
 )
 
 func TextLen(s string) int { return len(utf16.Encode([]rune(s))) }
+
+// ValidKind 判断作品类型是否合法；空串表示旧数据的默认语音作品。
+func ValidKind(kind string) bool {
+	return slices.Contains([]string{"", "text", "story", "subtitle", "music", "sfx", "score"}, kind)
+}
+
+// TruncateRunes 按字符数截断文本，不加省略号。
+func TruncateRunes(s string, n int) string {
+	if r := []rune(s); len(r) > n {
+		return string(r[:n])
+	}
+	return s
+}
+
+// Clip 按字符数截断文本并在末尾加省略号，用于日志与提示词里的长文本。
+func Clip(s string, n int) string {
+	if r := []rune(s); len(r) > n {
+		return string(r[:n]) + "…"
+	}
+	return s
+}
+
+// Deref 返回字符串指针指向的值；空指针返回空串。
+func Deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
 func Validate(d Draft) error {
 	if d.Kind == "score" {
 		return validateScoreDraft(d)
