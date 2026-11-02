@@ -10,7 +10,7 @@ import (
 )
 
 // assistantPages 是 open_page 接受的页面。
-var assistantPages = []string{"text", "story", "music", "sfx", "score", "characters", "voices", "history", "settings"}
+var assistantPages = []string{"text", "story", "music", "sfx", "score", "characters", "voices", "history", "transcribe", "settings"}
 
 func (w *Workbench) openWorkTool(ctx context.Context, req *mcp.CallToolRequest, in workIDInput) (*mcp.CallToolResult, any, error) {
 	d, err := w.assistantWork(in.ID)
@@ -26,11 +26,11 @@ func (w *Workbench) openWorkTool(ctx context.Context, req *mcp.CallToolRequest, 
 var pageCardLabels = map[string][2]string{
 	"text": {"语音生成页", "voice generation"}, "story": {"故事配音页", "story dubbing"}, "music": {"音乐生成页", "music generation"},
 	"sfx": {"音效生成页", "sound effects generation"}, "score": {"编曲页", "arrangement"}, "characters": {"声音库页", "voice library"}, "voices": {"参考音色页", "reference library"},
-	"history": {"历史页", "history"}, "settings": {"设置页", "settings"},
+	"history": {"历史页", "history"}, "transcribe": {"语音转写页", "speech transcription"}, "settings": {"设置页", "settings"},
 }
 
 type pageInput struct {
-	Page string `json:"page" jsonschema:"页面：text、story、music、sfx、score、characters 或 settings"`
+	Page string `json:"page" jsonschema:"页面：text、story、music、sfx、score、characters、transcribe（语音转写）或 settings"`
 }
 
 func (w *Workbench) openPageTool(ctx context.Context, req *mcp.CallToolRequest, in pageInput) (*mcp.CallToolResult, any, error) {

@@ -22,7 +22,7 @@ export function RecognizeField({ state, voiceId, apply, children }: {
     if (!pending || !transcript || transcript.voiceId !== pending.voiceId) return;
     setPending(null);
     apply(transcript.text);
-    void call('voice.dismissTranscript', { id: transcript.id }).catch(() => undefined);
+    void call('transcript.dismiss', { id: transcript.id }).catch(() => undefined);
   }, [pending, transcript, apply]);
   useEffect(() => {
     if (!pending || activity?.task !== 'recognize' || activity.startedAt === pending.since || (activity.status !== 'failed' && activity.status !== 'cancelled')) return;

@@ -3132,7 +3132,7 @@
     "defaultMessage": "可選：先分離人聲，再把歌詞逐字對齊到演唱上，用於逐字歌詞動畫和匯出逐字 LRC。支援中文、英語、日語、韓語等 11 種語言。"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "可選：把匯入或錄製的聲音樣本辨識成文字，一鍵填入複製聲音所需的參考文字。支援中文、英語、粵語、日語、韓語等 30 種語言。"
+    "defaultMessage": "可選：把聲音樣本辨識成複製所需的參考文本，把上傳的音訊轉寫成文字和字幕，並給生成的語音對齊字幕時間。支援中文、英語、粵語、日語、韓語等 30 種語言。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律譜生成"
@@ -4177,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 需要 6–30 秒的參考音訊。"
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "正在轉寫（{done}/{total}）"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "正在對齊字幕時間（{done}/{total}）"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "沒有辨識出文字，請確認音訊裡有清晰的人聲"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "這個版本沒有可對齊的正文"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "沒能把正文對上音訊，請重試或換一個版本"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "匯出字幕"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "匯出字幕"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "匯出"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "正在對齊時間…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "字幕時間已對齊，按句分行匯出。"
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "首次匯出會先用語音辨識模型把正文對齊到音訊上，結果保存在這個版本裡。"
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "其他任務進行中，完成後再匯出字幕。"
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "沒有可匯出的字幕"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "語音轉寫"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "語音轉寫"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "上傳音訊"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "換一段音訊"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "其他任務進行中，完成後再轉寫"
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "去下載模型"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "轉寫字幕"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "已匯出"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "已複製全文"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "時長 {duration} · {count} 行字幕"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "匯出 SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "匯出 WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "複製全文"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "清除"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "時間"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "文字"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "沒有得到字幕時間"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "把錄音、訪談或影片裡的話轉成文字"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "上傳音訊或影片，語音辨識模型 Qwen3 ASR 會辨識出文字和逐詞時間，可匯出 SRT / WebVTT 字幕。最長 1 小時、20 MB。"
   }
 }

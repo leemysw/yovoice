@@ -3132,7 +3132,7 @@
     "defaultMessage": "Optional: separates the vocals and aligns the lyrics word by word to the singing, for word-by-word lyric animation and word LRC export. Supports 11 languages including Chinese, English, Japanese and Korean."
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "Optional: turns imported or recorded voice samples into text and fills in the reference transcript that cloning needs. Supports 30 languages including Chinese, English, Cantonese, Japanese and Korean."
+    "defaultMessage": "Optional: fills in the reference transcript for voice samples, transcribes uploaded audio to text and subtitles, and times subtitles for generated speech. Supports 30 languages including Chinese, English, Cantonese, Japanese and Korean."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generate from score"
@@ -4177,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 requires 6–30 seconds of reference audio."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Transcribing ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Aligning subtitle timing ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "No speech was recognized. Make sure the audio has clear speech"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "This version has no text to align"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "Could not match the text to the audio. Try again or use another version"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Export subtitles"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Export subtitles"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Export"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Aligning timing…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "Timing is ready. Subtitles are split by sentence."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "The first export aligns the text to the audio with the speech recognizer and keeps the result with this version."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "Another task is running. Export subtitles when it finishes."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "There are no subtitles to export"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Transcribe"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Speech transcription"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Upload audio"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Transcribe another"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "Another task is running. Transcribe when it finishes."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Download the model"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Transcript"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Exported"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Full text copied"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · {count} subtitle lines"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Export SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Export WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Copy full text"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Clear"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Time"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Text"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "No subtitle timing was produced"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Turn recordings, interviews and videos into text"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Upload audio or video. The Qwen3 ASR speech recognizer writes out the text with word timing, ready to export as SRT or WebVTT subtitles. Up to 1 hour and 20 MB."
   }
 }

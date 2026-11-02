@@ -257,7 +257,7 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '保存为角色', exact: true })).toHaveCount(0);
   await transport.getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '保存为参考音频', '保存为角色']);
+  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '导出字幕', '保存为参考音频', '保存为角色']);
   await page.keyboard.press('Escape');
 
   // 历史生成汇总所有语音作品的结果，不分版本；改过名的显示名称，其余显示正文。

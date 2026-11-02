@@ -3132,7 +3132,7 @@
     "defaultMessage": "Opcional: separa la voz y alinea la letra palabra por palabra con el canto, para animar la letra palabra a palabra y exportar LRC por palabras. Admite 11 idiomas, entre ellos chino, inglés, japonés y coreano."
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "Opcional: transcribe las muestras de voz importadas o grabadas y rellena el texto de referencia que necesita la clonación. Admite 30 idiomas, entre ellos chino, inglés, cantonés, japonés y coreano."
+    "defaultMessage": "Opcional: rellena la transcripción de referencia de las muestras de voz, transcribe el audio subido a texto y subtítulos, y sincroniza los subtítulos de la voz generada. Admite 30 idiomas, entre ellos chino, inglés, cantonés, japonés y coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generar desde la partitura"
@@ -4177,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 requiere entre 6 y 30 segundos de audio de referencia."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Transcribiendo ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Alineando los subtítulos ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "No se reconoció ningún texto. Comprueba que el audio tenga voz clara"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "Esta versión no tiene texto para alinear"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "No se pudo alinear el texto con el audio. Inténtalo de nuevo o usa otra versión"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Exportar subtítulos"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Exportar subtítulos"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Exportar"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Alineando…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "La sincronización está lista. Los subtítulos se dividen por frases."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "La primera exportación alinea el texto con el audio usando el reconocedor de voz y guarda el resultado en esta versión."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "Hay otra tarea en curso. Exporta los subtítulos cuando termine."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "No hay subtítulos para exportar"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Transcripción"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Transcripción de voz"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Subir audio"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Transcribir otro audio"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "Hay otra tarea en curso. Transcribe cuando termine."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Descargar el modelo"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Transcripción"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Exportado"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Texto completo copiado"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · {count} líneas de subtítulos"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Exportar SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Exportar WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Copiar texto completo"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Borrar"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Tiempo"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Texto"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "No se obtuvo la sincronización de subtítulos"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Convierte grabaciones, entrevistas y vídeos en texto"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Sube audio o vídeo. El reconocedor de voz Qwen3 ASR genera el texto con la sincronización de cada palabra, listo para exportar como subtítulos SRT o WebVTT. Hasta 1 hora y 20 MB."
   }
 }

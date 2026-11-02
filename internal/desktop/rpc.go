@@ -151,7 +151,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.SuggestVoiceRange(p.ID)
 	case "voice.recognize":
 		return true, w.RecognizeVoice(p.ID)
-	case "voice.dismissTranscript":
+	case "transcript.dismiss":
 		return true, w.DismissTranscript(p.ID)
 	case "media.path":
 		return w.MediaFile(p.Kind, p.ID)
@@ -184,6 +184,8 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.SetLyricWords(in.ID, in.Words)
+	case "generation.alignText":
+		return true, w.AlignText(p.ID)
 	case "generation.alignLyrics":
 		var in struct {
 			ID    string                `json:"id"`
@@ -277,6 +279,19 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.CoverMelody(input.ProjectID, bytes.NewReader(b))
+	case "speech.transcribe":
+		var input struct {
+			Name   string `json:"name"`
+			Base64 string `json:"base64"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		b, e := base64.StdEncoding.DecodeString(input.Base64)
+		if e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.TranscribeSpeech(input.Name, bytes.NewReader(b))
 	case "melody.listen":
 		var input struct {
 			Abc string `json:"abc"`

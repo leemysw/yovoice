@@ -3132,7 +3132,7 @@
     "defaultMessage": "Opcional: separa a voz e alinha a letra palavra por palavra ao canto, para animar a letra palavra a palavra e exportar LRC por palavra. Suporta 11 idiomas, incluindo chinês, inglês, japonês e coreano."
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "Opcional: transcreve amostras de voz importadas ou gravadas e preenche o texto de referência que a clonagem precisa. Suporta 30 idiomas, incluindo chinês, inglês, cantonês, japonês e coreano."
+    "defaultMessage": "Opcional: preenche a transcrição de referência das amostras de voz, transcreve áudio enviado em texto e legendas e sincroniza legendas da fala gerada. Suporta 30 idiomas, incluindo chinês, inglês, cantonês, japonês e coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Gerar pela partitura"
@@ -4177,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "O XTTS v2 exige 6–30 segundos de áudio de referência."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Transcrevendo ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Alinhando as legendas ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "Nenhuma fala foi reconhecida. Verifique se o áudio tem voz nítida"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "Esta versão não tem texto para alinhar"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "Não foi possível alinhar o texto ao áudio. Tente de novo ou use outra versão"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Exportar legendas"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Exportar legendas"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Exportar"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Alinhando…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "O tempo está pronto. As legendas são divididas por frase."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "A primeira exportação alinha o texto ao áudio com o reconhecedor de fala e guarda o resultado nesta versão."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "Outra tarefa está em andamento. Exporte as legendas quando terminar."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "Não há legendas para exportar"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Transcrição"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Transcrição de fala"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Enviar áudio"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Transcrever outro áudio"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "Outra tarefa está em andamento. Transcreva quando terminar."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Baixar o modelo"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Transcrição"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Exportado"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Texto completo copiado"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · {count} linhas de legenda"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Exportar SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Exportar WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Copiar texto completo"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Limpar"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Texto"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "Nenhum tempo de legenda foi gerado"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Transforme gravações, entrevistas e vídeos em texto"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Envie áudio ou vídeo. O reconhecedor de fala Qwen3 ASR gera o texto com o tempo de cada palavra, pronto para exportar como legendas SRT ou WebVTT. Até 1 hora e 20 MB."
   }
 }

@@ -1051,9 +1051,21 @@
       "engineMinimum": "v0.9.1",
       "version": "1",
       "precision": "Q8",
+      "directory": "Qwen3-ASR-GGUF",
       "remotePath": "Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
-      "size": 1151279968,
-      "sha256": "5c53bbb9a6b2ade85c16c290c560658ca18b78a23c323378528f1f945683fcbe"
+      "size": 2281249824,
+      "files": [
+        {
+          "path": "Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
+          "size": 1151279968,
+          "sha256": "5c53bbb9a6b2ade85c16c290c560658ca18b78a23c323378528f1f945683fcbe"
+        },
+        {
+          "path": "Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
+          "size": 1129969856,
+          "sha256": "bf4fec616f77a20d89a649cd1c97bda269644eeb3cf906d1f7488a52d71f7cb2"
+        }
+      ]
     },
     {
       "id": "musescore-general-sf2",

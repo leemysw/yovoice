@@ -51,6 +51,12 @@ export async function coverMelodyFile(projectId: string, file: File): Promise<vo
   await call('melody.cover', { projectId, base64: await toBase64(file) });
 }
 
+// 语音转写：上传音频交给后台用语音识别模型逐段转写；浏览器预览不上传音频，只演示结果。
+export async function transcribeSpeechFile(file: File): Promise<void> {
+  if (isDesktop) assertUploadSize(file);
+  await call('speech.transcribe', { name: file.name, base64: isDesktop ? await toBase64(file) : '' });
+}
+
 // 音频地址：桌面端是服务上的固定地址，浏览器预览是临时 blob 地址；用完交给 releaseMediaUrl 释放。
 export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promise<string> {
   return isDesktop ? desktopMediaUrl(kind, file) : (await preview()).previewMediaUrl(file);

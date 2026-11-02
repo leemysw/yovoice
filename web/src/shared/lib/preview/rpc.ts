@@ -186,7 +186,27 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (!voice.referenceText?.trim()) state.voices = state.voices.map(v => v.id === voice.id ? { ...v, referenceText: text } : v);
     publish(); return true as T;
   }
-  if (method === 'voice.dismissTranscript') {
+  // 浏览器预览没有推理引擎：语音版本的正文按字均匀铺满整段音频；转写给出一段固定的模拟文字，每字 0.3 秒。只用来演示字幕分行与导出。
+  if (method === 'generation.alignText') {
+    const item = state.history.find(v => v.id === (data as { id: string }).id);
+    if (!item) throw new CallError('@yovoice.error.audioMissing');
+    if (!state.models.some(m => m.id.startsWith('qwen3-asr-') || m.id.startsWith('lyric-align-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
+    const letters = ['music', 'sfx', 'score'].includes(item.settings.kind ?? '') ? [] : item.settings.text.replace(/\[[^[\]\n]{1,40}\]/g, '').match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]|[\p{L}\p{N}']+/gu) ?? [];
+    if (!letters.length) throw new CallError('@yovoice.error.alignText');
+    const span = item.duration / letters.length;
+    const textWords = letters.map((word, i) => ({ word, start: +(i * span).toFixed(3), end: +((i + .8) * span).toFixed(3) }));
+    state.history = state.history.map(v => v.id === item.id ? { ...v, textWords } : v);
+    publish(); return true as T;
+  }
+  if (method === 'speech.transcribe') {
+    if (!state.models.some(m => m.id.startsWith('qwen3-asr-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
+    const name = String((data as { name?: string }).name ?? '').replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '');
+    const text = '浏览器预览不运行识别模型。这是模拟的转写文字，用来演示字幕分行和导出！';
+    const words = (text.match(/\p{Script=Han}/gu) ?? []).map((word, i) => ({ word, start: +(i * .3).toFixed(3), end: +(i * .3 + .25).toFixed(3) }));
+    state.transcript = { id: newId(), name, text, language: 'Chinese', words, duration: +(words.length * .3).toFixed(3), createdAt: new Date().toISOString() };
+    publish(); return true as T;
+  }
+  if (method === 'transcript.dismiss') {
     if (state.transcript?.id === (data as { id: string }).id) { delete state.transcript; publish(); }
     return true as T;
   }

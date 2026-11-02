@@ -53,7 +53,7 @@ export type LogLevel = 'INFO' | 'WARN' | 'ERROR';
 export interface LogEntry { time: string; level: LogLevel; event: string; fields?: Record<string, unknown> }
 export interface LogFilter { level?: string; module?: string; text?: string; since?: string; offset?: number; limit?: number }
 export interface LogPage { entries: LogEntry[]; total: number; modules: string[] }
-export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; lyricWords?: AlignedWord[]; check?: AudioCheck }
+export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; lyricWords?: AlignedWord[]; textWords?: AlignedWord[]; check?: AudioCheck }
 /** 生成后的测量体检：整体响度（LUFS）、真峰值（dBTP）与发现的问题。 */
 export interface AudioCheck { loudness: number; peak: number; issues?: AudioIssue[] }
 /** 体检发现的一处问题；at/end 为秒。 */
@@ -75,7 +75,7 @@ export interface Activity {
   modelId?: string | null;
   kind: string;
   // melody 为出谱或扒谱，align 为歌词对齐，recognize 为识别声音样本的参考文本。
-  task?: 'melody' | 'align' | 'recognize';
+  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption';
   code: MessageCode;
   params: MessageParams | null;
   status: string;
@@ -118,8 +118,9 @@ export interface State {
 
 // 引擎写出的旋律谱，与 Go 的 schema.MelodyResult 一致：plan 为按歌词出谱，cover 为从歌曲扒谱；只在本次会话有效。
 export interface MelodyResult { id: string; projectId: string; source: 'plan' | 'cover'; abc: string; truncated?: boolean; createdAt: string }
-// 语音识别模型从声音样本识别出的文字，与 Go 的 schema.TranscriptResult 一致；由发起识别的界面填入后清除，只在本次会话有效。
-export interface TranscriptResult { id: string; voiceId: string; text: string; language?: string; createdAt: string }
+// 语音识别模型识别出的文字，与 Go 的 schema.TranscriptResult 一致，只在本次会话有效。识别声音样本时带 voiceId，由发起识别的输入框填入后清除；
+// 转写页转写上传的音频时带文件名 name、逐词时间 words 与音频时长 duration。
+export interface TranscriptResult { id: string; voiceId?: string; name?: string; text: string; language?: string; words?: AlignedWord[]; duration?: number; createdAt: string }
 /** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
 export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
 export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }

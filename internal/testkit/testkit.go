@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"unicode"
 )
 
 func Must(t testing.TB, err error) {
@@ -128,7 +129,27 @@ func RunFakeEngine() {
 				http.Error(w, "识别输入应为 16 kHz WAV", http.StatusBadRequest)
 				return
 			}
-			_ = json.NewEncoder(w).Encode(map[string]any{"text": " " + RecognizedText + "\n", "language": "Chinese"})
+			// 会话里要配置包内的对齐模型；要求时间时整段送入，每个字 0.25 秒。
+			if aligner, _ := config.Models[0].Session["qwen3_asr.forced_aligner_path"].(string); !strings.Contains(aligner, "qwen3-forced-aligner") {
+				http.Error(w, "识别会话缺少对齐模型", http.StatusBadRequest)
+				return
+			}
+			reply := map[string]any{"text": " " + RecognizedText + "\n", "language": "Chinese"}
+			if p.Request.Options["return_timestamps"] == "true" {
+				if p.Request.Options["audio_chunk_mode"] != "none" {
+					http.Error(w, "带时间的识别应整段送入", http.StatusBadRequest)
+					return
+				}
+				words := []any{}
+				for _, r := range RecognizedText {
+					if unicode.IsLetter(r) {
+						n := len(words)
+						words = append(words, map[string]any{"word": string(r), "start_sample": n * 4000, "end_sample": n*4000 + 3000})
+					}
+				}
+				reply["words"] = words
+			}
+			_ = json.NewEncoder(w).Encode(reply)
 			return
 		}
 		result := map[string]any{}

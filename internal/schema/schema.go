@@ -198,6 +198,8 @@ type Generation struct {
 	LyricTimes []float64 `json:"lyricTimes,omitempty"`
 	// LyricWords 是强制对齐得到的逐字时间，按歌词顺序排列；与 LyricTimes 只保留较新的一份。
 	LyricWords []LyricWord `json:"lyricWords,omitempty"`
+	// TextWords 是语音版本的正文对齐到音频上的逐字时间，用于导出字幕；歌曲、音效与编曲版本没有。
+	TextWords []LyricWord `json:"textWords,omitempty"`
 	// Check 是生成后对音频的测量体检；导入旧版本或文件丢失时为空。
 	Check *AudioCheck `json:"check,omitempty"`
 }
@@ -242,7 +244,7 @@ type Activity struct {
 	RequestID   string `json:"requestId,omitempty"`
 	Kind        string `json:"kind"`
 	// Task 区分同一类操作里的具体任务：melody 为出谱或扒谱，界面据此在旋律谱区域显示进度；align 为歌词对齐，在播放页显示；
-	// recognize 为识别声音样本的参考文本，在参考文本输入框旁显示。
+	// recognize 为识别声音样本的参考文本，在参考文本输入框旁显示；transcribe 为转写页转写音频；caption 为给语音版本对齐字幕时间。
 	Task        string     `json:"task,omitempty"`
 	Code        msg.Code   `json:"code"`
 	Params      msg.Params `json:"params"`
@@ -332,7 +334,7 @@ type State struct {
 	AITask       *AITask      `json:"aiTask,omitempty"`
 	// Melody 是最近一次出谱或扒谱的结果，等界面填入作品；只属于本次会话。
 	Melody *MelodyResult `json:"melody,omitempty"`
-	// Transcript 是最近一次识别声音样本得到的文字，等界面填入参考文本；只属于本次会话。
+	// Transcript 是最近一次识别的结果：声音样本的参考文本，或转写页上传音频的文字与逐词时间；只属于本次会话。
 	Transcript *TranscriptResult `json:"transcript,omitempty"`
 	// AssistantSessions 是助手会话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
 	AssistantSessions *AssistantSessions `json:"assistantSessions,omitempty"`
@@ -351,13 +353,17 @@ type MelodyResult struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// TranscriptResult 是语音识别模型从声音样本识别出的文字；Language 是模型判断的语言（如 Chinese），可能为空。
+// TranscriptResult 是语音识别模型识别出的文字；Language 是模型判断的语言（如 Chinese），可能为空。
+// 识别声音样本时 VoiceID 指向样本；转写上传的音频时 Name 是文件名（不含扩展名），Words 是逐词时间，Duration 是音频秒数。
 type TranscriptResult struct {
-	ID        string    `json:"id"`
-	VoiceID   string    `json:"voiceId"`
-	Text      string    `json:"text"`
-	Language  string    `json:"language,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        string      `json:"id"`
+	VoiceID   string      `json:"voiceId,omitempty"`
+	Name      string      `json:"name,omitempty"`
+	Text      string      `json:"text"`
+	Language  string      `json:"language,omitempty"`
+	Words     []LyricWord `json:"words,omitempty"`
+	Duration  float64     `json:"duration,omitempty"`
+	CreatedAt time.Time   `json:"createdAt"`
 }
 
 type InstalledRuntime struct {

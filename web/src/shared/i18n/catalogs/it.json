@@ -3132,7 +3132,7 @@
     "defaultMessage": "Opzionale: separa la voce e allinea il testo parola per parola al canto, per l’animazione del testo parola per parola e l’esportazione LRC per parola. Supporta 11 lingue, tra cui cinese, inglese, giapponese e coreano."
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "Facoltativo: trascrive i campioni vocali importati o registrati e compila il testo di riferimento necessario per la clonazione. Supporta 30 lingue, tra cui cinese, inglese, cantonese, giapponese e coreano."
+    "defaultMessage": "Facoltativo: compila la trascrizione di riferimento dei campioni vocali, trascrive l’audio caricato in testo e sottotitoli e sincronizza i sottotitoli della voce generata. Supporta 30 lingue, tra cui cinese, inglese, cantonese, giapponese e coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Genera dallo spartito"
@@ -4177,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 richiede 6–30 secondi di audio di riferimento."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Trascrizione in corso ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Allineamento dei sottotitoli ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "Nessun parlato riconosciuto. Verifica che l’audio contenga una voce chiara"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "Questa versione non ha testo da allineare"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "Impossibile allineare il testo all’audio. Riprova o usa un’altra versione"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Esporta sottotitoli"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Esporta sottotitoli"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Esporta"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Allineamento…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "I tempi sono pronti. I sottotitoli vengono divisi per frase."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "La prima esportazione allinea il testo all’audio con il riconoscimento vocale e conserva il risultato in questa versione."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "È in corso un’altra attività. Esporta i sottotitoli quando termina."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "Nessun sottotitolo da esportare"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Trascrizione"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Trascrizione vocale"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Carica audio"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Trascrivi un altro audio"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "È in corso un’altra attività. Trascrivi quando termina."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Scarica il modello"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Trascrizione"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Esportato"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Testo completo copiato"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · {count} righe di sottotitoli"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Esporta SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Esporta WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Copia testo completo"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Cancella"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Testo"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "Nessun tempo di sottotitoli ottenuto"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Trasforma registrazioni, interviste e video in testo"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Carica audio o video. Il riconoscimento vocale Qwen3 ASR produce il testo con i tempi di ogni parola, esportabile come sottotitoli SRT o WebVTT. Fino a 1 ora e 20 MB."
   }
 }

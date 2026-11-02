@@ -3132,7 +3132,7 @@
     "defaultMessage": "선택 사항: 보컬을 분리하고 가사를 단어별로 노래에 맞춥니다. 단어별 가사 애니메이션과 단어별 LRC 내보내기에 사용합니다. 중국어, 영어, 일본어, 한국어 등 11개 언어를 지원합니다."
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "선택 사항: 가져오거나 녹음한 음성 샘플을 텍스트로 변환해 클로닝에 필요한 참조 텍스트를 한 번에 채웁니다. 중국어, 영어, 광둥어, 일본어, 한국어 등 30개 언어를 지원합니다."
+    "defaultMessage": "선택 사항: 음성 샘플에서 복제에 필요한 참조 텍스트를 만들고, 올린 오디오를 텍스트와 자막으로 받아쓰며, 생성한 음성에 자막 타이밍을 맞춥니다. 중국어, 영어, 광둥어, 일본어, 한국어 등 30개 언어를 지원합니다."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "멜로디 악보로 생성"
@@ -4177,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2에는 6–30초의 참조 오디오가 필요합니다."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "받아쓰는 중 ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "자막 타이밍 맞추는 중 ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "인식된 텍스트가 없습니다. 오디오에 또렷한 음성이 있는지 확인하세요"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "이 버전에는 맞출 본문이 없습니다"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "본문을 오디오에 맞추지 못했습니다. 다시 시도하거나 다른 버전을 사용하세요"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "자막 내보내기"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "자막 내보내기"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "내보내기"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "타이밍 맞추는 중…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "타이밍이 준비되었습니다. 문장 단위로 나누어 내보냅니다."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "처음 내보낼 때 음성 인식 모델로 본문을 오디오에 맞추고, 결과를 이 버전에 저장합니다."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "다른 작업이 진행 중입니다. 끝난 뒤 자막을 내보내세요."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "내보낼 자막이 없습니다"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "받아쓰기"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "음성 받아쓰기"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "오디오 업로드"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "다른 오디오 받아쓰기"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "다른 작업이 진행 중입니다. 끝난 뒤 받아쓰세요"
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "모델 다운로드"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "받아쓰기"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "내보냈습니다"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "전체 텍스트를 복사했습니다"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "길이 {duration} · 자막 {count}줄"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "SRT 내보내기"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "WebVTT 내보내기"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "전체 텍스트 복사"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "지우기"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "시간"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "텍스트"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "자막 타이밍을 얻지 못했습니다"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "녹음, 인터뷰, 영상 속 말을 텍스트로"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "오디오나 영상을 올리면 음성 인식 모델 Qwen3 ASR이 텍스트와 단어별 타이밍을 만들어 SRT / WebVTT 자막으로 내보낼 수 있습니다. 최대 1시간, 20 MB."
   }
 }
