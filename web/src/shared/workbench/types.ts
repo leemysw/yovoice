@@ -74,8 +74,8 @@ export interface Activity {
   startedAt?: string | null;
   modelId?: string | null;
   kind: string;
-  // melody 为出谱或扒谱，align 为歌词对齐。
-  task?: 'melody' | 'align';
+  // melody 为出谱或扒谱，align 为歌词对齐，recognize 为识别声音样本的参考文本。
+  task?: 'melody' | 'align' | 'recognize';
   code: MessageCode;
   params: MessageParams | null;
   status: string;
@@ -109,6 +109,7 @@ export interface State {
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
   melody?: MelodyResult;
+  transcript?: TranscriptResult;
   /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
   assistantSessions?: AssistantSessions; assistantLive?: AssistantLive; assistantMemory?: AssistantMemo[];
   /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
@@ -117,6 +118,8 @@ export interface State {
 
 // 引擎写出的旋律谱，与 Go 的 schema.MelodyResult 一致：plan 为按歌词出谱，cover 为从歌曲扒谱；只在本次会话有效。
 export interface MelodyResult { id: string; projectId: string; source: 'plan' | 'cover'; abc: string; truncated?: boolean; createdAt: string }
+// 语音识别模型从声音样本识别出的文字，与 Go 的 schema.TranscriptResult 一致；由发起识别的界面填入后清除，只在本次会话有效。
+export interface TranscriptResult { id: string; voiceId: string; text: string; language?: string; createdAt: string }
 /** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
 export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
 export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }

@@ -176,6 +176,20 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     state.history = state.history.map(v => v.id === id ? { ...v, lyricWords, lyricTimes: undefined } : v);
     publish(); return true as T;
   }
+  // 浏览器预览没有推理引擎：装了识别模型时直接给出一段模拟文字，只用来演示填入参考文本；桌面端才真正识别。
+  if (method === 'voice.recognize') {
+    const voice = state.voices.find(v => v.id === (data as { id: string }).id);
+    if (!voice) throw new CallError('@yovoice.error.audioMissing');
+    if (!state.models.some(m => m.id.startsWith('qwen3-asr-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
+    const text = `${voice.name}：浏览器预览不运行识别模型，这是模拟的识别文字。`;
+    state.transcript = { id: newId(), voiceId: voice.id, text, language: 'Chinese', createdAt: new Date().toISOString() };
+    if (!voice.referenceText?.trim()) state.voices = state.voices.map(v => v.id === voice.id ? { ...v, referenceText: text } : v);
+    publish(); return true as T;
+  }
+  if (method === 'voice.dismissTranscript') {
+    if (state.transcript?.id === (data as { id: string }).id) { delete state.transcript; publish(); }
+    return true as T;
+  }
   // 参考片段挑选与音频体检在桌面端测量；预览后端不分析音频，挑选固定取开头 10 秒，体检返回已有结果。
   if (method === 'voice.suggest') {
     const voice = state.voices.find(v => v.id === (data as { id: string }).id);

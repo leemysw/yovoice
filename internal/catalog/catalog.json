@@ -1044,6 +1044,18 @@
       ]
     },
     {
+      "id": "qwen3-asr-0.6b-q8",
+      "name": "Qwen3 ASR 0.6B",
+      "family": "qwen3_asr",
+      "task": "asr",
+      "engineMinimum": "v0.9.1",
+      "version": "1",
+      "precision": "Q8",
+      "remotePath": "Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf",
+      "size": 1151279968,
+      "sha256": "5c53bbb9a6b2ade85c16c290c560658ca18b78a23c323378528f1f945683fcbe"
+    },
+    {
       "id": "musescore-general-sf2",
       "name": "MuseScore General",
       "family": "soundfont",

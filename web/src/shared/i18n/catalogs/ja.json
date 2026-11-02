@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "参照の書き起こし"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "文字を認識"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "認識中…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "音声認識モデルで音声サンプルを文字に起こして入力します。参照テキストのないサンプルには結果も保存されます"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "先に参照音声を選択してください"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "生成された音声"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "歌詞をアライン中（{done}/{total}）"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "参照テキストを認識中"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "先に設定の音楽モデルで歌詞アライナーをダウンロードしてください"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "ボーカルと歌詞を合わせられませんでした。手動で調整してください"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "先に設定の音声モデルで音声認識モデル Qwen3 ASR をダウンロードしてください"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "文字を認識できませんでした。声がよりはっきりしたサンプルをお試しください"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "メロディ譜に問題があります：{issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "オプション：ボーカルを分離し、歌詞を一語ずつ歌に合わせます。逐語歌詞アニメーションと逐語 LRC の書き出しに使います。中国語・英語・日本語・韓国語など 11 言語に対応。"
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "オプション：取り込んだ、または録音した音声サンプルを文字に起こし、クローンに必要な参照テキストをワンクリックで入力します。中国語、英語、広東語、日本語、韓国語など 30 言語に対応。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "メロディ譜から生成"

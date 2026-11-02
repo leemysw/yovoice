@@ -6,6 +6,7 @@
 
 ### English
 
+- Speech recognition for reference transcripts: download the optional Qwen3 ASR 0.6B model under Voice models, then click “Recognize text” under a reference transcript field or in the voice editor to fill in what the sample says. A sample with no transcript keeps the result, so picking it again fills the field. Supports 30 languages; needs inference engine v0.9.1 or later.
 - Safer data: when the state database is missing but a backup exists, yovoice restores from the backup instead of creating an empty database that overwrites it; quitting midway through deleting media no longer removes audio still in use; edits made while the data folder is being moved are no longer lost, and saving keeps working after a failed move.
 - More reliable downloads: transient network errors, server hiccups and stalls resume and retry automatically; pausing or cancelling no longer deletes a fully downloaded file; after switching the download source, the file is checked to be the same one before resuming.
 - Quitting no longer hangs: an in-progress data folder move is stopped first instead of waiting for the copy to finish, and an internal error in one operation no longer makes every later operation unresponsive.
@@ -20,6 +21,7 @@
 
 ### 简体中文
 
+- 参考原文支持语音识别：在设置的语音模型里下载可选的 Qwen3 ASR 0.6B，在参考原文框下或编辑音色信息时点“识别文字”，即可把样本里说的话填进去；样本原来没有原文时会一并保存，下次选用直接带出。支持 30 种语言，需要推理引擎 v0.9.1 及以上。
 - 数据更稳妥：状态库文件丢失而备份还在时自动从备份恢复，不再新建空库覆盖备份；删除素材中途退出不再误删仍在使用的音频；数据目录迁移期间的改动不再丢失，迁移失败后可继续正常保存。
 - 下载更可靠：网络抖动、服务器临时出错或长时间没有数据时自动续传重试；暂停或取消后不会再误删已经下完的文件；更换下载来源后会核对是否同一文件再续传。
 - 退出不再卡住：关闭时先中止正在进行的数据目录迁移，不必等复制完成；某个操作内部出错也不会让之后的操作全部无响应。

@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Transcripción de referencia"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Reconocer texto"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Reconociendo…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Transcribe la muestra de voz con el reconocedor. Una muestra sin texto de referencia conserva el resultado"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Elige primero una voz de referencia"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Audio generado"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Alineando la letra ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Reconociendo el texto de referencia"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Descarga primero el alineador de letras en Modelos de música, en Ajustes"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "No se pudo hacer coincidir la letra con la voz; prueba a sincronizar a mano"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Descarga primero el reconocedor de voz Qwen3 ASR en Modelos de voz de Ajustes"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "No se reconoció texto. Prueba con una muestra de voz más clara"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "La partitura de la melodía tiene un problema: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Opcional: separa la voz y alinea la letra palabra por palabra con el canto, para animar la letra palabra a palabra y exportar LRC por palabras. Admite 11 idiomas, entre ellos chino, inglés, japonés y coreano."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Opcional: transcribe las muestras de voz importadas o grabadas y rellena el texto de referencia que necesita la clonación. Admite 30 idiomas, entre ellos chino, inglés, cantonés, japonés y coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generar desde la partitura"

@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Reference transcript"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Recognize text"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Recognizing…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Transcribe the voice sample with the speech recognizer. A sample without a transcript keeps the result"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Choose a reference voice first"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Generated audio"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Aligning lyrics ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Recognizing the reference transcript"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Download the lyric aligner under Music models in Settings first"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Could not match the lyrics to the vocals; try syncing by hand"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Download the Qwen3 ASR speech recognizer under Voice models in Settings first"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "No speech was recognized. Try a sample with clearer speech"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "The melody score has a problem: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Optional: separates the vocals and aligns the lyrics word by word to the singing, for word-by-word lyric animation and word LRC export. Supports 11 languages including Chinese, English, Japanese and Korean."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Optional: turns imported or recorded voice samples into text and fills in the reference transcript that cloning needs. Supports 30 languages including Chinese, English, Cantonese, Japanese and Korean."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generate from score"

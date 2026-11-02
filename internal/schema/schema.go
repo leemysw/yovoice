@@ -241,7 +241,8 @@ type Activity struct {
 	CharacterID string `json:"characterId,omitempty"`
 	RequestID   string `json:"requestId,omitempty"`
 	Kind        string `json:"kind"`
-	// Task 区分同一类操作里的具体任务：melody 为出谱或扒谱，界面据此在旋律谱区域显示进度；align 为歌词对齐，在播放页显示。
+	// Task 区分同一类操作里的具体任务：melody 为出谱或扒谱，界面据此在旋律谱区域显示进度；align 为歌词对齐，在播放页显示；
+	// recognize 为识别声音样本的参考文本，在参考文本输入框旁显示。
 	Task        string     `json:"task,omitempty"`
 	Code        msg.Code   `json:"code"`
 	Params      msg.Params `json:"params"`
@@ -331,6 +332,8 @@ type State struct {
 	AITask       *AITask      `json:"aiTask,omitempty"`
 	// Melody 是最近一次出谱或扒谱的结果，等界面填入作品；只属于本次会话。
 	Melody *MelodyResult `json:"melody,omitempty"`
+	// Transcript 是最近一次识别声音样本得到的文字，等界面填入参考文本；只属于本次会话。
+	Transcript *TranscriptResult `json:"transcript,omitempty"`
 	// AssistantSessions 是助手会话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
 	AssistantSessions *AssistantSessions `json:"assistantSessions,omitempty"`
 	AssistantLive     *AssistantLive     `json:"assistantLive,omitempty"`
@@ -345,6 +348,15 @@ type MelodyResult struct {
 	Source    string    `json:"source"`
 	Abc       string    `json:"abc"`
 	Truncated bool      `json:"truncated,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+// TranscriptResult 是语音识别模型从声音样本识别出的文字；Language 是模型判断的语言（如 Chinese），可能为空。
+type TranscriptResult struct {
+	ID        string    `json:"id"`
+	VoiceID   string    `json:"voiceId"`
+	Text      string    `json:"text"`
+	Language  string    `json:"language,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 

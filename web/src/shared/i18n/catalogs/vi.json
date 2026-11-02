@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Lời thoại tham chiếu"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Nhận dạng văn bản"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Đang nhận dạng…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Chuyển mẫu giọng thành văn bản bằng mô hình nhận dạng. Mẫu chưa có văn bản tham chiếu sẽ lưu luôn kết quả"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Hãy chọn giọng tham chiếu trước"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Âm thanh đã tạo"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Đang căn chỉnh lời bài hát ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Đang nhận dạng văn bản tham chiếu"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Hãy tải mô hình căn chỉnh lời bài hát trong Mô hình âm nhạc ở Cài đặt trước"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Không khớp được lời bài hát với giọng hát; hãy thử đồng bộ thủ công"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Hãy tải mô hình nhận dạng giọng nói Qwen3 ASR trong mục Mô hình giọng nói ở Cài đặt trước"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Không nhận dạng được văn bản. Hãy thử mẫu có giọng nói rõ hơn"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "Bản nhạc giai điệu có lỗi: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Tùy chọn: tách giọng hát và căn lời bài hát theo từng từ với giọng hát, dùng cho hiệu ứng lời từng từ và xuất LRC theo từ. Hỗ trợ 11 ngôn ngữ, gồm tiếng Trung, Anh, Nhật và Hàn."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Tùy chọn: chuyển mẫu giọng đã nhập hoặc ghi âm thành văn bản và điền văn bản tham chiếu cần cho nhân bản giọng. Hỗ trợ 30 ngôn ngữ, gồm tiếng Trung, Anh, Quảng Đông, Nhật và Hàn."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Tạo theo bản nhạc"

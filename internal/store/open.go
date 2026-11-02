@@ -29,9 +29,10 @@ func New(root string) (store *Store, err error) {
 	s.settleDeleted()
 	s.state.Activity = settleActivity(s.state.Activity)
 	s.state.ModelActivity = settleActivity(s.state.ModelActivity)
-	// AI 任务、旋律谱结果与助手对话的实时状态只属于本次会话，助手消息记录保留。
+	// AI 任务、旋律谱与识别结果、助手对话的实时状态只属于本次会话，助手消息记录保留。
 	s.state.AITask = nil
 	s.state.Melody = nil
+	s.state.Transcript = nil
 	s.state.AssistantLive = nil
 	// 未保存的试听不跨会话保留，角色已保存的试听使用独立文件。
 	s.state.Previews = []schema.CharacterPreview{}

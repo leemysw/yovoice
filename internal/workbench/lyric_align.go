@@ -170,11 +170,7 @@ func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
 		}, true)
 	}, "", generation.Settings.ID)
 	if e == nil {
-		_ = w.Store.Update(func(s *schema.State) {
-			if s.Activity != nil {
-				s.Activity.Task = "align"
-			}
-		}, false)
+		w.tagActivity("align")
 	}
 	return e
 }

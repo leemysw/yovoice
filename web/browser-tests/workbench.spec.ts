@@ -58,7 +58,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await expect(yue.locator('.model-size')).toHaveText('7.01 GB');
   await expect(page.getByLabel('下载来源', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '语音模型', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(18);
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(19);
   await expect(page.locator('[data-model-id^="ace-step-"]')).toHaveCount(0);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();

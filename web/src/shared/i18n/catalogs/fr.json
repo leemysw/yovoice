@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Transcription de référence"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Reconnaître le texte"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Reconnaissance…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Transcrit l’échantillon de voix avec le modèle de reconnaissance. Un échantillon sans texte de référence conserve le résultat"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Choisissez d’abord une voix de référence"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Audio généré"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Alignement des paroles ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Reconnaissance du texte de référence"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Téléchargez d’abord l’aligneur de paroles dans Modèles de musique, dans les Réglages"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Impossible de faire correspondre les paroles à la voix ; synchronisez à la main"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Téléchargez d’abord le modèle de reconnaissance vocale Qwen3 ASR dans Modèles vocaux des Paramètres"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Aucun texte reconnu. Essayez un échantillon où la voix est plus nette"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "La partition mélodique comporte un problème : {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Facultatif : sépare la voix et aligne les paroles mot à mot sur le chant, pour l’animation des paroles mot à mot et l’export LRC par mot. Prend en charge 11 langues, dont le chinois, l’anglais, le japonais et le coréen."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Facultatif : transcrit les échantillons de voix importés ou enregistrés et remplit le texte de référence nécessaire au clonage. Prend en charge 30 langues, dont le chinois, l’anglais, le cantonais, le japonais et le coréen."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Générer depuis la partition"

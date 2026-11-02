@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Referenztranskript"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Text erkennen"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Wird erkannt…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Wandelt die Stimmprobe mit der Spracherkennung in Text um. Eine Probe ohne Referenztext behält das Ergebnis"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Wähle zuerst eine Referenzstimme"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Generiertes Audio"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Liedtext wird ausgerichtet ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Referenztext wird erkannt"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Lade zuerst den Liedtext-Aligner unter Musikmodelle in den Einstellungen herunter"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Der Liedtext ließ sich nicht dem Gesang zuordnen; synchronisiere ihn von Hand"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Lade zuerst die Spracherkennung Qwen3 ASR unter Sprachmodelle in den Einstellungen herunter"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Es wurde kein Text erkannt. Versuche eine Aufnahme mit deutlicherer Sprache"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "Die Melodienoten enthalten einen Fehler: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Optional: trennt den Gesang ab und richtet den Liedtext Wort für Wort am Gesang aus, für Wort-für-Wort-Animationen und den Export als Wort-LRC. Unterstützt 11 Sprachen, darunter Chinesisch, Englisch, Japanisch und Koreanisch."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Optional: wandelt importierte oder aufgenommene Stimmproben in Text um und füllt den Referenztext aus, den das Klonen braucht. Unterstützt 30 Sprachen, darunter Chinesisch, Englisch, Kantonesisch, Japanisch und Koreanisch."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Aus Melodienoten erzeugen"

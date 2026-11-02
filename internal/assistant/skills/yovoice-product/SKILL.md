@@ -36,6 +36,8 @@ The assistant opens with ⌘J / Ctrl+J, the launcher in the corner, or the title
 | Breeze TTS 2 (~3B) | Very natural Chinese/English design, cloning and voice direction; non-commercial licence; GPU recommended | Cloning needs 5–15 s clean audio and a word-for-word transcript |
 | Kokoro-82M | Fastest, tiny, CPU friendly; built-in voices only, no cloning or emotion. 1.1-zh has 100 Chinese voices. | Speaker |
 
+Qwen3 ASR 0.6B (optional speech recognizer, not a generation model): the 识别 Recognize button next to a reference transcript field, or in the voice editor, turns the selected voice sample into text. A sample with no transcript keeps the recognized text. Needs inference engine v0.9.1 or later.
+
 Hardware rule of thumb: Kokoro runs on any CPU; cloning models want 4–6 GB VRAM or 8 GB+ Apple Silicon; music models want 12 GB+ VRAM or 16 GB+ Apple Silicon. Q8 is the smallest precision with near-original quality; BF16/F16/ORIG are larger and slightly better.
 
 Recommend in this order: what the user already has installed (list_models), then the lightest model that does the job.
@@ -159,6 +161,8 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.coverModelRequired` 从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 音乐模型”中下载。
 - `error.melodySoundFontRequired` 试听旋律谱需要一个音色库，请在“设置 › 编曲音色库”中下载。
 - `error.alignModelRequired` 请先在设置的音乐模型里下载歌词对齐模型
+- `error.recognizeModelRequired` 请先在设置的语音模型里下载语音识别模型 Qwen3 ASR
+- `error.recognizeEmpty` 没有识别出文字，请换一段人声更清晰的样本
 - `error.alignLyrics` 这个版本没有可对齐的歌词
 - `error.alignEmpty` 没能从人声里对上歌词，可以手动校准
 - `error.engineUpgradeRequired` 该模型需要 {version} 及以上的推理内核，请在设置中更新内核。

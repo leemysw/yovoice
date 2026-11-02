@@ -149,6 +149,10 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.ImportVoiceFrom(ctx, bytes.NewReader(b), p.Name)
 	case "voice.suggest":
 		return w.SuggestVoiceRange(p.ID)
+	case "voice.recognize":
+		return true, w.RecognizeVoice(p.ID)
+	case "voice.dismissTranscript":
+		return true, w.DismissTranscript(p.ID)
 	case "media.path":
 		return w.MediaFile(p.Kind, p.ID)
 	case "export.path":

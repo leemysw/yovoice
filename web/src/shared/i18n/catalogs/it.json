@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Trascrizione di riferimento"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Riconosci testo"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Riconoscimento…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Trascrive il campione vocale con il riconoscitore. Un campione senza testo di riferimento conserva il risultato"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Scegli prima una voce di riferimento"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Audio generato"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Allineamento del testo ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Riconoscimento del testo di riferimento"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Scarica prima l’allineatore di testi in Modelli musicali, nelle Impostazioni"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Impossibile far corrispondere il testo alla voce; prova a sincronizzarlo a mano"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Scarica prima il riconoscitore vocale Qwen3 ASR in Modelli vocali nelle Impostazioni"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Nessun testo riconosciuto. Prova un campione con la voce più chiara"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "Lo spartito della melodia contiene un errore: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Opzionale: separa la voce e allinea il testo parola per parola al canto, per l’animazione del testo parola per parola e l’esportazione LRC per parola. Supporta 11 lingue, tra cui cinese, inglese, giapponese e coreano."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Facoltativo: trascrive i campioni vocali importati o registrati e compila il testo di riferimento necessario per la clonazione. Supporta 30 lingue, tra cui cinese, inglese, cantonese, giapponese e coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Genera dallo spartito"

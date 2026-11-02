@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Расшифровка референса"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Распознать текст"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Распознаём…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Переводит образец голоса в текст с помощью распознавателя. Образец без опорного текста сохранит результат"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Сначала выберите опорный голос"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Сгенерированное аудио"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Выравнивание текста ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Распознаём опорный текст"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Сначала скачайте модель выравнивания текста в разделе «Музыкальные модели» в настройках"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Не удалось сопоставить текст с вокалом; синхронизируйте вручную"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Сначала скачайте распознаватель речи Qwen3 ASR в разделе «Голосовые модели» настроек"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Текст не распознан. Попробуйте образец с более чёткой речью"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "В партитуре мелодии ошибка: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Необязательно: отделяет вокал и выравнивает текст по пению пословно — для пословной анимации текста и экспорта пословного LRC. Поддерживает 11 языков, включая китайский, английский, японский и корейский."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Необязательно: переводит импортированные или записанные образцы голоса в текст и заполняет опорный текст для клонирования. Поддерживает 30 языков, включая китайский, английский, кантонский, японский и корейский."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Создать по нотам"

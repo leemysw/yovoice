@@ -9,6 +9,8 @@
   "voice.fromGeneration",
   "voice.update",
   "voice.record",
+  "voice.recognize",
+  "voice.dismissTranscript",
   "timeline.import",
   "timeline.fromGeneration",
   "media.rename",

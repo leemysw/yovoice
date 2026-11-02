@@ -530,11 +530,40 @@ func (e *Engine) AlignWords(ctx context.Context, executable string, m schema.Ins
 	return words, nil
 }
 
+// Recognize 用语音识别模型（Qwen3 ASR）把一段 16 kHz 单声道语音转成文字，返回文字与模型识别出的语言。
+func (e *Engine) Recognize(ctx context.Context, executable string, m schema.InstalledModel, backend, wav string, progress func(msg.Code, msg.Params)) (text, language string, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return "", "", err
+	}
+	if definition.Family != "qwen3_asr" {
+		return "", "", msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	if err = e.start(ctx, executable, m.Path, definition, backend, false, 0, progress); err != nil {
+		return "", "", err
+	}
+	progress(msg.ActivityRecognize, nil)
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav, "text": ""}})
+	if err != nil {
+		return "", "", err
+	}
+	return strings.TrimSpace(result.Text), result.Language, nil
+}
+
 // taskResult 是 /v1/tasks/run 的结果：音频为 base64 WAV，附加产物（如 ABC 谱）也以 base64 承载；
-// 分离任务的各个分轨在 named_audio_outputs，对齐任务的逐字时间在 words（以样本数计）。
+// 分离任务的各个分轨在 named_audio_outputs，对齐任务的逐字时间在 words（以样本数计），识别任务的文字在 text。
 type taskResult struct {
-	Audio string `json:"audio"`
-	Stems []struct {
+	Text     string `json:"text"`
+	Language string `json:"language"`
+	Audio    string `json:"audio"`
+	Stems    []struct {
 		ID    string `json:"id"`
 		Audio string `json:"audio"`
 	} `json:"named_audio_outputs"`

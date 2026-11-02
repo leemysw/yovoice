@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "參考原文"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "辨識文字"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "正在辨識…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "用語音辨識模型把聲音樣本轉成文字填入；樣本還沒有參考文字時同時儲存"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "請先選擇參考聲音"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "來自生成音訊"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "正在對齊歌詞（{done}/{total}）"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "正在辨識參考文字"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "請先在設定的音樂模型裡下載歌詞對齊模型"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "沒能從人聲裡對上歌詞，可以手動校準"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "請先在設定的語音模型裡下載語音辨識模型 Qwen3 ASR"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "沒有辨識出文字，請換一段人聲更清楚的樣本"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "旋律譜有誤：{issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "可選：先分離人聲，再把歌詞逐字對齊到演唱上，用於逐字歌詞動畫和匯出逐字 LRC。支援中文、英語、日語、韓語等 11 種語言。"
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "可選：把匯入或錄製的聲音樣本辨識成文字，一鍵填入複製聲音所需的參考文字。支援中文、英語、粵語、日語、韓語等 30 種語言。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律譜生成"
