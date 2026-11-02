@@ -1,0 +1,152 @@
+package workbench
+
+import (
+	"context"
+	"os"
+	"path/filepath"
+	"regexp"
+	"slices"
+	"strings"
+	"unicode"
+	"yovoice/internal/audio"
+	"yovoice/internal/diag"
+	"yovoice/internal/msg"
+	"yovoice/internal/schema"
+)
+
+// 给语音版本对齐字幕时间：音频最长 maxTextAlignSeconds 秒，正文最多 maxTextAlignRunes 字。
+const maxTextAlignSeconds, maxTextAlignRunes = 3600, 50000
+
+// AlignText 把语音版本的正文逐字对齐到它的音频上，结果写进 TextWords，界面据此按句分行导出 SRT / WebVTT 字幕。
+// 正文是已知的，直接用强制对齐，字幕不会有识别错字；语音识别包或歌词对齐包里的对齐模型都可以用。
+func (w *Workbench) AlignText(id string) error {
+	path, e := w.MediaFile("outputs", id)
+	if e != nil {
+		return e
+	}
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	s := w.Store.Read()
+	i := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.ID == id })
+	if i < 0 {
+		return msg.Err(msg.ErrAudioMissing, nil)
+	}
+	generation := s.History[i]
+	text := spokenText(generation.Settings)
+	if text == "" {
+		return msg.Err(msg.ErrAlignText, nil)
+	}
+	if generation.Duration > maxTextAlignSeconds || schema.TextLen(text) > maxTextAlignRunes {
+		return msg.Err(msg.ErrAudioDuration, nil)
+	}
+	model, e := w.toolModel(s, "qwen3_asr", "lyric_align")
+	if e != nil {
+		return e
+	}
+	_, e = w.start("generate", msg.ActivityAlignText, msg.Params{"done": 0, "total": 1}, &model.ID, func(ctx context.Context) error {
+		runtimeDir := filepath.Join(w.Store.Root, "runtime")
+		if e := os.MkdirAll(runtimeDir, 0700); e != nil {
+			return e
+		}
+		dir, e := os.MkdirTemp(runtimeDir, "caption-")
+		if e != nil {
+			return e
+		}
+		defer os.RemoveAll(dir)
+		samples, rate, e := audio.ReadMono(path)
+		if e != nil {
+			return e
+		}
+		voice := audio.Resample(samples, rate, alignRate)
+		spans := voicedSpans(voice, alignRate)
+		language := alignLanguage(text)
+		groups := groupLines(estimateLines(sentences(text), spans, len(voice)), spans, len(voice))
+		words, e := w.alignGroups(ctx, s, model, voice, groups, language, dir, msg.ActivityAlignText)
+		if e != nil {
+			return e
+		}
+		if len(words) == 0 {
+			return msg.Err(msg.ErrAlignTextEmpty, nil)
+		}
+		diag.Log(w.Store.Root, "text.aligned", "generation_id", id, "chunks", len(groups), "words", len(words), "language", language)
+		return w.Store.Update(func(s *schema.State) {
+			for i := range s.History {
+				if s.History[i].ID == id {
+					s.History[i].TextWords = words
+				}
+			}
+		}, true)
+	}, "", generation.Settings.ID)
+	if e == nil {
+		w.tagActivity("caption")
+	}
+	return e
+}
+
+// markupTag 是正文里给模型的方括号标记（如 [laugh]、[breath]），不念出来，也不进字幕。
+var markupTag = regexp.MustCompile(`\[[^\[\]\n]{1,40}\]`)
+
+// spokenText 返回语音版本实际念出的正文；歌曲、音效和编曲版本没有正文可对齐，返回空。
+func spokenText(d schema.Draft) string {
+	if d.Kind == "music" || d.Kind == "sfx" || d.Kind == "score" {
+		return ""
+	}
+	return strings.TrimSpace(markupTag.ReplaceAllString(d.Text, ""))
+}
+
+// sentences 按换行和句末标点把正文切成句子，用来分组对齐；标点留在句尾。
+func sentences(text string) []string {
+	var out []string
+	var b strings.Builder
+	flush := func() {
+		if line := strings.TrimSpace(b.String()); line != "" {
+			out = append(out, line)
+		}
+		b.Reset()
+	}
+	runes := []rune(text)
+	// ended 表示已到句末标点，后面紧跟的引号、括号和连续标点仍归到这一句。
+	ended := false
+	for i, r := range runes {
+		if r == '\n' {
+			flush()
+			ended = false
+			continue
+		}
+		b.WriteRune(r)
+		ended = ended || strings.ContainsRune("。！？!?；;…", r) || (r == '.' && (i+1 == len(runes) || unicode.IsSpace(runes[i+1])))
+		if ended && (i+1 == len(runes) || !strings.ContainsRune("”’」』）)\"'。！？!?…", runes[i+1])) {
+			flush()
+			ended = false
+		}
+	}
+	flush()
+	return out
+}
+
+// estimateLines 按字数把句子摊到有声音的范围里，给出每句的大致时间，供 groupLines 选切点。
+func estimateLines(lines []string, spans [][2]int, total int) []LyricLine {
+	from, to := 0, total
+	if len(spans) > 0 {
+		from, to = spans[0][0], spans[len(spans)-1][1]
+	}
+	weights, sum := make([]int, len(lines)), 0
+	for i, line := range lines {
+		for _, r := range line {
+			if unicode.IsLetter(r) || unicode.IsNumber(r) {
+				weights[i]++
+			}
+		}
+		weights[i] = max(weights[i], 1)
+		sum += weights[i]
+	}
+	out := make([]LyricLine, len(lines))
+	at := float64(from) / alignRate
+	length := float64(to-from) / alignRate
+	for i, line := range lines {
+		next := at + length*float64(weights[i])/float64(max(sum, 1))
+		out[i] = LyricLine{Text: line, Start: at, End: next}
+		at = next
+	}
+	return out
+}

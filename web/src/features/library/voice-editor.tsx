@@ -7,9 +7,10 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { Player } from '../media/player';
 import { call } from '../../shared/lib/client';
 import { formatCallError, formatNotice } from '../../shared/i18n/format';
-import type { Generation, Voice } from '../../shared/workbench';
+import { RecognizeField } from '../create/recognize-field';
+import type { Generation, State, Voice } from '../../shared/workbench';
 
-export function VoiceEditor({ item, close }: { item: Generation | Voice; close: (saved?: boolean) => void }) {
+export function VoiceEditor({ item, state, close }: { item: Generation | Voice; state: Pick<State, 'activity' | 'transcript'>; close: (saved?: boolean) => void }) {
   const t = useTranslator();
   const history = 'settings' in item;
   const [name, setName] = useState(history ? item.title : item.name);
@@ -31,7 +32,11 @@ export function VoiceEditor({ item, close }: { item: Generation | Voice; close: 
     actions={<Button label={t('@yovoice.voice.saved')} variant="primary" isLoading={busy} isDisabled={!!invalid} onClick={() => void save()} />}>
     <Player compact suspended={false} track={{ id: item.id, name, fileName: item.fileName, kind: history ? 'outputs' : 'voices', subtitle: '' }} onError={setError} />
     <TextInput isRequired label={t('@yovoice.voice.name')} value={name} onChange={setName} />
-    <TextArea label={t('@yovoice.voice.transcript')} value={text} onChange={setText} rows={4} description={`${text.length} / 2000`} />
+    {/* 生成版本自带台词作原文；导入或录制的样本可以用语音识别填入。 */}
+    {history ? <TextArea label={t('@yovoice.voice.transcript')} value={text} onChange={setText} rows={4} description={`${text.length} / 2000`} />
+      : <RecognizeField state={state} voiceId={item.id} apply={setText}>
+        <TextArea label={t('@yovoice.voice.transcript')} value={text} onChange={setText} rows={4} description={`${text.length} / 2000`} />
+      </RecognizeField>}
     {invalid ? <p role="alert" className="dialog-error">{t(invalid)}</p> : null}
   </AppDialog>;
 }

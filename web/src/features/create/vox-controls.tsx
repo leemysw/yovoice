@@ -1,5 +1,6 @@
 import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { ModelOptions } from './model-options';
+import { RecognizeField } from './recognize-field';
 import { VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
@@ -24,7 +25,9 @@ export function VoxControls({ draft, state, change, chooseVoice, play, advanced,
       </SegmentedControl>
     </VStack>
     {mode !== 'design' ? <ReferenceVoice voice={voice} choose={chooseVoice} play={play} /> : null}
-    {mode === 'continuation' ? <TextArea label={t('@yovoice.vox.referenceText')} value={draft.referenceText ?? ''} onChange={value => change({ referenceText: value.slice(0, 2000) })} placeholder={t('@yovoice.vox.referenceTextPlaceholder')} rows={4} /> :
+    {mode === 'continuation' ? <RecognizeField state={state} voiceId={draft.voiceId} apply={text => change({ referenceText: text.slice(0, 2000) })}>
+      <TextArea label={t('@yovoice.vox.referenceText')} value={draft.referenceText ?? ''} onChange={value => change({ referenceText: value.slice(0, 2000) })} placeholder={t('@yovoice.vox.referenceTextPlaceholder')} rows={4} />
+    </RecognizeField> :
       <TextArea label={mode === 'design' ? t('@yovoice.vox.voiceDescription') : t('@yovoice.vox.styleGuidance')} value={draft.voiceDescription ?? ''} onChange={value => change({ voiceDescription: value.slice(0, 500) })} placeholder={mode === 'design' ? t('@yovoice.vox.voiceDescriptionPlaceholder') : t('@yovoice.vox.stylePlaceholder')} rows={3} />}
     <AdvancedSettings open={advanced} onOpenChange={setAdvanced}>
         <Slider label={t('@yovoice.vox.guidanceScale')} value={draft.guidanceScale || 2} min={0.5} max={5} step={0.1} onChange={(guidanceScale: number) => change({ guidanceScale })} valueDisplay="text" formatValue={value => value.toFixed(1)} />

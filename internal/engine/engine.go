@@ -449,13 +449,14 @@ type AlignedWord struct {
 // alignerRate 是 Qwen3 Forced Aligner 的输入采样率，返回的时间也以这个采样率的样本数计。
 const alignerRate = 16000
 
-// lyricStage 在歌词对齐模型包里找出某一步的模型文件，并给出启动内核所需的家族与任务。
-func lyricStage(m schema.InstalledModel, prefix, family, task string) (string, catalog.ModelPackage, error) {
+// packageStage 在多文件工具包（歌词对齐包、语音识别包）里找出某一步的模型文件，并给出启动内核所需的家族与任务。
+// 两个包都带 Qwen3 Forced Aligner，装了哪个都能做逐字对齐。
+func packageStage(m schema.InstalledModel, prefix, family, task string) (string, catalog.ModelPackage, error) {
 	definition, err := catalog.Lookup(m.ID)
 	if err != nil {
 		return "", definition, err
 	}
-	if definition.Family != "lyric_align" {
+	if definition.Family != "lyric_align" && definition.Family != "qwen3_asr" {
 		return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
 	}
 	for _, f := range definition.Files {
@@ -475,7 +476,7 @@ func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema
 			e.stop()
 		}
 	}()
-	path, definition, err := lyricStage(m, "BS-RoFormer", "bs_roformer", "sep")
+	path, definition, err := packageStage(m, "BS-RoFormer", "bs_roformer", "sep")
 	if err != nil {
 		return err
 	}
@@ -502,7 +503,7 @@ func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema
 	return msg.Err(msg.ErrEngineNoAudio, nil)
 }
 
-// AlignWords 用歌词对齐模型包里的 Qwen3 Forced Aligner 把 text 逐字对到 wav（16 kHz 人声）上；
+// AlignWords 用歌词对齐包或语音识别包里的 Qwen3 Forced Aligner 把 text 逐字对到 wav（16 kHz 人声）上；
 // language 是 Chinese、English 这类英文语言名。返回的时间相对于 wav 开头。
 func (e *Engine) AlignWords(ctx context.Context, executable string, m schema.InstalledModel, backend, wav, text, language string, progress func(msg.Code, msg.Params)) (words []AlignedWord, err error) {
 	e.mu.Lock()
@@ -512,7 +513,7 @@ func (e *Engine) AlignWords(ctx context.Context, executable string, m schema.Ins
 			e.stop()
 		}
 	}()
-	path, definition, err := lyricStage(m, "Qwen3-ForcedAligner", "qwen3_forced_aligner", "align")
+	path, definition, err := packageStage(m, "Qwen3-ForcedAligner", "qwen3_forced_aligner", "align")
 	if err != nil {
 		return nil, err
 	}
@@ -530,11 +531,63 @@ func (e *Engine) AlignWords(ctx context.Context, executable string, m schema.Ins
 	return words, nil
 }
 
+// Recognition 是一次语音识别的结果：文字带标点，Words 是逐词时间（只在要求时间时返回，不含标点）。
+type Recognition struct {
+	Text     string
+	Language string
+	Words    []AlignedWord
+}
+
+// Recognize 用语音识别包里的 Qwen3 ASR 把一段 16 kHz 单声道语音转成文字。timestamps 为真时由引擎接着用包内的
+// Qwen3 Forced Aligner 给出逐词时间；这时整段一次识别不再切块，调用方要把音频切到 30 秒左右以内。
+// 会话始终配置对齐模型，识别参考文本和转写共用同一个已启动的引擎。
+func (e *Engine) Recognize(ctx context.Context, executable string, m schema.InstalledModel, backend, wav string, timestamps bool, progress func(msg.Code, msg.Params)) (result Recognition, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	path, definition, err := packageStage(m, "Qwen3-ASR", "qwen3_asr", "asr")
+	if err != nil {
+		return result, err
+	}
+	if definition.Family == "qwen3_asr" {
+		aligner, _, err := packageStage(m, "Qwen3-ForcedAligner", "qwen3_forced_aligner", "align")
+		if err != nil {
+			return result, err
+		}
+		definition.SessionOptions = map[string]string{"qwen3_asr.forced_aligner_path": aligner}
+	}
+	if err = e.start(ctx, executable, path, definition, backend, false, 0, progress); err != nil {
+		return result, err
+	}
+	// 引擎就绪后报告“正在识别”；分段转写的调用方把它换成带段数的进度。
+	progress(msg.ActivityRecognize, nil)
+	request := map[string]any{"audio": wav, "text": ""}
+	if timestamps {
+		// 发布包不带引擎默认的 VAD 模型，切段由调用方按停顿完成，这里整段送入。
+		request["options"] = map[string]string{"return_timestamps": "true", "audio_chunk_mode": "none", "clamp_timestamps_to_audio": "true"}
+	}
+	out, err := e.run(ctx, map[string]any{"model": "index", "request": request})
+	if err != nil {
+		return result, err
+	}
+	result = Recognition{Text: strings.TrimSpace(out.Text), Language: out.Language}
+	for _, w := range out.Words {
+		result.Words = append(result.Words, AlignedWord{Word: w.Word, Start: float64(w.StartSample) / alignerRate, End: float64(w.EndSample) / alignerRate})
+	}
+	return result, nil
+}
+
 // taskResult 是 /v1/tasks/run 的结果：音频为 base64 WAV，附加产物（如 ABC 谱）也以 base64 承载；
-// 分离任务的各个分轨在 named_audio_outputs，对齐任务的逐字时间在 words（以样本数计）。
+// 分离任务的各个分轨在 named_audio_outputs，对齐任务的逐字时间在 words（以样本数计），识别任务的文字在 text。
 type taskResult struct {
-	Audio string `json:"audio"`
-	Stems []struct {
+	Text     string `json:"text"`
+	Language string `json:"language"`
+	Audio    string `json:"audio"`
+	Stems    []struct {
 		ID    string `json:"id"`
 		Audio string `json:"audio"`
 	} `json:"named_audio_outputs"`

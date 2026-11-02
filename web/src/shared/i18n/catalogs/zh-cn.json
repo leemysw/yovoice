@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "参考原文"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "识别文字"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "正在识别…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "用语音识别模型把声音样本转成文字填入；样本还没有参考文本时同时保存"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "先选择参考声音"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "来自生成音频"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "正在对齐歌词（{done}/{total}）"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "正在识别参考文本"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "请先在设置的音乐模型里下载歌词对齐模型"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "没能从人声里对上歌词，可以手动校准"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "请先在设置的语音模型里下载语音识别模型 Qwen3 ASR"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "没有识别出文字，请换一段人声更清晰的样本"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "旋律谱有误：{issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "可选：先分离人声，再把歌词逐字对齐到演唱上，用于逐字歌词动画和导出逐字 LRC。支持中文、英语、日语、韩语等 11 种语言。"
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "可选：把声音样本识别成克隆所需的参考文本，把上传的音频转写成文字和字幕，并给生成的语音对齐字幕时间。支持中文、英语、粤语、日语、韩语等 30 种语言。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律谱生成"
@@ -4153,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 需要 6–30 秒的参考音频。"
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "正在转写（{done}/{total}）"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "正在对齐字幕时间（{done}/{total}）"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "没有识别出文字，请确认音频里有清晰的人声"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "这个版本没有可对齐的正文"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "没能把正文对上音频，请重试或换一个版本"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "导出字幕"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "导出字幕"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "导出"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "正在对齐时间…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "字幕时间已对齐，按句分行导出。"
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "首次导出会先用语音识别模型把正文对齐到音频上，结果保存在这个版本里。"
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "其他任务进行中，完成后再导出字幕。"
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "没有可导出的字幕"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "语音转写"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "语音转写"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "上传音频"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "换一段音频"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "其他任务进行中，完成后再转写"
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "去下载模型"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "转写字幕"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "已导出"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "已复制全文"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "时长 {duration} · {count} 行字幕"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "导出 SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "导出 WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "复制全文"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "清除"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "时间"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "文字"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "没有得到字幕时间"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "把录音、访谈或视频里的话转成文字"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "上传音频或视频，语音识别模型 Qwen3 ASR 会识别出文字和逐词时间，可导出 SRT / WebVTT 字幕。最长 1 小时、20 MB。"
   }
 }

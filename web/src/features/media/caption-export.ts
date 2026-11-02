@@ -43,3 +43,49 @@ export function captionsToVtt(captions: Caption[], withSpeaker = false): string 
   const cues = captions.map(c => `${vttTime(c.start)} --> ${vttTime(c.end)}\n${withSpeaker && c.speaker ? `<v ${vttEscape(c.speaker).replace(/\s+/g, ' ')}>` : ''}${vttEscape(cueText(c.text))}\n`);
   return ['WEBVTT\n', ...cues].join('\n');
 }
+
+// 逐词时间转字幕行：对齐与识别给出的词不带标点，按顺序在原文里找到每个词的位置，字幕文字取原文（保留标点），
+// 在句末标点、过长、过久或较长停顿处换行。中日韩文字一字算 1，其他字符算半个，每行最多 maxWidth。
+export interface TimedWord { word: string; start: number; end: number }
+const sentenceEnd = /[。！？!?；;…]|\.(\s|$)/;
+const clauseEnd = /[，,、：:—]/;
+const wide = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
+const width = (text: string) => [...text].reduce((sum, c) => sum + (wide.test(c) ? 1 : c.trim() ? .5 : .25), 0);
+// 行首去掉标点，行尾只保留问号、感叹号、省略号和引号括号。
+const tidy = (text: string) => text.replace(/\s+/g, ' ').trim().replace(/^[\s，,、。.；;：:！!？?]+/, '').replace(/[\s，,、。；;：:]+$/, '').replace(/([^.\s])\.$/, '$1');
+
+export function wordCaptions(text: string, words: TimedWord[], { maxWidth = 20, maxSeconds = 6, pause = 0.8 } = {}): Caption[] {
+  const lower = text.toLocaleLowerCase();
+  // 每个词在原文里的范围；找不到（识别或对齐改了写法）时沿用上一个词的结尾。
+  let cursor = 0;
+  const spans = words.map(w => {
+    const at = w.word ? lower.indexOf(w.word.toLocaleLowerCase(), cursor) : -1;
+    if (at < 0 || at - cursor > 40) return [cursor, cursor] as const;
+    cursor = at + w.word.length;
+    return [at, cursor] as const;
+  });
+  const located = spans.some(([a, b]) => b > a);
+  const captions: Caption[] = [];
+  let first = 0;
+  for (let i = 0; i < words.length; i++) {
+    const next = i + 1 < words.length ? i + 1 : -1;
+    const between = next < 0 ? text.slice(spans[i][1]) : text.slice(spans[i][1], spans[next][0]);
+    const lineText = (j: number) => located ? text.slice(spans[first][0], spans[j][1]) : words.slice(first, j + 1).map(w => w.word).join(wide.test(words[first].word) ? '' : ' ');
+    const current = width(lineText(i));
+    const breakHere = next < 0 || sentenceEnd.test(between) || between.includes('\n')
+      || (clauseEnd.test(between) && current >= maxWidth * .4)
+      || width(lineText(next)) > maxWidth || words[next].end - words[first].start > maxSeconds || words[next].start - words[i].end > pause;
+    if (!breakHere) continue;
+    // 行尾带上紧跟的标点（问号、引号等），整理后为空的行（只有标点）并入时间但不出字幕。
+    const tail = located ? between.match(/^[^\p{L}\p{N}\n]*/u)?.[0] ?? '' : '';
+    const caption = tidy(lineText(i) + tail);
+    if (caption) captions.push({ start: words[first].start, end: Math.max(words[i].end, words[first].start + .2), text: caption });
+    first = i + 1;
+  }
+  // 相邻两行不重叠。
+  for (let i = 0; i + 1 < captions.length; i++) captions[i].end = Math.min(captions[i].end, captions[i + 1].start);
+  return captions;
+}
+
+// 语音版本实际念出的正文：去掉给模型的方括号标记（如 [laugh]），与后端对齐时用的文字一致。
+export const spokenText = (text: string) => text.replace(/\[[^[\]\n]{1,40}\]/g, '').trim();

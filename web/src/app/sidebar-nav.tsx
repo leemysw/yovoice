@@ -3,14 +3,14 @@ import { ResizeHandle, type ResizableProps } from '@astryxdesign/core/Resizable'
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, ChevronRight, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
+import { AudioLines, Captions, ChevronRight, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
 import { featureHidden, projectKind, type Draft, type ModelPackage, type State } from '../shared/workbench';
 import { overflowTitle } from '../shared/ui/overflow-title';
 import { UpdateSidebarCard } from '../features/update/update-notice';
 import { ModelUpdateSidebarCard } from '../features/settings/model-update-card';
 import { readLocal, writeLocal } from '../shared/lib/local-store';
 
-// 侧栏：新建入口、作品类型、声音库、最近作品、创作助手与设置。
+// 侧栏：新建入口、作品类型、声音库、语音转写、最近作品、创作助手与设置。
 export function SidebarNav(props: {
   page: string;
   setPage: (id: string) => void;
@@ -38,6 +38,7 @@ export function SidebarNav(props: {
         return <Button key={kind} data-testid={`nav-${kind}`} label={t(`@yovoice.project.${kind}`)} variant="ghost" icon={kind === 'text' ? <Mic /> : kind === 'story' ? <Pencil /> : <Music />} className={`nav-item ${selected ? 'selected' : ''}`} aria-current={selected ? 'page' : undefined} onClick={() => setPage(kind)} />;
       })}
       <Button data-testid="nav-characters" label={t('@yovoice.nav.characters')} variant="ghost" icon={<AudioLines />} className={`nav-item ${page === 'characters' || page === 'voices' ? 'selected' : ''}`} aria-current={page === 'characters' || page === 'voices' ? 'page' : undefined} onClick={() => setPage('characters')} />
+      <Button data-testid="nav-transcribe" label={t('@yovoice.nav.transcribe')} variant="ghost" icon={<Captions />} className={`nav-item ${page === 'transcribe' ? 'selected' : ''}`} aria-current={page === 'transcribe' ? 'page' : undefined} onClick={() => setPage('transcribe')} />
     </VStack>
     <details className="recent-projects" open={recentOpen}>
       <summary onClick={event => { event.preventDefault(); const open = !recentOpen; setRecentOpen(open); writeLocal('yovoice-recent-open', String(open)); }}><ChevronRight aria-hidden />{t('@yovoice.nav.recent')}</summary>

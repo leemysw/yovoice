@@ -17,7 +17,7 @@ export function useWorkbenchNavigation({ draft, catalog, setActive, setError }: 
   const [page, setPage] = useState(() => {
     if (isDesktop) {
       const saved = readLocal('yovoice-active-page');
-      const listPages = ['text', 'story', 'music', 'score', 'sfx', 'characters', 'settings'];
+      const listPages = ['text', 'story', 'music', 'score', 'sfx', 'characters', 'transcribe', 'settings'];
       return saved && listPages.includes(saved) ? saved : 'text';
     }
     return 'create';

@@ -1,0 +1,9 @@
+@layer app {
+  /* 语音转写页：结果表格占满剩余高度，表头吸顶；时间列用等宽数字。 */
+  .transcribe-page { height: 100%; min-height: 0; }
+  .transcribe-result { flex: 1; min-height: 0; }
+  .transcribe-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .transcribe-table { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+  .transcribe-table thead th { position: sticky; top: 0; z-index: 1; background: var(--color-background-surface, var(--app-surface)); }
+  .transcribe-time { font-variant-numeric: tabular-nums; color: var(--app-muted); white-space: nowrap; }
+}

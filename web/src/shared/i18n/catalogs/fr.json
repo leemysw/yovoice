@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Transcription de référence"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Reconnaître le texte"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Reconnaissance…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Transcrit l’échantillon de voix avec le modèle de reconnaissance. Un échantillon sans texte de référence conserve le résultat"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Choisissez d’abord une voix de référence"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Audio généré"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Alignement des paroles ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Reconnaissance du texte de référence"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Téléchargez d’abord l’aligneur de paroles dans Modèles de musique, dans les Réglages"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Impossible de faire correspondre les paroles à la voix ; synchronisez à la main"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Téléchargez d’abord le modèle de reconnaissance vocale Qwen3 ASR dans Modèles vocaux des Paramètres"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Aucun texte reconnu. Essayez un échantillon où la voix est plus nette"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "La partition mélodique comporte un problème : {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Facultatif : sépare la voix et aligne les paroles mot à mot sur le chant, pour l’animation des paroles mot à mot et l’export LRC par mot. Prend en charge 11 langues, dont le chinois, l’anglais, le japonais et le coréen."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Facultatif : remplit la transcription de référence des échantillons de voix, transcrit l’audio importé en texte et sous-titres, et minute les sous-titres de la parole générée. Prend en charge 30 langues, dont le chinois, l’anglais, le cantonais, le japonais et le coréen."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Générer depuis la partition"
@@ -4153,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 exige 6 à 30 secondes d’audio de référence."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Transcription en cours ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Alignement des sous-titres ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "Aucune parole reconnue. Vérifiez que l’audio contient une voix claire"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "Cette version n’a pas de texte à aligner"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "Impossible d’aligner le texte sur l’audio. Réessayez ou utilisez une autre version"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Exporter les sous-titres"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Exporter les sous-titres"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Exporter"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Alignement…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "Le minutage est prêt. Les sous-titres sont découpés par phrase."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "Le premier export aligne le texte sur l’audio avec le modèle de reconnaissance vocale et conserve le résultat avec cette version."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "Une autre tâche est en cours. Exportez les sous-titres une fois terminée."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "Aucun sous-titre à exporter"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Transcription"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Transcription de la parole"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Importer un audio"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Transcrire un autre audio"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "Une autre tâche est en cours. Transcrivez une fois terminée."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Télécharger le modèle"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Transcription"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Exporté"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Texte complet copié"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · {count} lignes de sous-titres"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Exporter en SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Exporter en WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Copier le texte complet"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Effacer"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Temps"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Texte"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "Aucun minutage de sous-titres obtenu"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Transformez enregistrements, interviews et vidéos en texte"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Importez un audio ou une vidéo. Le modèle de reconnaissance vocale Qwen3 ASR produit le texte avec le minutage de chaque mot, exportable en sous-titres SRT ou WebVTT. Jusqu’à 1 heure et 20 Mo."
   }
 }

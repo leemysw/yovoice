@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Lời thoại tham chiếu"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Nhận dạng văn bản"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Đang nhận dạng…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Chuyển mẫu giọng thành văn bản bằng mô hình nhận dạng. Mẫu chưa có văn bản tham chiếu sẽ lưu luôn kết quả"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Hãy chọn giọng tham chiếu trước"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Âm thanh đã tạo"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Đang căn chỉnh lời bài hát ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Đang nhận dạng văn bản tham chiếu"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Hãy tải mô hình căn chỉnh lời bài hát trong Mô hình âm nhạc ở Cài đặt trước"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Không khớp được lời bài hát với giọng hát; hãy thử đồng bộ thủ công"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Hãy tải mô hình nhận dạng giọng nói Qwen3 ASR trong mục Mô hình giọng nói ở Cài đặt trước"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Không nhận dạng được văn bản. Hãy thử mẫu có giọng nói rõ hơn"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "Bản nhạc giai điệu có lỗi: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Tùy chọn: tách giọng hát và căn lời bài hát theo từng từ với giọng hát, dùng cho hiệu ứng lời từng từ và xuất LRC theo từ. Hỗ trợ 11 ngôn ngữ, gồm tiếng Trung, Anh, Nhật và Hàn."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Tùy chọn: điền văn bản tham chiếu cho mẫu giọng, chép lời âm thanh tải lên thành văn bản và phụ đề, và căn thời gian phụ đề cho giọng nói đã tạo. Hỗ trợ 30 ngôn ngữ, gồm tiếng Trung, Anh, Quảng Đông, Nhật và Hàn."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Tạo theo bản nhạc"
@@ -4153,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 cần 6–30 giây âm thanh tham chiếu."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Đang chép lời ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Đang căn thời gian phụ đề ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "Không nhận ra lời nói nào. Hãy kiểm tra âm thanh có giọng nói rõ ràng"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "Phiên bản này không có văn bản để căn"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "Không khớp được văn bản với âm thanh. Hãy thử lại hoặc dùng phiên bản khác"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Xuất phụ đề"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Xuất phụ đề"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Xuất"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Đang căn thời gian…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "Đã căn thời gian. Phụ đề được chia theo câu."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "Lần xuất đầu tiên sẽ dùng mô hình nhận dạng giọng nói để căn văn bản với âm thanh và lưu kết quả vào phiên bản này."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "Đang có tác vụ khác. Hãy xuất phụ đề khi tác vụ đó xong."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "Không có phụ đề để xuất"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Chép lời"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Chép lời giọng nói"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Tải âm thanh lên"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Chép lời âm thanh khác"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "Đang có tác vụ khác. Hãy chép lời khi tác vụ đó xong."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Tải mô hình"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Bản chép lời"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Đã xuất"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Đã sao chép toàn bộ văn bản"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · {count} dòng phụ đề"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Xuất SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Xuất WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Sao chép toàn bộ văn bản"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Xóa"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Thời gian"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Văn bản"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "Không có thời gian phụ đề"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Chuyển lời nói trong bản ghi âm, phỏng vấn, video thành văn bản"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Tải âm thanh hoặc video lên. Mô hình nhận dạng giọng nói Qwen3 ASR sẽ chép ra văn bản kèm thời gian từng từ, có thể xuất phụ đề SRT / WebVTT. Tối đa 1 giờ và 20 MB."
   }
 }
