@@ -6,6 +6,10 @@
 
 ### English
 
+- Speech recognition and subtitles with the optional Qwen3 ASR 0.6B model (Voice models, about 2.3 GB including its timing aligner; supports 30 languages, needs inference engine v0.9.1 or later):
+  - “Recognize text” under a reference transcript field or in the voice editor fills in what the sample says; a sample with no transcript keeps the result.
+  - New Transcribe page: upload audio or video (up to 1 hour, 20 MB) to get the text split into timed subtitle lines, then export SRT / WebVTT or copy the full text.
+  - “Export subtitles” on a speech version aligns its text to the audio and saves SRT / WebVTT split by sentence; the timing is kept with the version. The lyric aligner package also works for this.
 - Safer data: when the state database is missing but a backup exists, yovoice restores from the backup instead of creating an empty database that overwrites it; quitting midway through deleting media no longer removes audio still in use; edits made while the data folder is being moved are no longer lost, and saving keeps working after a failed move.
 - More reliable downloads: transient network errors, server hiccups and stalls resume and retry automatically; pausing or cancelling no longer deletes a fully downloaded file; after switching the download source, the file is checked to be the same one before resuming.
 - Quitting no longer hangs: an in-progress data folder move is stopped first instead of waiting for the copy to finish, and an internal error in one operation no longer makes every later operation unresponsive.
@@ -20,6 +24,10 @@
 
 ### 简体中文
 
+- 可选语音识别模型 Qwen3 ASR 0.6B（设置的语音模型里下载，含时间对齐模型约 2.3 GB；支持 30 种语言，需要推理引擎 v0.9.1 及以上）：
+  - 在参考原文框下或编辑音色信息时点“识别文字”，把样本里说的话填进去；样本原来没有原文时会一并保存。
+  - 新增“语音转写”页：上传音频或视频（最长 1 小时、20 MB），得到按句分行、带时间的字幕，可导出 SRT / WebVTT 或复制全文。
+  - 语音版本的“导出字幕”：把正文对齐到音频，按句导出 SRT / WebVTT，时间保存在版本上；装了歌词对齐模型也能用。
 - 数据更稳妥：状态库文件丢失而备份还在时自动从备份恢复，不再新建空库覆盖备份；删除素材中途退出不再误删仍在使用的音频；数据目录迁移期间的改动不再丢失，迁移失败后可继续正常保存。
 - 下载更可靠：网络抖动、服务器临时出错或长时间没有数据时自动续传重试；暂停或取消后不会再误删已经下完的文件；更换下载来源后会核对是否同一文件再续传。
 - 退出不再卡住：关闭时先中止正在进行的数据目录迁移，不必等复制完成；某个操作内部出错也不会让之后的操作全部无响应。

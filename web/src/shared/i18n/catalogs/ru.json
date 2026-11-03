@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "Расшифровка референса"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "Распознать текст"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "Распознаём…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "Переводит образец голоса в текст с помощью распознавателя. Образец без опорного текста сохранит результат"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "Сначала выберите опорный голос"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Сгенерированное аудио"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "Выравнивание текста ({done}/{total})"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "Распознаём опорный текст"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "Сначала скачайте модель выравнивания текста в разделе «Музыкальные модели» в настройках"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "Не удалось сопоставить текст с вокалом; синхронизируйте вручную"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "Сначала скачайте распознаватель речи Qwen3 ASR в разделе «Голосовые модели» настроек"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "Текст не распознан. Попробуйте образец с более чёткой речью"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "В партитуре мелодии ошибка: {issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "Необязательно: отделяет вокал и выравнивает текст по пению пословно — для пословной анимации текста и экспорта пословного LRC. Поддерживает 11 языков, включая китайский, английский, японский и корейский."
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "Необязательно: заполняет эталонный текст для образцов голоса, расшифровывает загруженное аудио в текст и субтитры и выравнивает субтитры для сгенерированной речи. Поддерживает 30 языков, в том числе китайский, английский, кантонский, японский и корейский."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Создать по нотам"
@@ -4153,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 требует 6–30 секунд референсного аудио."
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "Расшифровка ({done}/{total})"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "Выравнивание субтитров ({done}/{total})"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "Речь не распознана. Убедитесь, что в записи есть отчётливый голос"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "В этой версии нет текста для выравнивания"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "Не удалось сопоставить текст со звуком. Повторите попытку или выберите другую версию"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "Экспорт субтитров"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "Экспорт субтитров"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "Экспортировать"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "Выравнивание…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "Тайминг готов. Субтитры разбиваются по предложениям."
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "При первом экспорте текст выравнивается по звуку моделью распознавания речи, результат сохраняется в этой версии."
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "Выполняется другая задача. Экспортируйте субтитры после её завершения."
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "Нет субтитров для экспорта"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "Расшифровка"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "Расшифровка речи"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "Загрузить аудио"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "Расшифровать другое аудио"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "Выполняется другая задача. Расшифруйте после её завершения."
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "Скачать модель"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "Расшифровка"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "Экспортировано"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "Весь текст скопирован"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "{duration} · строк субтитров: {count}"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "Экспорт SRT"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "Экспорт WebVTT"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "Скопировать весь текст"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "Очистить"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "Время"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "Текст"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "Тайминг субтитров не получен"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "Превращайте записи, интервью и видео в текст"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "Загрузите аудио или видео. Модель распознавания речи Qwen3 ASR выдаст текст с таймингом слов, который можно экспортировать в субтитры SRT или WebVTT. До 1 часа и 20 МБ."
   }
 }

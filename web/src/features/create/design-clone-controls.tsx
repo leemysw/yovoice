@@ -1,5 +1,6 @@
 import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { ModelOptions } from './model-options';
+import { RecognizeField } from './recognize-field';
 import { Selector } from '../../shared/selector';
 import { VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -28,7 +29,9 @@ export function DesignCloneControls({ draft, model, state, change, chooseVoice, 
     </VStack>
     {cloning ? <>
       <ReferenceVoice voice={voice} choose={chooseVoice} play={play} />
-      <TextArea label={t(ming || plapre ? '@yovoice.reference.transcript' : '@yovoice.vox.referenceText')} description={t(drama ? '@yovoice.drama.referenceTextHelp' : ming || plapre ? '@yovoice.reference.transcriptHelp' : '@yovoice.breeze.referenceTextHelp')} isRequired={drama} value={draft.referenceText ?? ''} onChange={referenceText => change({ referenceText: referenceText.slice(0, 2000) })} placeholder={t('@yovoice.vox.referenceTextPlaceholder')} rows={3} />
+      <RecognizeField state={state} voiceId={draft.voiceId} apply={text => change({ referenceText: text.slice(0, 2000) })}>
+        <TextArea label={t(ming || plapre ? '@yovoice.reference.transcript' : '@yovoice.vox.referenceText')} description={t(drama ? '@yovoice.drama.referenceTextHelp' : ming || plapre ? '@yovoice.reference.transcriptHelp' : '@yovoice.breeze.referenceTextHelp')} isRequired={drama} value={draft.referenceText ?? ''} onChange={referenceText => change({ referenceText: referenceText.slice(0, 2000) })} placeholder={t('@yovoice.vox.referenceTextPlaceholder')} rows={3} />
+      </RecognizeField>
     </> : null}
     {plapre && !cloning ? <Selector label={t('@yovoice.reference.speaker')} value={draft.speaker || model?.voices?.[0]} options={(model?.voices ?? []).map(value => ({ value, label: value }))} onChange={speaker => change({ speaker })} /> : null}
     {!plapre && !drama && (!ming || !cloning) ? <TextArea label={cloning ? t('@yovoice.vox.styleGuidance') : t('@yovoice.vox.voiceDescription')} description={t(ming ? '@yovoice.reference.voiceDesignHelp' : '@yovoice.breeze.instructionHelp')} value={draft.voiceDescription ?? ''} onChange={voiceDescription => change({ voiceDescription: voiceDescription.slice(0, 500) })} placeholder={cloning ? t('@yovoice.vox.stylePlaceholder') : t('@yovoice.breeze.voiceDescriptionPlaceholder')} rows={3} /> : null}

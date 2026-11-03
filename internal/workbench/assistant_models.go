@@ -24,7 +24,8 @@ func modelKind(id string) string {
 		return "music"
 	case "soundfont":
 		return "score"
-	case "sheetsage2", "lyric_align":
+	}
+	if catalog.IsTool(m.Family) {
 		return ""
 	}
 	return "text"

@@ -11,6 +11,7 @@
 @import '../features/score/score.css';
 @import '../features/assistant/assistant.css';
 @import '../features/settings/settings.css';
+@import '../features/transcribe/transcribe.css';
 @import '../features/update/update.css';
 @import './polish.css';
 

@@ -1,5 +1,6 @@
 import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { ModelOptions } from './model-options';
+import { RecognizeField } from './recognize-field';
 import { Selector } from '../../shared/selector';
 import { Slider } from '@astryxdesign/core/Slider';
 import attributes from '@internal/catalog/omni_attributes.json';
@@ -32,7 +33,9 @@ export function ReferenceControls({ draft, state, change, chooseVoice, play, adv
     {custom ? <Selector label={t('@yovoice.reference.speaker')} value={draft.speaker || 'Vivian'} options={['Vivian', 'Serena', 'Uncle_Fu', 'Dylan', 'Eric', 'Ryan', 'Aiden', 'Ono_Anna', 'Sohee'].map(value => ({ value, label: value, description: t(`@yovoice.reference.speaker.${value}`) }))} onChange={speaker => change({ speaker })} /> : null}
     {cloning ? <>
       <ReferenceVoice voice={voice} choose={chooseVoice} play={play} />
-      <TextArea label={t(omni ? '@yovoice.vox.referenceText' : '@yovoice.reference.transcript')} value={draft.referenceText ?? ''} onChange={referenceText => change({ referenceText: referenceText.slice(0, 2000) })} placeholder={t('@yovoice.vox.referenceTextPlaceholder')} rows={3} />
+      <RecognizeField state={state} voiceId={draft.voiceId} apply={text => change({ referenceText: text.slice(0, 2000) })}>
+        <TextArea label={t(omni ? '@yovoice.vox.referenceText' : '@yovoice.reference.transcript')} value={draft.referenceText ?? ''} onChange={referenceText => change({ referenceText: referenceText.slice(0, 2000) })} placeholder={t('@yovoice.vox.referenceTextPlaceholder')} rows={3} />
+      </RecognizeField>
     </> : omni ? <VStack gap={3}>{Object.entries(attributes).map(([group, items]) => <Selector key={group} label={t(`@yovoice.reference.${group}`)} value={items.find(([value, alias]) => selectedAttributes.includes(value) || selectedAttributes.includes(alias))?.[0] ?? ''} options={[{ value: '', label: t('@yovoice.reference.auto') }, ...items.map(([value]) => ({ value, label: t(`@yovoice.reference.${value}`) }))]} onChange={value => change({ voiceDescription: [...selectedAttributes.filter(item => item && !items.some(pair => pair.includes(item))), ...(value ? [value] : [])].join(', ') })} />)}</VStack> : <VStack gap={2}><TextArea label={t('@yovoice.vox.voiceDescription')} value={draft.voiceDescription ?? ''} onChange={voiceDescription => change({ voiceDescription: voiceDescription.slice(0, 500) })} placeholder={t('@yovoice.vox.voiceDescriptionPlaceholder')} rows={3} /></VStack>}
     {omni ? <>
       <label className="number-field">{t('@yovoice.reference.omniLanguage')}<input value={draft.synthesisLanguage ?? ''} maxLength={32} placeholder="auto" onChange={event => change({ synthesisLanguage: event.target.value })} /></label>

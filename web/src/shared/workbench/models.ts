@@ -24,7 +24,9 @@ export const isSoundFont = (id: string) => id.endsWith('-sf2');
 export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 // 歌词对齐模型只用于给已生成的歌曲做逐字对齐，可选下载。
 export const isAligner = (id: string) => id.startsWith('lyric-align-');
-export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id) && !isAligner(id);
+// 语音识别模型只用于把声音样本转成参考文本，可选下载。
+export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-');
+export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id) && !isAligner(id) && !isRecognizer(id);
 // 同名模型的不同量化归为一组，保持目录顺序。
 export function groupModels(models: ModelPackage[]) {
   const groups = new Map<string, ModelPackage[]>();

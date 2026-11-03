@@ -105,7 +105,7 @@ func (w *Workbench) PlanMelody(d schema.Draft) error {
 		return w.offerMelody(d.ID, "plan", abc, truncated)
 	}, "", d.ID)
 	if e == nil {
-		w.tagMelody()
+		w.tagActivity("melody")
 	}
 	return e
 }
@@ -164,20 +164,11 @@ func (w *Workbench) CoverMelody(projectID string, r io.Reader) error {
 		return w.offerMelody(projectID, "cover", abc, false)
 	}, "", projectID)
 	if e == nil {
-		w.tagMelody()
+		w.tagActivity("melody")
 	} else {
 		_ = os.Remove(upload)
 	}
 	return e
-}
-
-// tagMelody 标记当前生成操作是出谱或扒谱；引擎进度会改写消息码，界面靠这个标记区分。
-func (w *Workbench) tagMelody() {
-	_ = w.Store.Update(func(s *schema.State) {
-		if s.Activity != nil {
-			s.Activity.Task = "melody"
-		}
-	}, false)
 }
 
 // engineModel 检查推理引擎与模型可用，返回已安装的模型。要求调用方持有编辑锁。

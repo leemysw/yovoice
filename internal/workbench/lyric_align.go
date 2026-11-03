@@ -125,37 +125,10 @@ func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
 			return e
 		}
 		language := alignLanguage(lyrics)
-		spans := voicedSpans(voice, alignRate)
-		groups := groupLines(lines, spans, len(voice))
-		var words []schema.LyricWord
-		for j, g := range groups {
-			w.progress(msg.ActivityAlignLyrics, msg.Params{"done": j + 1, "total": len(groups)}, int64(j), int64(len(groups)))
-			// 只把有人声的部分接起来送去对齐：间奏和长停顿去掉后，字不会被对到没人唱的地方，音频也更短。
-			pieces := clipSpans(spans, g.from, g.to)
-			if spanLength(pieces, g.from, g.to) < alignRate/2 {
-				pieces = [][2]int{{g.from, min(g.to, g.from+int(alignChunkSeconds*alignRate))}}
-			}
-			// 一行本身就超过上限（极少见）时只送前面一段，避免整次对齐被模型拒绝。
-			pieces = trimSpans(pieces, int(alignChunkSeconds*alignRate))
-			var joined []float32
-			for _, p := range pieces {
-				joined = append(joined, voice[p[0]:p[1]]...)
-			}
-			if len(joined) < alignRate/10 {
-				continue
-			}
-			part := filepath.Join(dir, "part.wav")
-			if e = audio.WriteMono(part, joined, alignRate); e != nil {
-				return e
-			}
-			aligned, e := w.engine.AlignWords(ctx, *s.RuntimePath, model, s.Preferences.Backend, part, alignText(g.text, language), language, func(code msg.Code, params msg.Params) {})
-			if e != nil {
-				return e
-			}
-			for _, a := range aligned {
-				start, end := sourceTime(pieces, a.Start, false), sourceTime(pieces, max(a.Start, a.End), true)
-				words = append(words, schema.LyricWord{Word: a.Word, Start: round3(start), End: round3(max(start, end))})
-			}
+		groups := groupLines(lines, voicedSpans(voice, alignRate), len(voice))
+		words, e := w.alignGroups(ctx, s, model, voice, groups, language, dir, msg.ActivityAlignLyrics)
+		if e != nil {
+			return e
 		}
 		if len(words) == 0 {
 			return msg.Err(msg.ErrAlignEmpty, nil)
@@ -170,13 +143,45 @@ func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
 		}, true)
 	}, "", generation.Settings.ID)
 	if e == nil {
-		_ = w.Store.Update(func(s *schema.State) {
-			if s.Activity != nil {
-				s.Activity.Task = "align"
-			}
-		}, false)
+		w.tagActivity("align")
 	}
 	return e
+}
+
+// alignGroups 逐组把文字对齐到 16 kHz 的人声 voice 上，返回整段音频上的逐字时间；code 是带 done/total 的进度消息。
+// 每组只把有声音的部分接起来送去对齐：间奏和长停顿去掉后，字不会被对到没声音的地方，音频也更短。
+func (w *Workbench) alignGroups(ctx context.Context, s schema.State, model schema.InstalledModel, voice []float32, groups []alignGroup, language, dir string, code msg.Code) ([]schema.LyricWord, error) {
+	spans := voicedSpans(voice, alignRate)
+	var words []schema.LyricWord
+	for j, g := range groups {
+		w.progress(code, msg.Params{"done": j + 1, "total": len(groups)}, int64(j), int64(len(groups)))
+		pieces := clipSpans(spans, g.from, g.to)
+		if spanLength(pieces, g.from, g.to) < alignRate/2 {
+			pieces = [][2]int{{g.from, min(g.to, g.from+int(alignChunkSeconds*alignRate))}}
+		}
+		// 一行本身就超过上限（极少见）时只送前面一段，避免整次对齐被模型拒绝。
+		pieces = trimSpans(pieces, int(alignChunkSeconds*alignRate))
+		var joined []float32
+		for _, p := range pieces {
+			joined = append(joined, voice[p[0]:p[1]]...)
+		}
+		if len(joined) < alignRate/10 {
+			continue
+		}
+		part := filepath.Join(dir, "part.wav")
+		if e := audio.WriteMono(part, joined, alignRate); e != nil {
+			return nil, e
+		}
+		aligned, e := w.engine.AlignWords(ctx, *s.RuntimePath, model, s.Preferences.Backend, part, alignText(g.text, language), language, func(code msg.Code, params msg.Params) {})
+		if e != nil {
+			return nil, e
+		}
+		for _, a := range aligned {
+			start, end := sourceTime(pieces, a.Start, false), sourceTime(pieces, max(a.Start, a.End), true)
+			words = append(words, schema.LyricWord{Word: a.Word, Start: round3(start), End: round3(max(start, end))})
+		}
+	}
+	return words, nil
 }
 
 // separatedVocals 返回这首歌 16 kHz 的人声。分离最耗时，结果缓存在 runtime 下，同一版本重新对齐时直接复用；

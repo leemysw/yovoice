@@ -125,11 +125,11 @@ func TestModelVariantsAndOptions(t *testing.T) {
 			if m.Family == "soundfont" {
 				t.Skip("音色库由编曲渲染使用，不经过推理引擎")
 			}
-			if m.Family == "sheetsage2" || m.Family == "lyric_align" {
+			if catalog.IsTool(m.Family) {
 				d := schema.DefaultDraft()
 				d.ModelID = m.ID
 				if schema.Validate(d) == nil {
-					t.Fatal("扒谱、歌词对齐模型不能作为作品的生成模型")
+					t.Fatal("扒谱、歌词对齐、语音识别模型不能作为作品的生成模型")
 				}
 				return
 			}

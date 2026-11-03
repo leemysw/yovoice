@@ -1421,6 +1421,18 @@
   "@yovoice.voice.transcript": {
     "defaultMessage": "参照の書き起こし"
   },
+  "@yovoice.recognize.action": {
+    "defaultMessage": "文字を認識"
+  },
+  "@yovoice.recognize.working": {
+    "defaultMessage": "認識中…"
+  },
+  "@yovoice.recognize.hint": {
+    "defaultMessage": "音声認識モデルで音声サンプルを文字に起こして入力します。参照テキストのないサンプルには結果も保存されます"
+  },
+  "@yovoice.recognize.needVoice": {
+    "defaultMessage": "先に参照音声を選択してください"
+  },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "生成された音声"
   },
@@ -3083,6 +3095,9 @@
   "@yovoice.activity.alignLyrics": {
     "defaultMessage": "歌詞をアライン中（{done}/{total}）"
   },
+  "@yovoice.activity.recognize": {
+    "defaultMessage": "参照テキストを認識中"
+  },
   "@yovoice.error.alignModelRequired": {
     "defaultMessage": "先に設定の音楽モデルで歌詞アライナーをダウンロードしてください"
   },
@@ -3091,6 +3106,12 @@
   },
   "@yovoice.error.alignEmpty": {
     "defaultMessage": "ボーカルと歌詞を合わせられませんでした。手動で調整してください"
+  },
+  "@yovoice.error.recognizeModelRequired": {
+    "defaultMessage": "先に設定の音声モデルで音声認識モデル Qwen3 ASR をダウンロードしてください"
+  },
+  "@yovoice.error.recognizeEmpty": {
+    "defaultMessage": "文字を認識できませんでした。声がよりはっきりしたサンプルをお試しください"
   },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "メロディ譜に問題があります：{issue}"
@@ -3109,6 +3130,9 @@
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
     "defaultMessage": "オプション：ボーカルを分離し、歌詞を一語ずつ歌に合わせます。逐語歌詞アニメーションと逐語 LRC の書き出しに使います。中国語・英語・日本語・韓国語など 11 言語に対応。"
+  },
+  "@yovoice.settings.modelDesc.recognize": {
+    "defaultMessage": "オプション：声のサンプルからクローンに必要な参照テキストを作成し、アップロードした音声を文字と字幕に起こし、生成した音声に字幕のタイミングを合わせます。中国語・英語・広東語・日本語・韓国語など 30 言語に対応。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "メロディ譜から生成"
@@ -4153,5 +4177,101 @@
   },
   "@yovoice.error.xttsReferenceDuration": {
     "defaultMessage": "XTTS v2 には 6～30 秒の参照音声が必要です。"
+  },
+  "@yovoice.activity.transcribeSpeech": {
+    "defaultMessage": "文字起こし中（{done}/{total}）"
+  },
+  "@yovoice.activity.alignText": {
+    "defaultMessage": "字幕のタイミングを合わせています（{done}/{total}）"
+  },
+  "@yovoice.error.transcribeEmpty": {
+    "defaultMessage": "文字を認識できませんでした。音声がはっきり入っているか確認してください"
+  },
+  "@yovoice.error.alignText": {
+    "defaultMessage": "このバージョンには合わせる本文がありません"
+  },
+  "@yovoice.error.alignTextEmpty": {
+    "defaultMessage": "本文を音声に合わせられませんでした。もう一度試すか、別のバージョンを使ってください"
+  },
+  "@yovoice.caption.menu": {
+    "defaultMessage": "字幕を書き出す"
+  },
+  "@yovoice.caption.title": {
+    "defaultMessage": "字幕を書き出す"
+  },
+  "@yovoice.caption.export": {
+    "defaultMessage": "書き出す"
+  },
+  "@yovoice.caption.aligning": {
+    "defaultMessage": "タイミングを合わせています…"
+  },
+  "@yovoice.caption.ready": {
+    "defaultMessage": "タイミングは合わせ済みです。文ごとに分けて書き出します。"
+  },
+  "@yovoice.caption.alignHint": {
+    "defaultMessage": "初回の書き出しでは音声認識モデルで本文を音声に合わせ、結果をこのバージョンに保存します。"
+  },
+  "@yovoice.caption.busy": {
+    "defaultMessage": "別の処理が実行中です。終わってから字幕を書き出してください。"
+  },
+  "@yovoice.caption.empty": {
+    "defaultMessage": "書き出せる字幕がありません"
+  },
+  "@yovoice.nav.transcribe": {
+    "defaultMessage": "文字起こし"
+  },
+  "@yovoice.transcribe.title": {
+    "defaultMessage": "音声の文字起こし"
+  },
+  "@yovoice.transcribe.upload": {
+    "defaultMessage": "音声をアップロード"
+  },
+  "@yovoice.transcribe.another": {
+    "defaultMessage": "別の音声を文字起こし"
+  },
+  "@yovoice.transcribe.busy": {
+    "defaultMessage": "別の処理が実行中です。終わってから文字起こししてください"
+  },
+  "@yovoice.transcribe.openModels": {
+    "defaultMessage": "モデルをダウンロード"
+  },
+  "@yovoice.transcribe.defaultName": {
+    "defaultMessage": "文字起こし"
+  },
+  "@yovoice.transcribe.saved": {
+    "defaultMessage": "書き出しました"
+  },
+  "@yovoice.transcribe.copied": {
+    "defaultMessage": "全文をコピーしました"
+  },
+  "@yovoice.transcribe.summary": {
+    "defaultMessage": "長さ {duration} · 字幕 {count} 行"
+  },
+  "@yovoice.transcribe.exportSrt": {
+    "defaultMessage": "SRT を書き出す"
+  },
+  "@yovoice.transcribe.exportVtt": {
+    "defaultMessage": "WebVTT を書き出す"
+  },
+  "@yovoice.transcribe.copy": {
+    "defaultMessage": "全文をコピー"
+  },
+  "@yovoice.transcribe.clear": {
+    "defaultMessage": "クリア"
+  },
+  "@yovoice.transcribe.col.time": {
+    "defaultMessage": "時間"
+  },
+  "@yovoice.transcribe.col.text": {
+    "defaultMessage": "テキスト"
+  },
+  "@yovoice.transcribe.noCaptions": {
+    "defaultMessage": "字幕のタイミングを取得できませんでした"
+  },
+  "@yovoice.transcribe.emptyTitle": {
+    "defaultMessage": "録音・インタビュー・動画の話し声を文字にする"
+  },
+  "@yovoice.transcribe.emptyBody": {
+    "defaultMessage": "音声または動画をアップロードすると、音声認識モデル Qwen3 ASR が文字と単語ごとのタイミングを書き出し、SRT / WebVTT 字幕として書き出せます。最長 1 時間・20 MB。"
   }
 }
