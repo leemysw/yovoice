@@ -12,11 +12,12 @@ import (
 func (d Draft) GenerationOptions(family string) (map[string]any, error) {
 	out := map[string]any{}
 	for key, value := range d.ModelOptions[family] {
-		valid := false
+		valid, streamOnly := false, false
 		for _, spec := range catalog.GenerationOptions[family] {
 			if spec.Key != key || (spec.ModelPrefix != "" && !strings.HasPrefix(d.ModelID, spec.ModelPrefix)) {
 				continue
 			}
+			streamOnly = spec.StreamOnly
 			switch spec.Type {
 			case "number":
 				// JSON 解码和 CLI 均以 float64 保存数值。
@@ -32,6 +33,9 @@ func (d Draft) GenerationOptions(family string) (map[string]any, error) {
 		}
 		if !valid {
 			return nil, msg.Err(msg.ErrParamsOutOfRange, nil)
+		}
+		if streamOnly && (d.Runtime == nil || !d.Runtime.Streaming) {
+			continue
 		}
 		// 0 与 auto 表示自动分段、时长或由音乐规划器决定，不向引擎传递。
 		zero := key == "text_chunk_size" || key == "duration" || key == "duration_seconds" || key == "bpm"

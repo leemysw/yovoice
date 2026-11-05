@@ -28,7 +28,7 @@ func TestStreamRelaysAudioBeforeFinalResult(t *testing.T) {
 		case <-r.Context().Done():
 			return
 		}
-		_, _ = fmt.Fprint(w, "data: {\"type\":\"task.stream.event\",\"event\":{\"audio\":\"two\"}}\n\ndata: {\"type\":\"task.stream.done\",\"result\":{\"audio\":\"full\"}}\n\ndata: [DONE]\n\n")
+		_, _ = fmt.Fprint(w, "data: {\"type\":\"task.stream.event\",\"event\":{\"named_audio_outputs\":[{\"id\":\"reference\",\"audio\":\"ignored\"},{\"id\":\"chunk_1\",\"audio\":\"two\"}]}}\n\ndata: {\"type\":\"task.stream.done\",\"result\":{\"audio\":\"full\"}}\n\ndata: [DONE]\n\n")
 	}))
 	defer server.Close()
 	e := &Engine{endpoint: server.URL + "/", client: server.Client()}

@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "O VoxCPM2 não pode repetir tentativas durante a transmissão. Desative as tentativas ou a transmissão."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Cadência dos blocos"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Quadros por bloco"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Quadros anteriores de contexto"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Quadros de antecipação"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Crescente"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fixa"
   }
 }

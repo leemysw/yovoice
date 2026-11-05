@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 流式生成不支持失败重试，请关闭重试或流式输出。"
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "音频片段节奏"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "每段帧数"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "前置上下文帧数"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "预读帧数"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "逐步增大"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "固定"
   }
 }

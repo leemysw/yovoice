@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2는 스트리밍 중 재시도할 수 없습니다. 재시도 또는 스트리밍을 끄세요."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "청크 간격"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "청크당 프레임 수"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "이전 컨텍스트 프레임"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "미리 읽을 프레임"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "점진 증가"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "고정"
   }
 }

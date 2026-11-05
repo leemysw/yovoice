@@ -13,6 +13,7 @@ var generationOptionsJSON []byte
 type GenerationOption struct {
 	// RequiresRuntime 的选项只在当前引擎清单明确声明支持时启用，旧引擎不静默忽略。
 	RequiresRuntime bool     `json:"requiresRuntime,omitempty"`
+	StreamOnly      bool     `json:"streamOnly,omitempty"`
 	ModelPrefix     string   `json:"modelPrefix,omitempty"`
 	Key             string   `json:"key"`
 	Type            string   `json:"type"`

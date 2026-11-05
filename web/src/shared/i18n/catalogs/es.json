@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 no permite reintentos con salida en directo. Desactiva los reintentos o la salida en directo."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Cadencia de los bloques"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Fotogramas por bloque"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Fotogramas previos de contexto"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Fotogramas de anticipación"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Creciente"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fija"
   }
 }

@@ -11,6 +11,8 @@ import { noticeMessage } from '../../shared/lib/call-error';
 import { formatNotice } from '../../shared/i18n/format';
 import type { Draft, RuntimeSettings, State } from '../../shared/workbench';
 import definitions from '@internal/catalog/runtime_options.json';
+import generationOptions from '@internal/catalog/generation_options.json';
+import { ModelOptions } from './model-options';
 
 type Value = string | number | boolean;
 type Option = { key: string; type: string; default?: Value; min?: number; max?: number; step?: number; values?: string[] };
@@ -43,6 +45,8 @@ export function RuntimeControls({ draft, state, family, change }: { draft: Draft
         else update({ streaming: value });
       }} />
       {!streaming ? <small>{t('@yovoice.runtime.streamingUnsupported')}</small> : null}
+      {settings.streaming && family in generationOptions && (generationOptions[family as keyof typeof generationOptions] as { streamOnly?: boolean }[]).some(spec => spec.streamOnly) ?
+        <ModelOptions draft={draft} family={family as keyof typeof generationOptions} change={change} streamOnly supported={state.runtimeOptions?.[family]} /> : null}
       {family === 'voxcpm2' && settings.streaming ? <small>{t('@yovoice.runtime.retryHelp')}</small> : null}
       <label className="number-field">{t('@yovoice.runtime.threads')}<input type="number" min={0} max={256} step={1} value={settings.threads ?? 0} onChange={event => update({ threads: Number(event.target.value) })} /></label>
       {state.preferences.backend !== 'cpu' ? <label className="number-field">{t('@yovoice.runtime.device')}<input type="number" min={0} max={255} step={1} value={settings.device ?? 0} onChange={event => update({ device: Number(event.target.value) })} /></label> : null}

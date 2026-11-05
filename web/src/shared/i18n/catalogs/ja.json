@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 はストリーミング中に再試行できません。再試行またはストリーミングを無効にしてください。"
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "チャンクの間隔"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "チャンクあたりのフレーム数"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "前方コンテキストのフレーム数"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "先読みフレーム数"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "段階的に拡大"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "固定"
   }
 }

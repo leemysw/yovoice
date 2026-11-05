@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 non può riprovare durante lo streaming. Disattiva i tentativi o lo streaming."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Cadenza dei blocchi"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Frame per blocco"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Frame di contesto precedenti"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Frame di anticipo"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Crescente"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fissa"
   }
 }

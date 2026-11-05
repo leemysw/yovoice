@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 cannot retry bad cases while streaming. Turn off retries or streaming."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Chunk cadence"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Frames per chunk"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Previous frames as context"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Lookahead frames"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Growing"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fixed"
   }
 }

@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 串流產生不支援失敗重試，請關閉重試或串流輸出。"
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "音訊片段節奏"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "每段影格數"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "前置內容影格數"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "預讀影格數"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "逐步增大"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "固定"
   }
 }

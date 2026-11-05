@@ -73,6 +73,9 @@ func modelOptionsReady(state schema.State, draft schema.Draft) error {
 		return err
 	}
 	for _, option := range catalog.GenerationOptions[model.Family] {
+		if option.StreamOnly && (draft.Runtime == nil || !draft.Runtime.Streaming) {
+			continue
+		}
 		if _, set := draft.ModelOptions[model.Family][option.Key]; set && option.RequiresRuntime && !slices.Contains(state.RuntimeOptions[model.Family], option.Key) {
 			return msg.Err(msg.ErrModelOptionUnsupported, msg.Params{"name": option.Key})
 		}

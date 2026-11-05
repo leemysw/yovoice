@@ -15,3 +15,5 @@ Apply with `update_work` {"id","settings":{...}}; only given fields change. The 
 - Main sampler: `do_sample` (true), `temperature` 0.05-2 (.9), `top_k` 1-200 (50), `top_p` 0.01-1 (1), `repetition_penalty` 0.1-20 (1.05).
 - Sub-talker (acoustic detail): `subtalker_do_sample` (true), `subtalker_temperature` .05-2 (.9), `subtalker_top_k` 1-200 (50), `subtalker_top_p` .01-1 (1).
 Lower temperatures give steadier, flatter reads; raise them for livelier but riskier delivery.
+
+Streaming engines can set `stream_chunk_policy` (`grow` or `fixed`) and `stream_frames_per_event` (1–64). These options only apply when runtime streaming is enabled.

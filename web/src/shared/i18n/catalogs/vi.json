@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 không thể thử lại khi phát trực tuyến. Hãy tắt thử lại hoặc phát trực tuyến."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Nhịp phát đoạn"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Số khung mỗi đoạn"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Khung ngữ cảnh trước"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Số khung đọc trước"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Tăng dần"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Cố định"
   }
 }

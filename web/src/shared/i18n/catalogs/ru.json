@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 не поддерживает повторные попытки в потоковом режиме. Отключите повторы или потоковый режим."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Частота выдачи фрагментов"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Кадров на фрагмент"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Кадры предыдущего контекста"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Кадры опережения"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Возрастающая"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Фиксированная"
   }
 }

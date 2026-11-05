@@ -37,3 +37,20 @@ func TestIndexTextControlsReachInferenceRequest(t *testing.T) {
 		}
 	}
 }
+
+func TestVoxStreamOptionsOnlySentInStreamingMode(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.ModelID = "voxcpm2-q8"
+	d.ModelOptions = map[string]map[string]any{"voxcpm2": {"stream_chunk_policy": "fixed", "stream_frames_per_event": float64(2)}}
+	for _, streaming := range []bool{false, true} {
+		d.Runtime = &schema.RuntimeSettings{Streaming: streaming}
+		req, err := BuildRequest(d, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		options := req["request"].(map[string]any)["options"].(map[string]any)
+		if got := options["stream_frames_per_event"]; (streaming && got != float64(2)) || (!streaming && got != nil) {
+			t.Fatalf("streaming=%v, options=%v", streaming, options)
+		}
+	}
+}

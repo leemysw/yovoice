@@ -49,3 +49,25 @@ test('旧引擎上的新版作品可以重置不兼容选项，保留其他分�
   await page.getByRole('button', { name: '重置', exact: true }).click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).drafts[0].modelOptions?.index_tts2)).toEqual({ text_chunk_size: 200 });
 });
+
+test('VoxCPM2 按引擎能力显示流式片段参数，关掉试听后保留已选配置', async ({ page }) => {
+  const state = emptyState();
+  state.drafts[0].modelId = 'voxcpm2-q8';
+  state.runtimeModes = { voxcpm2: ['offline', 'streaming'] };
+  state.runtimeOptions = { voxcpm2: ['stream_chunk_policy', 'stream_frames_per_event'] };
+  await seedState(page, state);
+  await page.goto('/');
+  const runtime = page.getByTestId('runtime-controls');
+  await runtime.locator('summary').click();
+  const toggle = runtime.getByRole('switch').first();
+  const frames = runtime.getByLabel('每段帧数');
+  await expect(frames).toHaveCount(0);
+  await toggle.click();
+  await expect(frames).toHaveValue('4');
+  await expect(runtime.getByLabel('前置上下文帧数')).toHaveCount(0);
+  await frames.fill('2');
+  await toggle.click();
+  await expect(frames).toHaveCount(0);
+  await toggle.click();
+  await expect(frames).toHaveValue('2');
+});

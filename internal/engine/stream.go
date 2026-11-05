@@ -49,10 +49,8 @@ func (e *Engine) runStream(ctx context.Context, payload map[string]any, emit fun
 			break
 		}
 		var event struct {
-			Type  string `json:"type"`
-			Event struct {
-				Audio string `json:"audio"`
-			} `json:"event"`
+			Type   string          `json:"type"`
+			Event  taskResult      `json:"event"`
 			Result taskResult      `json:"result"`
 			Error  json.RawMessage `json:"error"`
 		}
@@ -64,9 +62,21 @@ func (e *Engine) runStream(ctx context.Context, payload map[string]any, emit fun
 		}
 		switch event.Type {
 		case "task.stream.event":
-			if event.Event.Audio != "" && emit != nil {
+			if emit == nil {
+				continue
+			}
+			if event.Event.Audio != "" {
 				if err := emit(event.Event.Audio); err != nil {
 					return result, err
+				}
+				continue
+			}
+			// VoxCPM2 与 OmniVoice 把片段放在命名输出中；附加分轨不能混入试听。
+			for _, chunk := range event.Event.Stems {
+				if strings.HasPrefix(chunk.ID, "chunk_") && chunk.Audio != "" {
+					if err := emit(chunk.Audio); err != nil {
+						return result, err
+					}
 				}
 			}
 		case "task.stream.done":

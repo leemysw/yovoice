@@ -4348,5 +4348,23 @@
   },
   "@yovoice.error.streamingRetry": {
     "defaultMessage": "VoxCPM2 ne peut pas réessayer en diffusion. Désactivez les nouvelles tentatives ou la diffusion."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Cadence des blocs"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Trames par bloc"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Trames du contexte précédent"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Trames d’anticipation"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Croissante"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fixe"
   }
 }
