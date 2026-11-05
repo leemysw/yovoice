@@ -56,3 +56,38 @@ test('功能引导可用 Esc 跳过；侧栏收起时先展开；设置里可重
   await expect(page.getByTestId('nav-new')).toBeVisible();
   await expect(page.locator('.guide-tour')).toHaveCount(0);
 });
+
+for (const uiLocale of ['en', 'zh-CN'] as const) {
+  test(`${uiLocale} 七步均可鼠标操作，缩小窗口后按钮仍在卡片和视口内`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 920 });
+    await open(page, { introSeen: true, tourSeen: false, uiLocale });
+    const card = page.locator('.guide-card');
+    const primary = card.locator('.guide-primary');
+    const insideWindow = async () => {
+      await expect.poll(async () => {
+        const bounds = await card.boundingBox();
+        const button = await primary.boundingBox();
+        const viewport = page.viewportSize()!;
+        return !!bounds && !!button && bounds.x >= 15 && bounds.y >= 15
+          && bounds.x + bounds.width <= viewport.width - 15
+          && bounds.y + bounds.height <= viewport.height - 15
+          && button.x >= bounds.x && button.y >= bounds.y
+          && button.x + button.width <= bounds.x + bounds.width
+          && button.y + button.height <= bounds.y + bounds.height;
+      }).toBe(true);
+    };
+    for (let step = 1; step <= 7; step++) {
+      await expect(card.locator('.guide-count')).toHaveText(`${step} / 7`);
+      await insideWindow();
+      if (step === 6) {
+        // 保持当前目标不变，验证窗口缩放会重新定位；空间不足时仅说明文字滚动。
+        await page.setViewportSize({ width: 900, height: 240 });
+        await insideWindow();
+        await expect.poll(() => card.locator('p').evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
+      }
+      await primary.click();
+    }
+    await expect(page.locator('.guide-tour')).toHaveCount(0);
+    await expect.poll(() => saved(page)).toMatchObject({ tourSeen: true });
+  });
+}
