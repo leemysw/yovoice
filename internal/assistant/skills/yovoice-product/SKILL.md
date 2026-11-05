@@ -171,6 +171,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.alignTextEmpty` 没能把正文对上音频，请重试或换一个版本
 - `error.stemModelRequired` 分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。
 - `error.stemSource` 这个版本是分轨或片段，不能再分离音轨。
+- `error.stemsMissing` 这个版本还没有分轨，请先分离音轨。
 - `error.midiModelRequired` 扒 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。
 - `error.midiEmpty` 没有从这段音频里识别出音符。
 - `error.adapterMissing` 这个作品用的 LoRA 已被删除，请重新选择或导入。

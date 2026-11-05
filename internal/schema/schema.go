@@ -202,6 +202,8 @@ type Generation struct {
 	TextWords []LyricWord `json:"textWords,omitempty"`
 	// Check 是生成后对音频的测量体检；导入旧版本或文件丢失时为空。
 	Check *AudioCheck `json:"check,omitempty"`
+	// Seed 是这一版实际用的种子；作品设置里的种子为空（自动）时也记下，局部重唱靠它重现没改的部分。
+	Seed *int `json:"seed,omitempty"`
 	// StemOf 是分轨结果出自的版本 ID，Stem 是分轨名（drums、bass、other、vocals、guitar、piano）；普通版本为空。
 	StemOf string `json:"stemOf,omitempty"`
 	Stem   string `json:"stem,omitempty"`

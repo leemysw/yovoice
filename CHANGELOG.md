@@ -8,6 +8,9 @@
 
 - Export audio as FLAC (lossless, about half the size of WAV) or M4A (AAC 256 kbps) as well as WAV, from a version's “Export audio” or the timeline export. FLAC and M4A carry the title and project name; music versions also carry their lyrics and the same cover shown on the playback page. Version export can now also target audiobook, podcast or video loudness.
 - YuE2 advanced settings add Top P, Top K and repetition penalty for the score-writing stage.
+- YuE2 can make up to 4 candidate takes in one go (advanced settings), each with the next seed; every take records the seed it used.
+- “Export all stems” saves the mix and every stem into a new folder with DAW-friendly names such as `Song - 01 Vocals.wav`.
+- FLAC and M4A exports with tags now also note in the comment tag that the audio is AI-generated and which model made it.
 - YuE2 LoRA: import a `.safetensors` LoRA under advanced settings and apply it to the composition and/or timbre stage with its own strength.
 - “Separate stems” on a music version (optional HTDemucs 6-stem model, 42 MB) splits it into drums, bass, vocals, guitar, piano and other, each saved as a version you can play, export or add to the timeline.
 - “Transcribe to MIDI” on a music version (optional MuScriptor model, 412 MB, non-commercial) creates a score project with one track per instrument.
@@ -34,6 +37,9 @@
 
 - 导出音频除 WAV 外新增 FLAC（无损，体积约为 WAV 的一半）和 M4A（AAC 256 kbps），版本的“导出音频”和时间线导出都能选；FLAC 与 M4A 写入标题和作品名，音乐版本还写入歌词和播放页同款封面。版本导出也能选有声书、播客或视频平台的目标响度。
 - YuE2 高级参数新增写谱阶段的 Top P、Top K 和重复惩罚。
+- YuE2 高级设置可以一次生成最多 4 个候选，每版换下一个种子，并记下实际用的种子。
+- 新增“导出全部分轨”：把原混音和各轨存进新建的文件夹，按 DAW 习惯命名（如 `歌名 - 01 Vocals.wav`）。
+- 带标签导出 FLAC / M4A 时，注释标签里注明为 AI 生成及所用模型。
 - YuE2 支持 LoRA：在高级设置里导入 `.safetensors` LoRA，分别用于作曲和音色阶段并调节强度。
 - 音乐版本新增“分离音轨”（可选 HTDemucs 6 轨模型，42 MB）：分成鼓、贝斯、人声、吉他、钢琴和其他六轨，每轨存成版本，可试听、导出或加到时间线。
 - 音乐版本新增“扒成 MIDI”（可选 MuScriptor 模型，412 MB，仅限非商业用途）：新建编曲作品，每种乐器一轨。

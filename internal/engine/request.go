@@ -278,6 +278,7 @@ func yue2Request(d schema.Draft) (map[string]any, error) {
 	}
 	mode, _ := options["cot"].(string)
 	delete(options, "cot")
+	delete(options, "candidates")
 	for _, key := range adapterKeys {
 		delete(options, key)
 	}

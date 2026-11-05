@@ -4396,5 +4396,14 @@
   },
   "@yovoice.lora.import": {
     "defaultMessage": "Импортировать LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Варианты"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Экспортировать все дорожки…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "У этой версии ещё нет дорожек. Сначала разделите её на дорожки."
   }
 }

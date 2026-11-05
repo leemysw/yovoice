@@ -4396,5 +4396,14 @@
   },
   "@yovoice.lora.import": {
     "defaultMessage": "Nhập LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Số phương án"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Xuất tất cả các bè…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "Phiên bản này chưa có bè. Hãy tách bè trước."
   }
 }

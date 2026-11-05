@@ -163,6 +163,8 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   // 分轨与扒 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
   const separateStems = (item: Generation) => run(() => call('generation.separateStems', { id: item.id }));
   const transcribeMidi = (item: Generation) => run(() => call('generation.transcribeMidi', { id: item.id }));
+  // 原混音和全部分轨按 DAW 习惯命名后导出到所选文件夹，由宿主弹出文件夹选择框。
+  const exportStems = (item: Generation) => run(() => call('stems.export', { id: item.id }));
   const midiImport = state.midiImport;
   useEffect(() => {
     if (!midiImport) return;
@@ -203,6 +205,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
       { label: t('@yovoice.app.exportVersion'), isDisabled: busy, onClick: () => exportVersion(currentVersion) },
       ...(music && !currentVersion.stemOf && !state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.separate'), isDisabled: busy, onClick: () => separateStems(currentVersion) }] : []),
+      ...(music && (currentVersion.stemOf || state.history.some(item => item.stemOf === currentVersion.id)) ? [{ label: t('@yovoice.stems.exportAll'), isDisabled: busy, onClick: () => exportStems(currentVersion) }] : []),
       ...(music ? [{ label: t('@yovoice.stems.toMidi'), isDisabled: busy, onClick: () => transcribeMidi(currentVersion) }] : []),
       ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.caption.menu'), onClick: () => setCaptionTarget(currentVersion) }, { label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }, { label: t('@yovoice.character.saveAs'), onClick: () => characterFromGeneration(currentVersion) }] : []),
     ]} /> : null}
@@ -256,7 +259,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
               query={destination === 'voices' ? voiceQuery : historyQuery} onQueryChange={destination === 'voices' ? setVoiceQuery : setHistoryQuery}
               track={page === destination ? previewTrack : null} audition={audition} stop={() => setPreviewTrack(null)} suspended={page !== destination || voicePicker !== null || !!voiceEditor || !!nowPlaying}
               addVoice={() => setVoicePicker('add')} editVoice={setVoiceEditor} exportCaptions={setCaptionTarget} saveCharacter={characterFromGeneration} onError={onError}
-              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} />
+              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} exportStems={exportStems} />
           </PageBoundary></VStack>)}
         </>}
 

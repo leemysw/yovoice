@@ -152,6 +152,7 @@ const (
 	// 分轨与扒 MIDI 的模型未下载、对一首分轨结果再分轨、扒出的 MIDI 没有音符。
 	ErrStemModelRequired Code = "@yovoice.error.stemModelRequired"
 	ErrStemSource        Code = "@yovoice.error.stemSource"
+	ErrStemsMissing      Code = "@yovoice.error.stemsMissing"
 	ErrMidiModelRequired Code = "@yovoice.error.midiModelRequired"
 	ErrMidiEmpty         Code = "@yovoice.error.midiEmpty"
 	// LoRA：选中的适配器文件已被删除、导入的文件不是 safetensors。
@@ -261,7 +262,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
-		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrMusicSourceRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty, ErrRecognizeModelRequired, ErrRecognizeEmpty, ErrTranscribeEmpty, ErrAlignText, ErrAlignTextEmpty, ErrStemModelRequired, ErrStemSource, ErrMidiModelRequired, ErrMidiEmpty, ErrAdapterMissing, ErrAdapterInvalid,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrMusicSourceRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty, ErrRecognizeModelRequired, ErrRecognizeEmpty, ErrTranscribeEmpty, ErrAlignText, ErrAlignTextEmpty, ErrStemModelRequired, ErrStemSource, ErrStemsMissing, ErrMidiModelRequired, ErrMidiEmpty, ErrAdapterMissing, ErrAdapterInvalid,
 		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout, ErrAssistantMissing, ErrAssistantProvider,
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,

@@ -449,6 +449,9 @@ func (w *Workbench) ImportProject(path string) (schema.Draft, error) {
 		if g.StemOf, g.Stem = ids[g.StemOf], strings.ToLower(g.Stem); g.StemOf == "" || !slices.Contains(StemNames, g.Stem) {
 			g.StemOf, g.Stem = "", ""
 		}
+		if g.Seed != nil && (*g.Seed < 0 || *g.Seed > 2147483647) {
+			g.Seed = nil
+		}
 		if err = remapDraft(&g.Settings); err != nil {
 			return schema.Draft{}, err
 		}

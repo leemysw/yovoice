@@ -4396,5 +4396,14 @@
   },
   "@yovoice.lora.import": {
     "defaultMessage": "匯入 LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "候選數"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "匯出全部分軌…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "這個版本還沒有分軌，請先分離音軌。"
   }
 }

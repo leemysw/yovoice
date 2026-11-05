@@ -68,8 +68,8 @@ func TestEncode(t *testing.T) {
 }
 
 func TestFFMetadataEscapes(t *testing.T) {
-	got := ffmetadata(Tags{Title: " a=b ", Lyrics: "x;y\r\nz#\\"})
-	want := ";FFMETADATA1\n" + `title=a\=b` + "\n" + `lyrics=x\;y\` + "\n" + `z\#\\` + "\n"
+	got := ffmetadata(Tags{Title: " a=b ", Lyrics: "x;y\r\nz#\\", Comment: "AI"})
+	want := ";FFMETADATA1\n" + `title=a\=b` + "\n" + `lyrics=x\;y\` + "\n" + `z\#\\` + "\n" + "comment=AI\n"
 	if got != want {
 		t.Fatalf("%q", got)
 	}

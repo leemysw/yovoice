@@ -4396,5 +4396,14 @@
   },
   "@yovoice.lora.import": {
     "defaultMessage": "LoRA 가져오기…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "후보 수"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "모든 스템 내보내기…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "이 버전에는 아직 스템이 없습니다. 먼저 스템을 분리하세요."
   }
 }

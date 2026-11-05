@@ -233,6 +233,18 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, nil
 		}
 		return a.svc.Call(method, map[string]any{"path": path}, 30*time.Minute)
+	case "stems.export":
+		path := a.pick(chooseFolder, T("导出分轨到文件夹", "Export Stems to Folder"), "")
+		if path == "" {
+			return nil, nil
+		}
+		var input struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(data, &input); err != nil {
+			return nil, err
+		}
+		return a.svc.Call(method, map[string]any{"id": input.ID, "path": path}, 10*time.Minute)
 	case "model.directory":
 		path := a.pick(chooseFolder, T("选择模型目录", "Choose Model Folder"), "")
 		if path == "" {

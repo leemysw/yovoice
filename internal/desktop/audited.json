@@ -21,6 +21,7 @@
   "generation.lyricWords",
   "generation.alignLyrics",
   "generation.separateStems",
+  "stems.export",
   "generation.transcribeMidi",
   "generation.alignText",
   "preferences.save",

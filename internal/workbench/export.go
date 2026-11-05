@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 	"yovoice/internal/audio"
+	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
@@ -131,7 +132,7 @@ func (w *Workbench) EncodeExport(ctx context.Context, r ExportRequest) (string, 
 	if e != nil {
 		return "", nil, msg.Err(msg.ErrRequestInvalid, nil)
 	}
-	var id string
+	var id, comment string
 	var normalized *audio.Normalized
 	switch r.Kind {
 	case "outputs":
@@ -147,6 +148,10 @@ func (w *Workbench) EncodeExport(ctx context.Context, r ExportRequest) (string, 
 		_ = f.Close()
 		if e != nil {
 			return "", nil, e
+		}
+		// 关掉“写入标签”时界面不传任何标签，这时也不写来源说明。
+		if r.Title != "" || r.Album != "" || r.Lyrics != "" || r.Cover != "" {
+			comment = w.generatedComment(r.ID)
 		}
 	case "export":
 		if r.Loudness != 0 {
@@ -174,10 +179,23 @@ func (w *Workbench) EncodeExport(ctx context.Context, r ExportRequest) (string, 
 	// 十分钟的歌编码只需几秒；给足余量，避免转换器卡住时一直占着调用。
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
-	tags := audio.Tags{Title: strings.TrimSpace(r.Title), Album: strings.TrimSpace(r.Album), Lyrics: strings.TrimSpace(r.Lyrics)}
+	tags := audio.Tags{Title: strings.TrimSpace(r.Title), Album: strings.TrimSpace(r.Album), Lyrics: strings.TrimSpace(r.Lyrics), Comment: comment}
 	if e = audio.Encode(ctx, converter, source, w.exportFileAs(id, r.Format), r.Format, tags, cover); e != nil {
 		return "", nil, e
 	}
 	diag.Log(w.Store.Root, "export.encoded", "format", r.Format, "cover", len(cover) > 0)
 	return id, normalized, nil
+}
+
+// generatedComment 是写进导出文件的来源说明：注明 AI 生成和所用模型，方便平台和听众识别。
+func (w *Workbench) generatedComment(id string) string {
+	s := w.Store.Read()
+	i := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.ID == id })
+	if i < 0 {
+		return ""
+	}
+	if p, e := catalog.Lookup(s.History[i].Settings.ModelID); e == nil {
+		return "AI-generated with yovoice (" + p.Name + ")"
+	}
+	return "AI-generated with yovoice"
 }

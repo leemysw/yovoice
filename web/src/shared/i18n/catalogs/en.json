@@ -4396,5 +4396,14 @@
   },
   "@yovoice.lora.import": {
     "defaultMessage": "Import LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Candidates"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Export all stems…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "This version has no stems yet. Separate stems first."
   }
 }

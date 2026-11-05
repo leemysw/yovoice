@@ -4396,5 +4396,14 @@
   },
   "@yovoice.lora.import": {
     "defaultMessage": "LoRA を読み込む…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "候補数"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "すべてのステムを書き出す…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "このバージョンにはまだステムがありません。先にステムを分離してください。"
   }
 }

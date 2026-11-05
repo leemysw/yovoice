@@ -17,6 +17,8 @@ type Tags struct {
 	Album  string
 	Artist string
 	Lyrics string
+	// Comment 写成注释标签，用来注明这是 AI 生成的音频及所用模型。
+	Comment string
 }
 
 // EncodeFormats 是 Encode 支持的有损/无损格式；WAV 不需要转码。
@@ -91,7 +93,7 @@ func ffmetadata(tags Tags) string {
 	escape := strings.NewReplacer(`\`, `\\`, "=", `\=`, ";", `\;`, "#", `\#`, "\r\n", "\\\n", "\n", "\\\n", "\r", "")
 	var b strings.Builder
 	b.WriteString(";FFMETADATA1\n")
-	for _, field := range [][2]string{{"title", tags.Title}, {"album", tags.Album}, {"artist", tags.Artist}, {"lyrics", tags.Lyrics}} {
+	for _, field := range [][2]string{{"title", tags.Title}, {"album", tags.Album}, {"artist", tags.Artist}, {"lyrics", tags.Lyrics}, {"comment", tags.Comment}} {
 		if value := strings.TrimSpace(field[1]); value != "" {
 			b.WriteString(field[0] + "=" + escape.Replace(value) + "\n")
 		}
