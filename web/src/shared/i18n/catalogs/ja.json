@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "このバージョンにはまだステムがありません。先にステムを分離してください。"
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "変更した小節だけ歌い直す"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "{from}–{to} 小節を歌い直し"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "変更した小節を歌い直し中"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "部分的に歌い直せるのは、旋律譜から生成した YuE2 のバージョンだけです。作品にも旋律譜が必要です。"
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "テンポ、キー、小節数またはセクション数が変わったため、曲全体を生成し直してください。"
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "譜面も歌詞もこのバージョンと同じなので、歌い直す箇所がありません。"
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "新しいテイクが元と違いすぎてつなげません。曲全体を生成し直すか、別のシードで試してください。"
   }
 }

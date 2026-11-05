@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "This version has no stems yet. Separate stems first."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Re-sing changed bars"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Re-sung bars {from}–{to}"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Re-singing changed bars"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Only YuE2 versions made from a melody score can be partly re-sung, and the project needs a melody score too."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "The tempo, key, bar count or number of sections changed, so only the whole song can be regenerated."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "The score and lyrics match this version, so there is nothing to re-sing."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "The new take is too different from the original to join smoothly. Regenerate the whole song, or try another seed."
   }
 }

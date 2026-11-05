@@ -165,6 +165,9 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const transcribeMidi = (item: Generation) => run(() => call('generation.transcribeMidi', { id: item.id }));
   // 原混音和全部分轨按 DAW 习惯命名后导出到所选文件夹，由宿主弹出文件夹选择框。
   const exportStems = (item: Generation) => run(() => call('stems.export', { id: item.id }));
+  // 局部重唱：按当前作品的谱和歌词，只重唱这一版里改动的小节，其余部分保持原样。
+  const canResing = (item: Generation) => music && isYuE(draft.modelId) && isYuE(item.settings.modelId) && item.settings.id === draft.id && !item.stemOf && !item.segment && !!item.settings.abc?.trim() && !!draft.abc?.trim();
+  const resing = (item: Generation) => run(async () => { await persistDraft(draft); await call('generation.resing', { id: item.id, draft }); });
   const midiImport = state.midiImport;
   useEffect(() => {
     if (!midiImport) return;
@@ -205,6 +208,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
       { label: t('@yovoice.app.exportVersion'), isDisabled: busy, onClick: () => exportVersion(currentVersion) },
       ...(music && !currentVersion.stemOf && !state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.separate'), isDisabled: busy, onClick: () => separateStems(currentVersion) }] : []),
+      ...(canResing(currentVersion) ? [{ label: t('@yovoice.resing.action'), isDisabled: busy, onClick: () => resing(currentVersion) }] : []),
       ...(music && (currentVersion.stemOf || state.history.some(item => item.stemOf === currentVersion.id)) ? [{ label: t('@yovoice.stems.exportAll'), isDisabled: busy, onClick: () => exportStems(currentVersion) }] : []),
       ...(music ? [{ label: t('@yovoice.stems.toMidi'), isDisabled: busy, onClick: () => transcribeMidi(currentVersion) }] : []),
       ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.caption.menu'), onClick: () => setCaptionTarget(currentVersion) }, { label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }, { label: t('@yovoice.character.saveAs'), onClick: () => characterFromGeneration(currentVersion) }] : []),
@@ -259,7 +263,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
               query={destination === 'voices' ? voiceQuery : historyQuery} onQueryChange={destination === 'voices' ? setVoiceQuery : setHistoryQuery}
               track={page === destination ? previewTrack : null} audition={audition} stop={() => setPreviewTrack(null)} suspended={page !== destination || voicePicker !== null || !!voiceEditor || !!nowPlaying}
               addVoice={() => setVoicePicker('add')} editVoice={setVoiceEditor} exportCaptions={setCaptionTarget} saveCharacter={characterFromGeneration} onError={onError}
-              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} exportStems={exportStems} />
+              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} exportStems={exportStems} resing={item => canResing(item) ? () => resing(item) : undefined} />
           </PageBoundary></VStack>)}
         </>}
 

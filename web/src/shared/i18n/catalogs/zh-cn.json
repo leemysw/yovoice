@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "这个版本还没有分轨，请先分离音轨。"
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "按当前谱局部重唱"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "重唱第 {from}–{to} 小节"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "正在局部重唱"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "只有 YuE2 按旋律谱生成的版本能局部重唱，而且当前作品也要有旋律谱。"
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "速度、调、小节数或段落数改了，没法只换一段，请整首重新生成。"
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "谱和歌词都和这一版一样，没有要重唱的地方。"
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "新唱的和原版差别太大，接不上。请整首重新生成，或换个种子再试。"
   }
 }

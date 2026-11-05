@@ -207,6 +207,9 @@ type Generation struct {
 	// StemOf 是分轨结果出自的版本 ID，Stem 是分轨名（drums、bass、other、vocals、guitar、piano）；普通版本为空。
 	StemOf string `json:"stemOf,omitempty"`
 	Stem   string `json:"stem,omitempty"`
+	// PatchOf 是局部重唱所改的原版本 ID，PatchBars 是重唱的小节范围（1 起，含两端）；普通版本为空。
+	PatchOf   string `json:"patchOf,omitempty"`
+	PatchBars []int  `json:"patchBars,omitempty"`
 }
 
 // AudioCheck 是不用模型的音频体检：整体响度、真峰值与发现的问题。

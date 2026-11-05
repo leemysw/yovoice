@@ -322,6 +322,17 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.DismissMelody(p.ID)
 	case "generation.separateStems":
 		return true, w.SeparateStems(p.ID)
+	case "generation.resing":
+		var input struct {
+			ID    string       `json:"id"`
+			Draft schema.Draft `json:"draft"`
+			Bars  []int        `json:"bars"`
+		}
+		input.Draft = schema.DefaultDraft()
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.ResingGeneration(input.ID, input.Draft, input.Bars)
 	case "stems.export":
 		// 宿主选好文件夹后带着 path 转发过来；用户取消时宿主直接返回 null。
 		return w.ExportStems(p.ID, p.Path)

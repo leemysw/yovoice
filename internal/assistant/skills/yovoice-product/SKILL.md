@@ -176,6 +176,10 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.midiEmpty` 没有从这段音频里识别出音符。
 - `error.adapterMissing` 这个作品用的 LoRA 已被删除，请重新选择或导入。
 - `error.adapterInvalid` 这不是有效的 safetensors 文件，请选择 YuE2 的 LoRA 文件。
+- `error.resingSource` 只有 YuE2 按旋律谱生成的版本能局部重唱，而且当前作品也要有旋律谱。
+- `error.resingWhole` 速度、调、小节数或段落数改了，没法只换一段，请整首重新生成。
+- `error.resingNoChange` 谱和歌词都和这一版一样，没有要重唱的地方。
+- `error.resingAlign` 新唱的和原版差别太大，接不上。请整首重新生成，或换个种子再试。
 - `error.alignLyrics` 这个版本没有可对齐的歌词
 - `error.alignEmpty` 没能从人声里对上歌词，可以手动校准
 - `error.engineUpgradeRequired` 该模型需要 {version} 及以上的推理内核，请在设置中更新内核。

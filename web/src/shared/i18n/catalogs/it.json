@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "Questa versione non ha ancora tracce. Separale prima."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Ricanta le battute modificate"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Battute {from}–{to} ricantate"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Ricanto delle battute modificate"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Solo le versioni YuE2 create da uno spartito melodico si possono ricantare in parte, e anche il progetto deve avere uno spartito."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Tempo, tonalità, numero di battute o di sezioni sono cambiati: rigenera l’intero brano."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Spartito e testo coincidono con questa versione: non c’è nulla da ricantare."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "La nuova ripresa è troppo diversa dall’originale per unirla bene. Rigenera l’intero brano o prova un altro seed."
   }
 }

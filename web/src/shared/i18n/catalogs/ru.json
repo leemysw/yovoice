@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "У этой версии ещё нет дорожек. Сначала разделите её на дорожки."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Перепеть изменённые такты"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Перепеты такты {from}–{to}"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Перепеваются изменённые такты"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Частично перепеть можно только версии YuE2, созданные по мелодической партитуре, и у проекта тоже должна быть партитура."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Изменились темп, тональность, число тактов или разделов — сгенерируйте песню целиком."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Партитура и текст совпадают с этой версией — перепевать нечего."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "Новый дубль слишком отличается от оригинала, чтобы его склеить. Сгенерируйте песню целиком или попробуйте другое зерно."
   }
 }

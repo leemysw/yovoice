@@ -20,13 +20,13 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 // 版本记录一次先渲染的条数，更早的点“显示更早的”再展开，记录很多时打开页面和状态推送都不用重建整张列表。
 const historyBatch = 30;
 
-export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, exportCaptions, saveCharacter, reuse, exportItem, play, separate, transcribe, exportStems, onError, controls, project }: {
+export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, exportCaptions, saveCharacter, reuse, exportItem, play, separate, transcribe, exportStems, resing, onError, controls, project }: {
   controls?: ReactNode; project: Draft;
   page: 'voices' | 'history'; state: State; query: string; onQueryChange: (value: string) => void;
   track: Track | null; audition: (track: Track) => void; stop: () => void; suspended: boolean;
   addVoice: () => void; editVoice: (item: Voice | Generation) => void; saveCharacter: (item: Generation) => void; reuse: (item: Generation) => void;
   exportItem: (item: Generation) => void; play: (item: Generation) => void; exportCaptions: (item: Generation) => void;
-  separate: (item: Generation) => void; transcribe: (item: Generation) => void; exportStems: (item: Generation) => void;
+  separate: (item: Generation) => void; transcribe: (item: Generation) => void; exportStems: (item: Generation) => void; resing: (item: Generation) => (() => void) | undefined;
   onError: (message: string) => void;
 }) {
   const t = useTranslator();
@@ -106,7 +106,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
       // 历史也用票根：音乐与编曲是唱片（点唱片中心试听，播放时转动），语音是写着正文的磁带（试听时卷轴转动）。
       : filteredHistory.slice(0, shownCount).map((item, index) => {
         const name = heading(item), selected = track?.id === item.id;
-        const version = t('@yovoice.app.historyVersion', { n: versions.get(item.id) ?? 0 }) + (item.stem ? ` · ${t(`@yovoice.stems.name.${item.stem}`)}` : '');
+        const version = t('@yovoice.app.historyVersion', { n: versions.get(item.id) ?? 0 }) + (item.stem ? ` · ${t(`@yovoice.stems.name.${item.stem}`)}` : '') + (item.patchBars?.length === 2 ? ` · ${t('@yovoice.resing.label', { from: item.patchBars[0], to: item.patchBars[1] })}` : '');
         const date = formatDateTime(item.createdAt, locale, 'log');
         const listen = () => audition({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: t('@yovoice.app.subtitleOutput') });
         const firstLyric = item.settings.lyrics?.split('\n').map(line => line.trim()).find(line => line && !/^\[[^\]]*\]$/.test(line));
@@ -124,6 +124,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
             <DropdownMenu className="audio-actions-menu" presentation="popover" alignment="end" hasChevron={false} button={{ label: t('@yovoice.history.audioActions'), size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal /> }} items={[
               { label: t('@yovoice.app.exportVersion'), onClick: () => exportItem(item) },
               ...(quick ? [{ label: t('@yovoice.caption.menu'), onClick: () => exportCaptions(item) }, { label: t('@yovoice.voice.save'), onClick: () => editVoice(item) }, { label: t('@yovoice.character.saveAs'), onClick: () => saveCharacter(item) }] : []),
+              ...(kind === 'music' && resing(item) ? [{ label: t('@yovoice.resing.action'), onClick: resing(item)! }] : []),
               ...(kind === 'music' && !item.stemOf && !separated.has(item.id) ? [{ label: t('@yovoice.stems.separate'), onClick: () => separate(item) }] : []),
               ...(kind === 'music' && (item.stemOf || separated.has(item.id)) ? [{ label: t('@yovoice.stems.exportAll'), onClick: () => exportStems(item) }] : []),
               ...(kind === 'music' ? [{ label: t('@yovoice.stems.toMidi'), onClick: () => transcribe(item) }] : []),

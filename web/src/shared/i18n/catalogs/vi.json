@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "Phiên bản này chưa có bè. Hãy tách bè trước."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Hát lại các ô nhịp đã sửa"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Đã hát lại ô nhịp {from}–{to}"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Đang hát lại các ô nhịp đã sửa"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Chỉ phiên bản YuE2 tạo từ bản nhạc giai điệu mới hát lại từng phần được, và dự án cũng cần có bản nhạc giai điệu."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Tốc độ, giọng, số ô nhịp hoặc số đoạn đã thay đổi nên chỉ có thể tạo lại cả bài."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Bản nhạc và lời giống hệt phiên bản này, không có gì để hát lại."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "Bản hát mới khác bản gốc quá nhiều nên không nối được. Hãy tạo lại cả bài hoặc thử hạt giống khác."
   }
 }

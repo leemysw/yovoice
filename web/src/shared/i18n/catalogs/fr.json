@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "Cette version n’a pas encore de pistes. Séparez d’abord les pistes."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Rechanter les mesures modifiées"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Mesures {from}–{to} rechantées"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Rechant des mesures modifiées"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Seules les versions YuE2 créées depuis une partition de mélodie peuvent être rechantées en partie, et le projet doit aussi avoir une partition."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Le tempo, la tonalité, le nombre de mesures ou de sections a changé : régénérez toute la chanson."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "La partition et les paroles sont identiques à cette version : rien à rechanter."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "La nouvelle prise est trop différente de l’original pour être raccordée. Régénérez toute la chanson ou essayez une autre graine."
   }
 }

@@ -449,6 +449,10 @@ func (w *Workbench) ImportProject(path string) (schema.Draft, error) {
 		if g.StemOf, g.Stem = ids[g.StemOf], strings.ToLower(g.Stem); g.StemOf == "" || !slices.Contains(StemNames, g.Stem) {
 			g.StemOf, g.Stem = "", ""
 		}
+		// 局部重唱指向包里的原版本；原版本不在包里时按普通版本导入。
+		if g.PatchOf = ids[g.PatchOf]; g.PatchOf == "" || len(g.PatchBars) != 2 {
+			g.PatchOf, g.PatchBars = "", nil
+		}
 		if g.Seed != nil && (*g.Seed < 0 || *g.Seed > 2147483647) {
 			g.Seed = nil
 		}

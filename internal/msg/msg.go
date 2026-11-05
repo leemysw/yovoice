@@ -56,6 +56,7 @@ const (
 	// 分轨：HTDemucs 把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨；扒 MIDI：MuScriptor 把音频转成多乐器 MIDI。
 	ActivitySeparateStems  Code = "@yovoice.activity.separateStems"
 	ActivityTranscribeMIDI Code = "@yovoice.activity.transcribeMidi"
+	ActivityResing         Code = "@yovoice.activity.resing"
 
 	ErrBusy                  Code = "@yovoice.error.busy"
 	ErrProxyURL              Code = "@yovoice.error.proxyURL"
@@ -158,6 +159,10 @@ const (
 	// LoRA：选中的适配器文件已被删除、导入的文件不是 safetensors。
 	ErrAdapterMissing        Code = "@yovoice.error.adapterMissing"
 	ErrAdapterInvalid        Code = "@yovoice.error.adapterInvalid"
+	ErrResingSource          Code = "@yovoice.error.resingSource"
+	ErrResingWhole           Code = "@yovoice.error.resingWhole"
+	ErrResingNoChange        Code = "@yovoice.error.resingNoChange"
+	ErrResingAlign           Code = "@yovoice.error.resingAlign"
 	ErrAlignLyrics           Code = "@yovoice.error.alignLyrics"
 	ErrAlignEmpty            Code = "@yovoice.error.alignEmpty"
 	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
@@ -245,7 +250,7 @@ func All() []Code {
 		ActivityDownload, ActivityDownloading, ActivityVerifying,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
 		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,
-		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted, ActivityRelocate, ActivityPlanMelody, ActivityTranscribe, ActivitySeparateVocals, ActivityAlignLyrics, ActivityRecognize, ActivityTranscribeSpeech, ActivityAlignText, ActivitySeparateStems, ActivityTranscribeMIDI,
+		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted, ActivityRelocate, ActivityPlanMelody, ActivityTranscribe, ActivitySeparateVocals, ActivityAlignLyrics, ActivityRecognize, ActivityTranscribeSpeech, ActivityAlignText, ActivitySeparateStems, ActivityTranscribeMIDI, ActivityResing,
 		ErrBusy, ErrProxyURL, ErrModelDirAbsolute, ErrModelDirSpace,
 		ErrDownloadHTTP, ErrDownloadRange, ErrDownloadSize, ErrDownloadIncomplete,
 		ErrDownloadStale, ErrDownloadChecksum, ErrDownloadOversized,
@@ -262,7 +267,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
-		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrMusicSourceRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty, ErrRecognizeModelRequired, ErrRecognizeEmpty, ErrTranscribeEmpty, ErrAlignText, ErrAlignTextEmpty, ErrStemModelRequired, ErrStemSource, ErrStemsMissing, ErrMidiModelRequired, ErrMidiEmpty, ErrAdapterMissing, ErrAdapterInvalid,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrMusicSourceRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty, ErrRecognizeModelRequired, ErrRecognizeEmpty, ErrTranscribeEmpty, ErrAlignText, ErrAlignTextEmpty, ErrStemModelRequired, ErrStemSource, ErrStemsMissing, ErrMidiModelRequired, ErrMidiEmpty, ErrAdapterMissing, ErrAdapterInvalid, ErrResingSource, ErrResingWhole, ErrResingNoChange, ErrResingAlign,
 		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout, ErrAssistantMissing, ErrAssistantProvider,
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,

@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "Diese Version hat noch keine Spuren. Trenne zuerst die Spuren."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Geänderte Takte neu singen"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Takte {from}–{to} neu gesungen"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Geänderte Takte werden neu gesungen"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Nur YuE2-Versionen aus einer Melodie-Partitur lassen sich teilweise neu singen, und das Projekt braucht ebenfalls eine Melodie-Partitur."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Tempo, Tonart, Taktzahl oder Abschnittszahl haben sich geändert. Erzeuge den ganzen Song neu."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Partitur und Text stimmen mit dieser Version überein, es gibt nichts neu zu singen."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "Die neue Aufnahme weicht zu stark vom Original ab, um sauber anzuschließen. Erzeuge den ganzen Song neu oder versuche einen anderen Seed."
   }
 }

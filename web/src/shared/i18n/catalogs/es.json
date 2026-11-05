@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "Esta versión aún no tiene pistas. Sepáralas primero."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Volver a cantar los compases cambiados"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Compases {from}–{to} recantados"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Volviendo a cantar los compases cambiados"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Solo las versiones de YuE2 hechas desde una partitura de melodía se pueden recantar en parte, y el proyecto también necesita una partitura."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Cambiaron el tempo, la tonalidad, el número de compases o de secciones; genera la canción completa de nuevo."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "La partitura y la letra coinciden con esta versión; no hay nada que recantar."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "La nueva toma es demasiado distinta del original para unirla bien. Genera la canción completa o prueba otra semilla."
   }
 }

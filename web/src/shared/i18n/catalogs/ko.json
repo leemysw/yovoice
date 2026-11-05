@@ -4405,5 +4405,26 @@
   },
   "@yovoice.error.stemsMissing": {
     "defaultMessage": "이 버전에는 아직 스템이 없습니다. 먼저 스템을 분리하세요."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "바꾼 마디만 다시 부르기"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "{from}–{to} 마디 다시 부름"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "바꾼 마디를 다시 부르는 중"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "부분 재녹음은 멜로디 악보로 만든 YuE2 버전만 가능하며, 프로젝트에도 멜로디 악보가 있어야 합니다."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "템포, 조, 마디 수 또는 섹션 수가 바뀌어 곡 전체를 다시 생성해야 합니다."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "악보와 가사가 이 버전과 같아 다시 부를 부분이 없습니다."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "새 테이크가 원본과 너무 달라 자연스럽게 이을 수 없습니다. 곡 전체를 다시 생성하거나 다른 시드로 시도하세요."
   }
 }
