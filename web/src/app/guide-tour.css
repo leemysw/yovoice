@@ -1,17 +1,18 @@
 /* 新手引导的聚光框与卡片。 */
 
 @layer app {
-  /* 功能引导：整窗压暗，高亮框用超大外阴影挖出目标；卡片按目标位置由脚本定位。宽度与 guide-tour.tsx 的 cardWidth 一致。 */
+  /* 功能引导：整窗压暗，高亮框用超大外阴影挖出目标；卡片按目标位置由脚本定位。卡片按实际尺寸限制在窗口内。 */
   .guide-tour { position: fixed; inset: 0; z-index: 900; }
   .guide-spotlight { position: fixed; border-radius: var(--radius-container); box-shadow: 0 0 0 100vmax var(--color-overlay), 0 0 0 calc(var(--border-width) * 2) var(--color-accent);
     transition: top var(--duration-medium) var(--ease-standard), left var(--duration-medium) var(--ease-standard), width var(--duration-medium) var(--ease-standard), height var(--duration-medium) var(--ease-standard); pointer-events: none; }
   .guide-spotlight-none { top: 50%; left: 50%; width: 0; height: 0; box-shadow: 0 0 0 100vmax var(--color-overlay); }
-  .guide-card { position: fixed; width: calc(var(--spacing-4) * 20); max-width: calc(100vw - var(--spacing-4) * 2); padding: var(--spacing-5); border-radius: var(--radius-container);
+  .guide-card { position: fixed; width: calc(var(--spacing-4) * 20); max-width: calc(100vw - var(--spacing-4) * 2); max-height: calc(100vh - var(--spacing-4) * 2); padding: var(--spacing-5); border-radius: var(--radius-container);
     background: var(--color-background-surface); color: var(--color-text-primary); box-shadow: var(--shadow-high);
     transition: top var(--duration-medium) var(--ease-standard), left var(--duration-medium) var(--ease-standard); animation: guide-in var(--duration-medium) var(--ease-standard) both; }
   .guide-card-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .guide-card > * { flex-shrink: 0; }
   .guide-card h2 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); }
-  .guide-card p { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-base); line-height: 1.6; }
+  .guide-card p { min-height: 0; flex-shrink: 1; overflow-y: auto; margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-base); line-height: 1.6; }
   .guide-count { color: var(--color-text-secondary); font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
   .guide-actions { margin-top: var(--spacing-1); }
   @media (prefers-reduced-motion: reduce) {
