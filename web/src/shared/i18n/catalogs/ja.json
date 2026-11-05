@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "音声をデコードできません。ファイルが破損・暗号化されていないか、トラックがあるか確認してください。"
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "書き出し音声をエンコードできませんでした。WAV など別の形式でお試しください。"
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "1 秒〜10 分の音声を選択してください。60 秒を超える録音は最も明瞭な部分が自動で切り出されます。"
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT 字幕"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "形式"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC（ロスレス）"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A（AAC）"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "ロスレスで WAV の約半分のサイズ。主要なプレーヤーで再生できます。"
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "スマホやメッセージ、動画サイト向けの小さなファイル（AAC 256 kbps）。"
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "タイトル・歌詞・カバーをファイルに書き込む"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "字幕を書き出し"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "譜面の温度"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "譜面 Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "譜面 Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "譜面の繰り返しペナルティ"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "音声の温度"
   },
@@ -4286,7 +4316,139 @@
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "モデルパッケージが不完全か一致しません。メイン GGUF を選び、関連ファイルの配置を維持してください。"
   },
-  "@yovoice.options.max_text_tokens_per_segment": {
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "ステムを分離中"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "MIDI に変換中"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "ステム分離には HTDemucs 6 ステムモデルが必要です。設定のモデルからダウンロードしてください。"
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "このバージョンはステムまたはクリップのため、分離できません。"
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "MIDI 変換には MuScriptor モデルが必要です。設定のモデルからダウンロードしてください。"
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "この音声から音符が見つかりませんでした。"
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "この作品で使っている LoRA は削除されました。別の LoRA を選ぶか読み込んでください。"
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "有効な safetensors ファイルではありません。YuE2 の LoRA ファイルを選んでください。"
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "曲をドラム、ベース、ボーカル、ギター、ピアノ、その他の 6 トラックに分離 · 44.1 kHz ステレオ"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "曲を複数楽器の MIDI に変換し、編曲画面で編集できます · 非商用のみ（CC BY-NC）"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "ステムを分離"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "MIDI に変換"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "ドラム"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "ベース"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "その他"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "ボーカル"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "ギター"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "ピアノ"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "作曲 LoRA"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "作曲 LoRA の強さ"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "音色 LoRA"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "音色 LoRA の強さ"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "作曲 LoRA"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "音色 LoRA"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "使わない"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "強さ"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "LoRA を読み込む…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "候補数"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "すべてのステムを書き出す…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "このバージョンにはまだステムがありません。先にステムを分離してください。"
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "変更した小節だけ歌い直す"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "{from}–{to} 小節を歌い直し"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "変更した小節を歌い直し中"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "部分的に歌い直せるのは、旋律譜から生成した YuE2 のバージョンだけです。作品にも旋律譜が必要です。"
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "テンポ、キー、小節数またはセクション数が変わったため、曲全体を生成し直してください。"
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "譜面も歌詞もこのバージョンと同じなので、歌い直す箇所がありません。"
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "新しいテイクが元と違いすぎてつなげません。曲全体を生成し直すか、別のシードで試してください。"
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "鼻歌で入力"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "録音を停止"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "メロディを鼻歌か歌で録音（最長 2 分）すると旋律譜になり、指定したスタイルで編曲します。SheetSage2 が必要です。"
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "録音が短すぎます。3 秒以上歌ってください。"
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "画像からスタイル"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "画像を選ぶと、接続した AI サービスがスタイルタグを提案します。画像に対応したサービスが必要です。"
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "8 MB 以下の JPEG、PNG、WebP 画像を選んでください。"
+  },
+  "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "セグメントごとのテキストトークン上限"
   },
   "@yovoice.options.text_normalization": {

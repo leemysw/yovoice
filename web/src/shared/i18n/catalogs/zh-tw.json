@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "無法解碼音訊，請檢查檔案是否損毀、加密或缺少音軌。"
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "匯出音訊編碼失敗，可改用 WAV 或其他格式重試。"
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "請選擇 1 秒到 10 分鐘的音訊；超過 60 秒的錄音會自動擷取最清楚的一段。"
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT 字幕"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "格式"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC 無損"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A（AAC）"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "無損，體積約為 WAV 的一半，主流播放器都能播放。"
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "檔案小，適合手機、通訊軟體和影音平台（AAC 256 kbps）。"
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "把標題、歌詞和封面寫進檔案"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "匯出字幕"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "寫譜溫度"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "寫譜 Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "寫譜 Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "寫譜重複懲罰"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "演唱溫度"
   },
@@ -4286,7 +4316,139 @@
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "模型套件缺少檔案或校驗不符。請選擇主 GGUF，並保留全部配套檔案的原目錄結構。"
   },
-  "@yovoice.options.max_text_tokens_per_segment": {
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "正在分離音軌"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "正在轉成 MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "分離音軌需要 HTDemucs 6 軌模型，請先在設定的模型裡下載。"
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "這個版本是分軌或片段，不能再分離音軌。"
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "轉 MIDI 需要 MuScriptor 模型，請先在設定的模型裡下載。"
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "沒有從這段音訊裡辨識出音符。"
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "這個作品用的 LoRA 已被刪除，請重新選擇或匯入。"
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "這不是有效的 safetensors 檔案，請選擇 YuE2 的 LoRA 檔案。"
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "把一首歌分成鼓、貝斯、人聲、吉他、鋼琴和其他六軌 · 44.1 kHz 立體聲"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "把一首歌轉成多樂器 MIDI，可在編曲頁繼續編輯 · 僅限非商業用途（CC BY-NC）"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "分離音軌"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "轉成 MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "鼓"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "貝斯"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "其他"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "人聲"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "吉他"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "鋼琴"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "作曲 LoRA"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "作曲 LoRA 強度"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "音色 LoRA"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "音色 LoRA 強度"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "作曲 LoRA"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "音色 LoRA"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "不使用"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "強度"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "匯入 LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "候選數"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "匯出全部分軌…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "這個版本還沒有分軌，請先分離音軌。"
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "依目前樂譜局部重唱"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "重唱第 {from}–{to} 小節"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "正在局部重唱"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "只有 YuE2 依旋律譜生成的版本能局部重唱，而且目前作品也要有旋律譜。"
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "速度、調、小節數或段落數改了，無法只換一段，請整首重新生成。"
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "樂譜和歌詞都和這一版一樣，沒有要重唱的地方。"
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "新唱的和原版差別太大，接不上。請整首重新生成，或換個種子再試。"
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "哼一段"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "停止錄音"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "哼唱或清唱一段旋律（最長 2 分鐘），轉成旋律譜後依你寫的風格編配；需要 SheetSage2。"
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "錄音太短了，請至少哼 3 秒。"
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "看圖取風格"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "選一張圖片，讓接入的 AI 服務讀出音樂風格標籤；服務需要支援看圖。"
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "請選擇 JPEG、PNG 或 WebP 圖片，大小不超過 8 MB。"
+  },
+  "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "每段文字 Token 上限"
   },
   "@yovoice.options.text_normalization": {

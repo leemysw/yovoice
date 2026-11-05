@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Impossibile decodificare l’audio. Controlla che il file non sia danneggiato, crittografato o privo di traccia."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Impossibile codificare l’audio esportato. Prova WAV o un altro formato."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Scegli un audio tra 1 secondo e 10 minuti. Le registrazioni oltre i 60 secondi vengono ritagliate automaticamente nella parte più nitida."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "Sottotitoli WebVTT"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Formato"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC senza perdita"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Senza perdita e circa metà delle dimensioni del WAV; si riproduce nella maggior parte delle app musicali."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "File leggero per telefoni, messaggistica e piattaforme video (AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Scrivi titolo, testo e copertina nel file"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Esporta sottotitoli"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Temperatura della partitura"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Top P partitura"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Top K partitura"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Penalità di ripetizione della partitura"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Temperatura audio"
   },
@@ -4286,7 +4316,139 @@
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Pacchetto incompleto o non corrispondente. Scegli il GGUF principale e mantieni la struttura di tutti i file associati."
   },
-  "@yovoice.options.max_text_tokens_per_segment": {
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Separazione delle tracce"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Trascrizione in MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "La separazione delle tracce richiede il modello HTDemucs a 6 tracce. Scaricalo in Modelli, nelle Impostazioni."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "Questa versione è una traccia o un estratto e non può essere separata di nuovo."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "La trascrizione MIDI richiede il modello MuScriptor. Scaricalo in Modelli, nelle Impostazioni."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "Non sono state trovate note in questo audio."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "Il LoRA usato da questo progetto è stato eliminato. Scegline o importane un altro."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "Non è un file safetensors valido. Scegli un file LoRA di YuE2."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Separa un brano in batteria, basso, voce, chitarra, pianoforte e altro · 44,1 kHz stereo"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Trascrive un brano in MIDI multistrumento modificabile in Arrangiamento · Solo uso non commerciale (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Separa tracce"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Trascrivi in MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Batteria"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Basso"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Altro"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Voce"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Chitarra"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Pianoforte"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "LoRA di composizione"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Intensità LoRA di composizione"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "LoRA di timbro"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Intensità LoRA di timbro"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "LoRA di composizione"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "LoRA di timbro"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "Nessuno"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Intensità"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Importa LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Candidati"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Esporta tutte le tracce…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "Questa versione non ha ancora tracce. Separale prima."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Ricanta le battute modificate"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Battute {from}–{to} ricantate"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Ricanto delle battute modificate"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Solo le versioni YuE2 create da uno spartito melodico si possono ricantare in parte, e anche il progetto deve avere uno spartito."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Tempo, tonalità, numero di battute o di sezioni sono cambiati: rigenera l’intero brano."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Spartito e testo coincidono con questa versione: non c’è nulla da ricantare."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "La nuova ripresa è troppo diversa dall’originale per unirla bene. Rigenera l’intero brano o prova un altro seed."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Canticchia"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Ferma registrazione"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Canticchia o canta una melodia (fino a 2 minuti); diventa uno spartito arrangiato nel tuo stile. Richiede SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "La registrazione è troppo breve. Canticchia per almeno 3 secondi."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Stile da immagine"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Scegli un’immagine e il servizio di IA collegato propone tag di stile. Il servizio deve supportare le immagini."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Scegli un’immagine JPEG, PNG o WebP fino a 8 MB."
+  },
+  "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Token di testo per segmento"
   },
   "@yovoice.options.text_normalization": {

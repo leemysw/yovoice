@@ -16,7 +16,7 @@ Always clones a reference voice: the work (or story speaker) needs `voiceId` (fr
 - `text_chunk_size` 0-12000: characters per segment, 0 = automatic.
 - `text_chunk_mode`: `default`, `tag_aware`, `japanese`, `endline`.
 
-- `max_text_tokens_per_segment`: 1–600, default 120. Requires a runtime that advertises it.
+- `text_chunk_tokens`: 1–600, default 120. Requires a runtime that advertises it.
 - `text_normalization`: IndexTTS 2.5 only, defaults to true; disable to keep the raw text. Requires a runtime that advertises it.
 
 Tips: for a calmer read lower `temperature` and `emotionStrength`; for steadier repeat takes fix the `seed`; `intervalSilenceMs` controls pauses, not `speed`.

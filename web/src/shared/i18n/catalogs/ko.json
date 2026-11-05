@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "오디오를 디코딩할 수 없습니다. 파일이 손상되었거나 암호화되었거나 트랙이 없는지 확인하세요."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "내보낼 오디오를 인코딩하지 못했습니다. WAV 등 다른 형식으로 다시 시도하세요."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "1초~10분 길이의 오디오를 선택하세요. 60초가 넘는 녹음은 가장 깨끗한 부분을 자동으로 잘라 사용합니다."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT 자막"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "형식"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC 무손실"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A(AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "무손실이며 WAV의 약 절반 크기로, 대부분의 플레이어에서 재생됩니다."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "휴대폰, 메신저, 동영상 플랫폼용 작은 파일(AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "제목, 가사, 커버를 파일에 기록"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "자막 내보내기"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "악보 온도"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "악보 Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "악보 Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "악보 반복 페널티"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "오디오 온도"
   },
@@ -4286,7 +4316,139 @@
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "모델 패키지가 불완전하거나 일치하지 않습니다. 기본 GGUF를 선택하고 관련 파일의 폴더 구조를 유지하세요."
   },
-  "@yovoice.options.max_text_tokens_per_segment": {
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "스템 분리 중"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "MIDI로 변환 중"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "스템 분리에는 HTDemucs 6스템 모델이 필요합니다. 설정의 모델에서 다운로드하세요."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "이 버전은 스템이나 클립이라 다시 분리할 수 없습니다."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "MIDI 변환에는 MuScriptor 모델이 필요합니다. 설정의 모델에서 다운로드하세요."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "이 오디오에서 음표를 찾지 못했습니다."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "이 프로젝트가 쓰던 LoRA가 삭제되었습니다. 다른 LoRA를 선택하거나 가져오세요."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "올바른 safetensors 파일이 아닙니다. YuE2 LoRA 파일을 선택하세요."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "곡을 드럼, 베이스, 보컬, 기타, 피아노, 기타 악기 6트랙으로 분리 · 44.1 kHz 스테레오"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "곡을 여러 악기 MIDI로 변환해 편곡 화면에서 계속 편집 · 비상업적 용도 전용(CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "스템 분리"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "MIDI로 변환"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "드럼"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "베이스"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "기타 악기"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "보컬"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "기타"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "피아노"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "작곡 LoRA"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "작곡 LoRA 강도"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "음색 LoRA"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "음색 LoRA 강도"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "작곡 LoRA"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "음색 LoRA"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "사용 안 함"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "강도"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "LoRA 가져오기…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "후보 수"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "모든 스템 내보내기…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "이 버전에는 아직 스템이 없습니다. 먼저 스템을 분리하세요."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "바꾼 마디만 다시 부르기"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "{from}–{to} 마디 다시 부름"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "바꾼 마디를 다시 부르는 중"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "부분 재녹음은 멜로디 악보로 만든 YuE2 버전만 가능하며, 프로젝트에도 멜로디 악보가 있어야 합니다."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "템포, 조, 마디 수 또는 섹션 수가 바뀌어 곡 전체를 다시 생성해야 합니다."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "악보와 가사가 이 버전과 같아 다시 부를 부분이 없습니다."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "새 테이크가 원본과 너무 달라 자연스럽게 이을 수 없습니다. 곡 전체를 다시 생성하거나 다른 시드로 시도하세요."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "허밍으로 입력"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "녹음 중지"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "멜로디를 허밍이나 노래로 녹음하면(최대 2분) 멜로디 악보로 바꿔 지정한 스타일로 편곡합니다. SheetSage2가 필요합니다."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "녹음이 너무 짧습니다. 3초 이상 불러 주세요."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "이미지로 스타일 찾기"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "이미지를 고르면 연결된 AI 서비스가 스타일 태그를 제안합니다. 이미지를 지원하는 서비스여야 합니다."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "8MB 이하의 JPEG, PNG, WebP 이미지를 선택하세요."
+  },
+  "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "구간별 텍스트 토큰 상한"
   },
   "@yovoice.options.text_normalization": {

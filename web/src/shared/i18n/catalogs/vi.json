@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Không thể giải mã âm thanh. Kiểm tra xem tệp có bị hỏng, mã hóa hoặc thiếu rãnh âm thanh không."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Không thể mã hóa âm thanh xuất. Hãy thử WAV hoặc định dạng khác."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Chọn âm thanh dài từ 1 giây đến 10 phút. Bản ghi dài hơn 60 giây sẽ tự động được cắt lấy đoạn rõ nhất."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "Phụ đề WebVTT"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Định dạng"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC không mất dữ liệu"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Không mất chất lượng, dung lượng khoảng một nửa WAV; phát được trên hầu hết ứng dụng nghe nhạc."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Tệp nhỏ cho điện thoại, ứng dụng nhắn tin và nền tảng video (AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Ghi tiêu đề, lời bài hát và ảnh bìa vào tệp"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Xuất phụ đề"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Nhiệt độ bản nhạc"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Top P bản nhạc"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Top K bản nhạc"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Phạt lặp bản nhạc"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Nhiệt độ âm thanh"
   },
@@ -4286,7 +4316,139 @@
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Gói mô hình thiếu tệp hoặc không khớp. Chọn GGUF chính và giữ cấu trúc tất cả tệp đi kèm."
   },
-  "@yovoice.options.max_text_tokens_per_segment": {
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Đang tách bè"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Đang chuyển sang MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "Tách bè cần mô hình HTDemucs 6 bè. Hãy tải về trong phần Mô hình ở Cài đặt."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "Phiên bản này là một bè hoặc một đoạn cắt nên không thể tách tiếp."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "Chuyển sang MIDI cần mô hình MuScriptor. Hãy tải về trong phần Mô hình ở Cài đặt."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "Không tìm thấy nốt nhạc nào trong âm thanh này."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "LoRA mà dự án này dùng đã bị xoá. Hãy chọn hoặc nhập LoRA khác."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "Đây không phải tệp safetensors hợp lệ. Hãy chọn tệp LoRA của YuE2."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Tách bài hát thành trống, bass, giọng hát, guitar, piano và phần còn lại · 44,1 kHz stereo"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Chuyển bài hát thành MIDI nhiều nhạc cụ, có thể tiếp tục chỉnh trong Phối khí · Chỉ dùng phi thương mại (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Tách bè"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Chuyển sang MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Trống"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Phần còn lại"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Giọng hát"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Guitar"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Piano"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "LoRA sáng tác"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Độ mạnh LoRA sáng tác"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "LoRA âm sắc"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Độ mạnh LoRA âm sắc"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "LoRA sáng tác"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "LoRA âm sắc"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "Không dùng"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Độ mạnh"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Nhập LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Số phương án"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Xuất tất cả các bè…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "Phiên bản này chưa có bè. Hãy tách bè trước."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Hát lại các ô nhịp đã sửa"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Đã hát lại ô nhịp {from}–{to}"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Đang hát lại các ô nhịp đã sửa"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Chỉ phiên bản YuE2 tạo từ bản nhạc giai điệu mới hát lại từng phần được, và dự án cũng cần có bản nhạc giai điệu."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Tốc độ, giọng, số ô nhịp hoặc số đoạn đã thay đổi nên chỉ có thể tạo lại cả bài."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Bản nhạc và lời giống hệt phiên bản này, không có gì để hát lại."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "Bản hát mới khác bản gốc quá nhiều nên không nối được. Hãy tạo lại cả bài hoặc thử hạt giống khác."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Ngân nga giai điệu"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Dừng ghi âm"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Ngân nga hoặc hát một giai điệu (tối đa 2 phút), nó sẽ thành bản nhạc giai điệu được phối theo phong cách của bạn. Cần SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "Bản ghi quá ngắn. Hãy ngân nga ít nhất 3 giây."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Lấy phong cách từ ảnh"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Chọn một bức ảnh, dịch vụ AI đã kết nối sẽ gợi ý thẻ phong cách. Dịch vụ cần hỗ trợ ảnh."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Hãy chọn ảnh JPEG, PNG hoặc WebP không quá 8 MB."
+  },
+  "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Số token văn bản tối đa mỗi đoạn"
   },
   "@yovoice.options.text_normalization": {

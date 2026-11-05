@@ -5,13 +5,14 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play, Undo2 } from 'lucide-react';
+import { AudioLines, CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play, Square, Undo2 } from 'lucide-react';
 import { call, CallError, coverMelodyFile, saveText } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
 import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
 import { ScoreArrangement } from '../score/score-arrangement';
 import { MelodyStaff } from './melody-staff';
 import { useMelodyPreview } from './melody-preview';
+import { useHumRecorder } from './use-hum-recorder';
 
 const maxLength = 64 << 10;
 
@@ -106,6 +107,9 @@ export function MelodyScore({ draft, state, change, onError }: {
   const transform = (op: 'stripChords' | 'tempo' | 'instrumental', value = 0) => attempt(async () => replace(await call<string>('melody.transform', { abc, op, tempo: value }), t(transformLabel[op])));
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
+  // 哼一段：录下的哼唱或清唱和“从歌曲提取”走同一条扒谱流程，只留旋律，伴奏由 YuE2 按风格编配。
+  const hum = useHumRecorder(picked => void attempt(() => coverMelodyFile(draft.id, picked)), fail);
+  const humLabel = t(hum.recording ? '@yovoice.melody.humStop' : '@yovoice.melody.hum');
   // 试听：用已装的音色库把谱渲染成音频，在谱面里播放并显示进度，底部播放器留给歌曲。
   const preview = useMelodyPreview(abc, fail);
   const playing = preview.status === 'playing';
@@ -149,6 +153,7 @@ export function MelodyScore({ draft, state, change, onError }: {
           <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.melody.more'), tooltip: t('@yovoice.melody.more') }} items={[
             { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },
             { id: 'cover', label: t('@yovoice.melody.cover'), isDisabled: busy, onClick: () => audio.current?.click() },
+            { id: 'hum', label: humLabel, isDisabled: busy && !hum.recording, onClick: () => void hum.toggle() },
             { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
             { id: 'instrumental', label: t('@yovoice.melody.toInstrumental'), isDisabled: !sung, onClick: () => void transform('instrumental') },
             { id: 'import', label: t('@yovoice.melody.import'), onClick: () => file.current?.click() },
@@ -183,6 +188,7 @@ export function MelodyScore({ draft, state, change, onError }: {
     {!abc.trim() ? working ? null : <HStack className="melody-empty" gap={2} wrap="wrap" vAlign="center">
       <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />
       <Button variant="secondary" icon={<Mic2 />} label={t('@yovoice.melody.cover')} isDisabled={busy} tooltip={t('@yovoice.melody.coverHint')} onClick={() => audio.current?.click()} />
+      <Button variant={hum.recording ? 'primary' : 'secondary'} icon={hum.recording ? <Square /> : <AudioLines />} label={humLabel} isDisabled={busy && !hum.recording} tooltip={t('@yovoice.melody.humHint')} onClick={() => void hum.toggle()} />
       <Button variant="ghost" icon={<FileMusic />} label={t('@yovoice.melody.import')} onClick={() => file.current?.click()} />
       {undoButton}
     </HStack> : <>

@@ -39,6 +39,8 @@ import { useCharacterFlow } from './use-character-flow';
 import { InspectorSlot } from './inspector-slot';
 import { WorkbenchOverlays, type VoicePickerMode } from './workbench-overlays';
 import { CaptionDialog } from '../features/media/caption-dialog';
+import { VersionExportDialog } from '../features/media/version-export-dialog';
+import { coverJpeg } from '../features/music/song-cover';
 import { TranscribePage } from '../features/transcribe/transcribe-page';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
 // 页面级组件按需加载：音乐、编曲、时间线与导入书稿只在用到时取回，首屏主包只含外壳与语音编辑。
@@ -112,6 +114,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const [voiceEditor, setVoiceEditor] = useState<Voice | Generation | null>(null);
   // 正在导出字幕的语音版本。
   const [captionTarget, setCaptionTarget] = useState<Generation | null>(null);
+  const [exportTarget, setExportTarget] = useState<Generation | null>(null);
   const [nowPlaying, setNowPlaying] = useState<Generation | null>(null);
   const libraryTabs = <TabList value={page === 'voices' ? 'voices' : 'characters'} onChange={setPage} role="tablist" hasDivider>
     <Tab value="characters" label={t('@yovoice.library.voicesTab')} panelId="voice-library-panel" />
@@ -155,8 +158,29 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   });
   // 导出名称：新版本的文件名已带时间与内容摘要，旧的哈希文件名改用音频标题。
   const versionName = (item: Generation) => { const stem = item.fileName.replace(/\.wav$/, ''); return /^[0-9a-f]{32}$/.test(stem) ? item.title : stem; };
-  // 直接导出音频。
-  const exportVersion = (item: Generation) => run(() => exportOutput(item.id, item.fileName, versionName(item)));
+  // 导出音频：桌面端先选格式与响度，浏览器预览直接下载 WAV。
+  const exportVersion = (item: Generation) => { if (isDesktop) setExportTarget(item); else run(() => exportOutput(item.id, item.fileName, versionName(item))); };
+  // 分轨与扒 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
+  const separateStems = (item: Generation) => run(() => call('generation.separateStems', { id: item.id }));
+  const transcribeMidi = (item: Generation) => run(() => call('generation.transcribeMidi', { id: item.id }));
+  // 原混音和全部分轨按 DAW 习惯命名后导出到所选文件夹，由宿主弹出文件夹选择框。
+  const exportStems = (item: Generation) => run(() => call('stems.export', { id: item.id }));
+  // 局部重唱：按当前作品的谱和歌词，只重唱这一版里改动的小节，其余部分保持原样。
+  const canResing = (item: Generation) => music && isYuE(draft.modelId) && isYuE(item.settings.modelId) && item.settings.id === draft.id && !item.stemOf && !item.segment && !!item.settings.abc?.trim() && !!draft.abc?.trim();
+  const resing = (item: Generation) => run(async () => { await persistDraft(draft); await call('generation.resing', { id: item.id, draft }); });
+  const midiImport = state.midiImport;
+  useEffect(() => {
+    if (!midiImport) return;
+    const target = state.drafts.find(item => item.id === midiImport.projectId);
+    if (target) selectDraft(target);
+    void call('midi.dismiss', { id: midiImport.id }).catch(() => undefined);
+    // 只在出现新结果时打开一次。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [midiImport?.id]);
+  // FLAC / M4A 的标签：标题取版本标题、专辑取作品名；音乐另写歌词和与播放页相同的封面。
+  const exportTags = (item: Generation) => () => projectKind(item.settings) === 'music'
+    ? { title: item.title, album: draft.title, lyrics: item.settings.lyrics, cover: coverJpeg(item.id) }
+    : { title: item.title, album: draft.title };
   const audition = (value: Track) => {
     if (page === 'create') setTrack({ ...value, playRequest: performance.now() });
     else setPreviewTrack(current => current?.id === value.id ? null : { ...value, playRequest: performance.now() });
@@ -183,6 +207,10 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     <Button className="player-tool" label={historyLabel} tooltip={historyLabel} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} />
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
       { label: t('@yovoice.app.exportVersion'), isDisabled: busy, onClick: () => exportVersion(currentVersion) },
+      ...(music && !currentVersion.stemOf && !state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.separate'), isDisabled: busy, onClick: () => separateStems(currentVersion) }] : []),
+      ...(canResing(currentVersion) ? [{ label: t('@yovoice.resing.action'), isDisabled: busy, onClick: () => resing(currentVersion) }] : []),
+      ...(music && (currentVersion.stemOf || state.history.some(item => item.stemOf === currentVersion.id)) ? [{ label: t('@yovoice.stems.exportAll'), isDisabled: busy, onClick: () => exportStems(currentVersion) }] : []),
+      ...(music ? [{ label: t('@yovoice.stems.toMidi'), isDisabled: busy, onClick: () => transcribeMidi(currentVersion) }] : []),
       ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.caption.menu'), onClick: () => setCaptionTarget(currentVersion) }, { label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }, { label: t('@yovoice.character.saveAs'), onClick: () => characterFromGeneration(currentVersion) }] : []),
     ]} /> : null}
   </HStack>;
@@ -235,13 +263,14 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
               query={destination === 'voices' ? voiceQuery : historyQuery} onQueryChange={destination === 'voices' ? setVoiceQuery : setHistoryQuery}
               track={page === destination ? previewTrack : null} audition={audition} stop={() => setPreviewTrack(null)} suspended={page !== destination || voicePicker !== null || !!voiceEditor || !!nowPlaying}
               addVoice={() => setVoicePicker('add')} editVoice={setVoiceEditor} exportCaptions={setCaptionTarget} saveCharacter={characterFromGeneration} onError={onError}
-              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} />
+              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} exportStems={exportStems} resing={item => canResing(item) ? () => resing(item) : undefined} />
           </PageBoundary></VStack>)}
         </>}
 
       </VStack>} /></VStack>
     </VStack></AppShell>
     {ready && !assistantHidden ? <PageBoundary name="assistant"><Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense></PageBoundary> : null}
+    {exportTarget ? <PageBoundary name="version-export"><VersionExportDialog generation={exportTarget} name={versionName(exportTarget)} tags={exportTags(exportTarget)} onClose={() => setExportTarget(null)} /></PageBoundary> : null}
     {captionTarget ? <PageBoundary name="caption-export"><CaptionDialog state={state} generation={captionTarget} name={versionName(captionTarget)} onClose={() => setCaptionTarget(null)} /></PageBoundary> : null}
     <WorkbenchOverlays state={state} catalog={catalog} ready={ready} error={error} setError={setError} page={page} run={run} session={session} selectDraft={selectDraft} instrumental={instrumental} voicePicker={voicePicker} setVoicePicker={setVoicePicker} editor={editor} pronunciation={pronunciation} setPronunciation={setPronunciation} voiceTarget={voiceTarget} setVoiceTarget={setVoiceTarget} projectList={projectList} applyToTarget={applyToTarget} nowPlaying={nowPlaying} setNowPlaying={setNowPlaying} openSettings={openSettings} voiceEditor={voiceEditor} setVoiceEditor={setVoiceEditor} cues={cues} showIntro={showIntro} finishIntro={finishIntro} showTour={showTour} finishTour={finishTour} />
   </VStack>;

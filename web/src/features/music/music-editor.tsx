@@ -6,7 +6,9 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Lightbulb, Maximize2 } from 'lucide-react';
+import { ImagePlus, Lightbulb, LoaderCircle, Maximize2 } from 'lucide-react';
+import { call, isDesktop } from '../../shared/lib/client';
+import { formatCallError } from '../../shared/i18n/format';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { isStableAudio, isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
 import { createMusicDraft, instrumentalSections, lyricSections, splitTags } from './music-draft';
@@ -30,6 +32,18 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputVal, setInputVal] = useState('');
   const tags = splitTags(draft.text);
+  // 看图取风格：图片先缩到 1024 像素以内再交给接入的 AI 服务，读出的英文风格标签并进风格栏。
+  const imageInput = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState(false);
+  const styleFromImage = async (file: File) => {
+    setReading(true);
+    try {
+      const base64 = await shrinkImage(file);
+      const result = await call<{ tags: string[] }>('music.styleFromImage', { mediaType: 'image/jpeg', base64, language: locale });
+      const next = [...tags, ...result.tags.filter(tag => !tags.some(item => item.toLowerCase() === tag.toLowerCase()))];
+      change({ text: next.join(', ').slice(0, 512) });
+    } catch (e) { onError(formatCallError(t, e)); } finally { setReading(false); }
+  };
 
   const toggleTag = (tag: string) => {
     const next = tags.includes(tag) ? tags.filter(item => item !== tag) : [...tags, tag];
@@ -79,6 +93,10 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
     <VStack className="music-block" gap={3}>
       <HStack className="music-style-header" hAlign="between" vAlign="center" gap={2}>
         <h2>{t('@yovoice.music.style')}</h2>
+        {yue && isDesktop ? <>
+          <input ref={imageInput} hidden type="file" accept="image/png,image/jpeg,image/webp" aria-label={t('@yovoice.music.styleFromImage')} onChange={event => { const picked = event.target.files?.[0]; event.target.value = ''; if (picked) void styleFromImage(picked); }} />
+          <Button size="sm" variant="ghost" icon={reading ? <LoaderCircle className="generation-spinner" /> : <ImagePlus />} label={t('@yovoice.music.styleFromImage')} tooltip={t('@yovoice.music.styleFromImageHint')} isDisabled={reading} onClick={() => imageInput.current?.click()} />
+        </> : null}
         {empty && !stable ? <Button size="sm" variant="secondary" icon={<Lightbulb />} label={t('@yovoice.music.example')} onClick={() => { const example = createMusicDraft(locale); change({ text: example.text, lyrics: example.lyrics, synthesisLanguage: example.synthesisLanguage, ...(isUntitled(draft.title) ? { title: example.title } : {}) }); }} /> : null}
       </HStack>
 
@@ -135,4 +153,20 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
     {/* YuE2 的流程是“歌词 → 旋律谱 → 整首歌”，谱放在歌词之后。 */}
     {yue ? <MelodyScore draft={draft} state={state} change={change} onError={onError} /> : null}
   </VStack>;
+}
+
+// shrinkImage 把图片缩到长边 1024 像素以内并转成 JPEG，返回 base64；大图不必整张上传给 AI 服务。
+async function shrinkImage(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1024 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+  if (!blob) throw new Error('image');
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
 }

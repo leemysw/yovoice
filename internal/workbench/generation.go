@@ -2,11 +2,13 @@ package workbench
 
 import (
 	"context"
+	"math/rand/v2"
 	"os"
 	"slices"
 	"strings"
 	"time"
 	"yovoice/internal/audio"
+	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
@@ -179,65 +181,101 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 		if d.Subtitles != nil && previewID == "" {
 			return w.generateSegments(ctx, s, parts, clipID)
 		}
-		id := schema.NewID()
-		file := outputFileName(id, time.Now(), outputSummary(d.Text, d.Title))
-		if previewID != "" {
-			id = previewID
-			file = "audition-" + id + ".wav"
-		}
-		path, e := w.Store.MediaPath("outputs", file)
-		if e != nil {
-			return e
-		}
-		keep := false
-		defer func() {
-			if !keep {
-				_ = os.Remove(path)
-			}
-		}()
 		part := parts[0]
-		generatedScore := ""
-		if generatedScore, e = w.synthesizePart(ctx, s, part, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
-			return e
-		}
-		duration, e := audio.Duration(path)
-		if e != nil {
-			return e
-		}
-		if e = ctx.Err(); e != nil {
-			return e
-		}
-		if previewID != "" {
-			e = w.Store.Update(func(s *schema.State) {
-				s.Previews = append(s.Previews, schema.CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
-			}, true)
-			keep = e == nil
-			if keep {
-				diag.Log(w.Store.Root, "preview.saved", "preview_id", id, "model_id", part.model.ID, "duration", duration)
+		takes, seed := 1, d.Seed
+		if previewID == "" && isYuE(part.model.ID) {
+			// YuE2 每一版都记下实际用的种子（存在版本上，不改作品设置），改谱后的局部重唱要用同一个种子。
+			takes = yueCandidates(d)
+			if seed == nil {
+				random := int(rand.Int32N(1 << 30))
+				seed = &random
 			}
-			return e
 		}
-		// 与逐句生成一致，快照不携带时间轴，避免历史记录随剪辑反复膨胀。
-		snapshot := d
-		snapshot.Timeline = nil
-		// YuE2 自己规划或纯音乐转谱时附带这次实际所用的旋律谱，存进这一版，之后可以载入编辑。
-		if generatedScore != "" {
-			snapshot.Abc = generatedScore
-		}
-		g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot, Check: w.checkAudio(path, projectKind(d), id)}
-		if e = w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); e != nil {
-			_ = os.Remove(path)
-			return e
-		}
-		keep = true
-		// 作品还没有谱时，把 YuE2 这次自己写的谱交给界面填入旋律谱，和“先写旋律谱”的结果一样处理。
-		if generatedScore != "" && strings.TrimSpace(d.Abc) == "" {
-			_ = w.offerMelody(d.ID, "plan", generatedScore, false)
-		}
-		diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
-		if d.Kind == "" || d.Kind == "text" {
-			w.pruneTextVersions(d.ID, textVersionLimit)
+		for take := range takes {
+			current := part
+			if seed != nil {
+				value := (*seed + take) % (1 << 31)
+				current.draft.Seed = &value
+			}
+			if e := w.generateTake(ctx, s, d, current, previewID, int64(take), int64(takes)); e != nil {
+				return e
+			}
 		}
 		return nil
 	}, previewID, d.ID)
+}
+
+// generateTake 生成一版并存进版本记录；previewID 不为空时存成试听。
+// done 与 total 是多候选时的进度：第几版、共几版。
+func (w *Workbench) generateTake(ctx context.Context, s schema.State, d schema.Draft, part synthesisPart, previewID string, done, total int64) error {
+	id := schema.NewID()
+	file := outputFileName(id, time.Now(), outputSummary(d.Text, d.Title))
+	if previewID != "" {
+		id = previewID
+		file = "audition-" + id + ".wav"
+	}
+	path, e := w.Store.MediaPath("outputs", file)
+	if e != nil {
+		return e
+	}
+	keep := false
+	defer func() {
+		if !keep {
+			_ = os.Remove(path)
+		}
+	}()
+	generatedScore := ""
+	if generatedScore, e = w.synthesizePart(ctx, s, part, path, func(code msg.Code, params msg.Params) { w.progress(code, params, done, total) }); e != nil {
+		return e
+	}
+	duration, e := audio.Duration(path)
+	if e != nil {
+		return e
+	}
+	if e = ctx.Err(); e != nil {
+		return e
+	}
+	if previewID != "" {
+		e = w.Store.Update(func(s *schema.State) {
+			s.Previews = append(s.Previews, schema.CharacterPreview{ID: id, FileName: file, Duration: duration, Settings: d.SynthesisSettings, Text: d.Text})
+		}, true)
+		keep = e == nil
+		if keep {
+			diag.Log(w.Store.Root, "preview.saved", "preview_id", id, "model_id", part.model.ID, "duration", duration)
+		}
+		return e
+	}
+	// 与逐句生成一致，快照不携带时间轴，避免历史记录随剪辑反复膨胀。
+	snapshot := d
+	snapshot.Timeline = nil
+	// YuE2 自己规划或纯音乐转谱时附带这次实际所用的旋律谱，存进这一版，之后可以载入编辑。
+	if generatedScore != "" {
+		snapshot.Abc = generatedScore
+	}
+	g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot, Seed: part.draft.Seed, Check: w.checkAudio(path, projectKind(d), id)}
+	if e = w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); e != nil {
+		_ = os.Remove(path)
+		return e
+	}
+	keep = true
+	// 作品还没有谱时，把 YuE2 这次自己写的谱交给界面填入旋律谱，和“先写旋律谱”的结果一样处理。
+	if generatedScore != "" && strings.TrimSpace(d.Abc) == "" {
+		_ = w.offerMelody(d.ID, "plan", generatedScore, false)
+	}
+	diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
+	if d.Kind == "" || d.Kind == "text" {
+		w.pruneTextVersions(d.ID, textVersionLimit)
+	}
+	return nil
+}
+
+// yueCandidates 是 YuE2 一次生成的候选数，1 到 4。
+func yueCandidates(d schema.Draft) int {
+	n, _ := d.ModelOptions["yue2"]["candidates"].(float64)
+	return min(max(int(n), 1), 4)
+}
+
+func isYuE(id string) bool {
+	p, e := catalog.Lookup(id)
+	return e == nil && p.Family == "yue2"
 }

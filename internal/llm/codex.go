@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 	"yovoice/internal/msg"
@@ -185,6 +186,22 @@ func codexComplete(ctx context.Context, c Config, r Request) (Result, error) {
 	args := codexExecArgs(dir, last)
 	if model := strings.TrimSpace(c.Model); model != "" {
 		args = append(args, "--model", model)
+	}
+	// 带图片的消息把图片写进临时目录，用 --image 交给 codex。
+	for i, m := range r.Messages {
+		if m.Image == nil {
+			continue
+		}
+		ext := ".jpg"
+		if m.Image.MediaType == "image/png" {
+			ext = ".png"
+		}
+		image := filepath.Join(dir, "image-"+strconv.Itoa(i)+ext)
+		if e = os.WriteFile(image, m.Image.Data, 0600); e != nil {
+			return Result{}, e
+		}
+		// 用 = 写法：--image 可以跟多个值，分开写会把后面的提示词参数也当成图片。
+		args = append(args, "--image="+image)
 	}
 	cmd := codexCommand(ctx, path, append(args, "-")...)
 	cmd.Dir = dir

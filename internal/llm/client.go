@@ -3,6 +3,7 @@ package llm
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,6 +39,38 @@ type Request struct {
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
+	// Image 是随这条消息一起发给模型看的图片，只用于用户消息；服务需要支持看图。
+	Image *Image `json:"-"`
+}
+
+// Image 是一张 JPEG 或 PNG 图片。
+type Image struct {
+	MediaType string
+	Data      []byte
+}
+
+// wireMessages 把带图片的消息换成各协议的多段内容格式；没有图片的消息保持纯文本。
+func wireMessages(format string, messages []Message) []any {
+	out := make([]any, len(messages))
+	for i, m := range messages {
+		if m.Image == nil {
+			out[i] = m
+			continue
+		}
+		data := base64.StdEncoding.EncodeToString(m.Image.Data)
+		url := "data:" + m.Image.MediaType + ";base64," + data
+		var content []map[string]any
+		switch format {
+		case FormatAnthropic:
+			content = []map[string]any{{"type": "image", "source": map[string]any{"type": "base64", "media_type": m.Image.MediaType, "data": data}}, {"type": "text", "text": m.Content}}
+		case FormatResponses:
+			content = []map[string]any{{"type": "input_text", "text": m.Content}, {"type": "input_image", "image_url": url}}
+		default:
+			content = []map[string]any{{"type": "text", "text": m.Content}, {"type": "image_url", "image_url": map[string]any{"url": url}}}
+		}
+		out[i] = map[string]any{"role": m.Role, "content": content}
+	}
+	return out
 }
 
 // Result 是模型输出；Truncated 表示因输出长度上限被截断。
@@ -110,11 +143,11 @@ func payload(c Config, r Request) map[string]any {
 	}
 	switch c.Format {
 	case FormatAnthropic:
-		return map[string]any{"model": c.Model, "max_tokens": maxTokens, "temperature": r.Temperature, "system": r.System, "messages": r.Messages}
+		return map[string]any{"model": c.Model, "max_tokens": maxTokens, "temperature": r.Temperature, "system": r.System, "messages": wireMessages(c.Format, r.Messages)}
 	case FormatResponses:
-		return map[string]any{"model": c.Model, "instructions": r.System, "input": r.Messages, "max_output_tokens": maxTokens, "temperature": r.Temperature, "store": false}
+		return map[string]any{"model": c.Model, "instructions": r.System, "input": wireMessages(c.Format, r.Messages), "max_output_tokens": maxTokens, "temperature": r.Temperature, "store": false}
 	}
-	messages := append([]Message{{Role: "system", Content: r.System}}, r.Messages...)
+	messages := append([]any{Message{Role: "system", Content: r.System}}, wireMessages(c.Format, r.Messages)...)
 	body := map[string]any{"model": c.Model, "messages": messages, "temperature": r.Temperature, "stream": false}
 	// Azure 与新版 OpenAI 推理模型只接受 max_completion_tokens。
 	if azure(c.BaseURL) || strings.Contains(c.BaseURL, "api.openai.com") {

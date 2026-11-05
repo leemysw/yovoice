@@ -32,6 +32,7 @@ func New(root string) (store *Store, err error) {
 	// AI 任务、旋律谱与识别结果、助手对话的实时状态只属于本次会话，助手消息记录保留。
 	s.state.AITask = nil
 	s.state.Melody = nil
+	s.state.MidiImport = nil
 	s.state.Transcript = nil
 	s.state.AssistantLive = nil
 	// 未保存的试听不跨会话保留，角色已保存的试听使用独立文件。

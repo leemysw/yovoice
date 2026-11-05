@@ -18,13 +18,13 @@ func TestRuntimeOptionCapabilitiesComeFromSelectedEngine(t *testing.T) {
 	}
 	spec := filepath.Join(dir, "model_specs", "index_tts2.json")
 	must(t, os.MkdirAll(filepath.Dir(spec), 0700))
-	must(t, os.WriteFile(spec, []byte(`{"family":"index_tts2","options":{"request":[{"name":"max_text_tokens_per_segment"},{"name":"text_normalization"},{"name":"arbitrary_engine_option"}]}}`), 0600))
+	must(t, os.WriteFile(spec, []byte(`{"family":"index_tts2","options":{"request":[{"name":"text_chunk_tokens"},{"name":"text_normalization"},{"name":"arbitrary_engine_option"}]}}`), 0600))
 	useRuntime(&state, bin, "cpu", "custom")
 	if len(state.RuntimeOptions["index_tts2"]) != 2 {
 		t.Fatal(state.RuntimeOptions)
 	}
 	draft := schema.DefaultDraft()
-	draft.ModelOptions = map[string]map[string]any{"index_tts2": {"max_text_tokens_per_segment": float64(60), "text_normalization": false}}
+	draft.ModelOptions = map[string]map[string]any{"index_tts2": {"text_chunk_tokens": float64(60), "text_normalization": false}}
 	must(t, modelOptionsReady(state, draft))
 	useRuntime(&state, filepath.Join(t.TempDir(), "other-engine"), "cpu", "older")
 	if err := modelOptionsReady(state, draft); err == nil {
