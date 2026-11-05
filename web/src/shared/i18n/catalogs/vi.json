@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "Tải âm thanh hoặc video lên. Mô hình nhận dạng giọng nói Qwen3 ASR sẽ chép ra văn bản kèm thời gian từng từ, có thể xuất phụ đề SRT / WebVTT. Tối đa 1 giờ và 20 MB."
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "Nhập mô hình cục bộ"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "Chọn mô hình và độ chính xác, rồi nhập GGUF của audio.cpp (SF2 cho bộ âm sắc). Với gói nhiều tệp, chọn GGUF chính và giữ cấu trúc tệp đi kèm. Tệp giữ nguyên vị trí; xóa mô hình chỉ hủy đăng ký. Trọng số PyTorch/MLX cần được chuyển đổi trước."
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "Chọn GGUF audio.cpp thuộc họ mô hình đã chọn hoặc SF2 được hỗ trợ. Trọng số PyTorch/MLX cần được chuyển đổi trước."
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "Gói mô hình thiếu tệp hoặc không khớp. Chọn GGUF chính và giữ cấu trúc tất cả tệp đi kèm."
   }
 }

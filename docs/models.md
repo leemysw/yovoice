@@ -23,6 +23,12 @@ Choose a model based on whether you have a reference recording or want a built-i
 
 Use `yovoice models list --json` for model IDs, available precisions, file sizes, voices, and advanced parameter definitions. The app lists models in Settings. See the [CLI guide](cli.md) to download an engine and model.
 
+## Import existing local models
+
+In Settings → Voice models, Music models or Score sound fonts, choose the matching model/version and precision, then click **Import local model**. Select the audio.cpp GGUF file (or a supported catalog SF2); for a multi-file package select its main GGUF and keep the companion files in the package's original layout. Files remain at their existing location and the model download directory stays unchanged. Removing an imported model only unregisters it, preserving its files. Keep external drives connected while using their models.
+
+Single-file imports check the GGUF header and model family and record the file's SHA-256. Locally converted GGUFs are accepted, but you must choose the correct version and precision; a matching family does not guarantee that every custom conversion is usable. Multi-file packages and SF2 imports must match the supported package checksums. Raw PyTorch (`.pth`, `.pt`, `.safetensors`) and MLX weights cannot run in the native audio.cpp engine directly: convert them with the matching upstream audio.cpp converter first. Importing does not install or run Python and does not convert weights automatically. Imported models use the same voice and advanced generation controls as downloaded models.
+
 ## Model files and hardware
 
 | Model | Parameters | Model file size by precision | Core capabilities |

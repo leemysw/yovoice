@@ -105,12 +105,12 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	slotCancel, slotDone := w.slot(kind)
-	if w.closed || *slotCancel != nil {
+	if w.closed || *slotCancel != nil || (kind == "import" && w.installCancel != nil) {
 		return nil, msg.Err(msg.ErrBusy, nil)
 	}
 	// 数据目录迁移期间模型目录也在复制，此时开始下载会把文件写进即将废弃的旧目录。
 	if installKind(kind) && w.cancel != nil {
-		if a := w.Store.Read().Activity; a != nil && a.Kind == "relocate" {
+		if a := w.Store.Read().Activity; a != nil && (a.Kind == "relocate" || a.Kind == "import") {
 			return nil, msg.Err(msg.ErrBusy, nil)
 		}
 	}

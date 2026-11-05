@@ -17,7 +17,6 @@ const allSteps = [
 // 高亮框比目标外扩的距离与卡片间距，单位 px，需要按目标位置实时计算。
 const pad = 6;
 const gap = 16;
-const cardWidth = 320;
 
 type Box = { top: number; left: number; width: number; height: number };
 
@@ -32,6 +31,7 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const card = useRef<HTMLElement>(null);
+  const [geometry, setGeometry] = useState({ width: 0, height: 0, viewportWidth: 0, viewportHeight: 0 });
   const step = steps[index];
   const last = index === steps.length - 1;
   const target = step.target;
@@ -44,6 +44,12 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
       const r = el?.getBoundingClientRect();
       const next = r && r.width > 0 && r.height > 0 ? { top: r.top - pad, left: r.left - pad, width: r.width + pad * 2, height: r.height + pad * 2 } : null;
       setBox(prev => prev && next && prev.top === next.top && prev.left === next.left && prev.width === next.width && prev.height === next.height ? prev : next);
+      // 文案、字体和可用宽度都会改变卡片高度，不能按固定高度估算；窗口变化时也要重新夹紧位置。
+      const rect = card.current?.getBoundingClientRect();
+      if (rect) {
+        const measured = { width: rect.width, height: rect.height, viewportWidth: window.innerWidth, viewportHeight: window.innerHeight };
+        setGeometry(prev => prev.width === measured.width && prev.height === measured.height && prev.viewportWidth === measured.viewportWidth && prev.viewportHeight === measured.viewportHeight ? prev : measured);
+      }
       frame = requestAnimationFrame(measure);
     };
     measure();
@@ -67,8 +73,11 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
   // 卡片放在目标右侧，上下夹在窗口内；放不下时退到目标下方。
   const cardStyle: CSSProperties | undefined = box ? (() => {
     const right = box.left + box.width + gap;
-    const top = Math.min(Math.max(gap, box.top), window.innerHeight - gap - 220);
-    return right + cardWidth + gap <= window.innerWidth ? { top, left: right } : { top: Math.min(box.top + box.height + gap, window.innerHeight - gap - 220), left: Math.max(gap, Math.min(box.left, window.innerWidth - cardWidth - gap)) };
+    const { width, height, viewportWidth, viewportHeight } = geometry;
+    const clampTop = (top: number) => Math.max(gap, Math.min(top, viewportHeight - gap - height));
+    return right + width + gap <= viewportWidth
+      ? { top: clampTop(box.top), left: right }
+      : { top: clampTop(box.top + box.height + gap), left: Math.max(gap, Math.min(box.left, viewportWidth - width - gap)) };
   })() : undefined;
 
   return <VStack as="section" className="guide-tour" role="dialog" aria-modal="true" aria-labelledby="guide-title" aria-describedby="guide-body" gap={0}>

@@ -119,6 +119,8 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.emotionVoiceRequired` 请添加情绪参考音频。
 - `error.voiceRequired` 请先添加音色参考音频。
 - `error.voiceBusyDelete` 请等待生成结束后再删除声音。
+- `error.localModelInvalid` 请选择与所选模型家族匹配的 audio.cpp GGUF，或受支持的 SF2。PyTorch／MLX 原始权重须先转换。
+- `error.localModelIncomplete` 模型包缺少文件或校验不符。请选择主 GGUF，并保留全部配套文件的原目录结构。
 - `error.modelRequired` 请先在设置中下载或导入模型。
 - `error.modelUnsupported` 不支持的模型。
 - `error.modelMoved` 模型文件已移动，请重新导入。
