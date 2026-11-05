@@ -1,6 +1,7 @@
 package download
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -278,5 +279,38 @@ func TestFileChecksumMismatchNoRetry(t *testing.T) {
 	}
 	if exists(dest+".part") || exists(dest+".part.meta") || exists(dest) {
 		t.Fatal("校验不符应删除 .part 与 .meta")
+	}
+}
+
+// 部分镜像会限制一次 206 响应的长度，即使客户端请求的是到文件末尾的范围。
+func TestFileResumesAcrossBoundedRanges(t *testing.T) {
+	quick(t, time.Second)
+	b := bytes.Repeat([]byte("abcd"), 250)
+	for _, expected := range []int64{0, int64(len(b))} {
+		t.Run(fmt.Sprint(expected), func(t *testing.T) {
+			destination := filepath.Join(t.TempDir(), "model.gguf")
+			must(t, os.WriteFile(destination+".part", b[:300], 0600))
+			requests := make(chan int, 10)
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				var start int
+				if n, _ := fmt.Sscanf(r.Header.Get("Range"), "bytes=%d-", &start); n != 1 || start >= len(b) {
+					http.Error(w, "expected a valid range", 400)
+					return
+				}
+				requests <- start
+				end := min(start+350, len(b))
+				w.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end-1, len(b)))
+				w.Header().Set("Content-Length", fmt.Sprint(end-start))
+				w.WriteHeader(http.StatusPartialContent)
+				_, _ = w.Write(b[start:end])
+			}))
+			defer server.Close()
+			must(t, File(context.Background(), server.Client(), server.URL, destination, digest(b), expected, func(int64, int64) {}))
+			got, err := os.ReadFile(destination)
+			must(t, err)
+			if !bytes.Equal(got, b) || len(requests) != 2 || <-requests != 300 || <-requests != 650 {
+				t.Fatalf("应从 300、650 连续下载，文件长度 %d", len(got))
+			}
+		})
 	}
 }

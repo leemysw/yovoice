@@ -224,7 +224,7 @@ func attempt(ctx context.Context, client *http.Client, url, destination, partial
 		if e != nil {
 			return false, hashErr(ctx, e)
 		}
-		if h == hash {
+		if h == hash && (expected == 0 || offset == expected) {
 			return false, finishPartial(partial, destination)
 		}
 		_ = removePartial(partial)
@@ -233,11 +233,12 @@ func attempt(ctx context.Context, client *http.Client, url, destination, partial
 	if res.StatusCode != 200 && res.StatusCode != 206 {
 		return res.StatusCode == 429 || res.StatusCode >= 500, msg.Err(msg.ErrDownloadHTTP, msg.Params{"status": res.StatusCode})
 	}
-	var rangeTotal int64
+	var rangeTotal, rangeEnd int64
 	if res.StatusCode == 206 {
-		var start, end int64
-		n, _ := fmt.Sscanf(res.Header.Get("Content-Range"), "bytes %d-%d/%d", &start, &end, &rangeTotal)
-		if n != 3 || start != offset || end < start || rangeTotal <= end {
+		var start int64
+		n, _ := fmt.Sscanf(res.Header.Get("Content-Range"), "bytes %d-%d/%d", &start, &rangeEnd, &rangeTotal)
+		if n != 3 || start != offset || rangeEnd < start || rangeTotal <= rangeEnd ||
+			(res.ContentLength >= 0 && res.ContentLength != rangeEnd-start+1) {
 			return false, msg.Err(msg.ErrDownloadRange, nil)
 		}
 	} else {
@@ -250,7 +251,8 @@ func attempt(ctx context.Context, client *http.Client, url, destination, partial
 			total = offset + res.ContentLength
 		}
 	}
-	if expected > 0 && res.ContentLength >= 0 && offset+res.ContentLength != expected {
+	if expected > 0 && ((rangeTotal > 0 && rangeTotal != expected) ||
+		(rangeTotal == 0 && res.ContentLength >= 0 && res.ContentLength != expected)) {
 		return false, msg.Err(msg.ErrDownloadSize, nil)
 	}
 	flags := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
@@ -269,6 +271,10 @@ func attempt(ctx context.Context, client *http.Client, url, destination, partial
 			return false, e
 		}
 	}
+	responseEnd := total
+	if rangeTotal > 0 {
+		responseEnd = rangeEnd + 1
+	}
 	received := offset
 	last := time.Now()
 	buffer := make([]byte, 131072)
@@ -279,7 +285,7 @@ func attempt(ctx context.Context, client *http.Client, url, destination, partial
 			if n > 0 {
 				watchdog.Reset(stallTimeout)
 				received += int64(n)
-				if total > 0 && received > total {
+				if responseEnd > 0 && received > responseEnd {
 					return false, msg.Err(msg.ErrDownloadOversized, nil)
 				}
 				if _, e := f.Write(buffer[:n]); e != nil {
@@ -304,8 +310,8 @@ func attempt(ctx context.Context, client *http.Client, url, destination, partial
 	}
 	watchdog.Stop()
 	progress(received, total)
-	if expected > 0 && received != expected {
-		// 服务器提前结束了响应，.part 已保存收到的部分，重试时续传。
+	if total > 0 && received != total {
+		// 服务器只返回部分范围或提前结束响应；保留已收到的字节，从新偏移续传。
 		return true, msg.Err(msg.ErrDownloadIncomplete, nil)
 	}
 	h, e := Hash(ctx, partial)
