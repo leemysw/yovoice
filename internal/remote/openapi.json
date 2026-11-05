@@ -245,8 +245,8 @@
             "properties": {
               "streaming": { "type": "boolean" },
               "threads": { "type": "integer", "minimum": 0, "maximum": 256 },
-              "device": { "type": "integer", "minimum": 0 },
-              "idleUnloadSeconds": { "type": "integer", "minimum": 0, "description": "Zero disables idle unloading" },
+              "device": { "type": "integer", "minimum": 0, "maximum": 255 },
+              "idleUnloadSeconds": { "type": "integer", "minimum": 0, "maximum": 86400, "description": "Zero disables idle unloading" },
               "session": { "type": "object", "additionalProperties": true, "description": "Model-specific session options advertised by the installed engine" }
             }
           },
