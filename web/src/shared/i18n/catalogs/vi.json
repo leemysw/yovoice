@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "Bản hát mới khác bản gốc quá nhiều nên không nối được. Hãy tạo lại cả bài hoặc thử hạt giống khác."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Ngân nga giai điệu"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Dừng ghi âm"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Ngân nga hoặc hát một giai điệu (tối đa 2 phút), nó sẽ thành bản nhạc giai điệu được phối theo phong cách của bạn. Cần SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "Bản ghi quá ngắn. Hãy ngân nga ít nhất 3 giây."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Lấy phong cách từ ảnh"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Chọn một bức ảnh, dịch vụ AI đã kết nối sẽ gợi ý thẻ phong cách. Dịch vụ cần hỗ trợ ảnh."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Hãy chọn ảnh JPEG, PNG hoặc WebP không quá 8 MB."
   }
 }

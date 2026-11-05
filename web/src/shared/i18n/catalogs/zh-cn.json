@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "新唱的和原版差别太大，接不上。请整首重新生成，或换个种子再试。"
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "哼一段"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "停止录音"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "哼唱或清唱一段旋律（最长 2 分钟），扒成旋律谱后按你写的风格编配；需要 SheetSage2。"
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "录音太短了，请至少哼 3 秒。"
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "看图取风格"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "选一张图片，让接入的 AI 服务读出音乐风格标签；服务需要支持看图。"
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "请选择 JPEG、PNG 或 WebP 图片，大小不超过 8 MB。"
   }
 }

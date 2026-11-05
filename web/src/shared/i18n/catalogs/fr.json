@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "La nouvelle prise est trop différente de l’original pour être raccordée. Régénérez toute la chanson ou essayez une autre graine."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Fredonner"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Arrêter l’enregistrement"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Fredonnez ou chantez une mélodie (jusqu’à 2 minutes) ; elle devient une partition arrangée dans votre style. Nécessite SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "L’enregistrement est trop court. Fredonnez au moins 3 secondes."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Style depuis une image"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Choisissez une image et le service d’IA connecté propose des étiquettes de style. Le service doit accepter les images."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Choisissez une image JPEG, PNG ou WebP de 8 Mo maximum."
   }
 }

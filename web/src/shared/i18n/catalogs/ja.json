@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "新しいテイクが元と違いすぎてつなげません。曲全体を生成し直すか、別のシードで試してください。"
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "鼻歌で入力"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "録音を停止"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "メロディを鼻歌か歌で録音（最長 2 分）すると旋律譜になり、指定したスタイルで編曲します。SheetSage2 が必要です。"
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "録音が短すぎます。3 秒以上歌ってください。"
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "画像からスタイル"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "画像を選ぶと、接続した AI サービスがスタイルタグを提案します。画像に対応したサービスが必要です。"
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "8 MB 以下の JPEG、PNG、WebP 画像を選んでください。"
   }
 }

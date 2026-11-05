@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "Новый дубль слишком отличается от оригинала, чтобы его склеить. Сгенерируйте песню целиком или попробуйте другое зерно."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Напеть мелодию"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Остановить запись"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Напойте или спойте мелодию (до 2 минут) — она станет партитурой в вашем стиле. Нужна модель SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "Запись слишком короткая. Напевайте хотя бы 3 секунды."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Стиль по картинке"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Выберите картинку, и подключённый ИИ-сервис предложит теги стиля. Сервис должен поддерживать изображения."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Выберите изображение JPEG, PNG или WebP до 8 МБ."
   }
 }

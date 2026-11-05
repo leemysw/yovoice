@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "La nuova ripresa è troppo diversa dall’originale per unirla bene. Rigenera l’intero brano o prova un altro seed."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Canticchia"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Ferma registrazione"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Canticchia o canta una melodia (fino a 2 minuti); diventa uno spartito arrangiato nel tuo stile. Richiede SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "La registrazione è troppo breve. Canticchia per almeno 3 secondi."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Stile da immagine"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Scegli un’immagine e il servizio di IA collegato propone tag di stile. Il servizio deve supportare le immagini."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Scegli un’immagine JPEG, PNG o WebP fino a 8 MB."
   }
 }

@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "Die neue Aufnahme weicht zu stark vom Original ab, um sauber anzuschließen. Erzeuge den ganzen Song neu oder versuche einen anderen Seed."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Melodie summen"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Aufnahme beenden"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Summe oder singe eine Melodie (bis zu 2 Minuten); daraus wird eine Melodie-Partitur in deinem Stil. Benötigt SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "Die Aufnahme ist zu kurz. Summe mindestens 3 Sekunden."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Stil aus Bild"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Wähle ein Bild, und der verbundene KI-Dienst schlägt Stil-Tags vor. Der Dienst muss Bilder unterstützen."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Wähle ein JPEG-, PNG- oder WebP-Bild bis 8 MB."
   }
 }

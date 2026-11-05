@@ -178,3 +178,21 @@ func TestMaskAndExtract(t *testing.T) {
 		t.Fatal("ExtractJSON")
 	}
 }
+
+// 带图片的消息按各协议的多段内容格式发出。
+func TestWireMessagesImage(t *testing.T) {
+	m := []Message{{Role: "user", Content: "describe", Image: &Image{MediaType: "image/png", Data: []byte{1, 2}}}}
+	for format, want := range map[string]string{
+		FormatChat:      `[{"content":[{"text":"describe","type":"text"},{"image_url":{"url":"data:image/png;base64,AQI="},"type":"image_url"}],"role":"user"}]`,
+		FormatAnthropic: `[{"content":[{"source":{"data":"AQI=","media_type":"image/png","type":"base64"},"type":"image"},{"text":"describe","type":"text"}],"role":"user"}]`,
+		FormatResponses: `[{"content":[{"text":"describe","type":"input_text"},{"image_url":"data:image/png;base64,AQI=","type":"input_image"}],"role":"user"}]`,
+	} {
+		b, _ := json.Marshal(wireMessages(format, m))
+		if string(b) != want {
+			t.Fatalf("%s: %s", format, b)
+		}
+	}
+	if b, _ := json.Marshal(wireMessages(FormatChat, []Message{{Role: "user", Content: "hi"}})); string(b) != `[{"role":"user","content":"hi"}]` {
+		t.Fatalf("纯文本消息格式变了：%s", b)
+	}
+}

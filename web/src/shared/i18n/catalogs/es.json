@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "La nueva toma es demasiado distinta del original para unirla bien. Genera la canción completa o prueba otra semilla."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Tararear"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Detener grabación"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Tararea o canta una melodía (hasta 2 minutos); se convierte en una partitura arreglada con tu estilo. Requiere SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "La grabación es demasiado corta. Tararea al menos 3 segundos."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Estilo desde imagen"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Elige una imagen y el servicio de IA conectado propondrá etiquetas de estilo. El servicio debe admitir imágenes."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Elige una imagen JPEG, PNG o WebP de hasta 8 MB."
   }
 }

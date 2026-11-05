@@ -221,6 +221,8 @@ YuE2 needs lyrics for a vocal song, and the song length follows the lyrics. It c
 
 - **Write melody score**: YuE2 first writes the vocal melody and chords for the lyrics as an ABC score, without singing yet. Review it as tracks or as ABC text, change the tempo, keep only the melody, import an `.abc` file, or ask the assistant to rewrite it (an AI provider is required). Generating then follows the score: with chords YuE2 keeps your harmony, with melody only it arranges the accompaniment freely.
 - **Extract from a song (cover)**: with SheetSage2 installed, pick a song up to 10 minutes long. Its melody is transcribed into a score, the original chords are dropped, and YuE2 re-sings it in your style with your lyrics. The original singer's voice and phrasing are not kept.
+- **Hum a tune**: with SheetSage2 installed, record yourself humming or singing a melody (up to 2 minutes). It goes through the same extraction as a cover, so you get a melody score that YuE2 arranges in your style.
+- **Style from image**: with an AI service that accepts images, pick a picture and its suggested English style tags are added to the style field.
 - **Instrumental**: YuE2 writes a score first, then gives the vocal melody to instruments, keeping the chords, tempo and key. Lyrics are optional; section markers such as `[Verse]` and `[Chorus]` shape the structure. An existing score is converted the same way, and the melody score menu can convert it in place.
 - **Generation**: *From score* follows the score (or writes one first); *Free* skips the score and generates directly, with no editable score. Advanced settings expose the inference steps and the score and audio sampling parameters.
 - Every take stores the score it used; reusing a version restores it.

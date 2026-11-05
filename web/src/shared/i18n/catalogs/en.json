@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "The new take is too different from the original to join smoothly. Regenerate the whole song, or try another seed."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Hum a tune"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Stop recording"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Hum or sing a melody (up to 2 minutes); it becomes a melody score arranged in your style. Needs SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "The recording is too short. Hum for at least 3 seconds."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Style from image"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Pick a picture and the connected AI service suggests style tags for it. The service must support images."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Choose a JPEG, PNG or WebP image up to 8 MB."
   }
 }

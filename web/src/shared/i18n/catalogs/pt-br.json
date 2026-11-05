@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "A nova tomada ficou diferente demais do original para emendar. Gere a música inteira ou tente outra semente."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Cantarolar"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Parar gravação"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Cantarole ou cante uma melodia (até 2 minutos); ela vira uma partitura arranjada no seu estilo. Requer SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "A gravação é curta demais. Cantarole por pelo menos 3 segundos."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Estilo pela imagem"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Escolha uma imagem e o serviço de IA conectado sugere tags de estilo. O serviço precisa aceitar imagens."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Escolha uma imagem JPEG, PNG ou WebP de até 8 MB."
   }
 }

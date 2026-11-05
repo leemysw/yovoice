@@ -4426,5 +4426,26 @@
   },
   "@yovoice.error.resingAlign": {
     "defaultMessage": "새 테이크가 원본과 너무 달라 자연스럽게 이을 수 없습니다. 곡 전체를 다시 생성하거나 다른 시드로 시도하세요."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "허밍으로 입력"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "녹음 중지"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "멜로디를 허밍이나 노래로 녹음하면(최대 2분) 멜로디 악보로 바꿔 지정한 스타일로 편곡합니다. SheetSage2가 필요합니다."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "녹음이 너무 짧습니다. 3초 이상 불러 주세요."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "이미지로 스타일 찾기"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "이미지를 고르면 연결된 AI 서비스가 스타일 태그를 제안합니다. 이미지를 지원하는 서비스여야 합니다."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "8MB 이하의 JPEG, PNG, WebP 이미지를 선택하세요."
   }
 }

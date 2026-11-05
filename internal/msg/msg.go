@@ -162,6 +162,7 @@ const (
 	ErrResingSource          Code = "@yovoice.error.resingSource"
 	ErrResingWhole           Code = "@yovoice.error.resingWhole"
 	ErrResingNoChange        Code = "@yovoice.error.resingNoChange"
+	ErrImageInvalid          Code = "@yovoice.error.imageInvalid"
 	ErrResingAlign           Code = "@yovoice.error.resingAlign"
 	ErrAlignLyrics           Code = "@yovoice.error.alignLyrics"
 	ErrAlignEmpty            Code = "@yovoice.error.alignEmpty"
@@ -267,7 +268,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
-		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrMusicSourceRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty, ErrRecognizeModelRequired, ErrRecognizeEmpty, ErrTranscribeEmpty, ErrAlignText, ErrAlignTextEmpty, ErrStemModelRequired, ErrStemSource, ErrStemsMissing, ErrMidiModelRequired, ErrMidiEmpty, ErrAdapterMissing, ErrAdapterInvalid, ErrResingSource, ErrResingWhole, ErrResingNoChange, ErrResingAlign,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrMusicSourceRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty, ErrRecognizeModelRequired, ErrRecognizeEmpty, ErrTranscribeEmpty, ErrAlignText, ErrAlignTextEmpty, ErrStemModelRequired, ErrStemSource, ErrStemsMissing, ErrMidiModelRequired, ErrMidiEmpty, ErrAdapterMissing, ErrAdapterInvalid, ErrResingSource, ErrResingWhole, ErrResingNoChange, ErrResingAlign, ErrImageInvalid,
 		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout, ErrAssistantMissing, ErrAssistantProvider,
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,
