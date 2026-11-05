@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "오디오나 영상을 올리면 음성 인식 모델 Qwen3 ASR이 텍스트와 단어별 타이밍을 만들어 SRT / WebVTT 자막으로 내보낼 수 있습니다. 최대 1시간, 20 MB."
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "로컬 모델 가져오기"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "모델과 정밀도를 선택한 뒤 audio.cpp GGUF(사운드폰트는 SF2)를 가져오세요. 여러 파일로 구성된 패키지는 기본 GGUF를 선택하고 관련 파일의 폴더 구조를 유지하세요. 파일은 이동하지 않으며 모델 제거 시 등록만 해제합니다. PyTorch/MLX 가중치는 먼저 변환해야 합니다."
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "선택한 모델 계열에 맞는 audio.cpp GGUF 또는 지원되는 SF2를 선택하세요. PyTorch/MLX 가중치는 먼저 변환해야 합니다."
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "모델 패키지가 불완전하거나 일치하지 않습니다. 기본 GGUF를 선택하고 관련 파일의 폴더 구조를 유지하세요."
   }
 }

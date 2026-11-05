@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "Laden Sie Audio oder Video hoch. Die Spracherkennung Qwen3 ASR erstellt den Text mit Wort-Timing, exportierbar als SRT- oder WebVTT-Untertitel. Bis zu 1 Stunde und 20 MB."
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "Lokales Modell importieren"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "Passendes Modell und Präzision wählen, dann eine audio.cpp-GGUF-Datei (SF2 für Soundfonts) importieren. Bei Paketen die Haupt-GGUF wählen und die Ordnerstruktur beibehalten. Dateien bleiben am Ort; Entfernen hebt nur die Registrierung auf. PyTorch/MLX-Gewichte müssen zuerst konvertiert werden."
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "Eine audio.cpp-GGUF der gewählten Modellfamilie oder eine unterstützte SF2 wählen. PyTorch/MLX-Gewichte müssen zuerst konvertiert werden."
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "Modellpaket unvollständig oder nicht passend. Haupt-GGUF wählen und alle zugehörigen Dateien in der ursprünglichen Struktur belassen."
   }
 }

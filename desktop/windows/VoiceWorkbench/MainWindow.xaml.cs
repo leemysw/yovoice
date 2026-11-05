@@ -520,6 +520,9 @@ public partial class MainWindow : Window
                     var explorer = new ProcessStartInfo("explorer.exe");
                     explorer.ArgumentList.Add("/select,"); explorer.ArgumentList.Add(path);
                     Process.Start(explorer); result = true; break;
+                case "model.import":
+                    var localModel = new OpenFileDialog { Filter = "GGUF / SF2|*.gguf;*.sf2" };
+                    result = localModel.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = localModel.FileName }) : null; break;
                 case "model.directory":
                     var folder = new OpenFolderDialog { Title = HostL10n.T("选择模型目录", "Choose Model Folder") };
                     result = folder.ShowDialog(this) == true ? await service.CallAsync(method, new { path = folder.FolderName }) : null; break;

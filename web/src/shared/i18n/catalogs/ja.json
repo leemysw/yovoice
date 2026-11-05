@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "音声または動画をアップロードすると、音声認識モデル Qwen3 ASR が文字と単語ごとのタイミングを書き出し、SRT / WebVTT 字幕として書き出せます。最長 1 時間・20 MB。"
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "ローカルモデルを読み込む"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "対応するモデルと精度を選び、audio.cpp の GGUF（音源は SF2）を読み込みます。複数ファイルの場合はメイン GGUF を選び、関連ファイルの配置を維持してください。元のファイルは移動せず、削除操作では登録のみ解除します。PyTorch／MLX の重みは事前に変換が必要です。"
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "選択したモデル系統に対応する audio.cpp GGUF、または対応 SF2 を選んでください。PyTorch／MLX の重みは事前に変換が必要です。"
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "モデルパッケージが不完全か一致しません。メイン GGUF を選び、関連ファイルの配置を維持してください。"
   }
 }

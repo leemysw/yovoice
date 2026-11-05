@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "上传音频或视频，语音识别模型 Qwen3 ASR 会识别出文字和逐词时间，可导出 SRT / WebVTT 字幕。最长 1 小时、20 MB。"
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "导入本地模型"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "先选择对应型号和精度，再导入 audio.cpp GGUF 文件（编曲音色库为 SF2）。多文件包请选择主 GGUF，并保留配套文件的原目录结构。文件原地使用，移除时只解除登记。PyTorch／MLX 原始权重须先转换。"
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "请选择与所选模型家族匹配的 audio.cpp GGUF，或受支持的 SF2。PyTorch／MLX 原始权重须先转换。"
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "模型包缺少文件或校验不符。请选择主 GGUF，并保留全部配套文件的原目录结构。"
   }
 }

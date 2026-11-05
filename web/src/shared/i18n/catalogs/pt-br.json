@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "Envie áudio ou vídeo. O reconhecedor de fala Qwen3 ASR gera o texto com o tempo de cada palavra, pronto para exportar como legendas SRT ou WebVTT. Até 1 hora e 20 MB."
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "Importar modelo local"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "Escolha o modelo e a precisão e importe o GGUF do audio.cpp (SF2 para bancos de sons). Em pacotes, escolha o GGUF principal e mantenha a estrutura dos arquivos. Os arquivos permanecem no lugar; remover apenas cancela o registro. Pesos PyTorch/MLX precisam ser convertidos antes."
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "Escolha um GGUF do audio.cpp da família selecionada ou um SF2 compatível. Pesos PyTorch/MLX precisam ser convertidos antes."
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "Pacote incompleto ou incompatível. Escolha o GGUF principal e mantenha a estrutura de todos os arquivos associados."
   }
 }
