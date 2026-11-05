@@ -527,6 +527,9 @@ public partial class MainWindow : Window
                 case "model.import":
                     var localModel = new OpenFileDialog { Filter = "GGUF / SF2|*.gguf;*.sf2" };
                     result = localModel.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = localModel.FileName }) : null; break;
+                case "adapter.import":
+                    var adapterFile = new OpenFileDialog { Filter = "Safetensors|*.safetensors" };
+                    result = adapterFile.ShowDialog(this) == true ? await service.CallAsync(method, new { path = adapterFile.FileName }, TimeSpan.FromMinutes(30)) : null; break;
                 case "model.directory":
                     var folder = new OpenFolderDialog { Title = HostL10n.T("选择模型目录", "Choose Model Folder") };
                     result = folder.ShowDialog(this) == true ? await service.CallAsync(method, new { path = folder.FolderName }) : null; break;

@@ -11,6 +11,7 @@ import { formatTime, isMusicModel, isStableAudio, isYuE, modelEngineReady, type 
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';
 import { ModelSelector } from '../create/model-selector';
 import { ModelOptions } from '../create/model-options';
+import { YueAdapters } from './yue-adapters';
 import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, splitTags, stylePresets, styleTags, tagHintKey } from './music-draft';
 import { useElapsed } from '../../shared/lib/use-elapsed';
 import { StableAudioControls, stableAudioOptions, stableAudioReady } from './stable-audio-controls';
@@ -181,7 +182,10 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
         {stable ? <>
         <label className="number-field">{t('@yovoice.music.duration')}<input type="number" min={1} max={model?.maxDuration ?? 120} step={1} value={stableAudioOptions(draft).duration} onChange={event => { if (event.target.value) change({ modelOptions: { ...draft.modelOptions, stable_audio: { ...stableAudioOptions(draft).values, duration_seconds: Number(event.target.value) } } }); }} /></label>
         <ModelOptions draft={draft} family="stable_audio" change={change} omit={['duration_seconds', 'edit', 'init_noise_level', 'inpaint_start', 'inpaint_end']} />
-        </> : yue ? <ModelOptions draft={draft} family="yue2" change={change} omit={['cot']} /> : <>
+        </> : yue ? <>
+        <ModelOptions draft={draft} family="yue2" change={change} omit={['cot', 'ar_lora', 'ar_lora_scale', 'nar_lora', 'nar_lora_scale']} />
+        <YueAdapters draft={draft} change={change} disabled={busy} />
+        </> : <>
         <label className="number-field">{t('@yovoice.music.duration')}<input type="number" min={0} max={300} step={1} value={duration || ''} placeholder={t('@yovoice.music.auto')} onChange={event => update('duration_seconds', event.target.value ? Number(event.target.value) : 0)} /></label>
         <label className="number-field">{t('@yovoice.music.bpm')}<input type="number" min={30} max={300} step={1} value={Number(option('bpm', 0)) || ''} placeholder={t('@yovoice.music.auto')} onChange={event => update('bpm', event.target.value ? Number(event.target.value) : 0)} /></label>
         <Selector label={t('@yovoice.music.keyscale')} value={String(option('keyscale', 'auto'))} options={optionValues('keyscale').map(value => ({ value, label: value === 'auto' ? t('@yovoice.music.auto') : value }))} onChange={value => update('keyscale', value)} />

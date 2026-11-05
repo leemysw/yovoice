@@ -43,3 +43,22 @@ func ConvertWithLimit(ctx context.Context, executable, input, output string, sec
 	}
 	return nil
 }
+
+// ConvertStereo 把本地 WAV 转成 rate 的双声道 16 位 WAV，供分轨等要求固定输入格式的模型使用；单声道来源复制成两个声道。
+func ConvertStereo(ctx context.Context, executable, input, output string, rate int) error {
+	input, err := filepath.Abs(input)
+	if err != nil {
+		return err
+	}
+	cmd := exec.CommandContext(ctx, executable, "-nostdin", "-v", "error", "-xerror",
+		"-protocol_whitelist", "file", "-f", "wav", "-i", input, "-map", "0:a:0", "-vn",
+		"-ac", "2", "-ar", strconv.Itoa(rate), "-c:a", "pcm_s16le", "-map_metadata", "-1", "-y", output)
+	platform.ConfigureProcess(cmd)
+	if err = cmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		return msg.Err(msg.ErrAudioDecode, msg.Params{"detail": err.Error()})
+	}
+	return nil
+}

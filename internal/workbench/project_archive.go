@@ -445,6 +445,10 @@ func (w *Workbench) ImportProject(path string) (schema.Draft, error) {
 		g.ID = ids[g.ID]
 		g.FileName = names["outputs/"+g.FileName]
 		g.Settings.Timeline = nil
+		// 分轨指向包里的原版本；原版本不在包里或分轨名不合法时按普通版本导入。
+		if g.StemOf, g.Stem = ids[g.StemOf], strings.ToLower(g.Stem); g.StemOf == "" || !slices.Contains(StemNames, g.Stem) {
+			g.StemOf, g.Stem = "", ""
+		}
 		if err = remapDraft(&g.Settings); err != nil {
 			return schema.Draft{}, err
 		}

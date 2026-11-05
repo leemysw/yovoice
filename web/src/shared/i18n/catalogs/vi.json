@@ -4315,5 +4315,86 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Gói mô hình thiếu tệp hoặc không khớp. Chọn GGUF chính và giữ cấu trúc tất cả tệp đi kèm."
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Đang tách bè"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Đang chuyển sang MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "Tách bè cần mô hình HTDemucs 6 bè. Hãy tải về trong phần Mô hình ở Cài đặt."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "Phiên bản này là một bè hoặc một đoạn cắt nên không thể tách tiếp."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "Chuyển sang MIDI cần mô hình MuScriptor. Hãy tải về trong phần Mô hình ở Cài đặt."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "Không tìm thấy nốt nhạc nào trong âm thanh này."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "LoRA mà dự án này dùng đã bị xoá. Hãy chọn hoặc nhập LoRA khác."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "Đây không phải tệp safetensors hợp lệ. Hãy chọn tệp LoRA của YuE2."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Tách bài hát thành trống, bass, giọng hát, guitar, piano và phần còn lại · 44,1 kHz stereo"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Chuyển bài hát thành MIDI nhiều nhạc cụ, có thể tiếp tục chỉnh trong Phối khí · Chỉ dùng phi thương mại (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Tách bè"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Chuyển sang MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Trống"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Phần còn lại"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Giọng hát"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Guitar"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Piano"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "LoRA sáng tác"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Độ mạnh LoRA sáng tác"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "LoRA âm sắc"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Độ mạnh LoRA âm sắc"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "LoRA sáng tác"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "LoRA âm sắc"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "Không dùng"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Độ mạnh"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Nhập LoRA…"
   }
 }

@@ -4315,5 +4315,86 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "El paquete está incompleto o no coincide. Selecciona el GGUF principal y conserva la estructura de todos los archivos asociados."
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Separando pistas"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Transcribiendo a MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "La separación de pistas necesita el modelo HTDemucs de 6 pistas. Descárgalo en Modelos, dentro de Ajustes."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "Esta versión es una pista o un fragmento y no se puede volver a separar."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "La transcripción a MIDI necesita el modelo MuScriptor. Descárgalo en Modelos, dentro de Ajustes."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "No se encontraron notas en este audio."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "Se eliminó el LoRA que usa este proyecto. Elige o importa otro."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "No es un archivo safetensors válido. Elige un archivo LoRA de YuE2."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Separa una canción en batería, bajo, voz, guitarra, piano y otros · 44,1 kHz estéreo"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Transcribe una canción a MIDI multiinstrumento que puedes seguir editando en Arreglo · Solo uso no comercial (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Separar pistas"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Transcribir a MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Batería"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Bajo"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Otros"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Voz"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Guitarra"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Piano"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "LoRA de composición"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Intensidad del LoRA de composición"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "LoRA de timbre"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Intensidad del LoRA de timbre"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "LoRA de composición"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "LoRA de timbre"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "Ninguno"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Intensidad"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Importar LoRA…"
   }
 }

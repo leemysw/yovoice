@@ -1068,6 +1068,42 @@
       ]
     },
     {
+      "id": "htdemucs-6stems-q8",
+      "name": "HTDemucs 6-stem",
+      "family": "htdemucs_6stems",
+      "task": "sep",
+      "engineMinimum": "v0.9.1",
+      "version": "1",
+      "precision": "Q8",
+      "remotePath": "HTDemucs-6stems-GGUF/htdemucs-6stems-q8_0.gguf",
+      "size": 42477600,
+      "sha256": "71f3d65681a25c28fbf6278fee579f810312eae47d3b26eb04bcd77c77934c0d"
+    },
+    {
+      "id": "htdemucs-6stems-f16",
+      "name": "HTDemucs 6-stem",
+      "family": "htdemucs_6stems",
+      "task": "sep",
+      "engineMinimum": "v0.9.1",
+      "version": "1",
+      "precision": "F16",
+      "remotePath": "HTDemucs-6stems-GGUF/htdemucs-6stems-f16.gguf",
+      "size": 54919200,
+      "sha256": "1db9bd58af6995d8caab209c99f5a284212e5bd0654fbfd7e50ce1d5ac140ba9"
+    },
+    {
+      "id": "muscriptor-small-f32",
+      "name": "MuScriptor Small",
+      "family": "muscriptor",
+      "task": "midi",
+      "engineMinimum": "v0.9.1",
+      "version": "1",
+      "precision": "F32",
+      "remotePath": "MuScriptor-Small-GGUF/muscriptor-small-f32.gguf",
+      "size": 411908672,
+      "sha256": "4bff6f1c45b445e144c176434fbe27614ad6c4686e03f99ee11b17e15163fba2"
+    },
+    {
       "id": "musescore-general-sf2",
       "name": "MuseScore General",
       "family": "soundfont",

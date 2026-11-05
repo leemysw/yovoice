@@ -392,6 +392,9 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   if (method === 'assistant.proposal') return assistantProposal(state, data) as T;
   if (method === 'assistant.forget') return assistantForget(state, data) as T;
   if (method === 'assistant.delete') return assistantDelete(state, data) as T;
+  // 分轨、扒 MIDI 与导入 LoRA 需要本地模型和文件选择框，预览里只给出空列表。
+  if (method === 'adapter.list') return [] as T;
+  if (method === 'midi.dismiss') { delete state.midiImport; publish(); return true as T; }
   if (method === 'model.download') {
     const id = (data as { id: string }).id;
     const installed = state.models.find(model => model.id === id);

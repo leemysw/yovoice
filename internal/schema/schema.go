@@ -202,6 +202,9 @@ type Generation struct {
 	TextWords []LyricWord `json:"textWords,omitempty"`
 	// Check 是生成后对音频的测量体检；导入旧版本或文件丢失时为空。
 	Check *AudioCheck `json:"check,omitempty"`
+	// StemOf 是分轨结果出自的版本 ID，Stem 是分轨名（drums、bass、other、vocals、guitar、piano）；普通版本为空。
+	StemOf string `json:"stemOf,omitempty"`
+	Stem   string `json:"stem,omitempty"`
 }
 
 // AudioCheck 是不用模型的音频体检：整体响度、真峰值与发现的问题。
@@ -334,6 +337,8 @@ type State struct {
 	AITask       *AITask      `json:"aiTask,omitempty"`
 	// Melody 是最近一次出谱或扒谱的结果，等界面填入作品；只属于本次会话。
 	Melody *MelodyResult `json:"melody,omitempty"`
+	// MidiImport 是最近一次从版本扒出 MIDI 新建的编曲作品，等界面打开；只属于本次会话。
+	MidiImport *MidiImport `json:"midiImport,omitempty"`
 	// Transcript 是最近一次识别的结果：声音样本的参考文本，或转写页上传音频的文字与逐词时间；只属于本次会话。
 	Transcript *TranscriptResult `json:"transcript,omitempty"`
 	// AssistantSessions 是助手会话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
@@ -341,6 +346,13 @@ type State struct {
 	AssistantLive     *AssistantLive     `json:"assistantLive,omitempty"`
 	// AssistantMemory 是助手记住的用户偏好，所有会话共用。
 	AssistantMemory []AssistantMemo `json:"assistantMemory,omitempty"`
+}
+
+// MidiImport 记录扒 MIDI 新建的编曲作品：ProjectID 是新作品，SourceID 是来源版本。
+type MidiImport struct {
+	ID        string `json:"id"`
+	ProjectID string `json:"projectId"`
+	SourceID  string `json:"sourceId"`
 }
 
 // MelodyResult 是引擎写出的旋律谱：Source 为 plan（YuE2 按歌词出谱）或 cover（从歌曲扒谱）。

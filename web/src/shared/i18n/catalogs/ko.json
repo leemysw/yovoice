@@ -4315,5 +4315,86 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "모델 패키지가 불완전하거나 일치하지 않습니다. 기본 GGUF를 선택하고 관련 파일의 폴더 구조를 유지하세요."
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "스템 분리 중"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "MIDI로 변환 중"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "스템 분리에는 HTDemucs 6스템 모델이 필요합니다. 설정의 모델에서 다운로드하세요."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "이 버전은 스템이나 클립이라 다시 분리할 수 없습니다."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "MIDI 변환에는 MuScriptor 모델이 필요합니다. 설정의 모델에서 다운로드하세요."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "이 오디오에서 음표를 찾지 못했습니다."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "이 프로젝트가 쓰던 LoRA가 삭제되었습니다. 다른 LoRA를 선택하거나 가져오세요."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "올바른 safetensors 파일이 아닙니다. YuE2 LoRA 파일을 선택하세요."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "곡을 드럼, 베이스, 보컬, 기타, 피아노, 기타 악기 6트랙으로 분리 · 44.1 kHz 스테레오"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "곡을 여러 악기 MIDI로 변환해 편곡 화면에서 계속 편집 · 비상업적 용도 전용(CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "스템 분리"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "MIDI로 변환"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "드럼"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "베이스"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "기타 악기"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "보컬"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "기타"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "피아노"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "작곡 LoRA"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "작곡 LoRA 강도"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "음색 LoRA"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "음색 LoRA 강도"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "작곡 LoRA"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "음색 LoRA"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "사용 안 함"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "강도"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "LoRA 가져오기…"
   }
 }

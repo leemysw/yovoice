@@ -227,6 +227,12 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, err
 		}
 		return a.svc.Call(method, map[string]any{"id": input.ID, "path": path}, 0)
+	case "adapter.import":
+		path := a.pick(chooseOpen, T("导入 LoRA", "Import LoRA"), "", fileFilter{"Safetensors", []string{"safetensors"}})
+		if path == "" {
+			return nil, nil
+		}
+		return a.svc.Call(method, map[string]any{"path": path}, 30*time.Minute)
 	case "model.directory":
 		path := a.pick(chooseFolder, T("选择模型目录", "Choose Model Folder"), "")
 		if path == "" {

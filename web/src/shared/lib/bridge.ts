@@ -40,7 +40,7 @@ export function subscribeDesktopUpdate(listener: (update: unknown) => void) { up
 // 数据目录迁移在同一次调用里等待用户选择目录并同步复制全部数据，几 GB 模型远超 120 秒；
 // 超时会先报未知错误而后台仍在复制，结束后又提示重启，因此只由宿主侧限时。
 // 导出音频与文本要等用户在保存框里选好位置，停留多久都不算超时；长歌转码由本地服务限时。
-const longCalls = new Set(['model.import', 'storage.directory', 'audio.export', 'output.export', 'text.export', 'export.encode']);
+const longCalls = new Set(['model.import', 'storage.directory', 'audio.export', 'output.export', 'text.export', 'export.encode', 'adapter.import']);
 
 export function desktopCall<T>(method: string, data: unknown): Promise<T> {
   return new Promise<T>((resolve, reject) => {

@@ -27,6 +27,10 @@ func (d Draft) GenerationOptions(family string) (map[string]any, error) {
 			case "select":
 				text, ok := value.(string)
 				valid = ok && slices.Contains(spec.Values, text)
+			case "adapter":
+				// 导入的 LoRA 以 ID 引用，空字符串表示不用。
+				text, ok := value.(string)
+				valid = ok && (text == "" || ValidID(text))
 			}
 			break
 		}
@@ -35,7 +39,7 @@ func (d Draft) GenerationOptions(family string) (map[string]any, error) {
 		}
 		// 0 与 auto 表示自动分段、时长或由音乐规划器决定，不向引擎传递。
 		zero := key == "text_chunk_size" || key == "duration" || key == "duration_seconds" || key == "bpm"
-		if (zero && value == float64(0)) || value == "auto" {
+		if (zero && value == float64(0)) || value == "auto" || value == "" {
 			continue
 		}
 		out[key] = value

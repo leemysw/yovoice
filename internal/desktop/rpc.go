@@ -320,6 +320,19 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return map[string]string{"fileName": file}, e
 	case "melody.dismiss":
 		return true, w.DismissMelody(p.ID)
+	case "generation.separateStems":
+		return true, w.SeparateStems(p.ID)
+	case "generation.transcribeMidi":
+		return true, w.TranscribeMIDI(p.ID)
+	case "midi.dismiss":
+		return true, w.DismissMidiImport(p.ID)
+	case "adapter.list":
+		return w.ListAdapters()
+	case "adapter.import":
+		// 宿主选好文件后带着 path 转发过来；用户取消时宿主直接返回 null，不会到这里。
+		return w.ImportAdapter(p.Path)
+	case "adapter.delete":
+		return true, w.DeleteAdapter(p.ID)
 	case "melody.inspect", "melody.transform":
 		var input struct {
 			Abc   string `json:"abc"`

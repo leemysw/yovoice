@@ -20,12 +20,13 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 // 版本记录一次先渲染的条数，更早的点“显示更早的”再展开，记录很多时打开页面和状态推送都不用重建整张列表。
 const historyBatch = 30;
 
-export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, exportCaptions, saveCharacter, reuse, exportItem, play, onError, controls, project }: {
+export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, exportCaptions, saveCharacter, reuse, exportItem, play, separate, transcribe, onError, controls, project }: {
   controls?: ReactNode; project: Draft;
   page: 'voices' | 'history'; state: State; query: string; onQueryChange: (value: string) => void;
   track: Track | null; audition: (track: Track) => void; stop: () => void; suspended: boolean;
   addVoice: () => void; editVoice: (item: Voice | Generation) => void; saveCharacter: (item: Generation) => void; reuse: (item: Generation) => void;
   exportItem: (item: Generation) => void; play: (item: Generation) => void; exportCaptions: (item: Generation) => void;
+  separate: (item: Generation) => void; transcribe: (item: Generation) => void;
   onError: (message: string) => void;
 }) {
   const t = useTranslator();
@@ -36,7 +37,9 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
   // 作品按 id 建索引，版本号按位置预先算好，避免每条记录都遍历一遍作品与记录列表。
   const drafts = useMemo(() => new Map(state.drafts.map(d => [d.id, d])), [state.drafts]);
   const history = useMemo(() => kind === 'story' ? [] : state.history.filter(item => !item.segment && (quick ? projectKind(drafts.get(item.settings.id) ?? item.settings) === 'text' : item.settings.id === project.id)).sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [state.history, drafts, kind, quick, project.id]);
-  const versions = useMemo(() => new Map(history.map((item, index) => [item.id, history.length - index])), [history]);
+  // 分轨不占版本号，沿用原版本的号；已分过轨的版本不再显示“分离音轨”。
+  const versions = useMemo(() => { const own = history.filter(item => !item.stemOf); const numbers = new Map(own.map((item, index) => [item.id, own.length - index])); for (const item of history) if (item.stemOf) numbers.set(item.id, numbers.get(item.stemOf) ?? 0); return numbers; }, [history]);
+  const separated = useMemo(() => new Set(history.map(item => item.stemOf).filter(Boolean)), [history]);
   // 改过名的音频以名称为标题，否则显示正文（音乐是风格）。
   const heading = (item: Generation) => item.title !== item.settings.title ? item.title : item.settings.text.trim() || item.title;
   const count = voices ? state.voices.length : history.length;
@@ -103,7 +106,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
       // 历史也用票根：音乐与编曲是唱片（点唱片中心试听，播放时转动），语音是写着正文的磁带（试听时卷轴转动）。
       : filteredHistory.slice(0, shownCount).map((item, index) => {
         const name = heading(item), selected = track?.id === item.id;
-        const version = t('@yovoice.app.historyVersion', { n: versions.get(item.id) ?? 0 });
+        const version = t('@yovoice.app.historyVersion', { n: versions.get(item.id) ?? 0 }) + (item.stem ? ` · ${t(`@yovoice.stems.name.${item.stem}`)}` : '');
         const date = formatDateTime(item.createdAt, locale, 'log');
         const listen = () => audition({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: t('@yovoice.app.subtitleOutput') });
         const firstLyric = item.settings.lyrics?.split('\n').map(line => line.trim()).find(line => line && !/^\[[^\]]*\]$/.test(line));
@@ -121,6 +124,8 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
             <DropdownMenu className="audio-actions-menu" presentation="popover" alignment="end" hasChevron={false} button={{ label: t('@yovoice.history.audioActions'), size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal /> }} items={[
               { label: t('@yovoice.app.exportVersion'), onClick: () => exportItem(item) },
               ...(quick ? [{ label: t('@yovoice.caption.menu'), onClick: () => exportCaptions(item) }, { label: t('@yovoice.voice.save'), onClick: () => editVoice(item) }, { label: t('@yovoice.character.saveAs'), onClick: () => saveCharacter(item) }] : []),
+              ...(kind === 'music' && !item.stemOf && !separated.has(item.id) ? [{ label: t('@yovoice.stems.separate'), onClick: () => separate(item) }] : []),
+              ...(kind === 'music' ? [{ label: t('@yovoice.stems.toMidi'), onClick: () => transcribe(item) }] : []),
               { label: t(kind === 'music' ? '@yovoice.music.reuseTake' : '@yovoice.app.reuseSettings'), onClick: () => reuse(item) },
             ]} />
             <MediaActions item={{ id: item.id, kind: 'outputs', name: item.title }} beforeDelete={stop} onError={onError} />

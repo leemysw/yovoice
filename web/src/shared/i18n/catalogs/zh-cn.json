@@ -4315,5 +4315,86 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "模型包缺少文件或校验不符。请选择主 GGUF，并保留全部配套文件的原目录结构。"
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "正在分离音轨"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "正在扒成 MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。"
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "这个版本是分轨或片段，不能再分离音轨。"
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "扒 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。"
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "没有从这段音频里识别出音符。"
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "这个作品用的 LoRA 已被删除，请重新选择或导入。"
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "这不是有效的 safetensors 文件，请选择 YuE2 的 LoRA 文件。"
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨 · 44.1 kHz 立体声"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "把一首歌扒成多乐器 MIDI，可在编曲页继续编辑 · 仅限非商业用途（CC BY-NC）"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "分离音轨"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "扒成 MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "鼓"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "贝斯"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "其他"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "人声"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "吉他"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "钢琴"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "作曲 LoRA"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "作曲 LoRA 强度"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "音色 LoRA"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "音色 LoRA 强度"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "作曲 LoRA"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "音色 LoRA"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "不使用"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "强度"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "导入 LoRA…"
   }
 }

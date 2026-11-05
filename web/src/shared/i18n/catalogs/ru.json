@@ -4315,5 +4315,86 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Пакет неполный или не соответствует модели. Выберите основной GGUF и сохраните структуру всех сопутствующих файлов."
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Разделение на дорожки"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Перевод в MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "Для разделения на дорожки нужна модель HTDemucs 6 stems. Скачайте её в разделе «Модели» в настройках."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "Эта версия — дорожка или фрагмент, её нельзя разделить ещё раз."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "Для перевода в MIDI нужна модель MuScriptor. Скачайте её в разделе «Модели» в настройках."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "В этом аудио не найдено нот."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "LoRA этого проекта удалена. Выберите или импортируйте другую."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "Это не корректный файл safetensors. Выберите файл LoRA для YuE2."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Разделяет песню на ударные, бас, вокал, гитару, фортепиано и прочее · 44,1 кГц, стерео"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Переводит песню в многоинструментальный MIDI, который можно править в аранжировке · Только некоммерческое использование (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Разделить на дорожки"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Перевести в MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Ударные"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Бас"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Прочее"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Вокал"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Гитара"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Фортепиано"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "LoRA композиции"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Сила LoRA композиции"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "LoRA тембра"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Сила LoRA тембра"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "LoRA композиции"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "LoRA тембра"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "Нет"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Сила"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Импортировать LoRA…"
   }
 }
