@@ -28,6 +28,7 @@
   "model.download",
   "model.forget",
   "runtime.install",
+  "runtime.unload",
   "ai.provider.save",
   "ai.provider.delete",
   "ai.provider.use",

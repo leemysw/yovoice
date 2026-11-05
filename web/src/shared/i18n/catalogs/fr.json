@@ -4285,5 +4285,68 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Paquet incomplet ou incompatible. Sélectionnez le GGUF principal et conservez la structure de tous les fichiers associés."
+  },
+  "@yovoice.options.max_text_tokens_per_segment": {
+    "defaultMessage": "Tokens de texte par segment"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "Normaliser les nombres et symboles"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "Le moteur sélectionné ne prend pas en charge {name}. Utilisez un moteur compatible ou retirez ce réglage."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "Exécution et cache"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "Ces réglages sont enregistrés dans le projet. Le modèle est rechargé à la prochaine génération après modification. Les clés correspondent au moteur."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "Écouter pendant la génération"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "Lisez les segments dès leur réception. Le résultat complet est enregistré à la fin."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "Le moteur actuel ne prend pas en charge la diffusion pour ce modèle."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "La diffusion VoxCPM2 désactive les nouvelles tentatives en cas d’échec."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "Threads d’inférence (0 = automatique)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "Indice du GPU (à partir de 0)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "Décharger après inactivité (secondes, 0 = désactivé)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "Rétablir les valeurs du moteur"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "Décharger le modèle et vider le cache"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "Modèle déchargé et cache libéré."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "Écoute des segments générés. Le résultat complet sera aussi enregistré."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "Arrêter l’aperçu"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "Impossible de lire l’aperçu. Le résultat complet sera disponible à la fin."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "Connexion de l’aperçu interrompue. Le résultat complet sera disponible à la fin."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "La mémoire tampon de l’aperçu est pleine. Le résultat complet sera disponible à la fin."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 ne peut pas réessayer en diffusion. Désactivez les nouvelles tentatives ou la diffusion."
   }
 }

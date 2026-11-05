@@ -18,6 +18,22 @@
         "japanese",
         "endline"
       ]
+    },
+    {
+      "key": "max_text_tokens_per_segment",
+      "type": "number",
+      "default": 120,
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "requiresRuntime": true
+    },
+    {
+      "key": "text_normalization",
+      "type": "boolean",
+      "default": true,
+      "requiresRuntime": true,
+      "modelPrefix": "index-2.5-"
     }
   ],
   "voxcpm2": [

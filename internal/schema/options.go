@@ -14,7 +14,7 @@ func (d Draft) GenerationOptions(family string) (map[string]any, error) {
 	for key, value := range d.ModelOptions[family] {
 		valid := false
 		for _, spec := range catalog.GenerationOptions[family] {
-			if spec.Key != key {
+			if spec.Key != key || (spec.ModelPrefix != "" && !strings.HasPrefix(d.ModelID, spec.ModelPrefix)) {
 				continue
 			}
 			switch spec.Type {

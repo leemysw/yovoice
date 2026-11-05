@@ -142,6 +142,9 @@ func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error)
 			o["text_chunk_size"] = 200
 		}
 		o["guidance_scale"], o["num_inference_steps"] = guidance, steps
+		if d.Runtime != nil && d.Runtime.Streaming {
+			o["retry_badcase"] = false
+		}
 		if d.Seed != nil {
 			o["seed"] = *d.Seed
 		}

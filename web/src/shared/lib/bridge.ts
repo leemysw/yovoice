@@ -11,12 +11,16 @@ export const isLinux = window.__workbenchPlatform === 'linux';
 
 const listeners = new Set<(state: State) => void>();
 const pending = new Map<string, { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: ReturnType<typeof setTimeout> | undefined }>();
+export interface LiveAudioEvent { event: 'audio' | 'audio-request-end' | 'audio-disconnected'; id?: string; projectId?: string; sequence?: number; audio?: string; start?: boolean; end?: boolean; cancelled?: boolean }
+const audioListeners = new Set<(event: LiveAudioEvent) => void>();
+export function subscribeLiveAudio(listener: (event: LiveAudioEvent) => void) { audioListeners.add(listener); return () => { audioListeners.delete(listener); }; }
 const updateListeners = new Set<(update: unknown) => void>();
 // 服务首次推送完整状态，之后只推送变化的顶层字段（patch）与被省略的字段（removed），在最近一份完整状态上合并。
 // 宿主的状态连接可能早于页面建立，页面没收到完整推送时以 state.get 的结果为基础；在此之前的增量直接忽略。
 let latest: State | null = null;
 const publish = (state: State) => { latest = state; listeners.forEach(fn => fn(state)); };
 native?.addEventListener('message', ({ data }) => {
+  if (data.event === 'audio' || data.event === 'audio-request-end' || data.event === 'audio-disconnected') { audioListeners.forEach(listener => listener(data)); return; }
   if (data.event === 'state') { publish(data.state); return; }
   if (data.event === 'patch') {
     if (!latest) return;

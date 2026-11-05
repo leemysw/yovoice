@@ -197,7 +197,7 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 		}()
 		part := parts[0]
 		generatedScore := ""
-		if generatedScore, e = w.engine.Generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, performanceFirst(s), part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
+		if generatedScore, e = w.synthesizePart(ctx, s, part, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
 			return e
 		}
 		duration, e := audio.Duration(path)

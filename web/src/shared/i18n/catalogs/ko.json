@@ -4285,5 +4285,68 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "모델 패키지가 불완전하거나 일치하지 않습니다. 기본 GGUF를 선택하고 관련 파일의 폴더 구조를 유지하세요."
+  },
+  "@yovoice.options.max_text_tokens_per_segment": {
+    "defaultMessage": "구간별 텍스트 토큰 상한"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "숫자 및 기호 정규화"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "선택한 추론 엔진은 {name}을 지원하지 않습니다. 호환 엔진을 사용하거나 이 설정을 제거하세요."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "실행 및 캐시"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "설정은 작품에 저장되며 다음 생성 시 모델을 다시 불러옵니다. 세션 키는 추론 엔진과 같습니다."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "생성 중 미리 듣기"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "받은 오디오 조각을 재생하고 생성이 끝나면 전체 결과를 저장합니다."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "현재 엔진은 이 모델의 스트리밍을 지원하지 않습니다."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "VoxCPM2 스트리밍에서는 실패 시 재시도가 꺼집니다."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "추론 스레드 수(0은 자동)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "GPU 장치 번호(0부터)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "유휴 시 언로드(초, 0은 끔)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "엔진 기본값 복원"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "모델 언로드 및 캐시 지우기"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "모델을 언로드하고 캐시를 비웠습니다."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "생성된 오디오를 미리 듣는 중입니다. 전체 결과도 저장됩니다."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "미리 듣기 중지"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "미리 들을 수 없습니다. 생성이 끝나면 전체 오디오를 재생하세요."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "미리 듣기 연결이 끊어졌습니다. 생성이 끝나면 전체 오디오를 재생하세요."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "미리 듣기 버퍼가 가득 찼습니다. 생성이 끝나면 전체 오디오를 재생하세요."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2는 스트리밍 중 재시도할 수 없습니다. 재시도 또는 스트리밍을 끄세요."
   }
 }

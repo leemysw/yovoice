@@ -32,7 +32,7 @@ export function VoxControls({ draft, state, change, chooseVoice, play, advanced,
     <AdvancedSettings open={advanced} onOpenChange={setAdvanced}>
         <Slider label={t('@yovoice.vox.guidanceScale')} value={draft.guidanceScale || 2} min={0.5} max={5} step={0.1} onChange={(guidanceScale: number) => change({ guidanceScale })} valueDisplay="text" formatValue={value => value.toFixed(1)} />
         <label className="number-field">{t('@yovoice.vox.inferenceSteps')}<input type="number" min={1} max={50} value={draft.inferenceSteps || 10} onChange={event => { if (event.target.value) change({ inferenceSteps: Number(event.target.value) }); }} /></label>
-        <ModelOptions draft={draft} family="voxcpm2" change={change} />
+        <ModelOptions draft={draft} family="voxcpm2" change={change} omit={draft.runtime?.streaming ? ['retry_badcase', 'retry_badcase_max_times', 'retry_badcase_ratio_threshold'] : []} />
         <SeedInput value={draft.seed} change={change} />
       </AdvancedSettings>
   </>;

@@ -1,3 +1,4 @@
+import { liveAudioPlayer } from './live-audio-player';
 import { PlaybackToolbar, TrackZoom } from './playback-toolbar';
 import { lazy, Suspense, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from '@astryxdesign/core/Button';
@@ -35,6 +36,11 @@ export function Player({ track, onError, suspended, compact = false, actions, av
   // 已画出波形的音频地址。
   const drawn = useRef('');
 
+  useEffect(() => {
+    const stop = () => { audio.current?.pause(); pending.current = false; };
+    window.addEventListener('yovoice-live-playback', stop);
+    return () => window.removeEventListener('yovoice-live-playback', stop);
+  }, []);
   // 1. 加载只跟随音频本身变化：再次请求播放或切换页面都不会重新读取。
   useEffect(() => {
     setTime(0); setDuration(0); setPeaks([]); setPlaying(false); setZoom(1); drawn.current = '';
@@ -125,7 +131,7 @@ export function Player({ track, onError, suspended, compact = false, actions, av
   const media = <audio hidden ref={audio} src={url || undefined} preload="metadata"
     onLoadedMetadata={() => { const value = audio.current?.duration; if (value && Number.isFinite(value)) setDuration(value); }}
     onTimeUpdate={() => setTime(audio.current?.currentTime ?? 0)}
-    onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
+    onPlay={() => { liveAudioPlayer.stop(); setPlaying(true); }} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
     onError={() => { if (url) markFailed('@yovoice.error.audioPlayFailed'); }} />;
   if (inline) return <>
     {media}
@@ -145,7 +151,7 @@ export function Player({ track, onError, suspended, compact = false, actions, av
     <small className="preview-time">{formatTime(time)}</small>
     <input className="preview-progress" aria-label={t('@yovoice.player.progress')} aria-valuetext={t('@yovoice.player.progressValue', { current: formatTime(time), total: formatTime(duration) })} type="range" min={0} max={duration || 1} step={0.01} value={time} disabled={!duration} onChange={e => seek(Number(e.target.value))} style={{ background: `linear-gradient(to right, var(--app-wave) ${duration ? time / duration * 100 : 0}%, var(--app-line) 0%)` }} />
     <small className="preview-time">{formatTime(duration)}</small>
-    <Button label={volume === 0 ? t('@yovoice.player.unmute') : t('@yovoice.player.mute')} isIconOnly icon={volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />} size="sm" variant="ghost" onClick={() => { const next = volume === 0 ? 1 : 0; setVolume(next); if (audio.current) audio.current.volume = next; }} />
+    <Button label={volume === 0 ? t('@yovoice.player.unmute') : t('@yovoice.player.mute')} isIconOnly icon={volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />} size="sm" variant="ghost" onClick={() => { const next = volume === 0 ? 1 : 0; setVolume(next); liveAudioPlayer.setVolume(next); if (audio.current) audio.current.volume = next; }} />
   </HStack>;
   return <VStack as="footer" className="player audio-panel player-single" gap={0}>
     {media}
@@ -153,8 +159,8 @@ export function Player({ track, onError, suspended, compact = false, actions, av
       beforePlay={<Button label={t('@yovoice.player.skipStart')} isIconOnly icon={<SkipBack size={16} />} size="sm" variant="ghost" isDisabled={!url || !!failure} onClick={() => seek(0)} />}
       afterPlay={<Button label={t('@yovoice.player.skipEnd')} isIconOnly icon={<SkipForward size={16} />} size="sm" variant="ghost" isDisabled={!duration} onClick={() => seek(duration)} />}>
         <HStack className="volume-control" gap={2} vAlign="center">
-          <Button label={volume === 0 ? t('@yovoice.player.unmute') : t('@yovoice.player.mute')} isIconOnly icon={volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />} size="sm" variant="ghost" onClick={() => { const next = volume === 0 ? 1 : 0; setVolume(next); if (audio.current) audio.current.volume = next; }} />
-          <input aria-label={t('@yovoice.player.volume')} type="range" min={0} max={1} step={0.01} value={volume} onChange={e => { const next = Number(e.target.value); setVolume(next); if (audio.current) audio.current.volume = next; }} />
+          <Button label={volume === 0 ? t('@yovoice.player.unmute') : t('@yovoice.player.mute')} isIconOnly icon={volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />} size="sm" variant="ghost" onClick={() => { const next = volume === 0 ? 1 : 0; setVolume(next); liveAudioPlayer.setVolume(next); if (audio.current) audio.current.volume = next; }} />
+          <input aria-label={t('@yovoice.player.volume')} type="range" min={0} max={1} step={0.01} value={volume} onChange={e => { const next = Number(e.target.value); setVolume(next); liveAudioPlayer.setVolume(next); if (audio.current) audio.current.volume = next; }} />
         </HStack>
         <TrackZoom value={zoom} change={setZoom} disabled={!duration} />
         {actions}

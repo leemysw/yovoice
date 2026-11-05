@@ -239,6 +239,17 @@
           "numBeams": { "type": "integer" },
           "lengthPenalty": { "type": "number" },
           "seed": { "type": "integer", "nullable": true, "description": "Fixed random seed; null for a random one" },
+          "runtime": {
+            "type": "object",
+            "description": "Optional synthesis session overrides. Streaming does not change the remote API response, which still returns a job.",
+            "properties": {
+              "streaming": { "type": "boolean" },
+              "threads": { "type": "integer", "minimum": 0, "maximum": 256 },
+              "device": { "type": "integer", "minimum": 0 },
+              "idleUnloadSeconds": { "type": "integer", "minimum": 0, "description": "Zero disables idle unloading" },
+              "session": { "type": "object", "additionalProperties": true, "description": "Model-specific session options advertised by the installed engine" }
+            }
+          },
           "modelOptions": {
             "type": "object",
             "description": "Advanced options grouped by model family, for example `{\"qwen3_tts\":{\"temperature\":0.7}}`",

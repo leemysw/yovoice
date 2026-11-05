@@ -215,6 +215,8 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.DownloadModel(p.ID)
 	case "model.forget":
 		return true, w.ForgetModel(p.ID)
+	case "runtime.unload":
+		return true, w.UnloadEngine()
 	case "runtime.install":
 		return true, w.InstallRuntime()
 	case "ai.provider.save":

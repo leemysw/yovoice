@@ -4285,5 +4285,68 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Modellpaket unvollständig oder nicht passend. Haupt-GGUF wählen und alle zugehörigen Dateien in der ursprünglichen Struktur belassen."
+  },
+  "@yovoice.options.max_text_tokens_per_segment": {
+    "defaultMessage": "Text-Token pro Segment"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "Zahlen und Symbole normalisieren"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "Die gewählte Inferenz-Engine unterstützt {name} nicht. Verwenden Sie eine kompatible Engine oder entfernen Sie diese Einstellung."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "Laufzeit und Cache"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "Die Einstellungen werden im Projekt gespeichert. Änderungen laden das Modell bei der nächsten Erzeugung neu. Die Sitzungsparameter entsprechen der Engine."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "Während der Erzeugung anhören"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "Audioabschnitte sofort abspielen. Das vollständige Ergebnis wird am Ende gespeichert."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "Die aktuelle Engine unterstützt kein Streaming für dieses Modell."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "VoxCPM2-Streaming deaktiviert Wiederholungsversuche."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "Inferenz-Threads (0 = automatisch)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "GPU-Gerätenummer (ab 0)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "Entladen nach Leerlauf (Sekunden, 0 = aus)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "Engine-Standardwerte wiederherstellen"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "Modell entladen und Cache leeren"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "Modell entladen und Cache freigegeben."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "Audioabschnitte werden abgespielt. Das vollständige Ergebnis wird gespeichert."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "Vorschau stoppen"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "Die Vorschau konnte nicht abgespielt werden. Das vollständige Ergebnis ist nach der Erzeugung verfügbar."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "Die Vorschauverbindung wurde unterbrochen. Das vollständige Ergebnis ist nach der Erzeugung verfügbar."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "Der Vorschaupuffer ist voll. Das vollständige Ergebnis ist nach der Erzeugung verfügbar."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 kann beim Streaming keine Versuche wiederholen. Deaktivieren Sie Wiederholungen oder Streaming."
   }
 }

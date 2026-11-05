@@ -224,6 +224,7 @@ public sealed class LocalService : IDisposable
                 if (!failing) HostLog.Write(Root, "service.events_failed:" + received, error);
                 failing = true;
             }
+            StateChanged?.Invoke(JsonSerializer.Serialize(new { @event = "audio-disconnected" }));
             try { await Task.Delay(1000, stopped.Token).ConfigureAwait(false); } catch (OperationCanceledException) { return; }
         }
     }

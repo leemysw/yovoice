@@ -318,6 +318,7 @@ window.chrome = {webview: {postMessage: data => host.postMessage(JSON.stringify(
 window.addEventListener('DOMContentLoaded', () => {
   const events = new EventSource('/api/state-events');
   events.onmessage = event => window.__workbenchReceive(JSON.parse(event.data));
+          events.onerror = () => window.__workbenchReceive({event: 'audio-disconnected'});
 });`
 }
 
