@@ -24,6 +24,7 @@
   "storage.relocate",
   "storage.cleanup",
   "model.directory",
+  "model.import",
   "model.download",
   "model.forget",
   "runtime.install",

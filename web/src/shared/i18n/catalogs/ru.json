@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "Загрузите аудио или видео. Модель распознавания речи Qwen3 ASR выдаст текст с таймингом слов, который можно экспортировать в субтитры SRT или WebVTT. До 1 часа и 20 МБ."
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "Импорт локальной модели"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "Выберите модель и точность, затем импортируйте GGUF для audio.cpp (SF2 для звуковых банков). Для пакета выберите основной GGUF и сохраните структуру файлов. Файлы остаются на месте; удаление модели отменяет только регистрацию. Веса PyTorch/MLX нужно предварительно преобразовать."
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "Выберите GGUF для audio.cpp выбранного семейства или поддерживаемый SF2. Веса PyTorch/MLX нужно предварительно преобразовать."
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "Пакет неполный или не соответствует модели. Выберите основной GGUF и сохраните структуру всех сопутствующих файлов."
   }
 }

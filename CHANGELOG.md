@@ -6,6 +6,8 @@
 
 ### English
 
+- Import existing local audio.cpp GGUF models and supported SF2 sound fonts from model settings, without copying files or changing the download directory. Imported files are preserved when removing the model; PyTorch/MLX weights need conversion first.
+
 - Speech recognition and subtitles with the optional Qwen3 ASR 0.6B model (Voice models, about 2.3 GB including its timing aligner; supports 30 languages, needs inference engine v0.9.1 or later):
   - “Recognize text” under a reference transcript field or in the voice editor fills in what the sample says; a sample with no transcript keeps the result.
   - New Transcribe page: upload audio or video (up to 1 hour, 20 MB) to get the text split into timed subtitle lines, then export SRT / WebVTT or copy the full text.
@@ -23,6 +25,8 @@
 - Smaller install and faster first screen: the 1.9 MB icon source no longer ships inside the app, the music, timeline, score, book-import and onboarding pages load on demand, the assistant's avatar libraries stay out of the main bundle, and translator notes are stripped from the component language packs.
 
 ### 简体中文
+
+- 模型设置新增本地导入，原地使用已有 audio.cpp GGUF 模型及受支持的 SF2 音色库，无需复制或更改下载目录；移除导入模型时保留源文件。PyTorch／MLX 原始权重须先转换。
 
 - 可选语音识别模型 Qwen3 ASR 0.6B（设置的语音模型里下载，含时间对齐模型约 2.3 GB；支持 30 种语言，需要推理引擎 v0.9.1 及以上）：
   - 在参考原文框下或编辑音色信息时点“识别文字”，把样本里说的话填进去；样本原来没有原文时会一并保存。

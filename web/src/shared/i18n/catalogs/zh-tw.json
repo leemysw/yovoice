@@ -4273,5 +4273,17 @@
   },
   "@yovoice.transcribe.emptyBody": {
     "defaultMessage": "上傳音訊或影片，語音辨識模型 Qwen3 ASR 會辨識出文字和逐詞時間，可匯出 SRT / WebVTT 字幕。最長 1 小時、20 MB。"
+  },
+  "@yovoice.settings.importLocalModel": {
+    "defaultMessage": "匯入本機模型"
+  },
+  "@yovoice.settings.localModelHint": {
+    "defaultMessage": "先選擇對應型號和精度，再匯入 audio.cpp GGUF 檔案（編曲音色庫為 SF2）。多檔案套件請選擇主 GGUF，並保留配套檔案的原目錄結構。檔案原地使用，移除時只解除登記。PyTorch／MLX 原始權重須先轉換。"
+  },
+  "@yovoice.error.localModelInvalid": {
+    "defaultMessage": "請選擇與所選模型家族相符的 audio.cpp GGUF，或支援的 SF2。PyTorch／MLX 原始權重須先轉換。"
+  },
+  "@yovoice.error.localModelIncomplete": {
+    "defaultMessage": "模型套件缺少檔案或校驗不符。請選擇主 GGUF，並保留全部配套檔案的原目錄結構。"
   }
 }

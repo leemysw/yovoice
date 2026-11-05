@@ -199,6 +199,18 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, errors.New(T("音频文件不存在。", "The audio file doesn't exist."))
 		}
 		return true, reveal(path)
+	case "model.import":
+		path := a.pick(chooseOpen, T("导入本地模型", "Import Local Model"), "", fileFilter{"GGUF / SF2", []string{"gguf", "sf2"}})
+		if path == "" {
+			return nil, nil
+		}
+		var input struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(data, &input); err != nil {
+			return nil, err
+		}
+		return a.svc.Call(method, map[string]any{"id": input.ID, "path": path}, 0)
 	case "model.directory":
 		path := a.pick(chooseFolder, T("选择模型目录", "Choose Model Folder"), "")
 		if path == "" {
