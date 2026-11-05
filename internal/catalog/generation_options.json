@@ -524,6 +524,14 @@
       ]
     },
     {
+      "key": "candidates",
+      "type": "number",
+      "default": 1,
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
       "key": "num_inference_steps",
       "type": "number",
       "default": 8,
@@ -537,6 +545,30 @@
       "default": 0.7,
       "min": 0.05,
       "max": 2,
+      "step": 0.05
+    },
+    {
+      "key": "abc_top_p",
+      "type": "number",
+      "default": 0.95,
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "key": "abc_top_k",
+      "type": "number",
+      "default": 100,
+      "min": 1,
+      "max": 500,
+      "step": 1
+    },
+    {
+      "key": "abc_repetition_penalty",
+      "type": "number",
+      "default": 1.2,
+      "min": 0.5,
+      "max": 3,
       "step": 0.05
     },
     {
@@ -570,6 +602,32 @@
       "min": 0.5,
       "max": 3,
       "step": 0.05
+    },
+    {
+      "key": "ar_lora",
+      "type": "adapter",
+      "default": ""
+    },
+    {
+      "key": "ar_lora_scale",
+      "type": "number",
+      "default": 1,
+      "min": -10,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "key": "nar_lora",
+      "type": "adapter",
+      "default": ""
+    },
+    {
+      "key": "nar_lora_scale",
+      "type": "number",
+      "default": 1,
+      "min": -10,
+      "max": 10,
+      "step": 0.1
     }
   ],
   "stable_audio": [

@@ -105,6 +105,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.audioDuration` 请选择 1 秒到 10 分钟的音频；超过 60 秒的录音会自动截取最清楚的一段。
 - `error.audioFormat` 请选择有效的单声道或双声道 PCM / Float WAV 音频。
 - `error.audioDecode` 无法解码音频，请检查文件是否损坏、加密或缺少音轨。
+- `error.audioEncode` 导出音频编码失败，可改用 WAV 或其他格式重试。
 - `error.audioConverterMissing` 安装包缺少音频转换器，请重新安装完整的 yovoice 安装包。
 - `error.nameLength` 名称需为 1–120 个字符。
 - `error.draftLimits` 作品内容超出限制。
@@ -168,6 +169,18 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.transcribeEmpty` 没有识别出文字，请确认音频里有清晰的人声
 - `error.alignText` 这个版本没有可对齐的正文
 - `error.alignTextEmpty` 没能把正文对上音频，请重试或换一个版本
+- `error.stemModelRequired` 分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。
+- `error.stemSource` 这个版本是分轨或片段，不能再分离音轨。
+- `error.stemsMissing` 这个版本还没有分轨，请先分离音轨。
+- `error.midiModelRequired` 扒 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。
+- `error.midiEmpty` 没有从这段音频里识别出音符。
+- `error.adapterMissing` 这个作品用的 LoRA 已被删除，请重新选择或导入。
+- `error.adapterInvalid` 这不是有效的 safetensors 文件，请选择 YuE2 的 LoRA 文件。
+- `error.resingSource` 只有 YuE2 按旋律谱生成的版本能局部重唱，而且当前作品也要有旋律谱。
+- `error.resingWhole` 速度、调、小节数或段落数改了，没法只换一段，请整首重新生成。
+- `error.resingNoChange` 谱和歌词都和这一版一样，没有要重唱的地方。
+- `error.imageInvalid` 请选择 JPEG、PNG 或 WebP 图片，大小不超过 8 MB。
+- `error.resingAlign` 新唱的和原版差别太大，接不上。请整首重新生成，或换个种子再试。
 - `error.alignLyrics` 这个版本没有可对齐的歌词
 - `error.alignEmpty` 没能从人声里对上歌词，可以手动校准
 - `error.engineUpgradeRequired` 该模型需要 {version} 及以上的推理内核，请在设置中更新内核。

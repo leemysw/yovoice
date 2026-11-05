@@ -15,7 +15,7 @@ export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.sta
 /** YuE2 由歌词或旋律谱决定长度，没有时长设置。 */
 export const isYuE = (id: string) => id.startsWith('yue2-');
 // 设置里模型按用途分页：语音模型、音乐模型（歌曲生成、扒谱与歌词对齐）和编曲音色库。
-const musicFamilies = new Set(['ace_step', 'yue2', 'stable_audio', 'sheetsage2', 'lyric_align']);
+const musicFamilies = new Set(['ace_step', 'yue2', 'stable_audio', 'sheetsage2', 'lyric_align', 'htdemucs_6stems', 'muscriptor']);
 export const modelTab = (family: string) => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : 'models';
 export const modelTabs = ['models', 'music-models', 'soundfonts'];
 // 音色库只供编曲作品渲染使用。
@@ -26,7 +26,10 @@ export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 export const isAligner = (id: string) => id.startsWith('lyric-align-');
 // 语音识别模型只用于把声音样本转成参考文本，可选下载。
 export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-');
-export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id) && !isAligner(id) && !isRecognizer(id);
+// 分轨模型把一个版本分成六轨，扒 MIDI 模型把版本转成编曲作品，都是可选下载的工具。
+export const isStemModel = (id: string) => id.startsWith('htdemucs-');
+export const isMidiModel = (id: string) => id.startsWith('muscriptor-');
+export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id) && !isAligner(id) && !isRecognizer(id) && !isStemModel(id) && !isMidiModel(id);
 // 同名模型的不同量化归为一组，保持目录顺序。
 export function groupModels(models: ModelPackage[]) {
   const groups = new Map<string, ModelPackage[]>();

@@ -293,6 +293,9 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 	if err != nil {
 		return "", err
 	}
+	if definition, err = withAdapters(e.root, d, definition); err != nil {
+		return "", err
+	}
 	encoderSamples := 0
 	if definition.Family == "xtts_v2" {
 		duration, audioErr := audio.Duration(voice)
@@ -392,6 +395,9 @@ func (e *Engine) PlanMelody(ctx context.Context, executable string, m schema.Ins
 	if definition.Family != "yue2" {
 		return "", false, msg.Err(msg.ErrModelUnsupported, nil)
 	}
+	if definition, err = withAdapters(e.root, d, definition); err != nil {
+		return "", false, err
+	}
 	payload["request"].(map[string]any)["options"].(map[string]any)["stop_after"] = "abc"
 	if err = e.start(ctx, executable, m.Path, definition, backend, performanceFirst, 0, progress); err != nil {
 		return "", false, err
@@ -437,6 +443,98 @@ func (e *Engine) Transcribe(ctx context.Context, executable string, m schema.Ins
 		return "", msg.Err(msg.ErrMelodyEmpty, nil)
 	}
 	return score, nil
+}
+
+// StemRate 是 HTDemucs 要求的输入采样率；单声道输入由内核复制成双声道。
+const StemRate = 44100
+
+// SeparateStems 用 HTDemucs 6-stem 把 wav（44.1 kHz）分成六轨，按内核给出的顺序写成 dir/<分轨>.wav，返回分轨名
+// （drums、bass、other、vocals、guitar、piano）。
+func (e *Engine) SeparateStems(ctx context.Context, executable string, m schema.InstalledModel, backend, wav, dir string, progress func(msg.Code, msg.Params)) (stems []string, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return nil, err
+	}
+	if definition.Family != "htdemucs_6stems" {
+		return nil, msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	if err = e.start(ctx, executable, m.Path, definition, backend, false, 0, progress); err != nil {
+		return nil, err
+	}
+	progress(msg.ActivitySeparateStems, nil)
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav}})
+	if err != nil {
+		return nil, err
+	}
+	for _, stem := range result.Stems {
+		b, err := base64.StdEncoding.DecodeString(stem.Audio)
+		if err != nil || len(b) <= 44 || !validStem(stem.ID) {
+			return nil, msg.Err(msg.ErrEngineNoAudio, nil)
+		}
+		if err = os.WriteFile(filepath.Join(dir, stem.ID+".wav"), b, 0600); err != nil {
+			return nil, err
+		}
+		stems = append(stems, stem.ID)
+	}
+	if len(stems) == 0 {
+		return nil, msg.Err(msg.ErrEngineNoAudio, nil)
+	}
+	return stems, nil
+}
+
+// validStem 只接受小写字母与下划线组成的分轨名，避免内核返回的名字被当成路径。
+func validStem(id string) bool {
+	if id == "" || len(id) > 32 {
+		return false
+	}
+	for _, r := range id {
+		if (r < 'a' || r > 'z') && r != '_' {
+			return false
+		}
+	}
+	return true
+}
+
+// TranscribeMIDI 用 MuScriptor 把 wav 扒成多乐器 MIDI（含鼓），返回 SMF 文件字节。
+func (e *Engine) TranscribeMIDI(ctx context.Context, executable string, m schema.InstalledModel, backend, wav string, progress func(msg.Code, msg.Params)) (midi []byte, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return nil, err
+	}
+	if definition.Family != "muscriptor" {
+		return nil, msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	if err = e.start(ctx, executable, m.Path, definition, backend, false, 0, progress); err != nil {
+		return nil, err
+	}
+	progress(msg.ActivityTranscribeMIDI, nil)
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav, "options": map[string]string{"output_format": "midi"}}})
+	if err != nil {
+		return nil, err
+	}
+	for _, a := range result.Artifacts {
+		if a.Meta["format"] != "midi" {
+			continue
+		}
+		if b, err := base64.StdEncoding.DecodeString(a.Payload); err == nil && bytes.HasPrefix(b, []byte("MThd")) {
+			return b, nil
+		}
+	}
+	return nil, msg.Err(msg.ErrMidiEmpty, nil)
 }
 
 // AlignedWord 是强制对齐给出的一个字（拉丁文为一个词）及其起止秒数。

@@ -481,7 +481,11 @@ public partial class MainWindow : Window
                     string exported = (await service.CallAsync("export.path", new { id = data.GetProperty("id").GetString() })).GetString()!;
                     try
                     {
-                        var save = new SaveFileDialog { Filter = HostL10n.T("WAV 音频", "WAV Audio") + "|*.wav", DefaultExt = ".wav", FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "yovoice.wav"), OverwritePrompt = true };
+                        // 格式由本地服务写出的文件决定：WAV、FLAC 或 M4A，保存框只列这一种。
+                        string audioFormat = Path.GetExtension(exported).TrimStart('.').ToLowerInvariant();
+                        string audioFilter = audioFormat switch { "wav" => HostL10n.T("WAV 音频", "WAV Audio"), "flac" => HostL10n.T("FLAC 无损音频", "FLAC Lossless Audio"), "m4a" => HostL10n.T("M4A 音频", "M4A Audio"), _ => throw new ArgumentException(HostL10n.T("导出文件格式无效。", "The exported file format is invalid.")) };
+                        string audioName = Path.GetFileNameWithoutExtension(data.GetProperty("name").GetString() ?? "");
+                        var save = new SaveFileDialog { Filter = audioFilter + "|*." + audioFormat, DefaultExt = "." + audioFormat, FileName = (audioName.Length > 0 ? audioName : "yovoice") + "." + audioFormat, OverwritePrompt = true };
                         if (save.ShowDialog(this) != true) { result = false; break; }
                         string temporary = save.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
                         try { await Task.Run(() => File.Copy(exported, temporary)); File.Move(temporary, save.FileName, true); }
@@ -523,6 +527,12 @@ public partial class MainWindow : Window
                 case "model.import":
                     var localModel = new OpenFileDialog { Filter = "GGUF / SF2|*.gguf;*.sf2" };
                     result = localModel.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = localModel.FileName }) : null; break;
+                case "adapter.import":
+                    var adapterFile = new OpenFileDialog { Filter = "Safetensors|*.safetensors" };
+                    result = adapterFile.ShowDialog(this) == true ? await service.CallAsync(method, new { path = adapterFile.FileName }, TimeSpan.FromMinutes(30)) : null; break;
+                case "stems.export":
+                    var stemFolder = new OpenFolderDialog { Title = HostL10n.T("导出分轨到文件夹", "Export Stems to Folder") };
+                    result = stemFolder.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = stemFolder.FolderName }, TimeSpan.FromMinutes(10)) : null; break;
                 case "model.directory":
                     var folder = new OpenFolderDialog { Title = HostL10n.T("选择模型目录", "Choose Model Folder") };
                     result = folder.ShowDialog(this) == true ? await service.CallAsync(method, new { path = folder.FolderName }) : null; break;

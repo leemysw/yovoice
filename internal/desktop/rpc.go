@@ -157,6 +157,21 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.MediaFile(p.Kind, p.ID)
 	case "export.path":
 		return w.ExportPath(p.ID)
+	case "export.encode":
+		// 版本或时间线导出转成所选格式（带标签与封面），宿主再按返回的 ID 取文件弹保存框。
+		var in workbench.ExportRequest
+		if e := json.Unmarshal(data, &in); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		id, normalized, e := w.EncodeExport(ctx, in)
+		if e != nil {
+			return nil, e
+		}
+		reply := map[string]any{"id": id}
+		if normalized != nil {
+			reply["normalized"] = normalized
+		}
+		return reply, nil
 	case "media.rename":
 		return true, w.RenameMedia(p.Kind, p.ID, p.Name)
 	case "media.delete":
@@ -305,6 +320,47 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return map[string]string{"fileName": file}, e
 	case "melody.dismiss":
 		return true, w.DismissMelody(p.ID)
+	case "generation.separateStems":
+		return true, w.SeparateStems(p.ID)
+	case "generation.resing":
+		var input struct {
+			ID    string       `json:"id"`
+			Draft schema.Draft `json:"draft"`
+			Bars  []int        `json:"bars"`
+		}
+		input.Draft = schema.DefaultDraft()
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.ResingGeneration(input.ID, input.Draft, input.Bars)
+	case "music.styleFromImage":
+		var input struct {
+			MediaType string `json:"mediaType"`
+			Base64    string `json:"base64"`
+			Language  string `json:"language"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		b, e := base64.StdEncoding.DecodeString(input.Base64)
+		if e != nil {
+			return nil, msg.Err(msg.ErrImageInvalid, nil)
+		}
+		return w.StyleFromImage(ctx, input.MediaType, b, input.Language)
+	case "stems.export":
+		// 宿主选好文件夹后带着 path 转发过来；用户取消时宿主直接返回 null。
+		return w.ExportStems(p.ID, p.Path)
+	case "generation.transcribeMidi":
+		return true, w.TranscribeMIDI(p.ID)
+	case "midi.dismiss":
+		return true, w.DismissMidiImport(p.ID)
+	case "adapter.list":
+		return w.ListAdapters()
+	case "adapter.import":
+		// 宿主选好文件后带着 path 转发过来；用户取消时宿主直接返回 null，不会到这里。
+		return w.ImportAdapter(p.Path)
+	case "adapter.delete":
+		return true, w.DeleteAdapter(p.ID)
 	case "melody.inspect", "melody.transform":
 		var input struct {
 			Abc   string `json:"abc"`

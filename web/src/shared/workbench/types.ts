@@ -53,7 +53,9 @@ export type LogLevel = 'INFO' | 'WARN' | 'ERROR';
 export interface LogEntry { time: string; level: LogLevel; event: string; fields?: Record<string, unknown> }
 export interface LogFilter { level?: string; module?: string; text?: string; since?: string; offset?: number; limit?: number }
 export interface LogPage { entries: LogEntry[]; total: number; modules: string[] }
-export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; lyricWords?: AlignedWord[]; textWords?: AlignedWord[]; check?: AudioCheck }
+export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; lyricWords?: AlignedWord[]; textWords?: AlignedWord[]; check?: AudioCheck; seed?: number; stemOf?: string; stem?: StemName; patchOf?: string; patchBars?: number[] }
+/** HTDemucs 6-stem 的分轨名；分轨结果是同一作品里 stemOf 指向原版本的版本。 */
+export type StemName = 'drums' | 'bass' | 'other' | 'vocals' | 'guitar' | 'piano';
 /** 生成后的测量体检：整体响度（LUFS）、真峰值（dBTP）与发现的问题。 */
 export interface AudioCheck { loudness: number; peak: number; issues?: AudioIssue[] }
 /** 体检发现的一处问题；at/end 为秒。 */
@@ -75,7 +77,7 @@ export interface Activity {
   modelId?: string | null;
   kind: string;
   // melody 为出谱或扒谱，align 为歌词对齐，recognize 为识别声音样本的参考文本。
-  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption';
+  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption' | 'stems' | 'midi';
   code: MessageCode;
   params: MessageParams | null;
   status: string;
@@ -109,6 +111,7 @@ export interface State {
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
   melody?: MelodyResult;
+  midiImport?: MidiImport;
   transcript?: TranscriptResult;
   /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
   assistantSessions?: AssistantSessions; assistantLive?: AssistantLive; assistantMemory?: AssistantMemo[];
@@ -117,6 +120,10 @@ export interface State {
 }
 
 // 引擎写出的旋律谱，与 Go 的 schema.MelodyResult 一致：plan 为按歌词出谱，cover 为从歌曲扒谱；只在本次会话有效。
+/** 从版本扒出 MIDI 后新建的编曲作品，界面打开后清除。 */
+export interface MidiImport { id: string; projectId: string; sourceId: string }
+/** 导入的 YuE2 LoRA 适配器，由 adapter.list 返回，不属于作品状态。 */
+export interface Adapter { id: string; name: string; size: number; createdAt: string }
 export interface MelodyResult { id: string; projectId: string; source: 'plan' | 'cover'; abc: string; truncated?: boolean; createdAt: string }
 // 语音识别模型识别出的文字，与 Go 的 schema.TranscriptResult 一致，只在本次会话有效。识别声音样本时带 voiceId，由发起识别的输入框填入后清除；
 // 转写页转写上传的音频时带文件名 name、逐词时间 words 与音频时长 duration。

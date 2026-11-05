@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Не удалось декодировать аудио. Проверьте, не повреждён ли файл, не зашифрован ли он и есть ли в нём дорожка."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Не удалось закодировать экспортируемое аудио. Попробуйте WAV или другой формат."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Выберите аудио длительностью от 1 секунды до 10 минут. Из записей длиннее 60 секунд автоматически вырезается самый чистый фрагмент."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "Субтитры WebVTT"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Формат"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC без потерь"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Без потерь и примерно вдвое меньше WAV; воспроизводится в большинстве плееров."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Небольшой файл для телефонов, мессенджеров и видеоплатформ (AAC 256 кбит/с)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Записать в файл название, текст песни и обложку"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Экспорт субтитров"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Температура партитуры"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Top P партитуры"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Top K партитуры"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Штраф за повторы партитуры"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Температура звука"
   },
@@ -4285,5 +4315,137 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "Пакет неполный или не соответствует модели. Выберите основной GGUF и сохраните структуру всех сопутствующих файлов."
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Разделение на дорожки"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Перевод в MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "Для разделения на дорожки нужна модель HTDemucs 6 stems. Скачайте её в разделе «Модели» в настройках."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "Эта версия — дорожка или фрагмент, её нельзя разделить ещё раз."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "Для перевода в MIDI нужна модель MuScriptor. Скачайте её в разделе «Модели» в настройках."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "В этом аудио не найдено нот."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "LoRA этого проекта удалена. Выберите или импортируйте другую."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "Это не корректный файл safetensors. Выберите файл LoRA для YuE2."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Разделяет песню на ударные, бас, вокал, гитару, фортепиано и прочее · 44,1 кГц, стерео"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Переводит песню в многоинструментальный MIDI, который можно править в аранжировке · Только некоммерческое использование (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Разделить на дорожки"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Перевести в MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Ударные"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Бас"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Прочее"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Вокал"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Гитара"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Фортепиано"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "LoRA композиции"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Сила LoRA композиции"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "LoRA тембра"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Сила LoRA тембра"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "LoRA композиции"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "LoRA тембра"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "Нет"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Сила"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Импортировать LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Варианты"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Экспортировать все дорожки…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "У этой версии ещё нет дорожек. Сначала разделите её на дорожки."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Перепеть изменённые такты"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Перепеты такты {from}–{to}"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Перепеваются изменённые такты"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Частично перепеть можно только версии YuE2, созданные по мелодической партитуре, и у проекта тоже должна быть партитура."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "Изменились темп, тональность, число тактов или разделов — сгенерируйте песню целиком."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "Партитура и текст совпадают с этой версией — перепевать нечего."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "Новый дубль слишком отличается от оригинала, чтобы его склеить. Сгенерируйте песню целиком или попробуйте другое зерно."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Напеть мелодию"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Остановить запись"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Напойте или спойте мелодию (до 2 минут) — она станет партитурой в вашем стиле. Нужна модель SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "Запись слишком короткая. Напевайте хотя бы 3 секунды."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Стиль по картинке"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Выберите картинку, и подключённый ИИ-сервис предложит теги стиля. Сервис должен поддерживать изображения."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Выберите изображение JPEG, PNG или WebP до 8 МБ."
   }
 }

@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Could not decode audio. Check whether the file is damaged, encrypted, or missing a track."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Could not encode the exported audio. Try WAV or another format."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Choose audio between 1 second and 10 minutes. Recordings over 60 seconds are trimmed to their clearest part automatically."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT subtitles"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC lossless"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Lossless and about half the size of WAV; plays in most music apps."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Small file for phones, messaging and video platforms (AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Write title, lyrics and cover into the file"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Export subtitles"
@@ -3944,6 +3965,15 @@
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Score temperature"
   },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Score Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Score Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Score repetition penalty"
+  },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Audio temperature"
   },
@@ -4285,5 +4315,137 @@
   },
   "@yovoice.error.localModelIncomplete": {
     "defaultMessage": "The model package is incomplete or does not match. Select its main GGUF and keep all companion files in their original layout."
+  },
+  "@yovoice.activity.separateStems": {
+    "defaultMessage": "Separating stems"
+  },
+  "@yovoice.activity.transcribeMidi": {
+    "defaultMessage": "Transcribing to MIDI"
+  },
+  "@yovoice.error.stemModelRequired": {
+    "defaultMessage": "Stem separation needs the HTDemucs 6-stem model. Download it under Models in Settings."
+  },
+  "@yovoice.error.stemSource": {
+    "defaultMessage": "This version is a stem or a clip and can't be separated again."
+  },
+  "@yovoice.error.midiModelRequired": {
+    "defaultMessage": "MIDI transcription needs the MuScriptor model. Download it under Models in Settings."
+  },
+  "@yovoice.error.midiEmpty": {
+    "defaultMessage": "No notes were found in this audio."
+  },
+  "@yovoice.error.adapterMissing": {
+    "defaultMessage": "The LoRA this project uses was deleted. Choose or import another one."
+  },
+  "@yovoice.error.adapterInvalid": {
+    "defaultMessage": "This isn't a valid safetensors file. Choose a YuE2 LoRA file."
+  },
+  "@yovoice.settings.modelDesc.stems": {
+    "defaultMessage": "Splits a song into drums, bass, vocals, guitar, piano and other · 44.1 kHz stereo"
+  },
+  "@yovoice.settings.modelDesc.muscriptor": {
+    "defaultMessage": "Transcribes a song into multi-instrument MIDI you can keep editing in Arrange · Non-commercial use only (CC BY-NC)"
+  },
+  "@yovoice.stems.separate": {
+    "defaultMessage": "Separate stems"
+  },
+  "@yovoice.stems.toMidi": {
+    "defaultMessage": "Transcribe to MIDI"
+  },
+  "@yovoice.stems.name.drums": {
+    "defaultMessage": "Drums"
+  },
+  "@yovoice.stems.name.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.stems.name.other": {
+    "defaultMessage": "Other"
+  },
+  "@yovoice.stems.name.vocals": {
+    "defaultMessage": "Vocals"
+  },
+  "@yovoice.stems.name.guitar": {
+    "defaultMessage": "Guitar"
+  },
+  "@yovoice.stems.name.piano": {
+    "defaultMessage": "Piano"
+  },
+  "@yovoice.options.ar_lora": {
+    "defaultMessage": "Composition LoRA"
+  },
+  "@yovoice.options.ar_lora_scale": {
+    "defaultMessage": "Composition LoRA strength"
+  },
+  "@yovoice.options.nar_lora": {
+    "defaultMessage": "Timbre LoRA"
+  },
+  "@yovoice.options.nar_lora_scale": {
+    "defaultMessage": "Timbre LoRA strength"
+  },
+  "@yovoice.lora.ar": {
+    "defaultMessage": "Composition LoRA"
+  },
+  "@yovoice.lora.nar": {
+    "defaultMessage": "Timbre LoRA"
+  },
+  "@yovoice.lora.none": {
+    "defaultMessage": "None"
+  },
+  "@yovoice.lora.scale": {
+    "defaultMessage": "Strength"
+  },
+  "@yovoice.lora.import": {
+    "defaultMessage": "Import LoRA…"
+  },
+  "@yovoice.options.candidates": {
+    "defaultMessage": "Candidates"
+  },
+  "@yovoice.stems.exportAll": {
+    "defaultMessage": "Export all stems…"
+  },
+  "@yovoice.error.stemsMissing": {
+    "defaultMessage": "This version has no stems yet. Separate stems first."
+  },
+  "@yovoice.resing.action": {
+    "defaultMessage": "Re-sing changed bars"
+  },
+  "@yovoice.resing.label": {
+    "defaultMessage": "Re-sung bars {from}–{to}"
+  },
+  "@yovoice.activity.resing": {
+    "defaultMessage": "Re-singing changed bars"
+  },
+  "@yovoice.error.resingSource": {
+    "defaultMessage": "Only YuE2 versions made from a melody score can be partly re-sung, and the project needs a melody score too."
+  },
+  "@yovoice.error.resingWhole": {
+    "defaultMessage": "The tempo, key, bar count or number of sections changed, so only the whole song can be regenerated."
+  },
+  "@yovoice.error.resingNoChange": {
+    "defaultMessage": "The score and lyrics match this version, so there is nothing to re-sing."
+  },
+  "@yovoice.error.resingAlign": {
+    "defaultMessage": "The new take is too different from the original to join smoothly. Regenerate the whole song, or try another seed."
+  },
+  "@yovoice.melody.hum": {
+    "defaultMessage": "Hum a tune"
+  },
+  "@yovoice.melody.humStop": {
+    "defaultMessage": "Stop recording"
+  },
+  "@yovoice.melody.humHint": {
+    "defaultMessage": "Hum or sing a melody (up to 2 minutes); it becomes a melody score arranged in your style. Needs SheetSage2."
+  },
+  "@yovoice.error.humTooShort": {
+    "defaultMessage": "The recording is too short. Hum for at least 3 seconds."
+  },
+  "@yovoice.music.styleFromImage": {
+    "defaultMessage": "Style from image"
+  },
+  "@yovoice.music.styleFromImageHint": {
+    "defaultMessage": "Pick a picture and the connected AI service suggests style tags for it. The service must support images."
+  },
+  "@yovoice.error.imageInvalid": {
+    "defaultMessage": "Choose a JPEG, PNG or WebP image up to 8 MB."
   }
 }

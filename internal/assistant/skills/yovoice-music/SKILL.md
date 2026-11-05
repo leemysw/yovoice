@@ -30,7 +30,7 @@ Reference files are in this skill's folder (from the workspace: `.agents/skills/
 
 ## Settings
 
-`modelOptions.yue2`: `cot` (`auto` | `full` | `melody` | `off`; auto picks full with chords, melody without), `num_inference_steps` 1-64 (8; more steps can sound cleaner but take longer), `abc_temperature` 0.05-2 (0.7, score writing), `semantic_temperature` 0.05-2 (1.0), `semantic_top_p` 0.01-1 (0.95), `semantic_top_k` 1-500 (100), `semantic_repetition_penalty` 0.5-3 (1.2). Change them only when asked; the defaults are the tuned route.
+`modelOptions.yue2`: `cot` (`auto` | `full` | `melody` | `off`; auto picks full with chords, melody without), `candidates` 1-4 (1; how many takes one generate makes, each with the next seed), `num_inference_steps` 1-64 (8; more steps can sound cleaner but take longer), `abc_temperature` 0.05-2 (0.7, score writing), `abc_top_p` 0.01-1 (0.95), `abc_top_k` 1-500 (100), `abc_repetition_penalty` 0.5-3 (1.2), `semantic_temperature` 0.05-2 (1.0), `semantic_top_p` 0.01-1 (0.95), `semantic_top_k` 1-500 (100), `semantic_repetition_penalty` 0.5-3 (1.2), `ar_lora` / `nar_lora` (an imported adapter ID or empty; set in the app, not by you), `ar_lora_scale` / `nar_lora_scale` -10..10 (1). Change them only when asked; the defaults are the tuned route.
 
 ## Stable Audio sound effects
 

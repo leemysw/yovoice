@@ -135,3 +135,10 @@ func (s *ABCScore) HasChords() bool { return len(s.Voices[0].Chords) > 0 }
 func issue(code string, line int, format string, args ...any) *ABCIssue {
 	return &ABCIssue{Code: code, Line: line, Detail: fmt.Sprintf(format, args...)}
 }
+
+// BarSeconds 是第 bar 小节（1 起）在谱上的起止秒数，按谱面速度换算；YuE2 实际演唱会有出入。
+func (s *ABCScore) BarSeconds(bar int) (start, end float64) {
+	b := s.Voices[0].Bars[bar-1]
+	scale := 60 / float64(abcQuarter) / float64(s.Tempo)
+	return float64(b.Start) * scale, float64(b.Start+b.Length) * scale
+}
