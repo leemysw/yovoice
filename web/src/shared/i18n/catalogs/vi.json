@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Không thể giải mã âm thanh. Kiểm tra xem tệp có bị hỏng, mã hóa hoặc thiếu rãnh âm thanh không."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Không thể mã hóa âm thanh xuất. Hãy thử WAV hoặc định dạng khác."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Chọn âm thanh dài từ 1 giây đến 10 phút. Bản ghi dài hơn 60 giây sẽ tự động được cắt lấy đoạn rõ nhất."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "Phụ đề WebVTT"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Định dạng"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC không mất dữ liệu"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Không mất chất lượng, dung lượng khoảng một nửa WAV; phát được trên hầu hết ứng dụng nghe nhạc."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Tệp nhỏ cho điện thoại, ứng dụng nhắn tin và nền tảng video (AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Ghi tiêu đề, lời bài hát và ảnh bìa vào tệp"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Xuất phụ đề"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Nhiệt độ bản nhạc"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Top P bản nhạc"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Top K bản nhạc"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Phạt lặp bản nhạc"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Nhiệt độ âm thanh"

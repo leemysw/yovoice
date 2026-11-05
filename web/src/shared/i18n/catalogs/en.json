@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Could not decode audio. Check whether the file is damaged, encrypted, or missing a track."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Could not encode the exported audio. Try WAV or another format."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Choose audio between 1 second and 10 minutes. Recordings over 60 seconds are trimmed to their clearest part automatically."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT subtitles"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC lossless"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Lossless and about half the size of WAV; plays in most music apps."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Small file for phones, messaging and video platforms (AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Write title, lyrics and cover into the file"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Export subtitles"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Score temperature"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Score Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Score Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Score repetition penalty"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Audio temperature"

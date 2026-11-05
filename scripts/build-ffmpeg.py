@@ -1,4 +1,4 @@
-"""从固定源码构建仅支持参考音频转 WAV 的 FFmpeg，并复制到安装包。"""
+"""从固定源码构建精简 FFmpeg（导入音频转 WAV、导出 FLAC / M4A 并写入标签与 JPEG 封面），并复制到安装包。"""
 import hashlib
 import json
 import os
@@ -25,10 +25,11 @@ flags = [
     '--disable-debug', '--disable-ffplay', '--disable-ffprobe', '--disable-avdevice',
     '--disable-swscale', '--disable-x86asm', '--enable-small', '--enable-static', '--disable-shared',
     '--enable-ffmpeg', '--enable-protocol=file',
-    '--enable-demuxer=wav,mp3,mov,aac,flac,ogg,aiff,asf,matroska',
-    '--enable-decoder=mp3,mp3float,aac,alac,flac,vorbis,opus,wmav1,wmav2,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f32be,pcm_f64le,pcm_f64be,pcm_u8,pcm_alaw,pcm_mulaw',
-    '--enable-parser=mpegaudio,aac,flac,vorbis,opus', '--enable-muxer=wav',
-    '--enable-encoder=pcm_s16le', '--enable-filter=aresample,aformat,anull', '--extra-cflags=-Os',
+    '--enable-demuxer=wav,mp3,mov,aac,flac,ogg,aiff,asf,matroska,ffmetadata,image_jpeg_pipe',
+    '--enable-decoder=mp3,mp3float,aac,alac,flac,vorbis,opus,wmav1,wmav2,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f32be,pcm_f64le,pcm_f64be,pcm_u8,pcm_alaw,pcm_mulaw,mjpeg',
+    '--enable-parser=mpegaudio,aac,flac,vorbis,opus,mjpeg', '--enable-muxer=wav,flac,ipod',
+    # 导出：FLAC 与 AAC 都是 FFmpeg 自带的 LGPL 编码器；封面原样复制，mjpeg 解码只用来读出尺寸。
+    '--enable-encoder=pcm_s16le,flac,aac', '--enable-filter=aresample,aformat,anull', '--extra-cflags=-Os',
 ]
 if system == 'Windows':
     flags += ['--target-os=mingw32', '--extra-ldflags=-static']

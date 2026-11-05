@@ -5,8 +5,18 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
+
+// audioFilters 是导出音频保存框按格式使用的过滤器。
+func audioFilters() map[string]fileFilter {
+	return map[string]fileFilter{
+		"wav":  {T("WAV 音频", "WAV Audio"), []string{"wav"}},
+		"flac": {T("FLAC 无损音频", "FLAC Lossless Audio"), []string{"flac"}},
+		"m4a":  {T("M4A 音频", "M4A Audio"), []string{"m4a"}},
+	}
+}
 
 func asCallError(err error, target **callError) bool { return errors.As(err, target) }
 
@@ -131,19 +141,25 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, err
 		}
 		defer os.Remove(source)
-		name := input.Name
-		if name == "" {
-			name = "yovoice.wav"
+		// 格式由本地服务写出的文件决定：WAV、FLAC 或 M4A，保存框只列这一种。
+		format := strings.TrimPrefix(filepath.Ext(source), ".")
+		filter, ok := audioFilters()[format]
+		if !ok {
+			return nil, errors.New(T("导出文件格式无效。", "The exported file format is invalid."))
 		}
-		path := a.pick(chooseSave, T("导出音频", "Export Audio"), filepath.Base(name), fileFilter{T("WAV 音频", "WAV Audio"), []string{"wav"}})
+		name := strings.TrimSuffix(filepath.Base(input.Name), filepath.Ext(input.Name))
+		if name == "" || name == "." {
+			name = "yovoice"
+		}
+		path := a.pick(chooseSave, T("导出音频", "Export Audio"), name+"."+format, filter)
 		if path == "" {
 			return false, nil
 		}
-		wav, err := os.ReadFile(source)
+		data, err := os.ReadFile(source)
 		if err != nil {
 			return nil, err
 		}
-		return true, writeAtomic(path, wav)
+		return true, writeAtomic(path, data)
 	case "output.export":
 		// 已生成的版本直接复制 outputs 中的文件，不经页面传音频字节，长歌也不受消息大小限制。
 		location, err := a.svc.Call("media.path", map[string]any{"kind": "outputs", "id": input.ID}, 0)

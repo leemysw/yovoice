@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Не удалось декодировать аудио. Проверьте, не повреждён ли файл, не зашифрован ли он и есть ли в нём дорожка."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Не удалось закодировать экспортируемое аудио. Попробуйте WAV или другой формат."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Выберите аудио длительностью от 1 секунды до 10 минут. Из записей длиннее 60 секунд автоматически вырезается самый чистый фрагмент."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "Субтитры WebVTT"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Формат"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC без потерь"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Без потерь и примерно вдвое меньше WAV; воспроизводится в большинстве плееров."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Небольшой файл для телефонов, мессенджеров и видеоплатформ (AAC 256 кбит/с)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Записать в файл название, текст песни и обложку"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Экспорт субтитров"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Температура партитуры"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Top P партитуры"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Top K партитуры"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Штраф за повторы партитуры"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Температура звука"

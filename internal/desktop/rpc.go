@@ -157,6 +157,21 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.MediaFile(p.Kind, p.ID)
 	case "export.path":
 		return w.ExportPath(p.ID)
+	case "export.encode":
+		// 版本或时间线导出转成所选格式（带标签与封面），宿主再按返回的 ID 取文件弹保存框。
+		var in workbench.ExportRequest
+		if e := json.Unmarshal(data, &in); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		id, normalized, e := w.EncodeExport(ctx, in)
+		if e != nil {
+			return nil, e
+		}
+		reply := map[string]any{"id": id}
+		if normalized != nil {
+			reply["normalized"] = normalized
+		}
+		return reply, nil
 	case "media.rename":
 		return true, w.RenameMedia(p.Kind, p.ID, p.Name)
 	case "media.delete":

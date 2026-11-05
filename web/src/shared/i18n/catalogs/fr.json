@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "Impossible de décoder l’audio. Vérifiez que le fichier n’est pas endommagé, chiffré ou dépourvu de piste."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "Impossible d’encoder l’audio exporté. Essayez le WAV ou un autre format."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "Choisissez un audio de 1 seconde à 10 minutes. Les enregistrements de plus de 60 secondes sont automatiquement réduits à leur passage le plus net."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "Sous-titres WebVTT"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC sans perte"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A (AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "Sans perte et environ deux fois plus léger que le WAV ; lu par la plupart des lecteurs."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "Fichier léger pour mobiles, messageries et plateformes vidéo (AAC 256 kbit/s)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "Écrire le titre, les paroles et la pochette dans le fichier"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "Exporter les sous-titres"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Température de partition"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "Top P partition"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "Top K partition"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "Pénalité de répétition de partition"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "Température audio"

@@ -105,6 +105,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.audioDuration` 请选择 1 秒到 10 分钟的音频；超过 60 秒的录音会自动截取最清楚的一段。
 - `error.audioFormat` 请选择有效的单声道或双声道 PCM / Float WAV 音频。
 - `error.audioDecode` 无法解码音频，请检查文件是否损坏、加密或缺少音轨。
+- `error.audioEncode` 导出音频编码失败，可改用 WAV 或其他格式重试。
 - `error.audioConverterMissing` 安装包缺少音频转换器，请重新安装完整的 yovoice 安装包。
 - `error.nameLength` 名称需为 1–120 个字符。
 - `error.draftLimits` 作品内容超出限制。

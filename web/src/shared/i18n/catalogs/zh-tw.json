@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "無法解碼音訊，請檢查檔案是否損毀、加密或缺少音軌。"
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "匯出音訊編碼失敗，可改用 WAV 或其他格式重試。"
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "請選擇 1 秒到 10 分鐘的音訊；超過 60 秒的錄音會自動擷取最清楚的一段。"
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT 字幕"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "格式"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC 無損"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A（AAC）"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "無損，體積約為 WAV 的一半，主流播放器都能播放。"
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "檔案小，適合手機、通訊軟體和影音平台（AAC 256 kbps）。"
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "把標題、歌詞和封面寫進檔案"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "匯出字幕"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "寫譜溫度"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "寫譜 Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "寫譜 Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "寫譜重複懲罰"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "演唱溫度"

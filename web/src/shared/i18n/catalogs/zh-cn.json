@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "无法解码音频，请检查文件是否损坏、加密或缺少音轨。"
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "导出音频编码失败，可改用 WAV 或其他格式重试。"
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "请选择 1 秒到 10 分钟的音频；超过 60 秒的录音会自动截取最清楚的一段。"
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT 字幕"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "格式"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC 无损"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A（AAC）"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "无损，体积约为 WAV 的一半，主流播放器都能播放。"
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "文件小，适合手机、聊天软件和视频平台（AAC 256 kbps）。"
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "把标题、歌词和封面写进文件"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "导出字幕"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "写谱温度"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "写谱 Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "写谱 Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "写谱重复惩罚"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "演唱温度"

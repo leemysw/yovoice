@@ -59,3 +59,11 @@ export function SongCover({ seed, animated = false, size = 320 }: { seed: string
   }, [seed, animated]);
   return <canvas ref={canvas} className="song-cover" width={size} height={size} aria-hidden="true" />;
 }
+
+// 导出时写进 FLAC / M4A 的封面：与播放页同一张图，静止画面，JPEG 的 base64（不带 data: 前缀）。
+export function coverJpeg(seed: string, size = 600): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  drawCover(canvas, seed);
+  return canvas.toDataURL('image/jpeg', 0.9).split(',')[1] ?? '';
+}

@@ -78,6 +78,7 @@ const (
 	ErrAudioDuration         Code = "@yovoice.error.audioDuration"
 	ErrAudioFormat           Code = "@yovoice.error.audioFormat"
 	ErrAudioDecode           Code = "@yovoice.error.audioDecode"
+	ErrAudioEncode           Code = "@yovoice.error.audioEncode"
 	ErrAudioConverterMissing Code = "@yovoice.error.audioConverterMissing"
 	ErrNameLength            Code = "@yovoice.error.nameLength"
 	ErrDraftLimits           Code = "@yovoice.error.draftLimits"
@@ -238,7 +239,7 @@ func All() []Code {
 		ErrDownloadStale, ErrDownloadChecksum, ErrDownloadOversized,
 		ErrGenerateFailed, ErrParamsOutOfRange, ErrStateSaveFailed, ErrStateCorrupt,
 		ErrAudioPathInvalid, ErrAudioPathSymlink, ErrAudioMissing, ErrAudioKindInvalid, ErrAudioIDInvalid,
-		ErrAudioTooLarge, ErrAudioDuration, ErrAudioFormat, ErrAudioDecode, ErrAudioConverterMissing,
+		ErrAudioTooLarge, ErrAudioDuration, ErrAudioFormat, ErrAudioDecode, ErrAudioEncode, ErrAudioConverterMissing,
 		ErrNameLength, ErrDraftLimits, ErrDraftIDInvalid, ErrTextRequired, ErrTitleLength,
 		ErrLanguageUnsupported, ErrModeInvalid, ErrEmotionInvalid, ErrEmotionStrength,
 		ErrEmotionTextRequired, ErrEmotionVoiceRequired, ErrVoiceRequired, ErrVoiceBusyDelete,

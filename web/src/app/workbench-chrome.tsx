@@ -39,6 +39,8 @@ import { useCharacterFlow } from './use-character-flow';
 import { InspectorSlot } from './inspector-slot';
 import { WorkbenchOverlays, type VoicePickerMode } from './workbench-overlays';
 import { CaptionDialog } from '../features/media/caption-dialog';
+import { VersionExportDialog } from '../features/media/version-export-dialog';
+import { coverJpeg } from '../features/music/song-cover';
 import { TranscribePage } from '../features/transcribe/transcribe-page';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
 // 页面级组件按需加载：音乐、编曲、时间线与导入书稿只在用到时取回，首屏主包只含外壳与语音编辑。
@@ -112,6 +114,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const [voiceEditor, setVoiceEditor] = useState<Voice | Generation | null>(null);
   // 正在导出字幕的语音版本。
   const [captionTarget, setCaptionTarget] = useState<Generation | null>(null);
+  const [exportTarget, setExportTarget] = useState<Generation | null>(null);
   const [nowPlaying, setNowPlaying] = useState<Generation | null>(null);
   const libraryTabs = <TabList value={page === 'voices' ? 'voices' : 'characters'} onChange={setPage} role="tablist" hasDivider>
     <Tab value="characters" label={t('@yovoice.library.voicesTab')} panelId="voice-library-panel" />
@@ -155,8 +158,12 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   });
   // 导出名称：新版本的文件名已带时间与内容摘要，旧的哈希文件名改用音频标题。
   const versionName = (item: Generation) => { const stem = item.fileName.replace(/\.wav$/, ''); return /^[0-9a-f]{32}$/.test(stem) ? item.title : stem; };
-  // 直接导出音频。
-  const exportVersion = (item: Generation) => run(() => exportOutput(item.id, item.fileName, versionName(item)));
+  // 导出音频：桌面端先选格式与响度，浏览器预览直接下载 WAV。
+  const exportVersion = (item: Generation) => { if (isDesktop) setExportTarget(item); else run(() => exportOutput(item.id, item.fileName, versionName(item))); };
+  // FLAC / M4A 的标签：标题取版本标题、专辑取作品名；音乐另写歌词和与播放页相同的封面。
+  const exportTags = (item: Generation) => () => projectKind(item.settings) === 'music'
+    ? { title: item.title, album: draft.title, lyrics: item.settings.lyrics, cover: coverJpeg(item.id) }
+    : { title: item.title, album: draft.title };
   const audition = (value: Track) => {
     if (page === 'create') setTrack({ ...value, playRequest: performance.now() });
     else setPreviewTrack(current => current?.id === value.id ? null : { ...value, playRequest: performance.now() });
@@ -242,6 +249,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
       </VStack>} /></VStack>
     </VStack></AppShell>
     {ready && !assistantHidden ? <PageBoundary name="assistant"><Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense></PageBoundary> : null}
+    {exportTarget ? <PageBoundary name="version-export"><VersionExportDialog generation={exportTarget} name={versionName(exportTarget)} tags={exportTags(exportTarget)} onClose={() => setExportTarget(null)} /></PageBoundary> : null}
     {captionTarget ? <PageBoundary name="caption-export"><CaptionDialog state={state} generation={captionTarget} name={versionName(captionTarget)} onClose={() => setCaptionTarget(null)} /></PageBoundary> : null}
     <WorkbenchOverlays state={state} catalog={catalog} ready={ready} error={error} setError={setError} page={page} run={run} session={session} selectDraft={selectDraft} instrumental={instrumental} voicePicker={voicePicker} setVoicePicker={setVoicePicker} editor={editor} pronunciation={pronunciation} setPronunciation={setPronunciation} voiceTarget={voiceTarget} setVoiceTarget={setVoiceTarget} projectList={projectList} applyToTarget={applyToTarget} nowPlaying={nowPlaying} setNowPlaying={setNowPlaying} openSettings={openSettings} voiceEditor={voiceEditor} setVoiceEditor={setVoiceEditor} cues={cues} showIntro={showIntro} finishIntro={finishIntro} showTour={showTour} finishTour={finishTour} />
   </VStack>;

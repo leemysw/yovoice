@@ -386,6 +386,9 @@
   "@yovoice.error.audioDecode": {
     "defaultMessage": "오디오를 디코딩할 수 없습니다. 파일이 손상되었거나 암호화되었거나 트랙이 없는지 확인하세요."
   },
+  "@yovoice.error.audioEncode": {
+    "defaultMessage": "내보낼 오디오를 인코딩하지 못했습니다. WAV 등 다른 형식으로 다시 시도하세요."
+  },
   "@yovoice.error.audioDuration": {
     "defaultMessage": "1초~10분 길이의 오디오를 선택하세요. 60초가 넘는 녹음은 가장 깨끗한 부분을 자동으로 잘라 사용합니다."
   },
@@ -1816,6 +1819,24 @@
   },
   "@yovoice.timeline.formatVtt": {
     "defaultMessage": "WebVTT 자막"
+  },
+  "@yovoice.export.format": {
+    "defaultMessage": "형식"
+  },
+  "@yovoice.export.formatFlac": {
+    "defaultMessage": "FLAC 무손실"
+  },
+  "@yovoice.export.formatM4a": {
+    "defaultMessage": "M4A(AAC)"
+  },
+  "@yovoice.export.formatFlacHint": {
+    "defaultMessage": "무손실이며 WAV의 약 절반 크기로, 대부분의 플레이어에서 재생됩니다."
+  },
+  "@yovoice.export.formatM4aHint": {
+    "defaultMessage": "휴대폰, 메신저, 동영상 플랫폼용 작은 파일(AAC 256 kbps)."
+  },
+  "@yovoice.export.tags": {
+    "defaultMessage": "제목, 가사, 커버를 파일에 기록"
   },
   "@yovoice.timeline.exportCaptions": {
     "defaultMessage": "자막 내보내기"
@@ -3943,6 +3964,15 @@
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "악보 온도"
+  },
+  "@yovoice.options.abc_top_p": {
+    "defaultMessage": "악보 Top P"
+  },
+  "@yovoice.options.abc_top_k": {
+    "defaultMessage": "악보 Top K"
+  },
+  "@yovoice.options.abc_repetition_penalty": {
+    "defaultMessage": "악보 반복 페널티"
   },
   "@yovoice.options.semantic_temperature": {
     "defaultMessage": "오디오 온도"
