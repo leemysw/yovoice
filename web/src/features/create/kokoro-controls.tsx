@@ -48,6 +48,7 @@ export function KokoroControls({ draft, model, change, advanced, setAdvanced }: 
       <Slider label={t('@yovoice.create.secondVoiceWeight')} value={ratio} min={1} max={99} step={1} valueDisplay="text" formatValue={value => `${value}%`}
         onChange={(value: number) => change({ speaker: serializeBlend(speaker, second, value), synthesisLanguage: 'auto' })} />
     </> : null}
+    <Slider label={t('@yovoice.create.speed')} value={draft.speed} min={0.5} max={2} step={0.05} onChange={(speed: number) => change({ speed })} valueDisplay="text" formatValue={value => `${value.toFixed(2)}×`} />
     <AdvancedSettings open={advanced} onOpenChange={setAdvanced}>
       <ModelOptions draft={draft} family="kokoro_tts" change={change} />
       <SeedInput value={draft.seed} change={change} />

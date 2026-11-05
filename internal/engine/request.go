@@ -51,6 +51,7 @@ func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error)
 	}
 	if m.Family == "kokoro_tts" {
 		o, _ := d.GenerationOptions(m.Family)
+		o["speed"] = d.Speed
 		if d.Seed != nil {
 			o["seed"] = *d.Seed
 		}
