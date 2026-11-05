@@ -6,6 +6,7 @@
 
 ### English
 
+- Kokoro now has a speaking-rate control and passes it to the inference engine.
 - Import existing local audio.cpp GGUF models and supported SF2 sound fonts from model settings, without copying files or changing the download directory. Imported files are preserved when removing the model; PyTorch/MLX weights need conversion first.
 - Feature tour cards now stay inside the window, keeping Next and Done clickable with longer translations and smaller windows.
 - Speech recognition and subtitles with the optional Qwen3 ASR 0.6B model (Voice models, about 2.3 GB including its timing aligner; supports 30 languages, needs inference engine v0.9.1 or later):
@@ -26,6 +27,7 @@
 
 ### 简体中文
 
+- Kokoro 新增语速调节，并将所选语速传入推理引擎。
 - 模型设置新增本地导入，原地使用已有 audio.cpp GGUF 模型及受支持的 SF2 音色库，无需复制或更改下载目录；移除导入模型时保留源文件。PyTorch／MLX 原始权重须先转换。
 - 功能引导卡片按实际大小限制在窗口内，较长的翻译和较小的窗口也能点击“下一步”和“开始使用”。
 - 可选语音识别模型 Qwen3 ASR 0.6B（设置的语音模型里下载，含时间对齐模型约 2.3 GB；支持 30 种语言，需要推理引擎 v0.9.1 及以上）：

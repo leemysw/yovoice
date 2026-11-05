@@ -36,3 +36,18 @@ test('Kokoro 混合音色默认关闭，开启为 50% 并随草稿持久化', as
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').drafts?.[0]?.speaker))
     .toBe('zf_xiaobei');
 });
+
+test('Kokoro 语速控件保存后重新加载仍保持所选语速', async ({ page }) => {
+  const state = emptyState();
+  Object.assign(state.drafts[0], { modelId: 'kokoro-82m-q8', speaker: 'af_heart', speed: 1.5 });
+  await seedState(page, state);
+  await page.goto('/');
+  const speed = page.getByRole('slider', { name: '语速', exact: true });
+  await expect(speed).toHaveAttribute('aria-valuenow', '1.5');
+  await speed.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(speed).toHaveAttribute('aria-valuenow', '1.45');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).drafts[0].speed)).toBe(1.45);
+  await page.reload();
+  await expect(speed).toHaveAttribute('aria-valuenow', '1.45');
+});

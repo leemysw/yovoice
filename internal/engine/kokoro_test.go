@@ -27,8 +27,8 @@ func TestKokoroVoiceRequests(t *testing.T) {
 				t.Fatal(r)
 			}
 			o := r["options"].(map[string]any)
-			if len(o) != 0 {
-				t.Fatal("分段默认值交给内核按语言决定，不能透传其他模型的参数", o)
+			if len(o) != 1 || o["speed"] != float64(1) {
+				t.Fatal("默认语速为 1，分段交给内核，不能透传其他模型的参数", o)
 			}
 		}
 		d.SynthesisLanguage = "ja"

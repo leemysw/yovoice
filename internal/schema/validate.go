@@ -73,6 +73,9 @@ func Validate(d Draft) error {
 		return e
 	}
 	if m.Family == "kokoro_tts" {
+		if !InRange(d.Speed, .5, 2) {
+			return msg.Err(msg.ErrParamsOutOfRange, nil)
+		}
 		primary, ok := kokoroPrimaryVoice(d.KokoroSpeaker(m), m.Voices)
 		if !ok {
 			return msg.Err(msg.ErrSpeakerInvalid, nil)
