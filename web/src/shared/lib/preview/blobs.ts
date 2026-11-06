@@ -5,14 +5,30 @@ function database(): Promise<IDBDatabase> { return new Promise((resolve, reject)
   request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
 }); }
 
+type StoredAudio = Blob | { bytes: ArrayBuffer; type: string };
+
 // 传入 value 时写入并原样返回；不传时读取，缺失返回 undefined。每次操作单独开关数据库连接。
 export async function blobStore(key: string, value?: Blob): Promise<Blob | undefined> {
   const db = await database();
-  try { return await new Promise((resolve, reject) => {
-    const transaction = db.transaction('audio', value ? 'readwrite' : 'readonly');
-    const request = value ? transaction.objectStore('audio').put(value, key) : transaction.objectStore('audio').get(key);
-    transaction.oncomplete = () => resolve(value ?? request.result); transaction.onerror = () => reject(transaction.error);
-  }); } finally { db.close(); }
+  const requestAudio = (entry?: StoredAudio) => new Promise<StoredAudio | undefined>((resolve, reject) => {
+    const transaction = db.transaction('audio', entry ? 'readwrite' : 'readonly');
+    const store = transaction.objectStore('audio');
+    const request = entry ? store.put(entry, key) : store.get(key);
+    transaction.oncomplete = () => resolve(entry ?? request.result);
+    transaction.onabort = () => reject(transaction.error ?? request.error);
+  });
+  try {
+    if (value) {
+      try { await requestAudio(value); }
+      catch {
+        // WebKit 的临时会话可能拒绝存 Blob，改存字节和媒体类型。
+        await requestAudio({ bytes: await value.arrayBuffer(), type: value.type });
+      }
+      return value;
+    }
+    const saved = await requestAudio();
+    return saved instanceof Blob || !saved ? saved : new Blob([saved.bytes], { type: saved.type });
+  } finally { db.close(); }
 }
 
 export async function blobDelete(key: string): Promise<void> {

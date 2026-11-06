@@ -4448,6 +4448,14 @@
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "Wähle ein JPEG-, PNG- oder WebP-Bild bis 8 MB."
   },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "Auswahl anhören"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "Auswahl abbrechen"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "{selected} s von {total} s gewählt. 1–60 Sekunden beibehalten."
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Text-Token pro Segment"
   },

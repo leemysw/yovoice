@@ -4448,6 +4448,14 @@
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "Выберите изображение JPEG, PNG или WebP до 8 МБ."
   },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "Прослушать фрагмент"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "Отменить выбор"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "Выбрано {selected} с из {total} с. Оставьте от 1 до 60 секунд."
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Текстовых токенов на сегмент"
   },

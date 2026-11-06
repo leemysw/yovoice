@@ -4448,6 +4448,14 @@
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "Hãy chọn ảnh JPEG, PNG hoặc WebP không quá 8 MB."
   },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "Nghe thử đoạn đã chọn"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "Hủy chọn"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "Đã chọn {selected} giây trên {total} giây. Hãy giữ từ 1 đến 60 giây."
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Số token văn bản tối đa mỗi đoạn"
   },

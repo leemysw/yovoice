@@ -4448,6 +4448,14 @@
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "請選擇 JPEG、PNG 或 WebP 圖片，大小不超過 8 MB。"
   },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "試聽選段"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "取消選段"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "已選 {selected} 秒，原錄音 {total} 秒。請保留 1–60 秒。"
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "每段文字 Token 上限"
   },

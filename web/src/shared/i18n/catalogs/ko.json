@@ -4448,6 +4448,14 @@
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "8MB 이하의 JPEG, PNG, WebP 이미지를 선택하세요."
   },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "선택 구간 미리 듣기"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "선택 취소"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "전체 {total}초 중 {selected}초 선택. 1~60초를 남겨 주세요."
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "구간별 텍스트 토큰 상한"
   },
