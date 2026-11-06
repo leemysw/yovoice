@@ -4447,5 +4447,86 @@
   },
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "Escolha uma imagem JPEG, PNG ou WebP de até 8 MB."
+  },
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "Tokens de texto por segmento"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "Normalizar números e símbolos"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "O mecanismo selecionado não oferece suporte a {name}. Use um mecanismo compatível ou remova esta configuração."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "Execução e cache"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "As configurações são salvas no projeto. Mudanças recarregam o modelo na próxima geração. As chaves correspondem ao mecanismo."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "Ouvir durante a geração"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "Reproduz os trechos assim que chegam e salva o resultado completo ao terminar."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "O mecanismo atual não oferece transmissão para este modelo."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "A transmissão do VoxCPM2 desativa novas tentativas após falhas."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "Threads de inferência (0 = automático)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "Índice da GPU (começa em 0)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "Descarregar após inatividade (segundos, 0 = desligado)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "Restaurar padrões do mecanismo"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "Descarregar modelo e limpar cache"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "Modelo descarregado e cache liberado."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "Ouvindo trechos gerados. O resultado completo também será salvo."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "Parar prévia"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "Não foi possível reproduzir a prévia. Reproduza o resultado completo ao terminar."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "A conexão da prévia foi interrompida. Reproduza o resultado completo ao terminar."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "O buffer da prévia está cheio. Reproduza o resultado completo ao terminar."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "O VoxCPM2 não pode repetir tentativas durante a transmissão. Desative as tentativas ou a transmissão."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Cadência dos blocos"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Quadros por bloco"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Quadros anteriores de contexto"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Quadros de antecipação"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Crescente"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fixa"
   }
 }

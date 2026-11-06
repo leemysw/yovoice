@@ -4447,5 +4447,86 @@
   },
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "請選擇 JPEG、PNG 或 WebP 圖片，大小不超過 8 MB。"
+  },
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "每段文字 Token 上限"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "正規化數字與符號"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "目前的推理引擎不支援參數 {name}。請使用相容的引擎，或移除此設定。"
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "執行與快取"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "這些設定儲存在目前作品中。修改後下次產生會重新載入模型；工作階段參數使用推論引擎的鍵名。"
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "邊產生邊試聽"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "收到音訊片段就播放，產生完成後仍會儲存完整結果。"
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "目前引擎未提供此模型的串流輸出。"
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "VoxCPM2 串流產生會關閉失敗重試。"
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "推論執行緒數（0 為自動）"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "GPU 裝置編號（從 0 開始）"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "閒置卸載（秒，0 為關閉）"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "還原引擎預設"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "卸載模型並清除快取"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "模型已卸載，快取已釋放。"
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "正在試聽串流音訊，產生完成後仍會儲存完整結果。"
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "停止試聽"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "無法播放串流試聽，產生完成後可播放完整音訊。"
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "串流試聽連線已中斷，產生完成後可播放完整音訊。"
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "試聽緩衝區已滿，產生完成後可播放完整音訊。"
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 串流產生不支援失敗重試，請關閉重試或串流輸出。"
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "音訊片段節奏"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "每段影格數"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "前置內容影格數"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "預讀影格數"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "逐步增大"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "固定"
   }
 }

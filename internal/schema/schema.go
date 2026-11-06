@@ -18,7 +18,17 @@ func NewID() string {
 }
 func ValidID(id string) bool { b, e := hex.DecodeString(id); return e == nil && len(b) == 16 }
 
+// RuntimeSettings 按作品保存，只有显式设置的字段才覆盖引擎默认值。
+type RuntimeSettings struct {
+	Streaming         bool           `json:"streaming,omitempty"`
+	Threads           int            `json:"threads,omitempty"`
+	Device            int            `json:"device,omitempty"`
+	IdleUnloadSeconds *int           `json:"idleUnloadSeconds,omitempty"`
+	Session           map[string]any `json:"session,omitempty"`
+}
+
 type SynthesisSettings struct {
+	Runtime           *RuntimeSettings          `json:"runtime,omitempty"`
 	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty"`
 	Speaker           string                    `json:"speaker,omitempty"`
 	SynthesisLanguage string                    `json:"synthesisLanguage,omitempty"`
@@ -321,16 +331,20 @@ type Preferences struct {
 var OptionalFeatures = []string{"story", "music", "assistant"}
 
 type State struct {
-	Characters     []Character        `json:"characters"`
-	Previews       []CharacterPreview `json:"previews"`
-	Drafts         []Draft            `json:"drafts"`
-	Voices         []Voice            `json:"voices"`
-	Models         []InstalledModel   `json:"models"`
-	History        []Generation       `json:"history"`
-	Preferences    Preferences        `json:"preferences"`
-	RuntimePath    *string            `json:"runtimePath"`
-	RuntimeBackend *string            `json:"runtimeBackend"`
-	RuntimeVersion *string            `json:"runtimeVersion"`
+	// RuntimeOptions 来自所选引擎的模型清单，运行时重新读取，不写入状态数据库。
+	RuntimeOptions        map[string][]string `json:"runtimeOptions,omitempty"`
+	RuntimeModes          map[string][]string `json:"runtimeModes,omitempty"`
+	RuntimeSessionOptions map[string][]string `json:"runtimeSessionOptions,omitempty"`
+	Characters            []Character         `json:"characters"`
+	Previews              []CharacterPreview  `json:"previews"`
+	Drafts                []Draft             `json:"drafts"`
+	Voices                []Voice             `json:"voices"`
+	Models                []InstalledModel    `json:"models"`
+	History               []Generation        `json:"history"`
+	Preferences           Preferences         `json:"preferences"`
+	RuntimePath           *string             `json:"runtimePath"`
+	RuntimeBackend        *string             `json:"runtimeBackend"`
+	RuntimeVersion        *string             `json:"runtimeVersion"`
 	// Runtimes 按后端记录下载安装的内核，切换计算设备后再切回时直接复用。
 	Runtimes map[string]InstalledRuntime `json:"runtimes,omitempty"`
 	Activity *Activity                   `json:"activity"`

@@ -11,13 +11,17 @@ import (
 var generationOptionsJSON []byte
 
 type GenerationOption struct {
-	Key     string   `json:"key"`
-	Type    string   `json:"type"`
-	Default any      `json:"default"`
-	Min     float64  `json:"min"`
-	Max     float64  `json:"max"`
-	Step    float64  `json:"step"`
-	Values  []string `json:"values"`
+	// RequiresRuntime 的选项只在当前引擎清单明确声明支持时启用，旧引擎不静默忽略。
+	RequiresRuntime bool     `json:"requiresRuntime,omitempty"`
+	StreamOnly      bool     `json:"streamOnly,omitempty"`
+	ModelPrefix     string   `json:"modelPrefix,omitempty"`
+	Key             string   `json:"key"`
+	Type            string   `json:"type"`
+	Default         any      `json:"default"`
+	Min             float64  `json:"min"`
+	Max             float64  `json:"max"`
+	Step            float64  `json:"step"`
+	Values          []string `json:"values"`
 }
 
 var GenerationOptions = func() map[string][]GenerationOption {
@@ -37,4 +41,16 @@ var OmniAttributes = func() map[string][][2]string {
 		panic(err)
 	}
 	return attributes
+}()
+
+// RuntimeOptions 只包含已核对的模型会话参数，与界面共用；引擎清单还需声明当前版本支持。
+//
+//go:embed runtime_options.json
+var runtimeOptionsJSON []byte
+var RuntimeOptions = func() map[string][]GenerationOption {
+	var options map[string][]GenerationOption
+	if err := json.Unmarshal(runtimeOptionsJSON, &options); err != nil {
+		panic(err)
+	}
+	return options
 }()

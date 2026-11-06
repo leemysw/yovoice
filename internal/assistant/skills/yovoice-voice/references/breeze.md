@@ -14,3 +14,5 @@ Apply with `update_work` {"id","settings":{...}}; only given fields change.
 - `max_tokens` 50-1500 (900): per-segment cap (~72 s).
 - `guidance_scale` 1-5 (1).
 - Sampling: `temperature` .05-2 (.9), `depth_temperature` .05-2 (.9), `top_k` 1-200 (50), `top_p` .01-1 (1).
+
+Streaming engines can set `stream_chunk_policy` (`grow` or `fixed`) and `stream_frames_per_event` (1–64). These options only apply when runtime streaming is enabled. Also accepts `stream_lookahead_margin` (0–64).

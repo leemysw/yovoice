@@ -105,6 +105,9 @@ func run() error {
 			return e
 		}
 	}
+	if e = wb.RefreshRuntimeCapabilities(); e != nil {
+		return e
+	}
 	listener, e := net.Listen("tcp4", "127.0.0.1:0")
 	if e != nil {
 		return e

@@ -217,7 +217,7 @@ test('选中文字显示发音浮层，键盘与鼠标交互应用后只修改�
   await editor.press('ArrowRight'); await expect(action).toHaveCount(0);
   await editor.press('Shift+ArrowLeft'); await expect(action).toBeVisible();
   await editor.press('Escape'); await expect(action).toHaveCount(0);
-  await page.locator('.advanced summary').click();
+  await page.locator('summary').filter({ hasText: '高级设置' }).click();
   await expect(page.getByRole('spinbutton', { name: '段间停顿（毫秒）' })).toBeVisible();
 });
 

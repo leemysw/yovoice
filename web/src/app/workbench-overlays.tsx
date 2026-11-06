@@ -10,6 +10,7 @@ import { PageBoundary } from '../shared/ui/page-boundary';
 import { call } from '../shared/lib/client';
 import { formatNotice } from '../shared/i18n/format';
 import { isAligner, isIndexModel, type Character, type Draft, type Generation, type ModelPackage, type State, type Voice } from '../shared/workbench';
+import { LiveAudioNotice } from '../features/media/live-audio-notice';
 import { Notifications } from './notifications';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
 import type { DraftSession } from './use-draft-session';
@@ -45,7 +46,7 @@ export function WorkbenchOverlays({ state, catalog, ready, error, setError, page
   }
   return <>
     <PageBoundary name="notifications" resetKey={error}><Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}
-      aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /></Notifications></PageBoundary>
+      aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /><LiveAudioNotice projectId={draft.id} page={page} activity={state.activity} /></Notifications></PageBoundary>
     <PageBoundary name="update-dialog"><UpdateDialogHost /></PageBoundary>
     {ready && !draft.subtitles && !instrumental && isIndexModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <PageBoundary name="selection-action"><SelectionAction key={draft.id} editor={editor} onEdit={annotate} /></PageBoundary> : null}
 

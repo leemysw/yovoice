@@ -21,7 +21,10 @@ import (
 )
 
 type Workbench struct {
-	Store *store.Store
+	Store            *store.Store
+	audioMu          sync.Mutex
+	audioSubscribers map[uint64]*audioSubscription
+	audioNext        uint64
 	// edit 串行化“读取状态 → 校验引用 → 写入”的短事务，避免并发调用使引用检查失效；
 	// 持有期间不执行转码、下载或推理等耗时操作。锁顺序：先 edit 后 mu。
 	edit sync.Mutex
@@ -68,6 +71,10 @@ func New(root string) (*Workbench, error) {
 		return nil, e
 	}
 	if e = w.adoptRuntimes(); e != nil {
+		s.Close()
+		return nil, e
+	}
+	if e = w.RefreshRuntimeCapabilities(); e != nil {
 		s.Close()
 		return nil, e
 	}
@@ -144,6 +151,11 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 		defer close(done)
 		defer cancel()
 		err := diag.Catch(w.Store.Root, "operation", func() error { return action(ctx) })
+		if kind == "generate" && len(requestIDs) > 1 {
+			finish, stop := context.WithTimeout(context.Background(), 500*time.Millisecond)
+			_ = w.publishAudio(finish, AudioEvent{Event: "audio-request-end", ProjectID: requestIDs[1], Cancelled: err != nil})
+			stop()
+		}
 		status := "completed"
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"

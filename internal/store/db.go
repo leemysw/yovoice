@@ -91,7 +91,7 @@ var settingFields = []setting{
 }
 
 // sessionFields 只属于本次会话，不写入数据库。
-var sessionFields = []string{"previews", "aiTask", "melody", "transcript", "assistantLive", "midiImport"}
+var sessionFields = []string{"previews", "aiTask", "melody", "transcript", "assistantLive", "midiImport", "runtimeOptions", "runtimeModes", "runtimeSessionOptions"}
 
 var tables = []table{
 	{

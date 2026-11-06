@@ -41,6 +41,9 @@ func Deref(s *string) string {
 	return *s
 }
 func Validate(d Draft) error {
+	if err := d.ValidateRuntime(); err != nil {
+		return err
+	}
 	if d.Kind == "score" {
 		return validateScoreDraft(d)
 	}

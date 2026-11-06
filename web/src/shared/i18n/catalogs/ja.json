@@ -4447,5 +4447,86 @@
   },
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "8 MB 以下の JPEG、PNG、WebP 画像を選んでください。"
+  },
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "セグメントごとのテキストトークン上限"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "数字と記号を正規化"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "選択した推論エンジンは {name} に対応していません。対応するエンジンを使用するか、この設定を削除してください。"
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "実行とキャッシュ"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "設定は作品に保存され、次回の生成時にモデルを再読み込みします。項目名は推論エンジンと同じです。"
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "生成しながら試聴"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "受信した音声から順に再生し、完了後に全体を保存します。"
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "現在のエンジンはこのモデルのストリーミングに対応していません。"
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "VoxCPM2 のストリーミングでは失敗時の再試行が無効になります。"
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "推論スレッド数（0 は自動）"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "GPU デバイス番号（0 から）"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "待機後のアンロード（秒、0 は無効）"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "エンジンの既定値に戻す"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "モデルをアンロードしてキャッシュを消去"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "モデルをアンロードし、キャッシュを解放しました。"
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "生成された音声を試聴中です。全体は完了後に保存されます。"
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "試聴を停止"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "試聴できません。生成完了後に全体を再生できます。"
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "試聴の接続が切れました。生成完了後に全体を再生できます。"
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "試聴バッファがいっぱいです。生成完了後に全体を再生できます。"
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 はストリーミング中に再試行できません。再試行またはストリーミングを無効にしてください。"
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "チャンクの間隔"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "チャンクあたりのフレーム数"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "前方コンテキストのフレーム数"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "先読みフレーム数"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "段階的に拡大"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "固定"
   }
 }

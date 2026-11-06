@@ -35,6 +35,7 @@ func modelEngineReady(s schema.State, id string) error {
 
 func useRuntime(s *schema.State, path, backend, version string) {
 	s.RuntimePath, s.RuntimeBackend, s.RuntimeVersion = ptr(path), ptr(backend), ptr(version)
+	s.RuntimeOptions, s.RuntimeSessionOptions, s.RuntimeModes = runtimeCapabilities(path)
 }
 
 // bundledRuntime 是安装包内置的内核；版本取自打包时写入的 yovoice-engine.json。
@@ -255,4 +256,15 @@ func (w *Workbench) adoptRuntimes() error {
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+// UnloadEngine 停止空闲内核，释放各模型的参考音频、情绪和图缓存，不移除任何文件。
+func (w *Workbench) UnloadEngine() error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.cancel != nil {
+		return msg.Err(msg.ErrBusy, nil)
+	}
+	w.engine.Stop()
+	return nil
 }

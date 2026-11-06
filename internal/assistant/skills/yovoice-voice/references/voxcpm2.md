@@ -16,3 +16,5 @@ Apply with `update_work` {"id","settings":{...}}; only given fields change.
 - `voxcpm2.chunk_strategy`: `continuation` (default, each segment continues the previous) or `stateless`.
 - `max_tokens` 50-4096 (4096) must be ≥ `min_tokens` 0-4096 (2).
 - Retry of bad takes: `retry_badcase` (true), `retry_badcase_max_times` 1-10 (3), `retry_badcase_ratio_threshold` 0.1-20 (6).
+
+Streaming engines can set `stream_chunk_policy` (`grow` or `fixed`) and `stream_frames_per_event` (1–64). These options only apply when runtime streaming is enabled. Also accepts `stream_left_context` (0–8).

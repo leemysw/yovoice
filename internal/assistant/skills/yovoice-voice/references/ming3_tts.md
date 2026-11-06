@@ -16,3 +16,5 @@ Apply with `update_work` {"id","settings":{...}}; only given fields change. Requ
 - `guidance_scale` 0-10 (2).
 - `temperature` 0-2 (0): nonnegative flow sampling temperature; zero still uses seeded initial noise.
 - `trim_silence` true/false (true): trim trailing low-energy frames per fragment while retaining a short tail.
+
+Streaming engines can set `stream_chunk_policy` (`grow` or `fixed`) and `stream_frames_per_event` (1–64). These options only apply when runtime streaming is enabled.
