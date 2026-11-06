@@ -163,17 +163,32 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/api/state-events" && r.Method == "GET":
 		ch, unsubscribe := s.Workbench.Store.Subscribe()
 		defer unsubscribe()
+		audio, unsubscribeAudio := s.Workbench.SubscribeAudio()
+		defer unsubscribeAudio()
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-store")
-		flusher, ok := w.(http.Flusher)
-		if !ok {
-			return
+		controller := http.NewResponseController(w)
+		writeEvent := func(data []byte) bool {
+			_ = controller.SetWriteDeadline(time.Now().Add(5 * time.Second))
+			defer func() { _ = controller.SetWriteDeadline(time.Time{}) }()
+			if _, err := fmt.Fprintf(w, "data: %s\n\n", data); err != nil {
+				return false
+			}
+			return controller.Flush() == nil
 		}
 		var stream stateStream
 		for {
 			select {
 			case <-r.Context().Done():
 				return
+			case event := <-audio:
+				data, e := json.Marshal(event)
+				if e != nil {
+					return
+				}
+				if !writeEvent(data) {
+					return
+				}
 			case <-ch:
 				snapshot, e := s.Workbench.Store.ReadJSON()
 				if e != nil {
@@ -186,10 +201,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if b == nil {
 					continue
 				}
-				if _, e = fmt.Fprintf(w, "data: %s\n\n", b); e != nil {
+				if !writeEvent(b) {
 					return
 				}
-				flusher.Flush()
 			}
 		}
 	case strings.HasPrefix(r.URL.Path, "/media/") && (r.Method == "GET" || r.Method == "HEAD"):

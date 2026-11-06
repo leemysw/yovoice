@@ -115,7 +115,7 @@ func (e *Engine) stop() {
 		_ = os.Remove(pidPath(e.root))
 	}
 }
-func (e *Engine) start(ctx context.Context, executable, model string, definition catalog.ModelPackage, backend string, performanceFirst bool, encoderSamples int, progress func(msg.Code, msg.Params)) error {
+func (e *Engine) start(ctx context.Context, executable, model string, definition catalog.ModelPackage, backend string, performanceFirst bool, encoderSamples int, progress func(msg.Code, msg.Params), configurations ...*schema.RuntimeSettings) error {
 	family, task := definition.Family, definition.Task
 	if performanceFirst && (backend == "cuda" || backend == "cuda13") {
 		switch family {
@@ -131,7 +131,29 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	if task == "" {
 		task = "tts"
 	}
-	key := fmt.Sprintf("%s|%s|%s|%s|%s|%v|%v|%d", executable, model, family, task, backend, definition.LoadOptions, definition.SessionOptions, encoderSamples)
+	var settings *schema.RuntimeSettings
+	if len(configurations) > 0 {
+		settings = configurations[0]
+	}
+	mode := "offline"
+	if settings != nil {
+		if settings.Streaming {
+			mode = "streaming"
+		}
+		sessionOptions := make(map[string]string, len(definition.SessionOptions)+len(settings.Session))
+		for key, value := range definition.SessionOptions {
+			sessionOptions[key] = value
+		}
+		for key, value := range settings.Session {
+			if strings.HasPrefix(key, family+".") {
+				sessionOptions[key] = fmt.Sprint(value)
+			}
+		}
+		definition.SessionOptions = sessionOptions
+	}
+	configurationJSON, _ := json.Marshal(settings)
+
+	key := fmt.Sprintf("%s|%s|%s|%s|%s|%v|%v|%d|%s", executable, model, family, task, backend, definition.LoadOptions, definition.SessionOptions, encoderSamples, configurationJSON)
 	if e.process != nil && e.key == key {
 		select {
 		case <-e.done:
@@ -154,7 +176,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	}
 	port := l.Addr().(*net.TCPAddr).Port
 	l.Close()
-	entry := map[string]any{"id": "index", "family": family, "path": model, "task": task, "mode": "offline"}
+	entry := map[string]any{"id": "index", "family": family, "path": model, "task": task, "mode": mode}
 	if len(definition.LoadOptions) > 0 {
 		entry["load_options"] = definition.LoadOptions
 	}
@@ -163,12 +185,23 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		session[k] = v
 	}
 	if encoderSamples > 0 {
-		session["voxcpm2.audiovae_encoder_sample_capacity"] = encoderSamples
+		if _, explicit := session["voxcpm2.audiovae_encoder_sample_capacity"]; !explicit {
+			session["voxcpm2.audiovae_encoder_sample_capacity"] = encoderSamples
+		}
 	}
 	if len(session) > 0 {
 		entry["session_options"] = session
 	}
 	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": catalog.ServerBackend(backend), "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{entry}}
+	if settings != nil {
+		if settings.Threads > 0 {
+			config["threads"] = settings.Threads
+		}
+		config["device"] = settings.Device
+		if settings.IdleUnloadSeconds != nil {
+			config["idle_unload_ms"] = *settings.IdleUnloadSeconds * 1000
+		}
+	}
 	b, err := json.Marshal(config)
 	if err != nil {
 		return err
@@ -276,7 +309,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 }
 
 // Generate 生成音频写入 output；YuE2 自己规划旋律时一并返回这次所用的旋律谱，其余模型返回空串。
-func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, performanceFirst bool, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (score string, err error) {
+func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, performanceFirst bool, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params), streamAudio ...func(string) error) (score string, err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	defer func() {
@@ -320,7 +353,7 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 			encoderSamples = max(encoderSamples, int(math.Ceil(duration*16000/2560))*2560)
 		}
 	}
-	if err = e.start(ctx, executable, m.Path, definition, backend, performanceFirst, encoderSamples, progress); err != nil {
+	if err = e.start(ctx, executable, m.Path, definition, backend, performanceFirst, encoderSamples, progress, d.Runtime); err != nil {
 		return "", err
 	}
 	// YuE2 纯音乐：没谱时先在同一个会话里出谱，再把人声旋律移到器乐声部后生成；
@@ -347,7 +380,16 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 		}
 	}
 	progress(msg.ActivitySynthesizing, nil)
-	result, err := e.run(ctx, payload)
+	var result taskResult
+	if d.Runtime != nil && d.Runtime.Streaming {
+		var callback func(string) error
+		if len(streamAudio) > 0 {
+			callback = streamAudio[0]
+		}
+		result, err = e.runStream(ctx, payload, callback)
+	} else {
+		result, err = e.run(ctx, payload)
+	}
 	if err != nil {
 		return "", err
 	}

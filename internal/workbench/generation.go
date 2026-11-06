@@ -225,7 +225,7 @@ func (w *Workbench) generateTake(ctx context.Context, s schema.State, d schema.D
 		}
 	}()
 	generatedScore := ""
-	if generatedScore, e = w.engine.Generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, performanceFirst(s), part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, done, total) }); e != nil {
+	if generatedScore, e = w.synthesizePart(ctx, s, part, path, func(code msg.Code, params msg.Params) { w.progress(code, params, done, total) }); e != nil {
 		return e
 	}
 	duration, e := audio.Duration(path)

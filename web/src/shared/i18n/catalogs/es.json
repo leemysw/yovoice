@@ -4456,5 +4456,85 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "{selected} s de {total} s. Conserva entre 1 y 60 segundos."
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "Tokens de texto por segmento"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "Normalizar números y símbolos"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "El motor seleccionado no admite {name}. Usa un motor compatible o elimina este ajuste."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "Ejecución y caché"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "Los ajustes se guardan en el proyecto. Los cambios recargan el modelo en la siguiente generación. Las claves coinciden con el motor."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "Escuchar durante la generación"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "Reproduce los fragmentos al recibirlos y guarda el resultado completo al finalizar."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "El motor actual no admite salida en directo para este modelo."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "La salida en directo de VoxCPM2 desactiva los reintentos."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "Hilos de inferencia (0 = automático)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "Índice de GPU (desde 0)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "Descarga por inactividad (segundos, 0 = desactivada)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "Restaurar valores del motor"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "Descargar modelo y vaciar caché"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "Modelo descargado de memoria y caché liberada."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "Escuchando fragmentos generados. El resultado completo también se guardará."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "Detener vista previa"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "No se pudo reproducir la vista previa. Reproduce el resultado completo al finalizar."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "Se interrumpió la vista previa. Reproduce el resultado completo al finalizar."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "El búfer de vista previa está lleno. Reproduce el resultado completo al finalizar."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 no permite reintentos con salida en directo. Desactiva los reintentos o la salida en directo."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Cadencia de los bloques"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Fotogramas por bloque"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Fotogramas previos de contexto"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Fotogramas de anticipación"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Creciente"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fija"
   }
 }

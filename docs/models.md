@@ -2,7 +2,7 @@
 
 English · [简体中文](models_zh.md)
 
-Choose a model based on whether you have a reference recording or want a built-in or designed voice. All models generate complete audio before playback.
+Choose a model based on whether you have a reference recording or want a built-in or designed voice. For models with streaming support, open **Runtime** in the creation inspector to listen while synthesis is running. The final file is still saved when generation finishes.
 
 | Model | Main use | Required input |
 | --- | --- | --- |
@@ -255,3 +255,11 @@ Score projects and `yovoice score render` use the MuseScore General sound font (
 ## Licenses
 
 OmniVoice weights are licensed under CC-BY-NC and YuE2 weights under CC BY-NC 4.0, both for non-commercial use only. MuScriptor weights are CC BY-NC as well; HTDemucs is MIT. Breeze TTS 2 weights use the [BreezeBlue Research and Non-Commercial License](https://huggingface.co/BreezeBlue/Breeze-TTS-2), and generated speech is not licensed for commercial use either. IndexTTS has a separate [model license](../web/public/model-license.txt). Check the model publisher's license before using generated speech commercially.
+
+## Runtime controls
+
+The creation inspector saves runtime settings with the work. CPU threads use the app default when set to 0; GPU device indices are zero-based. The idle timeout defaults to five minutes, and 0 keeps the model loaded. **Unload model and clear cache** releases the current engine session when there is no active generation. Changing session settings reloads the session on the next run.
+
+The panel uses the installed engine's model manifest to show supported streaming modes and model-specific cache, precision, and execution settings. Streaming previews complete segments on IndexTTS. Other engines can deliver smaller chunks; the final audio is still saved as one file. Stopping the preview leaves generation running. VoxCPM2 streaming disables retrying already emitted audio. VoxCPM2, Breeze TTS 2, Qwen3-TTS and Ming 3.0 can also set the streaming chunk cadence and frame count when the engine advertises these options.
+
+IndexTTS segment token limits and the IndexTTS 2.5 normalization switch require an engine that advertises them. The normalization switch controls audio.cpp's own text processing. The separate Python runtime's optional NeMo rules, PyTorch flags and DeepSpeed configuration are not audio.cpp session options.

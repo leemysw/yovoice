@@ -4456,5 +4456,85 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "Выбрано {selected} с из {total} с. Оставьте от 1 до 60 секунд."
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "Текстовых токенов на сегмент"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "Нормализация чисел и символов"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "Выбранный движок не поддерживает {name}. Используйте совместимый движок или удалите эту настройку."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "Выполнение и кэш"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "Настройки сохраняются в проекте. Изменения перезагружают модель при следующей генерации. Имена параметров совпадают с движком."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "Слушать во время генерации"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "Воспроизводит полученные фрагменты и сохраняет полный результат после генерации."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "Текущий движок не поддерживает потоковый вывод для этой модели."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "Потоковый режим VoxCPM2 отключает повторные попытки."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "Потоки вычисления (0 — автоматически)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "Номер GPU (с 0)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "Выгрузка при простое (секунды, 0 — выкл.)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "Восстановить настройки движка"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "Выгрузить модель и очистить кэш"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "Модель выгружена, кэш освобождён."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "Воспроизводятся готовые фрагменты. Полный результат также будет сохранён."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "Остановить прослушивание"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "Предпрослушивание недоступно. Воспроизведите полный результат после генерации."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "Соединение для предпрослушивания прервано. Воспроизведите полный результат после генерации."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "Буфер предпрослушивания заполнен. Воспроизведите полный результат после генерации."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 не поддерживает повторные попытки в потоковом режиме. Отключите повторы или потоковый режим."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Частота выдачи фрагментов"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Кадров на фрагмент"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Кадры предыдущего контекста"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Кадры опережения"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Возрастающая"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Фиксированная"
   }
 }

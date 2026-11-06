@@ -1,5 +1,6 @@
 import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { KokoroControls } from './kokoro-controls';
+import { RuntimeControls } from './runtime-controls';
 import { ModelOptions } from './model-options';
 import { useState, type ReactNode } from 'react';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -122,10 +123,11 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
         {['text', 'vector'].includes(draft.mode) ? <Switch label={t('@yovoice.create.randomEmotion')} size="sm" value={draft.randomEmotion} onChange={randomEmotion => change({ randomEmotion })} /> : null}
         <Switch label={t('@yovoice.create.doSample')} size="sm" value={draft.doSample} onChange={v => change({ doSample: v })} />
         {advancedFields.map(([key, labelKey, min, max, step]) => <label key={key} className="number-field">{labelKey.startsWith('@') ? t(labelKey) : labelKey}<input type="number" min={min} max={max} step={step} value={draft[key]} onChange={e => { if (e.target.value !== '') change({ [key]: Number(e.target.value) }); }} /></label>)}
-        <ModelOptions draft={draft} family="index_tts2" change={change} />
+        <ModelOptions draft={draft} family="index_tts2" change={change} supported={state.runtimeOptions?.index_tts2} />
         <SeedInput value={draft.seed} change={change} />
       </AdvancedSettings>
       </>}
+      {currentModel && !embedded ? <RuntimeControls draft={draft} state={state} family={currentModel.family} change={change} /> : null}
     </VStack>
 
   </VStack>;

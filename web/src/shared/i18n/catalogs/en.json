@@ -4456,5 +4456,85 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "Selected {selected} s of {total} s. Keep 1–60 seconds."
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "Text tokens per segment"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "Normalize numbers and symbols"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "The selected inference engine does not support {name}. Use a compatible engine or remove this setting."
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "Runtime and cache"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "These settings are saved with the project. Changes reload the model on the next generation. Session keys match the inference engine."
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "Listen while generating"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "Play audio chunks as they arrive. The full result is still saved when generation finishes."
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "The current engine does not offer streaming for this model."
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "VoxCPM2 streaming turns off bad-case retries."
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "Inference threads (0 = automatic)"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "GPU device index (starts at 0)"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "Unload after idle (seconds, 0 = off)"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "Restore engine defaults"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "Unload model and clear cache"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "Model unloaded and cache released."
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "Listening to generated chunks. The full result will still be saved."
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "Stop preview"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "Live audio could not play. Play the full result after generation."
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "The live audio connection was interrupted. Play the full result after generation."
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "The preview buffer is full. Play the full result after generation."
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 cannot retry bad cases while streaming. Turn off retries or streaming."
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "Chunk cadence"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "Frames per chunk"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "Previous frames as context"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "Lookahead frames"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "Growing"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "Fixed"
   }
 }

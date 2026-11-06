@@ -4456,5 +4456,85 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "已选 {selected} 秒，原录音 {total} 秒。请保留 1–60 秒。"
+  "@yovoice.options.text_chunk_tokens": {
+    "defaultMessage": "每段文本 Token 上限"
+  },
+  "@yovoice.options.text_normalization": {
+    "defaultMessage": "规范化数字与符号"
+  },
+  "@yovoice.error.modelOptionUnsupported": {
+    "defaultMessage": "当前推理引擎不支持参数 {name}。请使用兼容的引擎，或移除此设置。"
+  },
+  "@yovoice.runtime.title": {
+    "defaultMessage": "运行与缓存"
+  },
+  "@yovoice.runtime.help": {
+    "defaultMessage": "这些设置保存在当前作品中。修改后下次生成会重新加载模型；会话参数使用推理引擎的键名。"
+  },
+  "@yovoice.runtime.streaming": {
+    "defaultMessage": "边生成边试听"
+  },
+  "@yovoice.runtime.streamingHelp": {
+    "defaultMessage": "收到音频片段就播放，生成完成后仍保存完整结果。"
+  },
+  "@yovoice.runtime.streamingUnsupported": {
+    "defaultMessage": "当前引擎未提供此模型的流式输出。"
+  },
+  "@yovoice.runtime.retryHelp": {
+    "defaultMessage": "VoxCPM2 流式生成会关闭失败重试。"
+  },
+  "@yovoice.runtime.threads": {
+    "defaultMessage": "推理线程数（0 为自动）"
+  },
+  "@yovoice.runtime.device": {
+    "defaultMessage": "GPU 设备编号（从 0 开始）"
+  },
+  "@yovoice.runtime.idle": {
+    "defaultMessage": "空闲卸载（秒，0 为关闭）"
+  },
+  "@yovoice.runtime.reset": {
+    "defaultMessage": "恢复引擎默认"
+  },
+  "@yovoice.runtime.unload": {
+    "defaultMessage": "卸载模型并清空缓存"
+  },
+  "@yovoice.runtime.unloaded": {
+    "defaultMessage": "模型已卸载，缓存已释放。"
+  },
+  "@yovoice.runtime.livePlaying": {
+    "defaultMessage": "正在试听流式音频，生成完成后仍会保存完整结果。"
+  },
+  "@yovoice.runtime.stopPreview": {
+    "defaultMessage": "停止试听"
+  },
+  "@yovoice.runtime.audioUnavailable": {
+    "defaultMessage": "无法播放流式试听，生成完成后可播放完整音频。"
+  },
+  "@yovoice.runtime.audioDisconnected": {
+    "defaultMessage": "流式试听连接已中断，生成完成后可播放完整音频。"
+  },
+  "@yovoice.runtime.audioBufferFull": {
+    "defaultMessage": "试听缓冲已满，生成完成后可播放完整音频。"
+  },
+  "@yovoice.error.streamingRetry": {
+    "defaultMessage": "VoxCPM2 流式生成不支持失败重试，请关闭重试或流式输出。"
+  },
+  "@yovoice.options.stream_chunk_policy": {
+    "defaultMessage": "音频片段节奏"
+  },
+  "@yovoice.options.stream_frames_per_event": {
+    "defaultMessage": "每段帧数"
+  },
+  "@yovoice.options.stream_left_context": {
+    "defaultMessage": "前置上下文帧数"
+  },
+  "@yovoice.options.stream_lookahead_margin": {
+    "defaultMessage": "预读帧数"
+  },
+  "@yovoice.options.value.grow": {
+    "defaultMessage": "逐步增大"
+  },
+  "@yovoice.options.value.fixed": {
+    "defaultMessage": "固定"
   }
 }

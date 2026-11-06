@@ -18,9 +18,28 @@
         "japanese",
         "endline"
       ]
+    },
+    {
+      "key": "text_chunk_tokens",
+      "type": "number",
+      "default": 120,
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "requiresRuntime": true
+    },
+    {
+      "key": "text_normalization",
+      "type": "boolean",
+      "default": true,
+      "requiresRuntime": true,
+      "modelPrefix": "index-2.5-"
     }
   ],
   "voxcpm2": [
+    {"key": "stream_chunk_policy","type": "select","default": "grow","values": ["grow","fixed"],"requiresRuntime": true,"streamOnly": true},
+    {"key": "stream_frames_per_event","type": "number","default": 4,"min": 1,"max": 64,"step": 1,"requiresRuntime": true,"streamOnly": true},
+    {"key": "stream_left_context","type": "number","default": 3,"min": 0,"max": 8,"step": 1,"requiresRuntime": true,"streamOnly": true},
     {
       "key": "text_chunk_size",
       "type": "number",
@@ -196,6 +215,8 @@
     }
   ],
   "qwen3_tts": [
+    {"key": "stream_chunk_policy","type": "select","default": "grow","values": ["grow","fixed"],"requiresRuntime": true,"streamOnly": true},
+    {"key": "stream_frames_per_event","type": "number","default": 12,"min": 1,"max": 64,"step": 1,"requiresRuntime": true,"streamOnly": true},
     {
       "key": "text_chunk_size",
       "type": "number",
@@ -291,6 +312,9 @@
     }
   ],
   "breeze_tts": [
+    {"key": "stream_chunk_policy","type": "select","default": "grow","values": ["grow","fixed"],"requiresRuntime": true,"streamOnly": true},
+    {"key": "stream_frames_per_event","type": "number","default": 16,"min": 1,"max": 64,"step": 1,"requiresRuntime": true,"streamOnly": true},
+    {"key": "stream_lookahead_margin","type": "number","default": 0,"min": 0,"max": 64,"step": 1,"requiresRuntime": true,"streamOnly": true},
     {
       "key": "text_chunk_size",
       "type": "number",
@@ -360,6 +384,8 @@
     }
   ],
   "ming3_tts": [
+    {"key": "stream_chunk_policy","type": "select","default": "grow","values": ["grow","fixed"],"requiresRuntime": true,"streamOnly": true},
+    {"key": "stream_frames_per_event","type": "number","default": 4,"min": 1,"max": 64,"step": 1,"requiresRuntime": true,"streamOnly": true},
     {
       "key": "text_chunk_size",
       "type": "number",

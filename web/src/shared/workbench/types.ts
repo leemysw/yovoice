@@ -3,7 +3,9 @@
 import type { UiLocale } from '../i18n/locale';
 
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
+export interface RuntimeSettings { streaming?: boolean; threads?: number; device?: number; idleUnloadSeconds?: number; session?: Record<string, string | number | boolean> }
 export interface SynthesisSettings {
+  runtime?: RuntimeSettings;
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
   lyrics?: string; instrumental?: boolean;
   // YuE2 的 ABC 旋律谱：带和弦按谱编曲，只有旋律时按旋律填配器。
@@ -107,6 +109,9 @@ export interface Preferences { downloadSource: string; backend: string; performa
 export const optionalFeatures = ['story', 'music', 'assistant'] as const;
 export type Feature = typeof optionalFeatures[number];
 export interface State {
+  runtimeOptions?: Record<string, string[]>;
+  runtimeModes?: Record<string, string[]>;
+  runtimeSessionOptions?: Record<string, string[]>;
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
