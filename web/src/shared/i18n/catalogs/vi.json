@@ -4456,6 +4456,7 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "Đã chọn {selected} giây trên {total} giây. Hãy giữ từ 1 đến 60 giây."
+  },
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Số token văn bản tối đa mỗi đoạn"
   },

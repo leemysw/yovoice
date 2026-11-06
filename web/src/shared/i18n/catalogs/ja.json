@@ -4456,6 +4456,7 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "全 {total} 秒のうち {selected} 秒を選択。1～60 秒を残してください。"
+  },
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "セグメントごとのテキストトークン上限"
   },

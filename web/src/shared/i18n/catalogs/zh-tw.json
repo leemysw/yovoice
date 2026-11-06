@@ -4456,6 +4456,7 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "已選 {selected} 秒，原錄音 {total} 秒。請保留 1–60 秒。"
+  },
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "每段文字 Token 上限"
   },

@@ -4456,6 +4456,7 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "Выбрано {selected} с из {total} с. Оставьте от 1 до 60 секунд."
+  },
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Текстовых токенов на сегмент"
   },

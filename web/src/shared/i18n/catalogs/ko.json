@@ -4456,6 +4456,7 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "전체 {total}초 중 {selected}초 선택. 1~60초를 남겨 주세요."
+  },
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "구간별 텍스트 토큰 상한"
   },

@@ -4456,6 +4456,7 @@
   },
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "{selected} s de {total} s selecionados. Mantenha de 1 a 60 segundos."
+  },
   "@yovoice.options.text_chunk_tokens": {
     "defaultMessage": "Tokens de texto por segmento"
   },
