@@ -74,6 +74,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   wav.write('RIFF'); wav.writeUInt32LE(wav.length - 8, 4); wav.write('WAVEfmt ', 8); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(16000, 24); wav.writeUInt32LE(32000, 28); wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36); wav.writeUInt32LE(wav.length - 44, 40);
   for (let i = 0; i < 32000; i++) wav.writeInt16LE(Math.round(Math.sin(i * 440 * Math.PI * 2 / 16000) * 8000), 44 + i * 2);
   await page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '测试音色.wav', mimeType: 'audio/wav', buffer: wav });
+  await page.getByRole('button', { name: '另存为新音色' }).click();
   await page.getByRole('button', { name: '使用所选参考音频', exact: true }).click();
   await expect(page.getByRole('button', { name: '测试音色', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '试听当前音色' }).click();
@@ -143,6 +144,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(page.getByRole('dialog').getByRole('heading', { name: '添加参考音频' })).toBeVisible();
   await expect(page.getByRole('dialog').locator('.voice-list')).toHaveCount(0);
   await page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '新增音色.wav', mimeType: 'audio/wav', buffer: wav });
+  await page.getByRole('button', { name: '另存为新音色' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '新增音色', exact: true })).toBeVisible();
   await page.locator('.recent-projects .project-link').first().click();
@@ -516,4 +518,38 @@ test('浮层出错只影响浮层：声音选择的代码没加载到时其余�
   await expect(page.locator('.page-error')).toHaveCount(0);
   await page.getByRole('button', { name: '添加参考音频', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
+});
+
+test('长录音可试听并保存一分钟之后的选段，取消时不登记音色', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '添加参考音频', exact: true }).click();
+  const sampleRate = 8000;
+  const wav = Buffer.alloc(44 + sampleRate * 90 * 2);
+  wav.write('RIFF'); wav.writeUInt32LE(wav.length - 8, 4); wav.write('WAVEfmt ', 8); wav.writeUInt32LE(16, 16);
+  wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(sampleRate, 24); wav.writeUInt32LE(sampleRate * 2, 28);
+  wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36); wav.writeUInt32LE(wav.length - 44, 40);
+  for (let i = sampleRate * 75; i < sampleRate * 80; i++) wav.writeInt16LE(10000, 44 + i * 2);
+  const upload = () => page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '长录音.wav', mimeType: 'audio/wav', buffer: wav });
+  await upload();
+  await page.getByRole('button', { name: '取消选段' }).click();
+  await expect(page.getByRole('button', { name: '长录音', exact: true })).toHaveCount(0);
+  await upload();
+  const editor = page.getByTestId('voice-excerpt-editor');
+  const save = editor.getByRole('button', { name: '另存为新音色' });
+  await editor.getByLabel('出点（秒）').fill('80');
+  await expect(save).toBeDisabled();
+  await editor.getByLabel('入点（秒）').fill('75');
+  await editor.getByRole('button', { name: '试听选段' }).click();
+  await expect.poll(() => editor.locator('audio').evaluate((el: HTMLAudioElement) => el.duration)).toBeCloseTo(5);
+  const hasSelectedAudio = async (element: HTMLAudioElement) => {
+    const bytes = await (await fetch(element.src)).arrayBuffer();
+    return new Int16Array(bytes, 44)[24000] > 5000;
+  };
+  expect(await editor.locator('audio').evaluate(hasSelectedAudio)).toBe(true);
+  await save.click();
+  await page.getByRole('button', { name: '使用所选参考音频', exact: true }).click();
+  await page.getByRole('button', { name: '试听当前音色' }).click();
+  const audio = page.locator('footer audio');
+  await expect.poll(() => audio.evaluate((el: HTMLAudioElement) => el.duration)).toBeCloseTo(5);
+  expect(await audio.evaluate(hasSelectedAudio)).toBe(true);
 });

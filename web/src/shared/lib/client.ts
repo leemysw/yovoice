@@ -1,5 +1,5 @@
 import type { AudioAsset, State, Voice } from '../workbench';
-import { toBase64 } from './sound';
+import { decodeAudio, toBase64 } from './sound';
 import { CallError, parseCallError } from './call-error';
 import { desktopCall, desktopMediaUrl, isDesktop, isLinux, isMac, reportDesktop, subscribeDesktop } from './bridge';
 import { assertUploadSize } from './upload-limit';
@@ -36,6 +36,21 @@ export async function importTimelineFile(file: File): Promise<AudioAsset> {
 export async function importTimelineGeneration(generationID: string): Promise<AudioAsset> {
   if (!isDesktop) return (await preview()).previewImportTimelineGeneration(generationID);
   return call<AudioAsset>('timeline.fromGeneration', { id: generationID });
+}
+
+// 先在界面解码供裁剪，系统不支持的格式交给打包的转换器。
+export async function decodeVoiceSource(file: File): Promise<AudioBuffer> {
+  assertUploadSize(file);
+  let buffer: AudioBuffer;
+  try {
+    buffer = await decodeAudio(file, 24000);
+  } catch (error) {
+    if (!isDesktop) throw error;
+    const wav = await call<string>('voice.decode', { base64: await toBase64(file) });
+    buffer = await decodeAudio(await (await fetch(`data:audio/wav;base64,${wav}`)).arrayBuffer(), 24000);
+  }
+  if (buffer.duration < 1 || buffer.duration > 600) throw new CallError('@yovoice.error.audioDuration');
+  return buffer;
 }
 
 export async function importVoiceFile(file: File): Promise<Voice> {

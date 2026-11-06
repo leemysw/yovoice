@@ -4447,5 +4447,14 @@
   },
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "8 MB 以下の JPEG、PNG、WebP 画像を選んでください。"
+  },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "選択範囲を試聴"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "選択を取り消す"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "全 {total} 秒のうち {selected} 秒を選択。1～60 秒を残してください。"
   }
 }

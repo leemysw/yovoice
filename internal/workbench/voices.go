@@ -104,6 +104,38 @@ func (w *Workbench) importVoice(ctx context.Context, path, name, referenceText, 
 	return v, nil
 }
 
+// DecodeVoiceSource 为浏览器无法解码的文件准备可试听的原始录音，不登记音色。
+func (w *Workbench) DecodeVoiceSource(ctx context.Context, r io.Reader) ([]byte, error) {
+	input, err := w.receive(r)
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(input)
+	executable, err := audio.Converter()
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(ctx, 90*time.Second)
+	defer cancel()
+	dir, err := os.MkdirTemp(filepath.Join(w.Store.Root, "downloads"), "audio-")
+	if err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(dir)
+	output := filepath.Join(dir, "source.wav")
+	if err = audio.ConvertWithLimit(ctx, executable, input, output, maxRecording); err != nil {
+		return nil, err
+	}
+	duration, err := audio.Duration(output)
+	if err != nil {
+		return nil, err
+	}
+	if duration < 1 || duration > maxRecording {
+		return nil, msg.Err(msg.ErrAudioDuration, nil)
+	}
+	return os.ReadFile(output)
+}
+
 // ImportVoiceFrom 从数据流导入参考音色，超过 20 MB 时拒绝。
 func (w *Workbench) ImportVoiceFrom(ctx context.Context, r io.Reader, name string) (schema.Voice, error) {
 	path, err := w.receive(r)

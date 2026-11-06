@@ -4447,5 +4447,14 @@
   },
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "请选择 JPEG、PNG 或 WebP 图片，大小不超过 8 MB。"
+  },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "试听选段"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "取消选段"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "已选 {selected} 秒，原录音 {total} 秒。请保留 1–60 秒。"
   }
 }

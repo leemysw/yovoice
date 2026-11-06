@@ -75,7 +75,19 @@ yovoice generate --model ming3-tts-0.5b-q8 --text-file narration.txt --reference
 
 For VoxCPM2, omit `--reference-text` for ordinary cloning. For Qwen3-TTS Base, adding an accurate transcript enables transcript-guided cloning. OmniVoice and Breeze TTS 2 cloning always require a matching transcript. For Breeze, `--voice-description` acts as voice direction when cloning: it keeps the voice and steers pace, emotion and tone. Ming 3.0 TTS accepts an optional transcript: include it for an acoustic reference prefix, or omit it to condition only on the reference speaker.
 
-Use a clear recording with one speaker and little background noise. Reference audio must be 1 second to 10 minutes and no larger than 20 MB; recordings over 60 seconds are trimmed automatically to their clearest 5–15 seconds.
+Use a clear recording with one speaker and little background noise. In the desktop picker, choose an audio file (1 second to 10 minutes, up to 20 MB), set the start and end, and preview the selection before saving 1–60 seconds as a reference. A long file opens with the first 10 seconds selected. Both ends can be moved anywhere in the recording. When a model uses a reference transcript, enter only the words heard in the saved excerpt. CLI and API imports still select a clear excerpt automatically from files over 60 seconds.
+
+Reference duration guidance varies by implementation:
+
+| Model | Reference duration |
+| --- | --- |
+| IndexTTS 2.0 / 2.5 | The official Python inference takes the first 15 seconds for both speaker and emotion prompts. Select the intended section before inference. [2.0 code](https://github.com/index-tts/index-tts/blob/main/indextts/infer_v2.py) · [2.5 code](https://github.com/index-tts/index-tts/blob/main/indextts/infer_v2_5.py) |
+| VoxCPM2 | The official cloning interface accepts a reference file without documenting a fixed seconds limit. [OpenBMB guide](https://openbmb.cn/docs/en/guides/voxcpm/voxcpm-2) |
+| Qwen3-TTS Base | The team demonstrates cloning with 3 seconds; this is a demonstrated sample length. [Technical report](https://arxiv.org/abs/2601.15621) |
+| OmniVoice | Recommends 3–10 seconds; optional Python preprocessing may trim recordings longer than 20 seconds if no transcript is supplied. [Official implementation](https://github.com/k2-fsa/OmniVoice/blob/master/omnivoice/models/omnivoice.py) |
+| Breeze TTS 2 | YoVoice suggests 5–15 seconds of clean speech with its exact transcript. The official open-weight model card does not specify a fixed duration limit. [Model card](https://huggingface.co/BreezeBlue/Breeze-TTS-2) |
+| XTTS v2 | audio.cpp recommends 6–30 seconds; the Python configuration defaults to a 10-second decoder conditioning cap. [audio.cpp guide](https://github.com/0xShug0/audio.cpp/blob/main/docs/community_models/xtts_v2.md) · [Coqui config](https://github.com/idiap/coqui-ai-TTS/blob/dev/TTS/tts/configs/xtts_config.py) |
+| Ming 3.0, Plapre 3, Drama 3 | The linked upstream cloning examples do not specify a universal fixed duration limit. [Ming 3.0](https://github.com/inclusionAI/Ming-3.0-tts) · [Plapre](https://syv.ai/produkter/plapre) · [Drama 3](https://huggingface.co/fishaudio/drama-3) |
 
 ## Voice design and built-in voices
 

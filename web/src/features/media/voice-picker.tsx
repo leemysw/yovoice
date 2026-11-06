@@ -2,14 +2,14 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
-import { Slider } from '@astryxdesign/core/Slider';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Upload, Mic, Square, Play, Pause, AudioLines, Check, Search, ScanSearch } from 'lucide-react';
-import { call, importVoiceFile, mediaUrl, isMac, CallError, releaseMediaUrl } from '../../shared/lib/client';
+import { Upload, Mic, Square, Play, Pause, AudioLines, Check, Search } from 'lucide-react';
+import { call, decodeVoiceSource, importVoiceFile, mediaUrl, isMac, CallError, releaseMediaUrl } from '../../shared/lib/client';
 import { bufferPeaks, decodeAudio, encodeWav, toBase64 } from '../../shared/lib/sound';
 import { formatCallError } from '../../shared/i18n/format';
 import { Player } from './player';
+import { VoiceExcerptEditor, type ExcerptRange } from './voice-excerpt';
 import { formatTime, type Track, type Voice } from '../../shared/workbench';
 
 export function VoicePicker({ voices, onClose, onSelect, adding = false }: { adding?: boolean; voices: Voice[]; onClose: () => void; onSelect: (v: Voice) => void }) {
@@ -37,14 +37,31 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
     setPreview({ ...voice, kind: 'voices', subtitle: '', playRequest: Date.now() });
   }
   const [recording, setRecording] = useState(false); const [busy, setBusy] = useState(false);
-  const [name, setName] = useState(() => t('@yovoice.voice.defaultName')); const [crop, setCrop] = useState<Voice | null>(null); const [range, setRange] = useState<[number, number]>([0, 10]);
+  const [name, setName] = useState(() => t('@yovoice.voice.defaultName')); const [crop, setCrop] = useState<{ name: string; buffer: AudioBuffer; voice?: Voice } | null>(null);
+  const [range, setRange] = useState<ExcerptRange>([0, 10]);
   useEffect(() => () => { clearTimeout(timer.current); if (recorder.current?.state === 'recording') { recorder.current.onstop = null; recorder.current.stop(); } recorder.current?.stream.getTracks().forEach(t => t.stop()); }, []);
-  // 超过 60 秒的录音由本地服务自动截取最清楚的一段，告诉用户截了哪里，可以再用“裁剪”调整。
-  const [excerpt, setExcerpt] = useState<Voice | null>(null);
-  async function importing(file?: File) {
-    setBusy(true); setError(''); setExcerpt(null);
-    try { const voice = file ? await importVoiceFile(file) : null; if (voice) { choose(voice); if (voice.excerpt) setExcerpt(voice); } }
-    catch (e) { setError((e as Error).name === 'EncodingError' ? t('@yovoice.error.browserDecode') : formatCallError(t, e)); } finally { setBusy(false); }
+  async function importing(file: File) {
+    setBusy(true); setError(''); setPreview(null); setCrop(null);
+    try {
+      const buffer = await decodeVoiceSource(file);
+      setCrop({ name: file.name.replace(/\.[^.]+$/, ''), buffer });
+      setRange([0, buffer.duration <= 60 ? buffer.duration : 10]);
+    } catch (e) {
+      setError((e as Error).name === 'EncodingError' ? t('@yovoice.error.browserDecode') : formatCallError(t, e));
+    } finally { setBusy(false); }
+  }
+  async function editExcerpt(voice: Voice) {
+    setBusy(true); setError(''); setPreview(null); setCrop(null);
+    let url = '';
+    try {
+      url = await mediaUrl('voices', voice.fileName);
+      const response = await fetch(url);
+      if (!response.ok) throw new CallError('@yovoice.error.audioPlayFailed');
+      const buffer = await decodeAudio(await response.arrayBuffer(), 24000);
+      setCrop({ name: voice.name, buffer, voice });
+      setRange([0, Math.min(60, buffer.duration)]);
+    } catch (e) { setError(formatCallError(t, e)); }
+    finally { releaseMediaUrl(url); setBusy(false); }
   }
   async function record() {
     setError('');
@@ -78,22 +95,25 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
     } finally { setBusy(false); }
   }
   async function suggest() {
-    if (!crop) return; setBusy(true); setError('');
-    try { const span = await call<{ start: number; end: number }>('voice.suggest', { id: crop.id }); setRange([span.start, span.end]); }
-    catch (e) { setError(formatCallError(t, e)); } finally { setBusy(false); }
+    if (!crop?.voice) return;
+    setBusy(true); setError('');
+    try {
+      const span = await call<{ start: number; end: number }>('voice.suggest', { id: crop.voice.id });
+      setRange([span.start, Math.min(span.end, crop.buffer.duration)]);
+    } catch (e) { setError(formatCallError(t, e)); } finally { setBusy(false); }
   }
   async function trim() {
-    if (!crop) return; setBusy(true); let url = '';
+    if (!crop) return;
+    setBusy(true); setError('');
     try {
-      if (range[1] - range[0] < 1) throw new CallError('@yovoice.error.trimTooShort');
-      url = await mediaUrl('voices', crop.fileName);
-      const buffer = await decodeAudio(await (await fetch(url)).arrayBuffer());
-      const voice = await call<Voice>('voice.record', { name: crop.name + t('@yovoice.voice.croppedSuffix'), base64: await toBase64(encodeWav(buffer, range[0], range[1])) }); choose(voice);
-    } catch (e) { setError(formatCallError(t, e)); } finally { releaseMediaUrl(url); setBusy(false); }
+      const name = crop.name + (crop.voice ? t('@yovoice.voice.croppedSuffix') : '');
+      const voice = await importVoiceFile(new File([encodeWav(crop.buffer, ...range)], name + '.wav', { type: 'audio/wav' }));
+      choose(voice);
+    } catch (e) { setError(formatCallError(t, e)); } finally { setBusy(false); }
   }
   return <AppDialog title={t(adding ? '@yovoice.voice.addTitle' : '@yovoice.voice.pickTitle')}
     width={adding ? 400 : 560} busy={busy} error={error} onClose={() => { cancelRecording(); onClose(); }} closeLabel={t(adding ? '@yovoice.voice.closeAdd' : '@yovoice.voice.closePick')}
-    actions={!adding && !showRecording ? <Button label={t('@yovoice.voice.confirmSelection')} variant="primary" isDisabled={!selected || busy || recording} onClick={() => { if (selected) onSelect(selected); }} /> : undefined}>
+    actions={!adding && !showRecording && !crop ? <Button label={t('@yovoice.voice.confirmSelection')} variant="primary" isDisabled={!selected || busy || recording} onClick={() => { if (selected) onSelect(selected); }} /> : undefined}>
       {!showRecording ? <HStack gap={2} wrap="wrap"><Button label={t('@yovoice.voice.import')} size="sm" icon={<Upload size={16} />} isLoading={busy} isDisabled={recording} onClick={() => input.current?.click()} /><Button label={t('@yovoice.voice.record')} size="sm" variant="secondary" icon={<Mic size={16} />} isDisabled={busy || recording} aria-expanded={showRecording} onClick={() => { setShowRecording(value => !value); setCrop(null); setPreview(null); }} /></HStack> : null}
       <input type="file" hidden ref={input} accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={e => { const file = e.target.files?.[0]; if (file) void importing(file); e.target.value = ''; }} />
       {showRecording ? <VStack className="recording-form" gap={4}>
@@ -109,15 +129,20 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
           }} /></HStack>
         </> : <Button label={recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord')} icon={recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} />}
       </VStack> : null}
-      {!adding && !showRecording && voices.length ? <TextInput label={t('@yovoice.library.searchVoices')} isLabelHidden placeholder={t('@yovoice.library.searchVoices')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear /> : null}
-      {!adding && !showRecording ? <VStack className="voice-list" data-editing={!!crop} gap={0}>{voices.length ? voices.filter(v => v.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(voice => <HStack key={voice.id} className="voice-row" data-selected={selected?.id === voice.id} gap={3} vAlign="center">
+      {!adding && !showRecording && !crop && voices.length ? <TextInput label={t('@yovoice.library.searchVoices')} isLabelHidden placeholder={t('@yovoice.library.searchVoices')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear /> : null}
+      {!adding && !showRecording && !crop ? <VStack className="voice-list" gap={0}>{voices.length ? voices.filter(v => v.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(voice => <HStack key={voice.id} className="voice-row" data-selected={selected?.id === voice.id} gap={3} vAlign="center">
         <HStack className="voice-choice-mark" gap={0}>{selected?.id === voice.id ? <Check size={18} /> : <AudioLines className="muted" size={18} strokeWidth={1.5} />}</HStack><Button label={voice.name} variant="ghost" className="grow text-left" isDisabled={busy || recording} aria-pressed={selected?.id === voice.id} onClick={() => setSelected(voice)} /><small>{formatTime(voice.duration)}</small>
         <Player inline={{ label: t('@yovoice.voice.audition', { name: voice.name }), select: () => audition(voice) }} track={preview?.id === voice.id ? preview : null} suspended={recording || busy}
           onError={message => { setPreview(null); setError(formatCallError(t, new Error(message))); }} />
-        <Button label={t('@yovoice.voice.crop')} size="sm" variant="secondary" isDisabled={recording || busy} onClick={() => { setPreview(null); setCrop(voice); setShowRecording(false); setRange([0, voice.duration]); }} />
+        <Button label={t('@yovoice.voice.crop')} size="sm" variant="secondary" isDisabled={recording || busy} onClick={() => void editExcerpt(voice)} />
       </HStack>) : null}</VStack> : null}
-      {crop ? <VStack gap={3}><h3>{t('@yovoice.voice.cropTitle', { name: crop.name })}</h3><Slider label={t('@yovoice.voice.cropRange')} value={range} min={0} max={crop.duration} step={0.1} onChange={(value: [number, number]) => setRange(value)} formatValue={formatTime} valueDisplay="text" /><HStack gap={2}><Button label={t('@yovoice.voice.autoPick')} tooltip={t('@yovoice.voice.autoPickHint')} icon={<ScanSearch size={16} />} isDisabled={busy} onClick={() => void suggest()} /><Button label={t('@yovoice.voice.saveCrop')} variant="primary" isLoading={busy} onClick={() => void trim()} /></HStack></VStack> : null}
-      {excerpt?.excerpt ? <small role="status" data-testid="voice-excerpt">{t('@yovoice.voice.excerpt', { total: formatTime(excerpt.excerpt.total), start: formatTime(excerpt.excerpt.start), end: formatTime(excerpt.excerpt.end) })}</small> : null}
+      {crop ? <VStack gap={3}>
+        <h3>{t('@yovoice.voice.cropTitle', { name: crop.name })}</h3>
+        <VoiceExcerptEditor buffer={crop.buffer} range={range} setRange={setRange} busy={busy}
+          onError={() => setError(t('@yovoice.error.audioPlayFailed'))}
+          onCancel={() => { setCrop(null); setError(''); }} onSave={() => void trim()}
+          onSuggest={crop.voice ? () => void suggest() : undefined} />
+      </VStack> : null}
   </AppDialog>;
 }
 

@@ -75,7 +75,19 @@ yovoice generate --model ming3-tts-0.5b-q8 --text-file narration.txt --reference
 
 VoxCPM2 省略 `--reference-text` 时使用普通克隆。Qwen3-TTS Base 添加准确原文后可进行原文辅助克隆。OmniVoice 与 Breeze TTS 2 克隆始终需要匹配的原文；Breeze 的 `--voice-description` 在克隆时作为演绎指导，保留音色并调整语速、情绪和语气。Ming 3.0 TTS 的原文可选：填写后同时使用声学前缀，省略时仅参考说话人音色。
 
-参考录音应人声清晰、只有一位说话人且背景噪声较少，长度为 1–60 秒、大小不超过 20 MB。
+参考录音宜清晰、只有一位说话人且背景噪声较少。桌面端可打开 1 秒至 10 分钟、最大 20 MB 的原录音，手动选起止点、试听，再保存 1–60 秒作为参考。长录音初始选中前 10 秒，两个端点都可移动到原录音里的其他位置。需要参考原文时，只填写保存选段里实际说出的内容。CLI 和 API 导入超过 60 秒的录音仍会自动选段。
+
+各模型的时长依据如下，推荐长度和推理截断分别注明：
+
+| 模型 | 参考音频时长 |
+| --- | --- |
+| IndexTTS 2.0 / 2.5 | 官方 Python 推理对音色和情绪参考都只取前 15 秒。可先选中真正想用的部分。[2.0 源码](https://github.com/index-tts/index-tts/blob/main/indextts/infer_v2.py) · [2.5 源码](https://github.com/index-tts/index-tts/blob/main/indextts/infer_v2_5.py) |
+| VoxCPM2 | 官方克隆接口接受参考文件，未规定固定的秒数上限。[OpenBMB 指南](https://openbmb.cn/docs/en/guides/voxcpm/voxcpm-2) |
+| Qwen3-TTS Base | 官方报告演示了 3 秒参考克隆。这是演示样本长度。[技术报告](https://arxiv.org/abs/2601.15621) |
+| OmniVoice | 官方推荐 3–10 秒。Python 实现未收到参考原文时，可对超过 20 秒的录音自动裁剪。[官方实现](https://github.com/k2-fsa/OmniVoice/blob/master/omnivoice/models/omnivoice.py) |
+| Breeze TTS 2 | YoVoice 建议 5–15 秒清晰人声，配逐字匹配的原文。官方开源权重说明未规定固定时长上限。[模型卡](https://huggingface.co/BreezeBlue/Breeze-TTS-2) |
+| XTTS v2 | audio.cpp 建议 6–30 秒。Coqui 的 Python 配置默认最多用 10 秒作为解码器条件。[audio.cpp 指南](https://github.com/0xShug0/audio.cpp/blob/main/docs/community_models/xtts_v2.md) · [Coqui 配置](https://github.com/idiap/coqui-ai-TTS/blob/dev/TTS/tts/configs/xtts_config.py) |
+| Ming 3.0、Plapre 3、Drama 3 | 这些官方克隆示例未规定统一的固定时长上限。[Ming 3.0](https://github.com/inclusionAI/Ming-3.0-tts) · [Plapre](https://syv.ai/produkter/plapre) · [Drama 3](https://huggingface.co/fishaudio/drama-3) |
 
 ## 声音设计与内置音色
 

@@ -4447,5 +4447,14 @@
   },
   "@yovoice.error.imageInvalid": {
     "defaultMessage": "Choisissez une image JPEG, PNG ou WebP de 8 Mo maximum."
+  },
+  "@yovoice.voice.previewExcerpt": {
+    "defaultMessage": "Écouter la sélection"
+  },
+  "@yovoice.voice.cancelExcerpt": {
+    "defaultMessage": "Annuler la sélection"
+  },
+  "@yovoice.voice.excerptLength": {
+    "defaultMessage": "{selected} s sur {total} s sélectionnées. Gardez 1 à 60 secondes."
   }
 }
