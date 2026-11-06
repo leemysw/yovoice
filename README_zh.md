@@ -21,6 +21,14 @@
   </a>
 </p>
 <p align="center">
+  <a href="https://macpip.com/apps/yovoice?ref=badge">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://macpip.com/badge/yovoice.svg?theme=dark" />
+      <img src="https://macpip.com/badge/yovoice.svg" height="58" alt="Listed on MacPip" />
+    </picture>
+  </a>
+</p>
+<p align="center">
   <a href="https://www.star-history.com/leemysw/yovoice">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank&theme=dark" />
@@ -28,7 +36,7 @@
       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank" width="250" height="55" />
     </picture>
   </a>
-  <a href="https://trendshift.io/repositories/239687?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-239687" target="_blank" rel="noopener noreferrer">
+  <a href="https://trendshift.io/repositories/239687?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-239687">
     <img src="https://trendshift.io/api/badge/trendshift/repositories/239687/daily?language=TypeScript" alt="leemysw%2Fyovoice | Trendshift" width="250" height="55"/>
   </a>
 </p>
