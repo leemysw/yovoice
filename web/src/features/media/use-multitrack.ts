@@ -4,8 +4,14 @@ import { mediaUrl, releaseMediaUrl } from '../../shared/lib/client';
 export type MixTrack = { id: string; fileName: string };
 export type TrackMix = { mute: boolean; solo: boolean; volume: number };
 
-// 超过这个偏差（秒）就把落后或超前的轨道拉回主时钟。
-const driftLimit = 0.06;
+// 对齐策略：各轨和主时钟的偏差在 tolerance 内不管；稍大时微调这一轨的播放速度慢慢追上（最多快慢 5%，听不出来）；
+// 只有偏差超过 seekLimit（如某轨缓冲卡住）才跳转，且同一轨两次跳转至少间隔 seekGap 毫秒。
+// 不能一有偏差就跳转：跳转会让这一轨重新缓冲、出声断断续续，越跳越乱。
+const tolerance = 0.02;
+const seekLimit = 0.5;
+const seekGap = 2000;
+// 每秒检查几次偏差就够了，不必逐帧。
+const checkEvery = 250;
 
 /**
  * 多轨同步播放：每轨一个不挂在页面上的 <audio> 流式读取（不整段解码，长歌六轨也只占少量内存），
@@ -80,6 +86,25 @@ export function useMultitrack(tracks: MixTrack[], mix: Record<string, TrackMix>,
   const each = (action: (element: HTMLAudioElement) => void) => elements.current.forEach(action);
   const place = (time: number) => each(element => { element.currentTime = Math.min(time, Number.isFinite(element.duration) ? element.duration : time); });
 
+  const lastCheck = useRef(0);
+  const lastSeek = useRef(new Map<HTMLAudioElement, number>());
+  const align = (time: number) => {
+    const now = performance.now();
+    each(element => {
+      if (element === master.current || element.paused || element.ended) return;
+      const drift = element.currentTime - time;
+      if (Math.abs(drift) > seekLimit) {
+        if (now - (lastSeek.current.get(element) ?? 0) < seekGap) return;
+        lastSeek.current.set(element, now);
+        element.playbackRate = 1;
+        element.currentTime = time;
+      } else if (Math.abs(drift) > tolerance) {
+        // 超前就放慢、落后就加快，偏差越大调得越多。
+        element.playbackRate = 1 - Math.max(-0.05, Math.min(0.05, drift * 0.5));
+      } else if (element.playbackRate !== 1) element.playbackRate = 1;
+    });
+  };
+
   const tick = () => {
     const clock = master.current;
     if (!clock) return;
@@ -87,15 +112,13 @@ export function useMultitrack(tracks: MixTrack[], mix: Record<string, TrackMix>,
     position.current = time;
     report.current(time);
     if (clock.ended) { stop(); return; }
-    each(element => {
-      if (element !== clock && !element.paused && !element.ended && Math.abs(element.currentTime - time) > driftLimit) element.currentTime = time;
-    });
+    if (performance.now() - lastCheck.current > checkEvery) { lastCheck.current = performance.now(); align(time); }
     frame.current = requestAnimationFrame(tick);
   };
 
   function stop() {
     cancelAnimationFrame(frame.current);
-    each(element => element.pause());
+    each(element => { element.pause(); element.playbackRate = 1; });
     setPlaying(false);
   }
 
@@ -104,9 +127,13 @@ export function useMultitrack(tracks: MixTrack[], mix: Record<string, TrackMix>,
     const start = position.current >= duration - 0.05 ? 0 : position.current;
     position.current = start;
     place(start);
+    lastSeek.current = new Map();
     try {
       await Promise.all([...elements.current.values()].filter(element => !Number.isFinite(element.duration) || start < element.duration).map(element => element.play()));
     } catch (error) { stop(); fail.current(error); return; }
+    // 各轨依次开始，起点会差几十毫秒：全部真正出声后按主时钟一次对齐。
+    const clock = master.current;
+    if (clock) each(element => { if (element !== clock && !element.paused && Math.abs(element.currentTime - clock.currentTime) > tolerance) element.currentTime = clock.currentTime; });
     setPlaying(true);
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(tick);
