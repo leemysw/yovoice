@@ -41,13 +41,14 @@ import { WorkbenchOverlays, type VoicePickerMode } from './workbench-overlays';
 import { CaptionDialog } from '../features/media/caption-dialog';
 import { VersionExportDialog } from '../features/media/version-export-dialog';
 import { coverJpeg } from '../features/music/song-cover';
-import { TranscribePage } from '../features/transcribe/transcribe-page';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
 // 页面级组件按需加载：音乐、编曲、时间线与导入书稿只在用到时取回，首屏主包只含外壳与语音编辑。
 const MusicEditor = lazy(() => import('../features/music/music-editor').then(module => ({ default: module.MusicEditor })));
 const ScoreEditor = lazy(() => import('../features/score/score-editor').then(module => ({ default: module.ScoreEditor })));
 const ScoreDock = lazy(() => import('../features/score/score-arrangement').then(module => ({ default: module.ScoreDock })));
 const TimelineEditor = lazy(() => import('../features/media/timeline-editor').then(module => ({ default: module.TimelineEditor })));
+// 语音转写页带表格组件，打开时再加载。
+const TranscribePage = lazy(() => import('../features/transcribe/transcribe-page').then(module => ({ default: module.TranscribePage })));
 const BookImport = lazy(() => import('../features/library/book-import').then(module => ({ default: module.BookImport })));
 
 // 工作台界面：导航、页面切换与各页面之间的协作；作品保存由 useDraftSession 负责。
@@ -250,7 +251,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
             <CharacterLibrary controls={libraryTabs} active={page === 'characters' && !voiceTarget && !characterActive} create={createVoice} state={state} catalog={catalog} edit={editCharacter} apply={setVoiceTarget} onError={onError} />
           </PageBoundary></VStack> : null}
           {visited.has('transcribe') ? <VStack id="transcribe-panel" className="page-panel" gap={0} style={{ display: page === 'transcribe' ? 'flex' : 'none' }}><PageBoundary name="transcribe">
-            <TranscribePage state={state} openSettings={() => openSettings('qwen3-asr-0.6b-q8')} />
+            <Suspense fallback={<p className="loading" role="status">{t('@yovoice.app.loading')}</p>}><TranscribePage state={state} openSettings={() => openSettings('qwen3-asr-0.6b-q8')} /></Suspense>
           </PageBoundary></VStack> : null}
           {visited.has('settings') ? <VStack className="page-panel" gap={0} style={{ display: page === 'settings' ? 'flex' : 'none' }}>
             <PageBoundary name="settings"><Suspense fallback={<p role="status">{t('@yovoice.app.loadingSettings')}</p>}><Settings focus={settingsFocus} state={state} catalog={catalog} engine={engine} draft={draft} run={run} active={page === 'settings'} onError={onError}

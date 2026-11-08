@@ -180,9 +180,11 @@
   -webkit-mask: linear-gradient(var(--app-ink) 0 0) content-box, linear-gradient(var(--app-ink) 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: assistant-beam 6s linear infinite;
+  /* 流光只在助手工作或悬停时转动：转动的锥形渐变每帧都要重绘，空闲时停在原处不占资源。 */
+  animation: assistant-beam 6s linear infinite paused;
   pointer-events: none;
 }
+.assistant-launcher-wrap[data-running] .assistant-launcher.astryx-button::before, .assistant-launcher-wrap:hover .assistant-launcher.astryx-button::before { animation-play-state: running; }
 .assistant-launcher.astryx-button:hover { background: var(--app-white); }
 .assistant-launcher-wrap[data-running] .assistant-launcher.astryx-button::before { animation-duration: 1.6s; }
 .assistant-launcher .astryx-button-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
