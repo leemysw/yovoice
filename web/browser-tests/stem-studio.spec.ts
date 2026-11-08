@@ -84,3 +84,51 @@ test('转 MIDI 的结果在分轨工作台逐轨试听；没装音色库时提�
   await expect(studio).toHaveCount(0);
   await expect(page.getByRole('tabpanel', { name: '编曲音色库' })).toBeVisible();
 });
+
+// 回归：各轨起点差几十毫秒、播放中又有抖动，旧实现一有偏差就跳转，跳转让该轨重新缓冲，出声断断续续。
+// 现在小偏差靠微调播放速度追上，只有偏差很大时才跳转。
+test('分轨同步播放不会反复跳转，偏差靠微调速度追上', async ({ page }) => {
+  await page.addInitScript(() => {
+    const native = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime')!;
+    const seeks = new Map<HTMLMediaElement, number>();
+    Object.assign(window, { __seeks: seeks });
+    Object.defineProperty(HTMLMediaElement.prototype, 'currentTime', {
+      get() { return native.get!.call(this); },
+      set(value: number) { seeks.set(this, (seeks.get(this) ?? 0) + 1); native.set!.call(this, value); },
+    });
+  });
+  const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32) };
+  const state = emptyState();
+  state.drafts = [draft];
+  const take = (id: string, extra: object = {}) => ({ id, title: draft.title, fileName: `${id}.wav`, createdAt: '2026-09-15T12:00:00Z', duration: 4, settings: draft, ...extra });
+  state.history = [take('song'), take('vocals', { stemOf: 'song', stem: 'vocals' }), take('drums', { stemOf: 'song', stem: 'drums' })];
+  await page.goto('/');
+  await seedAudio(page, { 'song.wav': 330, 'vocals.wav': 440, 'drums.wav': 110 });
+  await seedState(page, state); await page.reload();
+  await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '打开分轨' }).click();
+  const studio = page.getByRole('dialog', { name: `分轨 · ${draft.title}` });
+  await expect(studio.locator('.stem-lane svg')).toHaveCount(3);
+  await studio.getByRole('button', { name: '播放', exact: true }).click();
+  await page.waitForTimeout(800);
+  type Probe = { __seeks: Map<HTMLMediaElement, number> };
+  // 人为让一轨超前 0.3 秒（这算一次跳转），之后应靠调速追上，而不是再被跳转。
+  const before = await page.evaluate(() => {
+    const seeks = (window as unknown as Probe).__seeks;
+    const elements = [...seeks.keys()];
+    const target = elements[elements.length - 1];
+    target.currentTime = target.currentTime + 0.3;
+    return seeks.get(target)!;
+  });
+  await page.waitForTimeout(1500);
+  const after = await page.evaluate(() => {
+    const seeks = (window as unknown as Probe).__seeks;
+    const elements = [...seeks.keys()];
+    const target = elements[elements.length - 1];
+    return { seeks: seeks.get(target)!, rate: target.playbackRate, all: elements.map(element => seeks.get(element)!) };
+  });
+  expect(after.seeks).toBe(before);
+  expect(after.rate).toBeLessThan(1);
+  // 每轨只在开始时定位、起播后对齐，各不超过 3 次。
+  for (const count of after.all) expect(count).toBeLessThanOrEqual(3);
+});
