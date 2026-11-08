@@ -138,13 +138,16 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.ImportTimelineGeneration(ctx, p.ID)
 	case "voice.update":
 		return true, w.UpdateVoice(p.ID, p.Name, p.ReferenceText)
-	case "voice.record", "voice.decode", "timeline.import":
+	case "voice.record", "voice.decode", "voice.suggestSource", "timeline.import":
 		b, e := base64.StdEncoding.DecodeString(p.Base64)
 		if e != nil {
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		if method == "voice.decode" {
 			return w.DecodeVoiceSource(ctx, bytes.NewReader(b))
+		}
+		if method == "voice.suggestSource" {
+			return w.SuggestVoiceSource(ctx, bytes.NewReader(b))
 		}
 		if method == "timeline.import" {
 			return w.ImportTimelineFrom(ctx, bytes.NewReader(b), p.Name)

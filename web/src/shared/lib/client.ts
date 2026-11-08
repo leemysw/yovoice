@@ -53,6 +53,12 @@ export async function decodeVoiceSource(file: File): Promise<AudioBuffer> {
   return buffer;
 }
 
+// 长录音先挑出最适合克隆的一段（与导入时自动截取同一算法）；预览后端不分析音频，取开头 10 秒。
+export async function suggestVoiceSource(file: File): Promise<{ start: number; end: number }> {
+  if (!isDesktop) return { start: 0, end: 10 };
+  return call<{ start: number; end: number }>('voice.suggestSource', { base64: await toBase64(file) });
+}
+
 export async function importVoiceFile(file: File): Promise<Voice> {
   if (!isDesktop) return (await preview()).previewImportVoice(file);
   assertUploadSize(file);

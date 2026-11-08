@@ -88,7 +88,8 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
           <small>{modelDescription(t, model)}</small>
         </VStack>
         <HStack gap={2} vAlign="center" wrap="wrap">
-          <Button size="sm" label={t('@yovoice.settings.importLocalModel')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} />
+          {/* 未下载的模型也可以导入本机已有的文件（原地使用），作为下载旁的次要操作。 */}
+          {!ready && !downloading ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.importLocalModel')} tooltip={t('@yovoice.settings.importLocalModel')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} /> : null}
           {downloading ? <Button size="sm" label={t('@yovoice.action.pause')} icon={<Pause size={16} />} onClick={() => run(() => call('model.cancel'))} />
             : ready ? <HStack gap={1} vAlign="center">
               {update ? <Button size="sm" variant="secondary" label={t('@yovoice.settings.updateModel')} icon={<RefreshCw size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}

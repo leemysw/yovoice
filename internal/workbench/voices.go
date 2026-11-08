@@ -104,36 +104,62 @@ func (w *Workbench) importVoice(ctx context.Context, path, name, referenceText, 
 	return v, nil
 }
 
-// DecodeVoiceSource 为浏览器无法解码的文件准备可试听的原始录音，不登记音色。
-func (w *Workbench) DecodeVoiceSource(ctx context.Context, r io.Reader) ([]byte, error) {
+// convertVoiceSource 把上传的原始录音转成 WAV 放进临时目录，调用方用完后执行 cleanup；不登记音色。
+func (w *Workbench) convertVoiceSource(ctx context.Context, r io.Reader) (output string, cleanup func(), err error) {
 	input, err := w.receive(r)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 	defer os.Remove(input)
 	executable, err := audio.Converter()
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 	ctx, cancel := context.WithTimeout(ctx, 90*time.Second)
 	defer cancel()
 	dir, err := os.MkdirTemp(filepath.Join(w.Store.Root, "downloads"), "audio-")
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	defer os.RemoveAll(dir)
-	output := filepath.Join(dir, "source.wav")
+	cleanup = func() { _ = os.RemoveAll(dir) }
+	output = filepath.Join(dir, "source.wav")
 	if err = audio.ConvertWithLimit(ctx, executable, input, output, maxRecording); err != nil {
-		return nil, err
+		cleanup()
+		return "", nil, err
 	}
 	duration, err := audio.Duration(output)
+	if err == nil && (duration < 1 || duration > maxRecording) {
+		err = msg.Err(msg.ErrAudioDuration, nil)
+	}
+	if err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	return output, cleanup, nil
+}
+
+// DecodeVoiceSource 为浏览器无法解码的文件准备可试听的原始录音，不登记音色。
+func (w *Workbench) DecodeVoiceSource(ctx context.Context, r io.Reader) ([]byte, error) {
+	output, cleanup, err := w.convertVoiceSource(ctx, r)
 	if err != nil {
 		return nil, err
 	}
-	if duration < 1 || duration > maxRecording {
-		return nil, msg.Err(msg.ErrAudioDuration, nil)
-	}
+	defer cleanup()
 	return os.ReadFile(output)
+}
+
+// SuggestVoiceSource 在尚未保存的长录音里挑出最适合克隆的一段（与导入时自动截取同一算法），供选段时预先选中。
+func (w *Workbench) SuggestVoiceSource(ctx context.Context, r io.Reader) (audio.Span, error) {
+	output, cleanup, err := w.convertVoiceSource(ctx, r)
+	if err != nil {
+		return audio.Span{}, err
+	}
+	defer cleanup()
+	mono, rate, err := audio.ReadMono(output)
+	if err != nil {
+		return audio.Span{}, err
+	}
+	return audio.PickSpeech(mono, rate), nil
 }
 
 // ImportVoiceFrom 从数据流导入参考音色，超过 20 MB 时拒绝。

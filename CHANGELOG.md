@@ -6,7 +6,7 @@
 
 ### English
 
-- When adding reference audio, choose and preview a section of the original recording before saving it as a voice.
+- Reference audio up to 60 seconds imports directly. Longer recordings open a section picker with the clearest part already selected; adjust it on the waveform or by typing in/out points, preview it, then save it as a voice.
 - “Listen while generating” in the creation inspector plays speech as it is synthesized, when the engine supports streaming for the model. Settings › Engine › Runtime sets threads, GPU device, idle unload and model-specific session options for all models. Supported IndexTTS engines also expose the segment token limit and 2.5 text normalization.
 - Export audio as FLAC (lossless, about half the size of WAV) or M4A (AAC 256 kbps) as well as WAV, from a version's “Export audio” or the timeline export. FLAC and M4A carry the title and project name; music versions also carry their lyrics and the same cover shown on the playback page. Version export can now also target audiobook, podcast or video loudness.
 - YuE2 advanced settings add Top P, Top K and repetition penalty for the score-writing stage.
@@ -19,7 +19,7 @@
 - “Separate stems” on a music version (optional HTDemucs 6-stem model, 42 MB) splits it into drums, bass, vocals, guitar, piano and other, each saved as a version you can play, export or add to the timeline.
 - “Transcribe to MIDI” on a music version (optional MuScriptor model, 412 MB, non-commercial) creates a score project with one track per instrument.
 - Kokoro now has a speaking-rate control and passes it to the inference engine.
-- Import existing local audio.cpp GGUF models and supported SF2 sound fonts from model settings, without copying files or changing the download directory. Imported files are preserved when removing the model; PyTorch/MLX weights need conversion first.
+- Import existing local audio.cpp GGUF models and supported SF2 sound fonts from model settings (the folder button next to Download), without copying files or changing the download directory. Imported files are preserved when removing the model; PyTorch/MLX weights need conversion first.
 - Feature tour cards now stay inside the window, keeping Next and Done clickable with longer translations and smaller windows.
 - Speech recognition and subtitles with the optional Qwen3 ASR 0.6B model (Voice models, about 2.3 GB including its timing aligner; supports 30 languages, needs inference engine v0.9.1 or later):
   - “Recognize text” under a reference transcript field or in the voice editor fills in what the sample says; a sample with no transcript keeps the result.
@@ -42,7 +42,7 @@
 
 ### 简体中文
 
-- 添加参考音频时，可在原录音上手动选段并试听，再保存为音色。
+- 60 秒以内的参考音频直接导入；更长的录音先选段，已预先选中最清楚的一段，可在波形上调整或输入入点、出点，试听后保存为音色。
 - 引擎支持流式输出时，创作面板可“边生成边试听”；“设置 › 推理引擎 › 运行参数”可为所有模型设置线程、GPU 设备、空闲卸载时间和模型专属会话参数。引擎支持时还可设置 IndexTTS 每段 Token 上限，并切换 2.5 的文本规范化。
 - 导出音频除 WAV 外新增 FLAC（无损，体积约为 WAV 的一半）和 M4A（AAC 256 kbps），版本的“导出音频”和时间线导出都能选；FLAC 与 M4A 写入标题和作品名，音乐版本还写入歌词和播放页同款封面。版本导出也能选有声书、播客或视频平台的目标响度。
 - YuE2 高级参数新增写谱阶段的 Top P、Top K 和重复惩罚。
@@ -55,7 +55,7 @@
 - 音乐版本新增“分离音轨”（可选 HTDemucs 6 轨模型，42 MB）：分成鼓、贝斯、人声、吉他、钢琴和其他六轨，每轨存成版本，可试听、导出或加到时间线。
 - 音乐版本新增“扒成 MIDI”（可选 MuScriptor 模型，412 MB，仅限非商业用途）：新建编曲作品，每种乐器一轨。
 - Kokoro 新增语速调节，并将所选语速传入推理引擎。
-- 模型设置新增本地导入，原地使用已有 audio.cpp GGUF 模型及受支持的 SF2 音色库，无需复制或更改下载目录；移除导入模型时保留源文件。PyTorch／MLX 原始权重须先转换。
+- 模型设置新增本地导入（“下载”旁的文件夹按钮），原地使用已有 audio.cpp GGUF 模型及受支持的 SF2 音色库，无需复制或更改下载目录；移除导入模型时保留源文件。PyTorch／MLX 原始权重须先转换。
 - 功能引导卡片按实际大小限制在窗口内，较长的翻译和较小的窗口也能点击“下一步”和“开始使用”。
 - 可选语音识别模型 Qwen3 ASR 0.6B（设置的语音模型里下载，含时间对齐模型约 2.3 GB；支持 30 种语言，需要推理引擎 v0.9.1 及以上）：
   - 在参考原文框下或编辑音色信息时点“识别文字”，把样本里说的话填进去；样本原来没有原文时会一并保存。
