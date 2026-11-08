@@ -73,8 +73,8 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   const wav = Buffer.alloc(44 + 16000 * 2 * 2);
   wav.write('RIFF'); wav.writeUInt32LE(wav.length - 8, 4); wav.write('WAVEfmt ', 8); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(16000, 24); wav.writeUInt32LE(32000, 28); wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36); wav.writeUInt32LE(wav.length - 44, 40);
   for (let i = 0; i < 32000; i++) wav.writeInt16LE(Math.round(Math.sin(i * 440 * Math.PI * 2 / 16000) * 8000), 44 + i * 2);
+  // 60 秒以内的录音直接导入并选中，不经过选段。
   await page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '测试音色.wav', mimeType: 'audio/wav', buffer: wav });
-  await page.getByRole('button', { name: '另存为新音色' }).click();
   await page.getByRole('button', { name: '使用所选参考音频', exact: true }).click();
   await expect(page.getByRole('button', { name: '测试音色', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '试听当前音色' }).click();
@@ -144,7 +144,6 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(page.getByRole('dialog').getByRole('heading', { name: '添加参考音频' })).toBeVisible();
   await expect(page.getByRole('dialog').locator('.voice-list')).toHaveCount(0);
   await page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '新增音色.wav', mimeType: 'audio/wav', buffer: wav });
-  await page.getByRole('button', { name: '另存为新音色' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '新增音色', exact: true })).toBeVisible();
   await page.locator('.recent-projects .project-link').first().click();
