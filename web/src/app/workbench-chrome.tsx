@@ -55,7 +55,7 @@ const BookImport = lazy(() => import('../features/library/book-import').then(mod
 export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready, session, error, setError }: { state: State; catalog: ModelPackage[]; catalogRevision: string; engine: EngineInfo; ready: boolean; session: DraftSession; error: string; setError: (message: string) => void }) {
   const t = useTranslator();
   const { draft, setDraft, draftPersisted, setDraftPersisted, saving, saveFailed, change, persistDraft, setActive, setDeleteTarget } = session;
-  const { navigation, inspectorPanel, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel } = useWorkbenchNavigation({ draft, catalog, setActive, setError });
+  const { navigation, inspectorPanel, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel } = useWorkbenchNavigation({ draft, catalog, preferences: state.preferences, setActive, setError });
   const previousVoices = useRef<Voice[]>([]);
   const [voicePicker, setVoicePicker] = useState<VoicePickerMode>(null);
   const [previewTrack, setPreviewTrack] = useState<Track | null>(null);

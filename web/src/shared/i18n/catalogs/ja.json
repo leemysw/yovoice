@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "歌、インスト、スコアの生成と、対応するモデルとサウンドフォントの設定。"
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "音声や動画をアップロードしてタイムコード付きのテキストと字幕にします。参考テキストの「文字を認識」と字幕の書き出しには影響しません。"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。音楽生成もオフにすると、AI サービスの設定と書籍の AI 配役も隠れます。"
   },

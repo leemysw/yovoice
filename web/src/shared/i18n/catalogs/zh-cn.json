@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "歌曲、纯音乐与编曲生成，以及对应的模型和音色库设置。"
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "上传音频或视频转成带时间的文字和字幕。参考原文的“识别文字”和导出字幕不受影响。"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "浮窗助手、标题栏入口和主动提示。与音乐生成都关闭时，AI 服务设置和有声书的 AI 分配角色也一并隐藏。"
   },

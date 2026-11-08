@@ -38,7 +38,7 @@ export function SidebarNav(props: {
         return <Button key={kind} data-testid={`nav-${kind}`} label={t(`@yovoice.project.${kind}`)} variant="ghost" icon={kind === 'text' ? <Mic /> : kind === 'story' ? <Pencil /> : <Music />} className={`nav-item ${selected ? 'selected' : ''}`} aria-current={selected ? 'page' : undefined} onClick={() => setPage(kind)} />;
       })}
       <Button data-testid="nav-characters" label={t('@yovoice.nav.characters')} variant="ghost" icon={<AudioLines />} className={`nav-item ${page === 'characters' || page === 'voices' ? 'selected' : ''}`} aria-current={page === 'characters' || page === 'voices' ? 'page' : undefined} onClick={() => setPage('characters')} />
-      <Button data-testid="nav-transcribe" label={t('@yovoice.nav.transcribe')} variant="ghost" icon={<Captions />} className={`nav-item ${page === 'transcribe' ? 'selected' : ''}`} aria-current={page === 'transcribe' ? 'page' : undefined} onClick={() => setPage('transcribe')} />
+      {featureHidden(state.preferences, 'transcribe') ? null : <Button data-testid="nav-transcribe" label={t('@yovoice.nav.transcribe')} variant="ghost" icon={<Captions />} className={`nav-item ${page === 'transcribe' ? 'selected' : ''}`} aria-current={page === 'transcribe' ? 'page' : undefined} onClick={() => setPage('transcribe')} />}
     </VStack>
     <details className="recent-projects" open={recentOpen}>
       <summary onClick={event => { event.preventDefault(); const open = !recentOpen; setRecentOpen(open); writeLocal('yovoice-recent-open', String(open)); }}><ChevronRight aria-hidden />{t('@yovoice.nav.recent')}</summary>

@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Canzoni, basi strumentali e partiture, con le relative impostazioni di modelli e banchi di suoni."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Converte audio o video caricati in testo e sottotitoli con tempi. «Riconosci testo» per le trascrizioni di riferimento e l’esportazione dei sottotitoli restano disponibili."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "L’assistente flottante, il suo accesso nella barra del titolo e i suggerimenti. Se disattivi anche la generazione musicale, vengono nascoste anche le impostazioni del servizio IA e l’assegnazione dei ruoli con IA per i libri."
   },

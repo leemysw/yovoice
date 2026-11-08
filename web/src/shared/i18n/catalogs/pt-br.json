@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Músicas, instrumentais e partituras, além das configurações de modelos e bancos de som."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Converte áudio ou vídeo enviado em texto e legendas com tempo. “Reconhecer texto” nas transcrições de referência e a exportação de legendas continuam disponíveis."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "O assistente flutuante, seu atalho na barra de título e as sugestões. Com a geração de música também desativada, as configurações do serviço de IA e a distribuição de papéis por IA em livros também ficam ocultas."
   },

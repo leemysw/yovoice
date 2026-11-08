@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Bài hát, nhạc không lời và bản phối, cùng cài đặt mô hình và soundfont tương ứng."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Chuyển âm thanh hoặc video tải lên thành văn bản và phụ đề có mốc thời gian. “Nhận dạng văn bản” cho bản chép tham chiếu và xuất phụ đề không bị ảnh hưởng."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Trợ lý nổi, lối vào trên thanh tiêu đề và các gợi ý. Khi tắt cả tạo nhạc, cài đặt dịch vụ AI và phân vai bằng AI cho sách cũng bị ẩn."
   },

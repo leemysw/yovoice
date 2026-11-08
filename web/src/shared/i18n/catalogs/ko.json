@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "노래, 연주곡, 편곡 생성과 관련 모델 및 사운드폰트 설정."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "오디오나 동영상을 업로드해 시간 정보가 있는 텍스트와 자막으로 변환합니다. 참고 원문의 “텍스트 인식”과 자막 내보내기에는 영향이 없습니다."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. 음악 생성도 끄면 AI 서비스 설정과 책의 AI 배역 지정도 함께 숨겨집니다."
   },

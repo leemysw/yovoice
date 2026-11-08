@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "歌曲、純音樂與編曲生成，以及對應的模型和音色庫設定。"
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "上傳音訊或影片轉成帶時間的文字和字幕。參考原文的「辨識文字」和匯出字幕不受影響。"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "浮窗助手、標題列入口和主動提示。與音樂生成都關閉時，AI 服務設定和有聲書的 AI 分配角色也一併隱藏。"
   },

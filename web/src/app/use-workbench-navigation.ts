@@ -3,10 +3,10 @@ import { useResizable } from '@astryxdesign/core/Resizable';
 import { call, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { readLocal, removeLocal, writeLocal } from '../shared/lib/local-store';
-import { modelTab, type Draft, type ModelPackage } from '../shared/workbench';
+import { featureHidden, modelTab, type Draft, type ModelPackage, type Preferences } from '../shared/workbench';
 
 // 工作台的导航与面板状态：当前页面与已访问记录、设置页定位、侧栏宽度与收起、右侧检查器的收起与展开。
-export function useWorkbenchNavigation({ draft, catalog, setActive, setError }: { draft: Draft; catalog: ModelPackage[]; setActive: (active: boolean) => void; setError: (message: string) => void }) {
+export function useWorkbenchNavigation({ draft, catalog, preferences, setActive, setError }: { draft: Draft; catalog: ModelPackage[]; preferences: Preferences; setActive: (active: boolean) => void; setError: (message: string) => void }) {
   const navigation = useResizable({ defaultSize: 224, minSize: 180, maxSize: 360, collapsible: true, autoSaveId: 'workbench-sidebar' });
   const { isCollapsed, expand, collapse } = navigation;
   const toggleSidebar = useCallback(() => { if (isCollapsed) expand(); else collapse(); }, [isCollapsed, expand, collapse]);
@@ -25,6 +25,9 @@ export function useWorkbenchNavigation({ draft, catalog, setActive, setError }: 
   useEffect(() => {
     writeLocal('yovoice-active-page', page);
   }, [page]);
+  // 所在页面的功能在设置里被隐藏（或上次停留的页面已隐藏、助手跳转到隐藏页面）时回到语音生成。
+  const pageFeature = page === 'story' ? 'story' : page === 'music' || page === 'score' || page === 'sfx' ? 'music' : page === 'transcribe' ? 'transcribe' : null;
+  if (pageFeature && featureHidden(preferences, pageFeature)) setPage('text');
   // 页面第一次打开时才挂载，之后保持挂载（切走只隐藏），切回来时保留编辑、滚动与播放状态；启动时只渲染当前页。
   const [visited, setVisited] = useState(() => new Set([page]));
   if (!visited.has(page)) setVisited(new Set(visited).add(page));

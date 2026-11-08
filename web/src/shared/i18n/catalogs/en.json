@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Songs, instrumentals and scores, plus their model and sound font settings."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Turn uploaded audio or video into timed text and subtitles. “Recognize text” for reference transcripts and subtitle export are unaffected."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "The floating assistant, its title bar entry and suggestions. With music generation also off, AI service settings and AI casting for books are hidden too."
   },

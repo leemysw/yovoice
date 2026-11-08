@@ -327,8 +327,8 @@ type Preferences struct {
 	HiddenFeatures []string `json:"hiddenFeatures,omitempty"`
 }
 
-// OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）与 Ocho 助手。
-var OptionalFeatures = []string{"story", "music", "assistant"}
+// OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）、语音转写与 Ocho 助手。
+var OptionalFeatures = []string{"story", "music", "transcribe", "assistant"}
 
 type State struct {
 	// RuntimeOptions 来自所选引擎的模型清单，运行时重新读取，不写入状态数据库。

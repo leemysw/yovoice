@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Songs, Instrumentals und Partituren samt Modell- und Soundfont-Einstellungen."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Hochgeladenes Audio oder Video in Text und Untertitel mit Zeitangaben umwandeln. „Text erkennen“ für Referenztexte und der Untertitelexport bleiben verfügbar."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Der schwebende Assistent, sein Eintrag in der Titelleiste und seine Vorschläge. Ist auch die Musikgenerierung aus, werden die KI-Dienst-Einstellungen und die KI-Rollenvergabe für Bücher ebenfalls ausgeblendet."
   },

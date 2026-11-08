@@ -4025,6 +4025,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Chansons, instrumentaux et partitions, ainsi que les réglages de modèles et de banques de sons."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Convertit un fichier audio ou vidéo en texte et sous-titres horodatés. « Reconnaître le texte » pour les transcriptions de référence et l’export des sous-titres restent disponibles."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "L’assistant flottant, son accès dans la barre de titre et ses suggestions. Si la génération de musique est aussi désactivée, les réglages du service d’IA et la distribution des rôles par IA pour les livres sont masqués."
   },

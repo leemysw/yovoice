@@ -106,7 +106,7 @@ export interface CleanupReport {
 }
 export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[] }
 // 可在设置中隐藏的功能入口：故事配音、音乐生成（含编曲与音效）与 Ocho 助手，默认全部显示。
-export const optionalFeatures = ['story', 'music', 'assistant'] as const;
+export const optionalFeatures = ['story', 'music', 'transcribe', 'assistant'] as const;
 export type Feature = typeof optionalFeatures[number];
 export interface State {
   runtimeOptions?: Record<string, string[]>;
