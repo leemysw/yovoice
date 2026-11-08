@@ -85,50 +85,58 @@ test('转 MIDI 的结果在分轨工作台逐轨试听；没装音色库时提�
   await expect(page.getByRole('tabpanel', { name: '编曲音色库' })).toBeVisible();
 });
 
-// 回归：各轨起点差几十毫秒、播放中又有抖动，旧实现一有偏差就跳转，跳转让该轨重新缓冲，出声断断续续。
-// 现在小偏差靠微调播放速度追上，只有偏差很大时才跳转。
-test('分轨同步播放不会反复跳转，偏差靠微调速度追上', async ({ page }) => {
+// 回归：旧实现每轨一个 <audio> 各自播放再纠偏，实机上反复跳转、调速，除主时钟一轨外都断断续续，点独奏还卡。
+// 现在是一个混音器、一个时钟：在混音器输出上接分析器，确认真的在连续出声，独奏切换后输出的就是那一轨。
+test('分轨由同一个混音器输出：连续出声，独奏切换即时生效', async ({ page }) => {
   await page.addInitScript(() => {
-    const native = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime')!;
-    const seeks = new Map<HTMLMediaElement, number>();
-    Object.assign(window, { __seeks: seeks });
-    Object.defineProperty(HTMLMediaElement.prototype, 'currentTime', {
-      get() { return native.get!.call(this); },
-      set(value: number) { seeks.set(this, (seeks.get(this) ?? 0) + 1); native.set!.call(this, value); },
-    });
+    const connect = AudioNode.prototype.connect as (this: AudioNode, ...args: unknown[]) => AudioNode;
+    AudioNode.prototype.connect = function (this: AudioNode, ...args: unknown[]) {
+      if (this instanceof AudioWorkletNode && args[0] instanceof AudioDestinationNode) {
+        const analyser = this.context.createAnalyser();
+        // 不做频谱平滑、窗口约 0.25 秒，独奏切换后能及时看到变化。
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0;
+        connect.call(this, analyser);
+        Object.assign(window, { __mixer: analyser });
+      }
+      return connect.apply(this, args);
+    } as typeof AudioNode.prototype.connect;
   });
   const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32) };
   const state = emptyState();
   state.drafts = [draft];
   const take = (id: string, extra: object = {}) => ({ id, title: draft.title, fileName: `${id}.wav`, createdAt: '2026-09-15T12:00:00Z', duration: 4, settings: draft, ...extra });
-  state.history = [take('song'), take('vocals', { stemOf: 'song', stem: 'vocals' }), take('drums', { stemOf: 'song', stem: 'drums' })];
+  state.history = [take('song'), take('vocals', { stemOf: 'song', stem: 'vocals' }), take('drums', { stemOf: 'song', stem: 'drums' }), take('bass', { stemOf: 'song', stem: 'bass' })];
   await page.goto('/');
-  await seedAudio(page, { 'song.wav': 330, 'vocals.wav': 440, 'drums.wav': 110 });
+  await seedAudio(page, { 'song.wav': 330, 'vocals.wav': 440, 'drums.wav': 110, 'bass.wav': 55 });
   await seedState(page, state); await page.reload();
   await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '打开分轨' }).click();
   const studio = page.getByRole('dialog', { name: `分轨 · ${draft.title}` });
-  await expect(studio.locator('.stem-lane svg')).toHaveCount(3);
+  await expect(studio.locator('.stem-lane svg')).toHaveCount(4);
+  // 不创建 <audio>：各轨都进同一个混音器。
+  expect(await page.evaluate(() => document.querySelectorAll('audio').length)).toBe(await page.evaluate(() => document.querySelectorAll('footer audio').length));
+  type Probe = { __mixer: AnalyserNode };
+  // 输出里能量最大的频率（Hz）与整体电平。
+  const listen = () => page.evaluate(() => {
+    const analyser = (window as unknown as Probe).__mixer;
+    const spectrum = new Float32Array(analyser.frequencyBinCount);
+    analyser.getFloatFrequencyData(spectrum);
+    let peak = 0;
+    for (let i = 1; i < spectrum.length; i++) if (spectrum[i] > spectrum[peak]) peak = i;
+    const wave = new Float32Array(analyser.fftSize);
+    analyser.getFloatTimeDomainData(wave);
+    return { hz: peak * analyser.context.sampleRate / analyser.fftSize, level: Math.sqrt(wave.reduce((sum, v) => sum + v * v, 0) / wave.length) };
+  });
+  await studio.getByRole('button', { name: '独奏 人声' }).click();
   await studio.getByRole('button', { name: '播放', exact: true }).click();
-  await page.waitForTimeout(800);
-  type Probe = { __seeks: Map<HTMLMediaElement, number> };
-  // 人为让一轨超前 0.3 秒（这算一次跳转），之后应靠调速追上，而不是再被跳转。
-  const before = await page.evaluate(() => {
-    const seeks = (window as unknown as Probe).__seeks;
-    const elements = [...seeks.keys()];
-    const target = elements[elements.length - 1];
-    target.currentTime = target.currentTime + 0.3;
-    return seeks.get(target)!;
-  });
-  await page.waitForTimeout(1500);
-  const after = await page.evaluate(() => {
-    const seeks = (window as unknown as Probe).__seeks;
-    const elements = [...seeks.keys()];
-    const target = elements[elements.length - 1];
-    return { seeks: seeks.get(target)!, rate: target.playbackRate, all: elements.map(element => seeks.get(element)!) };
-  });
-  expect(after.seeks).toBe(before);
-  expect(after.rate).toBeLessThan(1);
-  // 每轨只在开始时定位、起播后对齐，各不超过 3 次。
-  for (const count of after.all) expect(count).toBeLessThanOrEqual(3);
+  await expect.poll(async () => Math.round((await listen()).hz)).toBeGreaterThan(430);
+  expect((await listen()).hz).toBeLessThan(450);
+  // 连续出声：播放中多次取样，电平都不掉到静音。
+  await page.waitForTimeout(300);
+  for (let i = 0; i < 8; i++) { expect((await listen()).level).toBeGreaterThan(.1); await page.waitForTimeout(100); }
+  // 独奏改为贝斯：输出随即变成贝斯的频率。
+  await studio.getByRole('button', { name: '独奏 人声' }).click();
+  await studio.getByRole('button', { name: '独奏 贝斯' }).click();
+  await expect.poll(async () => Math.round((await listen()).hz), { timeout: 2000 }).toBeLessThan(65);
 });

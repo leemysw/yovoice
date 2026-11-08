@@ -12,6 +12,7 @@ const headerLimit = 1024 * 1024;
 const samplesPerBin = 256;
 
 type Format = { encoding: 'int' | 'float'; bits: number; channels: number; sampleRate: number; align: number; dataOffset: number; dataSize: number };
+export type WavFormat = Format;
 
 // 解析 RIFF/WAVE 文件头：返回数据块位置与采样格式；字节不够时返回 'more'，不是可读的 WAV 时返回 null。
 export function parseWavHeader(bytes: Uint8Array): Format | 'more' | null {
@@ -48,6 +49,16 @@ function sample(view: DataView, position: number, format: Format): number {
     case 24: return ((view.getUint8(position + 2) << 24 | view.getUint8(position + 1) << 16 | view.getUint8(position) << 8) >> 8) / 8388608;
     default: return view.getInt32(position, true) / 2147483648;
   }
+}
+
+/** 把一段按整帧对齐的 WAV 数据转成每声道一条 Float32 采样（最多两声道），供多轨混音按块读取。 */
+export function wavFrames(bytes: Uint8Array, format: Format): Float32Array[] {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const frames = Math.floor(bytes.length / format.align);
+  const count = Math.min(2, format.channels), step = format.bits / 8;
+  const out = Array.from({ length: count }, () => new Float32Array(frames));
+  for (let i = 0; i < frames; i++) for (let c = 0; c < count; c++) out[c][i] = sample(view, i * format.align + c * step, format);
+  return out;
 }
 
 // 已缓冲的数据会在微任务里连续交付，按时间片主动让出主线程，读取期间界面仍能响应。
