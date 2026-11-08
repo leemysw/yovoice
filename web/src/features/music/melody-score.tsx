@@ -7,6 +7,7 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Maximize2, Mic2, MoreHorizontal, Pause, Play, Square, Undo2 } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
+import { MorphFrame } from '../../shared/ui/morph-frame';
 import { call, CallError, coverMelodyFile, saveText } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
 import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
@@ -148,7 +149,8 @@ export function MelodyScore({ draft, state, change, onError }: {
     <Button size="sm" label={t('@yovoice.action.cancel')} onClick={() => void attempt(() => call('operation.cancel'))} />
   </HStack> : null;
 
-  return <VStack ref={root} className="music-block melody-score" gap={3}>
+  // 外框随内容高度平滑变化：没有谱时只有几颗按钮，出谱后展开成谱面；切换视图时也一样。
+  return <MorphFrame><VStack ref={root} className="music-block melody-score" gap={3}>
     {pickers}
     {/* 标题行与歌词区一致：左侧标题，右侧视图切换和「⋯」谱面操作。 */}
     <HStack vAlign="center" gap={2}>
@@ -233,5 +235,5 @@ export function MelodyScore({ draft, state, change, onError }: {
       {/* 对话框盖住了下方的校验提示，边写边在这里显示谱面是否可用。 */}
       {abc.trim() && inspection?.issue ? <small className="melody-source-issue" role="alert">{formatMelodyIssue(t, inspection.issue)}</small> : null}
     </AppDialog> : null}
-  </VStack>;
+  </VStack></MorphFrame>;
 }

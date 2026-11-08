@@ -24,6 +24,7 @@ import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
 import { useElapsed } from '../../shared/lib/use-elapsed';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { MorphFrame } from '../../shared/ui/morph-frame';
 
 const modes: Mode[] = ['speaker', 'reference', 'vector', 'text'];
 const emotionKeys = ['happy', 'angry', 'sad', 'afraid', 'disgusted', 'melancholy', 'surprised', 'calm'] as const;
@@ -74,14 +75,14 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
   // 当前模型的目录条目；目录里没有（目录更新后模型下架）时，需要条目的控件不渲染，页面不崩。
   const currentModel = catalog.find(model => model.id === draft.modelId);
   return <VStack as="aside" className={embedded ? undefined : "inspector"} gap={0}>
-    {!embedded ? <VStack className="generation-action" gap={3}>
+    {!embedded ? <MorphFrame><VStack className="generation-action" gap={3}>
       {generationAction ?? (generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" /> : <Button label={t('@yovoice.create.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !(draft.subtitles ? draft.subtitles.cues.some(cue => cue.text.trim()) : draft.text.trim())} onClick={generate} />)}
       {generating && !generationAction ? <HStack className="generation-status" gap={2} vAlign="center">
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
         <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
       </HStack> : null}
-    </VStack>
+    </VStack></MorphFrame>
     : null}
     <VStack className={embedded ? undefined : "inspector-scroll"} gap={5}>
     {libraryActions}

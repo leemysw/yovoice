@@ -4,7 +4,7 @@ import { flushSync } from 'react-dom';
 // 同步提交新状态后再在两帧之间按 app/motion.css 里命名的区域做形变，让注意力跟着元素走，而不是整页闪一下。
 // kind 写在 <html data-transition> 上，样式据此为不同的变化选择动效；过渡结束后移除。
 // 不支持视图过渡的 WebView、减少动态效果或页面在后台时直接更新，界面结果完全一致。
-export type TransitionKind = 'page' | 'sidebar' | 'inspector' | 'open-project';
+export type TransitionKind = 'page' | 'sidebar' | 'inspector' | 'open-project' | 'notice';
 
 type TransitionDocument = Document & { startViewTransition?: (update: () => void) => { finished: Promise<void> } };
 

@@ -68,6 +68,14 @@
   @keyframes app-inspector-out { to { opacity: 0; transform: translateX(var(--spacing-12)); } }
   @keyframes app-inspector-in { from { opacity: 0; transform: translateX(var(--spacing-12)); } }
 
+  /* ===== 提示条：从上方轻轻落下并淡入；关闭时向上收起淡出（关闭经视图过渡，见 notifications.tsx）。 ===== */
+  .notifications { view-transition-name: notifications; }
+  .notifications > * { transition: opacity var(--duration-fast) var(--ease-standard), translate var(--duration-medium-min) var(--ease-standard); }
+  @starting-style { .notifications > * { opacity: 0; translate: 0 calc(-1 * var(--spacing-2)); } }
+  :root[data-transition="notice"]::view-transition-old(notifications) { animation: notice-out var(--duration-fast) var(--ease-standard) both; }
+  :root[data-transition="notice"]::view-transition-new(notifications) { animation: none; }
+  @keyframes notice-out { to { opacity: 0; transform: translateY(calc(-1 * var(--spacing-2))); } }
+
   /* ===== 侧栏选中块：一个独立的底块在入口之间滑动，选中项只加粗文字。 ===== */
   .sidebar-indicator { position: absolute; top: 0; left: 0; z-index: 0; border-radius: var(--radius-element); background: var(--app-white); box-shadow: var(--shadow-low); pointer-events: none; opacity: 1; }
   .sidebar-indicator[data-ready] { transition: transform var(--duration-medium-min) var(--ease-standard), height var(--duration-medium-min) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard); }

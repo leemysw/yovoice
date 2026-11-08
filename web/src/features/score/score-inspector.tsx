@@ -10,6 +10,7 @@ import { formatBytes, formatTime, isSoundFont, type Draft, type ModelPackage, ty
 import { ModelSelector } from '../create/model-selector';
 import { emptyScore, noteCount, scoreDuration } from './score-draft';
 import { useElapsed } from '../../shared/lib/use-elapsed';
+import { MorphFrame } from '../../shared/ui/morph-frame';
 
 const meters = [[4, 4], [3, 4], [2, 4], [6, 8], [12, 8]];
 
@@ -29,7 +30,7 @@ export function ScoreInspector({ draft, state, catalog, change, generate, cancel
   const update = (patch: Partial<Score>) => change({ score: { ...score, ...patch } });
   const empty = noteCount(score) === 0;
   return <VStack as="aside" className="inspector score-inspector" gap={0}>
-    <VStack className="generation-action" gap={3}>
+    <MorphFrame><VStack className="generation-action" gap={3}>
       {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
         : <Button label={t('@yovoice.score.render')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || empty} onClick={generate} />}
       {generating ? <HStack className="generation-status" gap={2} vAlign="center">
@@ -38,7 +39,7 @@ export function ScoreInspector({ draft, state, catalog, change, generate, cancel
         <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
       </HStack> : !installed && font ? <HStack gap={2} vAlign="center" hAlign="between" wrap="wrap"><small className="grow">{t('@yovoice.score.soundFontRequired', { size: formatBytes(font.size) })}</small><Button size="sm" label={t('@yovoice.score.downloadSoundFont')} onClick={settings} /></HStack>
         : null}
-    </VStack>
+    </VStack></MorphFrame>
     <VStack className="inspector-scroll" gap={5}>
       {header}
       <VStack className="inspector-actions" gap={3}>

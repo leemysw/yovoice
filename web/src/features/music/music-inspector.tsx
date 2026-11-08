@@ -17,6 +17,7 @@ import { useElapsed } from '../../shared/lib/use-elapsed';
 import { StableAudioControls, stableAudioOptions, stableAudioReady } from './stable-audio-controls';
 import { sfxDurationPresets } from '../sfx/sfx-draft';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { MorphFrame } from '../../shared/ui/morph-frame';
 
 const optionValues = (key: string) => definitions.ace_step.find(spec => spec.key === key)?.values ?? [];
 
@@ -56,7 +57,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
     change({ text: next.join(', ').slice(0, 512) });
   };
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
-    <VStack className="generation-action" gap={3}>
+    <MorphFrame><VStack className="generation-action" gap={3}>
       {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
         : <Button label={t(stable ? '@yovoice.music.generateAudio' : yue && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.instrumental && !draft.lyrics?.trim()) || (stable && !stableAudioReady(draft, state.history))} onClick={generate} />}
       {generating ? <HStack className="generation-status" gap={2} vAlign="center">
@@ -64,7 +65,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
         <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
       </HStack> : engineOutdated ? <HStack gap={2} vAlign="center" hAlign="between" wrap="wrap"><small className="grow">{t('@yovoice.music.engineRequired', { version: model?.engineMinimum })}</small><Button size="sm" label={t('@yovoice.music.updateEngine')} onClick={upgradeEngine} /></HStack> : null}
-    </VStack>
+    </VStack></MorphFrame>
     <VStack className="inspector-scroll" gap={5}>
       {header}
       <VStack className="inspector-actions" gap={3}>
