@@ -4,9 +4,12 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"slices"
 	"strings"
 	"yovoice/internal/schema"
+
+	"github.com/google/jsonschema-go/jsonschema"
 )
 
 // 助手写谱与 update_work 共用的乐谱构建与校验：notes 接受紧凑数组与完整对象，
@@ -33,8 +36,24 @@ type scoreTrack struct {
 	Reverb   float64            `json:"reverb,omitempty" jsonschema:"0 到 1"`
 	Humanize *schema.Humanize   `json:"humanize,omitempty" jsonschema:"力度与时间微调"`
 	Dynamics []schema.ScoreRamp `json:"dynamics,omitempty" jsonschema:"音量渐变"`
-	Notes    []any              `json:"notes" jsonschema:"音符数组，每项为 [小节,拍,MIDI音高,拍数,力度] 五个数字或同字段对象；小节与拍从 1 开始，拍可为小数"`
+	Notes    []scoreNoteInput   `json:"notes" jsonschema:"音符数组，每项为 [小节,拍,MIDI音高,拍数,力度] 五个数字或同字段对象；小节与拍从 1 开始，拍可为小数"`
 	Repeats  []scoreRepeat      `json:"repeats,omitempty" jsonschema:"把 from..to 小节的音符复制到各 at 起点"`
+}
+
+// scoreNoteInput 是一个音符的两种写法之一：[小节,拍,音高,拍数,力度] 数组或同字段对象。
+// 用具名类型是为了给它单独指定 JSON Schema：裸 any 会生成 items: true，Moonshot（Kimi）等
+// 严格校验的服务会拒绝整个工具定义。
+type scoreNoteInput any
+
+// updateWorkInputSchema 生成 update_work 的入参 Schema，音符项显式声明为“数字数组或对象”。
+func updateWorkInputSchema() (*jsonschema.Schema, error) {
+	note := &jsonschema.Schema{AnyOf: []*jsonschema.Schema{
+		{Type: "array", Items: &jsonschema.Schema{Type: "number"}, MinItems: jsonschema.Ptr(5), MaxItems: jsonschema.Ptr(5)},
+		{Type: "object"},
+	}}
+	return jsonschema.For[updateWorkInput](&jsonschema.ForOptions{
+		TypeSchemas: map[reflect.Type]*jsonschema.Schema{reflect.TypeFor[scoreNoteInput](): note},
+	})
 }
 
 // scoreRepeat 让模型只写一遍循环段落，由这里展开成音符，长曲子不必逐个写出。

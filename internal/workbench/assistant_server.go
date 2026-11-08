@@ -1,6 +1,9 @@
 package workbench
 
-import "github.com/modelcontextprotocol/go-sdk/mcp"
+import (
+	"github.com/google/jsonschema-go/jsonschema"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+)
 
 // 内置助手的工具集：只开放给助手进程，不暴露给对外 MCP。
 // 作品工具（list/get/create/update/generate/open）立即反映在界面上；删除、下载模型、改设置
@@ -22,7 +25,7 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	mcp.AddTool(server, &mcp.Tool{Name: "list_works", Description: "列出作品（id、类型、标题、更新时间），可按类型过滤。类型：text（语音）、story（故事配音）、music（音乐）、sfx（音效）、score（编曲）。"}, w.listWorksTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "get_work", Description: "读取一个作品的完整可编辑内容：台词或风格、歌词、角色与音色分配、模型与参数、乐谱、时间线轨道摘要（序号、id、名称、锁定与末尾时间）等。修改作品前先调用。"}, w.getWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "create_work", Description: "按类型新建作品并返回 id，默认让界面随即打开它（open=false 则只在后台创建、不切换界面）。新作品为空内容，随后用 update_work 填写。只想建声音角色时不要新建作品，用 save_character。"}, w.createWorkTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、故事配音的角色台词、乐谱（与写谱同一套校验）、YuE2 旋律谱 abc；右侧检查器里的全部声音设置与高级参数（模型、音色、声音设计描述、情绪、语速、温度、modelOptions 等）放在 settings；characterId 套用声音库角色；故事配音的每个角色用 speakerSettings。返回修改后的摘要。"}, w.updateWorkTool)
+	mcp.AddTool(server, &mcp.Tool{InputSchema: mustSchema(updateWorkInputSchema()), Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、故事配音的角色台词、乐谱（与写谱同一套校验）、YuE2 旋律谱 abc；右侧检查器里的全部声音设置与高级参数（模型、音色、声音设计描述、情绪、语速、温度、modelOptions 等）放在 settings；characterId 套用声音库角色；故事配音的每个角色用 speakerSettings。返回修改后的摘要。"}, w.updateWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "list_characters", Description: "列出声音库里的角色（id、名称、模型、参考音色、声音设计描述）。给作品或故事角色套用角色前先调用。"}, w.listCharactersTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "save_character", Description: "新建或修改声音库里的角色（声音配置：模型、参考音色、声音设计描述、全部参数）。新建可用 fromWork 以某个作品当前的声音设置为起点，再用 settings 改动；修改已有角色传 id。不会改动任何作品，也不会切换界面。删除角色走 propose_action。"}, w.saveCharacterTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "generate_work", Description: "对一个作品发起生成（语音、音乐、音效或编曲渲染），立即返回；生成前先用 list_models 确认模型已安装。进度与结果用 get_generation_status 查询。YuE2 作品选的是按旋律谱生成却还没有谱时会被拒绝：先 plan_melody 写谱、填入作品，等用户看过试听过并同意后再生成。"}, w.generateWorkTool)
@@ -34,4 +37,12 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	w.registerAudioTools(server)
 	w.registerAgentTools(server)
 	return server
+}
+
+// mustSchema 在注册工具时取 Schema；类型定义是静态的，生成失败属于编程错误。
+func mustSchema(s *jsonschema.Schema, err error) *jsonschema.Schema {
+	if err != nil {
+		panic(err)
+	}
+	return s
 }

@@ -24,7 +24,8 @@ function ExcerptPlayback({ buffer, range, disabled, onError }: {
   }, []);
   return <>
     <audio hidden ref={audio} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />
-    <Button size="sm" variant="secondary" label={t(playing ? '@yovoice.player.pause' : '@yovoice.voice.previewExcerpt')}
+    {/* 文字固定为“试听选段”，播放时只换图标：暂停与试听的文字宽度不同，换文字会把右边的按钮顶得左右抖动。 */}
+    <Button size="sm" variant="secondary" label={t('@yovoice.voice.previewExcerpt')} aria-pressed={playing}
       icon={playing ? <Pause size={16} /> : <Play size={16} />} isDisabled={disabled}
       onClick={() => {
         const element = audio.current;
