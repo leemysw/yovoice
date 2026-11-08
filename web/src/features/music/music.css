@@ -1,6 +1,35 @@
 /* 音乐：歌词与风格编辑、旋律谱、全屏播放页与逐字歌词编辑。 */
 
 @layer app {
+  /* ===== 分轨工作台：全屏调音台。左侧轨头（色条、名称、音量、静音、独奏），右侧波形；播放头贯穿各轨。 ===== */
+  .stem-studio { height: 100%; min-height: 0; background: var(--app-paper); color: var(--app-ink); --stem-head: calc(var(--spacing-10) * 7); --stem-pad: var(--spacing-6); }
+  .stem-studio-header { padding: var(--spacing-5) var(--stem-pad) var(--spacing-3); }
+  .stem-studio-header h2 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); }
+  .stem-studio-header small, .stem-time { color: var(--app-muted); font-size: var(--app-small-font); font-variant-numeric: tabular-nums; }
+  .stem-transport { padding: 0 var(--stem-pad) var(--spacing-4); border-bottom: var(--border-width) solid var(--app-line); }
+  .stem-board { position: relative; flex: 1; min-height: 0; overflow-y: auto; padding: var(--spacing-4) var(--stem-pad) var(--spacing-6); }
+  .stem-rack { position: relative; flex: none; }
+  .stem-track { flex: none; height: calc(var(--spacing-10) * 2); border-radius: var(--radius-element); background: var(--app-white); box-shadow: var(--shadow-low); overflow: hidden; --stem-color: var(--app-muted); }
+  .stem-track[data-color="blue"] { --stem-color: var(--color-icon-blue); }
+  .stem-track[data-color="orange"] { --stem-color: var(--color-icon-orange); }
+  .stem-track[data-color="green"] { --stem-color: var(--color-icon-green); }
+  .stem-track[data-color="purple"] { --stem-color: var(--color-icon-purple); }
+  .stem-track[data-color="pink"] { --stem-color: var(--color-icon-pink); }
+  .stem-track[data-color="teal"] { --stem-color: var(--color-icon-teal); }
+  .stem-track[data-color="yellow"] { --stem-color: var(--color-icon-yellow); }
+  .stem-track-head { flex: none; width: var(--stem-head); padding: var(--spacing-2) var(--spacing-3); border-right: var(--border-width) solid var(--app-line); }
+  .stem-swatch { width: var(--spacing-1); align-self: stretch; border-radius: var(--radius-full); background: var(--stem-color); }
+  .stem-track-name { overflow: hidden; font-size: var(--app-small-font); font-weight: var(--font-weight-medium); white-space: nowrap; text-overflow: ellipsis; }
+  .stem-toggle { flex: none; }
+  .stem-lane { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; cursor: pointer; }
+  .stem-lane svg { display: block; height: 80%; }
+  .stem-lane path { stroke: var(--stem-color); stroke-width: 1.5; vector-effect: non-scaling-stroke; transition: stroke var(--duration-fast) var(--ease-standard); }
+  /* 听不到的轨道（静音，或别的轨道在独奏）波形变灰，一眼看出此刻在听哪些。 */
+  .stem-track[data-silent] .stem-lane path { stroke: var(--color-border-emphasized); }
+  .stem-track[data-silent] .stem-track-name { color: var(--app-muted); }
+  .stem-playhead { position: absolute; top: 0; bottom: 0; width: calc(var(--border-width) * 2); background: var(--app-accent); pointer-events: none;
+    left: calc(var(--stem-head) + (100% - var(--stem-head)) * var(--stem-progress)); }
+  .stem-studio-empty { padding: var(--spacing-8) var(--stem-pad); color: var(--app-muted); text-align: center; }
   /* YuE2 高级设置里的 LoRA 自成一组，与上方采样参数用细线隔开。 */
   .yue-adapters { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-3); }
   /* 音乐作品：创作区可滚动；版本在“版本记录”里，播放页使用版本封面。 */

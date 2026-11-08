@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ResizeHandle, type ResizableProps } from '@astryxdesign/core/Resizable';
 import { Button } from '@astryxdesign/core/Button';
-import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, Captions, ChevronRight, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
 import { featureHidden, projectKind, type Draft, type ModelPackage, type State } from '../shared/workbench';
@@ -28,7 +28,34 @@ export function SidebarNav(props: {
   const { page, setPage, newDraft, state, catalog, catalogRevision, openSettings, draft, selectDraft, removeDraft, resizable } = props;
   const [recentOpen, setRecentOpen] = useState(() => readLocal('yovoice-recent-open') !== 'false');
   const projectActive = page === 'create' || page === 'history';
-  return <VStack as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
+  // 选中底块：一个独立的块放到当前入口下面，换页时从上一个入口滑过去（样式见 app/motion.css）。
+  // 位置每次渲染后测量；侧栏宽度或窗口变化时也重新测量。没有选中入口（如声音库的参考音频页）时淡出。
+  const nav = useRef<HTMLElement>(null);
+  const indicator = useRef<HTMLElement>(null);
+  const place = useRef(() => {});
+  place.current = () => {
+    const root = nav.current, mark = indicator.current;
+    if (!root || !mark) return;
+    const selected = root.querySelector<HTMLElement>('.nav-item.selected');
+    if (!selected) { mark.dataset.hidden = ''; return; }
+    const outer = root.getBoundingClientRect(), box = selected.getBoundingClientRect();
+    mark.style.transform = `translate(${box.left - outer.left}px, ${box.top - outer.top}px)`;
+    mark.style.width = `${box.width}px`;
+    mark.style.height = `${box.height}px`;
+    delete mark.dataset.hidden;
+    // 第一次定位不做动画，之后的位置变化才滑动。
+    if (!('ready' in mark.dataset)) requestAnimationFrame(() => { mark.dataset.ready = ''; });
+  };
+  useLayoutEffect(() => place.current());
+  useEffect(() => {
+    const root = nav.current;
+    if (!root) return;
+    const observer = new ResizeObserver(() => place.current());
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, []);
+  return <VStack ref={nav} as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
+    <StackItem ref={indicator} as="span" className="sidebar-indicator" aria-hidden />
     {newDraft}
     <VStack className="sidebar-destinations" gap={2}>
       {(['text', 'story', 'music'] as const).filter(kind => kind === 'text' || !featureHidden(state.preferences, kind)).map(kind => {

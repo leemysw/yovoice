@@ -3,7 +3,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Download, FileMusic, Lightbulb, Upload } from 'lucide-react';
+import { Download, FileMusic, Headphones, Lightbulb, Upload } from 'lucide-react';
 import { call, download, exportName, isDesktop } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Draft, type Score, type UiLocale } from '../../shared/workbench';
@@ -19,7 +19,7 @@ function parseScore(text: string): Score {
 }
 
 // 编曲区：曲子概要与导入导出、一句话交给 AI 写谱，以及 DAW 式的轨道视图（轨头调音色与电平，右侧音块对齐段落）。
-export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (error: string) => void }) {
+export function ScoreEditor({ draft, change, locale, onError, previewTracks }: { draft: Draft; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (error: string) => void; previewTracks?: () => void }) {
   const t = useTranslator();
   const score = draft.score ?? emptyScore();
   const input = useRef<HTMLInputElement>(null);
@@ -47,6 +47,7 @@ export function ScoreEditor({ draft, change, locale, onError }: { draft: Draft; 
           { id: 'mid', label: t('@yovoice.score.exportMidi'), onClick: () => void exportScore('mid') },
           { id: 'json', label: t('@yovoice.score.exportJson'), onClick: () => void exportScore('json') },
         ]} />
+        {previewTracks && notes ? <Button size="sm" variant="secondary" icon={<Headphones />} label={t('@yovoice.score.previewTracks')} onClick={previewTracks} /> : null}
         <Button size="sm" variant="secondary" icon={<Upload />} label={t('@yovoice.score.importShort')} tooltip={t('@yovoice.score.import')} onClick={() => void importScore()} />
       </HStack>
       <input ref={input} hidden type="file" accept=".mid,.midi,.json" aria-label={t('@yovoice.score.file')} onChange={async event => {

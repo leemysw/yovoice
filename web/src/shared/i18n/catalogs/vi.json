@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "Chuyển sang MIDI"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "Mở các bè"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "Các bè · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "Bản gốc và {count} bè đã tách"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} bè nhạc cụ · phát bằng soundfont"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "Bản gốc"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "Âm lượng {name}"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "Tắt tiếng {name}"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "Độc tấu {name}"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "Hãy tải một soundfont phối khí để nghe từng bè MIDI."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "Đang dựng từng bè bằng soundfont…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "Nghe thử các bè"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "Trống"
   },

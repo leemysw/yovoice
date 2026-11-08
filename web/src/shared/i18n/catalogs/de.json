@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "In MIDI umwandeln"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "Stems öffnen"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "Stems · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "Original und {count} getrennte Stems"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} Instrumentenspuren · mit deiner Soundfont gerendert"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "Original"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "Lautstärke {name}"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "{name} stummschalten"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "{name} solo"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "Lade eine Arrangement-Soundfont herunter, um die MIDI-Spuren anzuhören."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "Spuren werden mit der Soundfont gerendert…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "Spuren anhören"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "Schlagzeug"
   },

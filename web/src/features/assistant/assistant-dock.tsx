@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from 'react';
 import { HStack } from '@astryxdesign/core/Layout';
 import { X } from 'lucide-react';
 import { Button } from '@astryxdesign/core/Button';
@@ -9,9 +9,14 @@ import { usePanelFrame } from './assistant-frame';
 import { useAssistantLive } from '../../shared/lib/assistant-live';
 import { turnActivity, turnPhase } from './assistant-model';
 import { AssistantAvatar, AssistantOrb } from './assistant-avatar';
-import { AssistantPanel, type AssistantPanelActions, type QuickAction } from './assistant-panel';
+import type { AssistantPanelActions, QuickAction } from './assistant-panel';
 import { AssistantNudge } from './assistant-nudge';
 import type { Nudge } from './use-assistant-nudge';
+
+// 浮窗带对话与 Markdown 渲染，体积较大：入口先出现，浮窗按需加载；悬停、聚焦入口或启动后空闲时提前取好，打开时不必等。
+const loadPanel = () => import('./assistant-panel');
+const AssistantPanel = lazy(() => loadPanel().then(module => ({ default: module.AssistantPanel })));
+const preloadPanel = () => { void loadPanel(); };
 
 // 助手停靠位：收起时是右下角的小入口（Ocho 形象 + 名称，运行中显示此刻在做什么），可移走，移走后才由标题栏右上角接替入口，
 // 展开后是浮窗；浮窗可拖动、缩放、拉高，位置单独记住，入口始终停在右下角。
@@ -25,10 +30,16 @@ export function AssistantDock({ state, open, setOpen, context, expanded, quickAc
   const frame = usePanelFrame();
   const live = useAssistantLive();
   const hideLauncher = () => showLauncher(false);
+  const [hovered, setHovered] = useState(false);
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 3000));
+    const handle = idle(preloadPanel);
+    return () => { if (window.cancelIdleCallback) window.cancelIdleCallback(handle); else window.clearTimeout(handle); };
+  }, []);
   if (open) {
-    return <AssistantPanel state={state} context={context} expanded={expanded} quickActions={quickActions} frame={frame}
+    return <Suspense fallback={null}><AssistantPanel state={state} context={context} expanded={expanded} quickActions={quickActions} frame={frame}
       style={{ '--assistant-right': `${frame.rect.right}px`, '--assistant-bottom': `${frame.rect.bottom}px`, '--assistant-width': `${frame.rect.width}px`, '--assistant-height': `${frame.rect.height}px` } as CSSProperties}
-      onToggleExpand={onToggleExpand} onClose={() => { setOpen(false); showLauncher(true); }} actions={actions} />;
+      onToggleExpand={onToggleExpand} onClose={() => { setOpen(false); showLauncher(true); }} actions={actions} /></Suspense>;
   }
   const turn = live?.turn;
   const phase = turn ? turnPhase(turnActivity(turn.blocks ?? [])) : null;
@@ -37,10 +48,11 @@ export function AssistantDock({ state, open, setOpen, context, expanded, quickAc
   const bubble = nudge ? <AssistantNudge nudge={nudge} launcher={!launcherHidden} onAct={onNudge} onClose={dismissNudge} /> : null;
   if (launcherHidden) return bubble;
   // 入口悬停时右上角出现 ×，可以移走；之后从标题栏右上角或 ⌘J 打开，在浮窗里点收起时入口重新出现。
-  return <>{bubble}<HStack className="assistant-launcher-wrap" gap={0} data-running={turn ? 'true' : undefined}>
+  return <>{bubble}<HStack className="assistant-launcher-wrap" gap={0} data-running={turn ? 'true' : undefined}
+    onPointerEnter={() => { setHovered(true); preloadPanel(); }} onPointerLeave={() => setHovered(false)} onFocus={preloadPanel}>
     <Button data-testid="assistant-toggle" className="assistant-launcher"
       label={label} variant="secondary" aria-expanded={false} aria-keyshortcuts="Control+J"
-      icon={<AssistantAvatar working={!!turn} size={22} />}
+      icon={<AssistantAvatar working={!!turn} awake={hovered} size={22} />}
       endContent={phase ? <AssistantOrb phase={phase} /> : <Kbd keys="mod+J" />} onClick={() => setOpen(true)} />
     <Button data-testid="assistant-launcher-hide" className="assistant-launcher-hide" size="sm" variant="secondary" isIconOnly icon={<X size={12} />}
       label={t('@yovoice.assistant.hideLauncher')} tooltip={t('@yovoice.assistant.hideLauncherHint')} onClick={hideLauncher} />

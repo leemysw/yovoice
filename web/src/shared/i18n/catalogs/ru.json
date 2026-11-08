@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "Перевести в MIDI"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "Открыть дорожки"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "Дорожки · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "Оригинал и {count} разделённых дорожек"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} инструментальных дорожек · озвучены звуковым банком"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "Оригинал"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "Громкость: {name}"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "Заглушить {name}"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "Соло {name}"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "Чтобы прослушать дорожки MIDI, скачайте звуковой банк для аранжировки."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "Каждая дорожка озвучивается звуковым банком…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "Прослушать дорожки"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "Ударные"
   },

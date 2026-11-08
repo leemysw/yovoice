@@ -20,13 +20,13 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 // 版本记录一次先渲染的条数，更早的点“显示更早的”再展开，记录很多时打开页面和状态推送都不用重建整张列表。
 const historyBatch = 30;
 
-export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, exportCaptions, saveCharacter, reuse, exportItem, play, separate, transcribe, exportStems, resing, onError, controls, project }: {
+export function MediaLibrary({ page, state, query, onQueryChange, track, audition, stop, suspended, addVoice, editVoice, exportCaptions, saveCharacter, reuse, exportItem, play, separate, transcribe, openStems, resing, onError, controls, project }: {
   controls?: ReactNode; project: Draft;
   page: 'voices' | 'history'; state: State; query: string; onQueryChange: (value: string) => void;
   track: Track | null; audition: (track: Track) => void; stop: () => void; suspended: boolean;
   addVoice: () => void; editVoice: (item: Voice | Generation) => void; saveCharacter: (item: Generation) => void; reuse: (item: Generation) => void;
   exportItem: (item: Generation) => void; play: (item: Generation) => void; exportCaptions: (item: Generation) => void;
-  separate: (item: Generation) => void; transcribe: (item: Generation) => void; exportStems: (item: Generation) => void; resing: (item: Generation) => (() => void) | undefined;
+  separate: (item: Generation) => void; transcribe: (item: Generation) => void; openStems: (item: Generation) => void; resing: (item: Generation) => (() => void) | undefined;
   onError: (message: string) => void;
 }) {
   const t = useTranslator();
@@ -126,7 +126,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
               ...(quick ? [{ label: t('@yovoice.caption.menu'), onClick: () => exportCaptions(item) }, { label: t('@yovoice.voice.save'), onClick: () => editVoice(item) }, { label: t('@yovoice.character.saveAs'), onClick: () => saveCharacter(item) }] : []),
               ...(kind === 'music' && resing(item) ? [{ label: t('@yovoice.resing.action'), onClick: resing(item)! }] : []),
               ...(kind === 'music' && !item.stemOf && !separated.has(item.id) ? [{ label: t('@yovoice.stems.separate'), onClick: () => separate(item) }] : []),
-              ...(kind === 'music' && (item.stemOf || separated.has(item.id)) ? [{ label: t('@yovoice.stems.exportAll'), onClick: () => exportStems(item) }] : []),
+              ...(kind === 'music' && (item.stemOf || separated.has(item.id)) ? [{ label: t('@yovoice.stems.open'), onClick: () => openStems(item) }] : []),
               ...(kind === 'music' ? [{ label: t('@yovoice.stems.toMidi'), onClick: () => transcribe(item) }] : []),
               { label: t(kind === 'music' ? '@yovoice.music.reuseTake' : '@yovoice.app.reuseSettings'), onClick: () => reuse(item) },
             ]} />

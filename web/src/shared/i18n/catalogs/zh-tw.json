@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "轉為 MIDI"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "開啟分軌"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "分軌 · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "原曲與 {count} 條分離音軌"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} 條樂器軌 · 用編曲音色庫渲染試聽"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "原曲"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "{name}音量"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "靜音 {name}"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "獨奏 {name}"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "試聽 MIDI 各軌需要先下載一個編曲音色庫。"
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "正在用音色庫渲染各軌…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "分軌試聽"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "鼓"
   },
