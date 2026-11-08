@@ -57,8 +57,7 @@ test('VoxCPM2 按引擎能力显示流式片段参数，关掉试听后保留已
   state.runtimeOptions = { voxcpm2: ['stream_chunk_policy', 'stream_frames_per_event'] };
   await seedState(page, state);
   await page.goto('/');
-  const runtime = page.getByTestId('runtime-controls');
-  await runtime.locator('summary').click();
+  const runtime = page.getByTestId('streaming-control');
   const toggle = runtime.getByRole('switch').first();
   const frames = runtime.getByLabel('每段帧数');
   await expect(frames).toHaveCount(0);
@@ -70,4 +69,13 @@ test('VoxCPM2 按引擎能力显示流式片段参数，关掉试听后保留已
   await expect(frames).toHaveCount(0);
   await toggle.click();
   await expect(frames).toHaveValue('2');
+});
+
+test('引擎不提供流式输出时检查器不显示试听开关', async ({ page }) => {
+  const state = emptyState();
+  state.drafts[0].modelId = 'voxcpm2-q8';
+  await seedState(page, state);
+  await page.goto('/');
+  await expect(page.locator('.inspector')).toBeVisible();
+  await expect(page.getByTestId('streaming-control')).toHaveCount(0);
 });

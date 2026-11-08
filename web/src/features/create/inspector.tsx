@@ -1,6 +1,6 @@
 import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { KokoroControls } from './kokoro-controls';
-import { RuntimeControls } from './runtime-controls';
+import { StreamingControl } from './streaming-control';
 import { ModelOptions } from './model-options';
 import { useState, type ReactNode } from 'react';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -128,7 +128,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
         <SeedInput value={draft.seed} change={change} />
       </AdvancedSettings>
       </>}
-      {currentModel && !embedded ? <RuntimeControls draft={draft} state={state} family={currentModel.family} change={change} /> : null}
+      {currentModel && !embedded ? <StreamingControl draft={draft} state={state} family={currentModel.family} change={change} /> : null}
     </VStack>
 
   </VStack>;

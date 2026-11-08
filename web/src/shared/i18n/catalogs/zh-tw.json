@@ -4473,19 +4473,25 @@
     "defaultMessage": "目前的推理引擎不支援參數 {name}。請使用相容的引擎，或移除此設定。"
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "執行與快取"
+    "defaultMessage": "執行參數"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "這些設定儲存在目前作品中。修改後下次產生會重新載入模型；工作階段參數使用推論引擎的鍵名。"
+    "defaultMessage": "對所有模型生效，修改後下一次任務會依新參數重新載入模型。"
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "邊產生邊試聽"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "收到音訊片段就播放，產生完成後仍會儲存完整結果。"
+  "@yovoice.runtime.session": {
+    "defaultMessage": "模型工作階段參數"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "目前引擎未提供此模型的串流輸出。"
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "引擎為各模型提供的記憶體、快取與精度選項，只列出目前引擎支援的項目；不確定時保持預設。"
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "模型"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "清除這些參數"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "VoxCPM2 串流產生會關閉失敗重試。"

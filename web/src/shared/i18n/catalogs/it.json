@@ -4473,19 +4473,25 @@
     "defaultMessage": "Il motore selezionato non supporta {name}. Usa un motore compatibile o rimuovi questa impostazione."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Esecuzione e cache"
+    "defaultMessage": "Esecuzione"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Le impostazioni sono salvate nel progetto. Le modifiche ricaricano il modello alla generazione successiva. Le chiavi corrispondono al motore."
+    "defaultMessage": "Vale per tutti i modelli. Le modifiche ricaricano il modello al compito successivo."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Ascolta durante la generazione"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Riproduce i segmenti appena arrivano e salva il risultato completo al termine."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Opzioni di sessione del modello"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Il motore attuale non supporta lo streaming per questo modello."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Opzioni di memoria, cache e precisione che il motore offre per ogni modello. Sono elencate solo quelle supportate dal motore attuale; nel dubbio lascia i valori predefiniti."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Modello"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Cancella queste opzioni"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "Lo streaming di VoxCPM2 disattiva i tentativi in caso di errore."

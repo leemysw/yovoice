@@ -4473,19 +4473,25 @@
     "defaultMessage": "El motor seleccionado no admite {name}. Usa un motor compatible o elimina este ajuste."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Ejecución y caché"
+    "defaultMessage": "Ejecución"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Los ajustes se guardan en el proyecto. Los cambios recargan el modelo en la siguiente generación. Las claves coinciden con el motor."
+    "defaultMessage": "Se aplica a todos los modelos. Los cambios recargan el modelo en la siguiente tarea."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Escuchar durante la generación"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Reproduce los fragmentos al recibirlos y guarda el resultado completo al finalizar."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Opciones de sesión del modelo"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "El motor actual no admite salida en directo para este modelo."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Opciones de memoria, caché y precisión que el motor ofrece para cada modelo. Solo se muestran las compatibles con el motor actual; si tienes dudas, deja los valores predeterminados."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Modelo"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Borrar estas opciones"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "La salida en directo de VoxCPM2 desactiva los reintentos."

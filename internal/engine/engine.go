@@ -36,6 +36,8 @@ type Engine struct {
 	done    chan error
 	// stopping 标记当前进程是被主动结束的，退出日志据此区分正常停止与意外退出。
 	stopping      *atomic.Bool
+	// settings 是偏好里的引擎运行参数，下次启动引擎时生效；变化后引擎按新参数重启。
+	settings atomic.Pointer[schema.EngineSettings]
 	endpoint, key string
 	client        *http.Client
 }
@@ -46,6 +48,9 @@ func New(root string) *Engine {
 }
 
 // KokoroDir 是 Kokoro 发音库的安装目录；发音库不随安装包分发，下载 Kokoro 模型时写入。
+// Configure 更新引擎运行参数（来自偏好），正在运行的引擎在下一次任务时按新参数重启。
+func (e *Engine) Configure(settings *schema.EngineSettings) { e.settings.Store(settings) }
+
 func KokoroDir(root string) string { return filepath.Join(root, "runtime", "kokoro") }
 
 // KokoroLibraries 返回当前系统 eSpeak NG 与 MeCab 动态库的文件名。
@@ -131,15 +136,12 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	if task == "" {
 		task = "tts"
 	}
-	var settings *schema.RuntimeSettings
-	if len(configurations) > 0 {
-		settings = configurations[0]
-	}
 	mode := "offline"
+	if len(configurations) > 0 && configurations[0] != nil && configurations[0].Streaming {
+		mode = "streaming"
+	}
+	settings := e.settings.Load()
 	if settings != nil {
-		if settings.Streaming {
-			mode = "streaming"
-		}
 		sessionOptions := make(map[string]string, len(definition.SessionOptions)+len(settings.Session))
 		for key, value := range definition.SessionOptions {
 			sessionOptions[key] = value
@@ -151,7 +153,10 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		}
 		definition.SessionOptions = sessionOptions
 	}
-	configurationJSON, _ := json.Marshal(settings)
+	configurationJSON, _ := json.Marshal(struct {
+		Mode     string                 `json:"mode"`
+		Settings *schema.EngineSettings `json:"settings"`
+	}{mode, settings})
 
 	key := fmt.Sprintf("%s|%s|%s|%s|%s|%v|%v|%d|%s", executable, model, family, task, backend, definition.LoadOptions, definition.SessionOptions, encoderSamples, configurationJSON)
 	if e.process != nil && e.key == key {

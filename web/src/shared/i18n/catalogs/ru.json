@@ -4473,19 +4473,25 @@
     "defaultMessage": "Выбранный движок не поддерживает {name}. Используйте совместимый движок или удалите эту настройку."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Выполнение и кэш"
+    "defaultMessage": "Параметры выполнения"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Настройки сохраняются в проекте. Изменения перезагружают модель при следующей генерации. Имена параметров совпадают с движком."
+    "defaultMessage": "Действуют для всех моделей. После изменения модель перезагружается при следующей задаче."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Слушать во время генерации"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Воспроизводит полученные фрагменты и сохраняет полный результат после генерации."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Параметры сеанса модели"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Текущий движок не поддерживает потоковый вывод для этой модели."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Параметры памяти, кэша и точности, которые движок предлагает для каждой модели. Показаны только поддерживаемые текущим движком; если не уверены, оставьте значения по умолчанию."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Модель"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Очистить эти параметры"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "Потоковый режим VoxCPM2 отключает повторные попытки."

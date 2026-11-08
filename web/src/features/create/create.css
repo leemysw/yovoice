@@ -89,6 +89,7 @@
   .emotion-preset-grid .astryx-button[aria-pressed="true"] { background: var(--app-line); color: var(--app-ink); border-color: var(--app-muted); }
   .language-row { min-height: var(--spacing-10); }
   .advanced { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-3); }
+  .streaming-note { color: var(--app-muted); font-size: var(--app-small-font); }
   .advanced summary > svg { width: var(--spacing-4); height: var(--spacing-4); }
   .advanced summary { min-height: var(--spacing-8); font-size: var(--app-small-font); color: var(--app-muted); }
   .number-field input::-webkit-inner-spin-button { margin-inline-start: var(--spacing-2); }

@@ -4473,19 +4473,25 @@
     "defaultMessage": "当前推理引擎不支持参数 {name}。请使用兼容的引擎，或移除此设置。"
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "运行与缓存"
+    "defaultMessage": "运行参数"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "这些设置保存在当前作品中。修改后下次生成会重新加载模型；会话参数使用推理引擎的键名。"
+    "defaultMessage": "对所有模型生效，修改后下一次任务会按新参数重新加载模型。"
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "边生成边试听"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "收到音频片段就播放，生成完成后仍保存完整结果。"
+  "@yovoice.runtime.session": {
+    "defaultMessage": "模型会话参数"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "当前引擎未提供此模型的流式输出。"
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "引擎为各模型提供的内存、缓存与精度选项，只列出当前引擎支持的项；不确定时保持默认。"
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "模型"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "清除这些参数"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "VoxCPM2 流式生成会关闭失败重试。"

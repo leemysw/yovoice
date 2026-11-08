@@ -4473,19 +4473,25 @@
     "defaultMessage": "Bộ suy luận đã chọn không hỗ trợ {name}. Hãy dùng bộ tương thích hoặc xóa cài đặt này."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Thực thi và bộ nhớ đệm"
+    "defaultMessage": "Thông số chạy"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Cài đặt được lưu trong dự án. Thay đổi sẽ tải lại mô hình ở lần tạo tiếp theo. Tên tham số giống bộ suy luận."
+    "defaultMessage": "Áp dụng cho mọi mô hình. Sau khi thay đổi, mô hình được tải lại ở tác vụ tiếp theo."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Nghe trong khi tạo"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Phát từng đoạn khi nhận được và lưu kết quả đầy đủ sau khi hoàn tất."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Tùy chọn phiên của mô hình"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Bộ suy luận hiện tại không hỗ trợ phát trực tuyến cho mô hình này."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Các tùy chọn bộ nhớ, bộ đệm và độ chính xác mà engine cung cấp cho từng mô hình. Chỉ liệt kê các mục engine hiện tại hỗ trợ; nếu không chắc, hãy giữ mặc định."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Mô hình"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Xóa các tùy chọn này"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "Phát trực tuyến VoxCPM2 sẽ tắt thử lại khi lỗi."

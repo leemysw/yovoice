@@ -10,16 +10,21 @@ import (
 	"yovoice/internal/msg"
 )
 
+// ValidateRuntime 检查作品的运行方式：编曲不经过语音引擎，不能设置。
 func (d Draft) ValidateRuntime() error {
-	if d.Runtime == nil {
-		return nil
+	if d.Runtime != nil && d.Kind == "score" {
+		return msg.Err(msg.ErrParamsOutOfRange, nil)
 	}
-	r := d.Runtime
+	return nil
+}
+
+// Validate 检查引擎运行参数的范围；会话参数只接受目录中登记过的键与类型。
+func (r EngineSettings) Validate() error {
 	invalid := func() error { return msg.Err(msg.ErrParamsOutOfRange, nil) }
-	if d.Kind == "score" || r.Threads < 0 || r.Threads > 256 || r.Device < 0 || r.Device > 255 || (r.IdleUnloadSeconds != nil && (*r.IdleUnloadSeconds < 0 || *r.IdleUnloadSeconds > 86400)) || len(r.Session) > 64 {
+	if r.Threads < 0 || r.Threads > 256 || r.Device < 0 || r.Device > 255 || (r.IdleUnloadSeconds != nil && (*r.IdleUnloadSeconds < 0 || *r.IdleUnloadSeconds > 86400)) || len(r.Session) > 256 {
 		return invalid()
 	}
-	// 保留其他模型的会话设置；切回该模型时再应用，不会透传给当前模型。
+	// 各模型族的会话参数并存，生成时只取当前模型族的那部分。
 	for key, value := range r.Session {
 		family, _, _ := strings.Cut(key, ".")
 		valid := false
