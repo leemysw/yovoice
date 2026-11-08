@@ -1,6 +1,8 @@
 /* 音乐：歌词与风格编辑、旋律谱、全屏播放页与逐字歌词编辑。 */
 
 @layer app {
+  /* YuE2 高级设置里的 LoRA 自成一组，与上方采样参数用细线隔开。 */
+  .yue-adapters { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-3); }
   /* 音乐作品：创作区可滚动；版本在“版本记录”里，播放页使用版本封面。 */
   .music-editor { flex: 1; min-height: 0; overflow-y: auto; padding-block: var(--spacing-4) var(--spacing-6); padding-inline-end: var(--spacing-4); }
   .music-editor h2 { font-size: var(--app-ui-font); }

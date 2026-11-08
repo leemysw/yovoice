@@ -83,6 +83,12 @@ test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，
   await expect(page.getByRole('combobox', { name: '演唱语言' })).toHaveCount(0);
   await expect(page.getByRole('radio', { name: '自由发挥' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
+  // 从歌曲提取与哼唱都归在“从音频提取”里，说明写在菜单项上。
+  await page.getByRole('button', { name: '从音频提取' }).click();
+  await expect(page.getByRole('menuitem')).toHaveCount(2);
+  await expect(page.getByRole('menuitem', { name: /从歌曲提取/ })).toContainText('支持 10 分钟以内的歌曲');
+  await expect(page.getByRole('menuitem', { name: /哼一段/ })).toBeVisible();
+  await page.keyboard.press('Escape');
   await page.getByLabel('歌词', { exact: true }).fill('');
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeEnabled();
   await page.screenshot({ path: testInfo.outputPath('music-yue2-instrumental.png') });
@@ -191,7 +197,7 @@ test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋�
   state.models = [{ id: 'yue2-3b-q8', path: 'Yue2-3B-GGUF', managed: true }];
   await seedState(page, state);
   await page.goto('/');
-  // 空状态给出三种来源：按歌词出谱、从歌曲提取、导入谱文件。
+  // 空状态给出三种来源：按歌词出谱、从音频提取（歌曲或哼唱）、导入谱文件。
   await expect(page.getByRole('heading', { name: '旋律谱' })).toBeVisible();
   await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeVisible();

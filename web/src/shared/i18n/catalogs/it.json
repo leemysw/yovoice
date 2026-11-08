@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "L’estrazione mantiene la melodia e rimuove gli accordi originali, per riarrangiare il brano nel tuo stile. Brani fino a 10 minuti."
   },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Da audio"
+  },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Brano da cui estrarre la melodia"
   },

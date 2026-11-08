@@ -27,19 +27,20 @@ export function YueAdapters({ draft, change, disabled }: { draft: Draft; change:
   };
   const importAdapter = () => act(() => call<Adapter | null>('adapter.import'));
   const options = [{ value: '', label: t('@yovoice.lora.none') }, ...adapters.map(item => ({ value: item.id, label: item.name }))];
-  return <VStack gap={3}>
+  return <VStack gap={3} className="yue-adapters">
+    <h3>LoRA</h3>
     {parts.map(part => {
       const id = String(values[`${part.key}_lora`] ?? '');
       const missing = id !== '' && !adapters.some(item => item.id === id);
       return <VStack key={part.key} gap={2}>
         <Selector label={t(part.label)} value={missing ? '' : id} options={options} isDisabled={disabled || busy} onChange={value => update({ [`${part.key}_lora`]: value })} />
-        {missing ? <span className="helper">{t('@yovoice.error.adapterMissing')}</span> : null}
+        {missing ? <small className="helper">{t('@yovoice.error.adapterMissing')}</small> : null}
         {id && !missing ? <label className="number-field">{t('@yovoice.lora.scale')}<input type="number" min={-10} max={10} step={0.1} value={Number(values[`${part.key}_lora_scale`] ?? 1)} onChange={event => { if (event.target.value !== '') update({ [`${part.key}_lora_scale`]: Number(event.target.value) }); }} /></label> : null}
       </VStack>;
     })}
     <HStack gap={2}>
       <Button size="sm" variant="secondary" label={t('@yovoice.lora.import')} icon={<FolderOpen size={16} />} isDisabled={disabled || busy} onClick={importAdapter} />
     </HStack>
-    {error ? <span className="helper" role="alert">{error}</span> : null}
+    {error ? <small className="helper" role="alert">{error}</small> : null}
   </VStack>;
 }

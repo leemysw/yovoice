@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "L’extraction garde la mélodie et retire les accords d’origine, pour réarranger le morceau dans votre style. Morceaux de 10 minutes maximum."
   },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Depuis un audio"
+  },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Morceau dont extraire la mélodie"
   },

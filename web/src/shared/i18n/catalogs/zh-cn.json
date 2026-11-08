@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "提取时保留旋律、去掉原曲和弦，按你写的风格重新编配；支持 10 分钟以内的歌曲。"
   },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "从音频提取"
+  },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "要提取旋律的歌曲"
   },

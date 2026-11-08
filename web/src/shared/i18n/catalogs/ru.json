@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "При извлечении мелодия сохраняется, а исходные аккорды удаляются, чтобы песня была заново аранжирована в вашем стиле. Песни до 10 минут."
   },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Из аудио"
+  },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Песня, из которой извлечь мелодию"
   },
