@@ -29,6 +29,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     // 延迟到单实例检查之后解析，数据目录缺失时才弹出处理选项。
     private lazy var root: URL = DataRoot.confirmAvailable(DataRoot.resolve())
     private var cookieName: String { "vw-" + token.prefix(12) }
+    // 页面加载失败的提示正在显示时不再叠加；网页进程短时间内反复崩溃时停止自动刷新，避免一直白屏。
+    private var pageFailing = false
+    private var webCrashes: [Date] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if let identifier = Bundle.main.bundleIdentifier,
@@ -244,6 +247,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             guard migration.terminationStatus == 0 else { throw failure(HostL10n.t("err.migrateFailed")) }
         }
         try FileManager.default.createDirectory(at: root.appendingPathComponent("logs"), withIntermediateDirectories: true)
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        hostLog("启动 yovoice \(version)，macOS \(ProcessInfo.processInfo.operatingSystemVersionString)")
         self.service = Process()
         self.input = Pipe()
         let service = self.service, input = self.input
@@ -393,7 +398,65 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         panel.allowsMultipleSelection = false
         panel.beginSheetModal(for: window) { response in completionHandler(response == .OK ? panel.urls : nil) }
     }
-    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { webView.reload() }
+    // 页面没能显示（连接失败、服务拒绝、网页进程反复崩溃）时窗口只剩空白：写入日志，并提示重试或打开日志目录。
+    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        guard navigationResponse.isForMainFrame, let response = navigationResponse.response as? HTTPURLResponse, response.statusCode >= 400 else {
+            decisionHandler(.allow)
+            return
+        }
+        decisionHandler(.cancel)
+        pageFailed("HTTP \(response.statusCode) \(response.url?.path ?? "")")
+    }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { navigationFailed(error) }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { navigationFailed(error) }
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        let now = Date()
+        webCrashes = webCrashes.filter { now.timeIntervalSince($0) < 60 } + [now]
+        hostLog("网页进程意外退出（1 分钟内第 \(webCrashes.count) 次）")
+        if webCrashes.count >= 3 { pageFailed(HostL10n.t("err.pageCrashed")) } else { webView.reload() }
+    }
+    private func navigationFailed(_ error: Error) {
+        let nsError = error as NSError
+        // 主动取消（重新加载、拒绝外部链接、上面按状态码拦截）不算失败。
+        if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled { return }
+        if nsError.domain == "WebKitErrorDomain" && nsError.code == 102 { return }
+        pageFailed("\(nsError.domain) \(nsError.code): \(nsError.localizedDescription)")
+    }
+    private func pageFailed(_ reason: String) {
+        hostLog("页面加载失败：\(reason)")
+        guard !pageFailing, !closing, !restartingService else { return }
+        pageFailing = true
+        Task { @MainActor in
+            defer { pageFailing = false }
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = HostL10n.t("alert.pageFailed.title")
+            alert.informativeText = HostL10n.t("err.pageFailed", reason)
+            alert.addButton(withTitle: HostL10n.t("alert.pageFailed.retry"))
+            alert.addButton(withTitle: HostL10n.t("alert.pageFailed.logs"))
+            alert.addButton(withTitle: HostL10n.t("alert.serviceStopped.quit"))
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                webCrashes = []
+                if let origin { web?.load(URLRequest(url: origin)) }
+            case .alertSecondButtonReturn:
+                NSWorkspace.shared.open(root.appendingPathComponent("logs", isDirectory: true))
+            default:
+                NSApp.terminate(nil)
+            }
+        }
+    }
+    // 宿主自身的诊断记录单独追加到 logs/host.log：服务日志由子进程持有写入位置，宿主不往里写。
+    private func hostLog(_ line: String) {
+        let log = root.appendingPathComponent("logs/host.log")
+        let size = (try? FileManager.default.attributesOfItem(atPath: log.path)[.size] as? NSNumber)?.int64Value ?? 0
+        if size >= 1024 * 1024 { try? FileManager.default.removeItem(at: log) }
+        if !FileManager.default.fileExists(atPath: log.path) { FileManager.default.createFile(atPath: log.path, contents: nil) }
+        guard let handle = try? FileHandle(forWritingTo: log) else { return }
+        defer { try? handle.close() }
+        _ = handle.seekToEndOfFile()
+        handle.write(Data("\(ISO8601DateFormatter().string(from: Date())) \(line)\n".utf8))
+    }
     func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
         // WebKit 620.1.16 的媒体授权回调留空 request，但保留请求页面的 securityOrigin。
         // 读取 frame.request 会在 Swift URLRequest 桥接时崩溃，必须直接校验安全来源。
