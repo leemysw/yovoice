@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "사이드 패널 펼치기"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "오른쪽 패널 너비 조정"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "종량제 API"
   },

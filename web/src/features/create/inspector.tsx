@@ -23,6 +23,7 @@ import { GradiumControls } from './gradium-controls';
 import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
 import { useElapsed } from '../../shared/lib/use-elapsed';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 const modes: Mode[] = ['speaker', 'reference', 'vector', 'text'];
 const emotionKeys = ['happy', 'angry', 'sad', 'afraid', 'disgusted', 'melancholy', 'surprised', 'calm'] as const;
@@ -95,7 +96,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
       <ReferenceVoice voice={voice} choose={chooseVoice} play={play} />
       <VStack gap={3}>
         <h3>{t('@yovoice.create.expression')}</h3>
-        <SegmentedControl size="sm" label={t('@yovoice.create.expression')} value={draft.mode} onChange={mode => change({ mode: mode as Mode })} layout="fill">{modes.map(id => <SegmentedControlItem key={id} value={id} label={t(`@yovoice.create.mode.${id}`)} />)}</SegmentedControl>
+        <SegmentedControl size="sm" label={t('@yovoice.create.expression')} value={draft.mode} onChange={mode => change({ mode: mode as Mode })} layout="fill">{modes.map(id => <SegmentedControlItem onPointerEnter={overflowTitle} key={id} value={id} label={t(`@yovoice.create.mode.${id}`)} />)}</SegmentedControl>
         {draft.mode === 'reference' ? <ReferenceVoice voice={emotion} choose={chooseEmotion} play={play} label={t('@yovoice.create.mode.reference')} placeholder={t('@yovoice.create.addEmotionReference')} /> : null}
         {draft.mode === 'text' ? <VStack gap={3}>
           <TextArea label={t('@yovoice.create.emotionDescription')} isLabelHidden value={draft.emotionText} onChange={value => change({ emotionText: value.slice(0, 500) })} placeholder={t('@yovoice.create.emotionPlaceholder')} rows={3} isDisabled={draft.inferEmotion} />

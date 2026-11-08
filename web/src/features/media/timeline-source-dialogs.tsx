@@ -11,6 +11,7 @@ import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, projectKind, type Draft, type Generation, type Track } from '../../shared/workbench';
 import { Player } from './player';
 import { importError } from './timeline';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 // 两个导入对话框只在选中目标音轨时挂载，搜索词、筛选与错误随每次打开重置。
 // 对话框是模态的，会盖住全局通知，错误在框内显示。
@@ -63,9 +64,9 @@ export function GenerationImportDialog({ trackId, draft, drafts, history, import
   };
   return <AppDialog title={t('@yovoice.timeline.fromYovoice')} width={640} busy={importing} closeLabel={t('@yovoice.action.close')} error={formatNotice(t, error)} onClose={onClose}>
     <SegmentedControl size="sm" layout="fill" label={t('@yovoice.timeline.fromYovoice')} value={kind} onChange={value => { setPreview(null); setKind(value as typeof kind); }}>
-      <SegmentedControlItem value="text" label={t('@yovoice.project.text')} />
-      <SegmentedControlItem value="sfx" label={t('@yovoice.project.sfx')} />
-      <SegmentedControlItem value="music" label={t('@yovoice.project.music')} />
+      <SegmentedControlItem onPointerEnter={overflowTitle} value="text" label={t('@yovoice.project.text')} />
+      <SegmentedControlItem onPointerEnter={overflowTitle} value="sfx" label={t('@yovoice.project.sfx')} />
+      <SegmentedControlItem onPointerEnter={overflowTitle} value="music" label={t('@yovoice.project.music')} />
     </SegmentedControl>
     <TextInput label={t('@yovoice.timeline.searchHistory')} isLabelHidden placeholder={t('@yovoice.timeline.searchHistory')} value={query} onChange={setQuery} hasClear />
     <VStack className="timeline-history-list" gap={1}>

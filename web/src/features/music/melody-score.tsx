@@ -13,6 +13,7 @@ import { ScoreArrangement } from '../score/score-arrangement';
 import { MelodyStaff } from './melody-staff';
 import { useMelodyPreview } from './melody-preview';
 import { useHumRecorder } from './use-hum-recorder';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 const maxLength = 64 << 10;
 
@@ -146,9 +147,9 @@ export function MelodyScore({ draft, state, change, onError }: {
         {/* 视图切换和「⋯」谱面操作并成一个控件：共用底色和边框，中间一条细分隔。 */}
         <HStack className="melody-view-bar" gap={0} vAlign="center">
           <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => switchView(value as View)}>
-            <SegmentedControlItem value="staff" label={t('@yovoice.melody.viewStaff')} />
-            <SegmentedControlItem value="tracks" label={t('@yovoice.melody.viewTracks')} />
-            <SegmentedControlItem value="source" label={t('@yovoice.melody.viewSource')} />
+            <SegmentedControlItem onPointerEnter={overflowTitle} value="staff" label={t('@yovoice.melody.viewStaff')} />
+            <SegmentedControlItem onPointerEnter={overflowTitle} value="tracks" label={t('@yovoice.melody.viewTracks')} />
+            <SegmentedControlItem onPointerEnter={overflowTitle} value="source" label={t('@yovoice.melody.viewSource')} />
           </SegmentedControl>
           <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.melody.more'), tooltip: t('@yovoice.melody.more') }} items={[
             { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },

@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "展开右侧面板"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "调整右侧面板宽度"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "按量 API"
   },

@@ -16,6 +16,7 @@ import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, split
 import { useElapsed } from '../../shared/lib/use-elapsed';
 import { StableAudioControls, stableAudioOptions, stableAudioReady } from './stable-audio-controls';
 import { sfxDurationPresets } from '../sfx/sfx-draft';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 const optionValues = (key: string) => definitions.ace_step.find(spec => spec.key === key)?.values ?? [];
 
@@ -75,15 +76,15 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
       {draft.instrumental ? null : <VStack gap={2}>
         <h3>{t('@yovoice.music.mode')}</h3>
         <SegmentedControl label={t('@yovoice.music.mode')} size="sm" layout="fill" value={yueMode === 'off' ? 'off' : 'score'} onChange={value => updateYue('cot', value === 'off' ? 'off' : 'auto')}>
-          <SegmentedControlItem value="score" label={t('@yovoice.music.modeScore')} />
-          <SegmentedControlItem value="off" label={t('@yovoice.music.modeFree')} />
+          <SegmentedControlItem onPointerEnter={overflowTitle} value="score" label={t('@yovoice.music.modeScore')} />
+          <SegmentedControlItem onPointerEnter={overflowTitle} value="off" label={t('@yovoice.music.modeFree')} />
         </SegmentedControl>
       </VStack>}
       </> : <>
       <VStack gap={3}>
         <h3>{t('@yovoice.music.duration')}</h3>
         <SegmentedControl label={t('@yovoice.music.duration')} size="sm" layout="fill" value={String(durationPresets.includes(duration as typeof durationPresets[number]) ? duration : '')} onChange={value => update('duration_seconds', Number(value))}>
-          {durationPresets.map(value => <SegmentedControlItem key={value} value={String(value)} label={value ? formatTime(value) : t('@yovoice.music.auto')} />)}
+          {durationPresets.map(value => <SegmentedControlItem onPointerEnter={overflowTitle} key={value} value={String(value)} label={value ? formatTime(value) : t('@yovoice.music.auto')} />)}
         </SegmentedControl>
       </VStack>
       <HStack className="language-row" vAlign="center" hAlign="between"><h3 aria-hidden="true">{t('@yovoice.music.language')}</h3>

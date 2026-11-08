@@ -34,6 +34,8 @@ export function useWorkbenchNavigation({ draft, catalog, setActive, setError }: 
   // 缺的是音色库时打开独立的音色库页，其余模型在“模型”页。
   const openSettings = (modelId = draft.modelId, requested = 'models') => { const family = catalog.find(m => m.id === modelId)?.family; const tab = requested === 'models' && family ? modelTab(family) : requested; setSettingsFocus({ tab, modelId, request: performance.now() }); setPage('settings'); };
   const [showInspector, setShowInspector] = useState(false);
+  // 右侧检查器的宽度可拖动调整并记在本机，选项文字较长的语言可以拉宽面板看全；窄屏浮出时沿用同一宽度。
+  const inspectorPanel = useResizable({ defaultSize: 352, minSize: 320, maxSize: 560, autoSaveId: 'workbench-inspector' });
   // 宽屏下右侧检查器的收起状态，跨作品、跨启动保留。
   const [inspectorCollapsed, setInspectorCollapsed] = useState(() => readLocal('workbench-inspector-collapsed') === '1');
   const toggleInspector = useCallback(() => setInspectorCollapsed(current => {
@@ -65,5 +67,5 @@ export function useWorkbenchNavigation({ draft, catalog, setActive, setError }: 
     try { layout = JSON.parse(saved); } catch { removeLocal(key); return; }
     if (isDesktop) void call('sidebar.save', layout).catch(error => setError(noticeMessage(error)));
   }, [navigation.size, navigation.isCollapsed, setError]);
-  return { navigation, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel };
+  return { navigation, inspectorPanel, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel };
 }

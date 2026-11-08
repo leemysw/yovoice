@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Seitenbereich ausklappen"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Seitenleiste rechts in der Breite anpassen"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "Pay-as-you-go-APIs"
   },

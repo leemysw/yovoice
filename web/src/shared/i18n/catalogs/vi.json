@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Mở rộng bảng bên"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Đổi độ rộng bảng bên"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "API trả theo mức dùng"
   },

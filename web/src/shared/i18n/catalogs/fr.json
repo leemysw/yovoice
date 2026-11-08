@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Développer le panneau latéral"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Redimensionner le panneau latéral"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "API à l’usage"
   },

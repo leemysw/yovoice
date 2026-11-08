@@ -4,6 +4,7 @@ import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { Selector } from '../../shared/selector';
 import definitions from '@internal/catalog/generation_options.json';
 import { formatTime, type Draft, type Generation, type ModelPackage } from '../../shared/workbench';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 type Edit = 'off' | 'init_audio' | 'inpaint_audio';
 const spec = (key: string) => definitions.stable_audio.find(item => item.key === key);
@@ -45,15 +46,15 @@ export function StableAudioControls({ draft, model, history, change, durationPre
     <VStack gap={3}>
       <h3>{t('@yovoice.music.duration')}</h3>
       <SegmentedControl label={t('@yovoice.music.duration')} size="sm" layout="fill" value={presets.includes(duration as typeof presets[number]) ? String(duration) : ''} onChange={next => update({ duration_seconds: Number(next) })}>
-        {presets.map(item => <SegmentedControlItem key={item} value={String(item)} label={presetLabel(item)} />)}
+        {presets.map(item => <SegmentedControlItem onPointerEnter={overflowTitle} key={item} value={String(item)} label={presetLabel(item)} />)}
       </SegmentedControl>
     </VStack>
     <VStack gap={3}>
       <h3>{t('@yovoice.music.mode')}</h3>
       <SegmentedControl label={t('@yovoice.music.mode')} size="sm" layout="fill" value={edit} onChange={next => setEdit(next as Edit)}>
-        <SegmentedControlItem value="off" label={t('@yovoice.music.editOff')} />
-        <SegmentedControlItem value="init_audio" label={t('@yovoice.music.editInit')} />
-        <SegmentedControlItem value="inpaint_audio" label={t('@yovoice.music.editInpaint')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="off" label={t('@yovoice.music.editOff')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="init_audio" label={t('@yovoice.music.editInit')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="inpaint_audio" label={t('@yovoice.music.editInpaint')} />
       </SegmentedControl>
       {edit === 'off' ? null : versions.length === 0 ? <small>{t('@yovoice.music.sourceEmpty')}</small> : <>
         <Selector label={t('@yovoice.music.source')} value={source ?? ''} options={versions.map((item, index) => ({ value: item.id, label: `${t('@yovoice.app.historyVersion', { n: versions.length - index })} · ${formatTime(item.duration)}` }))} onChange={sourceGenerationId => change({ sourceGenerationId })} />

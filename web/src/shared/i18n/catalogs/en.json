@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Expand side panel"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Resize side panel"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "Pay-as-you-go APIs"
   },

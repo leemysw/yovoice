@@ -7,6 +7,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { isDramaModel, isMingModel, isPlapreModel, type Draft, type ModelPackage, type State, type Track } from '../../shared/workbench';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 // Breeze、Ming、Plapre 与 Drama 共用模式切换；非克隆一侧和参考原文要求按模型区分。
 export function DesignCloneControls({ draft, model, state, change, chooseVoice, play, advanced, setAdvanced }: {
@@ -23,8 +24,8 @@ export function DesignCloneControls({ draft, model, state, change, chooseVoice, 
     <VStack gap={3}>
       <h3>{t('@yovoice.vox.generationMode')}</h3>
       <SegmentedControl label={t('@yovoice.vox.generationMode')} size="sm" layout="fill" value={cloning ? 'clone' : 'design'} onChange={value => change({ voiceMode: value as Draft['voiceMode'] })}>
-        <SegmentedControlItem value="design" label={t(plapre ? '@yovoice.reference.builtInVoice' : drama ? '@yovoice.reference.defaultVoice' : '@yovoice.vox.design')} />
-        <SegmentedControlItem value="clone" label={t('@yovoice.vox.clone')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="design" label={t(plapre ? '@yovoice.reference.builtInVoice' : drama ? '@yovoice.reference.defaultVoice' : '@yovoice.vox.design')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="clone" label={t('@yovoice.vox.clone')} />
       </SegmentedControl>
     </VStack>
     {cloning ? <>

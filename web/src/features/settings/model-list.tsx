@@ -10,6 +10,7 @@ import { CircleCheck, FolderOpen, Download, Pause, RefreshCw, Search, Trash2 } f
 import { call } from '../../shared/lib/client';
 import { formatBytes, groupModels, modelUpdateAvailable, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { SettingsGroup } from '../../shared/ui/settings-group';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 function downloadStatusLabel(t: (key: string) => string, downloading: boolean, received: number, size: number, status: string) {
   if (downloading) return received >= size ? t('@yovoice.settings.download.verifying') : t('@yovoice.settings.download.running');
@@ -99,7 +100,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
       {ready && !managed ? <small className="model-path" title={state.models.find(m => m.id === model.id)?.path}>{state.models.find(m => m.id === model.id)?.path}</small> : null}
       {group.length > 1 ? <HStack className="model-precisions" gap={3} vAlign="center" wrap="wrap">
         <SegmentedControl size="sm" label={t('@yovoice.settings.precisionOf', { name: model.name })} value={model.id} onChange={id => setPicks(current => ({ ...current, [model.name]: id }))}>
-          {group.map(item => <SegmentedControlItem key={item.id} value={item.id} label={item.precision} icon={isInstalled(item) ? <CircleCheck /> : undefined} />)}
+          {group.map(item => <SegmentedControlItem onPointerEnter={overflowTitle} key={item.id} value={item.id} label={item.precision} icon={isInstalled(item) ? <CircleCheck /> : undefined} />)}
         </SegmentedControl>
         {owned.length ? <small>{t('@yovoice.settings.precisionsInstalled', { list: owned.map(item => item.precision).join(' · ') })}</small> : <small>{t('@yovoice.settings.precisionHint')}</small>}
       </HStack> : null}

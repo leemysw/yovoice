@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Expandir painel lateral"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Redimensionar o painel lateral"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "APIs pagas por uso"
   },

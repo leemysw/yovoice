@@ -7,6 +7,7 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { Slider } from '@astryxdesign/core/Slider';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import type { Draft, State, Track } from '../../shared/workbench';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 export function VoxControls({ draft, state, change, chooseVoice, play, advanced, setAdvanced }: {
   draft: Draft; state: State; change: (patch: Partial<Draft>) => void; chooseVoice: () => void;
@@ -19,9 +20,9 @@ export function VoxControls({ draft, state, change, chooseVoice, play, advanced,
     <VStack gap={3}>
       <h3>{t('@yovoice.vox.generationMode')}</h3>
       <SegmentedControl label={t('@yovoice.vox.generationMode')} size="sm" layout="fill" value={mode} onChange={value => change({ voxMode: value as Draft['voxMode'] })}>
-        <SegmentedControlItem value="design" label={t('@yovoice.vox.design')} />
-        <SegmentedControlItem value="clone" label={t('@yovoice.vox.clone')} />
-        <SegmentedControlItem value="continuation" label={t('@yovoice.vox.continuation')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="design" label={t('@yovoice.vox.design')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="clone" label={t('@yovoice.vox.clone')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="continuation" label={t('@yovoice.vox.continuation')} />
       </SegmentedControl>
     </VStack>
     {mode !== 'design' ? <ReferenceVoice voice={voice} choose={chooseVoice} play={play} /> : null}
