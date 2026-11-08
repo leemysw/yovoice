@@ -222,19 +222,9 @@ func (w *Workbench) ListenMelody(ctx context.Context, abc string) (string, error
 	if e != nil {
 		return "", melodyIssue(e)
 	}
-	soundFont := ""
-	for _, m := range w.Store.Read().Models {
-		if c, e := catalog.Lookup(m.ID); e == nil && c.Family == "soundfont" {
-			soundFont = m.Path
-			break
-		}
-	}
-	if soundFont == "" {
-		return "", msg.Err(msg.ErrMelodySoundFontRequired, nil)
-	}
-	sf, e := score.LoadSoundFont(soundFont)
+	sf, e := w.soundFont()
 	if e != nil {
-		return "", msg.Err(msg.ErrModelMoved, nil)
+		return "", e
 	}
 	file := "audition-melody-" + schema.NewID() + ".wav"
 	path, e := w.Store.MediaPath("outputs", file)

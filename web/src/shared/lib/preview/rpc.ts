@@ -353,6 +353,8 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   // 旋律谱的完整校验在 Go 中；预览只读出谱头与人声旋律，便于查看导入的谱。
   if (method === 'melody.inspect') return previewInspectMelody((data as { abc: string }).abc) as T;
   // 试听要用音色库渲染，只在桌面里做；预览只检查是否装了音色库。
+  // 逐轨渲染要用音色库合成，预览后端只给出与桌面端相同的提示。
+  if (method === 'score.renderTracks') throw new CallError(state.models.some(m => m.id.endsWith('-sf2')) ? '@yovoice.error.previewDesktopOnly' : '@yovoice.error.melodySoundFontRequired');
   if (method === 'melody.listen') throw new CallError(state.models.some(m => m.id.endsWith('-sf2')) ? '@yovoice.error.previewDesktopOnly' : '@yovoice.error.melodySoundFontRequired');
   if (method === 'melody.transform') {
     const { abc, op, tempo } = data as { abc: string; op: string; tempo: number };

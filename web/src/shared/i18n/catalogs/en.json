@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "Transcribe to MIDI"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "Open stems"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "Stems · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "Original and {count} separated stems"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} instrument tracks · rendered with your sound font"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "Original"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "{name} volume"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "Mute {name}"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "Solo {name}"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "Download an arrangement sound font to hear each MIDI track."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "Rendering each track with the sound font…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "Preview tracks"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "Drums"
   },

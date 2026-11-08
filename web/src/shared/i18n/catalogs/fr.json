@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "Transcrire en MIDI"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "Ouvrir les pistes"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "Pistes · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "Original et {count} pistes séparées"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} pistes d’instruments · rendues avec votre banque de sons"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "Original"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "Volume de {name}"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "Couper {name}"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "Solo {name}"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "Téléchargez une banque de sons d’arrangement pour écouter chaque piste MIDI."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "Rendu de chaque piste avec la banque de sons…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "Écouter les pistes"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "Batterie"
   },

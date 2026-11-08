@@ -326,6 +326,14 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		}
 		file, e := w.ListenMelody(ctx, input.Abc)
 		return map[string]string{"fileName": file}, e
+	case "score.renderTracks":
+		var input struct {
+			Score schema.Score `json:"score"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return w.RenderScoreTracks(ctx, input.Score)
 	case "melody.dismiss":
 		return true, w.DismissMelody(p.ID)
 	case "generation.separateStems":

@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "Trascrivi in MIDI"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "Apri le tracce"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "Tracce · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "Originale e {count} tracce separate"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} tracce strumentali · riprodotte con il tuo soundfont"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "Originale"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "Volume di {name}"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "Silenzia {name}"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "Solo {name}"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "Scarica un soundfont per arrangiamenti per ascoltare ogni traccia MIDI."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "Rendering di ogni traccia con il soundfont…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "Ascolta le tracce"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "Batteria"
   },

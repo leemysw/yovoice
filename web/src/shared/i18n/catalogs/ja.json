@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "MIDI に変換"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "ステムを開く"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "ステム · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "原曲と分離した {count} 本のステム"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "{count} 本の楽器トラック · サウンドフォントで再生"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "原曲"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "{name}の音量"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "{name}をミュート"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "{name}をソロ"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "MIDI の各トラックを試聴するには編曲用サウンドフォントをダウンロードしてください。"
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "サウンドフォントで各トラックをレンダリング中…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "トラックを試聴"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "ドラム"
   },

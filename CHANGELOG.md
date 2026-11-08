@@ -34,6 +34,7 @@
 - Remote API errors now return a JSON error code with a status code matched to the error type (bad parameters no longer return 500); the CLI prints the error code and parameters on failure.
 - Ocho panel: a message that fails to send (too long, the assistant is busy, the service is unreachable) stays in the input box and the reason shows inside the panel; starting, switching or deleting a chat, picking a model, confirming a proposal and playing a result also report failures in place. Messages are capped at 2000 characters while typing.
 - Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
+- Stem studio: after “Separate stems” or “Transcribe to MIDI” finishes, a full-screen multitrack page opens with the original and every stem (or every MIDI instrument, rendered with your sound font) side by side — one transport and playhead, a waveform per track, volume, mute and solo, click to seek, Space to play. Reopen it from “Open stems” in the version menu or “Preview tracks” on a score project; “Export all stems” moved inside it.
 - Lighter when idle: Ocho's avatar and the launcher glow only animate while the assistant works, on hover or for an occasional glance, and stop when the window is in the background, so the idle app no longer keeps a CPU core busy; the assistant panel and the Transcribe page load on demand.
 - Smoother layout changes: collapsing the sidebar or side panel moves the workspace edge instead of jumping, the Generate button travels between the side panel and the title row, the sidebar highlight slides to the new page, a project opened from the list carries its title into the editor, and collapsible sections expand smoothly. Dialogs resize smoothly when their content changes, the generation progress row unfolds instead of pushing the panel down, the melody score grows open, and notices drop in and slide away.
 - Settings › Features can now hide the Transcribe page as well; if the page you were on gets hidden, yovoice returns to speech generation.
@@ -73,6 +74,7 @@
 - 远程接口的错误统一返回 JSON 错误码并按类型区分状态码，参数错误不再报 500；命令行失败时输出错误码与参数。
 - Ocho 面板：消息发送失败（过长、助手忙、服务不可用）时内容留在输入框里，原因显示在面板内；新建、切换、删除对话，选择模型，确认提案和试听结果失败也都就地提示。输入时按 2000 字上限截断。
 - 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
+- 分轨工作台：“分离音轨”或“转为 MIDI”完成后打开全屏多轨页，原曲与各分轨（或用音色库逐轨渲染的 MIDI 各乐器）并排，统一播放和播放头，每轨有波形、音量、静音、独奏，点击定位、空格播放；之后可从版本菜单“打开分轨”或编曲页“分轨试听”进入，“导出全部分轨”移到工作台里。
 - 空闲更省资源：Ocho 形象和入口流光只在助手工作、悬停或偶尔张望时动，窗口在后台时停下，空闲时不再持续占用 CPU；助手浮窗和语音转写页按需加载。
 - 界面变化更连贯：收起展开侧栏或右侧面板时工作区边缘平滑移动，“生成”按钮在面板顶部与标题栏之间迁移；侧栏选中块滑到新页面；从列表打开作品时标题飞入编辑页；折叠区平滑展开。弹窗内容变化时尺寸平滑过渡，生成进度行展开而不是把面板顶下去，旋律谱出谱时平滑展开，提示条落下出现、上滑离开。
 - 设置 › 功能显示 新增“语音转写”，可隐藏转写页入口；所在页面被隐藏时自动回到语音生成。

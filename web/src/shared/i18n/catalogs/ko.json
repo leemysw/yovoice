@@ -4364,6 +4364,39 @@
   "@yovoice.stems.toMidi": {
     "defaultMessage": "MIDI로 변환"
   },
+  "@yovoice.stems.open": {
+    "defaultMessage": "스템 열기"
+  },
+  "@yovoice.stems.studioTitle": {
+    "defaultMessage": "스템 · {title}"
+  },
+  "@yovoice.stems.studioStems": {
+    "defaultMessage": "원곡과 분리된 스템 {count}개"
+  },
+  "@yovoice.stems.studioMidi": {
+    "defaultMessage": "악기 트랙 {count}개 · 사운드폰트로 렌더링"
+  },
+  "@yovoice.stems.original": {
+    "defaultMessage": "원곡"
+  },
+  "@yovoice.stems.volume": {
+    "defaultMessage": "{name} 볼륨"
+  },
+  "@yovoice.stems.mute": {
+    "defaultMessage": "{name} 음소거"
+  },
+  "@yovoice.stems.solo": {
+    "defaultMessage": "{name} 솔로"
+  },
+  "@yovoice.stems.needSoundFont": {
+    "defaultMessage": "MIDI 트랙을 들으려면 편곡용 사운드폰트를 먼저 다운로드하세요."
+  },
+  "@yovoice.stems.rendering": {
+    "defaultMessage": "사운드폰트로 각 트랙을 렌더링하는 중…"
+  },
+  "@yovoice.score.previewTracks": {
+    "defaultMessage": "트랙 미리 듣기"
+  },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "드럼"
   },
