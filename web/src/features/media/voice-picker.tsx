@@ -5,12 +5,15 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Upload, Mic, Square, Play, Pause, AudioLines, Check, Search } from 'lucide-react';
-import { call, decodeVoiceSource, importVoiceFile, mediaUrl, isMac, CallError, releaseMediaUrl } from '../../shared/lib/client';
+import { call, decodeVoiceSource, importVoiceFile, mediaUrl, isMac, CallError, releaseMediaUrl, suggestVoiceSource } from '../../shared/lib/client';
 import { bufferPeaks, decodeAudio, encodeWav, toBase64 } from '../../shared/lib/sound';
 import { formatCallError } from '../../shared/i18n/format';
 import { Player } from './player';
 import { VoiceExcerptEditor, type ExcerptRange } from './voice-excerpt';
 import { formatTime, type Track, type Voice } from '../../shared/workbench';
+
+// 参考音频的最长时长（秒），与本地服务一致。
+const maxReference = 60;
 
 export function VoicePicker({ voices, onClose, onSelect, adding = false }: { adding?: boolean; voices: Voice[]; onClose: () => void; onSelect: (v: Voice) => void }) {
   const t = useTranslator();
@@ -37,15 +40,19 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
     setPreview({ ...voice, kind: 'voices', subtitle: '', playRequest: Date.now() });
   }
   const [recording, setRecording] = useState(false); const [busy, setBusy] = useState(false);
-  const [name, setName] = useState(() => t('@yovoice.voice.defaultName')); const [crop, setCrop] = useState<{ name: string; buffer: AudioBuffer; voice?: Voice } | null>(null);
+  const [name, setName] = useState(() => t('@yovoice.voice.defaultName')); const [crop, setCrop] = useState<{ name: string; buffer: AudioBuffer; voice?: Voice; suggestion?: ExcerptRange } | null>(null);
   const [range, setRange] = useState<ExcerptRange>([0, 10]);
   useEffect(() => () => { clearTimeout(timer.current); if (recorder.current?.state === 'recording') { recorder.current.onstop = null; recorder.current.stop(); } recorder.current?.stream.getTracks().forEach(t => t.stop()); }, []);
+  // 60 秒以内的录音直接导入；更长的先选段：预先选中本地服务挑出的最清楚的一段，可调整后保存。
   async function importing(file: File) {
     setBusy(true); setError(''); setPreview(null); setCrop(null);
     try {
       const buffer = await decodeVoiceSource(file);
-      setCrop({ name: file.name.replace(/\.[^.]+$/, ''), buffer });
-      setRange([0, buffer.duration <= 60 ? buffer.duration : 10]);
+      if (buffer.duration <= maxReference) { choose(await importVoiceFile(file)); return; }
+      const span = await suggestVoiceSource(file).catch(() => ({ start: 0, end: 10 }));
+      const suggestion: ExcerptRange = [span.start, Math.min(span.end, buffer.duration)];
+      setCrop({ name: file.name.replace(/\.[^.]+$/, ''), buffer, suggestion });
+      setRange(suggestion);
     } catch (e) {
       setError((e as Error).name === 'EncodingError' ? t('@yovoice.error.browserDecode') : formatCallError(t, e));
     } finally { setBusy(false); }
@@ -59,7 +66,7 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
       if (!response.ok) throw new CallError('@yovoice.error.audioPlayFailed');
       const buffer = await decodeAudio(await response.arrayBuffer(), 24000);
       setCrop({ name: voice.name, buffer, voice });
-      setRange([0, Math.min(60, buffer.duration)]);
+      setRange([0, Math.min(maxReference, buffer.duration)]);
     } catch (e) { setError(formatCallError(t, e)); }
     finally { releaseMediaUrl(url); setBusy(false); }
   }
@@ -95,6 +102,7 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
     } finally { setBusy(false); }
   }
   async function suggest() {
+    if (crop?.suggestion) { setRange(crop.suggestion); return; }
     if (!crop?.voice) return;
     setBusy(true); setError('');
     try {
@@ -141,7 +149,7 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
         <VoiceExcerptEditor buffer={crop.buffer} range={range} setRange={setRange} busy={busy}
           onError={() => setError(t('@yovoice.error.audioPlayFailed'))}
           onCancel={() => { setCrop(null); setError(''); }} onSave={() => void trim()}
-          onSuggest={crop.voice ? () => void suggest() : undefined} />
+          onSuggest={() => void suggest()} />
       </VStack> : null}
   </AppDialog>;
 }

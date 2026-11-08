@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Espandi pannello laterale"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Ridimensiona il pannello laterale"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "API a consumo"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "L’estrazione mantiene la melodia e rimuove gli accordi originali, per riarrangiare il brano nel tuo stile. Brani fino a 10 minuti."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Espandi lo spartito della melodia"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Da audio"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Brano da cui estrarre la melodia"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Canzoni, basi strumentali e partiture, con le relative impostazioni di modelli e banchi di suoni."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Converte audio o video caricati in testo e sottotitoli con tempi. «Riconosci testo» per le trascrizioni di riferimento e l’esportazione dei sottotitoli restano disponibili."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "L’assistente flottante, il suo accesso nella barra del titolo e i suggerimenti. Se disattivi anche la generazione musicale, vengono nascoste anche le impostazioni del servizio IA e l’assegnazione dei ruoli con IA per i libri."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "Il motore selezionato non supporta {name}. Usa un motore compatibile o rimuovi questa impostazione."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Esecuzione e cache"
+    "defaultMessage": "Esecuzione"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Le impostazioni sono salvate nel progetto. Le modifiche ricaricano il modello alla generazione successiva. Le chiavi corrispondono al motore."
+    "defaultMessage": "Vale per tutti i modelli. Le modifiche ricaricano il modello al compito successivo."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Ascolta durante la generazione"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Riproduce i segmenti appena arrivano e salva il risultato completo al termine."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Opzioni di sessione del modello"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Il motore attuale non supporta lo streaming per questo modello."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Opzioni di memoria, cache e precisione che il motore offre per ogni modello. Sono elencate solo quelle supportate dal motore attuale; nel dubbio lascia i valori predefiniti."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Modello"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Cancella queste opzioni"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "Lo streaming di VoxCPM2 disattiva i tentativi in caso di errore."

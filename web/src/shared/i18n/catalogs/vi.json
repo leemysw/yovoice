@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Mở rộng bảng bên"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Đổi độ rộng bảng bên"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "API trả theo mức dùng"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "Khi trích xuất, giai điệu được giữ và hợp âm gốc bị bỏ để phối lại theo phong cách của bạn. Hỗ trợ bài dài tối đa 10 phút."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Mở rộng bản nhạc giai điệu"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Từ âm thanh"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Bài hát cần trích giai điệu"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Bài hát, nhạc không lời và bản phối, cùng cài đặt mô hình và soundfont tương ứng."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Chuyển âm thanh hoặc video tải lên thành văn bản và phụ đề có mốc thời gian. “Nhận dạng văn bản” cho bản chép tham chiếu và xuất phụ đề không bị ảnh hưởng."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Trợ lý nổi, lối vào trên thanh tiêu đề và các gợi ý. Khi tắt cả tạo nhạc, cài đặt dịch vụ AI và phân vai bằng AI cho sách cũng bị ẩn."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "Bộ suy luận đã chọn không hỗ trợ {name}. Hãy dùng bộ tương thích hoặc xóa cài đặt này."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Thực thi và bộ nhớ đệm"
+    "defaultMessage": "Thông số chạy"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Cài đặt được lưu trong dự án. Thay đổi sẽ tải lại mô hình ở lần tạo tiếp theo. Tên tham số giống bộ suy luận."
+    "defaultMessage": "Áp dụng cho mọi mô hình. Sau khi thay đổi, mô hình được tải lại ở tác vụ tiếp theo."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Nghe trong khi tạo"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Phát từng đoạn khi nhận được và lưu kết quả đầy đủ sau khi hoàn tất."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Tùy chọn phiên của mô hình"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Bộ suy luận hiện tại không hỗ trợ phát trực tuyến cho mô hình này."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Các tùy chọn bộ nhớ, bộ đệm và độ chính xác mà engine cung cấp cho từng mô hình. Chỉ liệt kê các mục engine hiện tại hỗ trợ; nếu không chắc, hãy giữ mặc định."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Mô hình"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Xóa các tùy chọn này"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "Phát trực tuyến VoxCPM2 sẽ tắt thử lại khi lỗi."

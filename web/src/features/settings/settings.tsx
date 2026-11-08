@@ -22,6 +22,7 @@ import { LocalAPISettings } from './local-api-settings';
 import { StorageSettings } from './storage-settings';
 import { LogViewer } from './log-viewer';
 import { AssistantSettings } from './assistant-settings';
+import { EngineRuntimeSettings } from './engine-runtime-settings';
 import { FeatureSettings } from './feature-settings';
 
 // 资源表格依赖较多，切到资源页时才加载。
@@ -126,6 +127,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Button size="sm" label={runtime === 'ready' ? t('@yovoice.settings.reinstallRuntime') : runtime === 'missing' ? t('@yovoice.settings.installRuntime') : t('@yovoice.settings.updateRuntime', { version: engine.version })} isDisabled={busy} onClick={() => run(() => call('runtime.install'))} />
         </SettingsRow>
       </SettingsGroup>
+      {runtime !== 'missing' ? <EngineRuntimeSettings state={state} catalog={catalog} run={run} /> : null}
     </VStack>}
 
     {license ? <AppDialog title={t('@yovoice.settings.licenseTitle')} width={680} onClose={() => setLicense(null)} actions={<Button label={t('@yovoice.settings.closeLicense')} onClick={() => setLicense(null)} />}><pre className="license-text">{license}</pre></AppDialog> : null}

@@ -1,6 +1,8 @@
 /* 音乐：歌词与风格编辑、旋律谱、全屏播放页与逐字歌词编辑。 */
 
 @layer app {
+  /* YuE2 高级设置里的 LoRA 自成一组，与上方采样参数用细线隔开。 */
+  .yue-adapters { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-3); }
   /* 音乐作品：创作区可滚动；版本在“版本记录”里，播放页使用版本封面。 */
   .music-editor { flex: 1; min-height: 0; overflow-y: auto; padding-block: var(--spacing-4) var(--spacing-6); padding-inline-end: var(--spacing-4); }
   .music-editor h2 { font-size: var(--app-ui-font); }
@@ -76,6 +78,8 @@
   .melody-staff .abcjs-note, .melody-staff .abcjs-rest { cursor: pointer; }
   .melody-staff .melody-note-playing, .melody-staff .melody-note-playing * { fill: var(--app-accent); color: var(--app-accent); }
   .melody-score .melody-listen { flex: none; }
+  .melody-source.melody-source-expanded textarea { height: 55vh; }
+  .melody-source-issue { color: var(--color-text-red); }
   .melody-source textarea { height: var(--melody-view-height); resize: none; font-family: var(--app-mono); font-size: var(--app-small-font); line-height: 1.6; white-space: pre; overflow-x: auto; }
   .melody-progress { padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-element); background: var(--app-surface); color: var(--app-muted); }
   .melody-notice { padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-surface); line-height: 1.6; }

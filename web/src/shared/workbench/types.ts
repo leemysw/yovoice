@@ -3,7 +3,10 @@
 import type { UiLocale } from '../i18n/locale';
 
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
-export interface RuntimeSettings { streaming?: boolean; threads?: number; device?: number; idleUnloadSeconds?: number; session?: Record<string, string | number | boolean> }
+// 作品的运行方式：是否边生成边试听。
+export interface RuntimeSettings { streaming?: boolean }
+// 推理引擎的运行参数（设置 › 推理引擎），对所有模型生效；session 的键带模型族前缀。
+export interface EngineSettings { threads?: number; device?: number; idleUnloadSeconds?: number; session?: Record<string, string | number | boolean> }
 export interface SynthesisSettings {
   runtime?: RuntimeSettings;
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
@@ -104,9 +107,9 @@ export interface CleanupReport {
   cleanedCount: number;
   freedBytes: number;
 }
-export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[] }
+export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; engine?: EngineSettings }
 // 可在设置中隐藏的功能入口：故事配音、音乐生成（含编曲与音效）与 Ocho 助手，默认全部显示。
-export const optionalFeatures = ['story', 'music', 'assistant'] as const;
+export const optionalFeatures = ['story', 'music', 'transcribe', 'assistant'] as const;
 export type Feature = typeof optionalFeatures[number];
 export interface State {
   runtimeOptions?: Record<string, string[]>;

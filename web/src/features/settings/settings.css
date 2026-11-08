@@ -9,6 +9,11 @@
   .model-size { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .model-row > .model-summary > .astryx-button { min-width: calc(var(--spacing-10) * 2.5); }
   .compute-device { max-width: calc(var(--spacing-10) * 6); }
+  /* 推理引擎 › 模型会话参数：专家选项默认收起，展开后与上方各行同样的内边距和分隔线。 */
+  .engine-session { border-top: var(--border-width) solid var(--app-line); padding: var(--spacing-1) var(--spacing-5); }
+  .engine-session > summary { color: var(--app-muted); font-size: var(--font-size-sm); }
+  .engine-session-body { padding-block: var(--spacing-2) var(--spacing-4); }
+  .engine-session-body > small { color: var(--app-muted); }
   @media (max-width: 600px) {
     .model-row > .model-summary > .grow { flex-basis: 100%; }
     .model-row .model-size { margin-left: auto; }

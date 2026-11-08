@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Развернуть боковую панель"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Изменить ширину боковой панели"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "API с оплатой по факту"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "При извлечении мелодия сохраняется, а исходные аккорды удаляются, чтобы песня была заново аранжирована в вашем стиле. Песни до 10 минут."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Развернуть мелодическую партитуру"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Из аудио"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Песня, из которой извлечь мелодию"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Песни, инструментальная музыка и партитуры, а также настройки их моделей и звуковых банков."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Преобразует загруженное аудио или видео в текст и субтитры с таймкодами. «Распознать текст» для эталонных расшифровок и экспорт субтитров остаются доступны."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Плавающий помощник, его кнопка в заголовке окна и подсказки. Если отключена и генерация музыки, скрываются также настройки ИИ-сервиса и распределение ролей ИИ для книг."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "Выбранный движок не поддерживает {name}. Используйте совместимый движок или удалите эту настройку."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Выполнение и кэш"
+    "defaultMessage": "Параметры выполнения"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Настройки сохраняются в проекте. Изменения перезагружают модель при следующей генерации. Имена параметров совпадают с движком."
+    "defaultMessage": "Действуют для всех моделей. После изменения модель перезагружается при следующей задаче."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Слушать во время генерации"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Воспроизводит полученные фрагменты и сохраняет полный результат после генерации."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Параметры сеанса модели"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Текущий движок не поддерживает потоковый вывод для этой модели."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Параметры памяти, кэша и точности, которые движок предлагает для каждой модели. Показаны только поддерживаемые текущим движком; если не уверены, оставьте значения по умолчанию."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Модель"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Очистить эти параметры"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "Потоковый режим VoxCPM2 отключает повторные попытки."

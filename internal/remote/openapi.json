@@ -241,13 +241,9 @@
           "seed": { "type": "integer", "nullable": true, "description": "Fixed random seed; null for a random one" },
           "runtime": {
             "type": "object",
-            "description": "Optional synthesis session overrides. Streaming does not change the remote API response, which still returns a job.",
+            "description": "How this work runs. Streaming does not change the remote API response, which still returns a job. Engine threads, device, idle unload and session options are app settings (Settings › Engine), not per request.",
             "properties": {
-              "streaming": { "type": "boolean" },
-              "threads": { "type": "integer", "minimum": 0, "maximum": 256 },
-              "device": { "type": "integer", "minimum": 0, "maximum": 255 },
-              "idleUnloadSeconds": { "type": "integer", "minimum": 0, "maximum": 86400, "description": "Zero disables idle unloading" },
-              "session": { "type": "object", "additionalProperties": true, "description": "Model-specific session options advertised by the installed engine" }
+              "streaming": { "type": "boolean" }
             }
           },
           "modelOptions": {

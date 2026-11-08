@@ -26,7 +26,7 @@ export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 export const isAligner = (id: string) => id.startsWith('lyric-align-');
 // 语音识别模型只用于把声音样本转成参考文本，可选下载。
 export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-');
-// 分轨模型把一个版本分成六轨，扒 MIDI 模型把版本转成编曲作品，都是可选下载的工具。
+// 分轨模型把一个版本分成六轨，转为 MIDI 模型把版本转成编曲作品，都是可选下载的工具。
 export const isStemModel = (id: string) => id.startsWith('htdemucs-');
 export const isMidiModel = (id: string) => id.startsWith('muscriptor-');
 export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id) && !isAligner(id) && !isRecognizer(id) && !isStemModel(id) && !isMidiModel(id);

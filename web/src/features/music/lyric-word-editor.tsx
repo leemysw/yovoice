@@ -7,6 +7,7 @@ import { Check, ChevronLeft, ChevronRight, GripVertical, Play, Undo2 } from 'luc
 import { readLocal, writeLocal } from '../../shared/lib/local-store';
 import { formatTime, type AlignedWord } from '../../shared/workbench';
 import { estimateWords, type LyricLine } from './lyric-timing';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 // 每个字最短的时长与键盘微调的步长（秒）；按住 Shift 时用细步长。整句微调的步长单独一组。
 const minWord = 0.05, nudge = 0.05, fineNudge = 0.01, lineNudge = 0.1, fineLineNudge = 0.02;
@@ -217,8 +218,8 @@ export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio,
         <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftLater', { n: '0.5' })} isDisabled={tapping} onClick={() => shift(.5)} />
       </HStack>
       <SegmentedControl size="sm" label={t('@yovoice.music.shiftMode')} value={mode} onChange={chooseMode} isDisabled={tapping}>
-        <SegmentedControlItem value="ripple" label={t('@yovoice.music.shiftRipple')} />
-        <SegmentedControlItem value="single" label={t('@yovoice.music.shiftSingle')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="ripple" label={t('@yovoice.music.shiftRipple')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="single" label={t('@yovoice.music.shiftSingle')} />
       </SegmentedControl>
     </HStack>
     <VStack ref={track} className="lyric-word-track" gap={0} data-tapping={tapping || undefined}

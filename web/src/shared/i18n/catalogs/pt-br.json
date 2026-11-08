@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Expandir painel lateral"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Redimensionar o painel lateral"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "APIs pagas por uso"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "A extração mantém a melodia e remove os acordes originais, para rearranjar a música no seu estilo. Músicas de até 10 minutos."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Expandir a partitura da melodia"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "A partir de áudio"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Música da qual extrair a melodia"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Músicas, instrumentais e partituras, além das configurações de modelos e bancos de som."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Converte áudio ou vídeo enviado em texto e legendas com tempo. “Reconhecer texto” nas transcrições de referência e a exportação de legendas continuam disponíveis."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "O assistente flutuante, seu atalho na barra de título e as sugestões. Com a geração de música também desativada, as configurações do serviço de IA e a distribuição de papéis por IA em livros também ficam ocultas."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "O mecanismo selecionado não oferece suporte a {name}. Use um mecanismo compatível ou remova esta configuração."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Execução e cache"
+    "defaultMessage": "Execução"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "As configurações são salvas no projeto. Mudanças recarregam o modelo na próxima geração. As chaves correspondem ao mecanismo."
+    "defaultMessage": "Vale para todos os modelos. As alterações recarregam o modelo na próxima tarefa."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Ouvir durante a geração"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Reproduz os trechos assim que chegam e salva o resultado completo ao terminar."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Opções de sessão do modelo"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "O mecanismo atual não oferece transmissão para este modelo."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Opções de memória, cache e precisão que o mecanismo oferece para cada modelo. Só aparecem as suportadas pelo mecanismo atual; na dúvida, mantenha os padrões."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Modelo"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Limpar estas opções"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "A transmissão do VoxCPM2 desativa novas tentativas após falhas."

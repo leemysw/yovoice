@@ -5,7 +5,8 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play, Square, Undo2 } from 'lucide-react';
+import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Maximize2, Mic2, MoreHorizontal, Pause, Play, Square, Undo2 } from 'lucide-react';
+import { AppDialog } from '../../shared/ui/app-dialog';
 import { call, CallError, coverMelodyFile, saveText } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
 import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
@@ -13,8 +14,11 @@ import { ScoreArrangement } from '../score/score-arrangement';
 import { MelodyStaff } from './melody-staff';
 import { useMelodyPreview } from './melody-preview';
 import { useHumRecorder } from './use-hum-recorder';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 const maxLength = 64 << 10;
+// 手写旋律谱时的提示：ABC 谱头（标题、拍号、单位时值、速度、调号）加一小节示例。
+const sourcePlaceholder = 'X:1\nT:Melody\nM:4/4\nL:1/8\nQ:1/4=96\nK:C\nC2 E2 G2 E2 | F2 A2 G4 |';
 
 type Notice = { kind: 'truncated' | 'cover' };
 type View = 'staff' | 'tracks' | 'source';
@@ -44,6 +48,8 @@ export function MelodyScore({ draft, state, change, onError }: {
   const abc = draft.abc ?? '';
   const { inspection, error: inspectError } = useInspection(abc);
   const [view, setView] = useState<View>('staff');
+  // 与歌词一样可放大到对话框里编辑 ABC 谱面；没有谱时也能从这里手写。
+  const [editing, setEditing] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const anchor = useRef<{ element: HTMLElement; top: number } | null>(null);
   // WebKit 在替换视图内容时会把外层滚动区顶回上方（跳到歌词）；切换前记住滚动位置，换完后放回去。
@@ -131,6 +137,11 @@ export function MelodyScore({ draft, state, change, onError }: {
       void attempt(async () => { replace((await picked.text()).replace(/\r\n?/g, '\n'), t('@yovoice.melody.import')); setNotice(null); });
     }} />
   </>;
+  // 从音频得到旋律谱的两种方式：选一首歌，或现场哼一段；说明放在菜单项里，不另占位置。
+  const sourceItems = [
+    { id: 'cover', label: t('@yovoice.melody.cover'), description: t('@yovoice.melody.coverHint'), isDisabled: busy, onClick: () => audio.current?.click() },
+    { id: 'hum', label: humLabel, description: t('@yovoice.melody.humHint'), isDisabled: busy && !hum.recording, onClick: () => void hum.toggle() },
+  ];
   const progress = working ? <HStack className="melody-progress" gap={2} vAlign="center" role="status">
     <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
     <small className="grow">{formatActivity(t, working)}</small>
@@ -142,23 +153,27 @@ export function MelodyScore({ draft, state, change, onError }: {
     {/* 标题行与歌词区一致：左侧标题，右侧视图切换和「⋯」谱面操作。 */}
     <HStack vAlign="center" gap={2}>
       <h2 className="grow">{t('@yovoice.melody.title')}</h2>
+      <Button size="sm" variant="ghost" isIconOnly icon={<Maximize2 />} label={t('@yovoice.melody.expandSource')} tooltip={t('@yovoice.melody.expandSource')} isDisabled={!!working} onClick={() => setEditing(true)} />
       {abc.trim() ? <>
         {/* 视图切换和「⋯」谱面操作并成一个控件：共用底色和边框，中间一条细分隔。 */}
         <HStack className="melody-view-bar" gap={0} vAlign="center">
           <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => switchView(value as View)}>
-            <SegmentedControlItem value="staff" label={t('@yovoice.melody.viewStaff')} />
-            <SegmentedControlItem value="tracks" label={t('@yovoice.melody.viewTracks')} />
-            <SegmentedControlItem value="source" label={t('@yovoice.melody.viewSource')} />
+            <SegmentedControlItem onPointerEnter={overflowTitle} value="staff" label={t('@yovoice.melody.viewStaff')} />
+            <SegmentedControlItem onPointerEnter={overflowTitle} value="tracks" label={t('@yovoice.melody.viewTracks')} />
+            <SegmentedControlItem onPointerEnter={overflowTitle} value="source" label={t('@yovoice.melody.viewSource')} />
           </SegmentedControl>
           <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.melody.more'), tooltip: t('@yovoice.melody.more') }} items={[
+            // 按用途分组：重新得到谱、改写当前谱、文件进出、清空。
             { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },
-            { id: 'cover', label: t('@yovoice.melody.cover'), isDisabled: busy, onClick: () => audio.current?.click() },
-            { id: 'hum', label: humLabel, isDisabled: busy && !hum.recording, onClick: () => void hum.toggle() },
+            ...sourceItems,
+            { type: 'divider' as const },
             { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
             { id: 'instrumental', label: t('@yovoice.melody.toInstrumental'), isDisabled: !sung, onClick: () => void transform('instrumental') },
+            { type: 'divider' as const },
             { id: 'import', label: t('@yovoice.melody.import'), onClick: () => file.current?.click() },
             { id: 'export', label: t('@yovoice.melody.export'), onClick: () => void attempt(() => saveText(abc, draft.title || 'melody', 'abc')) },
-            { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { replace('', t('@yovoice.melody.clear')); setNotice(null); } },
+            { type: 'divider' as const },
+            { id: 'clear', label: t('@yovoice.melody.clear'), variant: 'destructive' as const, onClick: () => { replace('', t('@yovoice.melody.clear')); setNotice(null); } },
           ]} />
         </HStack>
       </> : null}
@@ -184,11 +199,11 @@ export function MelodyScore({ draft, state, change, onError }: {
 
     {progress}
 
-    {/* 还没有谱时只留三个来源按钮，不再放说明文字。 */}
+    {/* 还没有谱时只留三个来源：写谱、从音频提取（歌曲或哼唱）、导入谱文件；哼唱中换成停止按钮。 */}
     {!abc.trim() ? working ? null : <HStack className="melody-empty" gap={2} wrap="wrap" vAlign="center">
       <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />
-      <Button variant="secondary" icon={<Mic2 />} label={t('@yovoice.melody.cover')} isDisabled={busy} tooltip={t('@yovoice.melody.coverHint')} onClick={() => audio.current?.click()} />
-      <Button variant={hum.recording ? 'primary' : 'secondary'} icon={hum.recording ? <Square /> : <AudioLines />} label={humLabel} isDisabled={busy && !hum.recording} tooltip={t('@yovoice.melody.humHint')} onClick={() => void hum.toggle()} />
+      {hum.recording ? <Button variant="primary" icon={<Square />} label={humLabel} onClick={() => void hum.toggle()} />
+        : <DropdownMenu hasChevron button={{ variant: 'secondary', icon: <Mic2 />, label: t('@yovoice.melody.fromAudio'), isDisabled: busy }} items={sourceItems} />}
       <Button variant="ghost" icon={<FileMusic />} label={t('@yovoice.melody.import')} onClick={() => file.current?.click()} />
       {undoButton}
     </HStack> : <>
@@ -209,8 +224,14 @@ export function MelodyScore({ draft, state, change, onError }: {
         : view === 'tracks' && score ? <ScoreArrangement readOnly score={score} selected={selected} select={setSelected} updateTrack={() => {}}
           playhead={preview.status !== 'idle' ? { time: preview.time, playing } : undefined} seek={preview.seek}
           label={t('@yovoice.melody.tracksLabel', { bars: inspection?.bars ?? 0 })} />
-        : <TextArea className="melody-source" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={16} hasSpellCheck={false}
+        : <TextArea className="melody-source" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={16} maxLength={maxLength} hasSpellCheck={false}
           onChange={value => change({ abc: value.slice(0, maxLength) })} />}
     </>}
+    {editing ? <AppDialog title={t('@yovoice.melody.title')} width={760} closeLabel={t('@yovoice.action.close')} onClose={() => setEditing(false)}>
+      <TextArea className="melody-source melody-source-expanded" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={20} maxLength={maxLength} hasSpellCheck={false}
+        placeholder={sourcePlaceholder} onChange={value => change({ abc: value.slice(0, maxLength) })} />
+      {/* 对话框盖住了下方的校验提示，边写边在这里显示谱面是否可用。 */}
+      {abc.trim() && inspection?.issue ? <small className="melody-source-issue" role="alert">{formatMelodyIssue(t, inspection.issue)}</small> : null}
+    </AppDialog> : null}
   </VStack>;
 }

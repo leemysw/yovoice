@@ -3,6 +3,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Selector, SelectorOption } from '../../shared/selector';
 import { formatBytes, groupModels, type ModelPackage, type State } from '../../shared/workbench';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 // 可选模型：只列已下载的，当前选中但未下载的也保留；一个都没下载时列出全部，方便首次选择后去下载。
 export function modelChoices(models: ModelPackage[], state: State, current: string) {
@@ -33,7 +34,7 @@ export function ModelSelector({ label, models, state, value, isDisabled, manage,
       options={[...options, ...(manage ? [{ value: 'manage', label: t('@yovoice.create.manageModels') }] : [])]}
       onChange={modelId => { if (modelId === 'manage') manage?.(); else onChange(modelId); }} />
     {current && current.length > 1 ? <SegmentedControl size="sm" layout="fill" label={t('@yovoice.create.precision')} value={value} isDisabled={isDisabled} onChange={onChange}>
-      {current.map(model => <SegmentedControlItem key={model.id} value={model.id} label={model.precision} />)}
+      {current.map(model => <SegmentedControlItem onPointerEnter={overflowTitle} key={model.id} value={model.id} label={model.precision} />)}
     </SegmentedControl> : null}
   </VStack>;
 }

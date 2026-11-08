@@ -263,7 +263,7 @@ func IsMusic(family string) bool {
 	return family == "ace_step" || family == "yue2" || family == "stable_audio"
 }
 
-// IsTool 判断模型家族是否只作辅助工具：扒谱（SheetSage2）、歌词对齐、语音识别、分轨（HTDemucs）和扒 MIDI（MuScriptor），
+// IsTool 判断模型家族是否只作辅助工具：扒谱（SheetSage2）、歌词对齐、语音识别、分轨（HTDemucs）和转为 MIDI（MuScriptor），
 // 不能作为作品的生成模型。
 func IsTool(family string) bool {
 	return family == "sheetsage2" || family == "lyric_align" || family == "qwen3_asr" || family == "htdemucs_6stems" || family == "muscriptor"

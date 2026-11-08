@@ -32,3 +32,22 @@ func TestRuntimeOptionCapabilitiesComeFromSelectedEngine(t *testing.T) {
 	}
 	must(t, modelOptionsReady(state, schema.DefaultDraft()))
 }
+
+func TestEngineSessionSettingsMustBeSupported(t *testing.T) {
+	dir := t.TempDir()
+	bin := filepath.Join(dir, "audiocpp_server")
+	must(t, os.WriteFile(bin, []byte("test"), 0600))
+	spec := filepath.Join(dir, "model_specs", "index_tts2.json")
+	must(t, os.MkdirAll(filepath.Dir(spec), 0700))
+	must(t, os.WriteFile(spec, []byte(`{"family":"index_tts2","options":{"session":[{"name":"mem_saver"}]}}`), 0600))
+	var state schema.State
+	useRuntime(&state, bin, "cpu", "custom")
+	draft := schema.DefaultDraft()
+	// 其他模型族的会话参数不影响当前模型。
+	state.Preferences.Engine = &schema.EngineSettings{Session: map[string]any{"index_tts2.mem_saver": true, "kokoro_tts.weight_context_mb": float64(128)}}
+	must(t, modelOptionsReady(state, draft))
+	state.Preferences.Engine.Session["index_tts2.speaker_cache_slots"] = float64(0)
+	if err := modelOptionsReady(state, draft); err == nil {
+		t.Fatal("当前引擎不支持的会话参数应明确报错")
+	}
+}

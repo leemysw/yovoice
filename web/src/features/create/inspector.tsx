@@ -1,6 +1,6 @@
 import { AdvancedSettings, SeedInput, ReferenceVoice } from './shared-controls';
 import { KokoroControls } from './kokoro-controls';
-import { RuntimeControls } from './runtime-controls';
+import { StreamingControl } from './streaming-control';
 import { ModelOptions } from './model-options';
 import { useState, type ReactNode } from 'react';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
@@ -23,6 +23,7 @@ import { GradiumControls } from './gradium-controls';
 import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
 import { useElapsed } from '../../shared/lib/use-elapsed';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 const modes: Mode[] = ['speaker', 'reference', 'vector', 'text'];
 const emotionKeys = ['happy', 'angry', 'sad', 'afraid', 'disgusted', 'melancholy', 'surprised', 'calm'] as const;
@@ -95,7 +96,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
       <ReferenceVoice voice={voice} choose={chooseVoice} play={play} />
       <VStack gap={3}>
         <h3>{t('@yovoice.create.expression')}</h3>
-        <SegmentedControl size="sm" label={t('@yovoice.create.expression')} value={draft.mode} onChange={mode => change({ mode: mode as Mode })} layout="fill">{modes.map(id => <SegmentedControlItem key={id} value={id} label={t(`@yovoice.create.mode.${id}`)} />)}</SegmentedControl>
+        <SegmentedControl size="sm" label={t('@yovoice.create.expression')} value={draft.mode} onChange={mode => change({ mode: mode as Mode })} layout="fill">{modes.map(id => <SegmentedControlItem onPointerEnter={overflowTitle} key={id} value={id} label={t(`@yovoice.create.mode.${id}`)} />)}</SegmentedControl>
         {draft.mode === 'reference' ? <ReferenceVoice voice={emotion} choose={chooseEmotion} play={play} label={t('@yovoice.create.mode.reference')} placeholder={t('@yovoice.create.addEmotionReference')} /> : null}
         {draft.mode === 'text' ? <VStack gap={3}>
           <TextArea label={t('@yovoice.create.emotionDescription')} isLabelHidden value={draft.emotionText} onChange={value => change({ emotionText: value.slice(0, 500) })} placeholder={t('@yovoice.create.emotionPlaceholder')} rows={3} isDisabled={draft.inferEmotion} />
@@ -127,7 +128,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
         <SeedInput value={draft.seed} change={change} />
       </AdvancedSettings>
       </>}
-      {currentModel && !embedded ? <RuntimeControls draft={draft} state={state} family={currentModel.family} change={change} /> : null}
+      {currentModel && !embedded ? <StreamingControl draft={draft} state={state} family={currentModel.family} change={change} /> : null}
     </VStack>
 
   </VStack>;

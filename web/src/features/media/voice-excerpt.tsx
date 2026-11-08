@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { NumberInput } from '@astryxdesign/core/NumberInput';
 import { Slider } from '@astryxdesign/core/Slider';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Pause, Play } from 'lucide-react';
@@ -43,6 +44,7 @@ function ExcerptPlayback({ buffer, range, disabled, onError }: {
   </>;
 }
 
+// 选段编辑：波形上标出选中的范围，用区间滑块调整，可先试听再保存（选段需 1–60 秒）。
 export function VoiceExcerptEditor({ buffer, range, setRange, busy, onError, onCancel, onSave, onSuggest }: {
   buffer: AudioBuffer; range: ExcerptRange; setRange: (range: ExcerptRange) => void; busy: boolean;
   onError: () => void; onCancel: () => void; onSave: () => void; onSuggest?: () => void;
@@ -52,11 +54,11 @@ export function VoiceExcerptEditor({ buffer, range, setRange, busy, onError, onC
   const length = range[1] - range[0];
   const frames = Math.floor(range[1] * buffer.sampleRate) - Math.floor(range[0] * buffer.sampleRate);
   const valid = frames >= buffer.sampleRate && frames <= 60 * buffer.sampleRate;
-  function setBoundary(index: 0 | 1, seconds: number) {
-    if (!Number.isFinite(seconds)) return;
+  // 长录音拖动滑块难以精确到秒，入点、出点也可直接输入（失焦或回车时生效）。
+  const setBoundary = (index: 0 | 1, seconds: number) => {
     if (index === 0) setRange([Math.max(0, Math.min(seconds, range[1])), range[1]]);
     else setRange([range[0], Math.min(buffer.duration, Math.max(seconds, range[0]))]);
-  }
+  };
   return <VStack gap={3} data-testid="voice-excerpt-editor">
     <HStack className="recording-waveform" gap={0}><svg viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true" height="64" width="100%">
       {peaks.map((peak, i) => <line key={i} className={i * buffer.duration / peaks.length >= range[0] && i * buffer.duration / peaks.length < range[1] ? 'played' : ''}
@@ -64,16 +66,14 @@ export function VoiceExcerptEditor({ buffer, range, setRange, busy, onError, onC
     </svg></HStack>
     <Slider label={t('@yovoice.voice.cropRange')} value={range} min={0} max={buffer.duration} step={0.1} onChange={setRange}
       formatValue={seconds => `${seconds.toFixed(1)} s`} valueDisplay="text" />
-    <HStack gap={3} wrap="wrap">
-      <label className="number-field">{t('@yovoice.timeline.trimStart')}<input type="number" min={0} max={range[1]} step={0.1}
-        value={Number(range[0].toFixed(3))} onChange={e => setBoundary(0, e.target.valueAsNumber)} /></label>
-      <label className="number-field">{t('@yovoice.timeline.trimEnd')}<input type="number" min={range[0]} max={buffer.duration} step={0.1}
-        value={Number(range[1].toFixed(3))} onChange={e => setBoundary(1, e.target.valueAsNumber)} /></label>
+    <HStack gap={3}>
+      <NumberInput size="sm" label={t('@yovoice.timeline.trimStart')} min={0} max={range[1]} step={0.1} value={Number(range[0].toFixed(1))} onChange={value => setBoundary(0, value)} width="calc(var(--spacing-10) * 3)" />
+      <NumberInput size="sm" label={t('@yovoice.timeline.trimEnd')} min={range[0]} max={buffer.duration} step={0.1} value={Number(range[1].toFixed(1))} onChange={value => setBoundary(1, value)} width="calc(var(--spacing-10) * 3)" />
     </HStack>
     <small role="status">{t('@yovoice.voice.excerptLength', { selected: length.toFixed(1), total: buffer.duration.toFixed(1) })}</small>
     <HStack gap={2} wrap="wrap">
       <ExcerptPlayback key={range.join(':') + busy} buffer={buffer} range={range} disabled={busy || !valid} onError={onError} />
-      {onSuggest ? <Button size="sm" label={t('@yovoice.voice.autoPick')} isDisabled={busy} onClick={onSuggest} /> : null}
+      {onSuggest ? <Button size="sm" label={t('@yovoice.voice.autoPick')} tooltip={t('@yovoice.voice.autoPickHint')} isDisabled={busy} onClick={onSuggest} /> : null}
       <Button size="sm" label={t('@yovoice.voice.cancelExcerpt')} isDisabled={busy} onClick={onCancel} />
       <Button size="sm" label={t('@yovoice.voice.saveCrop')} variant="primary" isDisabled={!valid} isLoading={busy} onClick={onSave} />
     </HStack>

@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Seitenbereich ausklappen"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Seitenleiste rechts in der Breite anpassen"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "Pay-as-you-go-APIs"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "Beim Extrahieren bleibt die Melodie erhalten und die Originalakkorde werden entfernt, damit der Song in deinem Stil neu arrangiert wird. Songs bis 10 Minuten."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Melodie-Partitur vergrößert bearbeiten"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Aus Audio"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Song, aus dem die Melodie extrahiert wird"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Songs, Instrumentals und Partituren samt Modell- und Soundfont-Einstellungen."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Hochgeladenes Audio oder Video in Text und Untertitel mit Zeitangaben umwandeln. „Text erkennen“ für Referenztexte und der Untertitelexport bleiben verfügbar."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Der schwebende Assistent, sein Eintrag in der Titelleiste und seine Vorschläge. Ist auch die Musikgenerierung aus, werden die KI-Dienst-Einstellungen und die KI-Rollenvergabe für Bücher ebenfalls ausgeblendet."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "Die gewählte Inferenz-Engine unterstützt {name} nicht. Verwenden Sie eine kompatible Engine oder entfernen Sie diese Einstellung."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Laufzeit und Cache"
+    "defaultMessage": "Laufzeit"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Die Einstellungen werden im Projekt gespeichert. Änderungen laden das Modell bei der nächsten Erzeugung neu. Die Sitzungsparameter entsprechen der Engine."
+    "defaultMessage": "Gilt für alle Modelle. Änderungen laden das Modell bei der nächsten Aufgabe neu."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Während der Erzeugung anhören"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Audioabschnitte sofort abspielen. Das vollständige Ergebnis wird am Ende gespeichert."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Sitzungsoptionen pro Modell"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "Die aktuelle Engine unterstützt kein Streaming für dieses Modell."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Speicher-, Cache- und Präzisionsoptionen, die die Engine pro Modell anbietet. Nur von der aktuellen Engine unterstützte Optionen werden angezeigt; im Zweifel die Standardwerte beibehalten."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Modell"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Diese Optionen entfernen"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "VoxCPM2-Streaming deaktiviert Wiederholungsversuche."

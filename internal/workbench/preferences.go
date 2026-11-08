@@ -41,6 +41,14 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 			return msg.Err(msg.ErrRequestInvalid, nil)
 		}
 	}
+	if p.Engine != nil {
+		if err := p.Engine.Validate(); err != nil {
+			return err
+		}
+		if p.Engine.Threads == 0 && p.Engine.Device == 0 && p.Engine.IdleUnloadSeconds == nil && len(p.Engine.Session) == 0 {
+			p.Engine = nil
+		}
+	}
 	if p.ModelDirectory != nil && !filepath.IsAbs(*p.ModelDirectory) {
 		return msg.Err(msg.ErrModelDirAbsolute, nil)
 	}
@@ -52,6 +60,7 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 	} else if _, e := schema.ParseUiLocale(string(p.UiLocale)); e != nil {
 		return e
 	}
+	defer func() { w.engine.Configure(w.Store.Read().Preferences.Engine) }()
 	return w.Store.Update(func(s *schema.State) {
 		if s.Preferences.Backend != p.Backend {
 			diag.Log(w.Store.Root, "preferences.backend", "from", s.Preferences.Backend, "to", p.Backend)

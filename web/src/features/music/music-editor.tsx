@@ -13,6 +13,7 @@ import { AppDialog } from '../../shared/ui/app-dialog';
 import { isStableAudio, isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
 import { createMusicDraft, instrumentalSections, lyricSections, splitTags } from './music-draft';
 import { MelodyScore } from './melody-score';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 // 音乐创作区：从上到下是“风格 → 歌词”，生成的版本在“版本记录”里查看；让 AI 写风格和歌词走创作助手。
 // 纯音乐与填写歌词是并列的两种模式。YuE2 还可以先出旋律谱、改谱后再生成。
@@ -138,8 +139,8 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
         {!draft.instrumental || yue ? sectionMenu : null}
         {!draft.instrumental || yue ? <Button size="sm" variant="ghost" isIconOnly icon={<Maximize2 />} label={t('@yovoice.music.expandLyrics')} tooltip={t('@yovoice.music.expandLyrics')} onClick={() => setExpanded(true)} /> : null}
         <SegmentedControl label={t('@yovoice.music.lyricsMode')} size="sm" value={draft.instrumental ? 'instrumental' : 'vocal'} onChange={value => change({ instrumental: value === 'instrumental' })}>
-          <SegmentedControlItem value="vocal" label={t('@yovoice.music.vocal')} />
-          <SegmentedControlItem value="instrumental" label={t('@yovoice.music.instrumental')} />
+          <SegmentedControlItem onPointerEnter={overflowTitle} value="vocal" label={t('@yovoice.music.vocal')} />
+          <SegmentedControlItem onPointerEnter={overflowTitle} value="instrumental" label={t('@yovoice.music.instrumental')} />
         </SegmentedControl>
       </HStack>
       {draft.instrumental && !yue ? null

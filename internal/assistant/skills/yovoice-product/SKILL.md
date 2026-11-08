@@ -19,7 +19,7 @@ yovoice runs every model locally through its inference engine. Models and the en
 | characters | 声音库 Voice library | Saved characters: designed or cloned voices with a preview, reusable across works. |
 | voices | 参考音色 References | Uploaded reference recordings (≤ 20 MB, one clean speaker). Recordings longer than 60 s (up to 10 min) are trimmed automatically to the clearest 5–15 s; the crop dialog's Auto pick does the same for an existing reference. |
 | history | 历史 History | Every generated take; play, reuse settings, save as a voice. |
-| settings | 设置 Settings | Tabs: 常规 General (language, proxy, download source, storage location), 语音模型 Voice models and 音乐模型 Music models (ACE-Step, YuE2, Stable Audio 3, SheetSage2, optional Lyric Aligner; download/remove), 推理引擎 Engine (install, compute device), 编曲音色库 SoundFonts, AI 服务 AI provider (also the model Ocho uses), 资源 Assets (files and cleanup), 日志 Logs (filter, export diagnostics), 本机接口 Local API (HTTP/MCP for other apps). |
+| settings | 设置 Settings | Tabs: 常规 General (language, proxy, download source, storage location, 功能显示 Features: hide 故事配音 Story, 音乐生成 Music, 语音转写 Transcribe or Ocho), 语音模型 Voice models and 音乐模型 Music models (ACE-Step, YuE2, Stable Audio 3, SheetSage2, optional Lyric Aligner; download/remove), 推理引擎 Engine (install, compute device, 运行参数 Runtime: threads, GPU device, idle unload, model session options), 编曲音色库 SoundFonts, AI 服务 AI provider (also the model Ocho uses), 资源 Assets (files and cleanup), 日志 Logs (filter, export diagnostics), 本机接口 Local API (HTTP/MCP for other apps). |
 
 The assistant opens with ⌘J / Ctrl+J, the launcher in the corner, or the title bar button.
 
@@ -174,7 +174,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.stemModelRequired` 分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。
 - `error.stemSource` 这个版本是分轨或片段，不能再分离音轨。
 - `error.stemsMissing` 这个版本还没有分轨，请先分离音轨。
-- `error.midiModelRequired` 扒 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。
+- `error.midiModelRequired` 转为 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。
 - `error.midiEmpty` 没有从这段音频里识别出音符。
 - `error.adapterMissing` 这个作品用的 LoRA 已被删除，请重新选择或导入。
 - `error.adapterInvalid` 这不是有效的 safetensors 文件，请选择 YuE2 的 LoRA 文件。

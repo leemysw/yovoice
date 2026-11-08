@@ -10,6 +10,7 @@ import { CircleCheck, FolderOpen, Download, Pause, RefreshCw, Search, Trash2 } f
 import { call } from '../../shared/lib/client';
 import { formatBytes, groupModels, modelUpdateAvailable, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { SettingsGroup } from '../../shared/ui/settings-group';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 function downloadStatusLabel(t: (key: string) => string, downloading: boolean, received: number, size: number, status: string) {
   if (downloading) return received >= size ? t('@yovoice.settings.download.verifying') : t('@yovoice.settings.download.running');
@@ -87,7 +88,8 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
           <small>{modelDescription(t, model)}</small>
         </VStack>
         <HStack gap={2} vAlign="center" wrap="wrap">
-          <Button size="sm" label={t('@yovoice.settings.importLocalModel')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} />
+          {/* 未下载的模型也可以导入本机已有的文件（原地使用），作为下载旁的次要操作。 */}
+          {!ready && !downloading ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.importLocalModel')} tooltip={t('@yovoice.settings.importLocalModel')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} /> : null}
           {downloading ? <Button size="sm" label={t('@yovoice.action.pause')} icon={<Pause size={16} />} onClick={() => run(() => call('model.cancel'))} />
             : ready ? <HStack gap={1} vAlign="center">
               {update ? <Button size="sm" variant="secondary" label={t('@yovoice.settings.updateModel')} icon={<RefreshCw size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
@@ -99,7 +101,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
       {ready && !managed ? <small className="model-path" title={state.models.find(m => m.id === model.id)?.path}>{state.models.find(m => m.id === model.id)?.path}</small> : null}
       {group.length > 1 ? <HStack className="model-precisions" gap={3} vAlign="center" wrap="wrap">
         <SegmentedControl size="sm" label={t('@yovoice.settings.precisionOf', { name: model.name })} value={model.id} onChange={id => setPicks(current => ({ ...current, [model.name]: id }))}>
-          {group.map(item => <SegmentedControlItem key={item.id} value={item.id} label={item.precision} icon={isInstalled(item) ? <CircleCheck /> : undefined} />)}
+          {group.map(item => <SegmentedControlItem onPointerEnter={overflowTitle} key={item.id} value={item.id} label={item.precision} icon={isInstalled(item) ? <CircleCheck /> : undefined} />)}
         </SegmentedControl>
         {owned.length ? <small>{t('@yovoice.settings.precisionsInstalled', { list: owned.map(item => item.precision).join(' · ') })}</small> : <small>{t('@yovoice.settings.precisionHint')}</small>}
       </HStack> : null}

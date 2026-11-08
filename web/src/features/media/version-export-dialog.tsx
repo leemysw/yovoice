@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Selector } from '../../shared/selector';
@@ -35,6 +36,6 @@ export function VersionExportDialog({ generation, name: initialName, tags, onClo
       options={[{ value: 'wav', label: t('@yovoice.timeline.formatWav') }, { value: 'flac', label: t('@yovoice.export.formatFlac') }, { value: 'm4a', label: t('@yovoice.export.formatM4a') }]} />
     <Selector label={t('@yovoice.timeline.loudness')} value={loudness} onChange={value => { setLoudness(value); writeLocal('yovoice.exportLoudness', value); setError(''); }} description={loudness ? t('@yovoice.timeline.loudnessHint') : undefined}
       options={[{ value: '', label: t('@yovoice.timeline.loudnessOff') }, { value: '-18', label: t('@yovoice.timeline.loudnessAudiobook') }, { value: '-16', label: t('@yovoice.timeline.loudnessPodcast') }, { value: '-14', label: t('@yovoice.timeline.loudnessVideo') }]} />
-    {format !== 'wav' && tags ? <label><input type="checkbox" checked={withTags} onChange={e => { setWithTags(e.target.checked); writeLocal('yovoice.exportTags', e.target.checked ? 'on' : 'off'); }} /> {t('@yovoice.export.tags')}</label> : null}
+    {format !== 'wav' && tags ? <CheckboxInput label={t('@yovoice.export.tags')} value={withTags} onChange={checked => { setWithTags(checked); writeLocal('yovoice.exportTags', checked ? 'on' : 'off'); }} /> : null}
   </AppDialog>;
 }

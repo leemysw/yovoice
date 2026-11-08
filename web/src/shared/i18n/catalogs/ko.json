@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "사이드 패널 펼치기"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "오른쪽 패널 너비 조정"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "종량제 API"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "추출할 때 멜로디는 남기고 원곡 코드는 빼서 내 스타일로 다시 편곡합니다. 10분 이내 곡을 지원합니다."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "멜로디 악보 크게 편집"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "오디오에서 추출"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "멜로디를 추출할 곡"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "노래, 연주곡, 편곡 생성과 관련 모델 및 사운드폰트 설정."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "오디오나 동영상을 업로드해 시간 정보가 있는 텍스트와 자막으로 변환합니다. 참고 원문의 “텍스트 인식”과 자막 내보내기에는 영향이 없습니다."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. 음악 생성도 끄면 AI 서비스 설정과 책의 AI 배역 지정도 함께 숨겨집니다."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "선택한 추론 엔진은 {name}을 지원하지 않습니다. 호환 엔진을 사용하거나 이 설정을 제거하세요."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "실행 및 캐시"
+    "defaultMessage": "실행 매개변수"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "설정은 작품에 저장되며 다음 생성 시 모델을 다시 불러옵니다. 세션 키는 추론 엔진과 같습니다."
+    "defaultMessage": "모든 모델에 적용되며, 변경하면 다음 작업에서 새 설정으로 모델을 다시 불러옵니다."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "생성 중 미리 듣기"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "받은 오디오 조각을 재생하고 생성이 끝나면 전체 결과를 저장합니다."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "모델 세션 옵션"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "현재 엔진은 이 모델의 스트리밍을 지원하지 않습니다."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "엔진이 모델별로 제공하는 메모리, 캐시, 정밀도 옵션입니다. 현재 엔진이 지원하는 항목만 표시되며, 잘 모르면 기본값을 유지하세요."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "모델"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "이 옵션 지우기"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "VoxCPM2 스트리밍에서는 실패 시 재시도가 꺼집니다."

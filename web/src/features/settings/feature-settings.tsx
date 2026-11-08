@@ -7,6 +7,7 @@ import { SettingsGroup, SettingsRow } from '../../shared/ui/settings-group';
 const labels: Record<Feature, [string, string]> = {
   story: ['@yovoice.project.story', '@yovoice.settings.featureStoryHint'],
   music: ['@yovoice.project.music', '@yovoice.settings.featureMusicHint'],
+  transcribe: ['@yovoice.nav.transcribe', '@yovoice.settings.featureTranscribeHint'],
   assistant: ['@yovoice.assistant.title', '@yovoice.settings.featureAssistantHint'],
 };
 

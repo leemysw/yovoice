@@ -65,6 +65,7 @@ func New(root string) (*Workbench, error) {
 	}
 	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}, bundled: map[string]bundledRuntime{}}
 	w.assistant = assistant.New(root, assistant.Options{Tools: assistantTools, NewServer: w.newAssistantServer})
+	w.engine.Configure(s.Read().Preferences.Engine)
 	// 先找回已解压的内核再清理，避免把仍可使用的 GPU 内核当作残留删除。
 	if e = w.importLegacyPrivate(); e != nil {
 		s.Close()

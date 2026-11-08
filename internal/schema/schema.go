@@ -18,9 +18,14 @@ func NewID() string {
 }
 func ValidID(id string) bool { b, e := hex.DecodeString(id); return e == nil && len(b) == 16 }
 
-// RuntimeSettings 按作品保存，只有显式设置的字段才覆盖引擎默认值。
+// RuntimeSettings 按作品保存的运行方式：目前只有是否边生成边试听。
 type RuntimeSettings struct {
-	Streaming         bool           `json:"streaming,omitempty"`
+	Streaming bool `json:"streaming,omitempty"`
+}
+
+// EngineSettings 是本机推理引擎的运行参数，保存在偏好里，对所有模型生效；为 0 或未设置的字段沿用引擎默认值。
+// Session 的键带模型族前缀（如 index_tts2.mem_saver），只传给对应模型族。
+type EngineSettings struct {
 	Threads           int            `json:"threads,omitempty"`
 	Device            int            `json:"device,omitempty"`
 	IdleUnloadSeconds *int           `json:"idleUnloadSeconds,omitempty"`
@@ -325,10 +330,12 @@ type Preferences struct {
 	AssistantQuiet bool `json:"assistantQuiet,omitempty"`
 	// HiddenFeatures 是在设置中隐藏的功能入口（见 OptionalFeatures），为空时全部显示。
 	HiddenFeatures []string `json:"hiddenFeatures,omitempty"`
+	// Engine 是推理引擎的运行参数（设置 › 推理引擎 › 高级运行参数），为空时全部沿用默认值。
+	Engine *EngineSettings `json:"engine,omitempty"`
 }
 
-// OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）与 Ocho 助手。
-var OptionalFeatures = []string{"story", "music", "assistant"}
+// OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）、语音转写与 Ocho 助手。
+var OptionalFeatures = []string{"story", "music", "transcribe", "assistant"}
 
 type State struct {
 	// RuntimeOptions 来自所选引擎的模型清单，运行时重新读取，不写入状态数据库。
@@ -367,7 +374,7 @@ type State struct {
 	AssistantMemory []AssistantMemo `json:"assistantMemory,omitempty"`
 }
 
-// MidiImport 记录扒 MIDI 新建的编曲作品：ProjectID 是新作品，SourceID 是来源版本。
+// MidiImport 记录转为 MIDI 新建的编曲作品：ProjectID 是新作品，SourceID 是来源版本。
 type MidiImport struct {
 	ID        string `json:"id"`
 	ProjectID string `json:"projectId"`

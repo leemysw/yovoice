@@ -1,5 +1,6 @@
 import { useState, type RefObject } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Selector } from '../../shared/selector';
@@ -66,10 +67,10 @@ function ExportDialog({ value, history, draft, range, context, load, exporting, 
     {isAudio(format) ? <>
       {isDesktop ? <Selector label={t('@yovoice.timeline.loudness')} value={loudness} onChange={value => { update({ loudness: value }); writeLocal('yovoice.exportLoudness', value); setError(''); setPeakDb(undefined); }} description={loudness ? t('@yovoice.timeline.loudnessHint') : undefined}
         options={[{ value: '', label: t('@yovoice.timeline.loudnessOff') }, { value: '-18', label: t('@yovoice.timeline.loudnessAudiobook') }, { value: '-16', label: t('@yovoice.timeline.loudnessPodcast') }, { value: '-14', label: t('@yovoice.timeline.loudnessVideo') }]} /> : null}
-      {loudness ? null : <label><input type="checkbox" checked={preventClipping} onChange={e => { update({ preventClipping: e.target.checked }); setPeakDb(undefined); }} /> {t('@yovoice.timeline.preventClipping')}</label>}
+      {loudness ? null : <CheckboxInput label={t('@yovoice.timeline.preventClipping')} value={preventClipping} onChange={checked => { update({ preventClipping: checked }); setPeakDb(undefined); }} />}
       {peakDb !== undefined ? <small>{t('@yovoice.timeline.peak')}: {Number.isFinite(peakDb) ? peakDb.toFixed(1) : '−∞'} dBFS</small> : null}
     </> : <>
-      <label><input type="checkbox" checked={captionSpeaker} onChange={e => update({ captionSpeaker: e.target.checked })} /> {t('@yovoice.timeline.captionSpeaker')}</label>
+      <CheckboxInput label={t('@yovoice.timeline.captionSpeaker')} value={captionSpeaker} onChange={checked => update({ captionSpeaker: checked })} />
       <small>{t('@yovoice.timeline.captionHint')}</small>
     </>}
   </AppDialog>;

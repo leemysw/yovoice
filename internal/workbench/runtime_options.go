@@ -80,14 +80,17 @@ func modelOptionsReady(state schema.State, draft schema.Draft) error {
 			return msg.Err(msg.ErrModelOptionUnsupported, msg.Params{"name": option.Key})
 		}
 	}
-	if draft.Runtime != nil {
-		if draft.Runtime.Streaming && !slices.Contains(state.RuntimeModes[model.Family], "streaming") {
-			return msg.Err(msg.ErrModelOptionUnsupported, msg.Params{"name": "streaming"})
-		}
-		for key := range draft.Runtime.Session {
+	// 设置里为当前模型族填写的会话参数，当前引擎不支持时明确报错，不静默忽略。
+	if engine := state.Preferences.Engine; engine != nil {
+		for key := range engine.Session {
 			if strings.HasPrefix(key, model.Family+".") && !slices.Contains(state.RuntimeSessionOptions[model.Family], key) {
 				return msg.Err(msg.ErrModelOptionUnsupported, msg.Params{"name": key})
 			}
+		}
+	}
+	if draft.Runtime != nil {
+		if draft.Runtime.Streaming && !slices.Contains(state.RuntimeModes[model.Family], "streaming") {
+			return msg.Err(msg.ErrModelOptionUnsupported, msg.Params{"name": "streaming"})
 		}
 		if draft.Runtime.Streaming && model.Family == "voxcpm2" && draft.ModelOptions[model.Family]["retry_badcase"] == true {
 			return msg.Err(msg.ErrStreamingRetry, nil)

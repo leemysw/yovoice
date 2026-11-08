@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "Expandir panel lateral"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "Cambiar el ancho del panel lateral"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "API de pago por uso"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "La extracción conserva la melodía y quita los acordes originales, para rearreglar la canción en tu estilo. Canciones de hasta 10 minutos."
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Ampliar la partitura de melodía"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "Desde audio"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "Canción de la que extraer la melodía"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "Canciones, instrumentales y partituras, junto con sus ajustes de modelos y bancos de sonido."
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "Convierte audio o vídeo subido en texto y subtítulos con tiempos. «Reconocer texto» en las transcripciones de referencia y la exportación de subtítulos no se ven afectados."
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "El asistente flotante, su acceso en la barra de título y sus sugerencias. Si también desactivas la generación de música, se ocultan los ajustes del servicio de IA y el reparto con IA de libros."
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "El motor seleccionado no admite {name}. Usa un motor compatible o elimina este ajuste."
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "Ejecución y caché"
+    "defaultMessage": "Ejecución"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Los ajustes se guardan en el proyecto. Los cambios recargan el modelo en la siguiente generación. Las claves coinciden con el motor."
+    "defaultMessage": "Se aplica a todos los modelos. Los cambios recargan el modelo en la siguiente tarea."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Escuchar durante la generación"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "Reproduce los fragmentos al recibirlos y guarda el resultado completo al finalizar."
+  "@yovoice.runtime.session": {
+    "defaultMessage": "Opciones de sesión del modelo"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "El motor actual no admite salida en directo para este modelo."
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "Opciones de memoria, caché y precisión que el motor ofrece para cada modelo. Solo se muestran las compatibles con el motor actual; si tienes dudas, deja los valores predeterminados."
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "Modelo"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "Borrar estas opciones"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "La salida en directo de VoxCPM2 desactiva los reintentos."

@@ -89,17 +89,21 @@
   .emotion-preset-grid .astryx-button[aria-pressed="true"] { background: var(--app-line); color: var(--app-ink); border-color: var(--app-muted); }
   .language-row { min-height: var(--spacing-10); }
   .advanced { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-3); }
+  .streaming-note { color: var(--app-muted); font-size: var(--app-small-font); }
   .advanced summary > svg { width: var(--spacing-4); height: var(--spacing-4); }
   .advanced summary { min-height: var(--spacing-8); font-size: var(--app-small-font); color: var(--app-muted); }
   .number-field input::-webkit-inner-spin-button { margin-inline-start: var(--spacing-2); }
   /* 正文与检查器按创作区实际宽度排布（侧栏可拖宽），宽度不足时检查器自动收起；展开时保持与宽屏一致的面板宽度浮出，正文不被全屏覆盖。 */
   .studio { container: studio / inline-size; }
+  /* 检查器宽度拖动条：叠在检查器左边框上（中线对齐边框），只拉伸、不占布局宽度。 */
+  .studio > .inspector-resize { inset-inline-start: auto; inset-inline-end: var(--app-inspector); transform: translateX(50%); z-index: 2; }
+  .studio > .inspector-resize .astryx-resize-handle-pill { display: none; }
   @container studio (min-width: 861px) {
-    .collapse-inspector .inspector { display: none; }
+    .collapse-inspector .inspector, .collapse-inspector > .inspector-resize { display: none; }
     .collapse-inspector .document-heading > .inspector-collapsed-action { display: flex; }
   }
   @container studio (max-width: 860px) {
-    .inspector { display: none; }
+    .inspector, .studio > .inspector-resize { display: none; }
     .inspector-toggle { display: inline-flex; }
     .inspector-collapse { display: none; }
     .document-heading > .inspector-collapsed-action { display: flex; }

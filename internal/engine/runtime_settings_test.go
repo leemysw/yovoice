@@ -27,11 +27,13 @@ func TestEngineRuntimeSettingsReachServerAndInvalidateCache(t *testing.T) {
 	definition, err := catalog.Lookup("index-2.5-q8")
 	must(t, err)
 	idle := 45
-	settings := &schema.RuntimeSettings{Streaming: true, Threads: 3, Device: 2, IdleUnloadSeconds: &idle, Session: map[string]any{"index_tts2.speaker_cache_slots": float64(0), "index_tts2.mem_saver": true, "kokoro_tts.weight_context_mb": float64(128)}}
+	settings := &schema.EngineSettings{Threads: 3, Device: 2, IdleUnloadSeconds: &idle, Session: map[string]any{"index_tts2.speaker_cache_slots": float64(0), "index_tts2.mem_saver": true, "kokoro_tts.weight_context_mb": float64(128)}}
+	streaming := &schema.RuntimeSettings{Streaming: true}
+	e.Configure(settings)
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	progress := func(msg.Code, msg.Params) {}
-	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress, settings))
+	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress, streaming))
 	pid := e.process.Process.Pid
 	b, err := os.ReadFile(filepath.Join(root, "runtime", "server.json"))
 	must(t, err)
@@ -48,13 +50,18 @@ func TestEngineRuntimeSettingsReachServerAndInvalidateCache(t *testing.T) {
 	if config.Threads != 3 || config.Device != 2 || config.Idle != 45000 || m.Mode != "streaming" || m.Session["index_tts2.speaker_cache_slots"] != "0" || m.Session["index_tts2.mem_saver"] != "true" || m.Session["kokoro_tts.weight_context_mb"] != "" {
 		t.Fatal(string(b))
 	}
-	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress, settings))
+	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress, streaming))
 	if e.process.Process.Pid != pid {
 		t.Fatal("相同设置应复用模型及缓存")
 	}
-	settings.Threads = 4
-	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress, settings))
+	e.Configure(&schema.EngineSettings{Threads: 4, Device: 2, IdleUnloadSeconds: &idle, Session: settings.Session})
+	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress, streaming))
 	if e.process.Process.Pid == pid {
 		t.Fatal("硬件选项变化后应重启引擎")
+	}
+	pid = e.process.Process.Pid
+	must(t, e.start(ctx, bin, path, definition, "cpu", false, 0, progress))
+	if e.process.Process.Pid == pid {
+		t.Fatal("流式与离线切换后应重启引擎")
 	}
 }

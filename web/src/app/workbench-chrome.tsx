@@ -55,7 +55,7 @@ const BookImport = lazy(() => import('../features/library/book-import').then(mod
 export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready, session, error, setError }: { state: State; catalog: ModelPackage[]; catalogRevision: string; engine: EngineInfo; ready: boolean; session: DraftSession; error: string; setError: (message: string) => void }) {
   const t = useTranslator();
   const { draft, setDraft, draftPersisted, setDraftPersisted, saving, saveFailed, change, persistDraft, setActive, setDeleteTarget } = session;
-  const { navigation, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel } = useWorkbenchNavigation({ draft, catalog, setActive, setError });
+  const { navigation, inspectorPanel, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector, inspectorCollapsed, toggleInspectorPanel } = useWorkbenchNavigation({ draft, catalog, preferences: state.preferences, setActive, setError });
   const previousVoices = useRef<Voice[]>([]);
   const [voicePicker, setVoicePicker] = useState<VoicePickerMode>(null);
   const [previewTrack, setPreviewTrack] = useState<Track | null>(null);
@@ -160,7 +160,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const versionName = (item: Generation) => { const stem = item.fileName.replace(/\.wav$/, ''); return /^[0-9a-f]{32}$/.test(stem) ? item.title : stem; };
   // 导出音频：桌面端先选格式与响度，浏览器预览直接下载 WAV。
   const exportVersion = (item: Generation) => { if (isDesktop) setExportTarget(item); else run(() => exportOutput(item.id, item.fileName, versionName(item))); };
-  // 分轨与扒 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
+  // 分轨与转为 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
   const separateStems = (item: Generation) => run(() => call('generation.separateStems', { id: item.id }));
   const transcribeMidi = (item: Generation) => run(() => call('generation.transcribeMidi', { id: item.id }));
   // 原混音和全部分轨按 DAW 习惯命名后导出到所选文件夹，由宿主弹出文件夹选择框。
@@ -227,7 +227,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const generateReady = scoring ? !!draft.score?.tracks.some(item => item.notes.length) : draft.subtitles ? draft.subtitles.cues.some(cue => cue.text.trim()) : !!draft.text.trim();
   const collapsedAction = busy ? <Button size="sm" icon={<LoaderCircle className="generation-spinner" />} label={t('@yovoice.create.cancelGenerate')} onClick={() => run(() => call('operation.cancel'))} />
     : <Button size="sm" variant="primary" label={generateLabel} aria-keyshortcuts="Control+Enter" isDisabled={!generateReady} onClick={generate} />;
-  return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
+  return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px`, '--app-inspector': `${inspectorPanel.size}px` } as CSSProperties} gap={0}>
     {!isDesktop ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? t('@yovoice.app.expandSidebar') : t('@yovoice.app.collapseSidebar')} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b><small>{t('@yovoice.app.browserPreview')}</small>
       {ready && !assistantHidden && launcherHidden && !assistantOpen ? <PageBoundary name="assistant-title"><Suspense fallback={null}><AssistantTitleButton open={assistantOpen} toggle={() => setAssistantOpen(open => !open)} /></Suspense></PageBoundary> : null}
       {page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
@@ -237,7 +237,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
         {!ready ? <p className="loading" role="status">{t('@yovoice.app.loading')}</p> : <>
 
           {visited.has('create') ? <VStack className="page-panel" gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="create" resetKey={draft.id}>
-            <Studio showInspector={showInspector} inspector={inspector} inspectorCollapsed={inspectorCollapsed} collapsedAction={collapsedAction}
+            <Studio showInspector={showInspector} inspector={inspector} inspectorCollapsed={inspectorCollapsed} resizeInspector={inspectorPanel.props} collapsedAction={collapsedAction}
           title={<input className="document-title" aria-label={t('@yovoice.app.titleLabel')} maxLength={120} value={draft.title} onChange={e => change({ title: e.target.value })} />}
           writingClassName={`${draft.subtitles ? 'writing-subtitles' : ''} ${draft.timeline ? 'writing-timeline' : ''} ${scoring ? 'writing-score' : ''}`.trim()}>
           <Suspense fallback={<p role="status">{t('@yovoice.app.loading')}</p>}>{scoring ? <><ScoreEditor key={draft.id} draft={draft} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : soundEffects ? <><SfxEditor key={draft.id} draft={draft} change={change} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}</Suspense>

@@ -2387,6 +2387,9 @@
   "@yovoice.app.expandInspector": {
     "defaultMessage": "サイドパネルを展開"
   },
+  "@yovoice.app.resizeInspector": {
+    "defaultMessage": "右側パネルの幅を調整"
+  },
   "@yovoice.ai.group.api": {
     "defaultMessage": "従量課金 API"
   },
@@ -3175,6 +3178,12 @@
   },
   "@yovoice.melody.coverHint": {
     "defaultMessage": "抽出ではメロディを残して元のコードを外し、あなたのスタイルでアレンジし直します。10 分以内の曲に対応。"
+  },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "メロディ譜を拡大して編集"
+  },
+  "@yovoice.melody.fromAudio": {
+    "defaultMessage": "音声から抽出"
   },
   "@yovoice.melody.coverFile": {
     "defaultMessage": "メロディを抽出する曲"
@@ -4022,6 +4031,9 @@
   "@yovoice.settings.featureMusicHint": {
     "defaultMessage": "歌、インスト、スコアの生成と、対応するモデルとサウンドフォントの設定。"
   },
+  "@yovoice.settings.featureTranscribeHint": {
+    "defaultMessage": "音声や動画をアップロードしてタイムコード付きのテキストと字幕にします。参考テキストの「文字を認識」と字幕の書き出しには影響しません。"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。音楽生成もオフにすると、AI サービスの設定と書籍の AI 配役も隠れます。"
   },
@@ -4467,19 +4479,25 @@
     "defaultMessage": "選択した推論エンジンは {name} に対応していません。対応するエンジンを使用するか、この設定を削除してください。"
   },
   "@yovoice.runtime.title": {
-    "defaultMessage": "実行とキャッシュ"
+    "defaultMessage": "実行パラメーター"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "設定は作品に保存され、次回の生成時にモデルを再読み込みします。項目名は推論エンジンと同じです。"
+    "defaultMessage": "すべてのモデルに適用され、変更後は次のタスクで新しい設定でモデルを再読み込みします。"
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "生成しながら試聴"
   },
-  "@yovoice.runtime.streamingHelp": {
-    "defaultMessage": "受信した音声から順に再生し、完了後に全体を保存します。"
+  "@yovoice.runtime.session": {
+    "defaultMessage": "モデルのセッションオプション"
   },
-  "@yovoice.runtime.streamingUnsupported": {
-    "defaultMessage": "現在のエンジンはこのモデルのストリーミングに対応していません。"
+  "@yovoice.runtime.sessionHelp": {
+    "defaultMessage": "エンジンがモデルごとに提供するメモリ、キャッシュ、精度のオプションです。現在のエンジンが対応する項目のみ表示します。分からない場合は既定のままにしてください。"
+  },
+  "@yovoice.runtime.sessionModel": {
+    "defaultMessage": "モデル"
+  },
+  "@yovoice.runtime.clearUnsupported": {
+    "defaultMessage": "これらのオプションを消去"
   },
   "@yovoice.runtime.retryHelp": {
     "defaultMessage": "VoxCPM2 のストリーミングでは失敗時の再試行が無効になります。"

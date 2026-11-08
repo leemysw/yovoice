@@ -10,6 +10,7 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { ChevronRight } from 'lucide-react';
 import { requiresVoice, type Draft, type State, type Track } from '../../shared/workbench';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 export function ReferenceControls({ draft, state, change, chooseVoice, play, advanced, setAdvanced }: {
   draft: Draft; state: State; change: (patch: Partial<Draft>) => void;
@@ -26,8 +27,8 @@ export function ReferenceControls({ draft, state, change, chooseVoice, play, adv
     {omni ? <VStack gap={3}>
       <h3>{t('@yovoice.vox.generationMode')}</h3>
       <SegmentedControl label={t('@yovoice.vox.generationMode')} size="sm" layout="fill" value={draft.voiceMode || 'design'} onChange={value => change({ voiceMode: value as Draft['voiceMode'] })}>
-        <SegmentedControlItem value="design" label={t('@yovoice.vox.design')} />
-        <SegmentedControlItem value="clone" label={t('@yovoice.vox.clone')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="design" label={t('@yovoice.vox.design')} />
+        <SegmentedControlItem onPointerEnter={overflowTitle} value="clone" label={t('@yovoice.vox.clone')} />
       </SegmentedControl>
     </VStack> : null}
     {custom ? <Selector label={t('@yovoice.reference.speaker')} value={draft.speaker || 'Vivian'} options={['Vivian', 'Serena', 'Uncle_Fu', 'Dylan', 'Eric', 'Ryan', 'Aiden', 'Ono_Anna', 'Sohee'].map(value => ({ value, label: value, description: t(`@yovoice.reference.speaker.${value}`) }))} onChange={speaker => change({ speaker })} /> : null}
