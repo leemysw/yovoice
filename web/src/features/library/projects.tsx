@@ -20,6 +20,7 @@ import { LibraryEmpty, LibraryPage, Ticket } from './library-layout';
 import { TapeCover } from './tape-cover';
 import { WaveRing } from './wave-ring';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { markTransitionSource } from '../../shared/lib/view-transition';
 
 export function NewProject({ locale, modelId, modelFor, create, onError, button, kind, hidden = [] }: {
   kind?: 'text' | 'story' | 'music' | 'score' | 'sfx'; locale: UiLocale; modelId?: string;
@@ -121,7 +122,7 @@ export function Projects({ drafts, kind, title, controls, open, create, copy, sa
           {newMonth ? <small className="ticket-month eyebrow">{month}</small> : null}
           <Ticket className={`project-library-row ticket-${kind}`} coverClassName="project-avatars" index={index} cover={cover}
             eyebrow={projectMeta(draft)} excerpt={excerpt(draft)}
-            title={<Button variant="ghost" className="project-title" label={draft.title} onPointerEnter={overflowTitle} onClick={() => open(draft)} />}
+            title={<Button variant="ghost" className="project-title" label={draft.title} onPointerEnter={overflowTitle} onClick={event => { markTransitionSource(event.currentTarget); open(draft); }} />}
             stub={stamp ? <time className="project-created" dateTime={stamp} title={t('@yovoice.project.created', { date: formatDateTime(draft.createdAt ?? date, undefined) })}>
               <b className="ticket-day">{date.getDate()}</b>
               <small className="eyebrow">{date.getFullYear()}.{String(date.getMonth() + 1).padStart(2, '0')}</small>

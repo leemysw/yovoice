@@ -1,0 +1,90 @@
+/* 连续性：界面结构变化时，让元素从旧位置过渡到新位置，用注意力的惯性完成信息切换，而不是整片闪一下。
+   视图过渡由 shared/lib/view-transition.ts 发起，<html data-transition> 标明这次是哪种变化。
+   这里给参与过渡的区域命名：同名元素在新旧画面之间形变，只在一边存在的按方向滑入滑出，其余部分交叉淡化。 */
+
+@layer app {
+  /* ===== 区域命名：同一时刻每个名字只对应一个可见元素（隐藏的页面是 display: none，不参与）。 ===== */
+  .workbench .astryx-app-shell-sidenav { view-transition-name: app-nav; }
+  .app-sheet { view-transition-name: app-sheet; }
+  .studio > .document { view-transition-name: app-document; }
+  .studio > .inspector { view-transition-name: app-inspector; }
+  /* “生成”按钮在面板顶部与标题栏之间迁移：面板收起时它飞到标题栏，展开时飞回来。 */
+  .studio > .inspector .generation-action > .astryx-button:first-child,
+  .studio .document-heading > .inspector-collapsed-action > .astryx-button { view-transition-name: generate-action; }
+  /* 从作品卡片打开作品：卡片标题飞成编辑页的大标题。 */
+  [data-vt-source], :root[data-transition="open-project"] .page-panel .document-title { view-transition-name: project-title; }
+
+  /* 支持视图过渡时换页由过渡负责淡入淡出，不再叠加面板自带的入场动画。 */
+  @supports (view-transition-name: none) {
+    .page-panel { animation: none; }
+  }
+
+  /* ===== 时长与缓动：结构变化用中等时长，换页更快，避免拖慢连续操作。 ===== */
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: var(--duration-medium-min); animation-timing-function: var(--ease-standard); }
+  :root[data-transition="page"]::view-transition-group(*), :root[data-transition="page"]::view-transition-old(*), :root[data-transition="page"]::view-transition-new(*) { animation-duration: var(--duration-fast); }
+
+  /* 尺寸会变的大区域（工作区、正文）不拉伸截图：画面按左上角对齐、超出部分裁掉。 */
+  ::view-transition-group(app-sheet), ::view-transition-group(app-document) { overflow: clip; }
+  ::view-transition-old(app-sheet), ::view-transition-new(app-sheet),
+  ::view-transition-old(app-document), ::view-transition-new(app-document) { inline-size: 100%; block-size: 100%; object-fit: none; object-position: left top; }
+  /* 收起展开侧栏或右侧面板时，区域只是变宽变窄：不叠新旧两张画面（右侧的播放控件等会出现重影），
+     只显示新排版，跟着区域边缘一起移动；区域本身带底色和圆角，变化中露出的部分仍是一张完整的卡片。 */
+  :root:is([data-transition="sidebar"], [data-transition="inspector"])::view-transition-old(app-sheet),
+  :root:is([data-transition="sidebar"], [data-transition="inspector"])::view-transition-old(app-document) { display: none; }
+  :root:is([data-transition="sidebar"], [data-transition="inspector"])::view-transition-new(app-sheet),
+  :root:is([data-transition="sidebar"], [data-transition="inspector"])::view-transition-new(app-document) { animation: none; }
+  :root:is([data-transition="sidebar"], [data-transition="inspector"])::view-transition-group(app-sheet) { background: var(--app-white); border-radius: calc(var(--radius-container) * 1.25); box-shadow: var(--shadow-low); }
+  :root[data-transition="inspector"]::view-transition-group(app-document) { background: var(--app-white); }
+  /* 侧栏收起展开时工作区靠右对齐：内容停在最终位置不动，只有左边缘移动，把内容盖住或让出来；
+     右边缘不动，也就不会在卡片中间露出截图自带的圆角和阴影。 */
+  :root[data-transition="sidebar"]::view-transition-new(app-sheet) { object-position: right top; }
+  /* 侧栏过渡时工作区里的正文、面板和生成按钮都跟着工作区这一张画面走，不再单独形变；
+     工作区自身的阴影改由过渡层画，截图里不带阴影，左边缘不会出现一道接缝。 */
+  :root[data-transition="sidebar"] :is(.studio > .document, .studio > .inspector, .studio > .inspector .generation-action > .astryx-button:first-child, .studio .document-heading > .inspector-collapsed-action > .astryx-button) { view-transition-name: none; }
+  :root[data-transition="sidebar"] .app-sheet { box-shadow: none; }
+
+  /* 侧栏：收起时向左滑出并淡去，展开时从左侧滑入；右侧工作区的左边缘同步移动。 */
+  ::view-transition-old(app-nav):only-child { animation-name: app-nav-out; }
+  ::view-transition-new(app-nav):only-child { animation-name: app-nav-in; }
+  /* 右侧面板：收起时向右退出并淡去，正文同时变宽；展开或窄屏浮出时从右侧滑入。 */
+  ::view-transition-old(app-inspector):only-child { animation-name: app-inspector-out; }
+  ::view-transition-new(app-inspector):only-child { animation-name: app-inspector-in; }
+
+  /* 生成按钮：宽按钮收成标题栏里的小按钮，文字不变形，外形按圆角裁切；飞行时压在其他区域之上。 */
+  /* 叠放：工作区压在侧栏之上（展开侧栏时工作区右移、把侧栏“让”出来，而不是侧栏盖住正文）；飞行的元素在最上层。 */
+  ::view-transition-group(app-sheet) { z-index: 1; }
+  ::view-transition-group(app-document), ::view-transition-group(app-inspector) { z-index: 2; }
+  ::view-transition-group(generate-action), ::view-transition-group(project-title) { z-index: 3; }
+  /* 旧按钮很快淡出，飞行途中只看到一个按钮在变形。 */
+  ::view-transition-old(generate-action) { animation-duration: var(--duration-fast-min); }
+  ::view-transition-group(generate-action) { overflow: clip; border-radius: var(--radius-element); }
+  ::view-transition-old(generate-action), ::view-transition-new(generate-action) { inline-size: 100%; block-size: 100%; object-fit: none; object-position: center; }
+  /* 作品标题：按高度等比缩放、左对齐，小标题平滑放大成大标题，不被横向拉伸。 */
+  ::view-transition-old(project-title), ::view-transition-new(project-title) { block-size: 100%; inline-size: auto; object-fit: contain; object-position: left center; }
+  ::view-transition-group(project-title) { animation-duration: var(--duration-medium); }
+
+  @keyframes app-nav-out { to { opacity: 0; transform: translateX(calc(-1 * var(--spacing-6))); } }
+  @keyframes app-nav-in { from { opacity: 0; transform: translateX(calc(-1 * var(--spacing-6))); } }
+  @keyframes app-inspector-out { to { opacity: 0; transform: translateX(var(--spacing-12)); } }
+  @keyframes app-inspector-in { from { opacity: 0; transform: translateX(var(--spacing-12)); } }
+
+  /* ===== 侧栏选中块：一个独立的底块在入口之间滑动，选中项只加粗文字。 ===== */
+  .sidebar-indicator { position: absolute; top: 0; left: 0; z-index: 0; border-radius: var(--radius-element); background: var(--app-white); box-shadow: var(--shadow-low); pointer-events: none; opacity: 1; }
+  .sidebar-indicator[data-ready] { transition: transform var(--duration-medium-min) var(--ease-standard), height var(--duration-medium-min) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard); }
+  .sidebar-indicator[data-hidden] { opacity: 0; }
+  /* 换页的视图过渡里，侧栏的新画面是实时的：底块照常用自身的过渡滑到新入口。 */
+  .sidebar .nav-item { position: relative; z-index: 1; }
+  .sidebar .nav-item.selected { background: transparent; box-shadow: none; }
+
+  /* ===== 折叠区（高级设置、更多参数等）：高度平滑展开收起，下方内容随之推移，而不是瞬间跳动。 ===== */
+  :root { interpolate-size: allow-keywords; }
+  @supports selector(::details-content) {
+    details::details-content { block-size: 0; overflow-y: clip; transition: block-size var(--duration-medium-min) var(--ease-standard), content-visibility var(--duration-medium-min) allow-discrete; }
+    details[open]::details-content { block-size: auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-indicator[data-ready] { transition: none; }
+    @supports selector(::details-content) { details::details-content { transition: none; } }
+  }
+}

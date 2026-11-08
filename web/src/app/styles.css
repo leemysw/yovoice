@@ -13,6 +13,7 @@
 @import '../features/settings/settings.css';
 @import '../features/transcribe/transcribe.css';
 @import '../features/update/update.css';
+@import './motion.css';
 @import './polish.css';
 
 /* 自定义属性注册必须写在 @layer 之外才会生效；滚动渐隐要靠它做长度插值。 */

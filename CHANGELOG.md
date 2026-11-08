@@ -34,6 +34,7 @@
 - Remote API errors now return a JSON error code with a status code matched to the error type (bad parameters no longer return 500); the CLI prints the error code and parameters on failure.
 - Ocho panel: a message that fails to send (too long, the assistant is busy, the service is unreachable) stays in the input box and the reason shows inside the panel; starting, switching or deleting a chat, picking a model, confirming a proposal and playing a result also report failures in place. Messages are capped at 2000 characters while typing.
 - Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
+- Smoother layout changes: collapsing the sidebar or side panel moves the workspace edge instead of jumping, the Generate button travels between the side panel and the title row, the sidebar highlight slides to the new page, a project opened from the list carries its title into the editor, and collapsible sections expand smoothly.
 - Settings › Features can now hide the Transcribe page as well; if the page you were on gets hidden, yovoice returns to speech generation.
 - Drag the left edge of the right-hand settings panel to widen it (remembered between sessions); option labels that are cut off, such as the IndexTTS expression modes, show the full text on hover.
 - macOS: when the window content fails to load (the local page can't be reached, is refused, or its web process keeps crashing), yovoice now shows the reason with Retry and Open Logs Folder instead of a blank white window, and records it with the macOS version in `logs/host.log`.
@@ -71,6 +72,7 @@
 - 远程接口的错误统一返回 JSON 错误码并按类型区分状态码，参数错误不再报 500；命令行失败时输出错误码与参数。
 - Ocho 面板：消息发送失败（过长、助手忙、服务不可用）时内容留在输入框里，原因显示在面板内；新建、切换、删除对话，选择模型，确认提案和试听结果失败也都就地提示。输入时按 2000 字上限截断。
 - 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
+- 界面变化更连贯：收起展开侧栏或右侧面板时工作区边缘平滑移动，“生成”按钮在面板顶部与标题栏之间迁移；侧栏选中块滑到新页面；从列表打开作品时标题飞入编辑页；折叠区平滑展开。
 - 设置 › 功能显示 新增“语音转写”，可隐藏转写页入口；所在页面被隐藏时自动回到语音生成。
 - 右侧设置面板可拖动左边缘调宽（宽度会记住）；被截断的选项（如 IndexTTS 的表达方式）悬停时显示完整文字。
 - macOS：窗口内容未能加载（本地页面连不上、被拒绝或网页进程反复崩溃）时，不再停在全白窗口，而是提示原因并提供“重试”和“打开日志目录”，同时把原因和系统版本记入 `logs/host.log`。
