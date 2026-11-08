@@ -56,6 +56,9 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   const codex = codexProvider(provider);
   const configured = assistantUsable(provider);
   const runtimeMissing = !!state.assistantMissing;
+  // 内容区自己滚动；新内容到来时，只有本来就停在底部才跟随到底，用户往上翻看时不打扰。
+  const bodyRef = useRef<HTMLElement | null>(null);
+  const pinned = useRef(true);
   const [draft, setDraft] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -73,6 +76,8 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     if (!trimmed || !configured || runtimeMissing) return;
     setHistoryOpen(false);
     setError('');
+    // 自己发出消息就回到底部：即使之前翻上去看过历史，也要看到这条消息和随后的回复。
+    pinned.current = true;
     // 选中的文字与播放位置在发送这一刻取出：选区只随这一条消息带上。
     void call('assistant.send', { text: trimmed, context: { ...context, ...takeAssistantFocus() } })
       .catch((e: unknown) => { fail(e); if (typed) setDraft(current => current.trim() ? current : text); });
@@ -108,14 +113,21 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   const title = current?.title || t('@yovoice.assistant.title');
   const banner = emptyArt[context.workKind || context.page || ''] ?? emptyArt.text;
 
-  // 内容区自己滚动；新内容到来时，只有本来就停在底部才跟随到底，用户往上翻看时不打扰。
-  const bodyRef = useRef<HTMLElement | null>(null);
-  const pinned = useRef(true);
   const liveBlocks = live?.turn?.blocks;
   useLayoutEffect(() => {
     const body = bodyRef.current;
     if (body && pinned.current) body.scrollTop = body.scrollHeight;
   }, [messages.length, liveBlocks, current?.id, empty]);
+  // 回答是逐字渲染的，高度会在两次内容更新之间继续增长（Markdown 排版、折叠展开也一样）：
+  // 只靠内容变化时滚动会停在半途，所以还要监听内容区自身的尺寸变化。
+  useEffect(() => {
+    const body = bodyRef.current;
+    const inner = body?.firstElementChild;
+    if (!body || !inner || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => { if (pinned.current) body.scrollTop = body.scrollHeight; });
+    observer.observe(inner);
+    return () => observer.disconnect();
+  }, [empty, current?.id]);
   const onScroll = () => {
     const body = bodyRef.current;
     if (body) pinned.current = body.scrollHeight - body.scrollTop - body.clientHeight < 48;

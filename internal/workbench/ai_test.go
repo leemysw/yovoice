@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -193,7 +194,7 @@ func TestAIModelsAndTest(t *testing.T) {
 func TestBuildScoreRepeats(t *testing.T) {
 	in := scoreInput{}
 	in.Tempo, in.TimeSignature = 120, []int{4, 4}
-	in.Tracks = append(in.Tracks, scoreTrack{ID: "d", Name: "鼓", Role: "drums", Notes: []any{
+	in.Tracks = append(in.Tracks, scoreTrack{ID: "d", Name: "鼓", Role: "drums", Notes: []scoreNoteInput{
 		[]any{float64(1), float64(1), float64(36), float64(1), float64(100)},
 		[]any{float64(2), float64(3), float64(38), float64(1), float64(90)},
 		[]any{float64(5), float64(1), float64(49), float64(2), float64(110)},
@@ -204,7 +205,7 @@ func TestBuildScoreRepeats(t *testing.T) {
 	if len(notes) != 7 || notes[2].Bar != 3 || notes[3].Bar != 4 || notes[3].Beat != 3 || notes[4].Bar != 5 || notes[6].Bar != 10 {
 		t.Fatalf("展开结果不对：%+v", notes)
 	}
-	many, at := make([]any, 0, 400), make([]int, 0, 60)
+	many, at := make([]scoreNoteInput, 0, 400), make([]int, 0, 60)
 	for i := range 400 {
 		many = append(many, []any{float64(1), float64(1) + float64(i)/100, float64(60), float64(0.01), float64(80)})
 	}
@@ -429,4 +430,39 @@ func TestCodexProviderSaves(t *testing.T) {
 	if c.Format != llm.FormatCodex || c.Key != "" {
 		t.Fatalf("调用配置: %+v", c)
 	}
+}
+
+// Moonshot（Kimi）要求每个 items 都是对象 Schema；update_work 的音符项不能退化成 items: true。
+func TestUpdateWorkSchemaItemsAreObjects(t *testing.T) {
+	s, err := updateWorkInputSchema()
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := json.Marshal(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc any
+	if err = json.Unmarshal(b, &doc); err != nil {
+		t.Fatal(err)
+	}
+	var walk func(n any, path string)
+	walk = func(n any, path string) {
+		switch v := n.(type) {
+		case map[string]any:
+			if items, ok := v["items"]; ok {
+				if m, isMap := items.(map[string]any); !isMap || len(m) == 0 {
+					t.Errorf("%s.items 必须是非空对象，实际 %v", path, items)
+				}
+			}
+			for k, c := range v {
+				walk(c, path+"."+k)
+			}
+		case []any:
+			for i, c := range v {
+				walk(c, fmt.Sprintf("%s[%d]", path, i))
+			}
+		}
+	}
+	walk(doc, "")
 }
