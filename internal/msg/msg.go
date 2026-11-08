@@ -53,7 +53,7 @@ const (
 	// ActivityTranscribeSpeech 为转写页分段识别上传的音频，ActivityAlignText 为给语音版本对齐字幕时间，都带 done/total。
 	ActivityTranscribeSpeech Code = "@yovoice.activity.transcribeSpeech"
 	ActivityAlignText        Code = "@yovoice.activity.alignText"
-	// 分轨：HTDemucs 把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨；扒 MIDI：MuScriptor 把音频转成多乐器 MIDI。
+	// 分轨：HTDemucs 把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨；转为 MIDI：MuScriptor 把音频转成多乐器 MIDI。
 	ActivitySeparateStems  Code = "@yovoice.activity.separateStems"
 	ActivityTranscribeMIDI Code = "@yovoice.activity.transcribeMidi"
 	ActivityResing         Code = "@yovoice.activity.resing"
@@ -154,7 +154,7 @@ const (
 	ErrTranscribeEmpty        Code = "@yovoice.error.transcribeEmpty"
 	ErrAlignText              Code = "@yovoice.error.alignText"
 	ErrAlignTextEmpty         Code = "@yovoice.error.alignTextEmpty"
-	// 分轨与扒 MIDI 的模型未下载、对一首分轨结果再分轨、扒出的 MIDI 没有音符。
+	// 分轨与转为 MIDI 的模型未下载、对一首分轨结果再分轨、扒出的 MIDI 没有音符。
 	ErrStemModelRequired Code = "@yovoice.error.stemModelRequired"
 	ErrStemSource        Code = "@yovoice.error.stemSource"
 	ErrStemsMissing      Code = "@yovoice.error.stemsMissing"

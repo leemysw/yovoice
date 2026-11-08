@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "추출할 때 멜로디는 남기고 원곡 코드는 빼서 내 스타일로 다시 편곡합니다. 10분 이내 곡을 지원합니다."
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "멜로디 악보 크게 편집"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "오디오에서 추출"
   },

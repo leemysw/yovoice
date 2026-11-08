@@ -374,7 +374,7 @@ type State struct {
 	AssistantMemory []AssistantMemo `json:"assistantMemory,omitempty"`
 }
 
-// MidiImport 记录扒 MIDI 新建的编曲作品：ProjectID 是新作品，SourceID 是来源版本。
+// MidiImport 记录转为 MIDI 新建的编曲作品：ProjectID 是新作品，SourceID 是来源版本。
 type MidiImport struct {
 	ID        string `json:"id"`
 	ProjectID string `json:"projectId"`

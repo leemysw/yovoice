@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "Extracting keeps the melody and drops the original chords, so the song is rearranged in your style. Songs up to 10 minutes."
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Expand melody score"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "From audio"
   },

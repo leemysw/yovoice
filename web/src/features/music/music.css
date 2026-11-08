@@ -78,6 +78,8 @@
   .melody-staff .abcjs-note, .melody-staff .abcjs-rest { cursor: pointer; }
   .melody-staff .melody-note-playing, .melody-staff .melody-note-playing * { fill: var(--app-accent); color: var(--app-accent); }
   .melody-score .melody-listen { flex: none; }
+  .melody-source.melody-source-expanded textarea { height: 55vh; }
+  .melody-source-issue { color: var(--color-text-red); }
   .melody-source textarea { height: var(--melody-view-height); resize: none; font-family: var(--app-mono); font-size: var(--app-small-font); line-height: 1.6; white-space: pre; overflow-x: auto; }
   .melody-progress { padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-element); background: var(--app-surface); color: var(--app-muted); }
   .melody-notice { padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-surface); line-height: 1.6; }

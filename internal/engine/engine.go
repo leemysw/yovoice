@@ -549,7 +549,7 @@ func validStem(id string) bool {
 	return true
 }
 
-// TranscribeMIDI 用 MuScriptor 把 wav 扒成多乐器 MIDI（含鼓），返回 SMF 文件字节。
+// TranscribeMIDI 用 MuScriptor 把 wav 转为多乐器 MIDI（含鼓），返回 SMF 文件字节。
 func (e *Engine) TranscribeMIDI(ctx context.Context, executable string, m schema.InstalledModel, backend, wav string, progress func(msg.Code, msg.Params)) (midi []byte, err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()

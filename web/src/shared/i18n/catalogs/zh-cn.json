@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "提取时保留旋律、去掉原曲和弦，按你写的风格重新编配；支持 10 分钟以内的歌曲。"
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "放大编辑旋律谱"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "从音频提取"
   },
@@ -4329,7 +4332,7 @@
     "defaultMessage": "正在分离音轨"
   },
   "@yovoice.activity.transcribeMidi": {
-    "defaultMessage": "正在扒成 MIDI"
+    "defaultMessage": "正在转为 MIDI"
   },
   "@yovoice.error.stemModelRequired": {
     "defaultMessage": "分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。"
@@ -4338,7 +4341,7 @@
     "defaultMessage": "这个版本是分轨或片段，不能再分离音轨。"
   },
   "@yovoice.error.midiModelRequired": {
-    "defaultMessage": "扒 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。"
+    "defaultMessage": "转为 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。"
   },
   "@yovoice.error.midiEmpty": {
     "defaultMessage": "没有从这段音频里识别出音符。"
@@ -4353,13 +4356,13 @@
     "defaultMessage": "把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨 · 44.1 kHz 立体声"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "把一首歌扒成多乐器 MIDI，可在编曲页继续编辑 · 仅限非商业用途（CC BY-NC）"
+    "defaultMessage": "把一首歌转为多乐器 MIDI，可在编曲页继续编辑 · 仅限非商业用途（CC BY-NC）"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "分离音轨"
   },
   "@yovoice.stems.toMidi": {
-    "defaultMessage": "扒成 MIDI"
+    "defaultMessage": "转为 MIDI"
   },
   "@yovoice.stems.name.drums": {
     "defaultMessage": "鼓"

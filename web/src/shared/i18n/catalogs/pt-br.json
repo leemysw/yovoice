@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "A extração mantém a melodia e remove os acordes originais, para rearranjar a música no seu estilo. Músicas de até 10 minutos."
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Expandir a partitura da melodia"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "A partir de áudio"
   },

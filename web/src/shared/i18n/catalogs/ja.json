@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "抽出ではメロディを残して元のコードを外し、あなたのスタイルでアレンジし直します。10 分以内の曲に対応。"
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "メロディ譜を拡大して編集"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "音声から抽出"
   },

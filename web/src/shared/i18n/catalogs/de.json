@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "Beim Extrahieren bleibt die Melodie erhalten und die Originalakkorde werden entfernt, damit der Song in deinem Stil neu arrangiert wird. Songs bis 10 Minuten."
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Melodie-Partitur vergrößert bearbeiten"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "Aus Audio"
   },

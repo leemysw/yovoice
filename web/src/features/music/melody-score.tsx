@@ -5,7 +5,8 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play, Square, Undo2 } from 'lucide-react';
+import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Maximize2, Mic2, MoreHorizontal, Pause, Play, Square, Undo2 } from 'lucide-react';
+import { AppDialog } from '../../shared/ui/app-dialog';
 import { call, CallError, coverMelodyFile, saveText } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
 import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
@@ -16,6 +17,8 @@ import { useHumRecorder } from './use-hum-recorder';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 
 const maxLength = 64 << 10;
+// 手写旋律谱时的提示：ABC 谱头（标题、拍号、单位时值、速度、调号）加一小节示例。
+const sourcePlaceholder = 'X:1\nT:Melody\nM:4/4\nL:1/8\nQ:1/4=96\nK:C\nC2 E2 G2 E2 | F2 A2 G4 |';
 
 type Notice = { kind: 'truncated' | 'cover' };
 type View = 'staff' | 'tracks' | 'source';
@@ -45,6 +48,8 @@ export function MelodyScore({ draft, state, change, onError }: {
   const abc = draft.abc ?? '';
   const { inspection, error: inspectError } = useInspection(abc);
   const [view, setView] = useState<View>('staff');
+  // 与歌词一样可放大到对话框里编辑 ABC 谱面；没有谱时也能从这里手写。
+  const [editing, setEditing] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const anchor = useRef<{ element: HTMLElement; top: number } | null>(null);
   // WebKit 在替换视图内容时会把外层滚动区顶回上方（跳到歌词）；切换前记住滚动位置，换完后放回去。
@@ -148,6 +153,7 @@ export function MelodyScore({ draft, state, change, onError }: {
     {/* 标题行与歌词区一致：左侧标题，右侧视图切换和「⋯」谱面操作。 */}
     <HStack vAlign="center" gap={2}>
       <h2 className="grow">{t('@yovoice.melody.title')}</h2>
+      <Button size="sm" variant="ghost" isIconOnly icon={<Maximize2 />} label={t('@yovoice.melody.expandSource')} tooltip={t('@yovoice.melody.expandSource')} isDisabled={!!working} onClick={() => setEditing(true)} />
       {abc.trim() ? <>
         {/* 视图切换和「⋯」谱面操作并成一个控件：共用底色和边框，中间一条细分隔。 */}
         <HStack className="melody-view-bar" gap={0} vAlign="center">
@@ -218,8 +224,14 @@ export function MelodyScore({ draft, state, change, onError }: {
         : view === 'tracks' && score ? <ScoreArrangement readOnly score={score} selected={selected} select={setSelected} updateTrack={() => {}}
           playhead={preview.status !== 'idle' ? { time: preview.time, playing } : undefined} seek={preview.seek}
           label={t('@yovoice.melody.tracksLabel', { bars: inspection?.bars ?? 0 })} />
-        : <TextArea className="melody-source" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={16} hasSpellCheck={false}
+        : <TextArea className="melody-source" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={16} maxLength={maxLength} hasSpellCheck={false}
           onChange={value => change({ abc: value.slice(0, maxLength) })} />}
     </>}
+    {editing ? <AppDialog title={t('@yovoice.melody.title')} width={760} closeLabel={t('@yovoice.action.close')} onClose={() => setEditing(false)}>
+      <TextArea className="melody-source melody-source-expanded" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={20} maxLength={maxLength} hasSpellCheck={false}
+        placeholder={sourcePlaceholder} onChange={value => change({ abc: value.slice(0, maxLength) })} />
+      {/* 对话框盖住了下方的校验提示，边写边在这里显示谱面是否可用。 */}
+      {abc.trim() && inspection?.issue ? <small className="melody-source-issue" role="alert">{formatMelodyIssue(t, inspection.issue)}</small> : null}
+    </AppDialog> : null}
   </VStack>;
 }

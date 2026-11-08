@@ -84,6 +84,11 @@ test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，
   await expect(page.getByRole('radio', { name: '自由发挥' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
   // 从歌曲提取与哼唱都归在“从音频提取”里，说明写在菜单项上。
+  // 没有谱时也能像歌词一样放大手写 ABC；写入后显示谱面概要。
+  await page.getByRole('button', { name: '放大编辑旋律谱' }).click();
+  const sourceDialog = page.getByRole('dialog', { name: '旋律谱' });
+  await expect(sourceDialog.getByLabel('ABC 谱面')).toHaveAttribute('placeholder', /K:C/);
+  await sourceDialog.getByRole('button', { name: '关闭' }).click();
   await page.getByRole('button', { name: '从音频提取' }).click();
   await expect(page.getByRole('menuitem')).toHaveCount(2);
   await expect(page.getByRole('menuitem', { name: /从歌曲提取/ })).toContainText('支持 10 分钟以内的歌曲');
@@ -271,7 +276,7 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
   const transport = page.locator('.player .transport');
   await expect(transport.getByRole('button', { name: '打开位置', exact: true })).toBeVisible();
   await transport.getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '分离音轨', '扒成 MIDI']);
+  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '分离音轨', '转为 MIDI']);
   await page.keyboard.press('Escape');
   await expect(transport.getByRole('button', { name: '播放页', exact: true })).toBeVisible();
   await transport.getByRole('button', { name: '历史版本', exact: true }).click();
@@ -307,7 +312,7 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
 
   // 复用这一版：风格和歌词写回当前作品，回到创作页。
   await rows.nth(1).getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '分离音轨', '扒成 MIDI', '复用这一版的风格和歌词']);
+  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '分离音轨', '转为 MIDI', '复用这一版的风格和歌词']);
   await page.getByRole('menuitem', { name: '复用这一版的风格和歌词', exact: true }).click();
   await expect(page.getByLabel('风格', { exact: true })).toHaveValue('style v2');
   await expect(page.getByLabel('歌词', { exact: true })).toHaveValue(/第二版的第一句/);

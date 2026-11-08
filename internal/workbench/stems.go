@@ -19,7 +19,7 @@ import (
 // StemNames 是 HTDemucs 6-stem 输出的分轨名。
 var StemNames = []string{"drums", "bass", "other", "vocals", "guitar", "piano"}
 
-// stemSeconds 与 midiSeconds 是分轨和扒 MIDI 接受的最长音频，与翻唱扒谱一致。
+// stemSeconds 与 midiSeconds 是分轨和转为 MIDI 接受的最长音频，与翻唱扒谱一致。
 const stemSeconds, midiSeconds = 600, 600
 
 // SeparateStems 用 HTDemucs 6-stem 把一个版本分成鼓、贝斯、人声、吉他、钢琴和其他六轨。
@@ -131,7 +131,7 @@ func (w *Workbench) SeparateStems(id string) error {
 	return e
 }
 
-// TranscribeMIDI 用 MuScriptor 把一个版本扒成多乐器 MIDI，新建一个编曲作品放进去，
+// TranscribeMIDI 用 MuScriptor 把一个版本转为多乐器 MIDI，新建一个编曲作品放进去，
 // 编曲页可以继续编辑并用音色库重新渲染。新作品的 ID 放进会话状态 MidiImport，由界面打开。
 func (w *Workbench) TranscribeMIDI(id string) error {
 	if !schema.ValidID(id) {

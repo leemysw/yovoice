@@ -160,7 +160,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const versionName = (item: Generation) => { const stem = item.fileName.replace(/\.wav$/, ''); return /^[0-9a-f]{32}$/.test(stem) ? item.title : stem; };
   // 导出音频：桌面端先选格式与响度，浏览器预览直接下载 WAV。
   const exportVersion = (item: Generation) => { if (isDesktop) setExportTarget(item); else run(() => exportOutput(item.id, item.fileName, versionName(item))); };
-  // 分轨与扒 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
+  // 分轨与转为 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
   const separateStems = (item: Generation) => run(() => call('generation.separateStems', { id: item.id }));
   const transcribeMidi = (item: Generation) => run(() => call('generation.transcribeMidi', { id: item.id }));
   // 原混音和全部分轨按 DAW 习惯命名后导出到所选文件夹，由宿主弹出文件夹选择框。

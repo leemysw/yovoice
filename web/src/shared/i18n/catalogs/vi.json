@@ -3179,6 +3179,9 @@
   "@yovoice.melody.coverHint": {
     "defaultMessage": "Khi trích xuất, giai điệu được giữ và hợp âm gốc bị bỏ để phối lại theo phong cách của bạn. Hỗ trợ bài dài tối đa 10 phút."
   },
+  "@yovoice.melody.expandSource": {
+    "defaultMessage": "Mở rộng bản nhạc giai điệu"
+  },
   "@yovoice.melody.fromAudio": {
     "defaultMessage": "Từ âm thanh"
   },
