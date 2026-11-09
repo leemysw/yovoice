@@ -98,6 +98,15 @@
     "endpoint": "fixed"
   },
   {
+    "key": "requesty",
+    "name": "Requesty",
+    "format": "chat_completions",
+    "baseURL": "https://router.requesty.ai/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://app.requesty.ai/api-keys",
+    "endpoint": "fixed"
+  },
+  {
     "key": "kimi-code",
     "name": "Kimi Code",
     "format": "chat_completions",

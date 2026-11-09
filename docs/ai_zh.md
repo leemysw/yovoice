@@ -10,7 +10,7 @@ yovoice 可以选择接入大模型。配置 AI 服务后，右下角的“创�
 
 | 服务 | 地址 | 密钥 |
 | --- | --- | --- |
-| 按量 API：DeepSeek、通义千问（百炼）、智谱 GLM、Kimi、豆包（火山方舟）、MiniMax、OpenAI、Anthropic、OpenRouter、OrcaRouter | 内置 | 需要；“从 … 获取 API 密钥”打开对应控制台 |
+| 按量 API：DeepSeek、通义千问（百炼）、智谱 GLM、Kimi、豆包（火山方舟）、MiniMax、OpenAI、Anthropic、OpenRouter、Requesty、OrcaRouter | 内置 | 需要；“从 … 获取 API 密钥”打开对应控制台 |
 | 编程套餐：Kimi Code、智谱 GLM Coding Plan、百炼 Token Plan、MiniMax Token Plan、火山方舟 Coding Plan | 内置（套餐专用地址） | 需要套餐的密钥，与按量 API 的密钥不通用 |
 | Ollama、LM Studio | 默认本机（`127.0.0.1`），可修改 | 通常不需要 |
 | ChatGPT (Codex) | 本机的 Codex CLI | 不需要；通过 Codex 用 ChatGPT 登录 |

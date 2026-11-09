@@ -10,7 +10,7 @@ Open Settings › AI services. The left column lists added and available service
 
 | Service | Address | Key |
 | --- | --- | --- |
-| Pay-as-you-go APIs: DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter, OrcaRouter | Built in | Required; **Get an API key from …** opens the provider's console |
+| Pay-as-you-go APIs: DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter, Requesty, OrcaRouter | Built in | Required; **Get an API key from …** opens the provider's console |
 | Coding plans: Kimi Code, GLM Coding Plan, Bailian Token Plan, MiniMax Token Plan, Volcengine Ark Coding Plan | Built in (the plan's own address) | Required; use the plan's key, not a pay-as-you-go API key |
 | Ollama, LM Studio | Defaults to this computer (`127.0.0.1`), editable | Usually not needed |
 | ChatGPT (Codex) | The Codex CLI on this computer | None; sign in with ChatGPT through Codex |
