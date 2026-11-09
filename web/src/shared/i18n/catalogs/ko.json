@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "인식된 텍스트가 없습니다. 오디오에 또렷한 음성이 있는지 확인하세요"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "이 받아쓰기가 삭제되었거나 자막 파일이 없습니다"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "이 버전에는 맞출 본문이 없습니다"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "오디오 업로드"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "다른 오디오 받아쓰기"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "다른 작업이 진행 중입니다. 끝난 뒤 받아쓰세요"
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "전체 텍스트 복사"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "지우기"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "시간"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "텍스트"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "자막 타이밍을 얻지 못했습니다"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "녹음, 인터뷰, 영상 속 말을 텍스트로"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "녹음"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "중지하고 받아쓰기"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "녹음 취소"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "녹음 {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "받아쓰기 목록으로"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "받아쓰기 이름"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "저장 중…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "자동 저장됨"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "실행 취소"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "받아쓰기 삭제"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "“{name}”을(를) 삭제할까요?"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "자막과 저장된 원본 오디오가 함께 삭제되며 되돌릴 수 없습니다."
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "찾기"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "바꿀 내용"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "모두 바꾸기"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count}개 줄 일치"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "{count}곳을 바꿨습니다"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "일치하는 텍스트가 없습니다"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "커서 위치에서 나누기"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "나눌 위치에 커서를 두고 나누기를 누르세요"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "다음 줄과 합치기"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "이 줄 삭제"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "자막 {n}번째 줄"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "자막을 불러오는 중…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "오디오나 영상을 올리면 음성 인식 모델 Qwen3 ASR이 텍스트와 단어별 타이밍을 만들어 SRT / WebVTT 자막으로 내보낼 수 있습니다. 최대 1시간, 20 MB."
+    "defaultMessage": "오디오나 동영상을 업로드하거나 바로 녹음하면 음성 인식 모델 Qwen3 ASR이 텍스트와 단어별 타이밍을 만들어 냅니다. 받아쓰기는 저장되며 자막을 편집한 뒤 SRT / WebVTT로 내보낼 수 있습니다. 최대 1시간, 20MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "로컬 모델 가져오기"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "{date} 업데이트 이전"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "{name} 더보기"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "이름 바꾸기"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "전사 이름 바꾸기"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "자막 내보내기"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "찾기 및 바꾸기"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter로 커서 위치에서 나누고, 줄 처음에서 Backspace로 윗줄과 합칩니다"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "전사에는 음성 인식 모델 Qwen3 ASR이 필요합니다. 다운로드하면 오디오를 올리거나 녹음할 수 있습니다."
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "전사 검색"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "녹음 중"
   }
 }

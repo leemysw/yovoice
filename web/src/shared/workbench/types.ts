@@ -124,6 +124,7 @@ export interface State {
   melody?: MelodyResult;
   midiImport?: MidiImport;
   transcript?: TranscriptResult;
+  transcripts?: Transcript[];
   /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
   assistantSessions?: AssistantSessions; assistantLive?: AssistantLive; assistantMemory?: AssistantMemo[];
   /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
@@ -136,9 +137,14 @@ export interface MidiImport { id: string; projectId: string; sourceId: string }
 /** 导入的 YuE2 LoRA 适配器，由 adapter.list 返回，不属于作品状态。 */
 export interface Adapter { id: string; name: string; size: number; createdAt: string }
 export interface MelodyResult { id: string; projectId: string; source: 'plan' | 'cover'; abc: string; truncated?: boolean; createdAt: string }
-// 语音识别模型识别出的文字，与 Go 的 schema.TranscriptResult 一致，只在本次会话有效。识别声音样本时带 voiceId，由发起识别的输入框填入后清除；
-// 转写页转写上传的音频时带文件名 name、逐词时间 words 与音频时长 duration。
-export interface TranscriptResult { id: string; voiceId?: string; name?: string; text: string; language?: string; words?: AlignedWord[]; duration?: number; createdAt: string }
+// 识别声音样本得到的文字，与 Go 的 schema.TranscriptResult 一致，只在本次会话有效，由发起识别的输入框填入后清除。
+export interface TranscriptResult { id: string; voiceId: string; text: string; language?: string; createdAt: string }
+// 转写页保存的转写记录，与 Go 的 schema.Transcript 一致；字幕内容由 transcript.read 读取。
+export interface Transcript { id: string; name?: string; language?: string; duration: number; fileName: string; audioFile?: string; excerpt?: string; createdAt: string; updatedAt?: string }
+// 一行字幕，与 Go 的 schema.TranscriptCaption 一致。
+export interface TranscriptCaption { start: number; end: number; text: string }
+// 字幕文件的内容，与 Go 的 schema.TranscriptContent 一致：captions 为 null 表示还没编辑，按逐词时间分行。
+export interface TranscriptContent { text: string; words: AlignedWord[]; captions: TranscriptCaption[] | null }
 /** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
 export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
 export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }

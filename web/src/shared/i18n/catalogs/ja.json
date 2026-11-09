@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "文字を認識できませんでした。音声がはっきり入っているか確認してください"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "この文字起こしは削除されたか、字幕ファイルが見つかりません"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "このバージョンには合わせる本文がありません"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "音声をアップロード"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "別の音声を文字起こし"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "別の処理が実行中です。終わってから文字起こししてください"
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "全文をコピー"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "クリア"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "時間"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "テキスト"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "字幕のタイミングを取得できませんでした"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "録音・インタビュー・動画の話し声を文字にする"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "録音"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "停止して文字起こし"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "録音を破棄"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "録音 {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "文字起こし一覧に戻る"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "文字起こしの名前"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "保存中…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "自動保存しました"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "元に戻す"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "文字起こしを削除"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "「{name}」を削除しますか？"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "字幕と保存した元の音声がまとめて削除され、元に戻せません。"
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "検索"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "置換後"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "すべて置換"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count} 行が一致"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "{count} 件を置換しました"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "一致する文字が見つかりません"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "カーソル位置で分割"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "分割したい位置にカーソルを置いてから分割してください"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "次の行と結合"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "この行を削除"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "字幕 {n} 行目"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "字幕を読み込み中…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "音声または動画をアップロードすると、音声認識モデル Qwen3 ASR が文字と単語ごとのタイミングを書き出し、SRT / WebVTT 字幕として書き出せます。最長 1 時間・20 MB。"
+    "defaultMessage": "音声または動画をアップロードするか直接録音すると、音声認識モデル Qwen3 ASR が文字と単語ごとのタイミングを書き出します。文字起こしは保存され、字幕を編集して SRT / WebVTT として書き出せます。最長 1 時間・20 MB。"
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "ローカルモデルを読み込む"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "{date} 更新前"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "「{name}」のその他の操作"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "名前を変更"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "文字起こしの名前を変更"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "字幕を書き出す"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "検索と置換"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter でカーソル位置で分割、行頭で Backspace を押すと前の行と結合"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "文字起こしには音声認識モデル Qwen3 ASR が必要です。ダウンロードすると音声のアップロードや録音ができます。"
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "文字起こしを検索"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "録音中"
   }
 }

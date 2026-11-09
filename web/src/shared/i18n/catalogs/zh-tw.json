@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "沒有辨識出文字，請確認音訊裡有清晰的人聲"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "這份轉寫已刪除或字幕檔遺失"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "這個版本沒有可對齊的正文"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "上傳音訊"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "換一段音訊"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "其他任務進行中，完成後再轉寫"
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "複製全文"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "清除"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "時間"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "文字"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "沒有得到字幕時間"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "把錄音、訪談或影片裡的話轉成文字"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "錄音"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "停止並轉寫"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "放棄錄音"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "錄音 {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "返回轉寫列表"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "轉寫名稱"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "正在儲存…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "已自動儲存"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "復原"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "刪除轉寫"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "刪除「{name}」？"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "字幕和儲存的原音訊會一起刪除，無法復原。"
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "尋找"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "取代為"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "全部取代"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count} 行符合"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "已取代 {count} 處"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "找不到符合的文字"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "在游標處拆分"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "把游標放在要拆開的位置，再點拆分"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "與下一行合併"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "刪除這一行"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "第 {n} 行字幕"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "正在讀取字幕…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "上傳音訊或影片，語音辨識模型 Qwen3 ASR 會辨識出文字和逐詞時間，可匯出 SRT / WebVTT 字幕。最長 1 小時、20 MB。"
+    "defaultMessage": "上傳音訊或影片，或直接錄音，語音辨識模型 Qwen3 ASR 會辨識出文字和逐詞時間。轉寫會儲存下來，可以編輯字幕後匯出 SRT / WebVTT。最長 1 小時、20 MB。"
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "匯入本機模型"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "{date} 更新前"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "「{name}」的更多操作"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "重新命名"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "重新命名轉寫"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "匯出字幕"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "尋找與取代"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter 在游標處拆分，行首退格與上一行合併"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "轉寫需要語音辨識模型 Qwen3 ASR，下載後即可上傳音訊或錄音。"
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "搜尋轉寫"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "正在錄音"
   }
 }

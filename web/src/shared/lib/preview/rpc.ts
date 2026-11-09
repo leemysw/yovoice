@@ -1,7 +1,7 @@
 import catalogFile from '@internal/catalog/catalog.json';
 import aiPresets from '@internal/llm/presets.json';
 import audited from '@internal/desktop/audited.json';
-import { performanceSettings, newId, type Draft, type State, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type Activity, type LocalAPIStatus, type LogFilter, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile, type MessageCode } from '../../workbench';
+import { performanceSettings, newId, type Draft, type State, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type Activity, type LocalAPIStatus, type LogFilter, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile, type MessageCode, type TranscriptCaption, type TranscriptContent } from '../../workbench';
 import { download } from '../client';
 import { CallError } from '../call-error';
 import { encodeError, previewExportLogs, previewLog, previewQueryLogs } from '../preview-logs';
@@ -198,17 +198,49 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     state.history = state.history.map(v => v.id === item.id ? { ...v, textWords } : v);
     publish(); return true as T;
   }
+  // 转写记录与桌面端一样长期保存：记录在状态里，字幕文件存进 IndexedDB；预览不上传音频，没有原音频可试听。
   if (method === 'speech.transcribe') {
     if (!state.models.some(m => m.id.startsWith('qwen3-asr-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
-    const name = String((data as { name?: string }).name ?? '').replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '');
+    const name = String((data as { name?: string }).name ?? '').replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '').slice(0, 100);
     const text = '浏览器预览不运行识别模型。这是模拟的转写文字，用来演示字幕分行和导出！';
     const words = (text.match(/\p{Script=Han}/gu) ?? []).map((word, i) => ({ word, start: +(i * .3).toFixed(3), end: +(i * .3 + .25).toFixed(3) }));
-    state.transcript = { id: newId(), name, text, language: 'Chinese', words, duration: +(words.length * .3).toFixed(3), createdAt: new Date().toISOString() };
+    const id = newId();
+    const content: TranscriptContent = { text, words, captions: null };
+    await blobStore(id + '.json', new Blob([JSON.stringify(content)], { type: 'application/json' }));
+    state.transcripts = [{ id, ...(name ? { name } : {}), language: 'Chinese', duration: +(words.length * .3).toFixed(3), fileName: id + '.json', excerpt: text.slice(0, 80), createdAt: new Date().toISOString() }, ...(state.transcripts ?? [])];
     publish(); return true as T;
   }
   if (method === 'transcript.dismiss') {
     if (state.transcript?.id === (data as { id: string }).id) { delete state.transcript; publish(); }
     return true as T;
+  }
+  if (method.startsWith('transcript.')) {
+    const { id, name, captions } = data as { id: string; name?: string; captions?: TranscriptCaption[] };
+    const record = state.transcripts?.find(item => item.id === id);
+    if (!record) throw new CallError('@yovoice.error.transcriptMissing');
+    const read = async () => {
+      const blob = await blobStore(record.fileName);
+      if (!blob) throw new CallError('@yovoice.error.transcriptMissing');
+      return JSON.parse(await blob.text()) as TranscriptContent;
+    };
+    if (method === 'transcript.read') return await read() as T;
+    if (method === 'transcript.save') {
+      const list = captions ?? [];
+      if (list.some((c, i) => c.start < 0 || c.end < c.start || c.end > record.duration + 1 || (i > 0 && c.start < list[i - 1].start))) throw new CallError('@yovoice.error.requestInvalid');
+      await blobStore(record.fileName, new Blob([JSON.stringify({ ...await read(), captions: list })], { type: 'application/json' }));
+      state.transcripts = state.transcripts!.map(item => item.id === id ? { ...item, excerpt: list.map(c => c.text.trim()).join('').slice(0, 80), updatedAt: new Date().toISOString() } : item);
+      publish(); return true as T;
+    }
+    if (method === 'transcript.rename') {
+      if (!name?.trim() || name.trim().length > 120) throw new CallError('@yovoice.error.nameLength');
+      state.transcripts = state.transcripts!.map(item => item.id === id ? { ...item, name: name.trim() } : item);
+      publish(); return true as T;
+    }
+    if (method === 'transcript.delete') {
+      await blobDelete(record.fileName);
+      state.transcripts = state.transcripts!.filter(item => item.id !== id);
+      publish(); return true as T;
+    }
   }
   // 参考片段挑选与音频体检在桌面端测量；预览后端不分析音频，挑选固定取开头 10 秒，体检返回已有结果。
   if (method === 'voice.suggest') {

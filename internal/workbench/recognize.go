@@ -104,8 +104,8 @@ func (w *Workbench) toolModel(s schema.State, families ...string) (schema.Instal
 // 识别和对齐都在一段里完成，段越短越稳，30 秒以内识别质量最好。
 const transcribeSeconds, transcribeChunk = 3600, 30.0
 
-// TranscribeSpeech 用语音识别模型转写上传的音频：逐段识别出文字和逐词时间，接成整段放进会话状态 Transcript，
-// 由转写页展示并导出字幕。name 是原文件名，用作导出时的默认名称。
+// TranscribeSpeech 用语音识别模型转写上传的音频：逐段识别出文字和逐词时间，接成整段保存为转写记录，
+// 由转写页编辑并导出字幕。name 是原文件名，用作记录名称与导出时的默认名称。
 func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
 	upload, e := w.receive(r)
 	if e != nil {
@@ -127,8 +127,10 @@ func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
 			return e
 		}
 	}
+	original := name
 	name = transcriptName(name)
 	_, e = w.start("generate", msg.ActivityRecognize, nil, &model.ID, func(ctx context.Context) error {
+		// 保存成功时上传的文件已移作原音频，这里的删除不会生效。
 		defer os.Remove(upload)
 		runtimeDir := filepath.Join(w.Store.Root, "runtime")
 		if e := os.MkdirAll(runtimeDir, 0700); e != nil {
@@ -188,8 +190,11 @@ func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
 			return msg.Err(msg.ErrTranscribeEmpty, nil)
 		}
 		diag.Log(w.Store.Root, "speech.transcribed", "seconds", round3(duration), "chunks", len(chunks), "chars", schema.TextLen(text), "words", len(words), "language", language)
-		result := schema.TranscriptResult{ID: schema.NewID(), Name: name, Text: text, Language: language, Words: words, Duration: round3(duration), CreatedAt: time.Now().UTC()}
-		return w.Store.Update(func(s *schema.State) { s.Transcript = &result }, false)
+		if words == nil {
+			words = []schema.LyricWord{}
+		}
+		record := schema.Transcript{ID: schema.NewID(), Name: name, Language: language, Duration: round3(duration), CreatedAt: time.Now().UTC()}
+		return w.saveTranscript(record, schema.TranscriptContent{Text: text, Words: words}, upload, original, converter == "")
 	})
 	if e == nil {
 		w.tagActivity("transcribe")
@@ -273,7 +278,7 @@ func closeScript(r rune) bool {
 	return unicode.In(r, unicode.Han, unicode.Hiragana, unicode.Katakana, unicode.Hangul) || (r >= 0x3000 && r <= 0x303f) || (r >= 0xff00 && r <= 0xffef)
 }
 
-// DismissTranscript 在界面填入识别结果后清除。
+// DismissTranscript 在界面填入声音样本的识别结果后清除。
 func (w *Workbench) DismissTranscript(id string) error {
 	return w.Store.Update(func(s *schema.State) {
 		if s.Transcript != nil && s.Transcript.ID == id {

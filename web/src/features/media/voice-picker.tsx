@@ -5,11 +5,12 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Upload, Mic, Square, Play, Pause, AudioLines, Check, Search } from 'lucide-react';
-import { call, decodeVoiceSource, importVoiceFile, mediaUrl, isMac, CallError, releaseMediaUrl, suggestVoiceSource } from '../../shared/lib/client';
+import { call, decodeVoiceSource, importVoiceFile, mediaUrl, CallError, releaseMediaUrl, suggestVoiceSource } from '../../shared/lib/client';
 import { bufferPeaks, decodeAudio, encodeWav, toBase64 } from '../../shared/lib/sound';
 import { formatCallError } from '../../shared/i18n/format';
 import { Player } from './player';
 import { VoiceExcerptEditor, type ExcerptRange } from './voice-excerpt';
+import { micError, RecordingMeter, useRecorder } from './recorder';
 import { formatTime, type Track, type Voice } from '../../shared/workbench';
 
 // 参考音频的最长时长（秒），与本地服务一致。
@@ -18,9 +19,9 @@ const maxReference = 60;
 export function VoicePicker({ voices, onClose, onSelect, adding = false }: { adding?: boolean; voices: Voice[]; onClose: () => void; onSelect: (v: Voice) => void }) {
   const t = useTranslator();
   const nameId = useId();
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const input = useRef<HTMLInputElement>(null); const recorder = useRef<MediaRecorder | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const input = useRef<HTMLInputElement>(null);
+  const recorder = useRecorder(maxReference);
+  const { stream, recording } = recorder;
   const [error, setError] = useState(''); const [showRecording, setShowRecording] = useState(false);
   const [preview, setPreview] = useState<Track | null>(null);
   const [query, setQuery] = useState('');
@@ -31,18 +32,15 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
   useEffect(() => { if (!recorded) { setRecordingURL(''); return; } const url = URL.createObjectURL(recorded); setRecordingURL(url); return () => URL.revokeObjectURL(url); }, [recorded]);
   const choose = (voice: Voice) => { if (adding) onSelect(voice); else { setSelected(voice); setCrop(null); } };
   function cancelRecording() {
-    clearTimeout(timer.current);
-    if (recorder.current) { recorder.current.onstop = null; if (recorder.current.state === 'recording') recorder.current.stop(); recorder.current.stream.getTracks().forEach(t => t.stop()); }
-    setStream(null); setRecording(false); setRecorded(null);
+    recorder.cancel(); setRecorded(null);
   }
 
   function audition(voice: Voice) {
     setPreview({ ...voice, kind: 'voices', subtitle: '', playRequest: Date.now() });
   }
-  const [recording, setRecording] = useState(false); const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [name, setName] = useState(() => t('@yovoice.voice.defaultName')); const [crop, setCrop] = useState<{ name: string; buffer: AudioBuffer; voice?: Voice; suggestion?: ExcerptRange } | null>(null);
   const [range, setRange] = useState<ExcerptRange>([0, 10]);
-  useEffect(() => () => { clearTimeout(timer.current); if (recorder.current?.state === 'recording') { recorder.current.onstop = null; recorder.current.stop(); } recorder.current?.stream.getTracks().forEach(t => t.stop()); }, []);
   // 60 秒以内的录音直接导入；更长的先选段：预先选中本地服务挑出的最清楚的一段，可调整后保存。
   async function importing(file: File) {
     setBusy(true); setError(''); setPreview(null); setCrop(null);
@@ -72,34 +70,21 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
   }
   async function record() {
     setError('');
-    if (recording) { recorder.current?.stop(); return; }
+    if (recording) { recorder.stop(); return; }
     setPreview(null); setBusy(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      let instance: MediaRecorder;
-      try { instance = new MediaRecorder(stream); } catch (e) { stream.getTracks().forEach(t => t.stop()); throw e; }
-      recorder.current = instance; const chunks: Blob[] = [];
-      instance.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
-      instance.onstop = async () => {
-        setStream(null); clearTimeout(timer.current); stream.getTracks().forEach(t => t.stop()); setRecording(false); setBusy(true);
+      await recorder.start(async audio => {
+        setBusy(true);
         try {
-          const buffer = await decodeAudio(new Blob(chunks));
+          const buffer = await decodeAudio(audio);
           if (buffer.duration < 1) throw new CallError('@yovoice.error.recordTooShort');
           setWaveform(bufferPeaks(buffer, 96, 60));
-          setRecorded(encodeWav(buffer, 0, Math.min(60, buffer.duration)));
+          setRecorded(encodeWav(buffer, 0, Math.min(maxReference, buffer.duration)));
         } catch (e) { setError(formatCallError(t, e)); } finally { setBusy(false); }
-      };
-      setRecorded(null); setPreview(null); instance.start(); setStream(stream); setRecording(true); timer.current = setTimeout(() => { if (instance.state === 'recording') instance.stop(); }, 60000);
-    } catch (e) {
-      const err = e as Error;
-      if (err.name === 'NotAllowedError') {
-        setError(t(isMac ? '@yovoice.error.micDeniedMac' : '@yovoice.error.micDeniedBrowser'));
-      } else if (err.name === 'NotFoundError') {
-        setError(t('@yovoice.error.micNotFound'));
-      } else {
-        setError(t('@yovoice.error.micFailed', { detail: err.message }));
-      }
-    } finally { setBusy(false); }
+      });
+      setRecorded(null); setPreview(null);
+    } catch (e) { setError(micError(t, e)); }
+    finally { setBusy(false); }
   }
   async function suggest() {
     if (crop?.suggestion) { setRange(crop.suggestion); return; }
@@ -126,7 +111,7 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
       <input type="file" hidden ref={input} accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={e => { const file = e.target.files?.[0]; if (file) void importing(file); e.target.value = ''; }} />
       {showRecording ? <VStack className="recording-form" gap={4}>
         <HStack className="recording-name" gap={3} vAlign="center"><label htmlFor={nameId}>{t('@yovoice.voice.recordName')}</label><TextInput id={nameId} label={t('@yovoice.voice.recordName')} isLabelHidden value={name} onChange={setName} /></HStack>
-        {stream ? <RecordingMeter stream={stream} /> : null}
+        {stream ? <RecordingMeter stream={stream} limit={maxReference} /> : null}
         {recorded ? <>
           <RecordingPlayback url={recordingURL} levels={waveform} onError={() => setError(t('@yovoice.error.audioPlayFailed'))} />
           <HStack gap={2} hAlign="end"><Button label={t('@yovoice.voice.rerecord')} isDisabled={busy} onClick={() => void record()} /><Button label={t('@yovoice.voice.saveRecording')} variant="primary" isDisabled={!name.trim()} isLoading={busy} onClick={async () => {
@@ -152,32 +137,6 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
           onSuggest={() => void suggest()} />
       </VStack> : null}
   </AppDialog>;
-}
-
-function RecordingMeter({ stream }: { stream: MediaStream }) {
-  const [seconds, setSeconds] = useState(0);
-  const [levels, setLevels] = useState<number[]>([]);
-  useEffect(() => {
-    const context = new AudioContext();
-    const analyser = context.createAnalyser();
-    analyser.fftSize = 256;
-    const source = stream.getAudioTracks().length ? context.createMediaStreamSource(stream) : null;
-    source?.connect(analyser);
-    void context.resume().catch(() => {});
-    const samples = new Uint8Array(analyser.fftSize);
-    const started = performance.now();
-    const interval = setInterval(() => {
-      analyser.getByteTimeDomainData(samples);
-      const amplitude = Math.sqrt(samples.reduce((sum, value) => sum + ((value - 128) / 128) ** 2, 0) / samples.length);
-      setLevels(previous => [...previous.slice(-63), Math.min(1, amplitude * 4)]);
-      setSeconds(Math.min(60, (performance.now() - started) / 1000));
-    }, 80);
-    return () => { clearInterval(interval); source?.disconnect(); analyser.disconnect(); void context.close(); };
-  }, [stream]);
-  return <VStack className="recording-meter" gap={3} hAlign="center">
-    <svg viewBox="0 0 256 64" preserveAspectRatio="none" aria-hidden="true">{levels.map((level, index) => <line key={index} x1={(64 - levels.length + index) * 4 + 2} x2={(64 - levels.length + index) * 4 + 2} y1={32 - Math.max(1, level * 30)} y2={32 + Math.max(1, level * 30)} />)}</svg>
-    <time role="timer">{formatTime(seconds)}</time>
-  </VStack>;
 }
 
 function RecordingPlayback({ url, levels, onError }: { url: string; levels: number[]; onError: () => void }) {

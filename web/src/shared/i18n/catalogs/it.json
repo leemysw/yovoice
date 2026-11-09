@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Nessun parlato riconosciuto. Verifica che l’audio contenga una voce chiara"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "Questa trascrizione è stata eliminata o manca il file dei sottotitoli"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "Questa versione non ha testo da allineare"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "Carica audio"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "Trascrivi un altro audio"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "È in corso un’altra attività. Trascrivi quando termina."
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "Copia testo completo"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "Cancella"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "Tempo"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "Testo"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "Nessun tempo di sottotitoli ottenuto"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "Trasforma registrazioni, interviste e video in testo"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "Registra"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "Interrompi e trascrivi"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "Scarta registrazione"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "Registrazione {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "Torna alle trascrizioni"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "Nome della trascrizione"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "Salvataggio…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "Salvato automaticamente"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "Annulla"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "Elimina trascrizione"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "Eliminare «{name}»?"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "I sottotitoli e l’audio salvato verranno eliminati. L’operazione non può essere annullata."
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "Trova"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "Sostituisci con"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "Sostituisci tutto"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count} righe corrispondenti"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "Sostituite {count} occorrenze"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "Nessun testo corrispondente"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "Dividi al cursore"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "Posiziona il cursore dove dividere la riga, poi dividi"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "Unisci con la riga successiva"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "Elimina riga"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "Riga di sottotitolo {n}"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "Caricamento sottotitoli…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Carica audio o video. Il riconoscimento vocale Qwen3 ASR produce il testo con i tempi di ogni parola, esportabile come sottotitoli SRT o WebVTT. Fino a 1 ora e 20 MB."
+    "defaultMessage": "Carica un audio o un video, oppure registra direttamente. Il riconoscitore vocale Qwen3 ASR scrive il testo con i tempi di ogni parola. Le trascrizioni vengono salvate: puoi modificare i sottotitoli ed esportarli in SRT o WebVTT. Fino a 1 ora e 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Importa modello locale"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "Prima del {date}"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "Altre azioni per {name}"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "Rinomina"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "Rinomina trascrizione"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "Esporta sottotitoli"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "Trova e sostituisci"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Invio divide al cursore; Backspace a inizio riga unisce alla riga precedente"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "La trascrizione richiede il modello di riconoscimento vocale Qwen3 ASR. Scaricalo per caricare audio o registrare."
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "Cerca trascrizioni"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "Registrazione in corso"
   }
 }

@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Речь не распознана. Убедитесь, что в записи есть отчётливый голос"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "Эта расшифровка удалена или её файл субтитров отсутствует"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "В этой версии нет текста для выравнивания"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "Загрузить аудио"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "Расшифровать другое аудио"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "Выполняется другая задача. Расшифруйте после её завершения."
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "Скопировать весь текст"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "Очистить"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "Время"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "Текст"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "Тайминг субтитров не получен"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "Превращайте записи, интервью и видео в текст"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "Записать"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "Остановить и расшифровать"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "Отменить запись"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "Запись {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "К списку расшифровок"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "Название расшифровки"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "Сохранение…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "Сохранено автоматически"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "Отменить"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "Удалить расшифровку"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "Удалить «{name}»?"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "Субтитры и сохранённое аудио будут удалены без возможности восстановления."
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "Найти"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "Заменить на"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "Заменить все"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "Совпадает строк: {count}"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "Заменено: {count}"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "Совпадений не найдено"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "Разделить по курсору"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "Поставьте курсор туда, где нужно разделить строку, затем нажмите «Разделить»"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "Объединить со следующей строкой"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "Удалить строку"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "Строка субтитров {n}"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "Загрузка субтитров…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Загрузите аудио или видео. Модель распознавания речи Qwen3 ASR выдаст текст с таймингом слов, который можно экспортировать в субтитры SRT или WebVTT. До 1 часа и 20 МБ."
+    "defaultMessage": "Загрузите аудио или видео либо запишите прямо здесь. Модель распознавания речи Qwen3 ASR запишет текст с таймингом каждого слова. Расшифровки сохраняются: субтитры можно отредактировать и экспортировать в SRT или WebVTT. До 1 часа и 20 МБ."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Импорт локальной модели"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "До обновления {date}"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "Другие действия для «{name}»"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "Переименовать"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "Переименовать расшифровку"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "Экспорт субтитров"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "Найти и заменить"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter делит строку у курсора, Backspace в начале строки объединяет с предыдущей"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "Для расшифровки нужна модель распознавания речи Qwen3 ASR. Скачайте её, чтобы загружать аудио или записывать."
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "Поиск расшифровок"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "Идёт запись"
   }
 }

@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "No speech was recognized. Make sure the audio has clear speech"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "This transcript was deleted or its subtitle file is missing"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "This version has no text to align"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "Upload audio"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "Transcribe another"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "Another task is running. Transcribe when it finishes."
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "Copy full text"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "Clear"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "Time"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "Text"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "No subtitle timing was produced"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "Turn recordings, interviews and videos into text"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "Record"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "Stop and transcribe"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "Discard recording"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "Recording {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "Back to transcripts"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "Transcript name"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "Saving…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "Saved automatically"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "Undo"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "Delete transcript"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "Delete “{name}”?"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "The subtitles and the saved audio will be deleted. This can’t be undone."
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "Find"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "Replace with"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "Replace all"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count} matching lines"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "Replaced {count} matches"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "No matching text found"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "Split at cursor"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "Place the cursor where the line should break, then split"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "Merge with next line"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "Delete line"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "Subtitle line {n}"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "Loading subtitles…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Upload audio or video. The Qwen3 ASR speech recognizer writes out the text with word timing, ready to export as SRT or WebVTT subtitles. Up to 1 hour and 20 MB."
+    "defaultMessage": "Upload audio or video, or record directly. The Qwen3 ASR speech recognizer writes out the text with word timing. Transcripts are saved, so you can edit the subtitles and export SRT or WebVTT. Up to 1 hour and 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Import local model"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "Before {date} update"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "More actions for {name}"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "Rename"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "Rename transcript"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "Export captions"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "Find and replace"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter splits at the cursor; Backspace at the start joins the line above"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "Transcription needs the Qwen3 ASR speech recognition model. Download it to upload audio or record."
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "Search transcripts"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "Recording"
   }
 }

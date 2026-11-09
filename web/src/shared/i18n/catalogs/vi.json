@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Không nhận ra lời nói nào. Hãy kiểm tra âm thanh có giọng nói rõ ràng"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "Bản chép lời này đã bị xóa hoặc thiếu tệp phụ đề"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "Phiên bản này không có văn bản để căn"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "Tải âm thanh lên"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "Chép lời âm thanh khác"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "Đang có tác vụ khác. Hãy chép lời khi tác vụ đó xong."
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "Sao chép toàn bộ văn bản"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "Xóa"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "Thời gian"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "Văn bản"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "Không có thời gian phụ đề"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "Chuyển lời nói trong bản ghi âm, phỏng vấn, video thành văn bản"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "Ghi âm"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "Dừng và chép lời"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "Bỏ bản ghi âm"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "Ghi âm {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "Quay lại danh sách bản chép lời"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "Tên bản chép lời"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "Đang lưu…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "Đã tự động lưu"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "Hoàn tác"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "Xóa bản chép lời"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "Xóa “{name}”?"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "Phụ đề và âm thanh đã lưu sẽ bị xóa và không thể khôi phục."
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "Tìm"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "Thay bằng"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "Thay tất cả"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count} dòng khớp"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "Đã thay {count} chỗ"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "Không tìm thấy văn bản khớp"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "Tách tại con trỏ"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "Đặt con trỏ ở chỗ muốn tách dòng rồi bấm tách"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "Gộp với dòng tiếp theo"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "Xóa dòng"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "Dòng phụ đề {n}"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "Đang tải phụ đề…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Tải âm thanh hoặc video lên. Mô hình nhận dạng giọng nói Qwen3 ASR sẽ chép ra văn bản kèm thời gian từng từ, có thể xuất phụ đề SRT / WebVTT. Tối đa 1 giờ và 20 MB."
+    "defaultMessage": "Tải lên âm thanh hoặc video, hoặc ghi âm trực tiếp. Mô hình nhận dạng giọng nói Qwen3 ASR sẽ viết ra văn bản kèm thời gian từng từ. Bản chép lời được lưu lại, bạn có thể sửa phụ đề rồi xuất SRT hoặc WebVTT. Tối đa 1 giờ và 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Nhập mô hình cục bộ"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "Trước {date}"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "Thao tác khác cho {name}"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "Đổi tên"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "Đổi tên bản chép lời"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "Xuất phụ đề"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "Tìm và thay thế"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter để tách tại con trỏ; Backspace ở đầu dòng để nối với dòng trên"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "Chép lời cần mô hình nhận dạng giọng nói Qwen3 ASR. Tải về để tải âm thanh lên hoặc ghi âm."
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "Tìm bản chép lời"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "Đang ghi âm"
   }
 }

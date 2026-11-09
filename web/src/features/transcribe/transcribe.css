@@ -1,9 +1,48 @@
 @layer app {
-  /* 语音转写页：结果表格占满剩余高度，表头吸顶；时间列用等宽数字。 */
-  .transcribe-page { height: 100%; min-height: 0; }
-  .transcribe-result { flex: 1; min-height: 0; }
-  .transcribe-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .transcribe-table { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
-  .transcribe-table thead th { position: sticky; top: 0; z-index: 1; background: var(--color-background-surface, var(--app-surface)); }
-  .transcribe-time { font-variant-numeric: tabular-nums; color: var(--app-muted); white-space: nowrap; }
+  /* 语音转写页：列表沿用作品库的票根；录音与识别进度在原地居中显示。 */
+  .transcribe-page { flex: 1; min-height: 0; }
+  /* 进行中的票根：录音时封面的麦克风脉动、电平横排；识别时声波环转动，卡片与进度条上有流光扫过。 */
+  .transcribe-task .recording-meter { flex-direction: row; align-items: center; gap: var(--spacing-3); width: 100%; }
+  .transcribe-task .recording-meter svg { flex: 1; min-width: 0; height: var(--spacing-8); }
+  .transcribe-task .recording-meter time { font-size: var(--font-size-lg); }
+  .ticket-cover.is-recording .empty-ring-mark { color: var(--color-text-red); animation: transcribe-pulse 1.2s ease-in-out infinite alternate; }
+  .ticket-cover.is-working .wave-ring-bars { animation: record-spin 8s linear infinite; }
+  .transcribe-task.is-working .ticket-main { background-image: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--app-white) 70%, transparent) 50%, transparent 70%); background-size: 250% 100%; background-repeat: no-repeat; animation: transcribe-sheen 2.4s ease-in-out infinite; }
+  .transcribe-progress { position: relative; width: 100%; height: var(--spacing-1); border-radius: var(--radius-full); background: var(--color-border); overflow: hidden; }
+  /* 进度按已识别的分段推进，还没有分段数时至少露出一截，流光照常流动。 */
+  .transcribe-progress-fill { width: max(var(--spacing-8), calc(var(--progress, 0) * 100%)); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--app-ink) 0%, var(--app-muted) 50%, var(--app-ink) 100%); background-size: 200% 100%; animation: transcribe-flow 1.6s linear infinite; transition: width var(--duration-medium) var(--ease-standard); }
+  @keyframes transcribe-sheen { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+  @keyframes transcribe-flow { from { background-position: 200% 0; } to { background-position: 0 0; } }
+  @keyframes transcribe-pulse { from { scale: 1; } to { scale: 1.12; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ticket-cover.is-recording .empty-ring-mark, .transcribe-task.is-working .ticket-main, .transcribe-progress-fill { animation: none; transition: none; }
+  }
+  /* 出错提示只占已有的一行：单行省略，空时也保留行高。 */
+  .transcribe-note { min-height: calc(var(--app-small-font) * 1.5); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-red); font-size: var(--app-small-font); }
+  .transcribe-actions { min-width: 0; }
+  .transcribe-actions .transcribe-note { max-width: calc(var(--spacing-10) * 8); }
+
+  /* 字幕编辑：标题单行省略；正文是一列连续的文字，行首是时间，悬停一行才显示行操作。 */
+  .transcribe-editor { overflow-y: auto; overscroll-behavior: contain; }
+  .transcribe-title { min-width: 0; }
+  .transcribe-title h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* 元信息行固定一行：摘要不缩，提示与快捷键说明放不下时省略，窄窗口隐去快捷键说明。 */
+  .transcribe-meta { min-height: calc(var(--app-small-font) * 1.5); color: var(--app-muted); font-size: var(--app-small-font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .transcribe-summary { flex-shrink: 0; }
+  .transcribe-message, .transcribe-hint { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .transcribe-message[data-tone="danger"] { color: var(--color-text-red); }
+  .transcribe-hint { flex-basis: 0; text-align: end; }
+  @media (max-width: 900px) { .transcribe-hint { display: none; } }
+  .transcribe-lines > * { flex-shrink: 0; }
+  .transcribe-empty { padding-block: var(--spacing-8); text-align: center; color: var(--app-muted); }
+  .transcribe-line { position: relative; padding: var(--spacing-1) var(--spacing-2); margin-inline: calc(-1 * var(--spacing-2)); border-radius: var(--radius-inner); }
+  .transcribe-line:hover, .transcribe-line:focus-within, .transcribe-line[data-playing="true"] { background: var(--color-overlay-hover); }
+  .transcribe-text { min-width: 0; }
+  .transcribe-time { flex-shrink: 0; min-width: calc(var(--spacing-10) * 1.75); justify-content: flex-start; font-variant-numeric: tabular-nums; color: var(--app-muted); white-space: nowrap; }
+  small.transcribe-time { padding-block: calc((var(--app-editor-font) * 1.9 - var(--app-small-font) * 1.5) / 2); }
+  .transcribe-line .astryx-button.transcribe-time { margin-top: calc((var(--app-editor-font) * 1.9 - var(--spacing-8)) / 2); }
+  .transcribe-line-actions { flex-shrink: 0; opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); margin-top: calc((var(--app-editor-font) * 1.9 - var(--spacing-8)) / 2); }
+  .transcribe-line:hover .transcribe-line-actions, .transcribe-line:focus-within .transcribe-line-actions { opacity: 1; }
+  @media (hover: none) { .transcribe-line-actions { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .transcribe-line-actions { transition: none; } }
 }

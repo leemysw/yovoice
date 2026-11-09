@@ -48,7 +48,7 @@ const MusicEditor = lazy(() => import('../features/music/music-editor').then(mod
 const ScoreEditor = lazy(() => import('../features/score/score-editor').then(module => ({ default: module.ScoreEditor })));
 const ScoreDock = lazy(() => import('../features/score/score-arrangement').then(module => ({ default: module.ScoreDock })));
 const TimelineEditor = lazy(() => import('../features/media/timeline-editor').then(module => ({ default: module.TimelineEditor })));
-// 语音转写页带表格组件，打开时再加载。
+// 语音转写页带字幕编辑，打开时再加载。
 const TranscribePage = lazy(() => import('../features/transcribe/transcribe-page').then(module => ({ default: module.TranscribePage })));
 // 分轨工作台（分轨与转 MIDI 的结果）按需加载。
 const StemStudio = lazy(() => import('../features/music/stem-studio').then(module => ({ default: module.StemStudio })));

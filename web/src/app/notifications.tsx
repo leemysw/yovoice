@@ -8,6 +8,10 @@ import { formatActivity, formatActivityError, formatNotice } from '../shared/i18
 import { readLocal, writeLocal } from '../shared/lib/local-store';
 import { withViewTransition } from '../shared/lib/view-transition';
 
+// 只有下载类进度的 received / total 是字节数；转写、对齐、渲染等任务报的是段数，进度条照常显示，不标字节。
+// 语音转写页在列表里自己显示进行中的转写，停在这一页时不再弹出全局进度条。
+const byteCodes: string[] = ['@yovoice.activity.downloading', '@yovoice.activity.runtimeDownload'];
+
 function NoticeText({ error, activity }: { error: string; activity: Activity | null | undefined }) {
   const t = useTranslator();
   if (error) return <>{formatNotice(t, error)}</>;
@@ -46,7 +50,7 @@ export function Notifications({ error, clearError, activity, modelActivity, draf
   return <VStack className="notifications" gap={2}>
       {modelFailed && !error ? <HStack className="notice" role="alert" gap={3} hAlign="between" vAlign="center"><CircleAlert className="notice-icon" aria-hidden /><p className="grow"><NoticeText error="" activity={modelActivity} /></p><Button label={t('@yovoice.action.closeNotice')} size="sm" variant="ghost" isIconOnly icon={<X size={16} />} onClick={() => withViewTransition(() => dismissModel(modelKey), 'notice')} /></HStack> : null}
       {error || (activity?.status === 'failed' && !activity.characterId && !['recognize', 'transcribe', 'caption'].includes(activity.task ?? '') && (!activity.projectId || activity.projectId === draftId) && page === 'create' && activityKey !== dismissedActivity) ? <HStack className="notice" role="alert" gap={3} hAlign="between" vAlign="center"><CircleAlert className="notice-icon" aria-hidden /><p className="grow"><NoticeText error={error} activity={activity} /></p><Button label={t('@yovoice.action.closeNotice')} size="sm" variant="ghost" isIconOnly icon={<X size={16} />} onClick={() => withViewTransition(() => { clearError(); if (activity?.status === 'failed') { setDismissedActivity(activityKey); writeLocal('yovoice-dismissed-task', activityKey); } }, 'notice')} /></HStack> : null}
-      {busy && activity && !['download', 'generate'].includes(activity.kind) ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><HStack hAlign="between"><ActivityLabel activity={activity} />{activity.total > 0 ? <small>{formatBytes(activity.received)} / {formatBytes(activity.total)}</small> : null}</HStack><progress value={activity.total > 0 ? activity.received : undefined} max={activity.total || 1} /></VStack><Button label={activity.kind === 'download' ? t('@yovoice.action.pause') : t('@yovoice.action.cancel')} size="sm" onClick={cancel} /></HStack> : null}
+      {busy && activity && !['download', 'generate'].includes(activity.kind) && !(page === 'transcribe' && activity.task === 'transcribe') ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><HStack hAlign="between"><ActivityLabel activity={activity} />{activity.total > 0 && byteCodes.includes(activity.code) ? <small>{formatBytes(activity.received)} / {formatBytes(activity.total)}</small> : null}</HStack><progress value={activity.total > 0 ? activity.received : undefined} max={activity.total || 1} /></VStack><Button label={activity.kind === 'download' ? t('@yovoice.action.pause') : t('@yovoice.action.cancel')} size="sm" onClick={cancel} /></HStack> : null}
       {modelActivity?.status === 'running' && modelActivity.kind === 'import' ? <HStack className="activity" role="status" gap={3} vAlign="center"><VStack className="grow" gap={2}><ActivityLabel activity={modelActivity} /><progress max={1} /></VStack><Button label={t('@yovoice.action.cancel')} size="sm" onClick={cancelModel} /></HStack> : null}
       {aiTask && aiTask.kind !== 'cast' && aiTask.status !== 'cancelled' && (page !== 'create' || aiTask.projectId !== draftId) ? <AITaskNotice task={aiTask} title={aiTitle} open={openAITask} /> : null}
       {children}

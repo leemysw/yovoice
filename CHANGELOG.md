@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+### English
+
+- On Windows, custom data folders with Chinese characters in their paths are now read correctly at startup.
+- On macOS, “Style from image” now lets you choose PNG, JPEG and WebP images. Other file pickers also use the formats accepted by each import action.
+- Transcripts are now saved and listed like your other work. Open one to edit the subtitles as plain text: Enter splits at the cursor, Backspace at the start of a line joins it to the line above. You can also find and replace, undo, and play a line from the original audio, and changes save automatically. You can also record directly on the Transcribe page.
+- The progress bar for transcription, lyric alignment, rendering and similar tasks no longer shows step counts as file sizes (such as “4 B / 11 B”).
+
+### 简体中文
+
+- 修复 Windows 启动时可能把含中文的自定义数据目录误报为不存在的问题。
+- 修复 macOS「看图取风格」无法选择 PNG、JPEG 和 WebP 图片的问题，其他导入窗口也按各自支持的格式筛选文件。
+- 语音转写的结果会保存下来，像作品一样列出。打开后像改文档一样编辑字幕：回车在光标处拆分，行首退格与上一行合并，也可以查找替换、撤销，点时间试听原音频，改动自动保存；转写页也可以直接录音。
+- 修复语音转写、歌词对齐、渲染等任务的进度条把段数显示成文件大小（如“4 B / 11 B”）的问题。
+
 ## [0.6.0] - 2026-11-09
 
 ### English
