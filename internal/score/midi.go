@@ -106,6 +106,27 @@ type midiNote struct {
 	start, end                      int
 }
 
+// midiRole 按 GM 音色族给导入的声部定角色，渲染时据此定电平：人声与合成主音是主旋律（比伴奏高 3 dB），
+// 贝斯、钢琴、弦乐和铺底各归其位，其余仍是 other。转为 MIDI 的人声旋律以前和伴奏同一电平，
+// 加上合唱音色起音慢，混在吉他、贝斯里几乎听不出来。
+func midiRole(program int, drums bool) string {
+	switch {
+	case drums:
+		return "drums"
+	case program <= 7:
+		return "piano"
+	case program >= 32 && program <= 39:
+		return "bass"
+	case program >= 40 && program <= 45, program >= 48 && program <= 51:
+		return "strings"
+	case program >= 52 && program <= 54, program >= 80 && program <= 87:
+		return "melody"
+	case program >= 88 && program <= 95:
+		return "pad"
+	}
+	return "other"
+}
+
 // FromMIDI 读取类型 0/1 的标准 MIDI 文件：按“轨道 × 通道”拆分声部，速度取第一个速度事件，
 // 后续速度变化忽略；拍号取第一个拍号事件。
 func FromMIDI(data []byte) (schema.Score, error) {
@@ -251,10 +272,7 @@ func FromMIDI(data []byte) (schema.Score, error) {
 				name = fmt.Sprintf("Track %d", len(s.Tracks)+1)
 			}
 			drums := n.channel == 9
-			role := "other"
-			if drums {
-				role = "drums"
-			}
+			role := midiRole(programs[key], drums)
 			at = len(s.Tracks)
 			index[key] = at
 			s.Tracks = append(s.Tracks, schema.ScoreTrack{ID: fmt.Sprintf("t%d", at+1), Name: string([]rune(name)[:min(40, len([]rune(name)))]), Role: role, Program: programs[key], Drums: drums})

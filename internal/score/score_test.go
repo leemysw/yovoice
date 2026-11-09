@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 	"yovoice/internal/audio"
 	"yovoice/internal/msg"
@@ -174,4 +176,27 @@ func rms(v []float32) float64 {
 		sum += float64(x) * float64(x)
 	}
 	return math.Sqrt(sum / float64(len(v)))
+}
+
+// 导入的声部按 GM 音色族定角色：转为 MIDI 的人声旋律是主旋律，渲染时不再和伴奏同一电平而被盖住。
+func TestMIDIRolesFollowProgram(t *testing.T) {
+	s := sample()
+	base := s.Tracks[0]
+	s.Tracks = nil
+	for i, program := range []int{52, 33, 24, 89, 0} {
+		track := base
+		track.ID, track.Name, track.Role, track.Program = fmt.Sprintf("t%d", i), fmt.Sprintf("p%d", program), "other", program
+		s.Tracks = append(s.Tracks, track)
+	}
+	data, err := MIDI(s)
+	testkit.Must(t, err)
+	back, err := FromMIDI(data)
+	testkit.Must(t, err)
+	var roles []string
+	for _, track := range back.Tracks {
+		roles = append(roles, track.Role)
+	}
+	if want := []string{"melody", "bass", "other", "pad", "piano"}; !slices.Equal(roles, want) {
+		t.Fatal(roles)
+	}
 }
