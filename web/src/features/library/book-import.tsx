@@ -22,7 +22,7 @@ const unknownKey = '@unknown';
 
 /**
  * 导入小说 / 有声书：选章节 → 分角色与选角 → 每章生成一个故事作品。
- * 规则识别离线完成；配置了 AI 服务时可让 AI 补全说话人和角色特征，并按特征从声音库选角。
+ * 规则识别离线完成；配置了 AI 服务时可让 AI 补全说话人和角色特征，并按特征从我的声音选角。
  */
 export function BookImport({ state, modelId, configureAI, create, onError }: {
   state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[], saved: Set<string>) => Promise<void>; onError: (error: string) => void;

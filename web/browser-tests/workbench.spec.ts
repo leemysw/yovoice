@@ -140,7 +140,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await page.getByRole('button', { name: '使用所选参考音频', exact: true }).click();
   await expect(page.getByRole('button', { name: '测试音色 · 裁剪', exact: true })).toBeVisible();
   expect(await playingAudio!.evaluate((element: HTMLAudioElement) => element.paused)).toBe(true);
-  await page.getByRole('button', { name: '声音库', exact: true }).click();
+  await page.getByRole('button', { name: '我的声音', exact: true }).click();
   await page.getByRole('tab', { name: '参考音频', exact: true }).click();
   await expect(page.locator('footer.player')).toBeHidden();
   await page.getByRole('button', { name: '添加参考音频', exact: true }).click();
@@ -151,7 +151,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '新增音色', exact: true })).toBeVisible();
   await page.locator('.recent-projects .project-link').first().click();
   await expect(page.getByRole('button', { name: '测试音色 · 裁剪', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '声音库', exact: true }).click();
+  await page.getByRole('button', { name: '我的声音', exact: true }).click();
   await page.getByRole('tab', { name: '参考音频', exact: true }).click();
 
   const entry = page.locator('.library-entry').filter({ has: page.getByRole('heading', { name: '测试音色', exact: true }) });
@@ -278,7 +278,7 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await rows.first().getByRole('button', { name: `删除音频${draft.title}`, exact: true }).click();
   await page.getByRole('button', { name: '取消', exact: true }).click();
   await expect(rows).toHaveCount(3);
-  // 生成结果连同当时的参数一起存为角色：角色编辑器带着名称、模型和语速打开，保存后进入声音库。
+  // 生成结果连同当时的参数一起存为角色：角色编辑器带着名称、模型和语速打开，保存后进入我的声音。
   await rows.nth(1).getByRole('button', { name: '音频操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '保存为角色', exact: true }).click();
   await expect(page.getByRole('textbox', { name: '角色名称' })).toHaveValue(draft.title);

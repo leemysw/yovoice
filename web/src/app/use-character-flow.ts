@@ -4,7 +4,7 @@ import { createDraft, newId, synthesisSettings, type Character, type Draft, type
 import type { DraftSession } from './use-draft-session';
 import type { StoryCueEditing } from './use-story-cue-editing';
 
-// 角色（声音）编辑流程：从检查器、历史版本或声音库进入角色编辑器，保存后回到来源页，并把角色套用到当前作品或指定作品的说话人。
+// 角色（声音）编辑流程：从检查器、历史版本或我的声音进入角色编辑器，保存后回到来源页，并把角色套用到当前作品或指定作品的说话人。
 export function useCharacterFlow({ t, state, page, setPage, session, newDraft, projectList, cues }: {
   t: TranslatorFn; state: State; page: string; setPage: (page: string) => void;
   session: Pick<DraftSession, 'draft' | 'setDraft' | 'change' | 'persistDraft'>;
@@ -33,7 +33,7 @@ export function useCharacterFlow({ t, state, page, setPage, session, newDraft, p
     const defaults = createDraft(false, state.preferences.uiLocale);
     editCharacter({ id: newId(), name: t('@yovoice.library.newVoice'), settings: synthesisSettings({ ...defaults, modelId: state.models.find(m => m.id.startsWith('omnivoice-'))?.id ?? 'omnivoice-q8', voiceMode: 'design' }), demoText: t('@yovoice.character.example') });
   };
-  // 声音库里点「套用」后弹出的目标作品选择。
+  // 我的声音里点「套用」后弹出的目标作品选择。
   const [voiceTarget, setVoiceTarget] = useState<Character | null>(null);
   async function applyToTarget(voice: Character, draftId: string, speakerId: string) {
     const source = draftId === 'new' ? { ...createDraft(false, state.preferences.uiLocale), kind: 'text' as const } : projectList.find(d => d.id === draftId);

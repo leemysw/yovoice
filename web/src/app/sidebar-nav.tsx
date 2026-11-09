@@ -10,7 +10,7 @@ import { UpdateSidebarCard } from '../features/update/update-notice';
 import { ModelUpdateSidebarCard } from '../features/settings/model-update-card';
 import { readLocal, writeLocal } from '../shared/lib/local-store';
 
-// 侧栏：新建入口、作品类型、声音库、语音转写、最近作品、创作助手与设置。
+// 侧栏：新建入口、语音生成、语音转写、故事配音、音乐生成、我的声音、最近作品、创作助手与设置。
 export function SidebarNav(props: {
   page: string;
   setPage: (id: string) => void;
@@ -29,7 +29,7 @@ export function SidebarNav(props: {
   const [recentOpen, setRecentOpen] = useState(() => readLocal('yovoice-recent-open') !== 'false');
   const projectActive = page === 'create' || page === 'history';
   // 选中底块：一个独立的块放到当前入口下面，换页时从上一个入口滑过去（样式见 app/motion.css）。
-  // 位置每次渲染后测量；侧栏宽度或窗口变化时也重新测量。没有选中入口（如声音库的参考音频页）时淡出。
+  // 位置每次渲染后测量；侧栏宽度或窗口变化时也重新测量。没有选中入口（如我的声音的参考音频页）时淡出。
   const nav = useRef<HTMLElement>(null);
   const indicator = useRef<HTMLElement>(null);
   const place = useRef(() => {});
@@ -58,14 +58,15 @@ export function SidebarNav(props: {
     <StackItem ref={indicator} as="span" className="sidebar-indicator" aria-hidden />
     {newDraft}
     <VStack className="sidebar-destinations" gap={2}>
-      {(['text', 'story', 'music'] as const).filter(kind => kind === 'text' || !featureHidden(state.preferences, kind)).map(kind => {
+      {/* 顺序：语音生成、语音转写（同属语音）、故事配音、音乐生成，最后是我的声音。 */}
+      {(['text', 'transcribe', 'story', 'music'] as const).filter(kind => kind === 'text' || !featureHidden(state.preferences, kind)).map(kind => {
+        if (kind === 'transcribe') return <Button key={kind} data-testid="nav-transcribe" label={t('@yovoice.nav.transcribe')} variant="ghost" icon={<Captions />} className={`nav-item ${page === 'transcribe' ? 'selected' : ''}`} aria-current={page === 'transcribe' ? 'page' : undefined} onClick={() => setPage('transcribe')} />;
         // 编曲与音效并入音乐生成：三类作品都高亮「音乐生成」。
         const group = (k: string) => k === 'score' || k === 'sfx' ? 'music' : k;
         const selected = group(page) === kind || (projectActive && group(projectKind(draft)) === kind);
         return <Button key={kind} data-testid={`nav-${kind}`} label={t(`@yovoice.project.${kind}`)} variant="ghost" icon={kind === 'text' ? <Mic /> : kind === 'story' ? <Pencil /> : <Music />} className={`nav-item ${selected ? 'selected' : ''}`} aria-current={selected ? 'page' : undefined} onClick={() => setPage(kind)} />;
       })}
       <Button data-testid="nav-characters" label={t('@yovoice.nav.characters')} variant="ghost" icon={<AudioLines />} className={`nav-item ${page === 'characters' || page === 'voices' ? 'selected' : ''}`} aria-current={page === 'characters' || page === 'voices' ? 'page' : undefined} onClick={() => setPage('characters')} />
-      {featureHidden(state.preferences, 'transcribe') ? null : <Button data-testid="nav-transcribe" label={t('@yovoice.nav.transcribe')} variant="ghost" icon={<Captions />} className={`nav-item ${page === 'transcribe' ? 'selected' : ''}`} aria-current={page === 'transcribe' ? 'page' : undefined} onClick={() => setPage('transcribe')} />}
     </VStack>
     <details className="recent-projects" open={recentOpen}>
       <summary onClick={event => { event.preventDefault(); const open = !recentOpen; setRecentOpen(open); writeLocal('yovoice-recent-open', String(open)); }}><ChevronRight aria-hidden />{t('@yovoice.nav.recent')}</summary>

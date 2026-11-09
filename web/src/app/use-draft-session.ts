@@ -11,7 +11,7 @@ export function useDraftSession(ready: boolean, state: State, onError: (message:
   const [draft, setDraft] = useState<Draft>(() => createDraft(true));
   // 未保存过的新作品在用户首次编辑前不写入后端。
   const [draftPersisted, setDraftPersisted] = useState(true);
-  // 只有作品编辑页（含其版本记录）处于打开状态；设置、声音库和作品列表等页面不存在“当前作品”，
+  // 只有作品编辑页（含其版本记录）处于打开状态；设置、我的声音和作品列表等页面不存在“当前作品”，
   // 离开时立即保存未落盘的修改并关闭会话，原生宿主退出时也就无需补存作品。
   const [active, setActive] = useState(false);
   const [saving, setSaving] = useState(false);

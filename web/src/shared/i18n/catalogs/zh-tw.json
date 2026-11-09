@@ -651,7 +651,7 @@
     "defaultMessage": "還沒有參考音訊"
   },
   "@yovoice.library.voicesTitle": {
-    "defaultMessage": "聲音庫"
+    "defaultMessage": "我的聲音"
   },
   "@yovoice.media.delete": {
     "defaultMessage": "刪除{noun}{name}"
@@ -1350,7 +1350,7 @@
     "defaultMessage": "印地語"
   },
   "@yovoice.nav.characters": {
-    "defaultMessage": "聲音庫"
+    "defaultMessage": "我的聲音"
   },
   "@yovoice.character.create": {
     "defaultMessage": "建立角色"
@@ -1596,7 +1596,7 @@
     "defaultMessage": "新增"
   },
   "@yovoice.nav.library": {
-    "defaultMessage": "聲音庫"
+    "defaultMessage": "我的聲音"
   },
   "@yovoice.project.new": {
     "defaultMessage": "新增作品"
