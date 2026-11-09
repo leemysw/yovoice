@@ -2190,13 +2190,10 @@
     "defaultMessage": "스타일 설명과 가사로 노래와 연주곡을 생성합니다."
   },
   "@yovoice.settings.modelDesc.soundfont": {
-    "defaultMessage": "악기 128종과 드럼 키트를 갖춘 General MIDI 사운드 폰트. 균형 잡힌 음색으로 대부분의 악보에 적합합니다."
+    "defaultMessage": "128가지 악기와 드럼 킷, 균형 잡힌 음색"
   },
   "@yovoice.settings.tabAI": {
     "defaultMessage": "AI 서비스"
-  },
-  "@yovoice.ai.intro": {
-    "defaultMessage": "대규모 언어 모델을 연결하면 내장 AI 어시스턴트가 편곡에서 악보를, 음악에서 가사를 쓰고 결과를 이어서 고칠 수 있습니다."
   },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "사용자 지정 서비스"
@@ -2291,12 +2288,6 @@
   "@yovoice.settings.available": {
     "defaultMessage": "사용 가능"
   },
-  "@yovoice.settings.soundfontIntro": {
-    "defaultMessage": "악보 렌더링에 사용하는 General MIDI 사운드 폰트로, 음성 및 음악 모델과 별도로 관리됩니다."
-  },
-  "@yovoice.settings.uiLocaleHint": {
-    "defaultMessage": "즉시 적용됩니다."
-  },
   "@yovoice.settings.proxyHint": {
     "defaultMessage": "모델 및 런타임 다운로드와 AI 서비스에 사용됩니다."
   },
@@ -2373,7 +2364,7 @@
     "defaultMessage": "진단"
   },
   "@yovoice.settings.diagnosticsHint": {
-    "defaultMessage": "서비스, 추론 엔진, AI 요청 로그입니다. 문제를 보고할 때 첨부하세요."
+    "defaultMessage": "문제를 보고할 때 첨부하세요."
   },
   "@yovoice.settings.searchModels": {
     "defaultMessage": "이름, 정밀도 또는 용도 검색"
@@ -2403,7 +2394,7 @@
     "defaultMessage": "YuE2로 보컬 곡을 만들려면 가사가 필요합니다. 가사 없이 하려면 연주곡으로 바꾸세요."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "가사와 스타일로 완전한 노래나 연주곡을 생성하며, 먼저 편집 가능한 멜로디 악보를 쓸 수도 있습니다. 길이는 가사나 악보에 따라 정해집니다. CC BY-NC 4.0 라이선스로 비상업적 용도로만 사용할 수 있습니다."
+    "defaultMessage": "가사와 스타일로 곡 전체 생성, 먼저 편집 가능한 멜로디 악보 작성 · 비상업적 용도 전용"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "이 버전의 스타일과 가사 재사용"
@@ -2412,10 +2403,10 @@
     "defaultMessage": "가져오기"
   },
   "@yovoice.settings.modelDesc.soundfontGeneralUser": {
-    "defaultMessage": "피아노와 드럼이 섬세하고 악기 간 레벨 균형이 좋은 작고 깔끔한 GM/GS 사운드 폰트. 개인 및 상업용 음악에 무료로 사용할 수 있습니다."
+    "defaultMessage": "작고 깔끔하며 피아노와 드럼이 섬세함 · 상업적 사용 가능"
   },
   "@yovoice.settings.modelDesc.soundfontSgm": {
-    "defaultMessage": "피아노, 현악기, 기타, 금관 샘플이 풍부한 보다 사실적인 GM 사운드 폰트. 용량이 크고 렌더링이 느립니다. 제작자가 라이선스를 명시하지 않았으므로 상업적으로 사용하기 전에 확인하세요."
+    "defaultMessage": "더 사실적인 샘플, 용량이 크고 렌더링이 느림 · 라이선스 미표기"
   },
   "@yovoice.update.group": {
     "defaultMessage": "버전 및 업데이트"
@@ -2562,7 +2553,7 @@
     "defaultMessage": "로컬 API"
   },
   "@yovoice.settings.localApiIntro": {
-    "defaultMessage": "이 컴퓨터의 다른 앱이 HTTP 또는 MCP를 통해 yovoice로 음성을 생성할 수 있습니다. 127.0.0.1에서만 수신하므로 네트워크의 다른 기기는 접근할 수 없습니다."
+    "defaultMessage": "이 컴퓨터의 다른 앱이 HTTP나 MCP로 yovoice를 호출합니다. 로컬 전용."
   },
   "@yovoice.settings.localApiEnabled": {
     "defaultMessage": "로컬 API 사용"
@@ -2589,7 +2580,7 @@
     "defaultMessage": "액세스 토큰"
   },
   "@yovoice.settings.localApiTokenHint": {
-    "defaultMessage": "Authorization: Bearer 뒤에 이 토큰을 붙여 보내세요. 재설정하면 이전 토큰은 즉시 무효화됩니다."
+    "defaultMessage": "Authorization: Bearer로 보냅니다. 재설정하면 이전 토큰은 무효가 됩니다."
   },
   "@yovoice.settings.localApiCopy": {
     "defaultMessage": "복사"
@@ -2604,7 +2595,7 @@
     "defaultMessage": "예시"
   },
   "@yovoice.settings.localApiExampleHint": {
-    "defaultMessage": "HTTP 엔드포인트는 {url}/v1 아래에 있고 MCP는 {url}/mcp에 있습니다. YOUR_TOKEN을 위에서 복사한 토큰으로 바꾸세요."
+    "defaultMessage": "HTTP {url}/v1 · MCP {url}/mcp"
   },
   "@yovoice.error.localApiPort": {
     "defaultMessage": "1024에서 65535 사이의 포트를 사용하세요."
@@ -2643,7 +2634,7 @@
     "defaultMessage": "데이터 디렉터리"
   },
   "@yovoice.settings.storageRelocateHint": {
-    "defaultMessage": "위치를 변경하면 모든 데이터가 새 폴더로 복사됩니다. 완료되면 yovoice가 자동으로 다시 시작되어 적용되고, 이전 폴더는 삭제되어 공간이 확보됩니다."
+    "defaultMessage": "위치를 바꾸면 데이터를 새 폴더로 복사하고 다시 시작합니다."
   },
   "@yovoice.settings.storageRelocatePending": {
     "defaultMessage": "데이터가 새 위치로 복사되었습니다. 적용하려면 yovoice를 완전히 종료한 후 다시 여세요. 그 전까지는 새 변경 사항을 저장할 수 없으며, 이전 디렉터리는 다시 시작한 후 자동으로 삭제됩니다."
@@ -3153,10 +3144,10 @@
     "defaultMessage": "곡의 멜로디와 코드를 악보로 채보해 YuE2 커버에 사용합니다."
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
-    "defaultMessage": "선택 사항: 보컬을 분리하고 가사를 단어별로 노래에 맞춥니다. 단어별 가사 애니메이션과 단어별 LRC 내보내기에 사용합니다. 중국어, 영어, 일본어, 한국어 등 11개 언어를 지원합니다."
+    "defaultMessage": "가사를 노래에 단어 단위로 맞춰 가라오케 가사와 LRC에 사용 · 11개 언어"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "선택 사항: 음성 샘플에서 복제에 필요한 참조 텍스트를 만들고, 올린 오디오를 텍스트와 자막으로 받아쓰며, 생성한 음성에 자막 타이밍을 맞춥니다. 중국어, 영어, 광둥어, 일본어, 한국어 등 30개 언어를 지원합니다."
+    "defaultMessage": "음성 인식: 받아쓰기, 자막, 참조 텍스트 · 30개 언어"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "멜로디 악보로 생성"
@@ -3921,7 +3912,7 @@
     "defaultMessage": "닫기"
   },
   "@yovoice.settings.assistantIntro": {
-    "defaultMessage": "Ocho는 yovoice의 내장 어시스턴트입니다. 편집 중인 작품과 선택한 내용을 보고, 삭제·다운로드·설정 변경 전에는 꼭 확인을 받습니다."
+    "defaultMessage": "Ocho는 편집 중인 작업을 보고, 삭제·다운로드·설정 변경 전에 확인합니다."
   },
   "@yovoice.settings.assistantBehavior": {
     "defaultMessage": "동작"
@@ -3936,7 +3927,7 @@
     "defaultMessage": "기억한 취향"
   },
   "@yovoice.settings.assistantMemoryHint": {
-    "defaultMessage": "자주 쓰는 목소리나 스타일 같은 습관을 대화에서 알려 주면 Ocho가 기억하고 이후 대화에 반영합니다."
+    "defaultMessage": "채팅에서 습관을 알려 주면 Ocho가 기억합니다."
   },
   "@yovoice.settings.assistantMemoryClear": {
     "defaultMessage": "모두 지우기"
@@ -4013,9 +4004,6 @@
   "@yovoice.settings.precisionsInstalled": {
     "defaultMessage": "다운로드됨: {list}"
   },
-  "@yovoice.settings.precisionHint": {
-    "defaultMessage": "Q4/Q8은 작고 빠르며, BF16·F16·ORIG는 원래 품질에 가장 가깝습니다."
-  },
   "@yovoice.create.precision": {
     "defaultMessage": "정밀도"
   },
@@ -4023,19 +4011,19 @@
     "defaultMessage": "기능 표시"
   },
   "@yovoice.settings.featuresHint": {
-    "defaultMessage": "끄면 사이드바와 새로 만들기 메뉴에서 해당 항목이 숨겨집니다. 기존 작품과 다운로드한 모델은 그대로 유지됩니다."
+    "defaultMessage": "끄면 진입점이 숨겨지며, 작업과 모델은 유지됩니다."
   },
   "@yovoice.settings.featureStoryHint": {
     "defaultMessage": "텍스트나 자막을 가져와 캐릭터별로 한 줄씩 더빙합니다."
   },
   "@yovoice.settings.featureMusicHint": {
-    "defaultMessage": "노래, 연주곡, 편곡 생성과 관련 모델 및 사운드폰트 설정."
+    "defaultMessage": "노래, 연주곡, 편곡."
   },
   "@yovoice.settings.featureTranscribeHint": {
-    "defaultMessage": "오디오나 동영상을 업로드해 시간 정보가 있는 텍스트와 자막으로 변환합니다. 참고 원문의 “텍스트 인식”과 자막 내보내기에는 영향이 없습니다."
+    "defaultMessage": "오디오나 동영상을 텍스트와 자막으로 바꿉니다."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. 음악 생성도 끄면 AI 서비스 설정과 책의 AI 배역 지정도 함께 숨겨집니다."
+    "defaultMessage": "플로팅 어시스턴트와 제안."
   },
   "@yovoice.check.summary": {
     "defaultMessage": "오디오에 문제가 있을 수 있습니다: {issues}. 들어 보고 필요하면 다시 생성하세요."
@@ -4092,13 +4080,13 @@
     "defaultMessage": "편곡하거나 부분 재생성할 이 작품의 생성된 테이크를 선택하거나 텍스트 생성으로 돌아가세요."
   },
   "@yovoice.settings.modelDesc.stableAudio.music": {
-    "defaultMessage": "영어 설명으로 연주곡을 생성하고, 생성된 테이크를 편곡하거나 부분 재생성할 수 있습니다(최대 2분). Stability AI 커뮤니티 라이선스: 연 매출 100만 달러 미만은 무료."
+    "defaultMessage": "영어 설명으로 연주곡 생성, 리믹스·부분 재생성 지원 · 최대 2분 · Stability AI 커뮤니티 라이선스"
   },
   "@yovoice.settings.modelDesc.stableAudio.sfx": {
-    "defaultMessage": "영어 설명으로 효과음을 생성하고, 생성된 테이크를 편곡하거나 부분 재생성할 수 있습니다(최대 2분). Stability AI 커뮤니티 라이선스: 연 매출 100만 달러 미만은 무료."
+    "defaultMessage": "영어 설명으로 효과음 생성, 리믹스·부분 재생성 지원 · 최대 2분 · Stability AI 커뮤니티 라이선스"
   },
   "@yovoice.settings.modelDesc.stableAudio.medium": {
-    "defaultMessage": "더 큰 Stable Audio 3 모델로, 더 높은 품질의 연주곡과 긴 곡(약 6분 이내)을 생성하며 생성된 테이크를 편곡하거나 부분 재생성할 수 있습니다. Stability AI 커뮤니티 라이선스: 연 매출 100만 달러 미만은 무료."
+    "defaultMessage": "더 높은 품질의 연주곡, 리믹스·부분 재생성 지원 · 최대 약 6분 · Stability AI 커뮤니티 라이선스"
   },
   "@yovoice.music.editOff": {
     "defaultMessage": "텍스트로"
@@ -4203,7 +4191,7 @@
     "defaultMessage": "청크 사이 무음(초)"
   },
   "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "청크당 텍스트 토큰 수"
+    "defaultMessage": "구간별 텍스트 토큰 상한"
   },
   "@yovoice.voxtral.generalVoices": {
     "defaultMessage": "일반 음성"
@@ -4320,7 +4308,7 @@
     "defaultMessage": "로컬 모델 가져오기"
   },
   "@yovoice.settings.localModelHint": {
-    "defaultMessage": "모델과 정밀도를 선택한 뒤 audio.cpp GGUF(사운드폰트는 SF2)를 가져오세요. 여러 파일로 구성된 패키지는 기본 GGUF를 선택하고 관련 파일의 폴더 구조를 유지하세요. 파일은 이동하지 않으며 모델 제거 시 등록만 해제합니다. PyTorch/MLX 가중치는 먼저 변환해야 합니다."
+    "defaultMessage": "로컬 GGUF 파일(사운드폰트는 SF2)을 그 자리에서 사용"
   },
   "@yovoice.error.localModelInvalid": {
     "defaultMessage": "선택한 모델 계열에 맞는 audio.cpp GGUF 또는 지원되는 SF2를 선택하세요. PyTorch/MLX 가중치는 먼저 변환해야 합니다."
@@ -4356,10 +4344,10 @@
     "defaultMessage": "곡을 드럼, 베이스, 보컬, 기타, 피아노, 기타 악기 6트랙으로 분리 · 44.1 kHz 스테레오"
   },
   "@yovoice.settings.modelDesc.vocalSplit": {
-    "defaultMessage": "고품질 보컬 분리(BS-RoFormer) · 설치하면 ‘스템 분리’가 먼저 보컬을 분리한 뒤 반주를 나눠 보컬이 더 깨끗하고 번짐이 줄어듭니다"
+    "defaultMessage": "보컬 분리 · 트랙 분리 시 먼저 사용해 보컬이 더 깨끗해짐"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "곡을 여러 악기 MIDI로 변환해 편곡 화면에서 계속 편집 · 비상업적 용도 전용(CC BY-NC)"
+    "defaultMessage": "곡을 다중 악기 MIDI로 변환 · 비상업적 용도 전용"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "스템 분리"
@@ -4505,9 +4493,6 @@
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "전체 {total}초 중 {selected}초 선택. 1~60초를 남겨 주세요."
   },
-  "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "구간별 텍스트 토큰 상한"
-  },
   "@yovoice.options.text_normalization": {
     "defaultMessage": "숫자 및 기호 정규화"
   },
@@ -4518,7 +4503,7 @@
     "defaultMessage": "실행 매개변수"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "모든 모델에 적용되며, 변경하면 다음 작업에서 새 설정으로 모델을 다시 불러옵니다."
+    "defaultMessage": "모든 모델에 적용되며 다음 작업 때 다시 불러옵니다."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "생성 중 미리 듣기"
@@ -4527,7 +4512,7 @@
     "defaultMessage": "모델 세션 옵션"
   },
   "@yovoice.runtime.sessionHelp": {
-    "defaultMessage": "엔진이 모델별로 제공하는 메모리, 캐시, 정밀도 옵션입니다. 현재 엔진이 지원하는 항목만 표시되며, 잘 모르면 기본값을 유지하세요."
+    "defaultMessage": "엔진이 지원하는 항목만 표시됩니다. 잘 모르면 기본값을 유지하세요."
   },
   "@yovoice.runtime.sessionModel": {
     "defaultMessage": "모델"

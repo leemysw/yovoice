@@ -90,7 +90,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
         </VStack>
         <HStack gap={2} vAlign="center" wrap="wrap">
           {/* 未下载的模型也可以导入本机已有的文件（原地使用），作为下载旁的次要操作。 */}
-          {!ready && !downloading ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.importLocalModel')} tooltip={t('@yovoice.settings.importLocalModel')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} /> : null}
+          {!ready && !downloading ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.importLocalModel')} tooltip={t('@yovoice.settings.localModelHint')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} /> : null}
           {downloading ? <Button size="sm" label={t('@yovoice.action.pause')} icon={<Pause size={16} />} onClick={() => run(() => call('model.cancel'))} />
             : ready ? <HStack gap={1} vAlign="center">
               {update ? <Button size="sm" variant="secondary" label={t('@yovoice.settings.updateModel')} icon={<RefreshCw size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
@@ -104,7 +104,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
         <SegmentedControl size="sm" label={t('@yovoice.settings.precisionOf', { name: model.name })} value={model.id} onChange={id => setPicks(current => ({ ...current, [model.name]: id }))}>
           {group.map(item => <SegmentedControlItem onPointerEnter={overflowTitle} key={item.id} value={item.id} label={item.precision} icon={isInstalled(item) ? <CircleCheck /> : undefined} />)}
         </SegmentedControl>
-        {owned.length ? <small>{t('@yovoice.settings.precisionsInstalled', { list: owned.map(item => item.precision).join(' · ') })}</small> : <small>{t('@yovoice.settings.precisionHint')}</small>}
+        {owned.length ? <small>{t('@yovoice.settings.precisionsInstalled', { list: owned.map(item => item.precision).join(' · ') })}</small> : null}
       </HStack> : null}
       {download ? <VStack className="model-download" gap={2} role="status" aria-label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })}>
         <HStack hAlign="between" gap={3}><small>{downloadStatusLabel(t, !!downloading, download.received, model.size, download.status)}</small><small className="model-size">{formatBytes(download.received)} / {formatBytes(model.size)}</small></HStack>
@@ -113,7 +113,6 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
     </VStack>;
   };
   return <>
-    <small className="settings-intro">{t('@yovoice.settings.localModelHint')}</small>
     {installed.length ? <SettingsGroup title={`${t('@yovoice.settings.downloaded')} · ${installed.length}`} className="model-list">{installed.map(row)}</SettingsGroup> : null}
     {available.length ? <SettingsGroup title={t('@yovoice.settings.available')} className="model-list available"
       actions={available.length > 5 ? <TextInput size="sm" className="model-search" label={t('@yovoice.settings.searchModels')} isLabelHidden startIcon={<Search />} placeholder={t('@yovoice.settings.searchModels')} value={query} onChange={setQuery} width="calc(var(--spacing-10) * 6)" /> : undefined}>

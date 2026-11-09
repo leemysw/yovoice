@@ -2190,13 +2190,10 @@
     "defaultMessage": "スタイルの説明と歌詞から、歌やインストを生成します。"
   },
   "@yovoice.settings.modelDesc.soundfont": {
-    "defaultMessage": "128 種類の楽器とドラムキットを含む General MIDI サウンドフォント。バランスがよく、ほとんどの楽譜に向いています。"
+    "defaultMessage": "128 種の楽器とドラムキット、バランスの良い音色"
   },
   "@yovoice.settings.tabAI": {
     "defaultMessage": "AI サービス"
-  },
-  "@yovoice.ai.intro": {
-    "defaultMessage": "大規模言語モデルをつなぐと、内蔵の AI アシスタントがスコアで編曲を、音楽で歌詞を書き、結果をさらに修正できます。"
   },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "カスタムサービス"
@@ -2291,12 +2288,6 @@
   "@yovoice.settings.available": {
     "defaultMessage": "利用可能"
   },
-  "@yovoice.settings.soundfontIntro": {
-    "defaultMessage": "楽譜のレンダリングに使う General MIDI サウンドフォントです。音声モデルや音楽モデルとは別に管理されます。"
-  },
-  "@yovoice.settings.uiLocaleHint": {
-    "defaultMessage": "すぐに反映されます。"
-  },
   "@yovoice.settings.proxyHint": {
     "defaultMessage": "モデルやランタイムのダウンロード、AI サービスに使用されます。"
   },
@@ -2373,7 +2364,7 @@
     "defaultMessage": "診断"
   },
   "@yovoice.settings.diagnosticsHint": {
-    "defaultMessage": "サービス、推論エンジン、AI リクエストのログです。問題を報告するときに添付してください。"
+    "defaultMessage": "問題を報告するときに添付してください。"
   },
   "@yovoice.settings.searchModels": {
     "defaultMessage": "名前、精度、用途で検索"
@@ -2403,7 +2394,7 @@
     "defaultMessage": "YuE2 で歌入りの曲を作るには歌詞が必要です。歌詞なしならインストに切り替えてください。"
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "歌詞とスタイルから曲やインストを丸ごと生成し、先に編集できる旋律譜を書くこともできます。長さは歌詞や譜面で決まります。ライセンスは CC BY-NC 4.0 で、非商用利用のみです。"
+    "defaultMessage": "歌詞とスタイルから曲全体を生成、先に編集できるメロディ譜を作成 · 非商用のみ"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "このテイクのスタイルと歌詞を再利用"
@@ -2412,10 +2403,10 @@
     "defaultMessage": "読み込む"
   },
   "@yovoice.settings.modelDesc.soundfontGeneralUser": {
-    "defaultMessage": "コンパクトでクリーンな GM/GS サウンドフォント。ピアノとドラムが緻密で、楽器間の音量バランスも良好です。個人・商用の音楽制作に無料で使えます。"
+    "defaultMessage": "小さくクリア、ピアノとドラムが緻密 · 商用可"
   },
   "@yovoice.settings.modelDesc.soundfontSgm": {
-    "defaultMessage": "よりリアルな GM サウンドフォント。ピアノ、ストリングス、ギター、ブラスのサンプルが豊富ですが、サイズが大きくレンダリングも遅めです。作者がライセンスを明示していないため、商用利用前に確認してください。"
+    "defaultMessage": "よりリアルなサンプル、大きめで描画はやや遅い · ライセンス不明"
   },
   "@yovoice.update.group": {
     "defaultMessage": "バージョンとアップデート"
@@ -2562,7 +2553,7 @@
     "defaultMessage": "ローカル API"
   },
   "@yovoice.settings.localApiIntro": {
-    "defaultMessage": "このコンピューター上のほかのアプリから、HTTP または MCP で yovoice を使って音声を生成できます。127.0.0.1 でのみ待ち受けるため、ネットワーク上のほかのデバイスからはアクセスできません。"
+    "defaultMessage": "このPCの他のアプリから HTTP や MCP で yovoice を呼び出せます。ローカルのみ。"
   },
   "@yovoice.settings.localApiEnabled": {
     "defaultMessage": "ローカル API を有効にする"
@@ -2589,7 +2580,7 @@
     "defaultMessage": "アクセストークン"
   },
   "@yovoice.settings.localApiTokenHint": {
-    "defaultMessage": "Authorization: Bearer に続けてこのトークンを送信してください。リセットすると古いトークンはすぐに無効になります。"
+    "defaultMessage": "Authorization: Bearer で送信。リセットすると古いトークンは無効になります。"
   },
   "@yovoice.settings.localApiCopy": {
     "defaultMessage": "コピー"
@@ -2604,7 +2595,7 @@
     "defaultMessage": "例"
   },
   "@yovoice.settings.localApiExampleHint": {
-    "defaultMessage": "HTTP エンドポイントは {url}/v1、MCP は {url}/mcp にあります。YOUR_TOKEN を上でコピーしたトークンに置き換えてください。"
+    "defaultMessage": "HTTP {url}/v1 · MCP {url}/mcp"
   },
   "@yovoice.error.localApiPort": {
     "defaultMessage": "1024〜65535 のポートを使用してください。"
@@ -2643,7 +2634,7 @@
     "defaultMessage": "データディレクトリ"
   },
   "@yovoice.settings.storageRelocateHint": {
-    "defaultMessage": "場所を変更すると、すべてのデータが新しいフォルダーにコピーされます。完了すると yovoice が自動的に再起動して反映し、その後古いフォルダーは削除されて容量が空きます。"
+    "defaultMessage": "場所を変えるとデータを新しいフォルダーにコピーして再起動します。"
   },
   "@yovoice.settings.storageRelocatePending": {
     "defaultMessage": "データは新しい場所にコピーされました。反映するには yovoice を完全に終了して再度開いてください。それまでは新しい変更を保存できません。古いディレクトリは再起動後に自動で削除されます。"
@@ -3153,10 +3144,10 @@
     "defaultMessage": "曲のメロディとコードを譜面に書き起こし、YuE2 でのカバーに使います。"
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
-    "defaultMessage": "オプション：ボーカルを分離し、歌詞を一語ずつ歌に合わせます。逐語歌詞アニメーションと逐語 LRC の書き出しに使います。中国語・英語・日本語・韓国語など 11 言語に対応。"
+    "defaultMessage": "歌詞を歌声に一語ずつ合わせ、カラオケ歌詞と LRC に · 11 言語"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "オプション：声のサンプルからクローンに必要な参照テキストを作成し、アップロードした音声を文字と字幕に起こし、生成した音声に字幕のタイミングを合わせます。中国語・英語・広東語・日本語・韓国語など 30 言語に対応。"
+    "defaultMessage": "音声認識：文字起こし、字幕、参照テキスト · 30 言語"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "メロディ譜から生成"
@@ -3921,7 +3912,7 @@
     "defaultMessage": "閉じる"
   },
   "@yovoice.settings.assistantIntro": {
-    "defaultMessage": "Ocho は yovoice の内蔵アシスタントです。編集中の作品と選択内容を把握し、削除・ダウンロード・設定変更の前には必ず確認します。"
+    "defaultMessage": "Ocho は編集中の作品を把握し、削除・ダウンロード・設定変更の前に確認します。"
   },
   "@yovoice.settings.assistantBehavior": {
     "defaultMessage": "動作"
@@ -3936,7 +3927,7 @@
     "defaultMessage": "覚えている好み"
   },
   "@yovoice.settings.assistantMemoryHint": {
-    "defaultMessage": "よく使う声やスタイルなどの好みを会話で伝えると、Ocho が覚えて次の会話から反映します。"
+    "defaultMessage": "チャットで習慣を伝えると Ocho が覚えます。"
   },
   "@yovoice.settings.assistantMemoryClear": {
     "defaultMessage": "すべて消去"
@@ -4013,9 +4004,6 @@
   "@yovoice.settings.precisionsInstalled": {
     "defaultMessage": "ダウンロード済み：{list}"
   },
-  "@yovoice.settings.precisionHint": {
-    "defaultMessage": "Q4 / Q8 は小さく高速、BF16・F16・ORIG は元の品質に最も近くなります。"
-  },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
   },
@@ -4023,19 +4011,19 @@
     "defaultMessage": "機能の表示"
   },
   "@yovoice.settings.featuresHint": {
-    "defaultMessage": "オフにするとサイドバーと新規作成メニューから入口が隠れます。既存の作品とダウンロード済みのモデルはそのまま残ります。"
+    "defaultMessage": "オフにすると入口が非表示になります。作品とモデルは残ります。"
   },
   "@yovoice.settings.featureStoryHint": {
     "defaultMessage": "テキストや字幕を読み込み、キャラクターごとに一行ずつ吹き替えます。"
   },
   "@yovoice.settings.featureMusicHint": {
-    "defaultMessage": "歌、インスト、スコアの生成と、対応するモデルとサウンドフォントの設定。"
+    "defaultMessage": "歌、インスト、編曲。"
   },
   "@yovoice.settings.featureTranscribeHint": {
-    "defaultMessage": "音声や動画をアップロードしてタイムコード付きのテキストと字幕にします。参考テキストの「文字を認識」と字幕の書き出しには影響しません。"
+    "defaultMessage": "音声や動画を文字と字幕に変換します。"
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。音楽生成もオフにすると、AI サービスの設定と書籍の AI 配役も隠れます。"
+    "defaultMessage": "フローティングアシスタントと提案。"
   },
   "@yovoice.check.summary": {
     "defaultMessage": "音声に問題がある可能性があります：{issues}。試聴して、必要なら再生成してください。"
@@ -4092,13 +4080,13 @@
     "defaultMessage": "アレンジまたは部分再生成の元にする、この作品の生成済みテイクを選ぶか、テキスト生成に戻してください。"
   },
   "@yovoice.settings.modelDesc.stableAudio.music": {
-    "defaultMessage": "英語の説明からインスト曲を生成し、生成済みテイクのアレンジや部分再生成もできます（最長 2 分）。Stability AI コミュニティライセンス：年間収益 100 万米ドル未満は無料。"
+    "defaultMessage": "英語の説明からインストを生成、リミックスと部分再生成に対応 · 最長 2 分 · Stability AI コミュニティライセンス"
   },
   "@yovoice.settings.modelDesc.stableAudio.sfx": {
-    "defaultMessage": "英語の説明から効果音を生成し、生成済みテイクのアレンジや部分再生成もできます（最長 2 分）。Stability AI コミュニティライセンス：年間収益 100 万米ドル未満は無料。"
+    "defaultMessage": "英語の説明から効果音を生成、リミックスと部分再生成に対応 · 最長 2 分 · Stability AI コミュニティライセンス"
   },
   "@yovoice.settings.modelDesc.stableAudio.medium": {
-    "defaultMessage": "より大きな Stable Audio 3 モデル。高品質なインスト曲や長めの曲（約 6 分まで）を生成し、生成済みテイクのアレンジや部分再生成もできます。Stability AI コミュニティライセンス：年間収益 100 万米ドル未満は無料。"
+    "defaultMessage": "より高品質なインスト、リミックスと部分再生成に対応 · 最長約 6 分 · Stability AI コミュニティライセンス"
   },
   "@yovoice.music.editOff": {
     "defaultMessage": "テキストから"
@@ -4203,7 +4191,7 @@
     "defaultMessage": "チャンク間の無音（秒）"
   },
   "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "チャンクごとのテキストトークン数"
+    "defaultMessage": "セグメントごとのテキストトークン上限"
   },
   "@yovoice.voxtral.generalVoices": {
     "defaultMessage": "汎用音声"
@@ -4320,7 +4308,7 @@
     "defaultMessage": "ローカルモデルを読み込む"
   },
   "@yovoice.settings.localModelHint": {
-    "defaultMessage": "対応するモデルと精度を選び、audio.cpp の GGUF（音源は SF2）を読み込みます。複数ファイルの場合はメイン GGUF を選び、関連ファイルの配置を維持してください。元のファイルは移動せず、削除操作では登録のみ解除します。PyTorch／MLX の重みは事前に変換が必要です。"
+    "defaultMessage": "ローカルの GGUF ファイル（音色ライブラリは SF2）をその場で使用"
   },
   "@yovoice.error.localModelInvalid": {
     "defaultMessage": "選択したモデル系統に対応する audio.cpp GGUF、または対応 SF2 を選んでください。PyTorch／MLX の重みは事前に変換が必要です。"
@@ -4356,10 +4344,10 @@
     "defaultMessage": "曲をドラム、ベース、ボーカル、ギター、ピアノ、その他の 6 トラックに分離 · 44.1 kHz ステレオ"
   },
   "@yovoice.settings.modelDesc.vocalSplit": {
-    "defaultMessage": "高品質なボーカル分離（BS-RoFormer）· 導入すると「ステムを分離」でまずボーカルを分け、伴奏を分割します。ボーカルがよりクリアになり、にじみが減ります"
+    "defaultMessage": "ボーカル分離 · トラック分離で先に使い、声をクリーンに"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "曲を複数楽器の MIDI に変換し、編曲画面で編集できます · 非商用のみ（CC BY-NC）"
+    "defaultMessage": "曲をマルチ楽器の MIDI に変換 · 非商用のみ"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "ステムを分離"
@@ -4505,9 +4493,6 @@
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "全 {total} 秒のうち {selected} 秒を選択。1～60 秒を残してください。"
   },
-  "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "セグメントごとのテキストトークン上限"
-  },
   "@yovoice.options.text_normalization": {
     "defaultMessage": "数字と記号を正規化"
   },
@@ -4518,7 +4503,7 @@
     "defaultMessage": "実行パラメーター"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "すべてのモデルに適用され、変更後は次のタスクで新しい設定でモデルを再読み込みします。"
+    "defaultMessage": "すべてのモデルに適用され、次のタスクで再読み込みされます。"
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "生成しながら試聴"
@@ -4527,7 +4512,7 @@
     "defaultMessage": "モデルのセッションオプション"
   },
   "@yovoice.runtime.sessionHelp": {
-    "defaultMessage": "エンジンがモデルごとに提供するメモリ、キャッシュ、精度のオプションです。現在のエンジンが対応する項目のみ表示します。分からない場合は既定のままにしてください。"
+    "defaultMessage": "エンジンが対応する項目のみ表示。迷ったら既定のままに。"
   },
   "@yovoice.runtime.sessionModel": {
     "defaultMessage": "モデル"

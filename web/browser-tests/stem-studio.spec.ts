@@ -41,6 +41,9 @@ test('分轨工作台：原曲与各分轨并排，统一播放，静音、独�
   await page.getByRole('menuitem', { name: '打开分轨' }).click();
   const studio = page.getByRole('dialog', { name: `分轨 · ${draft.title}` });
   await expect(studio).toBeVisible();
+  // 工作台盖住整个工作区，标题栏的右侧面板开关随之隐藏，关闭后恢复。
+  const inspectorToggle = page.locator('.browser-titlebar').getByRole('button', { name: /右侧面板$/ });
+  await expect(inspectorToggle).toHaveCount(0);
   // 人声在最上，原曲是第一条参照轨。
   await expect(studio.locator('.stem-track-name')).toHaveText(['原曲', '人声', '鼓', '贝斯']);
   await expect(studio.locator('.stem-lane svg')).toHaveCount(4);
@@ -68,6 +71,7 @@ test('分轨工作台：原曲与各分轨并排，统一播放，静音、独�
 
   await studio.getByRole('button', { name: '关闭' }).click();
   await expect(studio).toHaveCount(0);
+  await expect(inspectorToggle).toBeVisible();
 });
 
 test('转 MIDI 的结果在分轨工作台逐轨试听；没装音色库时提示下载', async ({ page }) => {

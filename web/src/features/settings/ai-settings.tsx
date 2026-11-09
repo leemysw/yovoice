@@ -208,7 +208,6 @@ export function AISettings({ state, run, focus }: {
     { key: 'local', items: addable.filter(p => p.endpoint === 'local' || p.endpoint === 'custom') },
   ].filter(group => group.items.length);
   return <VStack className="settings-panel ai-panel" gap={4} id="ai-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabAI')}>
-    <small className="settings-intro">{t('@yovoice.ai.intro')}</small>
     <HStack className="ai-split" gap={0}>
       <VStack className="ai-nav" gap={4}>
         {providers.length ? <List header={<small className="ai-nav-head">{t('@yovoice.ai.added')}</small>} density="compact">
