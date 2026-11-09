@@ -1,6 +1,6 @@
 ---
 name: yovoice
-description: 使用 yovoice 本地 CLI 或远程 HTTP API／MCP 生成语音和音乐，用于配音、旁白、朗读、声音设计、音色克隆、写歌和音效；也可写乐谱渲染配乐。无需桌面 App。
+description: 使用 yovoice 本地 CLI 或远程 HTTP API／MCP 生成语音和音乐，用于配音、旁白、朗读、声音设计、音色克隆、写歌和音效；也可写乐谱渲染配乐，把音频或视频转写成字幕、把歌曲分轨或转为 MIDI。无需桌面 App。
 ---
 
 # yovoice 配音
@@ -54,6 +54,10 @@ yovoice generate --text-file narration.txt --reference voice.wav --model index-2
 ## 写歌与音效
 
 用户要一首歌、带人声的音乐或一段音效时，阅读[音乐参考](references/music.md)：用 ACE-Step、YuE2 或 Stable Audio 3 的 `generate`，`--text` 写风格，歌词单独传入。
+
+## 转写、分轨与转 MIDI
+
+用户要把录音或视频转成字幕（SRT / WebVTT / 文本）、把一首歌拆成人声和各乐器轨，或把歌曲扒成 MIDI 时，阅读[音频工具参考](references/tools.md)：分别用 `yovoice transcribe`、`yovoice separate`、`yovoice to-midi`。
 
 ## 编曲配乐
 

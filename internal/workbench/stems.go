@@ -66,36 +66,18 @@ func (w *Workbench) SeparateStems(id string, replace bool) error {
 	// 装了 BS-RoFormer（单独下载，或歌词对齐包里带的）时先用它分出人声，HTDemucs 只拆伴奏：
 	// BS-RoFormer 的人声明显比 HTDemucs 干净，人声也不再串进其他轨。
 	splitter, splitErr := w.toolModel(s, "bs_roformer", "lyric_align")
+	var vocalModel *schema.InstalledModel
+	if splitErr == nil {
+		vocalModel = &splitter
+	}
 	_, e = w.start("generate", msg.ActivitySeparateStems, nil, &model.ID, func(ctx context.Context) error {
 		dir, e := w.workDir("stems-")
 		if e != nil {
 			return e
 		}
 		defer os.RemoveAll(dir)
-		mix := filepath.Join(dir, "mix.wav")
-		if e := audio.ConvertStereo(ctx, converter, path, mix, engine.StemRate); e != nil {
-			return e
-		}
-		out := filepath.Join(dir, "out")
-		if e := os.Mkdir(out, 0700); e != nil {
-			return e
-		}
-		progress := func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }
-		input, vocals := mix, ""
-		if splitErr == nil {
-			vocals, input = filepath.Join(dir, "vocals.wav"), filepath.Join(dir, "instrumental.wav")
-			if e := w.engine.SplitVocals(ctx, *s.RuntimePath, splitter, s.Preferences.Backend, mix, vocals, input, false, progress); e != nil {
-				return e
-			}
-		}
-		stems, e := w.engine.SeparateStems(ctx, *s.RuntimePath, model, s.Preferences.Backend, input, out, progress)
+		_, out, stems, e := w.splitStems(ctx, s, model, vocalModel, converter, path, dir)
 		if e != nil {
-			return e
-		}
-		if e = ctx.Err(); e != nil {
-			return e
-		}
-		if e = completeStems(mix, out, vocals, stems); e != nil {
 			return e
 		}
 		now := time.Now()
@@ -110,9 +92,6 @@ func (w *Workbench) SeparateStems(id string, replace bool) error {
 		}()
 		var saved []schema.Generation
 		for _, stem := range stems {
-			if !slices.Contains(StemNames, stem) {
-				return msg.Err(msg.ErrEngineNoAudio, nil)
-			}
 			stemID := schema.NewID()
 			file := outputFileName(stemID, now, source.Title+" "+stem)
 			dest, e := w.Store.MediaPath("outputs", file)
@@ -152,6 +131,45 @@ func (w *Workbench) SeparateStems(id string, replace bool) error {
 		w.tagActivity("stems")
 	}
 	return e
+}
+
+// splitStems 把 path 转成 HTDemucs 要求的双声道 WAV 后分轨，结果放在 dir/out 下（每轨一个 <名称>.wav）。
+// vocals 不为空时先用它分出人声，HTDemucs 只拆伴奏；最后补齐“其他”轨，各轨相加即原曲。返回转换后的混音路径。
+func (w *Workbench) splitStems(ctx context.Context, s schema.State, model schema.InstalledModel, vocals *schema.InstalledModel, converter, path, dir string) (mix, out string, stems []string, e error) {
+	mix = filepath.Join(dir, "mix.wav")
+	if e = audio.ConvertStereo(ctx, converter, path, mix, engine.StemRate); e != nil {
+		return
+	}
+	if seconds, err := audio.Duration(mix); err != nil {
+		return "", "", nil, err
+	} else if seconds > stemSeconds {
+		return "", "", nil, msg.Err(msg.ErrAudioDuration, nil)
+	}
+	out = filepath.Join(dir, "out")
+	if e = os.Mkdir(out, 0700); e != nil {
+		return
+	}
+	progress := func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }
+	input, vocalFile := mix, ""
+	if vocals != nil {
+		vocalFile, input = filepath.Join(dir, "vocals.wav"), filepath.Join(dir, "instrumental.wav")
+		if e = w.engine.SplitVocals(ctx, *s.RuntimePath, *vocals, s.Preferences.Backend, mix, vocalFile, input, false, progress); e != nil {
+			return
+		}
+	}
+	if stems, e = w.engine.SeparateStems(ctx, *s.RuntimePath, model, s.Preferences.Backend, input, out, progress); e != nil {
+		return
+	}
+	if e = ctx.Err(); e != nil {
+		return
+	}
+	for _, stem := range stems {
+		if !slices.Contains(StemNames, stem) {
+			return "", "", nil, msg.Err(msg.ErrEngineNoAudio, nil)
+		}
+	}
+	e = completeStems(mix, out, vocalFile, stems)
+	return
 }
 
 // DeleteStems 删除一个版本的全部分轨，原版本保留；有分轨在时间线上时拒绝。

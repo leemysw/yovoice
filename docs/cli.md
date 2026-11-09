@@ -2,7 +2,7 @@
 
 English · [简体中文](cli_zh.md)
 
-Generate speech and music without opening the desktop app. The CLI supports macOS on Apple Silicon, Windows x64, and Linux x64.
+Generate speech and music, transcribe recordings, and separate songs without opening the desktop app. The CLI supports macOS on Apple Silicon, Windows x64, and Linux x64.
 
 ## Installation
 
@@ -84,6 +84,21 @@ yovoice generate --model stable-audio-3-small-sfx-q8 --text "door creaks open sl
 - YuE2 returns the score it used as `abc` in the result JSON, along with the `seed`. Edit the score and pass it back with `--abc-file FILE` to keep the melody while changing the style or one passage.
 - ACE-Step takes the singing language with `--language`; other settings, such as duration or YuE2 `cot`, use `--option`. `yovoice models list --json` lists each model's `generationOptions`.
 - The Stable Audio SFX models make sound effects; other music models make songs.
+
+## Transcribe, separate and convert to MIDI
+
+These commands take an existing audio or video file in any common format:
+
+```sh
+yovoice transcribe interview.mp4 --output interview.srt
+yovoice separate song.mp3 --output-dir stems
+yovoice to-midi song.mp3 --output song.mid
+```
+
+- `transcribe` needs `qwen3-asr-0.6b-q8`. The output extension picks the format: `.srt`, `.vtt`, `.txt` (one line per caption) or `.json` (text, word timings and caption lines). Lines are split using the Transcribe settings in the app, and the result is also saved as a transcript you can edit in the app.
+- `separate` needs `htdemucs-6stems-q8` (with `bs-roformer-q8` installed, the vocals are cleaner). It writes the mix and six stems (vocals, drums, bass, guitar, piano, other) of equal length into a new “<name> Stems” folder.
+- `to-midi` needs `muscriptor-small-f32`. Write `.mid` for multi-instrument MIDI, or `.json` for a score you can edit and render with `yovoice score render`.
+- Songs for `separate` and `to-midi` can be up to 10 minutes long.
 
 ## Score
 

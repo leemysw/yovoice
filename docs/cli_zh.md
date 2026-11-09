@@ -2,7 +2,7 @@
 
 [English](cli.md) · 简体中文
 
-无需打开桌面 App，即可通过命令行生成语音和音乐。支持 Apple Silicon macOS、Windows x64 和 Linux x64。
+无需打开桌面 App，即可通过命令行生成语音和音乐、转写录音、给歌曲分轨。支持 Apple Silicon macOS、Windows x64 和 Linux x64。
 
 ## 安装
 
@@ -84,6 +84,21 @@ yovoice generate --model stable-audio-3-small-sfx-q8 --text "door creaks open sl
 - YuE2 的结果 JSON 带有这次所用的旋律谱 `abc` 和 `seed`。改谱后用 `--abc-file FILE` 再生成，可保留旋律、只换风格或改一段。
 - ACE-Step 用 `--language` 指定演唱语言；时长、YuE2 的 `cot` 等其他设置用 `--option`，各模型的 `generationOptions` 见 `yovoice models list --json`。
 - Stable Audio 音效款生成音效，其余音乐模型生成歌曲。
+
+## 转写、分轨与转 MIDI
+
+以下命令处理已有的音频或视频，支持常见格式：
+
+```sh
+yovoice transcribe interview.mp4 --output interview.srt
+yovoice separate song.mp3 --output-dir stems
+yovoice to-midi song.mp3 --output song.mid
+```
+
+- `transcribe` 需要 `qwen3-asr-0.6b-q8`。输出扩展名决定格式：`.srt`、`.vtt`、`.txt`（每行一句）或 `.json`（原文、逐词时间与字幕行）。断句沿用 App 的语音转写设置，结果同时保存为转写记录，可在 App 中继续编辑。
+- `separate` 需要 `htdemucs-6stems-q8`（另装 `bs-roformer-q8` 时人声更干净），在新建的“<文件名> Stems”文件夹中写入原混音和人声、鼓、贝斯、吉他、钢琴、其他六轨，长度一致。
+- `to-midi` 需要 `muscriptor-small-f32`。输出 `.mid` 为多乐器 MIDI，`.json` 为编曲乐谱，可修改后用 `yovoice score render` 渲染。
+- `separate` 和 `to-midi` 接受 10 分钟以内的歌曲。
 
 ## 编曲
 
