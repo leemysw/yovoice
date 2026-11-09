@@ -1923,7 +1923,7 @@
     "defaultMessage": "연기 이름 변경"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "스타일을 1~512자로 설명하세요."
+    "defaultMessage": "스타일을 1~{max}자로 설명하세요."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "가사는 최대 4000자까지 입력할 수 있습니다."

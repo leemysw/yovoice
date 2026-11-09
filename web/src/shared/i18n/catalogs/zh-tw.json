@@ -1923,7 +1923,7 @@
     "defaultMessage": "重新命名演繹"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "請用 1–512 字描述風格。"
+    "defaultMessage": "請用 1–{max} 字描述風格。"
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "歌詞最多 4000 字。"

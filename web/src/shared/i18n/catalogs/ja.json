@@ -1923,7 +1923,7 @@
     "defaultMessage": "演技の名前を変更"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "スタイルを 1〜512 文字で記述してください。"
+    "defaultMessage": "スタイルを 1〜{max} 文字で記述してください。"
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "歌詞は 4000 文字までです。"

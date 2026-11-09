@@ -1923,7 +1923,7 @@
     "defaultMessage": "Darbietung umbenennen"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Beschreiben Sie den Stil in 1–512 Zeichen."
+    "defaultMessage": "Beschreiben Sie den Stil in 1–{max} Zeichen."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Songtexte dürfen bis zu 4000 Zeichen lang sein."

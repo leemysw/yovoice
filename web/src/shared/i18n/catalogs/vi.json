@@ -1923,7 +1923,7 @@
     "defaultMessage": "Đổi tên cách thể hiện"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Mô tả phong cách trong 1–512 ký tự."
+    "defaultMessage": "Mô tả phong cách trong 1–{max} ký tự."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Lời bài hát tối đa 4000 ký tự."

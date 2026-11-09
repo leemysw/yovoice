@@ -1923,7 +1923,7 @@
     "defaultMessage": "Renombrar interpretación"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Describe el estilo en 1 a 512 caracteres."
+    "defaultMessage": "Describe el estilo en 1 a {max} caracteres."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "La letra puede tener hasta 4000 caracteres."

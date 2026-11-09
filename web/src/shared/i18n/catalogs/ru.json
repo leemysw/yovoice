@@ -1923,7 +1923,7 @@
     "defaultMessage": "Переименовать исполнение"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Опишите стиль: от 1 до 512 символов."
+    "defaultMessage": "Опишите стиль: от 1 до {max} символов."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Текст песни — не более 4000 символов."

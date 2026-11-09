@@ -1923,7 +1923,7 @@
     "defaultMessage": "Rename performance"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Describe the style in 1–512 characters."
+    "defaultMessage": "Describe the style in 1–{max} characters."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Lyrics can be up to 4000 characters."

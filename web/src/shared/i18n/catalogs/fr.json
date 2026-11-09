@@ -1923,7 +1923,7 @@
     "defaultMessage": "Renommer l’interprétation"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Décrivez le style en 1 à 512 caractères."
+    "defaultMessage": "Décrivez le style en 1 à {max} caractères."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Les paroles peuvent comporter jusqu’à 4000 caractères."

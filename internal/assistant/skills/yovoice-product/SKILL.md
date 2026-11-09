@@ -154,7 +154,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.legacyRestore` 旧数据无法读取。
 - `error.jobMissing` 任务不存在或已过期。
 - `error.jobConflict` 任务 ID 已用于不同参数，或推理服务繁忙。
-- `error.musicStyle` 请用 1–512 字描述风格。
+- `error.musicStyle` 请用 1–{max} 字描述风格。
 - `error.musicLyrics` 歌词最多 4000 字。
 - `error.musicParams` 音乐参数超出当前模型的范围，请检查时长、速度或重绘区间。
 - `error.musicLyricsRequired` YuE2 生成带人声的歌曲需要歌词；不写歌词可以切到纯音乐。

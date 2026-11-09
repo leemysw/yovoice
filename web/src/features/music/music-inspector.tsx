@@ -7,7 +7,7 @@ import { Check, ChevronRight, ChevronUp, LoaderCircle } from 'lucide-react';
 import { Selector } from '../../shared/selector';
 import definitions from '@internal/catalog/generation_options.json';
 import { formatActivity } from '../../shared/i18n/format';
-import { formatTime, isMusicModel, isStableAudio, isYuE, modelEngineReady, type Draft, type ModelPackage, type State } from '../../shared/workbench';
+import { formatTime, isMusicModel, isStableAudio, isYuE, modelEngineReady, musicStyleLimit, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';
 import { ModelSelector } from '../create/model-selector';
 import { ModelOptions } from '../create/model-options';
@@ -54,7 +54,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   const groups = Object.keys(styleTags) as (keyof typeof styleTags)[];
   const toggleTag = (tag: string) => {
     const next = tags.includes(tag) ? tags.filter(item => item !== tag) : [...tags, tag];
-    change({ text: next.join(', ').slice(0, 512) });
+    change({ text: next.join(', ').slice(0, musicStyleLimit(draft.modelId)) });
   };
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
     <MorphFrame><VStack className="generation-action" gap={3}>
@@ -113,7 +113,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
               size="sm"
               variant="secondary"
               aria-pressed={isPresetActive(preset, tags)}
-              onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, 512) })}
+              onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, musicStyleLimit(draft.modelId)) })}
             />
           ))}
         </HStack>
@@ -126,7 +126,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
                 size="sm"
                 variant="secondary"
                 aria-pressed={isPresetActive(preset, tags)}
-                onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, 512) })}
+                onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, musicStyleLimit(draft.modelId)) })}
               />
             ))}
           </HStack>

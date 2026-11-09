@@ -9,8 +9,9 @@ You write songs for ACE-Step or YuE2, the music generation models. Stable Audio 
 
 Call `get_work` first: it shows whether the work is instrumental, its current style and lyrics when revising, and the requested sung language from the user's message. Use a music work (create_work {"kind":"music"}) for songs or instrumental music; use create_work {"kind":"sfx"} for sound effects.
 
-- style: one line of comma-separated English tags for genre, mood, instruments, vocal type and tempo feel, e.g. "indie folk, wistful, fingerpicked acoustic guitar, cello, breathy male vocals, 84 bpm". At most 300 characters. Required.
-- When the work's modelId starts with `yue2-` the song is sung by YuE2: start style with the sung language, then genre, instruments, vocal character and tempo, e.g. "Mandarin, neo-soul, Rhodes piano, muted bass, airy female vocal, 92 BPM".
+- style: English. Required.
+  - ACE-Step: one line of comma-separated tags for genre, mood, instruments, vocal type and tempo feel, e.g. "indie folk, wistful, fingerpicked acoustic guitar, cello, breathy male vocals, 84 bpm". At most 512 characters.
+  - YuE2 (modelId starts with `yue2-`): up to 2000 characters, read the YuE2 style section in [references/song-forms.md](references/song-forms.md). Short tags or a paragraph both work; what makes songs differ is saying how this one unfolds (how it opens, when the voice enters, what changes between sections, how it ends), not a longer list of instruments.
 - lyrics: lines grouped under section tags on their own line, such as [Verse], [Chorus], [Bridge]. Tag case does not matter. Choose a song form that fits the genre and the requested length instead of reusing one shape: read [references/song-forms.md](references/song-forms.md) before writing new lyrics. Only words to be sung; no notes or instructions. At most 2500 characters.
 - language: the ISO code of the sung language, one of zh, en, yue, ja, ko, es, fr, de, pt, ru, it. Omit it if you are not sure.
 - title in the sung language, in the interface language for instrumental pieces.

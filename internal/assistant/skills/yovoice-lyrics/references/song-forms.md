@@ -19,9 +19,33 @@ Pick the form from the genre, mood and length the user wants. Do not default to 
 
 Mix forms deliberately: open on the chorus, add a spoken intro, drop the bridge, end on a half-chorus, let a solo replace the second verse. Vary line counts: a verse can be 2, 4, 6 or 8 lines; a chorus 2–6.
 
+## YuE2 style: describe how the song unfolds
+
+The style is the strongest lever YuE2 has for making songs differ. The official demos range from three words (`funk`) to a 900-character paragraph; the varied ones describe the arrangement over time. Name the sung language, genre, lead vocal, core instruments and tempo, then add one to three sentences about the shape. Pick the opening deliberately instead of always "instrumental intro, then verse":
+
+- Cold open: the voice starts at once, no intro tag, e.g. `vocals enter immediately over a lone guitar`.
+- Hook first: open on the chorus or a sung hook, then drop to the verse.
+- Short pickup: a one- or two-bar drum fill or riff, then the voice.
+- Long build: an instrumental theme that the voice later picks up, e.g. `eight-bar piano and flute dialogue before a breathy female vocal enters`.
+
+Then say what moves later: an instrument joining or dropping out, a stripped bridge, a solo, a key lift or final build, call-and-response, how it ends (fade, full stop, a cappella last line). Vary tempo and meter between songs too: not everything is 4/4 at 90 BPM (3/4 waltz, 6/8 ballad, 2/4 polka or march, half-time trap).
+
+Examples in the spirit of the official demos (do not reuse them verbatim):
+
+| Song | style |
+| --- | --- |
+| Japanese easy listening | `Japanese, gentle melancholic easy listening. A delicate piano melody and breathy flute open; a soft, clear female vocal enters almost like a lullaby. Gradually add a downtempo lo-fi beat, warm bass and synth pads. End on an instrumental piano and flute outro that fades out.` |
+| Flamenco hip-hop duet | `Spanish, flamenco meets hip-hop, 95 BPM. Female flamenco vocal over slow compás, palmas and guitar, then the beat drops and a deep male rap enters on cajón and bass. Choruses sung by her, verses rapped by him, a call-and-response bridge, a festive final chorus together.` |
+| J-pop dance | `Japanese, high-energy J-pop dance, 138 BPM, bright female lead, vocal chops, synth bass, four-on-the-floor. Belted choruses, a contrasting half-time bridge, a guitar solo, then a breakdown that builds into the last chorus.` |
+| Alt metal | `English, alternative metal, 100 BPM, cinematic. Gritty male lead; verses in melodic rap and near-spoken delivery, choruses sung with full intensity. Heavy guitars, piano and electronic textures; a quiet piano bridge before the final chorus.` |
+| Mandarin ballad | `Mandarin, piano ballad, 72 BPM, 6/8, warm male vocal. Voice and piano only for the first verse, strings join in the chorus, everything drops out for the bridge except the vocal, the last chorus rises a whole step.` |
+| Short tags | `country` or `1980s pop, classic rock` is also valid: with little to go on, YuE2 picks the arrangement itself, which is a good way to get variety. |
+
 ## Section tags
 
-Use one tag per line, title-case, in square brackets: `[Intro]`, `[Verse]`, `[Pre-Chorus]`, `[Chorus]`, `[Post-Chorus]`, `[Hook]`, `[Bridge]`, `[Interlude]`, `[Final Chorus]`, `[Outro]`. Instrumental passages can be tagged with what plays, e.g. `[Guitar Solo]`, `[Piano Interlude]`, `[Saxophone Solo]`, with no words under them. Tags guide YuE2 but do not schedule anything exactly. Numbered verses (`[Verse 2]`) are fine.
+Use one tag per line, title-case, in square brackets: `[Intro]`, `[Verse]`, `[Pre-Chorus]`, `[Chorus]`, `[Post-Chorus]`, `[Hook]`, `[Rap]`, `[Bridge]`, `[Interlude]`, `[Breakdown]`, `[Final Chorus]`, `[Outro]`. Instrumental passages can be tagged with what plays, e.g. `[Guitar Solo]`, `[Piano Interlude]`, `[Instrumental Break]`, with no words under them. Numbered verses (`[Verse 2]`) are fine.
+
+For YuE2 a tag may carry a short performance note after a dash or colon, as the official demos do: `[Intro: Piano & Flute]`, `[Verse 2 – husky female voice]`, `[Chorus – both voices, call and response]`, `[Bridge – stripped, vocal and piano only]`, `[Vocal Ad-libs]`. Use this for duets and for contrast between sections. Tags guide YuE2 but do not schedule anything exactly. An intro tag is optional: leave it out (or put sung words under it) when the voice should start right away.
 
 ## Length
 
