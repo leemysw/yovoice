@@ -10,6 +10,7 @@ const sealed = [
 export default defineConfig({
   testDir: './browser-tests', testMatch: '*.spec.ts', testIgnore: process.env.PW_ALL ? [] : sealed, fullyParallel: true,
   // 不使用本机声卡：用例依赖音频时钟前进，真实输出设备被占用或休眠时会停住；CI 本就没有声卡，这样两边行为一致。
-  use: { baseURL: 'http://127.0.0.1:4173', viewport: { width: 1440, height: 920 }, reducedMotion: 'reduce', launchOptions: { args: ['--disable-audio-output'] } },
+  // 没有设置 LANG 的容器里 Chromium 按 ASCII 处理文件名，中文的下载文件名会变成“download”，这里补上 UTF-8。
+  use: { baseURL: 'http://127.0.0.1:4173', viewport: { width: 1440, height: 920 }, reducedMotion: 'reduce', launchOptions: { args: ['--disable-audio-output'], env: { ...process.env, LANG: process.env.LANG || 'C.UTF-8' } } },
   webServer: { command: 'pnpm run dev --port 4173 --strictPort', url: 'http://127.0.0.1:4173', reuseExistingServer: !process.env.CI },
 });
