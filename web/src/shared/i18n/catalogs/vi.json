@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "Tách bài hát thành trống, bass, giọng hát, guitar, piano và phần còn lại · 44,1 kHz stereo"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "Tách giọng hát chất lượng cao (BS-RoFormer) · sau khi cài, “Tách bè” sẽ tách giọng trước rồi mới chia phần đệm — giọng sạch hơn, ít lẫn bè"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "Chuyển bài hát thành MIDI nhiều nhạc cụ, có thể tiếp tục chỉnh trong Phối khí · Chỉ dùng phi thương mại (CC BY-NC)"
   },

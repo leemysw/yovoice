@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "曲をドラム、ベース、ボーカル、ギター、ピアノ、その他の 6 トラックに分離 · 44.1 kHz ステレオ"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "高品質なボーカル分離（BS-RoFormer）· 導入すると「ステムを分離」でまずボーカルを分け、伴奏を分割します。ボーカルがよりクリアになり、にじみが減ります"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "曲を複数楽器の MIDI に変換し、編曲画面で編集できます · 非商用のみ（CC BY-NC）"
   },

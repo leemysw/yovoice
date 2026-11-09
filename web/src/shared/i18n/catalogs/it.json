@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "Separa un brano in batteria, basso, voce, chitarra, pianoforte e altro · 44,1 kHz stereo"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "Separazione vocale di alta qualità (BS-RoFormer) · una volta installata, «Separa tracce» isola prima la voce e poi divide l’accompagnamento: voce più pulita, meno rientri"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "Trascrive un brano in MIDI multistrumento modificabile in Arrangiamento · Solo uso non commerciale (CC BY-NC)"
   },

@@ -1,10 +1,12 @@
 package workbench
 
 import (
+	"math"
 	"os"
 	"path/filepath"
 	"slices"
 	"testing"
+	"yovoice/internal/audio"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
@@ -96,6 +98,48 @@ func TestYueCandidates(t *testing.T) {
 		d := schema.Draft{SynthesisSettings: schema.SynthesisSettings{ModelOptions: map[string]map[string]any{"yue2": {"candidates": c.value}}}}
 		if got := yueCandidates(d); got != c.want {
 			t.Fatalf("%v → %d", c.value, got)
+		}
+	}
+}
+
+// 分轨整理：分过人声时人声轨换成 BS-RoFormer 的结果；“其他”= 原曲减其余各轨，六轨相加还原原曲。
+func TestCompleteStems(t *testing.T) {
+	dir := t.TempDir()
+	const rate, n = 8000, 4000
+	wave := func(scale, freq float64) []float32 {
+		out := make([]float32, n)
+		for i := range out {
+			out[i] = float32(scale * math.Sin(float64(i)*freq))
+		}
+		return out
+	}
+	mix := wave(.6, .01)
+	files := map[string][]float32{"drums": wave(.1, .2), "bass": wave(.1, .02), "vocals": wave(.1, .05), "guitar": wave(.05, .07), "piano": wave(.05, .09), "other": wave(.01, .3)}
+	for name, samples := range files {
+		must(t, audio.WriteMono(filepath.Join(dir, name+".wav"), samples, rate))
+	}
+	must(t, audio.WriteMono(filepath.Join(dir, "mix.wav"), mix, rate))
+	clean := wave(.2, .05)
+	vocals := filepath.Join(t.TempDir(), "roformer-vocals.wav")
+	must(t, audio.WriteMono(vocals, clean, rate))
+	must(t, completeStems(filepath.Join(dir, "mix.wav"), dir, vocals, StemNames))
+	read := func(name string) []float32 {
+		channels, _, e := audio.Read(filepath.Join(dir, name+".wav"))
+		must(t, e)
+		return channels[0]
+	}
+	if got := read("vocals"); math.Abs(float64(got[100]-clean[100])) > 1e-3 {
+		t.Fatal("人声轨应换成 BS-RoFormer 的结果")
+	}
+	sum := make([]float64, n)
+	for _, stem := range StemNames {
+		for i, v := range read(stem) {
+			sum[i] += float64(v)
+		}
+	}
+	for i := range mix {
+		if math.Abs(sum[i]-float64(mix[i])) > 4.0/32768 {
+			t.Fatalf("frame %d: 各轨之和 %f ≠ 原曲 %f", i, sum[i], mix[i])
 		}
 	}
 }

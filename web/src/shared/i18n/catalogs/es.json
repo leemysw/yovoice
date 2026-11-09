@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "Separa una canción en batería, bajo, voz, guitarra, piano y otros · 44,1 kHz estéreo"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "Separación de voz de alta calidad (BS-RoFormer) · una vez instalada, «Separar pistas» aísla primero la voz y luego divide el acompañamiento: voz más limpia y menos filtraciones"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "Transcribe una canción a MIDI multiinstrumento que puedes seguir editando en Arreglo · Solo uso no comercial (CC BY-NC)"
   },

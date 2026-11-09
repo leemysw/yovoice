@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "곡을 드럼, 베이스, 보컬, 기타, 피아노, 기타 악기 6트랙으로 분리 · 44.1 kHz 스테레오"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "고품질 보컬 분리(BS-RoFormer) · 설치하면 ‘스템 분리’가 먼저 보컬을 분리한 뒤 반주를 나눠 보컬이 더 깨끗하고 번짐이 줄어듭니다"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "곡을 여러 악기 MIDI로 변환해 편곡 화면에서 계속 편집 · 비상업적 용도 전용(CC BY-NC)"
   },

@@ -58,6 +58,9 @@ func (w *Workbench) SeparateStems(id string) error {
 	if e != nil {
 		return e
 	}
+	// 装了 BS-RoFormer（单独下载，或歌词对齐包里带的）时先用它分出人声，HTDemucs 只拆伴奏：
+	// BS-RoFormer 的人声明显比 HTDemucs 干净，人声也不再串进其他轨。
+	splitter, splitErr := w.toolModel(s, "bs_roformer", "lyric_align")
 	_, e = w.start("generate", msg.ActivitySeparateStems, nil, &model.ID, func(ctx context.Context) error {
 		dir, e := w.workDir("stems-")
 		if e != nil {
@@ -72,11 +75,22 @@ func (w *Workbench) SeparateStems(id string) error {
 		if e := os.Mkdir(out, 0700); e != nil {
 			return e
 		}
-		stems, e := w.engine.SeparateStems(ctx, *s.RuntimePath, model, s.Preferences.Backend, mix, out, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) })
+		progress := func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }
+		input, vocals := mix, ""
+		if splitErr == nil {
+			vocals, input = filepath.Join(dir, "vocals.wav"), filepath.Join(dir, "instrumental.wav")
+			if e := w.engine.SplitVocals(ctx, *s.RuntimePath, splitter, s.Preferences.Backend, mix, vocals, input, false, progress); e != nil {
+				return e
+			}
+		}
+		stems, e := w.engine.SeparateStems(ctx, *s.RuntimePath, model, s.Preferences.Backend, input, out, progress)
 		if e != nil {
 			return e
 		}
 		if e = ctx.Err(); e != nil {
+			return e
+		}
+		if e = completeStems(mix, out, vocals, stems); e != nil {
 			return e
 		}
 		now := time.Now()
@@ -216,4 +230,25 @@ func toolMissing(e error, code msg.Code) error {
 		return msg.Err(code, nil)
 	}
 	return e
+}
+
+// completeStems 整理分出的各轨：先分过人声时用 BS-RoFormer 的人声替换 HTDemucs 的人声轨；
+// 再把“其他”改成原曲减去其余各轨——HTDemucs 各轨相加并不严格等于原曲，没归到任何一轨的部分
+// （以及伴奏里残留的人声）以前会丢掉，现在都归进“其他”，各轨相加即还原原曲。
+func completeStems(mix, dir, vocals string, stems []string) error {
+	if vocals != "" && slices.Contains(stems, "vocals") {
+		if e := os.Rename(vocals, filepath.Join(dir, "vocals.wav")); e != nil {
+			return e
+		}
+	}
+	if !slices.Contains(stems, "other") {
+		return nil
+	}
+	var parts []string
+	for _, stem := range stems {
+		if stem != "other" {
+			parts = append(parts, filepath.Join(dir, stem+".wav"))
+		}
+	}
+	return audio.Remainder(mix, parts, filepath.Join(dir, "other.wav"))
 }

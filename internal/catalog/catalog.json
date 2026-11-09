@@ -1092,6 +1092,18 @@
       "sha256": "1db9bd58af6995d8caab209c99f5a284212e5bd0654fbfd7e50ce1d5ac140ba9"
     },
     {
+      "id": "bs-roformer-q8",
+      "name": "BS-RoFormer",
+      "family": "bs_roformer",
+      "task": "sep",
+      "engineMinimum": "v0.9.1",
+      "version": "ep368",
+      "precision": "Q8",
+      "remotePath": "BS-RoFormer-ep368-GGUF/bs-roformer-ep368-q8_0.gguf",
+      "size": 172533760,
+      "sha256": "c3d3fc0ebf20a21f6dec38df66f919c892efed680dd006de367ec462611200bc"
+    },
+    {
       "id": "muscriptor-small-f32",
       "name": "MuScriptor Small",
       "family": "muscriptor",

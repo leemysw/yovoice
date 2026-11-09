@@ -5,6 +5,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 	"yovoice/internal/msg"
 )
 
@@ -189,4 +190,106 @@ func mix(channels [][]float32) []float32 {
 		out[i] = float32(sum / float64(len(channels)))
 	}
 	return out
+}
+
+// Remainder 逐块计算 mix 减去各 parts 之和，写成与 mix 同采样率、同声道数的 32 位浮点 WAV（不限幅，
+// 叠回去与原混音逐采样相同）。用于分轨：把其余各轨没分走的部分都归到最后一轨，保证各轨相加还原原曲。
+// parts 的长度不足时按静音处理，声道少于 mix 时重复最后一个声道。只占固定内存。
+func Remainder(mix string, parts []string, output string) error {
+	mf, mp, e := openPCM(mix, os.O_RDONLY)
+	if e != nil {
+		return e
+	}
+	defer mf.Close()
+	type source struct {
+		f *os.File
+		p pcm
+	}
+	sources := make([]source, 0, len(parts))
+	defer func() {
+		for _, s := range sources {
+			_ = s.f.Close()
+		}
+	}()
+	for _, path := range parts {
+		f, p, e := openPCM(path, os.O_RDONLY)
+		if e != nil {
+			return e
+		}
+		sources = append(sources, source{f, p})
+		if p.rate != mp.rate {
+			return msg.Err(msg.ErrAudioFormat, nil)
+		}
+	}
+	out, e := os.CreateTemp(filepath.Dir(output), ".remainder-*.wav")
+	if e != nil {
+		return e
+	}
+	temp := out.Name()
+	defer func() { _ = os.Remove(temp) }()
+	channels := int(mp.channels)
+	frames := mp.size / int64(mp.frame())
+	header := make([]byte, 44)
+	copy(header, "RIFF")
+	binary.LittleEndian.PutUint32(header[4:], uint32(36+frames*int64(channels)*4))
+	copy(header[8:], "WAVEfmt ")
+	binary.LittleEndian.PutUint32(header[16:], 16)
+	binary.LittleEndian.PutUint16(header[20:], 3)
+	binary.LittleEndian.PutUint16(header[22:], uint16(channels))
+	binary.LittleEndian.PutUint32(header[24:], uint32(mp.rate))
+	binary.LittleEndian.PutUint32(header[28:], uint32(mp.rate*channels*4))
+	binary.LittleEndian.PutUint16(header[32:], uint16(channels*4))
+	binary.LittleEndian.PutUint16(header[34:], 32)
+	copy(header[36:], "data")
+	binary.LittleEndian.PutUint32(header[40:], uint32(frames*int64(channels)*4))
+	if _, e = out.Write(header); e != nil {
+		_ = out.Close()
+		return e
+	}
+	const block = 1 << 15
+	rest := make([]float32, block*channels)
+	other := make([]float32, block*4)
+	raw := make([]byte, block*max(mp.frame(), 8*4))
+	result := pcm{format: 3, channels: mp.channels, bits: 32}
+	encoded := make([]byte, block*channels*4)
+	for at := int64(0); at < frames; at += block {
+		n := int(min(block, frames-at))
+		if _, e = mf.ReadAt(raw[:n*mp.frame()], mp.offset+at*int64(mp.frame())); e != nil {
+			_ = out.Close()
+			return e
+		}
+		mp.decode(raw[:n*mp.frame()], rest[:n*channels])
+		for _, s := range sources {
+			available := int(max(0, min(int64(n), s.p.size/int64(s.p.frame())-at)))
+			if available == 0 {
+				continue
+			}
+			width, count := s.p.frame(), int(s.p.channels)
+			if len(raw) < available*width {
+				raw = make([]byte, available*width)
+			}
+			if len(other) < available*count {
+				other = make([]float32, available*count)
+			}
+			if _, e = s.f.ReadAt(raw[:available*width], s.p.offset+at*int64(width)); e != nil {
+				_ = out.Close()
+				return e
+			}
+			s.p.decode(raw[:available*width], other[:available*count])
+			for i := 0; i < available; i++ {
+				for c := 0; c < channels; c++ {
+					rest[i*channels+c] -= other[i*count+min(c, count-1)]
+				}
+			}
+		}
+		result.encode(rest[:n*channels], encoded[:n*channels*4])
+		if _, e = out.Write(encoded[:n*channels*4]); e != nil {
+			_ = out.Close()
+			return e
+		}
+	}
+	if e = out.Close(); e != nil {
+		return e
+	}
+	return os.Rename(temp, output)
 }

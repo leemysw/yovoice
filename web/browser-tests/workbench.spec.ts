@@ -48,8 +48,8 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await page.getByRole('button', { name: '设置', exact: true }).click();
   // 语音模型与音乐模型分页显示，各自带下载设置。
   await page.getByRole('tab', { name: '音乐模型', exact: true }).click();
-  // 同一模型的多种量化合并为一行，用精度切换；含可选的歌词对齐、分轨和转为 MIDI 模型。
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(10);
+  // 同一模型的多种量化合并为一行，用精度切换；含可选的歌词对齐、分轨、人声分离（BS-RoFormer）和转为 MIDI 模型。
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(11);
   const yue = page.locator('[data-model-id^="yue2-"]');
   await expect(yue).toHaveCount(1);
   await expect(yue).toHaveAttribute('data-model-id', 'yue2-3b-q8');
