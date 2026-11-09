@@ -171,7 +171,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.transcribeEmpty` 没有识别出文字，请确认音频里有清晰的人声
 - `error.alignText` 这个版本没有可对齐的正文
 - `error.alignTextEmpty` 没能把正文对上音频，请重试或换一个版本
-- `error.stemModelRequired` 分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。（可选再装 BS-RoFormer：人声更干净；六类固定，吉他/钢琴轨较弱，要按乐器分轨用“转为 MIDI”。）
+- `error.stemModelRequired` 分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。
 - `error.stemSource` 这个版本是分轨或片段，不能再分离音轨。
 - `error.stemsMissing` 这个版本还没有分轨，请先分离音轨。
 - `error.midiModelRequired` 转为 MIDI 需要 MuScriptor 模型，请先在设置的模型里下载。
