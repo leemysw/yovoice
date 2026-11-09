@@ -46,6 +46,7 @@ export function captionsToVtt(captions: Caption[], withSpeaker = false): string 
 
 // 逐词时间转字幕行：对齐与识别给出的词不带标点，按顺序在原文里找到每个词的位置，字幕文字取原文（保留标点），
 // 在句末标点、过长、过久或较长停顿处换行。中日韩文字一字算 1，其他字符算半个，每行最多 maxWidth。
+// 因过长、过久或停顿换行时，若这一句只剩一两个字（如“事情”的“情”），并进当前行，不单独成行。
 export interface TimedWord { word: string; start: number; end: number }
 const sentenceEnd = /[。！？!?；;…]|\.(\s|$)/;
 const clauseEnd = /[，,、：:—]/;
@@ -66,16 +67,26 @@ export function wordCaptions(text: string, words: TimedWord[], { maxWidth = 20, 
   });
   const located = spans.some(([a, b]) => b > a);
   const captions: Caption[] = [];
+  // 每个词之后到下一个词之前的原文（标点、空白）。
+  const gaps = words.map((_, i) => i + 1 < words.length ? text.slice(spans[i][1], spans[i + 1][0]) : text.slice(spans[i][1]));
+  const join = (from: number, to: number) => located ? text.slice(spans[from][0], spans[to][1]) : words.slice(from, to + 1).map(w => w.word).join(wide.test(words[from].word) ? '' : ' ');
+  // 从 j 起这一句（到标点、换行或较长停顿为止）的最后一个词。
+  const phraseEnd = (j: number) => {
+    while (j + 1 < words.length && !sentenceEnd.test(gaps[j]) && !clauseEnd.test(gaps[j]) && !gaps[j].includes('\n') && words[j + 1].start - words[j].end <= pause) j++;
+    return j;
+  };
   let first = 0;
   for (let i = 0; i < words.length; i++) {
     const next = i + 1 < words.length ? i + 1 : -1;
-    const between = next < 0 ? text.slice(spans[i][1]) : text.slice(spans[i][1], spans[next][0]);
-    const lineText = (j: number) => located ? text.slice(spans[first][0], spans[j][1]) : words.slice(first, j + 1).map(w => w.word).join(wide.test(words[first].word) ? '' : ' ');
+    const between = gaps[i];
+    const lineText = (j: number) => join(first, j);
     const current = width(lineText(i));
-    const breakHere = next < 0 || sentenceEnd.test(between) || between.includes('\n')
-      || (clauseEnd.test(between) && current >= maxWidth * .4)
-      || width(lineText(next)) > maxWidth || words[next].end - words[first].start > maxSeconds || words[next].start - words[i].end > pause;
-    if (!breakHere) continue;
+    if (!(next < 0 || sentenceEnd.test(between) || between.includes('\n') || (clauseEnd.test(between) && current >= maxWidth * .4))) {
+      const soft = width(lineText(next)) > maxWidth || words[next].end - words[first].start > maxSeconds || words[next].start - words[i].end > pause;
+      if (!soft) continue;
+      const rest = phraseEnd(next);
+      if (width(join(next, rest)) <= 2 && words[rest].end - words[first].start <= maxSeconds + 4) continue;
+    }
     // 行尾带上紧跟的标点（问号、引号等），整理后为空的行（只有标点）并入时间但不出字幕。
     const tail = located ? between.match(/^[^\p{L}\p{N}\n]*/u)?.[0] ?? '' : '';
     const caption = tidy(lineText(i) + tail);

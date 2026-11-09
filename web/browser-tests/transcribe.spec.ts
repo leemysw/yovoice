@@ -26,6 +26,13 @@ test('逐词时间按句末、分句、宽度和停顿分行，保留问号去�
   const long = wordCaptions('一二三四五六七八九十一二三四五六七八九十一二三', timed([...'一二三四五六七八九十一二三四五六七八九十一二三'], .2, .5));
   expect(long.map(c => c.text)).toEqual(['一二三四五六七八九十一二三四五六七八九十', '一二三']);
   expect(long[0].end).toBe(long[1].start);
+  // 因过长或停顿换行时，一句只剩一两个字就并进上一行，不单独成行。
+  const after = (list: { word: string; start: number; end: number }[], from: number) => list.map(w => ({ ...w, start: w.start + from, end: w.end + from }));
+  const orphan = [...timed([...'允许你的大脑做任何他想做的事'], .2, .15), { word: '情', start: 3, end: 3.2 }, ...after(timed([...'如果他想']), 4.5)];
+  expect(wordCaptions('允许你的大脑做任何他想做的事情如果他想', orphan).map(c => c.text)).toEqual(['允许你的大脑做任何他想做的事情', '如果他想']);
+  const late = [...timed([...'记在心'], .2, .15), { word: '里', start: 2.5, end: 2.7 }, ...after(timed([...'敬请关注']), 5)];
+  expect(wordCaptions('记在心里。敬请关注', late).map(c => c.text)).toEqual(['记在心里', '敬请关注']);
+  expect(wordCaptions('一二三四五六七八九十一二三四五六七八九十一', timed([...'一二三四五六七八九十一二三四五六七八九十一'], .2, .15)).map(c => c.text)).toEqual(['一二三四五六七八九十一二三四五六七八九十一']);
   // 原文找不到识别的词时直接拼接识别结果。
   expect(wordCaptions('', timed(['good', 'morning'])).map(c => c.text)).toEqual(['good morning']);
   expect(spokenText('[laugh]你好 [breath]世界')).toBe('你好 世界');
