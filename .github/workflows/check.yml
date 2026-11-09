@@ -98,7 +98,7 @@ jobs:
       - name: Verify macOS updater
         if: runner.os == 'macOS'
         run: |
-          timeout 600 bash -c 'until [[ -f "$RUNNER_TEMP/swift.status" ]]; do sleep 1; done'
+          for ((i=0;i<600;i++)); do [[ -f "$RUNNER_TEMP/swift.status" ]] && break; sleep 1; done
           cat "$RUNNER_TEMP/swift.log"
           if [[ "$(cat "$RUNNER_TEMP/swift.status")" != 0 ]]; then exit 1; fi
           swift test --package-path desktop/macos
