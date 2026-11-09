@@ -9,7 +9,7 @@ YuE2 renders a song from a style prompt, lyrics and, optionally, a two-voice mel
 
 ## Style and lyrics
 
-- Style in English, up to 2000 characters: sung language, genre, lead vocal, core instruments and tempo, plus a sentence or two on how the song unfolds (how it opens and when the voice enters, what changes between sections, how it ends). Write style and lyrics with the yovoice-lyrics skill; its song-forms reference has the YuE2 style guidance and examples. Put tempo and meter in the score too and keep them consistent.
+- Style in English, up to 2000 characters: sung language, genre, lead vocal, core instruments and tempo, plus a sentence or two on how the song unfolds (how it opens and when the voice enters, what changes between sections, how it ends). Write style and lyrics with the yovoice-lyrics skill; its song-forms reference has the YuE2 style guidance, and its yue2-examples reference distils the official demos, the paper's findings and the official editing walkthrough. Put tempo and meter in the score too and keep them consistent.
 - Lyrics: section tags on their own lines (`[Verse]`, `[Chorus]`, `[Bridge]`, `[Outro]`, optionally with a short note such as `[Verse 2 – whispered]`) followed by the sung words. Only words to be sung; no notes or instructions. Song length follows the lyrics.
 - Each `plan_melody` call writes a new score with a fresh seed. When the user wants a different tune, opening or structure, plan again (or change the style's shape) rather than generating more takes from the same score: takes from one score share its melody and form.
 

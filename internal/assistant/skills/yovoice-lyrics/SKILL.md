@@ -11,7 +11,7 @@ Call `get_work` first: it shows whether the work is instrumental, its current st
 
 - style: English. Required.
   - ACE-Step: one line of comma-separated tags for genre, mood, instruments, vocal type and tempo feel, e.g. "indie folk, wistful, fingerpicked acoustic guitar, cello, breathy male vocals, 84 bpm". At most 512 characters.
-  - YuE2 (modelId starts with `yue2-`): up to 2000 characters, read the YuE2 style section in [references/song-forms.md](references/song-forms.md). Short tags or a paragraph both work; what makes songs differ is saying how this one unfolds (how it opens, when the voice enters, what changes between sections, how it ends), not a longer list of instruments.
+  - YuE2 (modelId starts with `yue2-`): up to 2000 characters, read the YuE2 style section in [references/song-forms.md](references/song-forms.md); [references/yue2-examples.md](references/yue2-examples.md) collects what worked in the official demos and paper. Short tags or a paragraph both work; what makes songs differ is saying how this one unfolds (how it opens, when the voice enters, what changes between sections, how it ends), not a longer list of instruments.
 - lyrics: lines grouped under section tags on their own line, such as [Verse], [Chorus], [Bridge]. Tag case does not matter. Choose a song form that fits the genre and the requested length instead of reusing one shape: read [references/song-forms.md](references/song-forms.md) before writing new lyrics. Only words to be sung; no notes or instructions. At most 2500 characters.
 - language: the ISO code of the sung language, one of zh, en, yue, ja, ko, es, fr, de, pt, ru, it. Omit it if you are not sure.
 - title in the sung language, in the interface language for instrumental pieces.

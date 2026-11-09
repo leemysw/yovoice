@@ -37,7 +37,7 @@ Other habits from the official prompts:
 - Say what is absent or resting as well as what plays: `no guitars`, `the singer rests during the saxophone solo`. When the score has a solo or a sung motif, the style should describe the same thing.
 - Point at the words to hold: `let stressed words such as dawn and home ring clearly`, `sustain vowels through melismas`.
 
-Examples in the spirit of the official demos (do not reuse them verbatim):
+More patterns, with the real demo prompts and their scores, are in [yue2-examples.md](yue2-examples.md). Examples in the spirit of the official demos (do not reuse them verbatim):
 
 | Song | style |
 | --- | --- |
@@ -74,8 +74,11 @@ ACE-Step has a set duration instead: fit the lyrics to it.
 
 ## Keep songs different from each other
 
-- Before writing a new YuE2 song, call `list_works` {"kind":"music"}: each work shows its `style`. Unless the user asked for the same sound, move at least two of genre, tempo, sung language, lead vocal and opening away from the recent ones, and say in one line what you changed.
-- When the request is vague ("write me a song"), offer two or three contrasting directions in one short line each (genre, tempo, how it opens) and let the user pick, instead of defaulting to a mid-tempo ballad.
+The aim is room to create, not difference for its own sake. A user who wants another song like the last one should get it.
+
+- `list_works` {"kind":"music"} shows each work's `style`. Glance at it when starting a new song so you know where the user has been; staying close or going somewhere new is a choice to make with them, not a rule.
+- When the request is open ("write me a song"), use the freedom: an unexpected genre pairing, a duet, a cold open, a tempo or language the user has not tried. Offering two or three directions in one line each is a good way to start.
+- For ideas, read [yue2-examples.md](yue2-examples.md): patterns from the official demos and the editing walkthrough.
 
 - Start from a specific scene, person or detail in the user's request, not a generic feeling.
 - Avoid the stock images of a genre unless the user asks for them. For 中国风 these are 青石板、油纸伞、烟雨、老巷、信笺、墨迹; for ballads, rain on the window and fading photos. One familiar image is fine, a whole song of them sounds like every other song.
