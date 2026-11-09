@@ -100,14 +100,20 @@ func (w *Workbench) toolModel(s schema.State, families ...string) (schema.Instal
 	return schema.InstalledModel{}, msg.Err(msg.ErrRecognizeModelRequired, nil)
 }
 
-// 转写：上传的音频最长 transcribeSeconds 秒；按停顿切成不超过 transcribeChunk 秒的段逐段识别，
+// MaxTranscribeUpload 是转写上传在请求层的硬上限（设置里允许的最大值）；实际上限按设置在接收时检查。
+const MaxTranscribeUpload = int64(schema.TranscribeFileMBMax) << 20
+
+// 转写：上传的文件大小与时长上限按设置（默认 4 GB、60 分钟）；按停顿切成不超过 transcribeChunk 秒的段逐段识别，
 // 识别和对齐都在一段里完成，段越短越稳，30 秒以内识别质量最好。
-const transcribeSeconds, transcribeChunk = 3600, 30.0
+const transcribeChunk = 30.0
 
 // TranscribeSpeech 用语音识别模型转写上传的音频：逐段识别出文字和逐词时间，接成整段保存为转写记录，
 // 由转写页编辑并导出字幕。name 是原文件名，用作记录名称与导出时的默认名称。
 func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
-	upload, e := w.receive(r)
+	settings := w.Store.Read().Preferences.Transcribe
+	limit, size := settings.FileLimit()
+	seconds := settings.Minutes() * 60
+	upload, e := w.receiveUpTo(r, limit, msg.Err(msg.ErrTranscribeTooLarge, msg.Params{"size": size}))
 	if e != nil {
 		return e
 	}
@@ -144,7 +150,7 @@ func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
 		wav := upload
 		if converter != "" {
 			wav = filepath.Join(dir, "source.wav")
-			if e := audio.ConvertWithLimit(ctx, converter, upload, wav, transcribeSeconds); e != nil {
+			if e := audio.ConvertWithLimit(ctx, converter, upload, wav, seconds); e != nil {
 				return e
 			}
 		}
@@ -153,8 +159,8 @@ func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
 			return e
 		}
 		duration := float64(len(samples)) / float64(max(rate, 1))
-		if duration > transcribeSeconds {
-			return msg.Err(msg.ErrAudioDuration, nil)
+		if duration > float64(seconds) {
+			return msg.Err(msg.ErrTranscribeDuration, msg.Params{"minutes": seconds / 60})
 		}
 		speech := audio.Resample(samples, rate, recognizeRate)
 		chunks := speechChunks(speech, recognizeRate, int(transcribeChunk*recognizeRate))

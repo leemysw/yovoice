@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "音声や動画を文字と字幕に変換します。"
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "文字起こし"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "ファイルの上限と字幕の改行方法です。改行の設定は新しい文字起こしと、まだ編集していない文字起こしに適用されます。"
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "ファイル上限（MB）"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "長さの上限（分）"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "最大 180 分。長いほど文字起こし中のメモリ使用量が増えます。"
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "1 行の最大文字数"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "漢字・かな・ハングルは 1 文字 1、その他は 0.5 として数えます。"
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "1 行の最大秒数"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "間で改行（秒）"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "話の間がこの長さを超えると次の行にします。"
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "デフォルトに戻す"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "フローティングアシスタントと提案。"
   },
@@ -4216,6 +4249,12 @@
   },
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "文字を認識できませんでした。音声がはっきり入っているか確認してください"
+  },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "音声・動画ファイルは {size} 未満にしてください。上限は「設定 › 一般 › 文字起こし」で変更できます。"
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "音声・動画の長さは {minutes} 分以内にしてください。上限は「設定 › 一般 › 文字起こし」で変更できます。"
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "この文字起こしは削除されたか、字幕ファイルが見つかりません"

@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "Turn audio or video into text and subtitles."
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "Transcribe"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "File limits and how subtitles are split into lines. Line settings apply to new transcripts and to ones you haven’t edited yet."
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "Max file size (MB)"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "Max length (minutes)"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "Up to 180 minutes. Longer audio uses more memory while transcribing."
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "Max characters per line"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "Chinese, Japanese and Korean characters count as 1, others as half."
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "Max seconds per line"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "New line after pause (seconds)"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "Start a new line when the speaker pauses this long."
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "Restore defaults"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "The floating assistant and its suggestions."
   },
@@ -4216,6 +4249,12 @@
   },
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "No speech was recognized. Make sure the audio has clear speech"
+  },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Audio or video files must be under {size}. You can change the limit in Settings › General › Transcribe."
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "Audio or video must be at most {minutes} minutes long. You can change the limit in Settings › General › Transcribe."
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "This transcript was deleted or its subtitle file is missing"

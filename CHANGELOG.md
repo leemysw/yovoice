@@ -11,6 +11,8 @@
 - Transcripts are now saved and listed like your other work. Open one to edit the subtitles as plain text: Enter splits at the cursor, Backspace at the start of a line joins it to the line above. You can also find and replace, undo, and play a line from the original audio, and changes save automatically. You can also record directly on the Transcribe page.
 - The progress bar for transcription, lyric alignment, rendering and similar tasks no longer shows step counts as file sizes (such as “4 B / 11 B”).
 - On macOS, when the window fails to load, the app now checks the local service directly and writes the result to `host.log`, making it easier to tell whether a proxy or security tool is blocking it.
+- Transcribe now accepts audio and video files up to 4 GB and 1 hour by default, so videos no longer need converting to audio first. Both limits, plus how subtitles are split into lines (characters and seconds per line, pause length), can be changed in Settings › General › Transcribe.
+- Transcript lines no longer leave the last one or two characters of a sentence on a line of their own.
 
 ### 简体中文
 
@@ -19,6 +21,8 @@
 - 语音转写的结果会保存下来，像作品一样列出。打开后像改文档一样编辑字幕：回车在光标处拆分，行首退格与上一行合并，也可以查找替换、撤销，点时间试听原音频，改动自动保存；转写页也可以直接录音。
 - 修复语音转写、歌词对齐、渲染等任务的进度条把段数显示成文件大小（如“4 B / 11 B”）的问题。
 - macOS 窗口加载失败时会直接检查本地服务，并把结果写入 `host.log`，便于判断是否被代理或安全软件拦截。
+- 语音转写默认支持 4 GB、1 小时以内的音频和视频文件，视频不必先转成音频；文件与时长上限，以及字幕每行字数、每行时长和停顿换行，都可以在“设置 › 常规 › 语音转写”里调整。
+- 修复转写字幕偶尔把一句话最后一两个字单独断成一行的问题。
 
 ## [0.6.0] - 2026-11-09
 

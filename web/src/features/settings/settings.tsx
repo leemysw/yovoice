@@ -24,6 +24,7 @@ import { LogViewer } from './log-viewer';
 import { AssistantSettings } from './assistant-settings';
 import { EngineRuntimeSettings } from './engine-runtime-settings';
 import { FeatureSettings } from './feature-settings';
+import { TranscribeSettings } from './transcribe-settings';
 
 // 资源表格依赖较多，切到资源页时才加载。
 const AssetsPage = lazy(() => import('../library/assets-page').then(module => ({ default: module.AssetsPage })));
@@ -91,6 +92,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
         </SettingsRow>
       </SettingsGroup>
       <FeatureSettings state={state} run={run} />
+      {featureHidden(state.preferences, 'transcribe') ? null : <TranscribeSettings state={state} run={run} />}
       <StorageSettings state={state} run={run} busy={busy || modelBusy} />
       <LocalAPISettings run={run} />
       <SettingsGroup title={t('@yovoice.settings.diagnosticsGroup')}>

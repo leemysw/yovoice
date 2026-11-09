@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "Transforme áudio ou vídeo em texto e legendas."
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "Transcrição"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "Limites de arquivo e como as legendas são divididas em linhas. As opções de linha valem para novas transcrições e para as que ainda não foram editadas."
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "Tamanho máximo (MB)"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "Duração máxima (minutos)"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "Até 180 minutos. Quanto mais longo, mais memória a transcrição usa."
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "Máximo de caracteres por linha"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "Caracteres chineses, japoneses e coreanos contam 1; os demais, 0,5."
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "Máximo de segundos por linha"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "Nova linha após pausa (segundos)"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "Começa uma nova linha quando há uma pausa desse tamanho."
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "Restaurar padrões"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "O assistente flutuante e suas sugestões."
   },
@@ -4216,6 +4249,12 @@
   },
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Nenhuma fala foi reconhecida. Verifique se o áudio tem voz nítida"
+  },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Arquivos de áudio ou vídeo devem ter menos de {size}. Você pode alterar o limite em Configurações › Geral › Transcrição."
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "O áudio ou vídeo deve ter no máximo {minutes} minutos. Você pode alterar o limite em Configurações › Geral › Transcrição."
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Esta transcrição foi excluída ou o arquivo de legendas está faltando"

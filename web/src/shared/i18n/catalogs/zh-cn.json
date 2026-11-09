@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "把音频或视频转成文字和字幕。"
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "语音转写"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "转写的文件上限与字幕断句方式。断句参数用于新的转写，以及还没编辑过的转写。"
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "文件上限（MB）"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "时长上限（分钟）"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "最长 180 分钟；越长，转写时占用的内存越多。"
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "每行最多字数"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "汉字、假名、谚文一字算 1，其他字符算半个。"
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "每行最长（秒）"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "停顿换行（秒）"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "说话停顿超过这么久就另起一行。"
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "恢复默认"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "浮窗助手与主动提示。"
   },
@@ -4216,6 +4249,12 @@
   },
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "没有识别出文字，请确认音频里有清晰的人声"
+  },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "音视频文件需小于 {size}。可以在“设置 › 常规 › 语音转写”里调整上限。"
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "音视频时长需在 {minutes} 分钟以内。可以在“设置 › 常规 › 语音转写”里调整上限。"
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "这份转写已删除或字幕文件丢失"

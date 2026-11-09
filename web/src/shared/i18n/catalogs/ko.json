@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "오디오나 동영상을 텍스트와 자막으로 바꿉니다."
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "받아쓰기"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "파일 한도와 자막 줄바꿈 방식입니다. 줄바꿈 설정은 새 받아쓰기와 아직 편집하지 않은 받아쓰기에 적용됩니다."
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "파일 한도(MB)"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "길이 한도(분)"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "최대 180분. 길수록 받아쓰기 중 메모리를 더 많이 씁니다."
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "줄당 최대 글자 수"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "한자·가나·한글은 1자, 그 밖의 문자는 0.5자로 셉니다."
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "줄당 최대 초"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "멈춤 후 줄바꿈(초)"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "말이 이만큼 멈추면 새 줄을 시작합니다."
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "기본값 복원"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "플로팅 어시스턴트와 제안."
   },
@@ -4216,6 +4249,12 @@
   },
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "인식된 텍스트가 없습니다. 오디오에 또렷한 음성이 있는지 확인하세요"
+  },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "오디오 또는 동영상 파일은 {size} 미만이어야 합니다. 설정 › 일반 › 받아쓰기에서 한도를 바꿀 수 있습니다."
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "오디오 또는 동영상 길이는 {minutes}분 이내여야 합니다. 설정 › 일반 › 받아쓰기에서 한도를 바꿀 수 있습니다."
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "이 받아쓰기가 삭제되었거나 자막 파일이 없습니다"

@@ -25,7 +25,8 @@ const clock = (seconds: number) => srtTime(seconds).replace(/^00:/, '').replace(
 // 一份转写的字幕编辑，与故事的字幕编辑手感一致：每行是一段可直接改的文字，回车在光标处拆分，
 // 行首退格与上一行合并，空行退格删除；悬停一行显示拆分、合并和删除。改动自动保存，可撤销。
 // 有原音频时点行首时间试听这一行。导出 SRT / WebVTT 用编辑后的字幕。
-export function TranscriptEditor({ transcript, onBack }: { transcript: Transcript; onBack: () => void }) {
+// lines 是设置里的断句参数，还没编辑过的转写按它把逐词时间分成字幕行。
+export function TranscriptEditor({ transcript, lines, onBack }: { transcript: Transcript; lines: { lineChars: number; lineSeconds: number; linePause: number }; onBack: () => void }) {
   const t = useTranslator();
   const [content, setContent] = useState<TranscriptContent | null>(null);
   const [captions, setCaptions] = useState<TranscriptCaption[]>([]);
@@ -40,6 +41,8 @@ export function TranscriptEditor({ transcript, onBack }: { transcript: Transcrip
   const [replacement, setReplacement] = useState('');
   const list = useRef<HTMLDivElement>(null);
   const name = transcript.name || t('@yovoice.transcribe.defaultName');
+  // 断句参数取打开时的值，之后改设置不会打断正在编辑的字幕。
+  const [lineRules] = useState(lines);
 
   // 读取字幕文件；还没编辑过时按逐词时间分行。
   useEffect(() => {
@@ -47,10 +50,10 @@ export function TranscriptEditor({ transcript, onBack }: { transcript: Transcrip
     call<TranscriptContent>('transcript.read', { id: transcript.id }).then(loaded => {
       if (cancelled) return;
       setContent(loaded);
-      setCaptions(loaded.captions ?? (loaded.words.length ? wordCaptions(loaded.text, loaded.words) : []));
+      setCaptions(loaded.captions ?? (loaded.words.length ? wordCaptions(loaded.text, loaded.words, { maxWidth: lineRules.lineChars, maxSeconds: lineRules.lineSeconds, pause: lineRules.linePause }) : []));
     }).catch(e => { if (!cancelled) setError(formatCallError(t, e)); });
     return () => { cancelled = true; };
-  }, [transcript.id, t]);
+  }, [transcript.id, t, lineRules]);
 
   // 自动保存：改动后停顿 saveDelay 再写入；离开页面或切换转写时立即写入还没保存的改动。
   const pending = useRef<TranscriptCaption[] | null>(null);
