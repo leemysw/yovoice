@@ -4,99 +4,37 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-09
+
 ### English
 
-- Reference audio up to 60 seconds imports directly. Longer recordings open a section picker with the clearest part already selected; adjust it on the waveform or by typing in/out points, preview it, then save it as a voice.
-- “Listen while generating” in the creation inspector plays speech as it is synthesized, when the engine supports streaming for the model. Settings › Engine › Runtime sets threads, GPU device, idle unload and model-specific session options for all models. Supported IndexTTS engines also expose the segment token limit and 2.5 text normalization.
-- Export audio as FLAC (lossless, about half the size of WAV) or M4A (AAC 256 kbps) as well as WAV, from a version's “Export audio” or the timeline export. FLAC and M4A carry the title and project name; music versions also carry their lyrics and the same cover shown on the playback page. Version export can now also target audiobook, podcast or video loudness.
-- YuE2 advanced settings add Top P, Top K and repetition penalty for the score-writing stage.
-- The YuE2 melody score can be edited like lyrics: expand it into a large editor (also to write ABC by hand before any score exists), with a character count and validation shown while typing.
-- YuE2 melody score: “From audio › Hum a tune” records a hummed or sung melody and turns it into a score (needs SheetSage2); “Style from image” asks an AI service that accepts images for style tags.
-- YuE2 “Re-sing changed bars”: after editing the melody score or one section's lyrics, only the changed bars are re-sung and placed into the original version; everything outside them stays sample-for-sample the same.
-- YuE2 can make up to 4 candidate takes in one go (advanced settings), each with the next seed; every take records the seed it used.
-- “Export all stems” saves the mix and every stem into a new folder with DAW-friendly names such as `Song - 01 Vocals.wav`.
-- FLAC and M4A exports with tags now also note in the comment tag that the audio is AI-generated and which model made it.
-- YuE2 LoRA: import a `.safetensors` LoRA under advanced settings and apply it to the composition and/or timbre stage with its own strength.
-- “Separate stems” on a music version (optional HTDemucs 6-stem model, 42 MB) splits it into drums, bass, vocals, guitar, piano and other, each saved as a version you can play, export or add to the timeline.
-- “Transcribe to MIDI” on a music version (optional MuScriptor model, 412 MB, non-commercial) creates a score project with one track per instrument.
-- Kokoro now has a speaking-rate control and passes it to the inference engine.
-- Import existing local audio.cpp GGUF models and supported SF2 sound fonts from model settings (the folder button next to Download), without copying files or changing the download directory. Imported files are preserved when removing the model; PyTorch/MLX weights need conversion first.
-- Feature tour cards now stay inside the window, keeping Next and Done clickable with longer translations and smaller windows.
-- Speech recognition and subtitles with the optional Qwen3 ASR 0.6B model (Voice models, about 2.3 GB including its timing aligner; supports 30 languages, needs inference engine v0.9.1 or later):
-  - “Recognize text” under a reference transcript field or in the voice editor fills in what the sample says; a sample with no transcript keeps the result.
-  - New Transcribe page: upload audio or video (up to 1 hour, 20 MB) to get the text split into timed subtitle lines, then export SRT / WebVTT or copy the full text.
-  - “Export subtitles” on a speech version aligns its text to the audio and saves SRT / WebVTT split by sentence; the timing is kept with the version. The lyric aligner package also works for this.
-- Safer data: when the state database is missing but a backup exists, yovoice restores from the backup instead of creating an empty database that overwrites it; quitting midway through deleting media no longer removes audio still in use; edits made while the data folder is being moved are no longer lost, and saving keeps working after a failed move.
-- More reliable downloads: transient network errors, server hiccups and stalls resume and retry automatically; pausing or cancelling no longer deletes a fully downloaded file; after switching the download source, the file is checked to be the same one before resuming.
-- Quitting no longer hangs: an in-progress data folder move is stopped first instead of waiting for the copy to finish, and an internal error in one operation no longer makes every later operation unresponsive.
-- Cleaner cleanup: removing a model also deletes the temporary files left by downloads and updates, and “Clean residuals” reclaims expired temporary files in the models folder; a failed Kokoro pronunciation library update keeps the existing version.
-- More reliable assistant: when sending a message fails to save, an error is shown instead of it silently disappearing; the same proposal is never executed twice; the last lines of a reply are no longer lost when the assistant process exits.
-- Remote API errors now return a JSON error code with a status code matched to the error type (bad parameters no longer return 500); the CLI prints the error code and parameters on failure.
-- Ocho panel: a message that fails to send (too long, the assistant is busy, the service is unreachable) stays in the input box and the reason shows inside the panel; starting, switching or deleting a chat, picking a model, confirming a proposal and playing a result also report failures in place. Messages are capped at 2000 characters while typing.
-- Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
-- Better stem separation: with the optional BS-RoFormer model (173 MB, also inside the Lyric Aligner package), vocals are separated by BS-RoFormer and HTDemucs splits only the accompaniment, for cleaner vocals and less bleed. “Other” now keeps everything the other stems miss, so the six stems add back exactly to the original.
-- Settings read more cleanly: shorter descriptions, no repeated precision note on every model, and import instructions moved into the import button tooltip. The right-panel toggle in the title bar hides while the stem studio is open.
-- Roll a model back: models replaced by a catalog update get a version picker in Settings. “Before 2026-10-27 update” re-downloads the earlier file from its pinned commit and stops the update prompt; “Latest” switches back.
-- Sidebar: Transcribe now sits right under Text to speech; the Chinese label for the voice library is now 我的声音.
-- Stems can now be deleted or separated again: “Separate again” in a version's menu or the stem studio replaces the old stems only after the new ones are ready, and “Delete stems” removes them while keeping the original. Both are refused while a stem is on the timeline.
-- Fixed stem separation failing with “unexpected EOF” on songs longer than about 3 minutes: the separated stems are now written to disk one at a time instead of being read back as a single size-capped response.
-- “Transcribe to MIDI” gives each track a role from its instrument: the vocal melody and synth leads play as the lead, 3 dB above the accompaniment, instead of sitting at the same level and getting lost under guitar and bass; bass, piano, strings and pads get their matching roles too.
-- Stem studio: after “Separate stems” or “Transcribe to MIDI” finishes, a full-screen multitrack page opens with the original and every stem (or every MIDI instrument, rendered with your sound font) side by side — one transport and playhead, a waveform per track, volume, mute and solo, click to seek, Space to play. Reopen it from “Open stems” in the version menu or “Preview tracks” on a score project; “Export all stems” moved inside it.
-- Lighter when idle: Ocho's avatar and the launcher glow only animate while the assistant works, on hover or for an occasional glance, and stop when the window is in the background, so the idle app no longer keeps a CPU core busy; the assistant panel and the Transcribe page load on demand.
-- Smoother layout changes: collapsing the sidebar or side panel moves the workspace edge instead of jumping, the Generate button travels between the side panel and the title row, the sidebar highlight slides to the new page, a project opened from the list carries its title into the editor, and collapsible sections expand smoothly. Dialogs resize smoothly when their content changes, the generation progress row unfolds instead of pushing the panel down, the melody score grows open, and notices drop in and slide away.
-- Settings › Features can now hide the Transcribe page as well; if the page you were on gets hidden, yovoice returns to speech generation.
-- Drag the left edge of the right-hand settings panel to widen it (remembered between sessions); option labels that are cut off, such as the IndexTTS expression modes, show the full text on hover.
-- macOS: when the window content fails to load (the local page can't be reached, is refused, or its web process keeps crashing), yovoice now shows the reason with Retry and Open Logs Folder instead of a blank white window, and records it with the macOS version in `logs/host.log`.
-- Robustness: a corrupted sidebar-width record no longer blanks the app at startup; a failure inside the player, voice picker, Ocho panel, dialogs, intro or tour only affects that part; when a lazily loaded part can't be fetched, "Try again" reloads the page. Book import no longer creates duplicate chapters when you retry after a partial failure, and the create page no longer crashes when a Voxtral model is missing from the catalog.
-- Smaller fixes: timeline, resource and update dialogs show their own errors; the melody score reports when it can't be checked or the staff can't render; melody preview and reply playback no longer keep playing after being stopped; durations no longer show as 0:60; the story editor keeps your page while playing; several missing translations added.
-- Smaller install and faster first screen: the 1.9 MB icon source no longer ships inside the app, the music, timeline, score, book-import and onboarding pages load on demand, the assistant's avatar libraries stay out of the main bundle, and translator notes are stripped from the component language packs.
+- Speech recognition and subtitles with the optional Qwen3 ASR 0.6B model (30 languages): a new Transcribe page turns audio or video into timed subtitles (SRT / WebVTT); “Recognize text” fills in a reference transcript; speech versions can export aligned subtitles.
+- Stems: “Separate stems” splits a music version into drums, bass, vocals, guitar, piano and other (HTDemucs, with optional BS-RoFormer for cleaner vocals). The new full-screen stem studio plays all stems in sync with per-track waveform, volume, mute and solo. Stems can be exported to a folder with DAW-friendly names, separated again or deleted, and songs up to 10 minutes now separate reliably.
+- “Transcribe to MIDI” (optional MuScriptor model, non-commercial) turns a music version into a score project with one track per instrument and sensible levels, so the lead melody is no longer buried.
+- YuE2: hum a melody into a score, edit or hand-write the melody score in a large editor, re-sing only the changed bars, make up to 4 candidate takes, apply LoRAs, take style tags from an image, and tune Top P / Top K / repetition penalty.
+- Export audio as FLAC or M4A as well as WAV, with title, lyrics, cover and an AI-generated note in the tags; version exports can also target audiobook, podcast or video loudness.
+- “Listen while generating” for models that support streaming; Settings › Engine › Runtime sets threads, GPU device, idle unload and model-specific options. Kokoro gets a speaking-rate control.
+- Long reference recordings open a section picker with the clearest part preselected.
+- Import existing local GGUF models and SF2 sound fonts without copying them; models replaced by a catalog update can be rolled back to the earlier version.
+- Interface: smoother transitions, a resizable side panel, Transcribe moved under Text to speech, simpler Settings copy, less CPU when idle, and a smaller install with a faster first screen.
+- Reliability: automatic restore from backup, safer media deletion and data-folder moves, resumable downloads that survive network hiccups, no hang on quit, errors shown where they happen (Ocho panel, music player, dialogs), and a clear message instead of a blank window when the macOS window fails to load.
 
 ### 简体中文
 
-- 60 秒以内的参考音频直接导入；更长的录音先选段，已预先选中最清楚的一段，可在波形上调整或输入入点、出点，试听后保存为音色。
-- 引擎支持流式输出时，创作面板可“边生成边试听”；“设置 › 推理引擎 › 运行参数”可为所有模型设置线程、GPU 设备、空闲卸载时间和模型专属会话参数。引擎支持时还可设置 IndexTTS 每段 Token 上限，并切换 2.5 的文本规范化。
-- 导出音频除 WAV 外新增 FLAC（无损，体积约为 WAV 的一半）和 M4A（AAC 256 kbps），版本的“导出音频”和时间线导出都能选；FLAC 与 M4A 写入标题和作品名，音乐版本还写入歌词和播放页同款封面。版本导出也能选有声书、播客或视频平台的目标响度。
-- YuE2 高级参数新增写谱阶段的 Top P、Top K 和重复惩罚。
-- YuE2 旋律谱可以像歌词一样放大编辑：没有谱时也能直接手写 ABC，编辑时显示字数和谱面校验结果。
-- YuE2 旋律谱“从音频提取”新增“哼一段”：录下哼唱或清唱，扒成旋律谱（需要 SheetSage2）；风格栏新增“看图取风格”：请支持看图的 AI 服务读出风格标签。
-- YuE2 新增“按当前谱局部重唱”：改了旋律谱或某段歌词后，只重唱改动的小节并换进原版本，其余部分逐采样不变。
-- YuE2 高级设置可以一次生成最多 4 个候选，每版换下一个种子，并记下实际用的种子。
-- 新增“导出全部分轨”：把原混音和各轨存进新建的文件夹，按 DAW 习惯命名（如 `歌名 - 01 Vocals.wav`）。
-- 带标签导出 FLAC / M4A 时，注释标签里注明为 AI 生成及所用模型。
-- YuE2 支持 LoRA：在高级设置里导入 `.safetensors` LoRA，分别用于作曲和音色阶段并调节强度。
-- 音乐版本新增“分离音轨”（可选 HTDemucs 6 轨模型，42 MB）：分成鼓、贝斯、人声、吉他、钢琴和其他六轨，每轨存成版本，可试听、导出或加到时间线。
-- 音乐版本新增“转为 MIDI”（可选 MuScriptor 模型，412 MB，仅限非商业用途）：新建编曲作品，每种乐器一轨。
-- Kokoro 新增语速调节，并将所选语速传入推理引擎。
-- 模型设置新增本地导入（“下载”旁的文件夹按钮），原地使用已有 audio.cpp GGUF 模型及受支持的 SF2 音色库，无需复制或更改下载目录；移除导入模型时保留源文件。PyTorch／MLX 原始权重须先转换。
-- 功能引导卡片按实际大小限制在窗口内，较长的翻译和较小的窗口也能点击“下一步”和“开始使用”。
-- 可选语音识别模型 Qwen3 ASR 0.6B（设置的语音模型里下载，含时间对齐模型约 2.3 GB；支持 30 种语言，需要推理引擎 v0.9.1 及以上）：
-  - 在参考原文框下或编辑音色信息时点“识别文字”，把样本里说的话填进去；样本原来没有原文时会一并保存。
-  - 新增“语音转写”页：上传音频或视频（最长 1 小时、20 MB），得到按句分行、带时间的字幕，可导出 SRT / WebVTT 或复制全文。
-  - 语音版本的“导出字幕”：把正文对齐到音频，按句导出 SRT / WebVTT，时间保存在版本上；装了歌词对齐模型也能用。
-- 数据更稳妥：状态库文件丢失而备份还在时自动从备份恢复，不再新建空库覆盖备份；删除素材中途退出不再误删仍在使用的音频；数据目录迁移期间的改动不再丢失，迁移失败后可继续正常保存。
-- 下载更可靠：网络抖动、服务器临时出错或长时间没有数据时自动续传重试；暂停或取消后不会再误删已经下完的文件；更换下载来源后会核对是否同一文件再续传。
-- 退出不再卡住：关闭时先中止正在进行的数据目录迁移，不必等复制完成；某个操作内部出错也不会让之后的操作全部无响应。
-- 清理更干净：移除模型时一并删除下载和更新留下的临时文件，“清理残留”也会回收模型目录里过期的临时文件；Kokoro 发音库更新失败时保留原有版本。
-- 助手更可靠：发送消息时保存失败会提示；同一提议不会被重复执行；助手进程结束前的最后几行回复不再丢失。
-- 远程接口的错误统一返回 JSON 错误码并按类型区分状态码，参数错误不再报 500；命令行失败时输出错误码与参数。
-- Ocho 面板：消息发送失败（过长、助手忙、服务不可用）时内容留在输入框里，原因显示在面板内；新建、切换、删除对话，选择模型，确认提案和试听结果失败也都就地提示。输入时按 2000 字上限截断。
-- 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
-- 分轨更准、更完整：装有可选的 BS-RoFormer（173 MB，歌词对齐包里也带）时先用它分出人声，HTDemucs 只拆伴奏，人声更干净、不串轨；“其他”轨收下其余各轨没分走的部分，六轨相加即还原原曲。
-- 设置页更简洁：说明文字精简，每个模型下不再重复精度说明，导入说明收进导入按钮的提示；分轨工作台打开时隐藏标题栏的右侧面板开关。
-- 模型可以回退：经目录更新替换过的模型在设置里多一个版本选择，选“2026/10/27 更新前”按当时的提交重新下载旧文件，并不再提示更新；选回“最新版”即恢复。
-- 侧栏：语音转写移到语音生成下方；“声音库”改名为“我的声音”。
-- 分轨可以删除和重新分离：版本菜单或分轨工作台里的“重新分离”在新分轨就绪后才替换旧分轨，“删除分轨”删掉分轨、保留原曲；有分轨在时间线上时两者都会被拒绝。
-- 修复超过约 3 分钟的歌分离音轨时报“unexpected EOF”失败：分轨结果改为逐轨写盘，不再整体读入、超出回包上限后被截断。
-- “转为 MIDI”按乐器给各轨定角色：人声旋律和合成主音作为主旋律，比伴奏高 3 dB，不再和伴奏同一电平、被吉他和贝斯盖住；贝斯、钢琴、弦乐和铺底也各归其位。
-- 分轨工作台：“分离音轨”或“转为 MIDI”完成后打开全屏多轨页，原曲与各分轨（或用音色库逐轨渲染的 MIDI 各乐器）并排，统一播放和播放头，每轨有波形、音量、静音、独奏，点击定位、空格播放；之后可从版本菜单“打开分轨”或编曲页“分轨试听”进入，“导出全部分轨”移到工作台里。
-- 空闲更省资源：Ocho 形象和入口流光只在助手工作、悬停或偶尔张望时动，窗口在后台时停下，空闲时不再持续占用 CPU；助手浮窗和语音转写页按需加载。
-- 界面变化更连贯：收起展开侧栏或右侧面板时工作区边缘平滑移动，“生成”按钮在面板顶部与标题栏之间迁移；侧栏选中块滑到新页面；从列表打开作品时标题飞入编辑页；折叠区平滑展开。弹窗内容变化时尺寸平滑过渡，生成进度行展开而不是把面板顶下去，旋律谱出谱时平滑展开，提示条落下出现、上滑离开。Linux 桌面版暂不使用视图过渡动画（WebKitGTK 执行时会使应用崩溃），界面直接切换。
-- 设置 › 功能显示 新增“语音转写”，可隐藏转写页入口；所在页面被隐藏时自动回到语音生成。
-- 右侧设置面板可拖动左边缘调宽（宽度会记住）；被截断的选项（如 IndexTTS 的表达方式）悬停时显示完整文字。
-- macOS：窗口内容未能加载（本地页面连不上、被拒绝或网页进程反复崩溃）时，不再停在全白窗口，而是提示原因并提供“重试”和“打开日志目录”，同时把原因和系统版本记入 `logs/host.log`。
-- 稳定性：侧栏宽度记录损坏不再导致启动白屏；播放页、声音选择、Ocho 面板、各对话框、开场画面和引导出错只影响它自己；按需加载的部分取不到代码时“重试”会重新加载页面。导入小说中途失败后重试不再重复创建已入库的章节；目录里没有当前 Voxtral 模型时创作页不再崩溃。
-- 其他修复：时间线、资源和更新对话框在框内显示自己的错误；旋律谱无法校验或五线谱无法渲染时给出说明；旋律试听和回复试听停止后不再继续出声；时长不再出现 0:60 这样的显示；故事配音播放中翻页不再被拉回；补齐若干缺失的翻译。
-- 安装包更小、首屏更快：1.9 MB 的图标源图不再打进应用；音乐、时间线、编曲、导入书稿和开场引导页面按需加载，助手形象库不再进入主包，组件语言包去掉了给译者看的说明。
+- 可选语音识别模型 Qwen3 ASR 0.6B（支持 30 种语言）：新增“语音转写”页，把音频或视频转成带时间的字幕（SRT / WebVTT）；“识别文字”自动填写参考原文；语音版本可导出对齐的字幕。
+- 分轨：“分离音轨”把音乐版本分成鼓、贝斯、人声、吉他、钢琴和其他六轨（HTDemucs，可选 BS-RoFormer 让人声更干净）；新的全屏分轨工作台统一播放各轨，每轨有波形、音量、静音和独奏。分轨可按 DAW 习惯命名导出到文件夹，也可重新分离或删除；10 分钟以内的歌都能稳定分离。
+- “转为 MIDI”（可选 MuScriptor 模型，仅限非商业用途）：把音乐版本转成编曲作品，每种乐器一轨并按角色定电平，主旋律不再被伴奏盖住。
+- YuE2：哼一段扒成旋律谱，旋律谱可放大编辑或手写，按改动只重唱变化的小节，一次最多生成 4 个候选，支持 LoRA，可看图取风格，并可调写谱阶段的 Top P / Top K / 重复惩罚。
+- 导出音频新增 FLAC 和 M4A，标签里写入标题、歌词、封面并注明 AI 生成；版本导出也可选有声书、播客或视频平台的目标响度。
+- 支持流式的模型可“边生成边试听”；“设置 › 推理引擎 › 运行参数”可设置线程、GPU 设备、空闲卸载和模型专属参数；Kokoro 新增语速调节。
+- 较长的参考录音先选段，已预先选中最清楚的一段。
+- 可原地导入本机已有的 GGUF 模型和 SF2 音色库；经目录更新替换过的模型可以回退到旧版本。
+- 界面：过渡更连贯，右侧面板可调宽，语音转写移到语音生成下方，设置页文案更简洁，空闲更省 CPU，安装包更小、首屏更快。
+- 更可靠：状态库丢失时自动从备份恢复，删除素材和迁移数据目录更稳妥，下载遇网络抖动自动续传，退出不再卡住，错误在出错的地方就地提示（Ocho 面板、音乐播放页、各对话框），macOS 窗口加载失败时给出原因而不是白屏。
+
+### 贡献者 / Contributors
+
+@leemysw @zoyluoblue @david-bowiegxw
 
 ## [0.5.0] - 2026-10-28
 
