@@ -1,0 +1,38 @@
+name: Docs Only
+# check.yml 用 paths-ignore 跳过只改说明文档的 PR，被跳过的工作流不会产生 ci-ok，必需检查会一直等待。
+# 这里只在 PR 碰到文档时触发：全是文档时给出同名的 ci-ok 通过结果；还含代码时换个名字，ci-ok 以 check.yml 为准。
+on:
+  pull_request:
+    # 与 check.yml 的 paths-ignore 保持一致。
+    paths: ['**/README.md', 'README_zh.md', 'AGENTS.md', 'docs/**']
+permissions:
+  contents: read
+  pull-requests: read
+concurrency:
+  group: docs-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  scope:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      docs-only: ${{ steps.scope.outputs.docs-only }}
+    steps:
+      - id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GH_REPO/pulls/$PR/files" --paginate --jq '.[].filename' > files.txt
+          cat files.txt
+          code=$(grep -Ev '(^|/)README\.md$|^README_zh\.md$|^AGENTS\.md$|^docs/' files.txt || true)
+          echo "docs-only=$([[ -z "$code" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+  ci-ok:
+    needs: scope
+    name: ${{ needs.scope.outputs.docs-only == 'true' && 'ci-ok' || 'docs-scope (含代码改动，以 Check and Package 为准)' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: echo "只改了说明文档，跳过构建与测试。"
