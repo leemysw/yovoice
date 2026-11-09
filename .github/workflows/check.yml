@@ -300,7 +300,7 @@ jobs:
       - run: pnpm --dir web exec playwright install --only-shell chromium
       - run: pnpm --dir web run lint
         if: matrix.shard == 1
-      - run: pnpm --dir web test --shard=${{ matrix.shard }}/3
+      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/3
         env:
           # 定时与手动触发时全量运行，包括已封存的用例。
           PW_ALL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
