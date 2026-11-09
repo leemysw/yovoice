@@ -325,6 +325,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         window.__workbenchMediaBase = '/media/';
         // 桌面应用不显示浏览器默认右键菜单。
         window.addEventListener('contextmenu', event => event.preventDefault(), true);
+        // WebKit 的打开面板回调没有 accept 参数，记录触发选择器的文件输入框。
+        window.addEventListener('click', event => {
+          const input = event.target;
+          if (input instanceof HTMLInputElement && input.type === 'file') window.__workbenchFileAccept = input.accept;
+        }, true);
         const callbacks = new Set();
         window.__workbenchReceive = data => callbacks.forEach(fn => fn({data}));
         window.chrome = {webview: {postMessage: data => window.webkit.messageHandlers.workbench.postMessage(data), addEventListener: (name, fn) => callbacks.add(fn)}};
@@ -391,12 +396,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     #endif
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
         guard frame.isMainFrame, Self.trusted(frame.securityOrigin, localOrigin: origin) else { completionHandler(nil); return }
-        let panel = NSOpenPanel()
-        panel.title = HostL10n.t("panel.pickAudioOrSubtitles")
-        panel.allowedContentTypes = [.audio] + ["srt", "vtt", "ass", "ssa"].compactMap { UTType(filenameExtension: $0) }
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.beginSheetModal(for: window) { response in completionHandler(response == .OK ? panel.urls : nil) }
+        webView.evaluateJavaScript("window.__workbenchFileAccept") { value, _ in
+            let panel = NSOpenPanel()
+            let types = Self.fileTypes(accept: value as? String ?? "")
+            if !types.isEmpty { panel.allowedContentTypes = types }
+            panel.canChooseDirectories = parameters.allowsDirectories
+            panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+            panel.beginSheetModal(for: self.window) { response in completionHandler(response == .OK ? panel.urls : nil) }
+        }
+    }
+
+    static func fileTypes(accept: String) -> [UTType] {
+        accept.split(separator: ",").compactMap { item in
+            let type = item.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            switch type {
+            case "audio/*": return .audio
+            case "video/*": return .movie
+            case "image/*": return .image
+            default:
+                if type.hasPrefix(".") { return UTType(filenameExtension: String(type.dropFirst())) }
+                return UTType(mimeType: type)
+            }
+        }
     }
     // 页面没能显示（连接失败、服务拒绝、网页进程反复崩溃）时窗口只剩空白：写入日志，并提示重试或打开日志目录。
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {

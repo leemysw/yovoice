@@ -40,7 +40,13 @@ public sealed class LocalService : IDisposable
     private static string RunService(params string[] arguments)
     {
         if (!File.Exists(ServiceExecutable)) throw new IOException(HostL10n.T("本地服务缺失，请重新构建或安装应用。", "The local service is missing. Rebuild or reinstall the app."));
-        var start = new ProcessStartInfo(ServiceExecutable) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
+        // Go 服务按 UTF-8 输出路径和错误，避免中文目录被系统代码页解码成乱码。
+        var start = new ProcessStartInfo(ServiceExecutable)
+        {
+            UseShellExecute = false, CreateNoWindow = true,
+            RedirectStandardOutput = true, StandardOutputEncoding = Encoding.UTF8,
+            RedirectStandardError = true, StandardErrorEncoding = Encoding.UTF8
+        };
         foreach (string argument in arguments) start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new IOException(HostL10n.T("无法启动本地服务。", "Could not start the local service."));
         var error = process.StandardError.ReadToEndAsync();
@@ -99,13 +105,13 @@ public sealed class LocalService : IDisposable
         if (!File.Exists(executable)) throw new IOException(HostL10n.T("本地服务缺失，请重新构建或安装应用。", "The local service is missing. Rebuild or reinstall the app."));
         if (Environment.GetEnvironmentVariable("WORKBENCH_DATA") is null)
         {
-            using var migration = Process.Start(new ProcessStartInfo(executable, "--prepare-data") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true })!;
+            using var migration = Process.Start(new ProcessStartInfo(executable, "--prepare-data") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, StandardErrorEncoding = Encoding.UTF8 })!;
             string error = await migration.StandardError.ReadToEndAsync();
             await migration.WaitForExitAsync();
             if (migration.ExitCode != 0) throw new IOException(HostL10n.T("数据目录迁移失败：", "Data folder migration failed: ") + error);
         }
         Directory.CreateDirectory(Path.Combine(Root, "logs"));
-        var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true };
+        var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardInput = true, RedirectStandardOutput = true, StandardOutputEncoding = Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = Encoding.UTF8 };
         start.Environment["WORKBENCH_DATA"] = Root;
         start.Environment["WORKBENCH_WEB"] = Path.Combine(AppContext.BaseDirectory, "web");
         start.Environment["WORKBENCH_TOKEN"] = Token;
