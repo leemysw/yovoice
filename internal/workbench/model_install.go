@@ -26,6 +26,7 @@ func (w *Workbench) register(id, path string, managed bool, sha256 string, pinne
 		s.Models = append(s.Models, schema.InstalledModel{ID: id, Path: path, Managed: managed, SHA256: sha256, Pinned: pinned})
 	}, true)
 }
+
 // DownloadModel 下载模型包；version 是旧版本的主文件摘要，为空时下载最新版。
 // 已安装的模型换版本时只替换内容不同的文件；换到旧版本后不再提示更新，换回最新版即恢复。
 func (w *Workbench) DownloadModel(id, version string) error {
