@@ -15,6 +15,17 @@ Before editing, decide what "keep the melody" means and state it in your reply:
 
 Also decide whether tempo, meter, lyrics, structure and the Ins melody may change. After `update_work` with a new `abc`, the result's `melodyChanges` lists the changed bars per voice and for chords (compared as sounding events, not text). Check it against the contract and report it truthfully; never call a melody "preserved" when Vocal bars changed.
 
+## Develop a motif instead of repeating it
+
+When a song feels flat ("the chorus doesn't lift", "it all sounds the same"), vary the material the listener already knows rather than writing a new tune. Keep the lyric rhythm and the motif's contour, then change one dimension per section:
+
+- Chorus lift: move the motif up (a fourth, fifth or octave), lengthen the note on the title word, land the phrase on a higher, held note.
+- Verse 2: same contour with altered intervals or a rhythmic displacement (start half a beat later, add a pickup).
+- Bridge: invert or fragment the motif, change the harmonic area (relative minor, IV), thin the rhythm.
+- Final chorus: the chorus melody with a new peak in its last phrase, or a step-up key change (`[K:]` change plus matching chords).
+
+State which bars change and which motif stays, then `update_work` with the new `abc` and check `melodyChanges`. After generating, point the user at the exact spot to compare (for example verse into chorus) between the old and new take.
+
 ## Reharmonize
 
 - Mark held notes, strong-beat notes, cadences and phrase ends in both voices first.
@@ -37,4 +48,4 @@ Fit the words to the vocal notes: roughly one syllable per note, stressed syllab
 
 ## Then
 
-`update_work` (abc, plus text or lyrics as needed) → `generate_work` → tell the user what changed and which earlier take to compare against. If the requested effect is missing when they listen, revise and generate again rather than defending the score.
+`update_work` (abc, plus text or lyrics as needed) → `generate_work` → tell the user what changed and which earlier take to compare against. When the user cannot tell whether the score edit or the new style made the difference, offer one comparison take that changes only one of them (as the official editing demo does: reharmonized score, style-only, melody-only with `stripChords`). The full walkthrough is in the yovoice-lyrics skill's `references/yue2-examples.md`. If the requested effect is missing when they listen, revise and generate again rather than defending the score.

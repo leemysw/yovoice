@@ -254,7 +254,7 @@ func TestYuE2Request(t *testing.T) {
 	instrumental.ModelOptions = map[string]map[string]any{"yue2": {"cot": "off"}}
 	p, err = BuildRequest(instrumental, "", "")
 	must(t, err)
-	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "full" || o["lyrics"] != planningLyrics || !strings.HasSuffix(o["style"].(string), "instrumental, no vocals") {
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "full" || o["lyrics"] != planningLyrics(instrumental.Seed) || !strings.HasSuffix(o["style"].(string), "instrumental, no vocals") {
 		t.Fatal(o)
 	}
 	instrumental.Abc = testkit.ABC

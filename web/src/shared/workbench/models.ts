@@ -16,6 +16,8 @@ export const isStableAudio = (id: string) => id.startsWith('stable-audio-');
 export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.startsWith('yue2-') || isStableAudio(id);
 /** YuE2 由歌词或旋律谱决定长度，没有时长设置。 */
 export const isYuE = (id: string) => id.startsWith('yue2-');
+/** 风格描述上限：YuE2 接受成段的编配描述（乐器怎样进入、段落怎样起落），其余音乐模型保持 512 字。与后端 schema.MusicStyleLimit 一致。 */
+export const musicStyleLimit = (id: string) => isYuE(id) ? 2000 : 512;
 // 设置里模型按用途分页：语音模型、音乐模型（歌曲生成、扒谱与歌词对齐）和编曲音色库。
 const musicFamilies = new Set(['ace_step', 'yue2', 'stable_audio', 'sheetsage2', 'lyric_align', 'htdemucs_6stems', 'bs_roformer', 'muscriptor']);
 export const modelTab = (family: string) => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : 'models';

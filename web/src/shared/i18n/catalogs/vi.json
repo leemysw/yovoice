@@ -1923,7 +1923,7 @@
     "defaultMessage": "Đổi tên cách thể hiện"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Mô tả phong cách trong 1–512 ký tự."
+    "defaultMessage": "Mô tả phong cách trong 1–{max} ký tự."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Lời bài hát tối đa 4000 ký tự."
@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "Đang ghi âm"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "Diễn tiến bài hát"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2 hiểu cả câu mô tả: chọn ngôn ngữ và nhịp độ, rồi cách mở đầu, phát triển và kết thúc để mỗi bài một khác."
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "Ngôn ngữ hát"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "Nhịp độ"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "Mở đầu"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "Phát triển"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "Kết thúc"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "Hát tiếng Quan thoại"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "Hát tiếng Quảng Đông"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "Hát tiếng Anh"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "Hát tiếng Nhật"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "Hát tiếng Hàn"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "Chậm · ballad"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "Vừa · pop, R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "Sôi động · dance, rock"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "Nhanh · punk, điện tử"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "Giọng hát vào ngay"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "Dạo nhạc dài trước"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "Mở đầu bằng điệp khúc"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "Verse nhẹ nhàng, điệp khúc sáng"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "Đoạn bridge tối giản"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "Solo nhạc cụ trước điệp khúc cuối"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "Dồn lên điệp khúc cuối thật mạnh"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "Nhỏ dần với chủ đề dạo đầu"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "Kết bằng một câu hát không đệm"
   }
 }

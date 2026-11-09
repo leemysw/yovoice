@@ -9,8 +9,9 @@ YuE2 renders a song from a style prompt, lyrics and, optionally, a two-voice mel
 
 ## Style and lyrics
 
-- Style in English tags, in this order: sung language, genre, instruments, vocal character, mood, tempo — e.g. `English, warm piano pop, expressive female voice, acoustic piano, light drums, unhurried phrasing, 88 BPM`. Put tempo and meter in the score too and keep them consistent.
-- Lyrics: section tags on their own lines (`[Verse]`, `[Chorus]`, `[Bridge]`, `[Outro]`) followed by the sung words. Only words to be sung; no notes or instructions. Song length follows the lyrics.
+- Style in English, up to 2000 characters: sung language, genre, lead vocal, core instruments and tempo, plus a sentence or two on how the song unfolds (how it opens and when the voice enters, what changes between sections, how it ends). Write style and lyrics with the yovoice-lyrics skill; its song-forms reference has the YuE2 style guidance, and its yue2-examples reference distils the official demos, the paper's findings and the official editing walkthrough. Put tempo and meter in the score too and keep them consistent.
+- Lyrics: section tags on their own lines (`[Verse]`, `[Chorus]`, `[Bridge]`, `[Outro]`, optionally with a short note such as `[Verse 2 – whispered]`) followed by the sung words. Only words to be sung; no notes or instructions. Song length follows the lyrics.
+- Each `plan_melody` call writes a new score with a fresh seed. When the user wants a different tune, opening or structure, plan again (or change the style's shape) rather than generating more takes from the same score: takes from one score share its melody and form.
 
 ## Pick the workflow
 
@@ -30,7 +31,7 @@ Reference files are in this skill's folder (from the workspace: `.agents/skills/
 
 ## Settings
 
-`modelOptions.yue2`: `cot` (`auto` | `full` | `melody` | `off`; auto picks full with chords, melody without), `candidates` 1-4 (1; how many takes one generate makes, each with the next seed), `num_inference_steps` 1-64 (8; more steps can sound cleaner but take longer), `abc_temperature` 0.05-2 (0.7, score writing), `abc_top_p` 0.01-1 (0.95), `abc_top_k` 1-500 (100), `abc_repetition_penalty` 0.5-3 (1.2), `semantic_temperature` 0.05-2 (1.0), `semantic_top_p` 0.01-1 (0.95), `semantic_top_k` 1-500 (100), `semantic_repetition_penalty` 0.5-3 (1.2), `ar_lora` / `nar_lora` (an imported adapter ID or empty; set in the app, not by you), `ar_lora_scale` / `nar_lora_scale` -10..10 (1). Change them only when asked; the defaults are the tuned route.
+`modelOptions.yue2`: `cot` (`auto` | `full` | `melody` | `off`; auto picks full with chords, melody without), `candidates` 1-4 (1; how many takes one generate makes, each with the next seed), `num_inference_steps` 1-64 (8; the official baseline is 32, which can sound cleaner but takes longer), `abc_temperature` 0.05-2 (0.7, score writing), `abc_top_p` 0.01-1 (0.9), `abc_top_k` 1-500 (30), `abc_repetition_penalty` 0.5-3 (1.005; keep it near 1, a score repeats bars and motifs by design), `semantic_temperature` 0.05-2 (1.0), `semantic_top_p` 0.01-1 (0.95), `semantic_top_k` 1-500 (100), `semantic_repetition_penalty` 0.5-3 (1.2), `ar_lora` / `nar_lora` (an imported adapter ID or empty; set in the app, not by you), `ar_lora_scale` / `nar_lora_scale` -10..10 (1). Change them only when asked; the defaults are the tuned route.
 
 ## Stable Audio sound effects
 
