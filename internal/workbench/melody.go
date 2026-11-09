@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"slices"
@@ -96,12 +97,17 @@ func (w *Workbench) PlanMelody(d schema.Draft) error {
 	if e = w.saveDraftKeepingMelody(d); e != nil {
 		return e
 	}
+	// 种子留空时每次写谱抽一个新种子（只用于这次请求，不存进作品）；否则引擎用固定默认种子，同词同风格总写出同一份谱。
+	if d.Seed == nil {
+		random := int(rand.Int32N(1 << 30))
+		d.Seed = &random
+	}
 	_, e = w.start("generate", msg.ActivityPlanMelody, nil, &d.ModelID, func(ctx context.Context) error {
 		abc, truncated, e := w.engine.PlanMelody(ctx, *s.RuntimePath, model, s.Preferences.Backend, performanceFirst(s), d, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) })
 		if e != nil {
 			return e
 		}
-		diag.Log(w.Store.Root, "melody.planned", "project_id", d.ID, "bytes", len(abc), "truncated", truncated)
+		diag.Log(w.Store.Root, "melody.planned", "project_id", d.ID, "seed", *d.Seed, "bytes", len(abc), "truncated", truncated)
 		return w.offerMelody(d.ID, "plan", abc, truncated)
 	}, "", d.ID)
 	if e == nil {

@@ -267,8 +267,22 @@ func attachReference(r, o map[string]any, d schema.Draft, voice string, withTran
 	return nil
 }
 
-// planningLyrics 是纯音乐出谱时没有歌词用的段落骨架，只给规划器安排结构，不会被唱出来。
-const planningLyrics = "[Intro]\n\n[Verse]\n\n[Chorus]\n\n[Verse]\n\n[Chorus]\n\n[Outro]\n"
+// planningForms 是纯音乐出谱时没有歌词用的段落骨架，只给规划器安排结构，不会被唱出来。
+// 按种子挑一种，同一种子总得到同一骨架；不总用同一种曲式，避免纯音乐都是一个结构。
+var planningForms = []string{
+	"[Intro]\n\n[Verse]\n\n[Chorus]\n\n[Verse]\n\n[Chorus]\n\n[Outro]\n",
+	"[Intro]\n\n[Theme]\n\n[Variation]\n\n[Theme]\n\n[Outro]\n",
+	"[Theme A]\n\n[Theme A]\n\n[Theme B]\n\n[Theme A]\n",
+	"[Intro]\n\n[Build]\n\n[Drop]\n\n[Breakdown]\n\n[Build]\n\n[Drop]\n\n[Outro]\n",
+	"[Intro]\n\n[Theme]\n\n[Solo]\n\n[Interlude]\n\n[Theme]\n\n[Outro]\n",
+}
+
+func planningLyrics(seed *int) string {
+	if seed == nil {
+		return planningForms[0]
+	}
+	return planningForms[(*seed%len(planningForms)+len(planningForms))%len(planningForms)]
+}
 
 // yue2Request 构建 YuE2 请求。YuE2 以歌词为正文、风格为请求参数，没有时长参数，长度由歌词或谱决定。
 // 规划模式 cot：auto 时有谱按谱演唱（谱里有和弦用 full、只有旋律用 melody），没谱用 full 让模型自己出谱，
@@ -301,7 +315,7 @@ func yue2Request(d schema.Draft) (map[string]any, error) {
 		}
 		if abc == "" {
 			if lyrics == "" {
-				lyrics = planningLyrics
+				lyrics = planningLyrics(d.Seed)
 			}
 		} else {
 			converted, _, e := score.InstrumentalABC(d.Abc)
