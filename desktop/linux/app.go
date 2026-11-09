@@ -309,6 +309,9 @@ func (a *app) sidebarScript() string {
 if (savedSidebar) localStorage.setItem('astryx-resizable:workbench-sidebar', savedSidebar);
 window.__workbenchPlatform = 'linux';
 window.__workbenchMediaBase = '/media/';
+// WebKitGTK 2.52 的 GTK 3 版执行视图过渡时宿主进程会空指针崩溃（Xvfb 冒烟稳定复现）；
+// 隐藏该接口，界面按“不支持视图过渡”直接切换，结果一致，只是没有过渡动画。
+delete Document.prototype.startViewTransition;
 // 桌面应用不显示浏览器默认右键菜单。
 window.addEventListener('contextmenu', event => event.preventDefault(), true);
 const callbacks = new Set();
