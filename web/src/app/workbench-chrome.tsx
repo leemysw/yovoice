@@ -121,7 +121,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   // 正在导出字幕的语音版本。
   const [captionTarget, setCaptionTarget] = useState<Generation | null>(null);
   const [exportTarget, setExportTarget] = useState<Generation | null>(null);
-  const pendingStems = useRef<string | null>(null);
+  const pendingStems = useRef<{ sourceId: string; old: Set<string> } | null>(null);
   const [nowPlaying, setNowPlaying] = useState<Generation | null>(null);
   const libraryTabs = <TabList value={page === 'voices' ? 'voices' : 'characters'} onChange={setPage} role="tablist" hasDivider>
     <Tab value="characters" label={t('@yovoice.library.voicesTab')} panelId="voice-library-panel" />
@@ -168,12 +168,20 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   // 导出音频：桌面端先选格式与响度，浏览器预览直接下载 WAV。
   const exportVersion = (item: Generation) => { if (isDesktop) setExportTarget(item); else run(() => exportOutput(item.id, item.fileName, versionName(item))); };
   // 分轨与转为 MIDI 在后台运行，进度在活动栏；分轨结果作为版本出现在版本记录里，扒出的 MIDI 新建编曲作品后自动打开。
-  const separateStems = (item: Generation) => run(async () => { await call('generation.separateStems', { id: item.id }); pendingStems.current = item.id; });
+  // 重新分离时记下旧分轨，等新分轨换上来再打开工作台。
+  const separateStems = (item: Generation, replace = false) => run(async () => {
+    const old = new Set(state.history.filter(stem => stem.stemOf === item.id).map(stem => stem.id));
+    if (replace) setStudio(null);
+    await call('generation.separateStems', { id: item.id, replace });
+    pendingStems.current = { sourceId: item.id, old };
+  });
+  const deleteStems = async (item: Generation) => { await call('generation.deleteStems', { id: item.id }); setStudio(null); };
   const openStems = (item: Generation) => setStudio({ kind: 'stems', sourceId: item.stemOf ?? item.id });
   // 分离结束、分轨出现在版本里时打开工作台，让人马上听到效果。
   useEffect(() => {
-    const sourceId = pendingStems.current;
-    if (!sourceId || state.activity?.status === 'running' || !state.history.some(item => item.stemOf === sourceId)) return;
+    const pending = pendingStems.current;
+    if (!pending || state.activity?.status === 'running' || !state.history.some(item => item.stemOf === pending.sourceId && !pending.old.has(item.id))) return;
+    const { sourceId } = pending;
     pendingStems.current = null;
     setStudio({ kind: 'stems', sourceId });
   }, [state.history, state.activity?.status]);
@@ -225,6 +233,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
       ...(music && !currentVersion.stemOf && !state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.separate'), isDisabled: busy, onClick: () => separateStems(currentVersion) }] : []),
       ...(canResing(currentVersion) ? [{ label: t('@yovoice.resing.action'), isDisabled: busy, onClick: () => resing(currentVersion) }] : []),
       ...(music && (currentVersion.stemOf || state.history.some(item => item.stemOf === currentVersion.id)) ? [{ label: t('@yovoice.stems.open'), onClick: () => openStems(currentVersion) }] : []),
+      ...(music && !currentVersion.stemOf && state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.resplit'), isDisabled: busy, onClick: () => separateStems(currentVersion, true) }] : []),
       ...(music ? [{ label: t('@yovoice.stems.toMidi'), isDisabled: busy, onClick: () => transcribeMidi(currentVersion) }] : []),
       ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.caption.menu'), onClick: () => setCaptionTarget(currentVersion) }, { label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }, { label: t('@yovoice.character.saveAs'), onClick: () => characterFromGeneration(currentVersion) }] : []),
     ]} /> : null}
@@ -287,7 +296,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     {ready && !assistantHidden ? <PageBoundary name="assistant"><Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense></PageBoundary> : null}
     {exportTarget ? <PageBoundary name="version-export"><VersionExportDialog generation={exportTarget} name={versionName(exportTarget)} tags={exportTags(exportTarget)} onClose={() => setExportTarget(null)} /></PageBoundary> : null}
     {studio ? <PageBoundary name="stem-studio"><Suspense fallback={null}><StemStudio target={studio} history={state.history} project={studio.kind === 'midi' ? (studio.projectId === draft.id ? draft : state.drafts.find(item => item.id === studio.projectId)) : undefined}
-      onClose={() => setStudio(null)} onExport={exportStems} openSoundFonts={() => { setStudio(null); openSettings('musescore-general-sf2'); }} /></Suspense></PageBoundary> : null}
+      onClose={() => setStudio(null)} onExport={exportStems} onResplit={source => separateStems(source, true)} onDeleteStems={deleteStems} busy={busy} openSoundFonts={() => { setStudio(null); openSettings('musescore-general-sf2'); }} /></Suspense></PageBoundary> : null}
     {captionTarget ? <PageBoundary name="caption-export"><CaptionDialog state={state} generation={captionTarget} name={versionName(captionTarget)} onClose={() => setCaptionTarget(null)} /></PageBoundary> : null}
     <WorkbenchOverlays state={state} catalog={catalog} ready={ready} error={error} setError={setError} page={page} run={run} session={session} selectDraft={selectDraft} instrumental={instrumental} voicePicker={voicePicker} setVoicePicker={setVoicePicker} editor={editor} pronunciation={pronunciation} setPronunciation={setPronunciation} voiceTarget={voiceTarget} setVoiceTarget={setVoiceTarget} projectList={projectList} applyToTarget={applyToTarget} nowPlaying={nowPlaying} setNowPlaying={setNowPlaying} openSettings={openSettings} voiceEditor={voiceEditor} setVoiceEditor={setVoiceEditor} cues={cues} showIntro={showIntro} finishIntro={finishIntro} showTour={showTour} finishTour={finishTour} />
   </VStack>;

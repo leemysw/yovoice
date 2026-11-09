@@ -216,6 +216,13 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (!voice) throw new CallError('@yovoice.error.audioMissing');
     return { start: 0, end: Math.min(voice.duration, 10) } as T;
   }
+  if (method === 'generation.deleteStems') {
+    // 与服务端一致：任一分轨在时间线上时整体拒绝，否则一并删掉。
+    const ids = state.history.filter(item => item.stemOf === (data as { id: string }).id).map(item => item.id);
+    if (state.drafts.some(d => d.timeline?.tracks.some(t => t.clips.some(c => !!c.generationId && ids.includes(c.generationId))))) throw new CallError('@yovoice.timeline.inUse');
+    for (const id of ids) await dispatch('media.delete', { kind: 'outputs', id });
+    return true as T;
+  }
   if (method === 'media.rename' || method === 'media.delete') {
     const { kind, id, name } = data as { kind: string; id: string; name: string };
     if (!['voices', 'outputs'].includes(kind)) throw new CallError('@yovoice.error.audioKindInvalid');

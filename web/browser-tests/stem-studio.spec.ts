@@ -74,6 +74,30 @@ test('分轨工作台：原曲与各分轨并排，统一播放，静音、独�
   await expect(inspectorToggle).toBeVisible();
 });
 
+test('分轨工作台里删除分轨：确认后关闭，版本菜单回到可以分离', async ({ page }) => {
+  const draft = { ...createMusicDraft('zh-CN'), id: 'd'.repeat(32) };
+  const state = emptyState();
+  state.drafts = [draft];
+  const take = (id: string, extra: object = {}) => ({ id, title: draft.title, fileName: `${id}.wav`, createdAt: '2026-09-15T12:00:00Z', duration: 4, settings: draft, ...extra });
+  state.history = [take('song'), take('vocals', { stemOf: 'song', stem: 'vocals' }), take('drums', { stemOf: 'song', stem: 'drums' })];
+  await page.goto('/');
+  await seedAudio(page, { 'song.wav': 330, 'vocals.wav': 440, 'drums.wav': 110 });
+  await seedState(page, state); await page.reload();
+
+  const menu = page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true });
+  await menu.click();
+  await expect(page.getByRole('menuitem', { name: '重新分离' })).toBeVisible();
+  await page.getByRole('menuitem', { name: '打开分轨' }).click();
+  const studio = page.getByRole('dialog', { name: `分轨 · ${draft.title}` });
+  await studio.getByRole('button', { name: '删除分轨' }).click();
+  const confirm = page.getByRole('dialog', { name: '删除这次分离的音轨？' });
+  await confirm.getByRole('button', { name: '删除分轨' }).click();
+  await expect(studio).toHaveCount(0);
+  await menu.click();
+  await expect(page.getByRole('menuitem', { name: '分离音轨' })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: '打开分轨' })).toHaveCount(0);
+});
+
 test('转 MIDI 的结果在分轨工作台逐轨试听；没装音色库时提示下载', async ({ page }) => {
   const draft = { ...createMusicDraft('zh-CN'), id: 'f'.repeat(32), kind: 'score' as const, modelId: 'musescore-general-sf2',
     score: { tempo: 120, timeSignature: [4, 4], tracks: [{ id: 'piano', name: '钢琴', role: 'piano', program: 0, notes: [{ bar: 1, beat: 1, pitch: 60, length: 1, velocity: 90 }] }] } };

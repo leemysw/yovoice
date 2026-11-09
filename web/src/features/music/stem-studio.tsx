@@ -4,9 +4,10 @@ import { Dialog } from '@astryxdesign/core/Dialog';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { Slider } from '@astryxdesign/core/Slider';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Download, Headphones, LoaderCircle, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
+import { Download, Headphones, LoaderCircle, Pause, Play, RotateCcw, Trash2, Volume2, VolumeX, X } from 'lucide-react';
 import { call, CallError } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
+import { ConfirmDelete } from '../../shared/ui/app-dialog';
 import { formatTime, type Draft, type Generation, type StemName } from '../../shared/workbench';
 import { waveform as readWaveform, type Waveform } from '../media/waveform';
 import { useMultitrack, type TrackMix } from '../media/use-multitrack';
@@ -27,9 +28,10 @@ const bins = 720;
  * 用来听清分离或转换的效果。分轨来自 HTDemucs 的分离结果；转 MIDI 的结果用编曲音色库逐轨渲染后试听。
  * 原曲作为参照轨默认静音，独奏原曲即可与分轨对比。空格播放暂停。
  */
-export function StemStudio({ target, history, project, onClose, onExport, openSoundFonts }: {
+export function StemStudio({ target, history, project, onClose, onExport, onResplit, onDeleteStems, busy, openSoundFonts }: {
   target: StudioTarget; history: Generation[]; project?: Draft; onClose: () => void;
-  onExport?: (source: Generation) => void; openSoundFonts: () => void;
+  onExport?: (source: Generation) => void; onResplit?: (source: Generation) => void; onDeleteStems?: (source: Generation) => Promise<void>;
+  busy?: boolean; openSoundFonts: () => void;
 }) {
   const t = useTranslator();
   const source = history.find(item => item.id === target.sourceId);
@@ -73,6 +75,15 @@ export function StemStudio({ target, history, project, onClose, onExport, openSo
     if (clock.current) clock.current.textContent = formatTime(time);
   }, e => setError(e));
   const { playing, toggle, seek, ready, duration } = player;
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  // 删除分轨前先停播；成功后由外层关闭工作台，失败（例如分轨还在时间线上）时把原因留在确认框里。
+  const removeStems = async (item: Generation, remove: (source: Generation) => Promise<void>) => {
+    if (playing) toggle();
+    setDeleting(true); setDeleteError('');
+    try { await remove(item); } catch (e) { setDeleteError(formatCallError(t, e)); setDeleting(false); }
+  };
   total.current = duration;
 
   useEffect(() => {
@@ -113,6 +124,8 @@ export function StemStudio({ target, history, project, onClose, onExport, openSo
     <VStack className="stem-studio" gap={0}>
       <HStack className="stem-studio-header" gap={3} vAlign="center">
         <VStack className="grow" gap={0}><h2>{t('@yovoice.stems.studioTitle', { title })}</h2><small>{subtitle}</small></VStack>
+        {target.kind === 'stems' && source && onResplit ? <Button size="sm" variant="ghost" icon={<RotateCcw />} label={t('@yovoice.stems.resplit')} isDisabled={busy} onClick={() => onResplit(source)} /> : null}
+        {target.kind === 'stems' && source && onDeleteStems ? <Button size="sm" variant="ghost" icon={<Trash2 />} label={t('@yovoice.stems.delete')} onClick={() => { setDeleteError(''); setConfirmDelete(true); }} /> : null}
         {target.kind === 'stems' && source && onExport ? <Button size="sm" variant="secondary" icon={<Download />} label={t('@yovoice.stems.exportAll')} onClick={() => onExport(source)} /> : null}
         <Button size="sm" variant="ghost" isIconOnly icon={<X />} label={t('@yovoice.action.close')} onClick={onClose} />
       </HStack>
@@ -150,5 +163,7 @@ export function StemStudio({ target, history, project, onClose, onExport, openSo
         {tracks.length ? <StackItem as="span" className="stem-playhead" aria-hidden /> : null}
       </VStack></VStack>
     </VStack>
+    {confirmDelete && source && onDeleteStems ? <ConfirmDelete title={t('@yovoice.stems.deleteTitle')} description={t('@yovoice.stems.deleteDescription')}
+      confirmLabel={t('@yovoice.stems.delete')} busy={deleting} error={deleteError} onClose={() => setConfirmDelete(false)} onConfirm={() => void removeStems(source, onDeleteStems)} /> : null}
   </Dialog>;
 }

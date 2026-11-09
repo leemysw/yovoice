@@ -178,16 +178,7 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 		return msg.Err(msg.ErrVoiceBusyDelete, nil)
 	}
 	if kind == "outputs" {
-		for _, draft := range s.Drafts {
-			if draft.Timeline == nil {
-				continue
-			}
-			for _, track := range draft.Timeline.Tracks {
-				if slices.ContainsFunc(track.Clips, func(c schema.AudioClip) bool { return c.GenerationID == id }) {
-					return msg.Err(msg.ErrTimelineInUse, nil)
-				}
-			}
-		}
+		return w.dropOutputs(s, []string{id}, nil)
 	}
 	path, pathErr := w.Store.MediaPath(kind, file)
 	var removed string
@@ -206,32 +197,17 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 		}
 	}
 	e := w.Store.Update(func(s *schema.State) {
-		if kind == "outputs" {
-			s.History = slices.DeleteFunc(s.History, func(v schema.Generation) bool { return v.ID == id })
-			// 一并清掉指向这条生成的记录：时间轴的已采纳标记、由它保存出的声音的来源。
-			for i := range s.Drafts {
-				if t := s.Drafts[i].Timeline; t != nil {
-					t.AcceptedGenerations = slices.DeleteFunc(t.AcceptedGenerations, func(g string) bool { return g == id })
-				}
+		s.Voices = slices.DeleteFunc(s.Voices, func(v schema.Voice) bool { return v.ID == id })
+		// 可见引用已在前面阻止删除，这里清理的是被说话人设置覆盖的隐藏引用，避免留下悬空 ID。
+		for i := range s.Drafts {
+			s.Drafts[i].EachSettings(func(settings *schema.SynthesisSettings) { clearVoice(settings, id) })
+		}
+		for i := range s.History {
+			if schema.Deref(s.History[i].Settings.VoiceID) == id {
+				s.History[i].Settings.VoiceID = nil
 			}
-			for i := range s.Voices {
-				if s.Voices[i].SourceGenerationID == id {
-					s.Voices[i].SourceGenerationID = ""
-				}
-			}
-		} else {
-			s.Voices = slices.DeleteFunc(s.Voices, func(v schema.Voice) bool { return v.ID == id })
-			// 可见引用已在前面阻止删除，这里清理的是被说话人设置覆盖的隐藏引用，避免留下悬空 ID。
-			for i := range s.Drafts {
-				s.Drafts[i].EachSettings(func(settings *schema.SynthesisSettings) { clearVoice(settings, id) })
-			}
-			for i := range s.History {
-				if schema.Deref(s.History[i].Settings.VoiceID) == id {
-					s.History[i].Settings.VoiceID = nil
-				}
-				if schema.Deref(s.History[i].Settings.EmotionVoiceID) == id {
-					s.History[i].Settings.EmotionVoiceID = nil
-				}
+			if schema.Deref(s.History[i].Settings.EmotionVoiceID) == id {
+				s.History[i].Settings.EmotionVoiceID = nil
 			}
 		}
 	}, true)
@@ -247,6 +223,72 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 			_ = os.Rename(removed, path)
 		} else {
 			_ = os.Remove(removed)
+		}
+	}
+	return nil
+}
+
+// dropOutputs 删除若干条生成记录和它们的音频文件，调用方持有 w.edit。
+// 有片段在时间线上时整体拒绝；also 与删除写在同一次状态更新里，用来原子地换上新记录。
+func (w *Workbench) dropOutputs(s schema.State, ids []string, also func(*schema.State)) error {
+	if inTimeline(s, ids) {
+		return msg.Err(msg.ErrTimelineInUse, nil)
+	}
+	type moved struct{ path, removed, file string }
+	var files []moved
+	restore := func() {
+		for _, f := range files {
+			_ = os.Rename(f.removed, f.path)
+		}
+	}
+	for _, g := range s.History {
+		if !slices.Contains(ids, g.ID) || g.FileName == "" {
+			continue
+		}
+		path, e := w.Store.MediaPath("outputs", g.FileName)
+		if e != nil {
+			continue
+		}
+		if _, e := os.Lstat(path); e != nil {
+			continue
+		}
+		if e := os.Rename(path, path+".deleted"); e != nil {
+			if os.Remove(path) == nil {
+				continue
+			}
+			restore()
+			return e
+		}
+		files = append(files, moved{path, path + ".deleted", g.FileName})
+	}
+	e := w.Store.Update(func(s *schema.State) {
+		s.History = slices.DeleteFunc(s.History, func(v schema.Generation) bool { return slices.Contains(ids, v.ID) })
+		// 一并清掉指向这些生成的记录：时间轴的已采纳标记、由它保存出的声音的来源。
+		for i := range s.Drafts {
+			if t := s.Drafts[i].Timeline; t != nil {
+				t.AcceptedGenerations = slices.DeleteFunc(t.AcceptedGenerations, func(g string) bool { return slices.Contains(ids, g) })
+			}
+		}
+		for i := range s.Voices {
+			if slices.Contains(ids, s.Voices[i].SourceGenerationID) {
+				s.Voices[i].SourceGenerationID = ""
+			}
+		}
+		if also != nil {
+			also(s)
+		}
+	}, true)
+	if e != nil {
+		restore()
+		return e
+	}
+	// 同一文件仍被其他记录引用（例如复制作品共享的素材）时放回原处，否则删除。
+	refs := w.Store.Read().MediaRefs()["outputs"]
+	for _, f := range files {
+		if refs[f.file] {
+			_ = os.Rename(f.removed, f.path)
+		} else {
+			_ = os.Remove(f.removed)
 		}
 	}
 	return nil

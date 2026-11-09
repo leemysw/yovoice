@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "Stems öffnen"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "Erneut trennen"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "Spuren löschen"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "Diese Spuren löschen?"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "Das Original bleibt erhalten und lässt sich später erneut trennen."
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "Stems · {title}"
   },

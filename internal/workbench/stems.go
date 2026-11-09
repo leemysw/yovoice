@@ -24,8 +24,9 @@ const stemSeconds, midiSeconds = 600, 600
 
 // SeparateStems 用 HTDemucs 6-stem 把一个版本分成鼓、贝斯、人声、吉他、钢琴和其他六轨。
 // 每一轨存成同一作品的一个版本，StemOf 指向原版本，所以试听、导出、加到时间线和删除都和普通版本一样；
-// 已经分过的版本直接返回，分轨结果本身不能再分。
-func (w *Workbench) SeparateStems(id string) error {
+// 已经分过的版本默认直接返回；replace 时重新分离，成功后才用新分轨换掉旧的，失败或取消时旧分轨保持不动。
+// 分轨结果本身不能再分。
+func (w *Workbench) SeparateStems(id string, replace bool) error {
 	if !schema.ValidID(id) {
 		return msg.Err(msg.ErrAudioIDInvalid, nil)
 	}
@@ -40,8 +41,12 @@ func (w *Workbench) SeparateStems(id string) error {
 	if source.StemOf != "" || source.Segment != nil {
 		return msg.Err(msg.ErrStemSource, nil)
 	}
-	if slices.ContainsFunc(s.History, func(g schema.Generation) bool { return g.StemOf == id }) {
+	old := stemIDs(s, id)
+	if len(old) > 0 && !replace {
 		return nil
+	}
+	if inTimeline(s, old) {
+		return msg.Err(msg.ErrTimelineInUse, nil)
 	}
 	if source.Duration > stemSeconds {
 		return msg.Err(msg.ErrAudioDuration, nil)
@@ -124,14 +129,18 @@ func (w *Workbench) SeparateStems(id string) error {
 			}
 			saved = append(saved, schema.Generation{ID: stemID, Title: source.Title, FileName: file, CreatedAt: now.UTC(), Duration: duration, Settings: source.Settings, StemOf: id, Stem: stem})
 		}
-		e = w.Store.Update(func(s *schema.State) {
+		// 旧分轨在同一次状态更新里删掉，分离期间又放上时间线的话整体失败，旧分轨保留。
+		w.edit.Lock()
+		current := w.Store.Read()
+		e = w.dropOutputs(current, stemIDs(current, id), func(s *schema.State) {
 			// 分轨紧跟在原版本后面，版本列表里排在一起。
 			at := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.ID == id })
 			if at < 0 {
 				at = 0
 			}
 			s.History = slices.Insert(s.History, at+1, saved...)
-		}, true)
+		})
+		w.edit.Unlock()
 		if e != nil {
 			return e
 		}
@@ -143,6 +152,51 @@ func (w *Workbench) SeparateStems(id string) error {
 		w.tagActivity("stems")
 	}
 	return e
+}
+
+// DeleteStems 删除一个版本的全部分轨，原版本保留；有分轨在时间线上时拒绝。
+func (w *Workbench) DeleteStems(id string) error {
+	if !schema.ValidID(id) {
+		return msg.Err(msg.ErrAudioIDInvalid, nil)
+	}
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	s := w.Store.Read()
+	ids := stemIDs(s, id)
+	if len(ids) == 0 {
+		return nil
+	}
+	if e := w.dropOutputs(s, ids, nil); e != nil {
+		return e
+	}
+	diag.Log(w.Store.Root, "stems.deleted", "generation_id", id, "stems", len(ids))
+	return nil
+}
+
+// stemIDs 返回一个版本的分轨记录 ID。
+func stemIDs(s schema.State, id string) []string {
+	var ids []string
+	for _, g := range s.History {
+		if g.StemOf == id {
+			ids = append(ids, g.ID)
+		}
+	}
+	return ids
+}
+
+// inTimeline 判断这些生成记录是否有片段放在时间线上。
+func inTimeline(s schema.State, ids []string) bool {
+	for _, draft := range s.Drafts {
+		if draft.Timeline == nil {
+			continue
+		}
+		for _, track := range draft.Timeline.Tracks {
+			if slices.ContainsFunc(track.Clips, func(c schema.AudioClip) bool { return slices.Contains(ids, c.GenerationID) }) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // TranscribeMIDI 用 MuScriptor 把一个版本转为多乐器 MIDI，新建一个编曲作品放进去，
