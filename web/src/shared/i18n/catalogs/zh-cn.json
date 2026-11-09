@@ -2190,13 +2190,10 @@
     "defaultMessage": "根据风格描述和歌词生成歌曲或纯音乐。"
   },
   "@yovoice.settings.modelDesc.soundfont": {
-    "defaultMessage": "通用 General MIDI 音色库，含 128 种乐器和鼓组，音色均衡，适合大多数配乐。"
+    "defaultMessage": "128 种乐器和鼓组，音色均衡"
   },
   "@yovoice.settings.tabAI": {
     "defaultMessage": "AI 服务"
-  },
-  "@yovoice.ai.intro": {
-    "defaultMessage": "接入大模型后，内置 AI 助手可在编曲中写谱、在音乐生成中写词，并支持在结果上继续修改。"
   },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "自定义服务"
@@ -2291,12 +2288,6 @@
   "@yovoice.settings.available": {
     "defaultMessage": "可下载"
   },
-  "@yovoice.settings.soundfontIntro": {
-    "defaultMessage": "编曲渲染配乐时使用的 General MIDI 音色库，和语音、音乐模型分开管理。"
-  },
-  "@yovoice.settings.uiLocaleHint": {
-    "defaultMessage": "切换后立即生效。"
-  },
   "@yovoice.settings.proxyHint": {
     "defaultMessage": "下载模型、内核和访问 AI 服务时使用。"
   },
@@ -2373,7 +2364,7 @@
     "defaultMessage": "诊断"
   },
   "@yovoice.settings.diagnosticsHint": {
-    "defaultMessage": "服务、推理引擎和 AI 请求的日志都在这里，反馈问题时可以附上。"
+    "defaultMessage": "反馈问题时可附上日志。"
   },
   "@yovoice.settings.searchModels": {
     "defaultMessage": "搜索名称、精度或用途"
@@ -2403,7 +2394,7 @@
     "defaultMessage": "YuE2 生成带人声的歌曲需要歌词；不写歌词可以切到纯音乐。"
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "根据歌词和风格生成整首歌曲或纯音乐，可先写出可编辑的旋律谱，长度由歌词或谱决定。模型许可为 CC BY-NC 4.0，仅限非商业用途。"
+    "defaultMessage": "根据歌词和风格生成整首歌，可先写出可编辑的旋律谱 · 仅限非商业用途"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "复用这一版的风格和歌词"
@@ -2412,10 +2403,10 @@
     "defaultMessage": "导入"
   },
   "@yovoice.settings.modelDesc.soundfontGeneralUser": {
-    "defaultMessage": "体积小、音色干净的 GM/GS 音色库，钢琴与鼓组细致，各乐器音量更均衡。可免费用于个人和商业创作。"
+    "defaultMessage": "小巧干净，钢琴与鼓组细致 · 可商用"
   },
   "@yovoice.settings.modelDesc.soundfontSgm": {
-    "defaultMessage": "更真实的 GM 音色库，钢琴、弦乐、吉他与铜管采样更丰富，体积较大、渲染稍慢。作者未明示许可，商用前请自行确认。"
+    "defaultMessage": "采样更真实，体积大、渲染稍慢 · 许可未明示"
   },
   "@yovoice.update.group": {
     "defaultMessage": "版本与更新"
@@ -2562,7 +2553,7 @@
     "defaultMessage": "本机接口"
   },
   "@yovoice.settings.localApiIntro": {
-    "defaultMessage": "让本机其他软件通过 HTTP 或 MCP 调用 yovoice 生成语音。只在 127.0.0.1 上监听，局域网中的其他设备无法访问。"
+    "defaultMessage": "让本机其他软件通过 HTTP 或 MCP 调用 yovoice，仅本机可访问。"
   },
   "@yovoice.settings.localApiEnabled": {
     "defaultMessage": "启用本机接口"
@@ -2589,7 +2580,7 @@
     "defaultMessage": "访问令牌"
   },
   "@yovoice.settings.localApiTokenHint": {
-    "defaultMessage": "请求头带上 Authorization: Bearer 和此令牌。重置后旧令牌立即失效。"
+    "defaultMessage": "以 Authorization: Bearer 发送，重置后旧令牌失效。"
   },
   "@yovoice.settings.localApiCopy": {
     "defaultMessage": "复制"
@@ -2604,7 +2595,7 @@
     "defaultMessage": "调用示例"
   },
   "@yovoice.settings.localApiExampleHint": {
-    "defaultMessage": "HTTP 接口位于 {url}/v1，MCP 地址为 {url}/mcp。把 YOUR_TOKEN 换成上方复制的令牌。"
+    "defaultMessage": "HTTP {url}/v1 · MCP {url}/mcp"
   },
   "@yovoice.error.localApiPort": {
     "defaultMessage": "端口需在 1024–65535 之间。"
@@ -2643,7 +2634,7 @@
     "defaultMessage": "数据存储目录"
   },
   "@yovoice.settings.storageRelocateHint": {
-    "defaultMessage": "更改位置会把数据完整复制到新目录，完成后 yovoice 会提示并自动重启生效，旧目录随后自动删除以释放空间。"
+    "defaultMessage": "更改位置会把数据复制到新目录并自动重启。"
   },
   "@yovoice.settings.storageRelocatePending": {
     "defaultMessage": "数据已复制到新目录。请完全退出 yovoice 并重新打开应用生效；重启前无法保存新的修改，旧目录会在重启后自动删除。"
@@ -3153,10 +3144,10 @@
     "defaultMessage": "把歌曲的旋律与和弦扒成谱，配合 YuE2 做翻唱。"
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
-    "defaultMessage": "可选：先分离人声，再把歌词逐字对齐到演唱上，用于逐字歌词动画和导出逐字 LRC。支持中文、英语、日语、韩语等 11 种语言。"
+    "defaultMessage": "把歌词逐字对齐到演唱，用于逐字歌词和 LRC 导出 · 11 种语言"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "可选：把声音样本识别成克隆所需的参考文本，把上传的音频转写成文字和字幕，并给生成的语音对齐字幕时间。支持中文、英语、粤语、日语、韩语等 30 种语言。"
+    "defaultMessage": "语音识别：转写音频、生成字幕、识别参考文本 · 30 种语言"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律谱生成"
@@ -3921,7 +3912,7 @@
     "defaultMessage": "关闭提示"
   },
   "@yovoice.settings.assistantIntro": {
-    "defaultMessage": "Ocho 是 yovoice 的内置助手。它能看到你正在编辑的作品和选中的内容；删除、下载和修改设置都会先请你确认。"
+    "defaultMessage": "Ocho 能看到你正在编辑的作品，删除、下载和修改设置前会先确认。"
   },
   "@yovoice.settings.assistantBehavior": {
     "defaultMessage": "行为"
@@ -3936,7 +3927,7 @@
     "defaultMessage": "记住的偏好"
   },
   "@yovoice.settings.assistantMemoryHint": {
-    "defaultMessage": "在对话里告诉 Ocho 你的习惯，比如常用的声音或风格，它会记下来并在之后的对话里遵循。"
+    "defaultMessage": "在对话里告诉 Ocho 你的习惯，它会记住。"
   },
   "@yovoice.settings.assistantMemoryClear": {
     "defaultMessage": "全部清除"
@@ -4013,9 +4004,6 @@
   "@yovoice.settings.precisionsInstalled": {
     "defaultMessage": "已下载：{list}"
   },
-  "@yovoice.settings.precisionHint": {
-    "defaultMessage": "Q4 / Q8 体积小、速度快；BF16、F16 和 ORIG 更接近原始效果。"
-  },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
   },
@@ -4023,19 +4011,19 @@
     "defaultMessage": "功能显示"
   },
   "@yovoice.settings.featuresHint": {
-    "defaultMessage": "关闭后对应入口从侧栏和新建菜单中隐藏，已有作品和已下载的模型不受影响。"
+    "defaultMessage": "关闭后隐藏入口，已有作品和模型保留。"
   },
   "@yovoice.settings.featureStoryHint": {
     "defaultMessage": "导入文本或字幕，按角色逐句配音。"
   },
   "@yovoice.settings.featureMusicHint": {
-    "defaultMessage": "歌曲、纯音乐与编曲生成，以及对应的模型和音色库设置。"
+    "defaultMessage": "歌曲、纯音乐与编曲。"
   },
   "@yovoice.settings.featureTranscribeHint": {
-    "defaultMessage": "上传音频或视频转成带时间的文字和字幕。参考原文的“识别文字”和导出字幕不受影响。"
+    "defaultMessage": "把音频或视频转成文字和字幕。"
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "浮窗助手、标题栏入口和主动提示。与音乐生成都关闭时，AI 服务设置和有声书的 AI 分配角色也一并隐藏。"
+    "defaultMessage": "浮窗助手与主动提示。"
   },
   "@yovoice.check.summary": {
     "defaultMessage": "音频可能有问题：{issues}。请试听确认，需要时重新生成。"
@@ -4092,13 +4080,13 @@
     "defaultMessage": "请选择本作品已生成的一个版本作为改编或重绘的起点，或切回文字生成。"
   },
   "@yovoice.settings.modelDesc.stableAudio.music": {
-    "defaultMessage": "根据英文描述生成纯音乐，可在已生成的版本上改编或局部重绘，最长 2 分钟。模型许可为 Stability AI 社区许可：年收入低于 100 万美元可免费使用。"
+    "defaultMessage": "根据英文描述生成纯音乐，可改编或局部重绘 · 最长 2 分钟 · Stability AI 社区许可"
   },
   "@yovoice.settings.modelDesc.stableAudio.sfx": {
-    "defaultMessage": "根据英文描述生成音效，可在已生成的版本上改编或局部重绘，最长 2 分钟。模型许可为 Stability AI 社区许可：年收入低于 100 万美元可免费使用。"
+    "defaultMessage": "根据英文描述生成音效，可改编或局部重绘 · 最长 2 分钟 · Stability AI 社区许可"
   },
   "@yovoice.settings.modelDesc.stableAudio.medium": {
-    "defaultMessage": "更大的 Stable Audio 3 模型，纯音乐质量更高、可生成更长的曲子（约 6 分钟以内），也可改编或局部重绘已生成的版本。模型许可为 Stability AI 社区许可：年收入低于 100 万美元可免费使用。"
+    "defaultMessage": "更高质量的纯音乐，可改编或局部重绘 · 最长约 6 分钟 · Stability AI 社区许可"
   },
   "@yovoice.music.editOff": {
     "defaultMessage": "文字生成"
@@ -4203,7 +4191,7 @@
     "defaultMessage": "段间静音（秒）"
   },
   "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "每段文本 Token 数"
+    "defaultMessage": "每段文本 Token 上限"
   },
   "@yovoice.voxtral.generalVoices": {
     "defaultMessage": "通用音色"
@@ -4320,7 +4308,7 @@
     "defaultMessage": "导入本地模型"
   },
   "@yovoice.settings.localModelHint": {
-    "defaultMessage": "先选择对应型号和精度，再导入 audio.cpp GGUF 文件（编曲音色库为 SF2）。多文件包请选择主 GGUF，并保留配套文件的原目录结构。文件原地使用，移除时只解除登记。PyTorch／MLX 原始权重须先转换。"
+    "defaultMessage": "导入本地 GGUF 文件（音色库为 SF2），文件原地使用"
   },
   "@yovoice.error.localModelInvalid": {
     "defaultMessage": "请选择与所选模型家族匹配的 audio.cpp GGUF，或受支持的 SF2。PyTorch／MLX 原始权重须先转换。"
@@ -4356,10 +4344,10 @@
     "defaultMessage": "把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨 · 44.1 kHz 立体声"
   },
   "@yovoice.settings.modelDesc.vocalSplit": {
-    "defaultMessage": "高质量人声分离（BS-RoFormer）· 装好后“分离音轨”先用它分出人声，再拆伴奏，人声更干净、不串轨"
+    "defaultMessage": "人声分离 · 分离音轨时先分出人声，更干净"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "把一首歌转为多乐器 MIDI，可在编曲页继续编辑 · 仅限非商业用途（CC BY-NC）"
+    "defaultMessage": "把歌曲转为多乐器 MIDI · 仅限非商业用途"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "分离音轨"
@@ -4505,9 +4493,6 @@
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "已选 {selected} 秒，原录音 {total} 秒。请保留 1–60 秒。"
   },
-  "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "每段文本 Token 上限"
-  },
   "@yovoice.options.text_normalization": {
     "defaultMessage": "规范化数字与符号"
   },
@@ -4518,7 +4503,7 @@
     "defaultMessage": "运行参数"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "对所有模型生效，修改后下一次任务会按新参数重新加载模型。"
+    "defaultMessage": "对所有模型生效，下次任务时重新加载。"
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "边生成边试听"
@@ -4527,7 +4512,7 @@
     "defaultMessage": "模型会话参数"
   },
   "@yovoice.runtime.sessionHelp": {
-    "defaultMessage": "引擎为各模型提供的内存、缓存与精度选项，只列出当前引擎支持的项；不确定时保持默认。"
+    "defaultMessage": "只列出当前引擎支持的项，不确定时保持默认。"
   },
   "@yovoice.runtime.sessionModel": {
     "defaultMessage": "模型"

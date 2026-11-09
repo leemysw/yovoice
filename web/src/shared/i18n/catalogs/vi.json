@@ -2190,13 +2190,10 @@
     "defaultMessage": "Tạo bài hát và bản không lời từ mô tả phong cách và lời bài hát."
   },
   "@yovoice.settings.modelDesc.soundfont": {
-    "defaultMessage": "SoundFont General MIDI với 128 nhạc cụ và bộ trống; cân bằng, phù hợp với hầu hết bản nhạc."
+    "defaultMessage": "128 nhạc cụ và bộ trống, âm sắc cân bằng"
   },
   "@yovoice.settings.tabAI": {
     "defaultMessage": "Dịch vụ AI"
-  },
-  "@yovoice.ai.intro": {
-    "defaultMessage": "Kết nối mô hình ngôn ngữ lớn để trợ lý AI tích hợp viết hòa âm trong Hòa âm và viết lời trong Âm nhạc, rồi tiếp tục chỉnh sửa kết quả."
   },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "Dịch vụ tùy chỉnh"
@@ -2291,12 +2288,6 @@
   "@yovoice.settings.available": {
     "defaultMessage": "Có sẵn"
   },
-  "@yovoice.settings.soundfontIntro": {
-    "defaultMessage": "SoundFont General MIDI dùng để kết xuất bản nhạc, quản lý riêng với mô hình giọng nói và âm nhạc."
-  },
-  "@yovoice.settings.uiLocaleHint": {
-    "defaultMessage": "Có hiệu lực ngay."
-  },
   "@yovoice.settings.proxyHint": {
     "defaultMessage": "Dùng khi tải mô hình, môi trường chạy và cho dịch vụ AI."
   },
@@ -2373,7 +2364,7 @@
     "defaultMessage": "Chẩn đoán"
   },
   "@yovoice.settings.diagnosticsHint": {
-    "defaultMessage": "Nhật ký của dịch vụ, công cụ suy luận và các yêu cầu AI. Hãy đính kèm khi báo lỗi."
+    "defaultMessage": "Đính kèm khi báo lỗi."
   },
   "@yovoice.settings.searchModels": {
     "defaultMessage": "Tìm theo tên, độ chính xác hoặc mục đích"
@@ -2403,7 +2394,7 @@
     "defaultMessage": "YuE2 cần lời cho bài hát có giọng hát; chuyển sang nhạc không lời nếu không muốn viết lời."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Tạo bài hát hoàn chỉnh hoặc nhạc không lời từ lời và phong cách, có thể viết trước bản nhạc giai điệu chỉnh sửa được; độ dài theo lời hoặc bản nhạc. Giấy phép CC BY-NC 4.0, chỉ dùng cho mục đích phi thương mại."
+    "defaultMessage": "Cả bài hát từ lời và phong cách, có bản giai điệu sửa được trước · chỉ phi thương mại"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Dùng lại phong cách và lời của bản này"
@@ -2412,10 +2403,10 @@
     "defaultMessage": "Nhập"
   },
   "@yovoice.settings.modelDesc.soundfontGeneralUser": {
-    "defaultMessage": "SoundFont GM/GS gọn nhẹ, trong trẻo, piano và trống chi tiết, mức âm các nhạc cụ cân bằng. Miễn phí cho âm nhạc cá nhân và thương mại."
+    "defaultMessage": "Nhỏ gọn, trong trẻo, piano và trống chi tiết · dùng thương mại được"
   },
   "@yovoice.settings.modelDesc.soundfontSgm": {
-    "defaultMessage": "SoundFont GM chân thực hơn với mẫu piano, dây, guitar và kèn đồng phong phú hơn; dung lượng lớn hơn và kết xuất chậm hơn. Tác giả không nêu giấy phép, hãy kiểm tra trước khi dùng thương mại."
+    "defaultMessage": "Mẫu âm chân thực hơn, nặng và chậm hơn · chưa rõ giấy phép"
   },
   "@yovoice.update.group": {
     "defaultMessage": "Phiên bản và cập nhật"
@@ -2562,7 +2553,7 @@
     "defaultMessage": "API cục bộ"
   },
   "@yovoice.settings.localApiIntro": {
-    "defaultMessage": "Cho phép các ứng dụng khác trên máy tính này tạo giọng nói bằng yovoice qua HTTP hoặc MCP. API chỉ lắng nghe trên 127.0.0.1, nên các thiết bị khác trong mạng không thể truy cập."
+    "defaultMessage": "Cho ứng dụng khác trên máy này gọi yovoice qua HTTP hoặc MCP. Chỉ cục bộ."
   },
   "@yovoice.settings.localApiEnabled": {
     "defaultMessage": "Bật API cục bộ"
@@ -2589,7 +2580,7 @@
     "defaultMessage": "Mã truy cập"
   },
   "@yovoice.settings.localApiTokenHint": {
-    "defaultMessage": "Gửi dưới dạng Authorization: Bearer kèm mã này. Đặt lại sẽ thu hồi mã cũ ngay lập tức."
+    "defaultMessage": "Gửi dạng Authorization: Bearer. Đặt lại sẽ thu hồi mã cũ."
   },
   "@yovoice.settings.localApiCopy": {
     "defaultMessage": "Sao chép"
@@ -2604,7 +2595,7 @@
     "defaultMessage": "Ví dụ"
   },
   "@yovoice.settings.localApiExampleHint": {
-    "defaultMessage": "Các endpoint HTTP nằm dưới {url}/v1 và MCP ở {url}/mcp. Thay YOUR_TOKEN bằng mã đã sao chép ở trên."
+    "defaultMessage": "HTTP {url}/v1 · MCP {url}/mcp"
   },
   "@yovoice.error.localApiPort": {
     "defaultMessage": "Hãy dùng cổng trong khoảng 1024 đến 65535."
@@ -2643,7 +2634,7 @@
     "defaultMessage": "Thư mục dữ liệu"
   },
   "@yovoice.settings.storageRelocateHint": {
-    "defaultMessage": "Đổi vị trí sẽ sao chép toàn bộ dữ liệu sang thư mục mới. Khi xong, yovoice sẽ tự khởi động lại để áp dụng, sau đó thư mục cũ sẽ bị xóa để giải phóng dung lượng."
+    "defaultMessage": "Đổi vị trí sẽ chép dữ liệu sang thư mục mới và khởi động lại yovoice."
   },
   "@yovoice.settings.storageRelocatePending": {
     "defaultMessage": "Dữ liệu đã được sao chép sang vị trí mới. Vui lòng thoát hẳn và mở lại yovoice để áp dụng. Trước đó không thể lưu thay đổi mới, và thư mục cũ sẽ tự động bị xóa sau khi khởi động lại."
@@ -3153,10 +3144,10 @@
     "defaultMessage": "Chép giai điệu và hợp âm của bài hát thành bản nhạc, dùng để cover với YuE2."
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
-    "defaultMessage": "Tùy chọn: tách giọng hát và căn lời bài hát theo từng từ với giọng hát, dùng cho hiệu ứng lời từng từ và xuất LRC theo từ. Hỗ trợ 11 ngôn ngữ, gồm tiếng Trung, Anh, Nhật và Hàn."
+    "defaultMessage": "Căn lời từng từ theo giọng hát cho karaoke và LRC · 11 ngôn ngữ"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "Tùy chọn: điền văn bản tham chiếu cho mẫu giọng, chép lời âm thanh tải lên thành văn bản và phụ đề, và căn thời gian phụ đề cho giọng nói đã tạo. Hỗ trợ 30 ngôn ngữ, gồm tiếng Trung, Anh, Quảng Đông, Nhật và Hàn."
+    "defaultMessage": "Nhận dạng giọng nói cho bản chép, phụ đề và văn bản tham chiếu · 30 ngôn ngữ"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Tạo theo bản nhạc"
@@ -3921,7 +3912,7 @@
     "defaultMessage": "Đóng"
   },
   "@yovoice.settings.assistantIntro": {
-    "defaultMessage": "Ocho là trợ lý tích hợp của yovoice. Ocho thấy tác phẩm bạn đang sửa và phần bạn chọn, và luôn hỏi trước khi xóa, tải xuống hay đổi cài đặt."
+    "defaultMessage": "Ocho thấy nội dung bạn đang sửa và hỏi trước khi xóa, tải về hay đổi cài đặt."
   },
   "@yovoice.settings.assistantBehavior": {
     "defaultMessage": "Hành vi"
@@ -3936,7 +3927,7 @@
     "defaultMessage": "Sở thích đã ghi nhớ"
   },
   "@yovoice.settings.assistantMemoryHint": {
-    "defaultMessage": "Hãy cho Ocho biết thói quen của bạn khi trò chuyện, như giọng hay phong cách yêu thích. Ocho sẽ ghi nhớ và làm theo về sau."
+    "defaultMessage": "Cho Ocho biết thói quen của bạn trong trò chuyện, nó sẽ ghi nhớ."
   },
   "@yovoice.settings.assistantMemoryClear": {
     "defaultMessage": "Xóa tất cả"
@@ -4013,9 +4004,6 @@
   "@yovoice.settings.precisionsInstalled": {
     "defaultMessage": "Đã tải: {list}"
   },
-  "@yovoice.settings.precisionHint": {
-    "defaultMessage": "Q4/Q8 nhẹ và nhanh hơn; BF16, F16 và ORIG gần với chất lượng gốc nhất."
-  },
   "@yovoice.create.precision": {
     "defaultMessage": "Độ chính xác"
   },
@@ -4023,19 +4011,19 @@
     "defaultMessage": "Tính năng"
   },
   "@yovoice.settings.featuresHint": {
-    "defaultMessage": "Khi tắt, mục tương ứng sẽ ẩn khỏi thanh bên và menu Tạo mới. Tác phẩm hiện có và mô hình đã tải không bị ảnh hưởng."
+    "defaultMessage": "Tắt sẽ ẩn lối vào; dự án và mô hình vẫn được giữ."
   },
   "@yovoice.settings.featureStoryHint": {
     "defaultMessage": "Nhập văn bản hoặc phụ đề và lồng tiếng từng câu theo nhân vật."
   },
   "@yovoice.settings.featureMusicHint": {
-    "defaultMessage": "Bài hát, nhạc không lời và bản phối, cùng cài đặt mô hình và soundfont tương ứng."
+    "defaultMessage": "Bài hát, nhạc không lời và phối khí."
   },
   "@yovoice.settings.featureTranscribeHint": {
-    "defaultMessage": "Chuyển âm thanh hoặc video tải lên thành văn bản và phụ đề có mốc thời gian. “Nhận dạng văn bản” cho bản chép tham chiếu và xuất phụ đề không bị ảnh hưởng."
+    "defaultMessage": "Chuyển âm thanh hoặc video thành văn bản và phụ đề."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "Trợ lý nổi, lối vào trên thanh tiêu đề và các gợi ý. Khi tắt cả tạo nhạc, cài đặt dịch vụ AI và phân vai bằng AI cho sách cũng bị ẩn."
+    "defaultMessage": "Trợ lý nổi và các gợi ý."
   },
   "@yovoice.check.summary": {
     "defaultMessage": "Âm thanh này có thể có vấn đề: {issues}. Hãy nghe thử và tạo lại nếu cần."
@@ -4092,13 +4080,13 @@
     "defaultMessage": "Hãy chọn một bản đã tạo của tác phẩm này để phối lại hoặc vẽ lại một đoạn, hoặc chuyển về tạo từ văn bản."
   },
   "@yovoice.settings.modelDesc.stableAudio.music": {
-    "defaultMessage": "Tạo nhạc không lời từ mô tả tiếng Anh, có thể phối lại hoặc vẽ lại một đoạn của bản đã tạo; tối đa 2 phút. Giấy phép cộng đồng Stability AI: miễn phí khi doanh thu năm dưới 1 triệu USD."
+    "defaultMessage": "Nhạc không lời từ mô tả tiếng Anh, có phối lại và vẽ lại một phần · tối đa 2 phút · Giấy phép cộng đồng Stability AI"
   },
   "@yovoice.settings.modelDesc.stableAudio.sfx": {
-    "defaultMessage": "Tạo hiệu ứng âm thanh từ mô tả tiếng Anh, có thể phối lại hoặc vẽ lại một đoạn của bản đã tạo; tối đa 2 phút. Giấy phép cộng đồng Stability AI: miễn phí khi doanh thu năm dưới 1 triệu USD."
+    "defaultMessage": "Hiệu ứng âm thanh từ mô tả tiếng Anh, có phối lại và vẽ lại một phần · tối đa 2 phút · Giấy phép cộng đồng Stability AI"
   },
   "@yovoice.settings.modelDesc.stableAudio.medium": {
-    "defaultMessage": "Mô hình Stable Audio 3 lớn hơn: nhạc không lời chất lượng cao hơn và bản nhạc dài hơn (khoảng 6 phút); có thể phối lại hoặc vẽ lại một đoạn của bản đã tạo. Giấy phép cộng đồng Stability AI: miễn phí khi doanh thu năm dưới 1 triệu USD."
+    "defaultMessage": "Nhạc không lời chất lượng cao hơn, có phối lại và vẽ lại một phần · tối đa khoảng 6 phút · Giấy phép cộng đồng Stability AI"
   },
   "@yovoice.music.editOff": {
     "defaultMessage": "Từ văn bản"
@@ -4203,7 +4191,7 @@
     "defaultMessage": "Khoảng lặng giữa các đoạn (giây)"
   },
   "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "Số token văn bản mỗi đoạn"
+    "defaultMessage": "Số token văn bản tối đa mỗi đoạn"
   },
   "@yovoice.voxtral.generalVoices": {
     "defaultMessage": "Giọng phổ thông"
@@ -4320,7 +4308,7 @@
     "defaultMessage": "Nhập mô hình cục bộ"
   },
   "@yovoice.settings.localModelHint": {
-    "defaultMessage": "Chọn mô hình và độ chính xác, rồi nhập GGUF của audio.cpp (SF2 cho bộ âm sắc). Với gói nhiều tệp, chọn GGUF chính và giữ cấu trúc tệp đi kèm. Tệp giữ nguyên vị trí; xóa mô hình chỉ hủy đăng ký. Trọng số PyTorch/MLX cần được chuyển đổi trước."
+    "defaultMessage": "Nhập tệp GGUF cục bộ (SF2 cho bộ âm sắc), dùng tại chỗ"
   },
   "@yovoice.error.localModelInvalid": {
     "defaultMessage": "Chọn GGUF audio.cpp thuộc họ mô hình đã chọn hoặc SF2 được hỗ trợ. Trọng số PyTorch/MLX cần được chuyển đổi trước."
@@ -4356,10 +4344,10 @@
     "defaultMessage": "Tách bài hát thành trống, bass, giọng hát, guitar, piano và phần còn lại · 44,1 kHz stereo"
   },
   "@yovoice.settings.modelDesc.vocalSplit": {
-    "defaultMessage": "Tách giọng hát chất lượng cao (BS-RoFormer) · sau khi cài, “Tách bè” sẽ tách giọng trước rồi mới chia phần đệm — giọng sạch hơn, ít lẫn bè"
+    "defaultMessage": "Tách giọng · dùng trước khi tách track để giọng sạch hơn"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "Chuyển bài hát thành MIDI nhiều nhạc cụ, có thể tiếp tục chỉnh trong Phối khí · Chỉ dùng phi thương mại (CC BY-NC)"
+    "defaultMessage": "Chuyển bài hát thành MIDI nhiều nhạc cụ · chỉ phi thương mại"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "Tách bè"
@@ -4505,9 +4493,6 @@
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "Đã chọn {selected} giây trên {total} giây. Hãy giữ từ 1 đến 60 giây."
   },
-  "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "Số token văn bản tối đa mỗi đoạn"
-  },
   "@yovoice.options.text_normalization": {
     "defaultMessage": "Chuẩn hóa số và ký hiệu"
   },
@@ -4518,7 +4503,7 @@
     "defaultMessage": "Thông số chạy"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Áp dụng cho mọi mô hình. Sau khi thay đổi, mô hình được tải lại ở tác vụ tiếp theo."
+    "defaultMessage": "Áp dụng cho mọi mô hình; nạp lại ở tác vụ kế tiếp."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Nghe trong khi tạo"
@@ -4527,7 +4512,7 @@
     "defaultMessage": "Tùy chọn phiên của mô hình"
   },
   "@yovoice.runtime.sessionHelp": {
-    "defaultMessage": "Các tùy chọn bộ nhớ, bộ đệm và độ chính xác mà engine cung cấp cho từng mô hình. Chỉ liệt kê các mục engine hiện tại hỗ trợ; nếu không chắc, hãy giữ mặc định."
+    "defaultMessage": "Chỉ liệt kê tùy chọn được hỗ trợ. Nếu không chắc, giữ mặc định."
   },
   "@yovoice.runtime.sessionModel": {
     "defaultMessage": "Mô hình"

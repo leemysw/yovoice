@@ -42,8 +42,10 @@ test('本地模型按所选精度请求原生文件框，取消不改变状态�
   await page.getByTestId('nav-settings').click();
   await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const row = page.locator('[data-model-ids~="kokoro-82m-q8"]');
-  await expect(page.getByText(/PyTorch／MLX 原始权重须先转换/)).toBeVisible();
   await row.getByRole('radio', { name: 'BF16', exact: true }).click();
+  // 导入说明收进按钮提示，不再占一段常驻文字。
+  await row.getByRole('button', { name: '导入本地模型' }).hover();
+  await expect(page.getByRole('tooltip')).toContainText('导入本地 GGUF 文件');
   await row.getByRole('button', { name: '导入本地模型' }).click();
   await expect.poll(() => page.evaluate(() => window.__localModelCalls.filter(call => call.method === 'model.import').map(call => call.data.id))).toEqual(['kokoro-82m-bf16']);
   await expect(row).toHaveAttribute('data-installed', 'false');
