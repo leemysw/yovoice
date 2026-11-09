@@ -27,7 +27,7 @@ import (
 
 var version = "dev"
 
-const usage = `yovoice：独立本地语音生成，无需桌面 App。
+const usage = `yovoice：独立本地语音与音乐生成，无需桌面 App。
 用法：
   yovoice serve [--listen 127.0.0.1:8080] [--tls-cert FILE --tls-key FILE] [--generation-timeout 30m]
   yovoice mcp [--generation-timeout 30m]（以 stdio 提供 MCP，供本机客户端作为子进程启动）
@@ -54,6 +54,10 @@ Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；Voi
 OmniVoice / Qwen3-TTS 支持 --language；OmniVoice 支持 --speed、--guidance-scale、--inference-steps。
 Kokoro：--speaker zf_xiaobei（v1.0）或 zf_001（v1.1-zh），语言随音色选择，无需参考音频。
 高级选项：--option 'text_chunk_size=512'、--option 'text_chunk_mode="tag_aware"'，可重复。
+音乐模型（ACE-Step、YuE2、Stable Audio）：--text 为风格描述，--lyrics TEXT 或 --lyrics-file FILE、
+  --instrumental 纯音乐；YuE2 可用 --abc-file FILE 按旋律谱生成，结果 JSON 带所用的 abc 与 seed；
+  ACE-Step 可用 --language zh 指定演唱语言；时长等用 --option，如 --option 'duration_seconds=60'。
+  Stable Audio 音效款生成音效：--text 描述声音，--option 'duration_seconds=5'。
 serve 同时提供 HTTP API 与 /mcp，启动前设置至少 32 字符的 YOVOICE_API_TOKEN。
 mcp 独占数据目录，无需令牌；结果返回本机 WAV 路径，upload_voice 可传本机音频路径。
 所有命令支持 --data-dir DIR、--json。stdout 输出 JSON，进度写 stderr。
@@ -127,6 +131,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	nativeOptions := map[string]any{}
 	emotionReference, emotionVector := "", ""
 	textFile, reference, voice, output := "", "", "", ""
+	var music musicFlags
 	switch command {
 	case "serve", "mcp":
 		fs.DurationVar(&generationTimeout, "generation-timeout", 30*time.Minute, "单次生成最长时间，包含模型加载")
@@ -161,6 +166,10 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.StringVar(&d.Speaker, "speaker", "", "Qwen3 CustomVoice 或 Kokoro 内置音色 ID")
 		fs.StringVar(&d.Text, "text", "", "正文")
 		fs.StringVar(&textFile, "text-file", "", "UTF-8 文本文件")
+		fs.StringVar(&music.lyrics, "lyrics", "", "音乐模型：歌词，可带 [Verse] 等段落标记")
+		fs.StringVar(&music.lyricsFile, "lyrics-file", "", "音乐模型：UTF-8 歌词文件")
+		fs.BoolVar(&music.instrumental, "instrumental", false, "音乐模型：纯音乐，不唱歌词")
+		fs.StringVar(&music.abcFile, "abc-file", "", "YuE2：按这份旋律谱生成（ABC 文件）")
 		fs.StringVar(&reference, "reference", "", "参考音频（1 秒到 10 分钟，超过 60 秒自动截取最清楚的一段），常见格式自动转换")
 		fs.StringVar(&voice, "voice", "", "已有音色 ID")
 		fs.StringVar(&output, "output", "", "输出 WAV 路径，不覆盖已有文件")
@@ -207,150 +216,159 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if (d.Text == "") == (textFile == "") {
 			return fmt.Errorf("--text 和 --text-file 必须且只能指定一个")
 		}
-		vox := strings.HasPrefix(d.ModelID, "voxcpm2-")
-		omni := strings.HasPrefix(d.ModelID, "omnivoice-")
-		qwen := strings.HasPrefix(d.ModelID, "qwen3-tts-")
-		kokoro := strings.HasPrefix(d.ModelID, "kokoro-")
-		breeze := strings.HasPrefix(d.ModelID, "breeze-tts-")
-		ming := strings.HasPrefix(d.ModelID, "ming3-tts-")
-		voxtral := strings.HasPrefix(d.ModelID, "voxtral-tts-")
-		plapre := strings.HasPrefix(d.ModelID, "plapre-")
-		xtts := strings.HasPrefix(d.ModelID, "xtts-v2-")
-		gradium := strings.HasPrefix(d.ModelID, "gradium-phonon-")
-		drama := strings.HasPrefix(d.ModelID, "fish-drama3-")
-		native := vox || omni || qwen || kokoro || breeze || ming || voxtral || plapre || xtts || gradium || drama
-		var unsupported string
-		fs.Visit(func(f *flag.Flag) {
-			if native {
-				switch f.Name {
-				case "emotion-mode", "emotion-reference", "emotion-vector", "emotion-strength", "infer-emotion", "random-emotion", "do-sample", "temperature", "top-p", "top-k", "repetition-penalty", "max-tokens", "interval-silence-ms", "num-beams", "length-penalty":
+		if m, e := catalog.Lookup(d.ModelID); e == nil && catalog.IsMusic(m.Family) {
+			if err := music.apply(fs, &d, m, textFile, seed, nativeOptions); err != nil {
+				return err
+			}
+		} else {
+			vox := strings.HasPrefix(d.ModelID, "voxcpm2-")
+			omni := strings.HasPrefix(d.ModelID, "omnivoice-")
+			qwen := strings.HasPrefix(d.ModelID, "qwen3-tts-")
+			kokoro := strings.HasPrefix(d.ModelID, "kokoro-")
+			breeze := strings.HasPrefix(d.ModelID, "breeze-tts-")
+			ming := strings.HasPrefix(d.ModelID, "ming3-tts-")
+			voxtral := strings.HasPrefix(d.ModelID, "voxtral-tts-")
+			plapre := strings.HasPrefix(d.ModelID, "plapre-")
+			xtts := strings.HasPrefix(d.ModelID, "xtts-v2-")
+			gradium := strings.HasPrefix(d.ModelID, "gradium-phonon-")
+			drama := strings.HasPrefix(d.ModelID, "fish-drama3-")
+			native := vox || omni || qwen || kokoro || breeze || ming || voxtral || plapre || xtts || gradium || drama
+			var unsupported string
+			fs.Visit(func(f *flag.Flag) {
+				if f.Name == "lyrics" || f.Name == "lyrics-file" || f.Name == "instrumental" || f.Name == "abc-file" {
 					unsupported = f.Name
 				}
-			}
-			if (vox || kokoro || breeze || voxtral || plapre || drama) && f.Name == "language" || native && !omni && f.Name == "speed" || native && f.Name == "emotion-text" ||
-				!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
-				!(strings.Contains(d.ModelID, "customvoice") || kokoro || voxtral || plapre) && f.Name == "speaker" ||
-				!(omni || breeze || ming || plapre || drama) && f.Name == "voice-mode" ||
-				!(vox || omni || breeze || ming || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
-				!(vox || omni || qwen || breeze || ming || plapre || drama) && f.Name == "reference-text" {
-				unsupported = f.Name
-			}
-		})
-		model, err := catalog.Lookup(d.ModelID)
-		if err != nil {
-			return fmt.Errorf("未知模型：%s", d.ModelID)
-		}
-		family := model.Family
-		d.ModelOptions = map[string]map[string]any{family: nativeOptions}
-		if omni || qwen || ming || xtts || gradium {
-			d.SynthesisLanguage = "auto"
-			fs.Visit(func(f *flag.Flag) {
-				if f.Name == "language" {
-					d.SynthesisLanguage = d.Language
+				if native {
+					switch f.Name {
+					case "emotion-mode", "emotion-reference", "emotion-vector", "emotion-strength", "infer-emotion", "random-emotion", "do-sample", "temperature", "top-p", "top-k", "repetition-penalty", "max-tokens", "interval-silence-ms", "num-beams", "length-penalty":
+						unsupported = f.Name
+					}
 				}
-				if omni && f.Name == "speed" {
-					d.OmniSpeed = d.Speed
-				}
-				if omni && f.Name == "guidance-scale" {
-					nativeOptions["guidance_scale"] = d.GuidanceScale
-				}
-				if omni && f.Name == "inference-steps" {
-					nativeOptions["num_inference_steps"] = float64(d.InferenceSteps)
+				if (vox || kokoro || breeze || voxtral || plapre || drama) && f.Name == "language" || native && !omni && f.Name == "speed" || native && f.Name == "emotion-text" ||
+					!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
+					!(strings.Contains(d.ModelID, "customvoice") || kokoro || voxtral || plapre) && f.Name == "speaker" ||
+					!(omni || breeze || ming || plapre || drama) && f.Name == "voice-mode" ||
+					!(vox || omni || breeze || ming || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
+					!(vox || omni || qwen || breeze || ming || plapre || drama) && f.Name == "reference-text" {
+					unsupported = f.Name
 				}
 			})
-		}
-		if unsupported != "" {
-			return fmt.Errorf("当前模型不支持 --%s", unsupported)
-		}
-		if vox && (d.GuidanceScale < 0.5 || d.InferenceSteps < 1) {
-			return fmt.Errorf("引导强度需为 0.5–5，推理步数需为 1–50")
-		}
-		if vox && d.VoxMode == "" {
-			d.VoxMode = "design"
-			if reference != "" || voice != "" {
-				d.VoxMode = "clone"
+			model, err := catalog.Lookup(d.ModelID)
+			if err != nil {
+				return fmt.Errorf("未知模型：%s", d.ModelID)
 			}
-			if d.ReferenceText != "" {
-				d.VoxMode = "continuation"
+			family := model.Family
+			d.ModelOptions = map[string]map[string]any{family: nativeOptions}
+			if omni || qwen || ming || xtts || gradium {
+				d.SynthesisLanguage = "auto"
+				fs.Visit(func(f *flag.Flag) {
+					if f.Name == "language" {
+						d.SynthesisLanguage = d.Language
+					}
+					if omni && f.Name == "speed" {
+						d.OmniSpeed = d.Speed
+					}
+					if omni && f.Name == "guidance-scale" {
+						nativeOptions["guidance_scale"] = d.GuidanceScale
+					}
+					if omni && f.Name == "inference-steps" {
+						nativeOptions["num_inference_steps"] = float64(d.InferenceSteps)
+					}
+				})
 			}
-		}
-		if (omni || breeze || ming || plapre || drama) && d.VoiceMode == "" {
-			d.VoiceMode = "design"
-			if reference != "" || voice != "" {
-				d.VoiceMode = "clone"
+			if unsupported != "" {
+				return fmt.Errorf("当前模型不支持 --%s", unsupported)
 			}
-		}
-		if omni && ((d.VoiceMode == "design" && d.ReferenceText != "") || (d.VoiceMode == "clone" && d.VoiceDescription != "")) {
-			return fmt.Errorf("OmniVoice 声音设计使用 --voice-description；克隆使用参考音频和 --reference-text")
-		}
-		if (breeze || ming || plapre || drama) && d.VoiceMode == "design" && d.ReferenceText != "" {
-			return fmt.Errorf("%s 的 --reference-text 需要 clone 模式", model.Name)
-		}
-		if reference != "" && voice != "" {
-			return fmt.Errorf("--reference 和 --voice 只能指定一个")
-		}
-		if d.RequiresVoice() && reference == "" && voice == "" {
-			return fmt.Errorf("当前模式需要 --reference 或 --voice")
-		}
-		if !d.RequiresVoice() && (reference != "" || voice != "") {
-			return fmt.Errorf("当前方式不使用参考音频，请选择 clone 或 continuation")
-		}
-		if qwen && !d.RequiresVoice() && d.ReferenceText != "" {
-			return fmt.Errorf("仅 Base 模型使用 --reference-text")
-		}
-		if vox && d.VoxMode != "continuation" && d.ReferenceText != "" {
-			return fmt.Errorf("--reference-text 需要 continuation 模式")
-		}
-		if vox && d.VoxMode == "continuation" && d.VoiceDescription != "" {
-			return fmt.Errorf("精细克隆不使用 --voice-description")
-		}
-		seedMax := int64(2147483647)
-		if xtts || gradium {
-			seedMax = 4294967295
-		}
-		if seed < -1 || seed > seedMax {
-			return fmt.Errorf("随机种子必须在 0–%d 之间，或 -1 自动", seedMax)
-		}
-		if seed >= 0 {
-			n := int(seed)
-			d.Seed = &n
-		}
-		if textFile != "" {
-			b, e := os.ReadFile(textFile)
-			if e != nil {
-				return e
+			if vox && (d.GuidanceScale < 0.5 || d.InferenceSteps < 1) {
+				return fmt.Errorf("引导强度需为 0.5–5，推理步数需为 1–50")
 			}
-			d.Text = string(b)
-		}
-		count := 0
-		if d.EmotionText != "" || d.InferEmotion {
-			d.Mode = "text"
-			count++
-		}
-		if emotionReference != "" {
-			d.Mode = "reference"
-			count++
-		}
-		if emotionVector != "" {
-			d.Mode = "vector"
-			count++
-			d.Emotions = nil
-			for _, item := range strings.Split(emotionVector, ",") {
-				value, err := strconv.ParseFloat(strings.TrimSpace(item), 64)
-				if err != nil {
-					return fmt.Errorf("无效情绪向量：%w", err)
+			if vox && d.VoxMode == "" {
+				d.VoxMode = "design"
+				if reference != "" || voice != "" {
+					d.VoxMode = "clone"
 				}
-				d.Emotions = append(d.Emotions, value)
+				if d.ReferenceText != "" {
+					d.VoxMode = "continuation"
+				}
 			}
-		}
-		if count > 1 {
-			return fmt.Errorf("情绪文字、向量和参考音频只能选择一种")
-		}
-		if !vox && !omni && !qwen && d.Mode == "reference" && emotionReference == "" {
-			return fmt.Errorf("参考演绎需要 --emotion-reference")
-		}
-		if !vox && !omni && !qwen && d.Mode == "text" && d.EmotionText == "" && !d.InferEmotion {
-			return fmt.Errorf("文字情绪需要 --emotion-text 或 --infer-emotion")
+			if (omni || breeze || ming || plapre || drama) && d.VoiceMode == "" {
+				d.VoiceMode = "design"
+				if reference != "" || voice != "" {
+					d.VoiceMode = "clone"
+				}
+			}
+			if omni && ((d.VoiceMode == "design" && d.ReferenceText != "") || (d.VoiceMode == "clone" && d.VoiceDescription != "")) {
+				return fmt.Errorf("OmniVoice 声音设计使用 --voice-description；克隆使用参考音频和 --reference-text")
+			}
+			if (breeze || ming || plapre || drama) && d.VoiceMode == "design" && d.ReferenceText != "" {
+				return fmt.Errorf("%s 的 --reference-text 需要 clone 模式", model.Name)
+			}
+			if reference != "" && voice != "" {
+				return fmt.Errorf("--reference 和 --voice 只能指定一个")
+			}
+			if d.RequiresVoice() && reference == "" && voice == "" {
+				return fmt.Errorf("当前模式需要 --reference 或 --voice")
+			}
+			if !d.RequiresVoice() && (reference != "" || voice != "") {
+				return fmt.Errorf("当前方式不使用参考音频，请选择 clone 或 continuation")
+			}
+			if qwen && !d.RequiresVoice() && d.ReferenceText != "" {
+				return fmt.Errorf("仅 Base 模型使用 --reference-text")
+			}
+			if vox && d.VoxMode != "continuation" && d.ReferenceText != "" {
+				return fmt.Errorf("--reference-text 需要 continuation 模式")
+			}
+			if vox && d.VoxMode == "continuation" && d.VoiceDescription != "" {
+				return fmt.Errorf("精细克隆不使用 --voice-description")
+			}
+			seedMax := int64(2147483647)
+			if xtts || gradium {
+				seedMax = 4294967295
+			}
+			if seed < -1 || seed > seedMax {
+				return fmt.Errorf("随机种子必须在 0–%d 之间，或 -1 自动", seedMax)
+			}
+			if seed >= 0 {
+				n := int(seed)
+				d.Seed = &n
+			}
+			if textFile != "" {
+				b, e := os.ReadFile(textFile)
+				if e != nil {
+					return e
+				}
+				d.Text = string(b)
+			}
+			count := 0
+			if d.EmotionText != "" || d.InferEmotion {
+				d.Mode = "text"
+				count++
+			}
+			if emotionReference != "" {
+				d.Mode = "reference"
+				count++
+			}
+			if emotionVector != "" {
+				d.Mode = "vector"
+				count++
+				d.Emotions = nil
+				for _, item := range strings.Split(emotionVector, ",") {
+					value, err := strconv.ParseFloat(strings.TrimSpace(item), 64)
+					if err != nil {
+						return fmt.Errorf("无效情绪向量：%w", err)
+					}
+					d.Emotions = append(d.Emotions, value)
+				}
+			}
+			if count > 1 {
+				return fmt.Errorf("情绪文字、向量和参考音频只能选择一种")
+			}
+			if !vox && !omni && !qwen && d.Mode == "reference" && emotionReference == "" {
+				return fmt.Errorf("参考演绎需要 --emotion-reference")
+			}
+			if !vox && !omni && !qwen && d.Mode == "text" && d.EmotionText == "" && !d.InferEmotion {
+				return fmt.Errorf("文字情绪需要 --emotion-text 或 --infer-emotion")
+			}
 		}
 		if err := schema.Validate(d); err != nil {
 			return err
@@ -469,7 +487,15 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if err = copyOutput(path, output); err != nil {
 			return err
 		}
-		result = map[string]any{"id": g.ID, "path": output, "duration": g.Duration, "model": d.ModelID, "voice": voice}
+		r := map[string]any{"id": g.ID, "path": output, "duration": g.Duration, "model": d.ModelID, "voice": voice}
+		// 返回实际种子与 YuE2 所用旋律谱，便于复现或改谱后用 --abc-file 再生成。
+		if g.Seed != nil {
+			r["seed"] = *g.Seed
+		}
+		if g.Settings.Abc != "" {
+			r["abc"] = g.Settings.Abc
+		}
+		result = r
 	}
 	if err != nil {
 		return err
