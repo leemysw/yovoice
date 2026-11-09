@@ -35,7 +35,7 @@ cp desktop/macos/Resources/ocho-ghost.png "$app/Contents/Resources/ocho-ghost.pn
 rm -rf "$app/Contents/Resources/web"
 cp -R web/dist "$app/Contents/Resources/web"
 archive="artifacts/downloads/$engine_archive"
-if [[ ! -f "$archive" ]]; then curl -fL --retry 3 "https://github.com/0xShug0/audio.cpp/releases/download/$engine_version/$engine_archive" -o "$archive.part"; mv "$archive.part" "$archive"; fi
+if [[ ! -f "$archive" ]]; then curl -fL --retry 5 --retry-all-errors "https://github.com/0xShug0/audio.cpp/releases/download/$engine_version/$engine_archive" -o "$archive.part"; mv "$archive.part" "$archive"; fi
 actual=$(shasum -a 256 "$archive" | cut -d ' ' -f 1)
 if [[ "$actual" != "$digest" ]]; then echo 'audio.cpp 校验失败，请删除下载缓存后重试'; exit 1; fi
 # 仅携带推理服务、模型描述和许可证，不打包 Python 工具或模型权重。

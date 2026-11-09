@@ -1,6 +1,7 @@
 ﻿param([string]$Configuration = "Release", [switch]$Package, [switch]$Cuda)
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
+. "$PSScriptRoot/download.ps1"
 $destination = [IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/windows-x64'))
 function Assert-BuildDirectoryAvailable {
     # 只检查当前仓库的构建产物，避免影响其他已安装的应用。
@@ -75,7 +76,7 @@ if (!$expectedHash) { throw "运行时清单缺少 $archiveName" }
 $archive = Join-Path (Get-Location) "artifacts/downloads/$archiveName"
 New-Item -ItemType Directory -Force -Path (Split-Path $archive -Parent) | Out-Null
 if (!(Test-Path $archive)) {
-    Invoke-WebRequest "https://github.com/0xShug0/audio.cpp/releases/download/$($engine.version)/$archiveName" -OutFile "$archive.part"
+    Save-Url "https://github.com/0xShug0/audio.cpp/releases/download/$($engine.version)/$archiveName" "$archive.part"
     Move-Item "$archive.part" $archive -Force
 }
 # 直接使用 .NET 流式校验，避免依赖 PowerShell 模块中的 Get-FileHash。

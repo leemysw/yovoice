@@ -18,7 +18,7 @@ CGO_ENABLED=0 "$GO_BIN" -C desktop/linux build -trimpath -ldflags="-s -w" -o "$a
 CGO_ENABLED=0 "$GO_BIN" build -trimpath -ldflags="-s -w" -o "$app/service/yovoice-service" ./cmd/yovoice-service
 cp -R web/dist "$app/web"
 archive="artifacts/downloads/$engine_archive"
-if [[ ! -f "$archive" ]]; then curl -fL --retry 3 "https://github.com/0xShug0/audio.cpp/releases/download/$engine_version/$engine_archive" -o "$archive.part"; mv "$archive.part" "$archive"; fi
+if [[ ! -f "$archive" ]]; then curl -fL --retry 5 --retry-all-errors "https://github.com/0xShug0/audio.cpp/releases/download/$engine_version/$engine_archive" -o "$archive.part"; mv "$archive.part" "$archive"; fi
 actual=$(sha256sum "$archive" | cut -d ' ' -f 1)
 if [[ "$actual" != "$digest" ]]; then echo 'audio.cpp 校验失败，请删除下载缓存后重试' >&2; exit 1; fi
 # 仅携带推理服务、ggml 动态库、模型描述和许可证，不打包 Python 工具或模型权重；内核以 $ORIGIN 查找同目录的库。

@@ -1,6 +1,7 @@
 ﻿param([Parameter(Mandatory = $true)][string]$Version, [ValidateSet('cpu', 'update', 'cuda12.4', 'cuda13.3')][string]$Kind = 'cpu')
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
+. "$PSScriptRoot/download.ps1"
 if ($Version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "版本号无效" }
 $compiler = Get-Command ISCC.exe -ErrorAction SilentlyContinue
 $compilerPath = if ($compiler) { $compiler.Source } else { "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
@@ -36,7 +37,7 @@ if ($Kind -like 'cuda*') {
         $archive = Join-Path (Get-Location) "artifacts/downloads/$archiveName"
         New-Item -ItemType Directory -Force -Path (Split-Path $archive -Parent) | Out-Null
         if (!(Test-Path $archive)) {
-            Invoke-WebRequest "https://github.com/0xShug0/audio.cpp/releases/download/$($engine.version)/$archiveName" -OutFile "$archive.part"
+            Save-Url "https://github.com/0xShug0/audio.cpp/releases/download/$($engine.version)/$archiveName" "$archive.part"
             Move-Item "$archive.part" $archive -Force
         }
         $sha256 = [System.Security.Cryptography.SHA256]::Create()
@@ -58,7 +59,7 @@ if ($Kind -like 'cuda*') {
 }
 $bootstrapper = Join-Path (Get-Location) "artifacts/downloads/MicrosoftEdgeWebView2Setup.exe"
 New-Item -ItemType Directory -Force -Path (Split-Path $bootstrapper) | Out-Null
-Invoke-WebRequest "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $bootstrapper
+Save-Url "https://go.microsoft.com/fwlink/p/?LinkId=2124703" $bootstrapper
 # Evergreen 安装器会更新，用微软有效的 Authenticode 签名校验发行者。
 $signature = Get-AuthenticodeSignature $bootstrapper
 if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation(?:,|$)') {
