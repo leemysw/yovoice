@@ -48,4 +48,4 @@ Fit the words to the vocal notes: roughly one syllable per note, stressed syllab
 
 ## Then
 
-`update_work` (abc, plus text or lyrics as needed) → `generate_work` → tell the user what changed and which earlier take to compare against. If the requested effect is missing when they listen, revise and generate again rather than defending the score.
+`update_work` (abc, plus text or lyrics as needed) → `generate_work` → tell the user what changed and which earlier take to compare against. When the user cannot tell whether the score edit or the new style made the difference, offer one comparison take that changes only one of them (as the official editing demo does: reharmonized score, style-only, melody-only with `stripChords`). If the requested effect is missing when they listen, revise and generate again rather than defending the score.

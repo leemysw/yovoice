@@ -28,7 +28,14 @@ The style is the strongest lever YuE2 has for making songs differ. The official 
 - Short pickup: a one- or two-bar drum fill or riff, then the voice.
 - Long build: an instrumental theme that the voice later picks up, e.g. `eight-bar piano and flute dialogue before a breathy female vocal enters`.
 
-Then say what moves later: an instrument joining or dropping out, a stripped bridge, a solo, a key lift or final build, call-and-response, how it ends (fade, full stop, a cappella last line). Vary tempo and meter between songs too: not everything is 4/4 at 90 BPM (3/4 waltz, 6/8 ballad, 2/4 polka or march, half-time trap).
+Then say what moves later: an instrument joining or dropping out, a stripped bridge, a solo, a key lift or final build, call-and-response, how it ends (fade, full stop, a cappella last line). Contrast the sections in words, e.g. `intimate verses, bright singable chorus`.
+
+Other habits from the official prompts:
+- End with the tempo, e.g. `4/4, 96 BPM`. Vary it between songs: the official demos run from 68 to 196 BPM, around 120 in the middle, while a slow ballad at 70 is what YuE2 drifts to when nothing is said. The score writer usually follows the number but sometimes reads it at half or double time; check `Q:` in the planned score and fix it with `transform_melody` {"op":"tempo"} if needed.
+- The score writer writes 4/4 (sometimes 2/4). Do not ask for 3/4 or 6/8 in the style; a waltz or a brief 3/4 bar is a score edit, and then the style says so (`brief 3/4 transitions as written`).
+- Add `clear Mandarin diction` (or the sung language) for intelligible words, and `complete every written lyric phrase` when lines tend to get skipped.
+- Say what is absent or resting as well as what plays: `no guitars`, `the singer rests during the saxophone solo`. When the score has a solo or a sung motif, the style should describe the same thing.
+- Point at the words to hold: `let stressed words such as dawn and home ring clearly`, `sustain vowels through melismas`.
 
 Examples in the spirit of the official demos (do not reuse them verbatim):
 
@@ -38,7 +45,8 @@ Examples in the spirit of the official demos (do not reuse them verbatim):
 | Flamenco hip-hop duet | `Spanish, flamenco meets hip-hop, 95 BPM. Female flamenco vocal over slow compás, palmas and guitar, then the beat drops and a deep male rap enters on cajón and bass. Choruses sung by her, verses rapped by him, a call-and-response bridge, a festive final chorus together.` |
 | J-pop dance | `Japanese, high-energy J-pop dance, 138 BPM, bright female lead, vocal chops, synth bass, four-on-the-floor. Belted choruses, a contrasting half-time bridge, a guitar solo, then a breakdown that builds into the last chorus.` |
 | Alt metal | `English, alternative metal, 100 BPM, cinematic. Gritty male lead; verses in melodic rap and near-spoken delivery, choruses sung with full intensity. Heavy guitars, piano and electronic textures; a quiet piano bridge before the final chorus.` |
-| Mandarin ballad | `Mandarin, piano ballad, 72 BPM, 6/8, warm male vocal. Voice and piano only for the first verse, strings join in the chorus, everything drops out for the bridge except the vocal, the last chorus rises a whole step.` |
+| Mandarin acoustic pop (official example) | `Mandarin, contemporary acoustic pop, warm expressive female lead vocal, clear Mandarin diction, piano, clean electric guitar, melodic electric bass, tight acoustic drums, bright singable chorus, intimate verses, hopeful bittersweet mood, polished studio recording, 4/4, 96 BPM` |
+| Mandarin ballad | `Mandarin, piano ballad, warm male vocal, clear Mandarin diction. Voice and piano only for the first verse, strings join in the chorus, everything drops out for the bridge except the vocal, the last chorus rises a whole step. 4/4, 72 BPM` |
 | Short tags | `country` or `1980s pop, classic rock` is also valid: with little to go on, YuE2 picks the arrangement itself, which is a good way to get variety. |
 
 ## Section tags
@@ -67,6 +75,8 @@ ACE-Step has a set duration instead: fit the lyrics to it.
 ## Keep songs different from each other
 
 - Start from a specific scene, person or detail in the user's request, not a generic feeling.
+- Avoid the stock images of a genre unless the user asks for them. For 中国风 these are 青石板、油纸伞、烟雨、老巷、信笺、墨迹; for ballads, rain on the window and fading photos. One familiar image is fine, a whole song of them sounds like every other song.
+- No stage directions, sound effects or parenthesised notes in the lyrics (`(音效：留声机底噪)`, `(harpsichord enters)`): YuE2 tries to sing them. Put them in the style.
 - Change point of view (first person, second person addressed to someone, a narrator), tense and setting between songs.
 - Give the chorus a hook that can stand alone as the title. Change at least one line in the last chorus, or the meaning of the repeated line, so the song moves.
 - Do not reuse the example lyrics or phrases from earlier songs in the conversation unless asked.
