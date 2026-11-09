@@ -39,6 +39,7 @@ MORE CLI:
 - 原生宿主按 `desktop/windows/`、`desktop/macos/`、`desktop/linux/` 分平台（Linux 宿主是独立 Go 模块，经 purego 加载 GTK 3 与 WebKitGTK，不用 cgo）；本地服务入口归 `cmd/`，Go 实现归 `internal/` 下按职责划分的子包（传输 `desktop`/`remote` → 应用 `workbench` → 基础 `engine`/`assistant`/`llm`/`store`/`download`/`score`/`audio` → 模型 `schema`/`catalog` → 叶子 `msg`/`diag`/`platform`，只允许向下依赖），构建与原生验证脚本归 `scripts/desktop/`。
 - 始终用中文回复，代码注释使用中文。
 - Go 按对象职责划分，Windows C# 只处理原生窗口与文件对话框；避免仅有一个实现的接口和预留架构。
+- 修改 Go 代码后运行 `gofmt -w cmd internal desktop/linux`，CI 的 go-lint 会拦下未格式化的文件。
 - 修改推理映射或下载逻辑后运行 `go test -race ./...`。
 - 界面修改运行 `pnpm --dir web run lint`、`pnpm --dir web run build` 和 `pnpm --dir web test`。
 - 样式按功能放在 `web/src/features/<功能>/<功能>.css`，外壳与全局放 `web/src/app/`，统一由 `app/styles.css` 按顺序 `@import`，组件里不单独引入；规则写在 `@layer app { }` 内，类名以所属功能开头。
