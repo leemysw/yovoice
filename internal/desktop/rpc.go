@@ -222,6 +222,18 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.SetLyricWords(in.ID, in.Words)
 	case "generation.alignText":
 		return true, w.AlignText(p.ID)
+	case "generation.captions":
+		return w.TextCaptions(p.ID)
+	case "captions.format":
+		var in struct {
+			Captions []schema.Caption `json:"captions"`
+			Format   string           `json:"format"`
+			Speaker  bool             `json:"speaker"`
+		}
+		if e := json.Unmarshal(data, &in); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return schema.FormatCaptions(in.Captions, in.Format, in.Speaker)
 	case "generation.alignLyrics":
 		var in struct {
 			ID    string                `json:"id"`

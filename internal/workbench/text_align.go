@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"unicode"
@@ -16,6 +15,17 @@ import (
 
 // 给语音版本对齐字幕时间：音频最长 maxTextAlignSeconds 秒，正文最多 maxTextAlignRunes 字。
 const maxTextAlignSeconds, maxTextAlignRunes = 3600, 50000
+
+// TextCaptions 把语音版本对齐好的逐字时间按句分成字幕行；还没对齐时返回空列表，由界面先发起 AlignText。
+func (w *Workbench) TextCaptions(id string) ([]schema.Caption, error) {
+	s := w.Store.Read()
+	i := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.ID == id })
+	if i < 0 {
+		return nil, msg.Err(msg.ErrAudioMissing, nil)
+	}
+	g := s.History[i]
+	return schema.WordCaptions(spokenText(g.Settings), g.TextWords, schema.DefaultCaptionRules), nil
+}
 
 // AlignText 把语音版本的正文逐字对齐到它的音频上，结果写进 TextWords，界面据此按句分行导出 SRT / WebVTT 字幕。
 // 正文是已知的，直接用强制对齐，字幕不会有识别错字；语音识别包或歌词对齐包里的对齐模型都可以用。
@@ -83,15 +93,12 @@ func (w *Workbench) AlignText(id string) error {
 	return e
 }
 
-// markupTag 是正文里给模型的方括号标记（如 [laugh]、[breath]），不念出来，也不进字幕。
-var markupTag = regexp.MustCompile(`\[[^\[\]\n]{1,40}\]`)
-
 // spokenText 返回语音版本实际念出的正文；歌曲、音效和编曲版本没有正文可对齐，返回空。
 func spokenText(d schema.Draft) string {
 	if d.Kind == "music" || d.Kind == "sfx" || d.Kind == "score" {
 		return ""
 	}
-	return strings.TrimSpace(markupTag.ReplaceAllString(d.Text, ""))
+	return schema.SpokenText(d.Text)
 }
 
 // sentences 按换行和句末标点把正文切成句子，用来分组对齐；标点留在句尾。

@@ -8,13 +8,13 @@ import { call, saveText } from '../../shared/lib/client';
 import { formatCallError, formatNotice } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
 import type { Generation, State } from '../../shared/workbench';
-import { captionsToSrt, captionsToVtt, spokenText, wordCaptions, type Caption } from './caption-export';
+import type { Caption } from './caption-export';
 
 export type CaptionFormat = 'srt' | 'vtt';
 
-// 字幕导出的公共部分：名称、格式与保存。转写页和语音版本的导出对话框共用。
-export async function saveCaptions(captions: Caption[], name: string, format: CaptionFormat) {
-  return saveText((format === 'srt' ? captionsToSrt : captionsToVtt)(captions), name, format);
+// 字幕导出的公共部分：由本地服务写成 SRT / WebVTT 再保存。转写页、语音版本和时间轴导出共用。
+export async function saveCaptions(captions: Caption[], name: string, format: CaptionFormat, speaker = false) {
+  return saveText(await call<string>('captions.format', { captions, format, speaker }), name, format);
 }
 
 // 语音版本导出字幕：正文已知，用对齐模型算出逐字时间（结果存在版本上，下次直接用），再按句分行导出 SRT / WebVTT。
@@ -34,10 +34,12 @@ export function CaptionDialog({ state, generation, name: initialName, onClose }:
   const activity = state.activity;
   const save = async () => {
     if (!words?.length) return;
-    const captions = wordCaptions(spokenText(live.settings.text), words);
-    if (!captions.length) { setError('@yovoice.caption.empty'); return; }
     setSaving(true); setError('');
-    try { if (await saveCaptions(captions, name.trim(), format)) onClose(); }
+    try {
+      const captions = await call<Caption[]>('generation.captions', { id: live.id });
+      if (!captions.length) { setError('@yovoice.caption.empty'); return; }
+      if (await saveCaptions(captions, name.trim(), format)) onClose();
+    }
     catch (e) { setError(noticeMessage(e)); }
     finally { setSaving(false); }
   };

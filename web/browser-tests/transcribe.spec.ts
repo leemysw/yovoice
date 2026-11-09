@@ -3,33 +3,12 @@ import { readFile } from 'node:fs/promises';
 import { seedState } from './seed';
 import { openProjectHistory } from './project-actions';
 import { emptyState, type InstalledModel } from '../src/shared/workbench';
-import { spokenText, wordCaptions } from '../src/features/media/caption-export';
 import { findRows, joinText, mergeNext, replaceAll, splitAt } from '../src/features/transcribe/caption-edit';
 
 // 语音转写页与语音版本导出字幕：逐词时间按句分行，转写记录保存后可编辑字幕，导出 SRT / WebVTT。
 
 const recognizer: InstalledModel = { id: 'qwen3-asr-0.6b-q8', path: 'Qwen3-ASR-GGUF', managed: true };
 const timed = (words: string[], step = .5, gap = .4) => words.map((word, i) => ({ word, start: i * step, end: i * step + gap }));
-
-test('逐词时间按句末、分句、宽度和停顿分行，保留问号去掉句号', () => {
-  expect(wordCaptions('你好，世界。今天很好！', timed([...'你好世界今天很好']))).toEqual([
-    { start: 0, end: 1.9, text: '你好，世界' },
-    { start: 2, end: 3.9, text: '今天很好！' },
-  ]);
-  // 英文按单词定位原文，保留大小写和标点；停顿超过 0.8 秒另起一行。
-  const words = [...timed(['hello', 'world']), { word: 'are', start: 3, end: 3.2 }, { word: 'you', start: 3.3, end: 3.5 }, { word: 'there', start: 3.6, end: 4 }];
-  expect(wordCaptions('Hello, World... are you there?', words)).toEqual([
-    { start: 0, end: .9, text: 'Hello, World...' },
-    { start: 3, end: 4, text: 'are you there?' },
-  ]);
-  // 超过宽度就换行，相邻两行不重叠。
-  const long = wordCaptions('一二三四五六七八九十一二三四五六七八九十一二三', timed([...'一二三四五六七八九十一二三四五六七八九十一二三'], .2, .5));
-  expect(long.map(c => c.text)).toEqual(['一二三四五六七八九十一二三四五六七八九十', '一二三']);
-  expect(long[0].end).toBe(long[1].start);
-  // 原文找不到识别的词时直接拼接识别结果。
-  expect(wordCaptions('', timed(['good', 'morning'])).map(c => c.text)).toEqual(['good morning']);
-  expect(spokenText('[laugh]你好 [breath]世界')).toBe('你好 世界');
-});
 
 async function openTranscribe(page: Page, models: InstalledModel[]) {
   const state = emptyState();

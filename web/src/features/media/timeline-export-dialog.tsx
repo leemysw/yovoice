@@ -7,12 +7,13 @@ import { Selector } from '../../shared/selector';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { formatNotice } from '../../shared/i18n/format';
 import { encodeWav } from '../../shared/lib/sound';
-import { isDesktop, saveAudio, saveText, type AudioExportFormat } from '../../shared/lib/client';
+import { isDesktop, saveAudio, type AudioExportFormat } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { readLocal, writeLocal } from '../../shared/lib/local-store';
 import type { AudioTimeline, Draft, Generation } from '../../shared/workbench';
 import { Timeline } from './timeline';
-import { captionsToSrt, captionsToVtt, timelineCaptions } from './caption-export';
+import { timelineCaptions } from './caption-export';
+import { saveCaptions } from './caption-dialog';
 
 // 导出格式：音频（WAV，桌面端另有 FLAC / M4A），或按片段实际位置生成的 SRT / WebVTT 字幕。
 type ExportFormat = AudioExportFormat | 'srt' | 'vtt';
@@ -48,7 +49,7 @@ function ExportDialog({ value, history, draft, range, context, load, exporting, 
       if (!isAudio(format)) {
         const captions = timelineCaptions(snapshot, history, draft.subtitles?.speakers, scope === 'range' ? range : undefined);
         if (!captions.length) { setError('@yovoice.timeline.noCaptions'); return; }
-        if (await saveText((format === 'srt' ? captionsToSrt : captionsToVtt)(captions, captionSpeaker), name, format)) onClose();
+        if (await saveCaptions(captions, name, format, captionSpeaker)) onClose();
         return;
       }
       const audio = context.current ??= new AudioContext();
