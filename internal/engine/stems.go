@@ -83,12 +83,21 @@ func decodeStems(dec *json.Decoder, target func(id string) string) (map[string]s
 	return written, err
 }
 
-// decodeStem 读一个 {"id":..., "audio":...}；引擎先写 id 再写 audio，所以读到 audio 时就能决定写到哪里。
+// decodeStem 读一个 {"id":..., "audio":...}。引擎先写 id 再写 audio，读到 audio 时就能决定写到哪里、跳过的轨不必解码；
+// 顺序相反时先留住 audio，读完整个对象再处理。
 func decodeStem(dec *json.Decoder, target func(id string) string, written map[string]string) error {
 	if err := expectDelim(dec, '{'); err != nil {
 		return err
 	}
-	id := ""
+	id, encoded, pending := "", "", false
+	// path 只向 target 要一次：调用方可能借 target 记下分轨顺序。
+	path, resolved := "", false
+	resolve := func() string {
+		if !resolved {
+			path, resolved = target(id), true
+		}
+		return path
+	}
 	for dec.More() {
 		key, err := dec.Token()
 		if err != nil {
@@ -96,37 +105,35 @@ func decodeStem(dec *json.Decoder, target func(id string) string, written map[st
 		}
 		switch key {
 		case "id":
-			if err = dec.Decode(&id); err != nil {
-				return err
-			}
+			err = dec.Decode(&id)
 		case "audio":
-			var encoded string
-			if err = dec.Decode(&encoded); err != nil {
-				return err
+			if id != "" && resolve() == "" {
+				err = skipValue(dec)
+			} else {
+				err, pending = dec.Decode(&encoded), true
 			}
-			path := ""
-			if id != "" {
-				path = target(id)
-			}
-			if path == "" {
-				continue
-			}
-			wav, err := base64.StdEncoding.DecodeString(encoded)
-			if err != nil || len(wav) <= 44 {
-				return msg.Err(msg.ErrEngineNoAudio, nil)
-			}
-			if err = os.WriteFile(path, wav, 0600); err != nil {
-				return err
-			}
-			written[id] = path
 		default:
-			if err = skipValue(dec); err != nil {
-				return err
-			}
+			err = skipValue(dec)
+		}
+		if err != nil {
+			return err
 		}
 	}
-	_, err := dec.Token()
-	return err
+	if _, err := dec.Token(); err != nil {
+		return err
+	}
+	if id == "" || !pending || resolve() == "" {
+		return nil
+	}
+	wav, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil || len(wav) <= 44 {
+		return msg.Err(msg.ErrEngineNoAudio, nil)
+	}
+	if err = os.WriteFile(path, wav, 0600); err != nil {
+		return err
+	}
+	written[id] = path
+	return nil
 }
 
 func expectDelim(dec *json.Decoder, want json.Delim) error {
