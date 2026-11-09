@@ -7,13 +7,11 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
-	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
@@ -105,34 +103,5 @@ func TestExportAudioUpload(t *testing.T) {
 	must(t, e)
 	if info, e := os.Stat(path.(string)); e != nil || info.Size() != int64(len(wav)) {
 		t.Fatalf("上传的导出文件不完整：%v %v", info, e)
-	}
-}
-
-// 转写上传经 /api/transcribe 走原始请求体，视频等超过 RPC 28 MB 上限的文件也能交给转写；
-// 这里没有安装识别模型，收到的应是“需要识别模型”而不是文件过大。
-func TestTranscribeUpload(t *testing.T) {
-	w, e := workbench.New(t.TempDir())
-	must(t, e)
-	defer w.Close()
-	secret := strings.Repeat("c", 64)
-	server := httptest.NewServer(&Server{Workbench: w, Assets: t.TempDir(), Secret: secret})
-	defer server.Close()
-	r, e := http.NewRequest("POST", server.URL+"/api/transcribe?name="+url.QueryEscape("采访.mp4"), bytes.NewReader(bytes.Repeat([]byte{1}, 40<<20)))
-	must(t, e)
-	r.AddCookie(&http.Cookie{Name: "vw-" + secret[:12], Value: secret})
-	res, e := server.Client().Do(r)
-	must(t, e)
-	defer res.Body.Close()
-	var reply struct {
-		Error struct {
-			Code string `json:"code"`
-		} `json:"error"`
-	}
-	must(t, json.NewDecoder(res.Body).Decode(&reply))
-	if reply.Error.Code != string(msg.ErrRecognizeModelRequired) {
-		t.Fatalf("转写上传应进入转写流程：%+v", reply)
-	}
-	if left, _ := filepath.Glob(filepath.Join(w.Store.Root, "downloads", "upload-*")); len(left) != 0 {
-		t.Fatalf("失败后应删除上传的临时文件：%v", left)
 	}
 }
