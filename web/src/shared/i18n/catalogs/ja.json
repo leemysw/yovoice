@@ -4801,5 +4801,11 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "最後の一行はアカペラ"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "ダウンロードをキャンセル"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "別の入手先に切り替える前に、インストール済みモデルの登録を解除してください。"
   }
 }

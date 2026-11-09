@@ -295,7 +295,7 @@ func TestAssistantInstallModelUpdateProposal(t *testing.T) {
 	definition, err := catalog.Lookup(modelID)
 	must(t, err)
 	must(t, w.Store.Update(func(s *schema.State) {
-		s.Models = []schema.InstalledModel{{ID: modelID, SHA256: "old-sha"}}
+		s.Models = []schema.InstalledModel{{ID: modelID, Managed: true, SHA256: "old-sha"}}
 	}, true))
 	w.chat.turn = &chatTurn{locale: schema.UiLocaleZhCN}
 	_, _, err = w.proposeTool(context.Background(), toolReq, proposeInput{Action: "install_model", Target: modelID})

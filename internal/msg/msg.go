@@ -101,6 +101,7 @@ const (
 	ErrStreamingRetry         Code = "@yovoice.error.streamingRetry"
 	ErrModelOptionUnsupported Code = "@yovoice.error.modelOptionUnsupported"
 
+	ErrLocalModelProtected  Code = "@yovoice.error.localModelProtected"
 	ErrLocalModelInvalid    Code = "@yovoice.error.localModelInvalid"
 	ErrLocalModelIncomplete Code = "@yovoice.error.localModelIncomplete"
 	ErrModelRequired        Code = "@yovoice.error.modelRequired"
@@ -269,7 +270,7 @@ func All() []Code {
 		ErrNameLength, ErrDraftLimits, ErrDraftIDInvalid, ErrTextRequired, ErrTitleLength,
 		ErrLanguageUnsupported, ErrModeInvalid, ErrEmotionInvalid, ErrEmotionStrength,
 		ErrEmotionTextRequired, ErrEmotionVoiceRequired, ErrVoiceRequired, ErrVoiceBusyDelete,
-		ErrStreamingRetry, ErrModelOptionUnsupported, ErrLocalModelInvalid, ErrLocalModelIncomplete, ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelForgetBlocked,
+		ErrStreamingRetry, ErrModelOptionUnsupported, ErrLocalModelProtected, ErrLocalModelInvalid, ErrLocalModelIncomplete, ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelForgetBlocked,
 		ErrDownloadSource, ErrRuntimeRequired, ErrRuntimeMissing, ErrRuntimeUnique,
 		ErrRuntimeArchivePath, ErrRuntimeArchiveLink, ErrRuntimeArchiveSize,
 		ErrEngineStartFailed, ErrEngineStartTimeout, ErrEngineNoAudio, ErrEngineCrashed,

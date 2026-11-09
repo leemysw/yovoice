@@ -4801,5 +4801,11 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "Finit sur une ligne a cappella"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "Annuler le téléchargement"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "Retirez le modèle installé de la liste avant de changer de source."
   }
 }

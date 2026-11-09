@@ -1,7 +1,7 @@
 package workbench
 
 import (
-	"os"
+	"context"
 	"path/filepath"
 	"runtime"
 	"slices"
@@ -80,8 +80,12 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 	}, true)
 }
 
-// SetModelDirectory 只更换模型下载目录，其余偏好保持不变。
+// SetModelDirectory 只更换后续下载目录，校验并登记其中已有的目录包。
 func (w *Workbench) SetModelDirectory(path string) error {
+	return w.SetModelDirectoryContext(context.Background(), path)
+}
+
+func (w *Workbench) SetModelDirectoryContext(ctx context.Context, path string) error {
 	w.edit.Lock()
 	defer w.edit.Unlock()
 	p := w.Store.Read().Preferences
@@ -89,55 +93,75 @@ func (w *Workbench) SetModelDirectory(path string) error {
 	if err := w.savePreferences(p); err != nil {
 		return err
 	}
-	return w.adoptModels(path)
+	return w.adoptModels(ctx, path, catalog.Models)
 }
 
-// adoptModels 登记新模型目录中已有的模型：按应用下载时的布局查找（单文件模型在目录根部，
-// 多文件模型在各自子目录），单文件大小匹配当前或更新前清单，多文件大小全部匹配当前清单才视为完整。
-// 已登记且文件仍在的模型保持不变。
-func (w *Workbench) adoptModels(dir string) error {
-	type adoptedModel struct {
-		path   string
-		sha256 string
-	}
-	found := map[string]adoptedModel{}
-	for _, m := range catalog.Models {
+// adoptModels 只认完整且摘要匹配的包。目录中已有的文件按外部导入登记，不归应用删除。
+func (w *Workbench) adoptModels(ctx context.Context, dir string, models []catalog.ModelPackage) error {
+	initial := w.Store.Read()
+	var found []schema.InstalledModel
+	for _, m := range models {
+		if old, ok := installedModel(initial, m.ID); ok && existsPath(old.Path) {
+			continue
+		}
+		if _, pending := initial.ModelDownloads[m.ID]; pending {
+			continue
+		}
 		path := filepath.Join(dir, filepath.Base(m.RemotePath))
-		sha256 := m.MainFile().SHA256
 		if len(m.Files) > 0 {
 			path = filepath.Join(dir, m.Directory)
-			if packageRoot(m, filepath.Join(path, filepath.FromSlash(m.RemotePath))) == "" {
+		}
+		main := m.MainFile()
+		files := m.PackageFiles()
+		if len(m.Files) == 0 && download.FileSize(path) != main.Size {
+			legacy := catalog.LegacyModelFiles[m.ID]
+			if legacy.Size <= 0 || download.FileSize(path) != legacy.Size {
 				continue
 			}
-		} else {
-			size := download.FileSize(path)
-			if size == 0 {
-				continue
+			main = legacy
+			files = []catalog.ModelFile{legacy}
+		}
+		valid := true
+		for _, file := range files {
+			target := path
+			if len(m.Files) > 0 {
+				target = filepath.Join(path, filepath.FromSlash(m.LocalPath(file.Path)))
 			}
-			if size != m.Size {
-				legacy := catalog.LegacyModelFiles[m.ID]
-				if size != legacy.Size {
-					continue
-				}
-				sha256 = legacy.SHA256
+			if file.Size <= 0 || download.FileSize(target) != file.Size {
+				valid = false
+				break
+			}
+			digest, err := download.Hash(ctx, target)
+			if err != nil || digest != file.SHA256 {
+				valid = false
+				break
 			}
 		}
-		found[m.ID] = adoptedModel{path: path, sha256: sha256}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if valid {
+			found = append(found, schema.InstalledModel{ID: m.ID, Path: path, SHA256: main.SHA256})
+		}
 	}
 	if len(found) == 0 {
 		return nil
 	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
 	return w.Store.Update(func(s *schema.State) {
-		for _, m := range s.Models {
-			if _, err := os.Stat(m.Path); err == nil {
-				delete(found, m.ID)
+		for _, model := range found {
+			if a := s.Activity; w.cancel != nil && a != nil && a.Kind == "import" && schema.Deref(a.ModelID) == model.ID {
+				continue
 			}
+			if old, ok := installedModel(*s, model.ID); ok && existsPath(old.Path) {
+				continue
+			}
+			if _, pending := s.ModelDownloads[model.ID]; pending {
+				continue
+			}
+			putInstalledModel(s, model)
 		}
-		for id, adopted := range found {
-			s.Models = slices.DeleteFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
-			s.Models = append(s.Models, schema.InstalledModel{ID: id, Path: adopted.path, Managed: true, SHA256: adopted.sha256})
-		}
-		diag.Log(w.Store.Root, "model.directory_adopted", "count", len(found))
 	}, true)
 }
 

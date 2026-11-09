@@ -2,9 +2,10 @@
 import type { Draft, ModelFile, ModelPackage, ModelVersion, State } from './types';
 
 export const modelMainFile = (model: ModelPackage): ModelFile => model.files?.find(file => file.path === model.remotePath) ?? { path: model.remotePath, size: model.size, sha256: model.sha256 };
-export const modelUpdateAvailable = (state: Pick<State, 'models'>, model: ModelPackage) => {
+export const modelUpdateAvailable = (state: Pick<State, 'models' | 'modelDownloads' | 'modelActivity'>, model: ModelPackage) => {
   const installed = state.models.find(item => item.id === model.id);
-  return installed?.sha256 && !installed.pinned && installed.sha256 !== modelMainFile(model).sha256 ? installed : undefined;
+  return !(state.modelActivity?.kind === 'download' && state.modelActivity.modelId === model.id && state.modelActivity.status !== 'completed')
+    && !state.modelDownloads?.[model.id] && installed?.managed && installed.sha256 && !installed.pinned && installed.sha256 !== modelMainFile(model).sha256 ? installed : undefined;
 };
 /** 旧版本的主文件摘要，用来和已安装模型记录的 sha256 比对、作为 model.download 的 version。 */
 export const modelVersionDigest = (model: ModelPackage, version: ModelVersion) => version.files?.find(file => file.path === model.remotePath)?.sha256 ?? version.sha256 ?? '';

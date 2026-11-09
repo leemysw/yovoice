@@ -4801,5 +4801,11 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "Заканчивается строкой а капелла"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "Отменить загрузку"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "Перед сменой источника удалите регистрацию установленной модели."
   }
 }

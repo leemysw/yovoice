@@ -4801,5 +4801,11 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "Kết bằng một câu hát không đệm"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "Hủy tải xuống"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "Hãy bỏ đăng ký mô hình đã cài đặt trước khi đổi nguồn."
   }
 }

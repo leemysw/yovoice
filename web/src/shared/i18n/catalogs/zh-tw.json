@@ -4801,5 +4801,11 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "最後一句只留人聲清唱"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "取消下載"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "切換模型來源前，請先移除目前模型的登記。"
   }
 }

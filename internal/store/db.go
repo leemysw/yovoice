@@ -85,6 +85,7 @@ var settingFields = []setting{
 	{"runtimes", func(s *schema.State) any { return &s.Runtimes }},
 	{"activity", func(s *schema.State) any { return &s.Activity }},
 	{"modelActivity", func(s *schema.State) any { return &s.ModelActivity }},
+	{"modelDownloads", func(s *schema.State) any { return &s.ModelDownloads }},
 	{"aiProviderID", func(s *schema.State) any { return &s.AIProviderID }},
 	{"assistantSessions", func(s *schema.State) any { return &s.AssistantSessions }},
 	{"assistantMemory", func(s *schema.State) any { return &s.AssistantMemory }},

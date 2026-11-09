@@ -4801,5 +4801,11 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "마지막 한 줄은 아카펠라"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "다운로드 취소"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "모델 출처를 바꾸기 전에 설치된 모델의 등록을 해제하세요."
   }
 }
