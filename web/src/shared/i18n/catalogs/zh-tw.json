@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "沒有辨識出文字，請確認音訊裡有清晰的人聲"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "音訊或影片檔案需小於 4 GB。"
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "這份轉寫已刪除或字幕檔遺失"
   },

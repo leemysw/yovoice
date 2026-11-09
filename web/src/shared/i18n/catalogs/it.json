@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Nessun parlato riconosciuto. Verifica che l’audio contenga una voce chiara"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "I file audio o video devono essere inferiori a 4 GB."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Questa trascrizione è stata eliminata o manca il file dei sottotitoli"
   },

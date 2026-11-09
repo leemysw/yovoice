@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Không nhận ra lời nói nào. Hãy kiểm tra âm thanh có giọng nói rõ ràng"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Tệp âm thanh hoặc video phải nhỏ hơn 4 GB."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Bản chép lời này đã bị xóa hoặc thiếu tệp phụ đề"
   },

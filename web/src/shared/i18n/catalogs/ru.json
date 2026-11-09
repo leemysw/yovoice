@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Речь не распознана. Убедитесь, что в записи есть отчётливый голос"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Аудио- или видеофайл должен быть меньше 4 ГБ."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Эта расшифровка удалена или её файл субтитров отсутствует"
   },

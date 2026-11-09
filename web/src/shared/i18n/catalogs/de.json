@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Es wurde keine Sprache erkannt. Prüfen Sie, ob die Aufnahme deutliche Sprache enthält"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Audio- oder Videodateien müssen kleiner als 4 GB sein."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Dieses Transkript wurde gelöscht oder seine Untertiteldatei fehlt"
   },

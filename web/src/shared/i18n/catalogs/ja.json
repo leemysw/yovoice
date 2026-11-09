@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "文字を認識できませんでした。音声がはっきり入っているか確認してください"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "音声・動画ファイルは 4 GB 未満にしてください。"
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "この文字起こしは削除されたか、字幕ファイルが見つかりません"
   },

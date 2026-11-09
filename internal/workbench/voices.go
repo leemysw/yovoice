@@ -172,18 +172,23 @@ func (w *Workbench) ImportVoiceFrom(ctx context.Context, r io.Reader, name strin
 	return w.ImportVoice(ctx, path, name)
 }
 
-// receive 将上传内容写入临时文件，调用方负责删除。
+// receive 将上传内容写入临时文件，超过 20 MB 时拒绝；调用方负责删除。
 func (w *Workbench) receive(r io.Reader) (string, error) {
+	return w.receiveUpTo(r, maxUpload, msg.ErrAudioTooLarge)
+}
+
+// receiveUpTo 将上传内容写入临时文件，超过 limit 字节时以 tooLarge 拒绝；调用方负责删除。
+func (w *Workbench) receiveUpTo(r io.Reader, limit int64, tooLarge msg.Code) (string, error) {
 	f, err := os.CreateTemp(filepath.Join(w.Store.Root, "downloads"), "upload-*")
 	if err != nil {
 		return "", err
 	}
-	n, err := io.Copy(f, io.LimitReader(r, maxUpload+1))
+	n, err := io.Copy(f, io.LimitReader(r, limit+1))
 	if closeErr := f.Close(); err == nil {
 		err = closeErr
 	}
-	if err == nil && n > maxUpload {
-		err = msg.Err(msg.ErrAudioTooLarge, nil)
+	if err == nil && n > limit {
+		err = msg.Err(tooLarge, nil)
 	}
 	if err != nil {
 		_ = os.Remove(f.Name())

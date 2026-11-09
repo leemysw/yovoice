@@ -100,6 +100,9 @@ func (w *Workbench) toolModel(s schema.State, families ...string) (schema.Instal
 	return schema.InstalledModel{}, msg.Err(msg.ErrRecognizeModelRequired, nil)
 }
 
+// MaxTranscribeUpload 是转写上传的文件上限：视频通常远大于音频，只要求时长在一小时内，文件按 4 GB 放宽。
+const MaxTranscribeUpload = 4 << 30
+
 // 转写：上传的音频最长 transcribeSeconds 秒；按停顿切成不超过 transcribeChunk 秒的段逐段识别，
 // 识别和对齐都在一段里完成，段越短越稳，30 秒以内识别质量最好。
 const transcribeSeconds, transcribeChunk = 3600, 30.0
@@ -107,7 +110,7 @@ const transcribeSeconds, transcribeChunk = 3600, 30.0
 // TranscribeSpeech 用语音识别模型转写上传的音频：逐段识别出文字和逐词时间，接成整段保存为转写记录，
 // 由转写页编辑并导出字幕。name 是原文件名，用作记录名称与导出时的默认名称。
 func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
-	upload, e := w.receive(r)
+	upload, e := w.receiveUpTo(r, MaxTranscribeUpload, msg.ErrTranscribeTooLarge)
 	if e != nil {
 		return e
 	}

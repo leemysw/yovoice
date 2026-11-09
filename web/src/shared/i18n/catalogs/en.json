@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "No speech was recognized. Make sure the audio has clear speech"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Audio or video files must be under 4 GB."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "This transcript was deleted or its subtitle file is missing"
   },

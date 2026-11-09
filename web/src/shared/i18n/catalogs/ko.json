@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "인식된 텍스트가 없습니다. 오디오에 또렷한 음성이 있는지 확인하세요"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "오디오 또는 동영상 파일은 4GB 미만이어야 합니다."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "이 받아쓰기가 삭제되었거나 자막 파일이 없습니다"
   },

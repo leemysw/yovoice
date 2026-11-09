@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Aucune parole reconnue. Vérifiez que l’audio contient une voix claire"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Les fichiers audio ou vidéo doivent faire moins de 4 Go."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Cette transcription a été supprimée ou son fichier de sous-titres est introuvable"
   },

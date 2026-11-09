@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "No se reconoció ningún texto. Comprueba que el audio tenga voz clara"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Los archivos de audio o vídeo deben ocupar menos de 4 GB."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Esta transcripción se eliminó o falta su archivo de subtítulos"
   },

@@ -113,6 +113,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 导出的长音频直接写入临时文件，按 WAV 的 4 GB 上限放宽。
 		limit = 4 << 30
 	}
+	if r.URL.Path == "/api/transcribe" {
+		// 转写可以上传视频，文件直接写入临时文件；比转写上限多留一点，超出时由转写返回明确的错误。
+		limit = workbench.MaxTranscribeUpload + 1<<20
+	}
 	r.Body = http.MaxBytesReader(w, r.Body, limit)
 	switch {
 	case r.URL.Path == "/api/export-audio" && r.Method == "POST":
@@ -132,6 +136,19 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			return reply, err
 		})
+		if err != nil {
+			reply = map[string]any{"error": msg.Encode(err)}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(reply)
+	case r.URL.Path == "/api/transcribe" && r.Method == "POST":
+		// 转写上传走原始请求体，不经 base64 消息，视频等大文件也能上传；name 是原文件名。
+		started := time.Now()
+		_, err := s.guard("speech.transcribe", func() (any, error) {
+			return true, s.Workbench.TranscribeSpeech(r.URL.Query().Get("name"), r.Body)
+		})
+		diag.Log(s.Workbench.Store.Root, "speech.transcribe", "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))
+		reply := map[string]any{"result": true}
 		if err != nil {
 			reply = map[string]any{"error": msg.Encode(err)}
 		}

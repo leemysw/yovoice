@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Nenhuma fala foi reconhecida. Verifique se o áudio tem voz nítida"
   },
+  "@yovoice.error.transcribeTooLarge": {
+    "defaultMessage": "Arquivos de áudio ou vídeo devem ter menos de 4 GB."
+  },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Esta transcrição foi excluída ou o arquivo de legendas está faltando"
   },
