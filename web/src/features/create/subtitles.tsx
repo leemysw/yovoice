@@ -15,8 +15,9 @@ import { AudioCheckBadge } from '../media/audio-check';
 
 const SeededAvatar = lazy(() => import('../../shared/ui/seeded-avatar').then(module => ({ default: module.SeededAvatar })));
 
-// 台词高度跟随内容和栏宽，避免滚动条与拖动手柄打断阅读。
-function CueText({ value, label, onChange, onRemove, onSplit }: { onSplit: (start: number, end: number) => void; onRemove: (backward: boolean) => void; value: string; label: string; onChange: (value: string) => void }) {
+// 一行字幕的文字：高度跟随内容和栏宽，避免滚动条打断阅读；回车在光标处拆分，空行按退格或删除移除这一行；
+// 给出 onJoin 时，在行首按退格与上一行合并。语音转写的字幕编辑也用它。
+export function CueText({ value, label, onChange, onRemove, onSplit, onJoin, maxLength = 12000 }: { onSplit: (start: number, end: number) => void; onRemove: (backward: boolean) => void; onJoin?: () => void; value: string; label: string; maxLength?: number; onChange: (value: string) => void }) {
   const input = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => {
     const element = input.current!;
@@ -29,9 +30,11 @@ function CueText({ value, label, onChange, onRemove, onSplit }: { onSplit: (star
     observer.observe(element);
     return () => observer.disconnect();
   }, [value]);
-  return <textarea ref={input} className="subtitle-cue-text" aria-label={label} rows={1} maxLength={12000} value={value} onChange={e => onChange(e.target.value)} onKeyDown={event => {
+  return <textarea ref={input} className="subtitle-cue-text" aria-label={label} rows={1} maxLength={maxLength} value={value} onChange={e => onChange(e.target.value)} onKeyDown={event => {
     if (event.nativeEvent.isComposing || event.keyCode === 229) return;
     if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) { event.preventDefault(); onSplit(event.currentTarget.selectionStart, event.currentTarget.selectionEnd); return; }
+    const field = event.currentTarget;
+    if (onJoin && value.trim() && event.key === 'Backspace' && field.selectionStart === 0 && field.selectionEnd === 0) { event.preventDefault(); onJoin(); return; }
     if (value.trim() || !['Backspace', 'Delete'].includes(event.key)) return;
     event.preventDefault(); onRemove(event.key === 'Backspace');
   }} />;

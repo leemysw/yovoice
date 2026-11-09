@@ -367,8 +367,10 @@ type State struct {
 	Melody *MelodyResult `json:"melody,omitempty"`
 	// MidiImport 是最近一次从版本扒出 MIDI 新建的编曲作品，等界面打开；只属于本次会话。
 	MidiImport *MidiImport `json:"midiImport,omitempty"`
-	// Transcript 是最近一次识别的结果：声音样本的参考文本，或转写页上传音频的文字与逐词时间；只属于本次会话。
+	// Transcript 是最近一次识别声音样本得到的参考文本，等界面填入；只属于本次会话。
 	Transcript *TranscriptResult `json:"transcript,omitempty"`
+	// Transcripts 是转写页保存的转写记录，新的在前；逐词时间与字幕内容在 outputs 目录的文件里，不随状态广播。
+	Transcripts []Transcript `json:"transcripts,omitempty"`
 	// AssistantSessions 是助手会话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
 	AssistantSessions *AssistantSessions `json:"assistantSessions,omitempty"`
 	AssistantLive     *AssistantLive     `json:"assistantLive,omitempty"`
@@ -393,17 +395,43 @@ type MelodyResult struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// TranscriptResult 是语音识别模型识别出的文字；Language 是模型判断的语言（如 Chinese），可能为空。
-// 识别声音样本时 VoiceID 指向样本；转写上传的音频时 Name 是文件名（不含扩展名），Words 是逐词时间，Duration 是音频秒数。
+// TranscriptResult 是识别声音样本得到的文字，VoiceID 指向样本；Language 是模型判断的语言（如 Chinese），可能为空。
 type TranscriptResult struct {
-	ID        string      `json:"id"`
-	VoiceID   string      `json:"voiceId,omitempty"`
-	Name      string      `json:"name,omitempty"`
-	Text      string      `json:"text"`
-	Language  string      `json:"language,omitempty"`
-	Words     []LyricWord `json:"words,omitempty"`
-	Duration  float64     `json:"duration,omitempty"`
-	CreatedAt time.Time   `json:"createdAt"`
+	ID        string    `json:"id"`
+	VoiceID   string    `json:"voiceId"`
+	Text      string    `json:"text"`
+	Language  string    `json:"language,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+// Transcript 是转写页保存的一次转写。FileName 是 outputs 目录里的字幕文件（TranscriptContent）；
+// AudioFile 是同目录里保存的原音频，用来边听边改，格式无法识别时为空。Name 为空时界面显示默认名。
+type Transcript struct {
+	ID        string  `json:"id"`
+	Name      string  `json:"name,omitempty"`
+	Language  string  `json:"language,omitempty"`
+	Duration  float64 `json:"duration"`
+	FileName  string  `json:"fileName"`
+	AudioFile string  `json:"audioFile,omitempty"`
+	// Excerpt 是字幕开头的一小段，列表里展示，免得为显示摘录读取字幕文件。
+	Excerpt   string     `json:"excerpt,omitempty"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// TranscriptContent 是字幕文件的内容：Text 与 Words 是识别出的原文和逐词时间，之后不再改动；
+// Captions 是编辑过的字幕，还没编辑时为 null，由界面按逐词时间分行；全部删掉时是空列表。
+type TranscriptContent struct {
+	Text     string              `json:"text"`
+	Words    []LyricWord         `json:"words"`
+	Captions []TranscriptCaption `json:"captions"`
+}
+
+// TranscriptCaption 是一行字幕，时间以秒计。
+type TranscriptCaption struct {
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
+	Text  string  `json:"text"`
 }
 
 type InstalledRuntime struct {

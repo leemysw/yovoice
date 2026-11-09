@@ -50,6 +50,8 @@ var migrations = []migration{
 			return backfillModelSHA256(data)
 		})
 	}},
+	// 4：转写页的转写记录改为长期保存。
+	{sql: `CREATE TABLE transcripts (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);`},
 }
 
 func backfillModelSHA256(data []byte) ([]byte, error) {

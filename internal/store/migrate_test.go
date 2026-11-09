@@ -33,6 +33,8 @@ func TestMigrateLegacyData(t *testing.T) {
 		{"DELETE FROM settings WHERE key = 'runtimeVersion'", nil},
 		{"INSERT INTO models (key, pos, data) VALUES ('kokoro', 0, ?)", []any{`{"id":"kokoro-82m-q8","path":"/models/kokoro.gguf","managed":false}`}},
 		{"INSERT INTO models (key, pos, data) VALUES ('custom', 1, ?)", []any{`{"id":"custom","path":"/models/custom.gguf","managed":true}`}},
+		// 版本 1 还没有后来加的表。
+		{"DROP TABLE transcripts", nil},
 		{"PRAGMA user_version = 1", nil},
 	} {
 		_, err = s.db.Exec(step.query, step.args...)

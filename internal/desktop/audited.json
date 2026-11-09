@@ -11,6 +11,8 @@
   "voice.record",
   "voice.recognize",
   "transcript.dismiss",
+  "transcript.rename",
+  "transcript.delete",
   "speech.transcribe",
   "timeline.import",
   "timeline.fromGeneration",

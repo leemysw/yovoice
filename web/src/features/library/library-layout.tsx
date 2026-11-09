@@ -3,15 +3,16 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Search } from 'lucide-react';
 
-export function LibraryPage({ title, actions, controls, query, onQueryChange, searchLabel, empty, noResults, hasItems, hasResults, layout = 'list', children }: {
+// hasSearch 默认随 hasItems：列表里只有进行中的任务、还没有可搜的记录时可以单独关掉搜索框。
+export function LibraryPage({ title, actions, controls, query, onQueryChange, searchLabel, empty, noResults, hasItems, hasResults, hasSearch = hasItems, layout = 'list', children }: {
   title: string; actions?: ReactNode; controls?: ReactNode; query: string; onQueryChange: (query: string) => void;
-  searchLabel: string; empty: ReactNode; noResults: string; hasItems: boolean; hasResults: boolean;
+  searchLabel: string; empty: ReactNode; noResults: string; hasItems: boolean; hasResults: boolean; hasSearch?: boolean;
   layout?: 'list' | 'tickets'; children: ReactNode;
 }) {
   return <VStack className="library-page" gap={6}>
     <HStack className="library-heading" hAlign="between" vAlign="center" wrap="wrap" gap={3}><h1>{title}</h1>{actions}</HStack>
     {controls ? <VStack className="library-controls" gap={0}>{controls}</VStack> : null}
-    {hasItems ? <TextInput label={searchLabel} isLabelHidden placeholder={searchLabel} startIcon={<Search />} hasClear value={query} onChange={onQueryChange} /> : null}
+    {hasSearch ? <TextInput label={searchLabel} isLabelHidden placeholder={searchLabel} startIcon={<Search />} hasClear value={query} onChange={onQueryChange} /> : null}
     <VStack className={`library-content ${!hasItems ? 'empty-state' : layout === 'tickets' ? 'ticket-list' : 'history-list'}`} gap={0}>
       {!hasItems ? empty : !hasResults ? <p role="status">{noResults}</p> : layout === 'tickets' ? <VStack gap={3}>{children}</VStack> : children}
     </VStack>

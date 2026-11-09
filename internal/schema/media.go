@@ -24,6 +24,10 @@ func (s State) MediaRefs() map[string]map[string]bool {
 			}
 		}
 	}
+	for _, t := range s.Transcripts {
+		outputs[t.FileName] = true
+		outputs[t.AudioFile] = true
+	}
 	for _, v := range s.Voices {
 		voices[v.FileName] = true
 	}

@@ -118,7 +118,7 @@ func TestSpeechChunks(t *testing.T) {
 	}
 }
 
-// 转写上传的 WAV：逐段识别并带回逐词时间，时间换回整段音频；结果放进会话状态，临时文件清理干净。
+// 转写上传的 WAV：逐段识别并带回逐词时间，时间换回整段音频；结果保存为转写记录，原音频移进 outputs，临时文件清理干净。
 func TestTranscribeSpeech(t *testing.T) {
 	if e := recognizeWorkbench(t, false).TranscribeSpeech("a.wav", bytes.NewReader(nil)); !isCode(e, msg.ErrRecognizeModelRequired) {
 		t.Fatalf("%v", e)
@@ -131,16 +131,27 @@ func TestTranscribeSpeech(t *testing.T) {
 	must(t, wb.TranscribeSpeech("访谈.wav", bytes.NewReader(b)))
 	<-wb.Done()
 	s := wb.Store.Read()
-	if s.Activity.Status != "completed" || s.Activity.Task != "transcribe" {
-		t.Fatalf("%+v", s.Activity)
+	if s.Activity.Status != "completed" || s.Activity.Task != "transcribe" || s.Transcript != nil {
+		t.Fatalf("%+v %+v", s.Activity, s.Transcript)
 	}
-	r := s.Transcript
-	if r == nil || r.VoiceID != "" || r.Name != "访谈" || r.Text != testkit.RecognizedText+testkit.RecognizedText+testkit.RecognizedText || r.Duration != 70 || len(r.Words) != 36 {
+	if len(s.Transcripts) != 1 {
+		t.Fatalf("%+v", s.Transcripts)
+	}
+	r := s.Transcripts[0]
+	if r.Name != "访谈" || r.Duration != 70 || r.Language != "Chinese" || r.FileName != r.ID+".json" || r.AudioFile != r.ID+".wav" {
 		t.Fatalf("%+v", r)
 	}
+	if saved, e := os.ReadFile(filepath.Join(wb.Store.Root, "outputs", r.AudioFile)); e != nil || !bytes.Equal(saved, b) {
+		t.Fatalf("原音频没有保存：%v", e)
+	}
+	c, e := wb.ReadTranscript(r.ID)
+	must(t, e)
+	if c.Text != testkit.RecognizedText+testkit.RecognizedText+testkit.RecognizedText || len(c.Words) != 36 || c.Captions != nil {
+		t.Fatalf("%+v", c)
+	}
 	// 第二段从 25.02 秒开始，第 13 个字的时间要加上这一段的起点。
-	if r.Words[0].Word != "今" || r.Words[1].Start != .25 || r.Words[12].Start != 25.02 || r.Words[13].End != 25.458 {
-		t.Fatalf("%+v", r.Words[:14])
+	if c.Words[0].Word != "今" || c.Words[1].Start != .25 || c.Words[12].Start != 25.02 || c.Words[13].End != 25.458 {
+		t.Fatalf("%+v", c.Words[:14])
 	}
 	if left, _ := filepath.Glob(filepath.Join(wb.Store.Root, "runtime", "transcribe-*")); len(left) != 0 {
 		t.Fatalf("%v", left)

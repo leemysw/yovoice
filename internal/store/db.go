@@ -113,6 +113,7 @@ var tables = []table{
 	list("voices", "voices", func(s *schema.State) *[]schema.Voice { return &s.Voices }, func(v schema.Voice) string { return v.ID }),
 	list("models", "models", func(s *schema.State) *[]schema.InstalledModel { return &s.Models }, func(m schema.InstalledModel) string { return m.ID }),
 	list("history", "history", func(s *schema.State) *[]schema.Generation { return &s.History }, func(g schema.Generation) string { return g.ID }),
+	list("transcripts", "transcripts", func(s *schema.State) *[]schema.Transcript { return &s.Transcripts }, func(t schema.Transcript) string { return t.ID }),
 	list("ai_providers", "aiProviders", func(s *schema.State) *[]schema.AIProvider { return &s.AIProviders }, func(p schema.AIProvider) string { return p.ID }),
 }
 

@@ -4217,6 +4217,9 @@
   "@yovoice.error.transcribeEmpty": {
     "defaultMessage": "Nenhuma fala foi reconhecida. Verifique se o áudio tem voz nítida"
   },
+  "@yovoice.error.transcriptMissing": {
+    "defaultMessage": "Esta transcrição foi excluída ou o arquivo de legendas está faltando"
+  },
   "@yovoice.error.alignText": {
     "defaultMessage": "Esta versão não tem texto para alinhar"
   },
@@ -4256,9 +4259,6 @@
   "@yovoice.transcribe.upload": {
     "defaultMessage": "Enviar áudio"
   },
-  "@yovoice.transcribe.another": {
-    "defaultMessage": "Transcrever outro áudio"
-  },
   "@yovoice.transcribe.busy": {
     "defaultMessage": "Outra tarefa está em andamento. Transcreva quando terminar."
   },
@@ -4286,23 +4286,86 @@
   "@yovoice.transcribe.copy": {
     "defaultMessage": "Copiar texto completo"
   },
-  "@yovoice.transcribe.clear": {
-    "defaultMessage": "Limpar"
-  },
-  "@yovoice.transcribe.col.time": {
-    "defaultMessage": "Tempo"
-  },
-  "@yovoice.transcribe.col.text": {
-    "defaultMessage": "Texto"
-  },
   "@yovoice.transcribe.noCaptions": {
     "defaultMessage": "Nenhum tempo de legenda foi gerado"
   },
   "@yovoice.transcribe.emptyTitle": {
     "defaultMessage": "Transforme gravações, entrevistas e vídeos em texto"
   },
+  "@yovoice.transcribe.record": {
+    "defaultMessage": "Gravar"
+  },
+  "@yovoice.transcribe.stopRecord": {
+    "defaultMessage": "Parar e transcrever"
+  },
+  "@yovoice.transcribe.discardRecord": {
+    "defaultMessage": "Descartar gravação"
+  },
+  "@yovoice.transcribe.recordingName": {
+    "defaultMessage": "Gravação {time}"
+  },
+  "@yovoice.transcribe.back": {
+    "defaultMessage": "Voltar às transcrições"
+  },
+  "@yovoice.transcribe.name": {
+    "defaultMessage": "Nome da transcrição"
+  },
+  "@yovoice.transcribe.saving": {
+    "defaultMessage": "Salvando…"
+  },
+  "@yovoice.transcribe.autosaved": {
+    "defaultMessage": "Salvo automaticamente"
+  },
+  "@yovoice.transcribe.undo": {
+    "defaultMessage": "Desfazer"
+  },
+  "@yovoice.transcribe.delete": {
+    "defaultMessage": "Excluir transcrição"
+  },
+  "@yovoice.transcribe.deleteTitle": {
+    "defaultMessage": "Excluir “{name}”?"
+  },
+  "@yovoice.transcribe.deleteBody": {
+    "defaultMessage": "As legendas e o áudio salvo serão excluídos. Não é possível desfazer."
+  },
+  "@yovoice.transcribe.find": {
+    "defaultMessage": "Localizar"
+  },
+  "@yovoice.transcribe.replaceWith": {
+    "defaultMessage": "Substituir por"
+  },
+  "@yovoice.transcribe.replaceAll": {
+    "defaultMessage": "Substituir tudo"
+  },
+  "@yovoice.transcribe.matches": {
+    "defaultMessage": "{count} linhas correspondentes"
+  },
+  "@yovoice.transcribe.replaced": {
+    "defaultMessage": "{count} ocorrências substituídas"
+  },
+  "@yovoice.transcribe.noMatch": {
+    "defaultMessage": "Nenhum texto correspondente"
+  },
+  "@yovoice.transcribe.split": {
+    "defaultMessage": "Dividir no cursor"
+  },
+  "@yovoice.transcribe.splitHint": {
+    "defaultMessage": "Coloque o cursor onde a linha deve ser dividida e depois divida"
+  },
+  "@yovoice.transcribe.mergeNext": {
+    "defaultMessage": "Juntar com a próxima linha"
+  },
+  "@yovoice.transcribe.deleteLine": {
+    "defaultMessage": "Excluir linha"
+  },
+  "@yovoice.transcribe.lineText": {
+    "defaultMessage": "Linha de legenda {n}"
+  },
+  "@yovoice.transcribe.loading": {
+    "defaultMessage": "Carregando legendas…"
+  },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Envie áudio ou vídeo. O reconhecedor de fala Qwen3 ASR gera o texto com o tempo de cada palavra, pronto para exportar como legendas SRT ou WebVTT. Até 1 hora e 20 MB."
+    "defaultMessage": "Envie áudio ou vídeo, ou grave diretamente. O reconhecedor de fala Qwen3 ASR escreve o texto com o tempo de cada palavra. As transcrições ficam salvas, então você pode editar as legendas e exportar em SRT ou WebVTT. Até 1 hora e 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Importar modelo local"
@@ -4597,5 +4660,32 @@
   },
   "@yovoice.settings.modelVersionBefore": {
     "defaultMessage": "Antes de {date}"
+  },
+  "@yovoice.transcribe.more": {
+    "defaultMessage": "Mais ações para {name}"
+  },
+  "@yovoice.transcribe.rename": {
+    "defaultMessage": "Renomear"
+  },
+  "@yovoice.transcribe.renameTitle": {
+    "defaultMessage": "Renomear transcrição"
+  },
+  "@yovoice.transcribe.exportMenu": {
+    "defaultMessage": "Exportar legendas"
+  },
+  "@yovoice.transcribe.findToggle": {
+    "defaultMessage": "Localizar e substituir"
+  },
+  "@yovoice.transcribe.editHint": {
+    "defaultMessage": "Enter divide no cursor; Backspace no início junta com a linha anterior"
+  },
+  "@yovoice.transcribe.needsModel": {
+    "defaultMessage": "A transcrição precisa do modelo de reconhecimento de fala Qwen3 ASR. Baixe-o para enviar áudio ou gravar."
+  },
+  "@yovoice.transcribe.search": {
+    "defaultMessage": "Pesquisar transcrições"
+  },
+  "@yovoice.transcribe.recording": {
+    "defaultMessage": "Gravando"
   }
 }

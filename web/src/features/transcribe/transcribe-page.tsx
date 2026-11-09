@@ -1,92 +1,131 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { Button } from '@astryxdesign/core/Button';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
-import { Table, pixel, proportional, type TableColumn } from '@astryxdesign/core/Table';
-import { useTranslator } from '@astryxdesign/core/i18n';
-import { Copy, FileAudio, Subtitles, Upload, X } from 'lucide-react';
+import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
+import { Captions, Download, Mic, Square, Upload, X } from 'lucide-react';
 import { call, transcribeSpeechFile } from '../../shared/lib/client';
-import { formatActivity, formatCallError } from '../../shared/i18n/format';
+import { formatActivity, formatCallError, formatDateTime } from '../../shared/i18n/format';
+import { overflowTitle } from '../../shared/ui/overflow-title';
+import { useElapsed } from '../../shared/lib/use-elapsed';
 import { formatTime, type State } from '../../shared/workbench';
-import { srtTime, wordCaptions, type Caption } from '../media/caption-export';
-import { saveCaptions, type CaptionFormat } from '../media/caption-dialog';
+import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from '../library/library-layout';
+import { WaveRing } from '../library/wave-ring';
+import { micError, RecordingMeter, useRecorder } from '../media/recorder';
+import { TranscriptEditor } from './transcript-editor';
+import { TranscriptMenu } from './transcript-menu';
 
-interface Row extends Record<string, unknown> { key: string; caption: Caption }
+// 录音最长 1 小时，与转写上限一致；码率压低到 32 kbps，一小时的录音也在上传上限以内。
+const recordLimit = 3600, recordBitrate = 32000;
 
-// 语音转写页：上传一段音频，用语音识别模型逐段识别出文字和逐词时间，按句分行后导出 SRT / WebVTT 字幕或复制全文。
-// 结果只保留在本次会话，换一段音频或点“清除”后丢弃；出错在页面里说明，不走全局通知。
+// 语音转写页：与作品库一样用票根列出保存的转写，上传音频或直接录音生成新的一份；
+// 打开一份转写进入字幕编辑。录音与识别进度在列表上方原地显示，出错在页面里说明，不走全局通知。
 export function TranscribePage({ state, openSettings }: { state: State; openSettings: () => void }) {
   const t = useTranslator();
+  const locale = useLocale();
   const input = useRef<HTMLInputElement>(null);
+  const recorder = useRecorder(recordLimit);
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
-  // since 记下发起转写时活动的开始时间，只认这次转写的失败。
+  const [query, setQuery] = useState('');
+  // 正在转写的文件名，显示在进行中的票根上。
+  const [pendingName, setPendingName] = useState('');
+  // since 记下发起转写时活动的开始时间，只认这次转写的失败；known 是发起时已有的记录，新出现的那份自动打开。
   const [since, setSince] = useState<string | null | undefined>();
+  const [known, setKnown] = useState<string[] | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const activity = state.activity;
   const working = activity?.status === 'running' && activity.task === 'transcribe';
   const failed = since !== undefined && activity?.task === 'transcribe' && activity.startedAt !== since && activity.status === 'failed' ? formatCallError(t, activity) : '';
   const busy = activity?.status === 'running';
-  // 识别声音样本的结果属于参考文本输入框，这里只显示转写的结果。
-  const result = state.transcript && !state.transcript.voiceId ? state.transcript : undefined;
-  const captions = useMemo(() => result?.words?.length ? wordCaptions(result.text, result.words) : [], [result]);
-  const name = result?.name || t('@yovoice.transcribe.defaultName');
+  const transcripts = state.transcripts ?? [];
+  const fresh = known ? transcripts.find(item => !known.includes(item.id)) : undefined;
+  const opened = transcripts.find(item => item.id === (fresh?.id ?? openId));
   const needsModel = !state.models.some(m => m.id.startsWith('qwen3-asr-'));
+  const fallbackName = t('@yovoice.transcribe.defaultName');
+  const elapsed = useElapsed(working, activity?.startedAt);
 
   async function start(file?: File) {
     if (!file) return;
-    setError(''); setNotice('');
-    setSince(activity?.startedAt ?? null);
-    try { await transcribeSpeechFile(file); }
-    catch (e) { setSince(undefined); setError(formatCallError(t, e)); }
-  }
-  const exportAs = async (format: CaptionFormat) => {
-    setError(''); setNotice('');
-    try { if (await saveCaptions(captions, name, format)) setNotice(t('@yovoice.transcribe.saved')); }
-    catch (e) { setError(formatCallError(t, e)); }
-  };
-  const copy = async () => {
     setError('');
-    try { await navigator.clipboard.writeText(result?.text ?? ''); setNotice(t('@yovoice.transcribe.copied')); }
-    catch (e) { setError(formatCallError(t, e)); }
-  };
+    setPendingName(file.name.replace(/\.[^.]+$/, ''));
+    setSince(activity?.startedAt ?? null);
+    setKnown(transcripts.map(item => item.id));
+    try { await transcribeSpeechFile(file); }
+    catch (e) { setSince(undefined); setKnown(null); setError(formatCallError(t, e)); }
+  }
+  async function record() {
+    setError('');
+    try {
+      await recorder.start(audio => {
+        const ext = audio.type.includes('mp4') ? '.m4a' : audio.type.includes('ogg') ? '.ogg' : '.webm';
+        // 名称会当作文件名处理，日期不能带斜杠。
+        const now = new Date(), pad = (n: number) => String(n).padStart(2, '0');
+        const time = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const name = t('@yovoice.transcribe.recordingName', { time });
+        void start(new File([audio], name + ext, { type: audio.type }));
+      }, { audioBitsPerSecond: recordBitrate });
+    } catch (e) { setError(micError(t, e)); }
+  }
+  const open = (id: string | null) => { setKnown(null); setOpenId(id); };
 
-  const columns: TableColumn<Row>[] = [
-    { key: 'time', header: t('@yovoice.transcribe.col.time'), width: pixel(200), renderCell: ({ caption: c }) => <small className="transcribe-time">{srtTime(c.start)} → {srtTime(c.end)}</small> },
-    { key: 'text', header: t('@yovoice.transcribe.col.text'), width: proportional(1), renderCell: ({ caption: c }) => c.text },
-  ];
-  const rows: Row[] = captions.map((caption, i) => ({ key: String(i), caption }));
+  const fileInput = <input ref={input} hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.mkv,.mp4,.mov" aria-label={t('@yovoice.transcribe.upload')}
+    onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void start(file); }} />;
+  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} onBack={() => open(null)} /></>;
+
+  // 正在录音或识别时不能再发起；其他任务占用推理时提示稍后。
+  const blocked = busy || recorder.recording;
+  const blockedTip = busy && !working ? t('@yovoice.transcribe.busy') : undefined;
+  const sources = (size: 'sm' | 'md') => needsModel
+    ? <Button size={size} variant="primary" icon={<Download />} label={t('@yovoice.transcribe.openModels')} onClick={openSettings} />
+    : <HStack gap={2} vAlign="center">
+      <Button size={size} variant="secondary" icon={<Mic />} label={t('@yovoice.transcribe.record')} isDisabled={blocked} tooltip={blockedTip} onClick={() => void record()} />
+      <Button size={size} variant="primary" icon={<Upload />} label={t('@yovoice.transcribe.upload')} isDisabled={blocked} tooltip={blockedTip} onClick={() => input.current?.click()} />
+    </HStack>;
+
+  // 录音与识别进度：作为一张进行中的票根排在列表最前，标题栏与搜索框位置不变。
+  // 录音时封面的麦克风随声音起伏，识别时封面声波环转动、进度条上有流光。
+  const progress = activity?.total ? Math.min(1, activity.received / activity.total) : 0;
+  const task = recorder.stream ? <Ticket key="task" className="transcribe-task" coverClassName="is-recording"
+    cover={<WaveRing seed="recording" duration={30}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Mic /></HStack></WaveRing>}
+    eyebrow={t('@yovoice.transcribe.recording')}
+    title={<RecordingMeter stream={recorder.stream} limit={recordLimit} />}
+    stubActions={<HStack gap={1}>
+      <Button size="sm" variant="primary" isIconOnly icon={<Square />} label={t('@yovoice.transcribe.stopRecord')} onClick={recorder.stop} />
+      <Button size="sm" variant="ghost" isIconOnly icon={<X />} label={t('@yovoice.transcribe.discardRecord')} onClick={recorder.cancel} />
+    </HStack>} />
+  : working ? <Ticket key="task" className="transcribe-task is-working" coverClassName="is-working"
+    cover={<WaveRing seed={pendingName || 'transcribe'} duration={60}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Captions /></HStack></WaveRing>}
+    eyebrow={<span role="status">{formatActivity(t, activity)}</span>}
+    title={<VStack gap={2}><h3>{pendingName || fallbackName}</h3>
+      <HStack className="transcribe-progress" gap={0} aria-hidden="true" style={{ '--progress': progress } as CSSProperties}><HStack className="transcribe-progress-fill" gap={0} /></HStack></VStack>}
+    stub={<TicketStamp value={formatTime(elapsed)} unit={t('@yovoice.create.elapsed')} />}
+    stubActions={<Button size="sm" variant="ghost" isIconOnly icon={<X />} label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('operation.cancel').catch(() => undefined)} />} />
+  : null;
   const message = error || failed;
+  // 出错提示放在已有的行里：有记录时在标题栏按钮左侧，空列表时在按钮下方预留的一行，不把列表往下推。
+  const notice = <small role="alert" className="transcribe-note" title={message || undefined}>{message}</small>;
 
-  return <VStack className="library-page transcribe-page" gap={5} data-testid="transcribe-page">
-    <HStack className="library-heading" hAlign="between" vAlign="center" wrap="wrap" gap={3}>
-      <h1>{t('@yovoice.transcribe.title')}</h1>
-      <HStack gap={2} vAlign="center">
-        {working ? <Button size="sm" label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('operation.cancel').catch(() => undefined)} /> : null}
-        <Button variant="primary" icon={<Upload />} label={t(result ? '@yovoice.transcribe.another' : '@yovoice.transcribe.upload')} isLoading={working} isDisabled={busy && !working}
-          tooltip={busy && !working ? t('@yovoice.transcribe.busy') : undefined} onClick={() => input.current?.click()} />
-      </HStack>
-    </HStack>
-    <input ref={input} hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.mkv,.mp4,.mov" aria-label={t('@yovoice.transcribe.upload')}
-      onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void start(file); }} />
-    {working ? <small role="status">{formatActivity(t, activity)}</small> : null}
-    {message ? <HStack gap={2} vAlign="center" wrap="wrap"><small role="alert" className="dialog-error">{message}</small>
-      {needsModel ? <Button size="sm" variant="secondary" label={t('@yovoice.transcribe.openModels')} onClick={openSettings} /> : null}</HStack> : null}
-    {notice ? <small role="status">{notice}</small> : null}
-    {result ? <VStack gap={3} className="transcribe-result">
-      <HStack gap={2} vAlign="center" wrap="wrap">
-        <FileAudio size={16} aria-hidden />
-        <strong className="grow transcribe-name">{name}</strong>
-        <small>{t('@yovoice.transcribe.summary', { duration: formatTime(result.duration ?? 0), count: captions.length })}</small>
-      </HStack>
-      <HStack gap={2} wrap="wrap">
-        <Button size="sm" icon={<Subtitles />} label={t('@yovoice.transcribe.exportSrt')} isDisabled={!captions.length} onClick={() => void exportAs('srt')} />
-        <Button size="sm" variant="secondary" icon={<Subtitles />} label={t('@yovoice.transcribe.exportVtt')} isDisabled={!captions.length} onClick={() => void exportAs('vtt')} />
-        <Button size="sm" variant="secondary" icon={<Copy />} label={t('@yovoice.transcribe.copy')} onClick={() => void copy()} />
-        <Button size="sm" variant="ghost" icon={<X />} label={t('@yovoice.transcribe.clear')} onClick={() => { setNotice(''); void call('transcript.dismiss', { id: result.id }).catch(() => undefined); }} />
-      </HStack>
-      <VStack className="transcribe-table" gap={0}>
-        <Table<Row> data={rows} columns={columns} idKey="key" density="compact" textOverflow="wrap" hasHover emptyState={<EmptyState title={t('@yovoice.transcribe.noCaptions')} />} />
-      </VStack>
-    </VStack> : working ? null : <EmptyState title={t('@yovoice.transcribe.emptyTitle')} description={t('@yovoice.transcribe.emptyBody')} />}
+  const needle = query.trim().toLocaleLowerCase();
+  const shown = needle ? transcripts.filter(item => `${item.name ?? ''}\n${item.excerpt ?? ''}`.toLocaleLowerCase().includes(needle)) : transcripts;
+  return <VStack className="transcribe-page" gap={0} data-testid="transcribe-page">
+    {fileInput}
+    <LibraryPage title={t('@yovoice.transcribe.title')} actions={transcripts.length ? <HStack className="transcribe-actions" gap={3} vAlign="center">{message ? notice : null}{sources('sm')}</HStack> : undefined}
+      query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.transcribe.search')} noResults={t('@yovoice.library.noSearchResults')}
+      hasItems={transcripts.length > 0 || !!task} hasSearch={transcripts.length > 0} hasResults={shown.length > 0 || !!task} layout="tickets"
+      empty={<LibraryEmpty
+        art={<WaveRing seed="empty-transcript" duration={30}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Captions /></HStack></WaveRing>}
+        title={t('@yovoice.transcribe.emptyTitle')} description={t(needsModel ? '@yovoice.transcribe.needsModel' : '@yovoice.transcribe.emptyBody')}
+        action={<VStack gap={3} hAlign="center">{sources('md')}{notice}</VStack>} />}>
+      {task}
+      {shown.map((item, index) => {
+        const at = item.updatedAt ?? item.createdAt;
+        const name = item.name || fallbackName;
+        return <Ticket key={item.id} index={index} className="project-library-row transcribe-entry"
+          cover={<WaveRing seed={item.id} duration={item.duration}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Captions /></HStack></WaveRing>}
+          eyebrow={<time dateTime={at}>{formatDateTime(at, locale, 'log')}</time>} excerpt={item.excerpt}
+          title={<Button variant="ghost" className="project-title" label={name} onPointerEnter={overflowTitle} onClick={() => open(item.id)} />}
+          stub={<TicketStamp value={formatTime(item.duration)} unit={t('@yovoice.library.duration')} />}
+          stubActions={<TranscriptMenu transcript={item} />} />;
+      })}
+    </LibraryPage>
   </VStack>;
 }

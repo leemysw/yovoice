@@ -36,7 +36,7 @@ The assistant opens with ⌘J / Ctrl+J, the launcher in the corner, or the title
 | Breeze TTS 2 (~3B) | Very natural Chinese/English design, cloning and voice direction; non-commercial licence; GPU recommended | Cloning needs 5–15 s clean audio and a word-for-word transcript |
 | Kokoro-82M | Fastest, tiny, CPU friendly; built-in voices only, no cloning or emotion. 1.1-zh has 100 Chinese voices. | Speaker |
 
-Qwen3 ASR 0.6B (optional speech recognizer, not a generation model): the 识别 Recognize button next to a reference transcript field, or in the voice editor, turns the selected voice sample into text. A sample with no transcript keeps the recognized text. The 语音转写 Transcribe page (sidebar) turns uploaded audio or video (up to 1 hour, 20 MB) into text with word timing and exports SRT / WebVTT or copies the text; the result stays only for this session. 导出字幕 Export subtitles on a speech version aligns its known text to the audio (the ASR package or the lyric aligner package works) and saves SRT / WebVTT. Needs inference engine v0.9.1 or later.
+Qwen3 ASR 0.6B (optional speech recognizer, not a generation model): the 识别 Recognize button next to a reference transcript field, or in the voice editor, turns the selected voice sample into text. A sample with no transcript keeps the recognized text. The 语音转写 Transcribe page (sidebar) turns uploaded audio or video, or a recording made there (录音 Record), up to 1 hour and 20 MB, into text with word timing. Transcripts are saved in a list; opening one edits the subtitles (edit text, split at the cursor, merge with the next line, delete, find and replace, undo, play a line from the saved audio), saves automatically, and exports SRT / WebVTT or copies the text. 导出字幕 Export subtitles on a speech version aligns its known text to the audio (the ASR package or the lyric aligner package works) and saves SRT / WebVTT. Needs inference engine v0.9.1 or later.
 
 Hardware rule of thumb: Kokoro runs on any CPU; cloning models want 4–6 GB VRAM or 8 GB+ Apple Silicon; music models want 12 GB+ VRAM or 16 GB+ Apple Silicon. Q8 is the smallest precision with near-original quality; BF16/F16/ORIG are larger and slightly better.
 
@@ -170,6 +170,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.recognizeModelRequired` 请先在设置的语音模型里下载语音识别模型 Qwen3 ASR
 - `error.recognizeEmpty` 没有识别出文字，请换一段人声更清晰的样本
 - `error.transcribeEmpty` 没有识别出文字，请确认音频里有清晰的人声
+- `error.transcriptMissing` 这份转写已删除或字幕文件丢失
 - `error.alignText` 这个版本没有可对齐的正文
 - `error.alignTextEmpty` 没能把正文对上音频，请重试或换一个版本
 - `error.stemModelRequired` 分离音轨需要 HTDemucs 6 轨模型，请先在设置的模型里下载。
