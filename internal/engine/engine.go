@@ -35,9 +35,9 @@ type Engine struct {
 	process *exec.Cmd
 	done    chan error
 	// stopping 标记当前进程是被主动结束的，退出日志据此区分正常停止与意外退出。
-	stopping      *atomic.Bool
+	stopping *atomic.Bool
 	// settings 是偏好里的引擎运行参数，下次启动引擎时生效；变化后引擎按新参数重启。
-	settings atomic.Pointer[schema.EngineSettings]
+	settings      atomic.Pointer[schema.EngineSettings]
 	endpoint, key string
 	client        *http.Client
 }

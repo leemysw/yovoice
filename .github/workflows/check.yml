@@ -2,7 +2,10 @@ name: Check and Package
 on:
   push:
     branches: [main]
+    # 只改说明文档的提交不跑检查；列表需与 check-docs.yml 保持一致。CHANGELOG 与 internal/ 下的技能文档会被测试或打包读取，不在此列。
+    paths-ignore: ['**/README.md', 'README_zh.md', 'AGENTS.md', 'docs/**']
   pull_request:
+    paths-ignore: ['**/README.md', 'README_zh.md', 'AGENTS.md', 'docs/**']
   workflow_dispatch:
   # 每周全量跑一次浏览器测试，包括日常提交不跑的已封存用例。
   schedule:
@@ -19,36 +22,82 @@ permissions:
   contents: read
 env:
   PYTHONUTF8: "1"
+  # 只写到次版本号，直接用运行器镜像预装的最新补丁版；写成 go.mod 里的 1.26.0 会每次现下载约 20 秒。升级 go.mod 次版本时同步修改。
+  GO_VERSION: "1.26"
 concurrency:
-  # PR 按编号分组：fork 里同名分支（如 main）的 PR 不会取消主仓库 main 的运行，同名分支的不同 PR 也互不取消。
-  group: build-${{ github.workflow }}-${{ inputs.tag || (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) || github.ref }}
-  cancel-in-progress: ${{ !inputs.release }}
+  # 同一 PR 连续推送只保留最新一次（按编号分组，fork 同名分支互不影响）；main、定时、手动与发布每次运行独占一组，逐个提交完整跑完，也不会被后来的排队运行顶掉。
+  group: ci-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  # 日常提交只跑测试；Windows/macOS 验证平台相关的 Go 行为与 macOS 更新器，打包只在发布标签时运行。
-  test:
+  # 格式、静态分析与不挑系统的脚本检查统一在 Linux 上跑。
+  go-lint:
+    if: ${{ !inputs.release && github.event_name != 'schedule' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          # 缓存键按依赖清单区分各任务：同一系统上的任务编译产物不同，共用一个键时只有先结束的能写入。
+          cache-dependency-path: |
+            go.sum
+            desktop/linux/go.sum
+      - name: Check Go format and vet
+        run: |
+          unformatted="$(gofmt -l cmd internal desktop/linux)"
+          if [[ -n "$unformatted" ]]; then echo "未格式化：$unformatted" >&2; exit 1; fi
+          go vet ./...
+          GOOS=windows go vet ./...
+          GOOS=darwin go vet ./...
+          go -C desktop/linux vet ./...
+      - name: Check release notes extraction
+        run: python3 scripts/test-release-notes.py
+  # 竞态检测只在 Linux 上跑；go test 自身会并行跑各包，热缓存下与浏览器测试分片耗时相当，不再拆机器。
+  go-race:
+    if: ${{ !inputs.release && github.event_name != 'schedule' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - run: go test -race ./...
+  # Windows/macOS 验证平台相关的 Go 行为与 macOS 更新器；Windows 上 workbench 包单包超过 100 秒，拆到多台机器。
+  # macOS 只占一台（免费账号全部工作流共用 5 台并发）。
+  go-test:
     if: ${{ !inputs.release && github.event_name != 'schedule' }}
     strategy:
       fail-fast: false
       matrix:
-        runner: [windows-latest, macos-15]
+        include:
+          - { runner: windows-latest, python: python, shard: 1, total: 3 }
+          - { runner: windows-latest, python: python, shard: 2, total: 3 }
+          - { runner: windows-latest, python: python, shard: 3, total: 3 }
+          - { runner: macos-15, python: python3, shard: 1, total: 1 }
+    name: go-test (${{ matrix.runner }}, ${{ matrix.shard }}/${{ matrix.total }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Check release notes extraction
+      # Swift 更新器测试不依赖 Go，先在后台编译，与 Go 的准备和测试重叠。
+      - name: Build macOS updater tests in background
         if: runner.os == 'macOS'
-        run: python3 scripts/test-release-notes.py
+        run: |
+          (swift build --build-tests --package-path desktop/macos; echo $? > "$RUNNER_TEMP/swift.status") > "$RUNNER_TEMP/swift.log" 2>&1 &
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
-          cache: false
-      # 竞态检测只在 Linux 上跑；这里只验证平台相关行为，不重复加 -race。
-      - run: go test ./...
+          go-version: ${{ env.GO_VERSION }}
+      - run: ${{ matrix.python }} scripts/go-test-shard.py ${{ matrix.shard }} ${{ matrix.total }}
       - run: python3 scripts/desktop/check-signing.py
         if: runner.os == 'macOS'
       - name: Verify macOS updater
         if: runner.os == 'macOS'
         run: |
+          for ((i=0;i<600;i++)); do [[ -f "$RUNNER_TEMP/swift.status" ]] && break; sleep 1; done
+          cat "$RUNNER_TEMP/swift.log"
+          if [[ "$(cat "$RUNNER_TEMP/swift.status")" != 0 ]]; then exit 1; fi
           swift test --package-path desktop/macos
           python3 scripts/desktop/check-macos-update.py
   package:
@@ -77,8 +126,7 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
-          cache: false
+          go-version: ${{ env.GO_VERSION }}
       - uses: actions/setup-dotnet@v4
         if: runner.os == 'Windows'
         with:
@@ -126,6 +174,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          if (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe") { Write-Output "运行器已预装 Inno Setup"; exit 0 }
           choco install innosetup --no-progress -y
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup 安装失败" }
       - name: Package Windows
@@ -230,9 +279,15 @@ jobs:
           path: artifacts/yovoice-ffmpeg-source.tar.gz
           if-no-files-found: error
 
-  # 前端检查与浏览器测试与平台无关，单独在 Linux 上并行跑，不拖慢打包任务。
+
+  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在用例最轻的第 4 片跑一次。
   web:
     if: ${{ !inputs.release }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+    name: web (${{ matrix.shard }}/5)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -246,38 +301,20 @@ jobs:
           cache: pnpm
           cache-dependency-path: web/pnpm-lock.yaml
       - run: pnpm --dir web install --frozen-lockfile
-      - run: pnpm --dir web exec playwright install --with-deps chromium
+      # 用例只用无头模式；运行器镜像已带 Chromium 所需系统库，不再 apt 安装依赖。
+      - run: pnpm --dir web exec playwright install --only-shell chromium
       - run: pnpm --dir web run lint
-      - run: pnpm --dir web test
+        if: matrix.shard == 4
+      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/5
         env:
           # 定时与手动触发时全量运行，包括已封存的用例。
           PW_ALL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: browser-test-results
+          name: browser-test-results-${{ matrix.shard }}
           path: web/test-results/
           retention-days: 7
-  # Linux 上做格式、vet 与竞态检测。
-  go:
-    if: ${{ !inputs.release && github.event_name != 'schedule' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: false
-      - name: Check Go format and vet
-        run: |
-          unformatted="$(gofmt -l cmd internal desktop/linux)"
-          if [[ -n "$unformatted" ]]; then echo "未格式化：$unformatted" >&2; exit 1; fi
-          go vet ./...
-          GOOS=windows go vet ./...
-          GOOS=darwin go vet ./...
-          go -C desktop/linux vet ./...
-      - run: go test -race ./...
   # Linux 桌面应用：在 Xvfb 中启动真实的 WebKitGTK 窗口，验证桥接、音频、草稿保存与退出。
   linux-desktop:
     if: ${{ !inputs.release && github.event_name != 'schedule' }}
@@ -285,6 +322,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      # 构建不依赖 WebKitGTK（宿主经 purego 运行时加载），系统库放后台安装，与构建重叠，冒烟测试前再等待。
+      - name: Install WebKitGTK and Xvfb in background
+        run: |
+          (sudo apt-get update && sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-0 xvfb xauth gstreamer1.0-plugins-base gstreamer1.0-plugins-good; echo $? > "$RUNNER_TEMP/apt.status") > "$RUNNER_TEMP/apt.log" 2>&1 &
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: web/package.json
@@ -295,10 +336,11 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
-          cache: false
-      - name: Install WebKitGTK and Xvfb
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-0 xvfb xauth gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: |
+            go.sum
+            desktop/linux/go.sum
+            scripts/desktop/build-linux.sh
       - run: pnpm --dir web install --frozen-lockfile
       - name: Cache audio.cpp runtime
         uses: actions/cache@v4
@@ -317,7 +359,24 @@ jobs:
             artifacts/downloads/ffmpeg-*.tar.xz
           key: ffmpeg-linux-x64-${{ hashFiles('scripts/build-ffmpeg.py') }}
       - run: scripts/desktop/build-linux.sh
+      - name: Wait for WebKitGTK and Xvfb
+        run: |
+          timeout 300 bash -c 'until [[ -f "$RUNNER_TEMP/apt.status" ]]; do sleep 1; done'
+          status=$(cat "$RUNNER_TEMP/apt.status")
+          if [[ "$status" != 0 ]]; then cat "$RUNNER_TEMP/apt.log"; exit 1; fi
       - run: scripts/desktop/smoke-linux.sh
+  # 汇总结果：分支保护只需把这一项设为必需检查。纯文档 PR 不触发本工作流，由 check-docs.yml 提供同名通过结果。
+  ci-ok:
+    if: ${{ always() && !inputs.release }}
+    needs: [go-lint, go-race, go-test, web, linux-desktop]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          if [[ " $RESULTS " == *" failure "* || " $RESULTS " == *" cancelled "* ]]; then exit 1; fi
   linux:
     if: ${{ inputs.release }}
     runs-on: ubuntu-24.04
@@ -336,8 +395,11 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
-          cache: false
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: |
+            go.sum
+            desktop/linux/go.sum
+            scripts/desktop/build-linux.sh
       - name: Install WebKitGTK and Xvfb
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-0 xvfb xauth gstreamer1.0-plugins-base gstreamer1.0-plugins-good
       - run: pnpm --dir web install --frozen-lockfile
