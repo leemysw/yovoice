@@ -1,7 +1,7 @@
 name: Check and Package
 on:
   push:
-    branches: [main]
+    branches: [main, claude/busy-allen-r5p2j5]  # 临时：测速用
     # 只改说明文档的提交不跑检查；列表需与 check-docs.yml 保持一致。CHANGELOG 与 internal/ 下的技能文档会被测试或打包读取，不在此列。
     paths-ignore: ['**/README.md', 'README_zh.md', 'AGENTS.md', 'docs/**']
   pull_request:
@@ -280,14 +280,14 @@ jobs:
           if-no-files-found: error
 
 
-  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在第 4 片跑一次。
+  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在用例最轻的第 4 片跑一次。
   web:
     if: ${{ !inputs.release }}
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
-    name: web (${{ matrix.shard }}/4)
+        shard: [1, 2, 3, 4, 5]
+    name: web (${{ matrix.shard }}/5)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -305,7 +305,7 @@ jobs:
       - run: pnpm --dir web exec playwright install --only-shell chromium
       - run: pnpm --dir web run lint
         if: matrix.shard == 4
-      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/4
+      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/5
         env:
           # 定时与手动触发时全量运行，包括已封存的用例。
           PW_ALL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
