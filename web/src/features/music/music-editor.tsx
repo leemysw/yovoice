@@ -10,7 +10,7 @@ import { ImagePlus, Lightbulb, LoaderCircle, Maximize2 } from 'lucide-react';
 import { call, isDesktop } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
 import { AppDialog } from '../../shared/ui/app-dialog';
-import { isStableAudio, isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
+import { isStableAudio, isUntitled, isYuE, musicStyleLimit, type Draft, type State, type UiLocale } from '../../shared/workbench';
 import { createMusicDraft, instrumentalSections, lyricSections, splitTags } from './music-draft';
 import { MelodyScore } from './melody-score';
 import { overflowTitle } from '../../shared/ui/overflow-title';
@@ -42,20 +42,20 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
       const base64 = await shrinkImage(file);
       const result = await call<{ tags: string[] }>('music.styleFromImage', { mediaType: 'image/jpeg', base64, language: locale });
       const next = [...tags, ...result.tags.filter(tag => !tags.some(item => item.toLowerCase() === tag.toLowerCase()))];
-      change({ text: next.join(', ').slice(0, 512) });
+      change({ text: next.join(', ').slice(0, musicStyleLimit(draft.modelId)) });
     } catch (e) { onError(formatCallError(t, e)); } finally { setReading(false); }
   };
 
   const toggleTag = (tag: string) => {
     const next = tags.includes(tag) ? tags.filter(item => item !== tag) : [...tags, tag];
-    change({ text: next.join(', ').slice(0, 512) });
+    change({ text: next.join(', ').slice(0, musicStyleLimit(draft.modelId)) });
   };
   const addTag = (raw: string) => {
     const trimmed = raw.trim();
     if (!trimmed) return;
     const newItems = splitTags(trimmed);
     const combined = Array.from(new Set([...tags, ...newItems]));
-    change({ text: combined.join(', ').slice(0, 512) });
+    change({ text: combined.join(', ').slice(0, musicStyleLimit(draft.modelId)) });
     setInputVal('');
   };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

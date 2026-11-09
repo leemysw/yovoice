@@ -1923,7 +1923,7 @@
     "defaultMessage": "演技の名前を変更"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "スタイルを 1〜512 文字で記述してください。"
+    "defaultMessage": "スタイルを 1〜{max} 文字で記述してください。"
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "歌詞は 4000 文字までです。"
@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "録音中"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "曲の展開"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2 は文章の説明も読み取ります。言語とテンポを選び、始まり・展開・終わり方を選ぶと曲ごとに起伏が変わります。"
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "歌唱言語"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "テンポ"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "始まり"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "展開"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "終わり方"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "中国語（標準語）で歌う"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "広東語で歌う"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "英語で歌う"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "日本語で歌う"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "韓国語で歌う"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "スロー · バラード"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "ミディアム · ポップ、R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "軽快 · ダンス、ロック"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "速い · パンク、エレクトロ"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "すぐに歌が始まる"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "長めのインストのイントロ"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "サビのフックから始まる"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "静かなAメロ、明るく歌いやすいサビ"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "ブリッジは楽器を絞る"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "最後のサビの前に楽器ソロ"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "最後のサビへ盛り上げる"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "イントロのテーマでフェードアウト"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "最後の一行はアカペラ"
   }
 }

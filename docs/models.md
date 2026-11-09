@@ -223,7 +223,7 @@ Kokoro does not support voice cloning or text-guided emotion control. Keep the C
 
 Music projects in the desktop app use ACE-Step 1.5 Turbo or XL Turbo for songs and instrumentals, YuE2 3B for songs and score-based instrumentals, or Stable Audio 3 for instrumental music. The separate Sound effects tab uses Stable Audio 3 Small SFX or Medium with an English description and short duration presets (default 5 seconds). All need inference engine v0.9.1 or later.
 
-- **Style**: a short description plus tags such as `city pop, warm synths, chill, female vocals`, up to 512 characters.
+- **Style**: a short description plus tags such as `city pop, warm synths, chill, female vocals`, up to 512 characters (YuE2: up to 2000, so you can also describe how the song unfolds, e.g. `piano and flute open, the vocal enters softly, drums join in the second verse, ends on a fade`).
 - **Lyrics**: mark sections with `[verse]`, `[chorus]`, `[bridge]` and so on, up to 4000 characters. Turn on Instrumental to generate music without vocals; your lyrics are kept.
 - **Duration and language**: choose Auto or 10–300 seconds, and a vocal language that matches the lyrics.
 - **Arrangement**: tempo (30–300 BPM), key and time signature are planned by the model unless you set them.
