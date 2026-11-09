@@ -516,19 +516,21 @@ func (e *Engine) SeparateStems(ctx context.Context, executable string, m schema.
 		return nil, err
 	}
 	progress(msg.ActivitySeparateStems, nil)
-	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav}})
+	var order []string
+	written, err := e.runStems(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav}}, func(id string) string {
+		if !validStem(id) {
+			return ""
+		}
+		order = append(order, id)
+		return filepath.Join(dir, id+".wav")
+	})
 	if err != nil {
 		return nil, err
 	}
-	for _, stem := range result.Stems {
-		b, err := base64.StdEncoding.DecodeString(stem.Audio)
-		if err != nil || len(b) <= 44 || !validStem(stem.ID) {
-			return nil, msg.Err(msg.ErrEngineNoAudio, nil)
+	for _, id := range order {
+		if written[id] != "" {
+			stems = append(stems, id)
 		}
-		if err = os.WriteFile(filepath.Join(dir, stem.ID+".wav"), b, 0600); err != nil {
-			return nil, err
-		}
-		stems = append(stems, stem.ID)
 	}
 	if len(stems) == 0 {
 		return nil, msg.Err(msg.ErrEngineNoAudio, nil)
@@ -645,27 +647,12 @@ func (e *Engine) SplitVocals(ctx context.Context, executable string, m schema.In
 		return err
 	}
 	progress(msg.ActivitySeparateVocals, nil)
-	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": input}})
+	outputs := map[string]string{"vocals": vocals, "instrumental": instrumental}
+	written, err := e.runStems(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": input}}, func(id string) string { return outputs[id] })
 	if err != nil {
 		return err
 	}
-	outputs := map[string]string{"vocals": vocals, "instrumental": instrumental}
-	written := 0
-	for _, stem := range result.Stems {
-		target := outputs[stem.ID]
-		if target == "" {
-			continue
-		}
-		b, err := base64.StdEncoding.DecodeString(stem.Audio)
-		if err != nil || len(b) <= 44 {
-			return msg.Err(msg.ErrEngineNoAudio, nil)
-		}
-		if err = os.WriteFile(target, b, 0600); err != nil {
-			return err
-		}
-		written++
-	}
-	if written == 0 || (instrumental != "" && written < 2) {
+	if written["vocals"] == "" || (instrumental != "" && written["instrumental"] == "") {
 		return msg.Err(msg.ErrEngineNoAudio, nil)
 	}
 	return nil
