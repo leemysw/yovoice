@@ -281,8 +281,18 @@ func TestChatHistoryLimit(t *testing.T) {
 	defer w.Close()
 	created, err := w.NewAssistantSession()
 	must(t, err)
-	for i := range schema.AssistantChatLimit + 5 {
-		w.appendChat(created.ID, schema.AssistantMessage{ID: string(rune('a' + i%26)), Role: "user", Text: strings.Repeat("x", i+1), CreatedAt: time.Now()})
+	// 先一次写满到上限，再逐条追加越过上限：截断走的仍是 appendChat，但不必为造数据落盘两百多次（Windows 上要十几秒）。
+	message := func(i int) schema.AssistantMessage {
+		return schema.AssistantMessage{ID: string(rune('a' + i%26)), Role: "user", Text: strings.Repeat("x", i+1), CreatedAt: time.Now()}
+	}
+	must(t, w.Store.Update(func(s *schema.State) {
+		session := assistantSessionByID(*s, created.ID)
+		for i := range schema.AssistantChatLimit {
+			session.Messages = append(session.Messages, message(i))
+		}
+	}, true))
+	for i := schema.AssistantChatLimit; i < schema.AssistantChatLimit+5; i++ {
+		w.appendChat(created.ID, message(i))
 	}
 	messages := assistantSessionByID(w.Store.Read(), created.ID).Messages
 	if len(messages) != schema.AssistantChatLimit {
@@ -291,12 +301,19 @@ func TestChatHistoryLimit(t *testing.T) {
 	if messages[0].Text != strings.Repeat("x", 6) {
 		t.Fatalf("应保留最新的消息：%+v", messages[0])
 	}
-	for range schema.AssistantSessionLimit + 2 {
-		_, err = w.NewAssistantSession()
+	// 会话同理：先补到差一个满，再新建三个，越过上限两个。
+	must(t, w.Store.Update(func(s *schema.State) {
+		for len(s.AssistantSessions.Sessions) < schema.AssistantSessionLimit-1 {
+			s.AssistantSessions.Sessions = append(s.AssistantSessions.Sessions, schema.AssistantSession{ID: schema.NewID(), Messages: []schema.AssistantMessage{}, UpdatedAt: time.Now().UTC()})
+		}
+	}, true))
+	var latest schema.AssistantSession
+	for range 3 {
+		latest, err = w.NewAssistantSession()
 		must(t, err)
 	}
-	if sessions := w.Store.Read().AssistantSessions.Sessions; len(sessions) != schema.AssistantSessionLimit {
-		t.Fatalf("会话应截断到 %d 个，实际 %d", schema.AssistantSessionLimit, len(sessions))
+	if sessions := w.Store.Read().AssistantSessions.Sessions; len(sessions) != schema.AssistantSessionLimit || sessions[0].ID != latest.ID {
+		t.Fatalf("会话应截断到 %d 个并保留最新的，实际 %d", schema.AssistantSessionLimit, len(sessions))
 	}
 }
 
