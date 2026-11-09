@@ -233,7 +233,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "model.import":
 		return true, w.ImportModel(p.ID, p.Path)
 	case "model.download":
-		return true, w.DownloadModel(p.ID)
+		return true, w.DownloadModel(p.ID, p.Version)
 	case "model.forget":
 		return true, w.ForgetModel(p.ID)
 	case "runtime.unload":

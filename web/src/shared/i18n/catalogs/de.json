@@ -4576,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "Fest"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "Modellversion"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "Neueste"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "Vor Update {date}"
   }
 }

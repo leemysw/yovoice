@@ -200,6 +200,8 @@ type InstalledModel struct {
 	Path    string `json:"path"`
 	Managed bool   `json:"managed"`
 	SHA256  string `json:"sha256,omitempty"`
+	// Pinned 表示用户主动换到了旧版本，目录里有新版本时不再提示更新。
+	Pinned bool `json:"pinned,omitempty"`
 }
 type Generation struct {
 	ID        string             `json:"id"`

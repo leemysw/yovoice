@@ -4576,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "고정"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "모델 버전"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "최신 버전"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "{date} 업데이트 이전"
   }
 }

@@ -398,11 +398,14 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   if (method === 'adapter.list') return [] as T;
   if (method === 'midi.dismiss') { delete state.midiImport; publish(); return true as T; }
   if (method === 'model.download') {
-    const id = (data as { id: string }).id;
+    // 预览只模拟更新或换版本：记下所选版本的主文件摘要，换到旧版本时不再提示更新。
+    const { id, version } = data as { id: string; version?: string };
     const installed = state.models.find(model => model.id === id);
-    const definition = catalog.find(model => model.id === id);
+    const definition = catalog.find(model => model.id === id) as Parameters<typeof modelMainFile>[0] | undefined;
     if (!installed || !definition) throw new CallError('@yovoice.error.previewDesktopOnly');
-    installed.sha256 = modelMainFile(definition as Parameters<typeof modelMainFile>[0]).sha256;
+    const latest = modelMainFile(definition).sha256;
+    installed.sha256 = version || latest;
+    installed.pinned = installed.sha256 !== latest || undefined;
     publish();
     return true as T;
   }

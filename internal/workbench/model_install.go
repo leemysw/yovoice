@@ -16,21 +16,28 @@ import (
 	"yovoice/internal/store"
 )
 
-func (w *Workbench) register(id, path string, managed bool, sha256 string) error {
+func (w *Workbench) register(id, path string, managed bool, sha256 string, pinned bool) error {
 	path, e := filepath.Abs(path)
 	if e != nil {
 		return e
 	}
 	return w.Store.Update(func(s *schema.State) {
 		s.Models = slices.DeleteFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
-		s.Models = append(s.Models, schema.InstalledModel{ID: id, Path: path, Managed: managed, SHA256: sha256})
+		s.Models = append(s.Models, schema.InstalledModel{ID: id, Path: path, Managed: managed, SHA256: sha256, Pinned: pinned})
 	}, true)
 }
-func (w *Workbench) DownloadModel(id string) error {
+// DownloadModel 下载模型包；version 是旧版本的主文件摘要，为空时下载最新版。
+// 已安装的模型换版本时只替换内容不同的文件；换到旧版本后不再提示更新，换回最新版即恢复。
+func (w *Workbench) DownloadModel(id, version string) error {
 	m, e := catalog.Lookup(id)
 	if e != nil {
 		return e
 	}
+	latest := m.MainFile().SHA256
+	if m, e = m.At(version); e != nil {
+		return e
+	}
+	pinned := m.MainFile().SHA256 != latest
 	s := w.Store.Read()
 	// 重新下载已安装的模型会替换正在使用的文件，需等生成结束；未安装的模型可与生成同时下载。
 	installed := slices.ContainsFunc(s.Models, func(installed schema.InstalledModel) bool { return installed.ID == id })
@@ -130,7 +137,7 @@ func (w *Workbench) DownloadModel(id string) error {
 		if e = w.swapModelFiles(replace); e != nil {
 			return e
 		}
-		return w.register(id, dest, true, m.MainFile().SHA256)
+		return w.register(id, dest, true, m.MainFile().SHA256, pinned)
 	})
 }
 

@@ -36,6 +36,7 @@
 - Music player: saving a lyric sync no longer discards the markers when it fails; the error shows inside the player, and you can undo one line and retry. Loading, alignment, word editing and LRC export errors also show in the player instead of behind it.
 - Better stem separation: with the optional BS-RoFormer model (173 MB, also inside the Lyric Aligner package), vocals are separated by BS-RoFormer and HTDemucs splits only the accompaniment, for cleaner vocals and less bleed. “Other” now keeps everything the other stems miss, so the six stems add back exactly to the original.
 - Settings read more cleanly: shorter descriptions, no repeated precision note on every model, and import instructions moved into the import button tooltip. The right-panel toggle in the title bar hides while the stem studio is open.
+- Roll a model back: models replaced by a catalog update get a version picker in Settings. “Before 2026-10-27 update” re-downloads the earlier file from its pinned commit and stops the update prompt; “Latest” switches back.
 - Stem studio: after “Separate stems” or “Transcribe to MIDI” finishes, a full-screen multitrack page opens with the original and every stem (or every MIDI instrument, rendered with your sound font) side by side — one transport and playhead, a waveform per track, volume, mute and solo, click to seek, Space to play. Reopen it from “Open stems” in the version menu or “Preview tracks” on a score project; “Export all stems” moved inside it.
 - Lighter when idle: Ocho's avatar and the launcher glow only animate while the assistant works, on hover or for an occasional glance, and stop when the window is in the background, so the idle app no longer keeps a CPU core busy; the assistant panel and the Transcribe page load on demand.
 - Smoother layout changes: collapsing the sidebar or side panel moves the workspace edge instead of jumping, the Generate button travels between the side panel and the title row, the sidebar highlight slides to the new page, a project opened from the list carries its title into the editor, and collapsible sections expand smoothly. Dialogs resize smoothly when their content changes, the generation progress row unfolds instead of pushing the panel down, the melody score grows open, and notices drop in and slide away.
@@ -78,6 +79,7 @@
 - 音乐播放页：校准歌词保存失败时不再丢掉已标记的行，错误显示在播放页内，可撤销一行后重试；读取、对齐、逐字编辑和导出 LRC 的错误同样显示在播放页里，不再被全屏弹窗挡住。
 - 分轨更准、更完整：装有可选的 BS-RoFormer（173 MB，歌词对齐包里也带）时先用它分出人声，HTDemucs 只拆伴奏，人声更干净、不串轨；“其他”轨收下其余各轨没分走的部分，六轨相加即还原原曲。
 - 设置页更简洁：说明文字精简，每个模型下不再重复精度说明，导入说明收进导入按钮的提示；分轨工作台打开时隐藏标题栏的右侧面板开关。
+- 模型可以回退：经目录更新替换过的模型在设置里多一个版本选择，选“2026/10/27 更新前”按当时的提交重新下载旧文件，并不再提示更新；选回“最新版”即恢复。
 - 分轨工作台：“分离音轨”或“转为 MIDI”完成后打开全屏多轨页，原曲与各分轨（或用音色库逐轨渲染的 MIDI 各乐器）并排，统一播放和播放头，每轨有波形、音量、静音、独奏，点击定位、空格播放；之后可从版本菜单“打开分轨”或编曲页“分轨试听”进入，“导出全部分轨”移到工作台里。
 - 空闲更省资源：Ocho 形象和入口流光只在助手工作、悬停或偶尔张望时动，窗口在后台时停下，空闲时不再持续占用 CPU；助手浮窗和语音转写页按需加载。
 - 界面变化更连贯：收起展开侧栏或右侧面板时工作区边缘平滑移动，“生成”按钮在面板顶部与标题栏之间迁移；侧栏选中块滑到新页面；从列表打开作品时标题飞入编辑页；折叠区平滑展开。弹窗内容变化时尺寸平滑过渡，生成进度行展开而不是把面板顶下去，旋律谱出谱时平滑展开，提示条落下出现、上滑离开。

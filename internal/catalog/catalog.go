@@ -51,6 +51,21 @@ type ModelPackage struct {
 	RemotePath  string      `json:"remotePath"`
 	Size        int64       `json:"size"`
 	SHA256      string      `json:"sha256"`
+	// History 是被目录更新替换掉的旧版本，新的在前；用户觉得新版效果变差时可以换回去。
+	History []ModelVersion `json:"history,omitempty"`
+	// modelScopeRevision 不为空时覆盖 ModelScopeRevision，只在按旧版本下载时设置。
+	modelScopeRevision string
+}
+
+// ModelVersion 是模型包的一个旧版本：文件随当时的仓库提交固定，按主文件摘要区分。
+type ModelVersion struct {
+	// Replaced 是该版本被目录更新替换的日期，界面据此标注“某日更新前的版本”。
+	Replaced           string      `json:"replaced"`
+	Revision           string      `json:"revision"`
+	ModelScopeRevision string      `json:"modelScopeRevision"`
+	Size               int64       `json:"size"`
+	SHA256             string      `json:"sha256,omitempty"`
+	Files              []ModelFile `json:"files,omitempty"`
 }
 
 // ModelFile 是多文件模型包中的一个文件。
@@ -292,6 +307,21 @@ func (m ModelPackage) MainFile() ModelFile {
 	return ModelFile{Path: m.RemotePath, Size: m.Size, SHA256: m.SHA256}
 }
 
+// At 返回指定版本的模型包：sha256 为空或等于当前主文件时是最新版，否则在 History 里按主文件摘要查找。
+func (m ModelPackage) At(sha256 string) (ModelPackage, error) {
+	if sha256 == "" || sha256 == m.MainFile().SHA256 {
+		return m, nil
+	}
+	for _, v := range m.History {
+		old := m
+		old.History, old.Revision, old.modelScopeRevision, old.Size, old.SHA256, old.Files = nil, v.Revision, v.ModelScopeRevision, v.Size, v.SHA256, v.Files
+		if old.MainFile().SHA256 == sha256 {
+			return old, nil
+		}
+	}
+	return ModelPackage{}, msg.Err(msg.ErrModelUnsupported, nil)
+}
+
 func Lookup(id string) (ModelPackage, error) {
 	for _, m := range Models {
 		if m.ID == id {
@@ -333,7 +363,11 @@ func (m ModelPackage) FileURL(source, path string) (string, error) {
 	case "mirror":
 		return "https://hf-mirror.com/audio-cpp/audio.cpp-gguf/resolve/" + revision + "/" + path, nil
 	case "modelscope":
-		return "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/" + ModelScopeRevision + "/" + path, nil
+		revision := ModelScopeRevision
+		if m.modelScopeRevision != "" {
+			revision = m.modelScopeRevision
+		}
+		return "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/" + revision + "/" + path, nil
 	}
 	return "", msg.Err(msg.ErrDownloadSource, nil)
 }

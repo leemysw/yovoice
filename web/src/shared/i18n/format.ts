@@ -5,12 +5,13 @@ import { CallError } from '../lib/call-error';
 const unknownCode = '@yovoice.error.unknown' as MessageCode;
 
 // 界面里日期时间的几种固定写法：full 年月日时分（资源页、作品创建时间），day 月日时分（更新检查时间），
-// log 月日时分秒（日志、版本记录），brief 短月份加日期与时分（时间线和播放器里挑版本）。
+// log 月日时分秒（日志、版本记录），brief 短月份加日期与时分（时间线和播放器里挑版本），date 年月日（模型版本）。
 const dateStyles = {
   full: { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' },
   day: { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' },
   log: { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' },
   brief: { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+  date: { year: 'numeric', month: '2-digit', day: '2-digit' },
 } as const satisfies Record<string, Intl.DateTimeFormatOptions>;
 
 /** 按界面语言格式化日期时间；locale 为空时用浏览器默认语言。 */

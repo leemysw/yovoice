@@ -4576,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "固定"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "模型版本"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "最新版"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "{date} 更新前"
   }
 }
