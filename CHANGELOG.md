@@ -13,6 +13,7 @@
 - On macOS, when the window fails to load, the app now checks the local service directly and writes the result to `host.log`, making it easier to tell whether a proxy or security tool is blocking it.
 - Transcribe now accepts audio and video files up to 4 GB and 1 hour by default, so videos no longer need converting to audio first. Both limits, plus how subtitles are split into lines (characters and seconds per line, pause length), can be changed in Settings › General › Transcribe.
 - Transcript lines no longer leave the last one or two characters of a sentence on a line of their own.
+- The `yovoice generate` CLI now makes songs and sound effects with ACE-Step, YuE2 and Stable Audio 3: `--text` is the style, with `--lyrics`/`--lyrics-file` and `--instrumental`. YuE2 returns the score it used, which you can edit and pass back with `--abc-file`. The Agent Skill gains a music reference and now lists Kokoro.
 
 ### 简体中文
 
@@ -23,6 +24,7 @@
 - macOS 窗口加载失败时会直接检查本地服务，并把结果写入 `host.log`，便于判断是否被代理或安全软件拦截。
 - 语音转写默认支持 4 GB、1 小时以内的音频和视频文件，视频不必先转成音频；文件与时长上限，以及字幕每行字数、每行时长和停顿换行，都可以在“设置 › 常规 › 语音转写”里调整。
 - 修复转写字幕偶尔把一句话最后一两个字单独断成一行的问题。
+- 命令行 `yovoice generate` 支持用 ACE-Step、YuE2 和 Stable Audio 3 写歌和生成音效：`--text` 写风格，配合 `--lyrics`/`--lyrics-file`、`--instrumental`；YuE2 会返回所用的旋律谱，改谱后用 `--abc-file` 再生成。Agent Skill 新增音乐参考，并补上 Kokoro 模型说明。
 
 ## [0.6.0] - 2026-11-09
 

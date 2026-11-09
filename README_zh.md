@@ -132,8 +132,10 @@ macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查�
 之后直接描述需求：
 
 > 用 voice.wav 的音色朗读 narration.txt，语气平静，保存为 narration.wav。
+>
+> 用 YuE2 写一首关于末班车的中文原声流行歌，保存为 song.wav。
 
-Agent 通过独立 CLI 完成配音，无需打开桌面应用。详细用法见 [CLI 指南](docs/cli_zh.md)。
+Agent 通过独立 CLI 完成配音、写歌和音效，无需打开桌面应用。详细用法见 [CLI 指南](docs/cli_zh.md)。
 
 ---
 

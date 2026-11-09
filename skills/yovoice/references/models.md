@@ -19,12 +19,13 @@
 | XTTS v2 | 17 种语言、参考克隆、采样、重复惩罚、种子、长文分段 | 必须提供 6–30 秒参考音频并明确语言；Coqui Public Model License；需要 v0.9.3 内核 |
 | Gradium Phonon | 英文默认音色、流噪声温度、种子、按 Token 长文分段 | 仅英文和默认音色，不能克隆；需要 v0.9.3 内核 |
 | Drama 3 / Drama3-small | 默认音色、参考克隆、说话人及事件标签、采样、种子、长文分段、CUDA 性能优先 | 克隆必须提供完整原文；Fish Audio Community License；需要 v0.9.3 内核 |
+| Kokoro-82M 1.0 / 1.1-zh | 内置音色、多语言、长文分段 | 只用内置音色（`--speaker`），不能克隆；1.0 有 49 个音色，支持中文、英语、西班牙语、法语、印地语、意大利语、巴西葡萄牙语，不含日语；1.1-zh 为 100 个中文和 3 个英文音色（实验性），音色 ID 与 1.0 不通用；首次下载会一并下载约 10 MB 发音库 |
 
 此处覆盖语音生成能力，并非 audio.cpp 的全部底层调优开关。图内存、运行时重量化、缓存槽位、调试用噪声文件等引擎参数继续使用默认值，不作为声音设置展示。训练、微调、ASR、对齐及批量训练数据处理不属于此 TTS 接入。
 
 官方 Qwen3-TTS 还有 0.6B CustomVoice；当前固定模型仓库未发布对应独立 GGUF，暂不列为可下载模型。Safetensors 多文件包未接入当前单文件 GGUF 管理流程。
 
-`yovoice models list --json` 里的 ACE-Step、YuE2、Stable Audio 3 是音乐模型，SheetSage2 是翻唱用的扒谱模型，`lyric-align-q8` 是播放页逐字对齐歌词的可选模型，都只在桌面端“音乐生成”使用，`generate` 不支持；Stable Audio Small SFX 与 Medium 也可在独立“音效”作品中生成短音效；`*-sf2` 是编曲音色库，见[编曲参考](score.md)。
+`yovoice models list --json` 里的 ACE-Step、YuE2、Stable Audio 3 是音乐模型，`generate` 用法见[音乐参考](music.md)；Stable Audio Small SFX 生成音效。SheetSage2 是翻唱用的扒谱模型，`lyric-align-q8` 是播放页逐字对齐歌词的可选模型，只在桌面端使用；`*-sf2` 是编曲音色库，见[编曲参考](score.md)。
 
 ## 下载与精度
 
@@ -71,6 +72,14 @@ Windows/Linux 后端选择见 [引擎与模型下载](setup.md)。精度影响�
 | `gradium-phonon-31m-en-q8` | Gradium Phonon 多文件包 | Q8 | 85.5 MB |
 | `fish-drama3-small-iq3` | Drama3-small | IQ3_XXS | 10.46 GB |
 | `fish-drama3-q2` / `-q4` | Drama 3 | Q2_K / Q4_K_S | 17.05 / 24.60 GB |
+| `kokoro-82m-q8` / `-bf16` | Kokoro-82M 1.0 | Q8 / BF16 | 190 / 212 MB |
+| `kokoro-1.1-zh-q8` | Kokoro-82M 1.1-zh | Q8 | 255 MB |
+| `yue2-3b-q8` / `-bf16` / `-q4` | YuE2 3B（音乐） | Q8 / BF16 / Q4 | 4.53 / 7.53 / 2.93 GB |
+| `ace-step-1.5-turbo-q8` / `-bf16` | ACE-Step 1.5 Turbo（音乐） | Q8 / BF16 | 6.19 / 10.09 GB |
+| `ace-step-1.5-xl-turbo-q8` / `-bf16` | ACE-Step 1.5 XL Turbo（音乐） | Q8 / BF16 | 10.71 / 15.28 GB |
+| `stable-audio-3-small-music-q8` / `-f16` | Stable Audio 3 Small Music | Q8 / F16 | 1.68 / 2.36 GB |
+| `stable-audio-3-small-sfx-q8` / `-f16` | Stable Audio 3 Small SFX（音效） | Q8 / F16 | 1.68 / 2.36 GB |
+| `stable-audio-3-medium-q8` / `-f16` | Stable Audio 3 Medium（音乐） | Q8 / F16 | 3.58 / 5.83 GB |
 
 ## 调用方式
 
@@ -83,6 +92,8 @@ yovoice generate --model qwen3-tts-customvoice-q8 --speaker Serena --voice-descr
 yovoice generate --model qwen3-tts-voicedesign-q8 --voice-description "低沉、富有磁性的成年男性旁白" --text-file narration.txt --output designed.wav
 # 小模型参考克隆；省略原文时仅提取音色
 yovoice generate --model qwen3-tts-base-0.6b-q8 --reference reference.wav --reference-text "参考音频实际说出的内容" --text-file narration.txt --output cloned.wav
+# Kokoro 内置音色，语言随音色选择，无需参考音频
+yovoice generate --model kokoro-82m-q8 --speaker zf_xiaobei --text "你好，欢迎使用。" --output kokoro.wav
 # Omni 属性设计、语速与解码参数
 yovoice generate --model omnivoice-q8 --voice-description "female, young adult, moderate pitch" --language zh --speed 1.1 --guidance-scale 2 --inference-steps 32 --text "你好。[laughter] 很高兴见到你。" --output omni.wav
 ```

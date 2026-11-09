@@ -76,7 +76,7 @@ func TestStandalone(t *testing.T) {
 		s.RuntimeBackend = &b
 		v := catalog.EngineVersion
 		s.RuntimeVersion = &v
-		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}, {ID: "ming3-tts-0.5b-q8", Path: model}}
+		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}, {ID: "ming3-tts-0.5b-q8", Path: model}, {ID: "ace-step-1.5-turbo-q8", Path: model}, {ID: "yue2-3b-q8", Path: model}, {ID: "stable-audio-3-small-sfx-q8", Path: model}}
 	}, true)
 	if e != nil {
 		t.Fatal(e)
@@ -157,14 +157,21 @@ func TestStandalone(t *testing.T) {
 		{"qwen3-tts-voicedesign-q8", "qwen3_tts", []string{"--voice-description", "Warm narrator"}},
 		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--voice-description", "Warm narrator", "--language", "ja", "--option", "trim_silence=false"}},
 		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--voice-mode", "clone", "--reference", ref, "--reference-text", "原文"}},
+		{"ace-step-1.5-turbo-q8", "ace_step", []string{"--lyrics", "[verse]\n晚风吹过海岸线", "--language", "zh", "--option", "duration_seconds=30"}},
+		{"yue2-3b-q8", "yue2", []string{"--lyrics", "[Verse]\n晚风吹过海岸线", "--option", `cot="off"`, "--seed", "7"}},
+		{"stable-audio-3-small-sfx-q8", "stable_audio", []string{"--option", "duration_seconds=3"}},
 	} {
 		args := []string{"generate", "--model", test.model, "--text", "你好", "--output", filepath.Join(root, fmt.Sprintf("new-model-%d.wav", i)), "--data-dir", root}
+		out.Reset()
 		if err := run(ctx, append(args, test.flags...), &out, &progress); err != nil {
 			t.Fatal(test.model, err)
 		}
 		config, err := os.ReadFile(filepath.Join(root, "runtime", "server.json"))
 		if err != nil || !bytes.Contains(config, []byte(`"family":"`+test.family+`"`)) {
 			t.Fatal(string(config), err)
+		}
+		if test.model == "yue2-3b-q8" && !bytes.Contains(out.Bytes(), []byte(`"seed":7`)) {
+			t.Fatal("音乐生成应返回实际种子", out.String())
 		}
 		if test.model == "qwen3-tts-voicedesign-q8" && !bytes.Contains(config, []byte(`"task":"vdes"`)) {
 			t.Fatal(string(config))
@@ -200,6 +207,12 @@ func TestModelSpecificFlags(t *testing.T) {
 		{"--model", "qwen3-tts-customvoice-q8", "--speaker", "unknown"},
 		{"--model", "omnivoice-q8", "--option", "streaming=true"},
 		{"--model", "voxcpm2-q8", "--option", "max_tokens=100", "--option", "min_tokens=101"},
+		{"--model", "index-2.5-q8", "--lyrics", "歌词"},
+		{"--model", "ace-step-1.5-turbo-q8", "--reference", "unused.wav"},
+		{"--model", "ace-step-1.5-turbo-q8", "--abc-file", "unused.abc"},
+		{"--model", "yue2-3b-q8", "--language", "zh", "--lyrics", "歌词"},
+		{"--model", "yue2-3b-q8"},
+		{"--model", "yue2-3b-q8", "--lyrics", "歌词", "--option", "candidates=2"},
 	} {
 		var out bytes.Buffer
 		args := append([]string{"generate", "--text", "你好", "--output", "unused.wav"}, flags...)

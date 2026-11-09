@@ -2,7 +2,7 @@
 
 [English](cli.md) · 简体中文
 
-无需打开桌面 App，即可通过命令行生成语音。支持 Apple Silicon macOS、Windows x64 和 Linux x64。
+无需打开桌面 App，即可通过命令行生成语音和音乐。支持 Apple Silicon macOS、Windows x64 和 Linux x64。
 
 ## 安装
 
@@ -69,6 +69,21 @@ yovoice voices list --json
 ```
 
 失败时 stderr 返回错误，退出码为 1；Ctrl-C 的退出码为 130。
+
+## 生成音乐
+
+音乐模型（ACE-Step、YuE2、Stable Audio 3）同样使用 `generate`：`--text` 为风格描述，歌词单独传入：
+
+```sh
+yovoice generate --model yue2-3b-q8 --text "Mandarin, acoustic pop, warm female vocals, piano, 96 BPM" --lyrics-file song.txt --output song.wav
+yovoice generate --model ace-step-1.5-turbo-q8 --text "city pop, warm synths" --lyrics-file song.txt --language zh --option 'duration_seconds=60' --output song.wav
+yovoice generate --model stable-audio-3-small-sfx-q8 --text "door creaks open slowly" --option 'duration_seconds=5' --output door.wav
+```
+
+- 歌词使用 `--lyrics TEXT` 或 `--lyrics-file FILE`，可带 `[Verse]` 等段落标记；纯音乐使用 `--instrumental`。YuE2 不是纯音乐时必须提供歌词。
+- YuE2 的结果 JSON 带有这次所用的旋律谱 `abc` 和 `seed`。改谱后用 `--abc-file FILE` 再生成，可保留旋律、只换风格或改一段。
+- ACE-Step 用 `--language` 指定演唱语言；时长、YuE2 的 `cot` 等其他设置用 `--option`，各模型的 `generationOptions` 见 `yovoice models list --json`。
+- Stable Audio 音效款生成音效，其余音乐模型生成歌曲。
 
 ## 编曲
 

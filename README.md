@@ -133,8 +133,10 @@ Give your agent the [yovoice Skill](https://github.com/leemysw/yovoice/tree/main
 Then describe what you want:
 
 > Read narration.txt using voice.wav as the reference voice, with a calm delivery, and save it as narration.wav.
+>
+> Write an acoustic pop song about the last train home with YuE2 and save it as song.wav.
 
-The agent runs the standalone CLI without opening the desktop app. See the [CLI guide](docs/cli.md) for details.
+The agent runs the standalone CLI for speech, songs and sound effects without opening the desktop app. See the [CLI guide](docs/cli.md) for details.
 
 ---
 
