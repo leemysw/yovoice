@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "Идёт запись"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "Развитие песни"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2 понимает целые фразы: выберите язык и темп, затем начало, развитие и концовку, чтобы песни звучали по-разному."
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "Язык пения"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "Темп"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "Начало"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "Развитие"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "Концовка"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "Пение на путунхуа"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "Пение на кантонском"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "Пение на английском"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "Пение на японском"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "Пение на корейском"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "Медленно · баллады"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "Средний · поп, R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "Бодро · дэнс, рок"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "Быстро · панк, электроника"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "Вокал вступает сразу"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "Длинное инструментальное вступление"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "Начинается с хука припева"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "Тихие куплеты, яркий припев"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "Минималистичный бридж"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "Инструментальное соло перед последним припевом"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "Нарастает к мощному финальному припеву"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "Затихает на теме вступления"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "Заканчивается строкой а капелла"
   }
 }

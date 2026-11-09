@@ -74,6 +74,9 @@ ACE-Step has a set duration instead: fit the lyrics to it.
 
 ## Keep songs different from each other
 
+- Before writing a new YuE2 song, call `list_works` {"kind":"music"}: each work shows its `style`. Unless the user asked for the same sound, move at least two of genre, tempo, sung language, lead vocal and opening away from the recent ones, and say in one line what you changed.
+- When the request is vague ("write me a song"), offer two or three contrasting directions in one short line each (genre, tempo, how it opens) and let the user pick, instead of defaulting to a mid-tempo ballad.
+
 - Start from a specific scene, person or detail in the user's request, not a generic feeling.
 - Avoid the stock images of a genre unless the user asks for them. For 中国风 these are 青石板、油纸伞、烟雨、老巷、信笺、墨迹; for ballads, rain on the window and fading photos. One familiar image is fine, a whole song of them sounds like every other song.
 - No stage directions, sound effects or parenthesised notes in the lyrics (`(音效：留声机底噪)`, `(harpsichord enters)`): YuE2 tries to sing them. Put them in the style.

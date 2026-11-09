@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "Enregistrement en cours"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "Déroulé"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2 comprend des phrases entières : choisissez la langue et le tempo, puis l’ouverture, la progression et la fin du morceau."
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "Langue chantée"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "Ouverture"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "Progression"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "Fin"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "Chanté en mandarin"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "Chanté en cantonais"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "Chanté en anglais"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "Chanté en japonais"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "Chanté en coréen"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "Lent · ballades"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "Modéré · pop, R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "Entraînant · dance, rock"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "Rapide · punk, électro"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "La voix entre tout de suite"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "Longue intro instrumentale"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "S’ouvre sur l’accroche du refrain"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "Couplets intimes, refrain lumineux"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "Pont dépouillé"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "Solo instrumental avant le dernier refrain"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "Monte vers un grand refrain final"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "Se termine en fondu sur le thème d’intro"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "Finit sur une ligne a cappella"
   }
 }

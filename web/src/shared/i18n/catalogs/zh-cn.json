@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "正在录音"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "歌曲展开"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2 会读整句描述：选好语言和速度，再挑开场、展开和结尾，让每首歌的起伏不同。"
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "演唱语言"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "速度"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "开场"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "展开"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "结尾"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "普通话演唱"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "粤语演唱"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "英语演唱"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "日语演唱"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "韩语演唱"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "慢板 · 抒情歌"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "中速 · 流行、R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "轻快 · 舞曲、摇滚"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "快速 · 朋克、电子"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "人声一开始就进入"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "先有一段较长的器乐前奏"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "用副歌的记忆点开场"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "主歌轻柔、副歌明亮好唱"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "桥段只留少量乐器"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "最后一遍副歌前加器乐独奏"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "层层推进到饱满的最后一遍副歌"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "回到前奏主题并渐弱结束"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "最后一句只留人声清唱"
   }
 }

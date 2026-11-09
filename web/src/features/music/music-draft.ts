@@ -11,6 +11,25 @@ export const styleTags = {
   vocal: ['female vocals', 'male vocals', 'choir', 'rap'],
 } as const;
 
+// YuE2 没有语言与速度设置，也读得懂成句的编配描述：这些标签只在 YuE2 下出现，值同样直接写进风格描述。
+// language 与 tempo 只能选一个；演唱语言放在风格最前面，与官方写法一致。
+export const yueStyleTags = {
+  language: ['Mandarin', 'Cantonese', 'English', 'Japanese', 'Korean'],
+  tempo: ['72 BPM', '96 BPM', '120 BPM', '150 BPM'],
+  opening: ['vocals enter immediately', 'long instrumental intro', 'opens on the chorus hook'],
+  development: ['intimate verses and a bright singable chorus', 'stripped-down bridge', 'instrumental solo before the last chorus', 'builds to a big final chorus'],
+  ending: ['fades out on the intro theme', 'ends on an a cappella line'],
+} as const;
+const exclusiveGroups = [yueStyleTags.language, yueStyleTags.tempo] as readonly (readonly string[])[];
+
+// 点选标签：已选则去掉；语言与速度同组互斥，新选的语言放到最前面。
+export const toggleStyleTag = (currentTags: readonly string[], tag: string) => {
+  if (currentTags.includes(tag)) return currentTags.filter(item => item !== tag);
+  const group = exclusiveGroups.find(items => items.includes(tag));
+  const rest = group ? currentTags.filter(item => !group.includes(item)) : [...currentTags];
+  return group === yueStyleTags.language ? [tag, ...rest] : [...rest, tag];
+};
+
 export interface StylePreset {
   id: string;
   tags: string[];
