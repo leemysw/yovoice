@@ -498,6 +498,7 @@
       "task": "tts",
       "engineMinimum": "v0.9.3",
       "repo": "audio-cpp/Ming-3.0-TTS-0.5B-GGUF",
+      "modelScope": "audio-cpp/Ming-3.0-TTS-0.5B-GGUF",
       "revision": "2eb8d37c7f10672e69c8aa33091baa04c461b66c",
       "precision": "Q8",
       "remotePath": "ming-3.0-tts-0.5b-q8_0.gguf",
@@ -512,6 +513,7 @@
       "task": "tts",
       "engineMinimum": "v0.9.3",
       "repo": "audio-cpp/Ming-3.0-TTS-0.5B-GGUF",
+      "modelScope": "audio-cpp/Ming-3.0-TTS-0.5B-GGUF",
       "revision": "2eb8d37c7f10672e69c8aa33091baa04c461b66c",
       "precision": "BF16",
       "remotePath": "ming-3.0-tts-0.5b-bf16.gguf",
@@ -637,6 +639,7 @@
       "task": "tts",
       "engineMinimum": "v0.9.3",
       "repo": "gradium/phonon-31m-en-audiocpp",
+      "modelScope": "gradium/phonon-31m-en-audiocpp",
       "revision": "2431a0781d54814ea1ddb067849a8c6f24f4aaae",
       "precision": "Q8",
       "directory": "phonon-31m-en",
@@ -998,6 +1001,7 @@
       "version": "1.5",
       "precision": "BF16",
       "repo": "CaptainArni/audio.cpp-gguf",
+      "modelScope": "HereIsMark/audio.cpp-gguf",
       "revision": "ac4d11eda6855ddedb16e42632e1a9376bfcfa81",
       "loadOptions": {
         "ace_step.dit_model_path": "acestep-v15-xl-turbo"
@@ -1170,6 +1174,7 @@
       "version": "2",
       "precision": "Q8",
       "repo": "audio-cpp/Yue2-3B-GGUF",
+      "modelScope": "audio-cpp/Yue2-3B-GGUF",
       "revision": "cca74d8980c00f30ab8d52248a367c01ad633ec2",
       "sessionOptions": {
         "yue2.model_gguf": "yue2-3b-q8_0.gguf"
@@ -1220,6 +1225,7 @@
       "version": "2",
       "precision": "BF16",
       "repo": "audio-cpp/Yue2-3B-GGUF",
+      "modelScope": "audio-cpp/Yue2-3B-GGUF",
       "revision": "cca74d8980c00f30ab8d52248a367c01ad633ec2",
       "sessionOptions": {
         "yue2.model_gguf": "yue2-3b-bf16.gguf"
@@ -1270,6 +1276,7 @@
       "version": "2",
       "precision": "Q4",
       "repo": "audio-cpp/Yue2-3B-GGUF",
+      "modelScope": "audio-cpp/Yue2-3B-GGUF",
       "revision": "cca74d8980c00f30ab8d52248a367c01ad633ec2",
       "sessionOptions": {
         "yue2.model_gguf": "yue2-3b-q4_0.gguf"
@@ -1320,6 +1327,7 @@
       "version": "2",
       "precision": "F32",
       "repo": "audio-cpp/SheetSage2-GGUF",
+      "modelScope": "audio-cpp/SheetSage2-GGUF",
       "revision": "4e88814450385334524e50df43724af583f74206",
       "remotePath": "sheetsage2-orig.gguf",
       "size": 2708224256,
