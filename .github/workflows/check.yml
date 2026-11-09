@@ -1,7 +1,7 @@
 name: Check and Package
 on:
   push:
-    branches: [main, claude/busy-allen-r5p2j5]  # 临时：验证用
+    branches: [main]
     # 只改说明文档的提交不跑检查；列表需与 check-docs.yml 保持一致。CHANGELOG 与 internal/ 下的技能文档会被测试或打包读取，不在此列。
     paths-ignore: ['**/README.md', 'README_zh.md', 'AGENTS.md', 'docs/**']
   pull_request:
