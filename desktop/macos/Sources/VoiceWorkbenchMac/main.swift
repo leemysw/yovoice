@@ -442,6 +442,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled { return }
         if nsError.domain == "WebKitErrorDomain" && nsError.code == 102 { return }
         pageFailed("\(nsError.domain) \(nsError.code): \(nsError.localizedDescription)")
+        // 连接层面的失败再自检一次，结果写进 host.log，区分是服务出错还是请求被本机其他软件截住。
+        if let origin {
+            let cookie = "\(cookieName)=\(token)"
+            Task { [weak self] in
+                let result = await LoadProbe.run(origin: origin, cookie: cookie)
+                self?.hostLog(result)
+            }
+        }
     }
     private func pageFailed(_ reason: String) {
         hostLog("页面加载失败：\(reason)")
