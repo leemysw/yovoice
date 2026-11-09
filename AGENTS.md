@@ -42,6 +42,7 @@ MORE CLI:
 - 修改推理映射或下载逻辑后运行 `go test -race ./...`。
 - 界面修改运行 `pnpm --dir web run lint`、`pnpm --dir web run build` 和 `pnpm --dir web test`。
 - 样式按功能放在 `web/src/features/<功能>/<功能>.css`，外壳与全局放 `web/src/app/`，统一由 `app/styles.css` 按顺序 `@import`，组件里不单独引入；规则写在 `@layer app { }` 内，类名以所属功能开头。
+- 测试只覆盖行为和逻辑（数据流、状态、交互结果）；纯展示性改动（文案、改名、排序、样式）不新增断言。
 - 浏览器测试较耗时，日常调试优先定向执行相关用例（如 `pnpm --dir web exec playwright test browser-tests/<file>.spec.ts`），提交前再运行 `pnpm --dir web test`。
 - 功能稳定的用例在 `web/playwright.config.ts` 的 `sealed` 列表中封存，`pnpm --dir web test` 和日常 CI 不跑；改到这些功能或发布前运行 `pnpm --dir web run test:all`（CI 每周一全量跑一次）。功能重新频繁改动时移出列表。
 - 不将浏览器预览和交叉编译视为 Windows 实机推理已验证。

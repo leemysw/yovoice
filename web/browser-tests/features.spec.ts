@@ -9,8 +9,6 @@ test('设置里隐藏故事配音、音乐生成、语音转写和 Ocho 后入�
   await page.goto('/');
   // 默认全部显示。
   for (const id of ['nav-story', 'nav-music', 'nav-transcribe', 'assistant-toggle']) await expect(page.getByTestId(id)).toBeVisible();
-  // 语音转写紧跟语音生成，我的声音在作品类型之后。
-  await expect(page.locator('.sidebar-destinations .nav-item')).toHaveText(['语音生成', '语音转写', '故事配音', '音乐生成', '我的声音']);
   await page.getByTestId('nav-settings').click();
   await expect(page.getByRole('heading', { name: '功能显示' })).toBeVisible();
   for (const name of ['故事配音', '音乐生成', '语音转写', 'Ocho']) {
