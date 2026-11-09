@@ -136,7 +136,7 @@ Then describe what you want:
 >
 > Write an acoustic pop song about the last train home with YuE2 and save it as song.wav.
 
-The agent runs the standalone CLI for speech, songs and sound effects without opening the desktop app. See the [CLI guide](docs/cli.md) for details.
+The agent runs the standalone CLI for speech, songs, sound effects, transcription and stem separation without opening the desktop app. See the [CLI guide](docs/cli.md) for details.
 
 ---
 

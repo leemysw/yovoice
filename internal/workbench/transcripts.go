@@ -73,12 +73,21 @@ func (w *Workbench) transcript(id string) (schema.Transcript, string, error) {
 }
 
 // ReadTranscript 读取一份转写的字幕内容。
+// 还没编辑过的转写（Captions 为空）按当前设置的断句规则从逐词时间分行，改了断句设置后重新打开即按新规则分行。
 func (w *Workbench) ReadTranscript(id string) (schema.TranscriptContent, error) {
 	_, path, e := w.transcript(id)
 	if e != nil {
 		return schema.TranscriptContent{}, e
 	}
-	return readTranscriptFile(path)
+	content, e := readTranscriptFile(path)
+	if e == nil && content.Captions == nil {
+		rules := w.Store.Read().Preferences.Transcribe.CaptionRules()
+		content.Captions = []schema.TranscriptCaption{}
+		for _, c := range schema.WordCaptions(content.Text, content.Words, rules) {
+			content.Captions = append(content.Captions, schema.TranscriptCaption{Start: c.Start, End: c.End, Text: c.Text})
+		}
+	}
+	return content, e
 }
 
 func readTranscriptFile(path string) (schema.TranscriptContent, error) {

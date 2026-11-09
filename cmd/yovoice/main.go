@@ -39,6 +39,9 @@ const usage = `yovoice：独立本地语音与音乐生成，无需桌面 App。
   yovoice voices import FILE [--name NAME]
   yovoice generate --text-file FILE --reference AUDIO --output WAV
   yovoice score render|midi|from-midi FILE --output FILE（编曲，详见 yovoice score --help）
+  yovoice separate AUDIO --output-dir DIR（分成人声、鼓、贝斯、吉他、钢琴、其他六轨，需要 HTDemucs）
+  yovoice to-midi AUDIO --output FILE.mid|FILE.json（转为多乐器 MIDI 或编曲乐谱，需要 MuScriptor）
+  yovoice transcribe AUDIO --output FILE.srt|.vtt|.txt|.json（语音或视频转写为字幕，需要 Qwen3 ASR）
 生成选项：--text TEXT（与 --text-file 二选一）、--voice ID（与 --reference 二选一）、
   --model ID、--seed N；IndexTTS：--language zh|en|ja|es|ar、--speed 1、--emotion-text TEXT。
 VoxCPM2：--vox-mode design|clone|continuation、--voice-description TEXT、
@@ -110,8 +113,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			args = args[1:]
 		}
 	}
+	// 音频工具的第一个参数是输入文件。
+	if (command == "separate" || command == "to-midi" || command == "transcribe") && len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		operand = args[0]
+		args = args[1:]
+	}
 	switch command {
-	case "serve", "mcp", "status", "setup", "models list", "models download", "voices list", "voices import", "generate":
+	case "serve", "mcp", "status", "setup", "models list", "models download", "voices list", "voices import", "generate", "separate", "to-midi", "transcribe":
 	default:
 		return fmt.Errorf("未知命令 %q；使用 --help 查看用法", command)
 	}
@@ -150,6 +158,12 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.StringVar(&source, "source", "modelscope", "下载来源")
 	case "voices import":
 		fs.StringVar(&name, "name", "", "音色名称")
+	case "separate":
+		fs.StringVar(&output, "output-dir", "", "输出目录，在其中新建“<文件名> Stems”文件夹")
+	case "to-midi":
+		fs.StringVar(&output, "output", "", "输出 .mid，或 .json 编曲乐谱")
+	case "transcribe":
+		fs.StringVar(&output, "output", "", "输出 .srt、.vtt、.txt，或 .json（原文、逐词时间与字幕行）")
 	case "generate":
 		fs.Func("option", "模型高级选项 KEY=JSON，可重复；参数见 models list 的 generationOptions", func(value string) error {
 			key, raw, ok := strings.Cut(value, "=")
@@ -211,6 +225,31 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	}
 	if (command == "models download" || command == "voices import") && operand == "" {
 		return fmt.Errorf("缺少模型 ID 或文件路径")
+	}
+	if command == "separate" || command == "to-midi" || command == "transcribe" {
+		if operand == "" {
+			return fmt.Errorf("缺少音频文件路径")
+		}
+		ext := strings.ToLower(filepath.Ext(output))
+		switch {
+		case command == "separate" && output == "":
+			return fmt.Errorf("请通过 --output-dir 指定输出目录")
+		case command == "to-midi" && ext != ".mid" && ext != ".midi" && ext != ".json":
+			return fmt.Errorf("请通过 --output 指定 .mid 或 .json 文件")
+		case command == "transcribe" && ext != ".srt" && ext != ".vtt" && ext != ".txt" && ext != ".json":
+			return fmt.Errorf("请通过 --output 指定 .srt、.vtt、.txt 或 .json 文件")
+		case command == "to-midi" || command == "transcribe":
+			if _, err := os.Lstat(output); err == nil {
+				return fmt.Errorf("输出文件已存在：%s", output)
+			}
+		}
+		var err error
+		if operand, err = filepath.Abs(operand); err != nil {
+			return err
+		}
+		if output, err = filepath.Abs(output); err != nil {
+			return err
+		}
 	}
 	if command == "generate" {
 		if (d.Text == "") == (textFile == "") {
@@ -448,6 +487,27 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			err = waitModel(func() error { return w.DownloadModel(operand, "") })
 		}
 		result = w.Store.Read().Models
+	case "separate":
+		if err = os.MkdirAll(output, 0755); err != nil {
+			return err
+		}
+		var folder string
+		if err = wait(func() error {
+			var e error
+			folder, e = w.SeparateFile(operand, output)
+			return e
+		}); err != nil {
+			return err
+		}
+		files, _ := filepath.Glob(filepath.Join(folder, "*.wav"))
+		result = map[string]any{"folder": folder, "files": files}
+	case "transcribe":
+		result, err = transcribeFile(w, operand, output, wait)
+	case "to-midi":
+		if err = wait(func() error { return w.TranscribeMIDIFile(operand, output) }); err != nil {
+			return err
+		}
+		result = map[string]any{"path": output}
 	case "generate":
 		if reference != "" {
 			var v schema.Voice

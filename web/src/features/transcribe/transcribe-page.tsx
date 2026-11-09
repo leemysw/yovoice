@@ -71,7 +71,7 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
 
   const fileInput = <input ref={input} hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.mkv,.mp4,.mov" aria-label={t('@yovoice.transcribe.upload')}
     onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void start(file); }} />;
-  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} lines={settings} onBack={() => open(null)} /></>;
+  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} onBack={() => open(null)} /></>;
 
   // 正在录音或识别时不能再发起；其他任务占用推理时提示稍后。
   const blocked = busy || recorder.recording;

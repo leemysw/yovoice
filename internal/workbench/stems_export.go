@@ -43,24 +43,19 @@ func (w *Workbench) ExportStems(id, dir string) (string, error) {
 	}
 	type file struct{ id, name string }
 	title := stemFileTitle(parent.Title)
-	files := []file{{parent.ID, title + " - 00 Mix.wav"}}
-	for n, item := range stemExportOrder {
+	files := []file{{parent.ID, stemFileName(title, "")}}
+	for _, item := range stemExportOrder {
 		k := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.StemOf == parent.ID && g.Stem == item.stem })
 		if k >= 0 {
-			files = append(files, file{s.History[k].ID, title + " - " + twoDigits(n+1) + " " + item.label + ".wav"})
+			files = append(files, file{s.History[k].ID, stemFileName(title, item.stem)})
 		}
 	}
 	if len(files) == 1 {
 		return "", msg.Err(msg.ErrStemsMissing, nil)
 	}
-	folder := filepath.Join(dir, title+" Stems")
-	for n := 2; ; n++ {
-		if e := os.Mkdir(folder, 0755); e == nil {
-			break
-		} else if !os.IsExist(e) || n > 99 {
-			return "", e
-		}
-		folder = filepath.Join(dir, title+" Stems ("+strconv.Itoa(n)+")")
+	folder, e := stemFolder(dir, title)
+	if e != nil {
+		return "", e
 	}
 	for _, f := range files {
 		source, e := w.MediaFile("outputs", f.id)
@@ -74,6 +69,32 @@ func (w *Workbench) ExportStems(id, dir string) (string, error) {
 	}
 	diag.Log(w.Store.Root, "stems.exported", "generation_id", parent.ID, "files", len(files))
 	return folder, nil
+}
+
+// stemFolder 在 dir 下新建“<歌名> Stems”文件夹，重名时依次加 (2)、(3)……
+func stemFolder(dir, title string) (string, error) {
+	folder := filepath.Join(dir, title+" Stems")
+	for n := 2; ; n++ {
+		if e := os.Mkdir(folder, 0755); e == nil {
+			return folder, nil
+		} else if !os.IsExist(e) || n > 99 {
+			return "", e
+		}
+		folder = filepath.Join(dir, title+" Stems ("+strconv.Itoa(n)+")")
+	}
+}
+
+// stemFileName 是导出的一轨的文件名：00 为原混音，其余按 stemExportOrder 编号；不在列表里的轨道返回空。
+func stemFileName(title, stem string) string {
+	if stem == "" {
+		return title + " - 00 Mix.wav"
+	}
+	for n, item := range stemExportOrder {
+		if item.stem == stem {
+			return title + " - " + twoDigits(n+1) + " " + item.label + ".wav"
+		}
+	}
+	return ""
 }
 
 func twoDigits(n int) string {

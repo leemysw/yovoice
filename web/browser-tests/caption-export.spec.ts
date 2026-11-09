@@ -2,11 +2,11 @@ import { test, expect, type Page } from '@playwright/test';
 import { seedState } from './seed';
 import { emptyState, type AudioTimeline, type Draft, type Generation } from '../src/shared/workbench';
 import { Timeline } from '../src/features/media/timeline';
-import { captionsToSrt, captionsToVtt, srtTime, timelineCaptions, vttTime } from '../src/features/media/caption-export';
+import { srtTime, timelineCaptions } from '../src/features/media/caption-export';
 import { lrcTime, lyricTimeline, lyricsToLrc } from '../src/features/music/lyric-timing';
 import { createMusicDraft } from '../src/features/music/music-draft';
 
-// 故事配音导出 SRT/VTT 字幕、音乐播放页导出 LRC 歌词：时间格式、裁剪后的实际区间与说话人过滤。
+// 故事配音导出字幕的时间区间与说话人过滤、音乐播放页导出 LRC 歌词；SRT/WebVTT 排版在 Go 的 schema 测试里。
 
 const speakers = [{ id: 'a', sourceName: '旁白' }, { id: 'b', sourceName: '小明' }];
 function segment(id: string, text: string, speakerId: string, draft: Draft): Generation {
@@ -17,7 +17,6 @@ test('字幕与歌词时间格式：毫秒和百分之一秒取整进位', () =>
   expect(srtTime(0)).toBe('00:00:00,000');
   expect(srtTime(3661.2345)).toBe('01:01:01,235');
   expect(srtTime(59.9996)).toBe('00:01:00,000');
-  expect(vttTime(1.5)).toBe('00:00:01.500');
   expect(srtTime(-1)).toBe('00:00:00,000');
   expect(lrcTime(0)).toBe('[00:00.00]');
   expect(lrcTime(65.437)).toBe('[01:05.44]');
@@ -37,15 +36,11 @@ test('字幕按片段实际播放区间计时：裁剪、所选范围、静音�
   const trimmed = Timeline.trimEdge(value, 'c1', 'start', 0.5, 3);
   const all = timelineCaptions(trimmed, history, speakers);
   expect(all).toEqual([{ start: 0.5, end: 3, text: '第一句', speaker: '旁白' }, { start: 4, end: 7, text: '第二句\n\n换行', speaker: '小明' }]);
-  expect(captionsToSrt(all)).toBe('1\n00:00:00,500 --> 00:00:03,000\n第一句\n\n2\n00:00:04,000 --> 00:00:07,000\n第二句\n换行\n');
-  expect(captionsToSrt(all, true)).toContain('\n旁白: 第一句\n');
-  expect(captionsToVtt(all, true)).toBe('WEBVTT\n\n00:00:00.500 --> 00:00:03.000\n<v 旁白>第一句\n\n00:00:04.000 --> 00:00:07.000\n<v 小明>第二句\n换行\n');
   // 所选范围与 WAV 一致：截到范围内，时间从范围起点算。
   expect(timelineCaptions(trimmed, history, speakers, { start: 2, end: 5 }).map(c => [c.start, c.end, c.text])).toEqual([[0, 1, '第一句'], [2, 3, '第二句\n\n换行']]);
   // 某位说话人只留他的片段；单条音轨导出时忽略静音，并转义 VTT 标记字符。
   expect(timelineCaptions(Timeline.scoped(trimmed, 'role:b', history), history, speakers).map(c => c.text)).toEqual(['第二句\n\n换行']);
-  const muted = timelineCaptions(Timeline.scoped(trimmed, 'track:t2', history), history, speakers);
-  expect(captionsToVtt(muted)).toBe('WEBVTT\n\n00:00:01.000 --> 00:00:04.000\n&lt;静音&gt;\n');
+  expect(timelineCaptions(Timeline.scoped(trimmed, 'track:t2', history), history, speakers).map(c => c.text)).toEqual(['<静音>']);
   expect(timelineCaptions(Timeline.scoped(trimmed, 'track:t3', history), history, speakers)).toEqual([]);
 });
 

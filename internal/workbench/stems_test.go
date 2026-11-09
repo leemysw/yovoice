@@ -41,6 +41,25 @@ func TestStemAndMidiValidation(t *testing.T) {
 	if err = w.SeparateStems("../x", false); err == nil {
 		t.Fatal("无效 ID 应被拒绝")
 	}
+	// 命令行直接处理文件：输入不存在、没装模型、输出已存在都在开始前拒绝，不留下空文件夹。
+	dir := t.TempDir()
+	input := filepath.Join(dir, "歌.mp3")
+	if _, err = w.SeparateFile(input, dir); !isCode(err, msg.ErrAudioMissing) {
+		t.Fatalf("输入不存在时应拒绝：%v", err)
+	}
+	must(t, os.WriteFile(input, []byte("mp3"), 0600))
+	if _, err = w.SeparateFile(input, dir); !isCode(err, msg.ErrStemModelRequired) {
+		t.Fatalf("没装分轨模型时应提示下载：%v", err)
+	}
+	if err = w.TranscribeMIDIFile(input, filepath.Join(dir, "song.mid")); !isCode(err, msg.ErrMidiModelRequired) {
+		t.Fatalf("没装扒谱模型时应提示下载：%v", err)
+	}
+	if err = w.TranscribeMIDIFile(input, input); err == nil {
+		t.Fatal("不应覆盖已有文件")
+	}
+	if entries, _ := os.ReadDir(dir); len(entries) != 1 {
+		t.Fatalf("拒绝时不应留下文件夹：%v", entries)
+	}
 }
 
 // 删除分轨：原版本和别的版本保留，分轨记录和文件一并删掉；分轨在时间线上时整体拒绝，重新分离也一样。

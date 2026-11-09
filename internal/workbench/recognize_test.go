@@ -144,9 +144,10 @@ func TestTranscribeSpeech(t *testing.T) {
 	if saved, e := os.ReadFile(filepath.Join(wb.Store.Root, "outputs", r.AudioFile)); e != nil || !bytes.Equal(saved, b) {
 		t.Fatalf("原音频没有保存：%v", e)
 	}
+	// 还没编辑过的转写读取时按断句规则分好行，每段一句。
 	c, e := wb.ReadTranscript(r.ID)
 	must(t, e)
-	if c.Text != testkit.RecognizedText+testkit.RecognizedText+testkit.RecognizedText || len(c.Words) != 36 || c.Captions != nil {
+	if c.Text != testkit.RecognizedText+testkit.RecognizedText+testkit.RecognizedText || len(c.Words) != 36 || len(c.Captions) != 3 || c.Captions[1].Text != "今天天气真好，我们去散步吧" {
 		t.Fatalf("%+v", c)
 	}
 	// 第二段从 25.02 秒开始，第 13 个字的时间要加上这一段的起点。

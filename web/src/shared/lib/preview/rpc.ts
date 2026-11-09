@@ -198,6 +198,20 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     state.history = state.history.map(v => v.id === item.id ? { ...v, textWords } : v);
     publish(); return true as T;
   }
+  // 字幕分行与 SRT / WebVTT 由本地服务完成（Go 的 schema.WordCaptions 与 FormatCaptions）；预览只按标点粗略断句、简单排版，供界面演示与测试。
+  if (method === 'generation.captions') {
+    const item = state.history.find(v => v.id === (data as { id: string }).id);
+    if (!item) throw new CallError('@yovoice.error.audioMissing');
+    return previewCaptions(item.settings.text.replace(/\[[^[\]\n]{1,40}\]/g, ''), item.textWords ?? []) as T;
+  }
+  if (method === 'captions.format') {
+    const { captions, format, speaker } = data as { captions: { start: number; end: number; text: string; speaker?: string }[]; format: string; speaker?: boolean };
+    const clock = (seconds: number, separator: string) => { const ms = Math.max(0, Math.round(seconds * 1000)); return [ms / 3600000, ms / 60000 % 60, ms / 1000 % 60].map(v => String(Math.floor(v)).padStart(2, '0')).join(':') + separator + String(ms % 1000).padStart(3, '0'); };
+    const text = (c: { text: string }) => c.text.replace(/\r\n?/g, '\n').replace(/\n\s*\n+/g, '\n');
+    if (format === 'srt') return captions.map((c, i) => `${i + 1}\n${clock(c.start, ',')} --> ${clock(c.end, ',')}\n${speaker && c.speaker ? `${c.speaker}: ` : ''}${text(c)}\n`).join('\n') as T;
+    if (format === 'vtt') return ['WEBVTT\n', ...captions.map(c => `${clock(c.start, '.')} --> ${clock(c.end, '.')}\n${speaker && c.speaker ? `<v ${c.speaker}>` : ''}${text(c)}\n`)].join('\n') as T;
+    throw new CallError('@yovoice.error.requestInvalid');
+  }
   // 转写记录与桌面端一样长期保存：记录在状态里，字幕文件存进 IndexedDB；预览不上传音频，没有原音频可试听。
   if (method === 'speech.transcribe') {
     if (!state.models.some(m => m.id.startsWith('qwen3-asr-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
@@ -223,7 +237,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       if (!blob) throw new CallError('@yovoice.error.transcriptMissing');
       return JSON.parse(await blob.text()) as TranscriptContent;
     };
-    if (method === 'transcript.read') return await read() as T;
+    if (method === 'transcript.read') { const content = await read(); return { ...content, captions: content.captions ?? previewCaptions(content.text, content.words) } as T; }
     if (method === 'transcript.save') {
       const list = captions ?? [];
       if (list.some((c, i) => c.start < 0 || c.end < c.start || c.end > record.duration + 1 || (i > 0 && c.start < list[i - 1].start))) throw new CallError('@yovoice.error.requestInvalid');
@@ -449,4 +463,21 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     return true as T;
   }
   throw new CallError('@yovoice.error.previewDesktopOnly');
+}
+
+// 预览的粗略断句：逐字时间按原文顺序取字，在句末标点处换行，分句标点前已有 8 个字以上时也换行；行尾保留问号和感叹号。
+function previewCaptions(text: string, words: { word: string; start: number; end: number }[]): TranscriptCaption[] {
+  const lines: TranscriptCaption[] = [];
+  let line = '', first = 0, w = 0;
+  const flush = (last: number) => { if (line.trim() && words[first]) lines.push({ start: words[first].start, end: Math.max(words[last].end, words[first].start + .2), text: line.trim() }); line = ''; first = last + 1; };
+  for (const char of text) {
+    if (w < words.length && words[w].word.startsWith(char)) { line += char; w++; continue; }
+    if (/[。.；;\n]/.test(char)) flush(w - 1);
+    else if (/[！？!?]/.test(char)) { line += char; flush(w - 1); }
+    else if (/[，,、：:]/.test(char) && line.length >= 8) flush(w - 1);
+    else if (line) line += char;
+  }
+  flush(words.length - 1);
+  for (let i = 0; i + 1 < lines.length; i++) lines[i].end = Math.min(lines[i].end, lines[i + 1].start);
+  return lines;
 }

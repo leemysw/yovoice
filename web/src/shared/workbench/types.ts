@@ -145,7 +145,7 @@ export interface TranscriptResult { id: string; voiceId: string; text: string; l
 export interface Transcript { id: string; name?: string; language?: string; duration: number; fileName: string; audioFile?: string; excerpt?: string; createdAt: string; updatedAt?: string }
 // 一行字幕，与 Go 的 schema.TranscriptCaption 一致。
 export interface TranscriptCaption { start: number; end: number; text: string }
-// 字幕文件的内容，与 Go 的 schema.TranscriptContent 一致：captions 为 null 表示还没编辑，按逐词时间分行。
+// 字幕文件的内容，与 Go 的 schema.TranscriptContent 一致；还没编辑过时本地服务读取时按逐词时间分好行。
 export interface TranscriptContent { text: string; words: AlignedWord[]; captions: TranscriptCaption[] | null }
 /** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
 export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }

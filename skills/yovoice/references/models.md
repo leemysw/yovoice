@@ -25,7 +25,7 @@
 
 官方 Qwen3-TTS 还有 0.6B CustomVoice；当前固定模型仓库未发布对应独立 GGUF，暂不列为可下载模型。Safetensors 多文件包未接入当前单文件 GGUF 管理流程。
 
-`yovoice models list --json` 里的 ACE-Step、YuE2、Stable Audio 3 是音乐模型，`generate` 用法见[音乐参考](music.md)；Stable Audio Small SFX 生成音效。SheetSage2 是翻唱用的扒谱模型，`lyric-align-q8` 是播放页逐字对齐歌词的可选模型，只在桌面端使用；`*-sf2` 是编曲音色库，见[编曲参考](score.md)。
+`yovoice models list --json` 里的 ACE-Step、YuE2、Stable Audio 3 是音乐模型，`generate` 用法见[音乐参考](music.md)；Stable Audio Small SFX 生成音效。`qwen3-asr-0.6b-q8`、`htdemucs-6stems-*`、`bs-roformer-q8`、`muscriptor-small-f32` 分别用于转写、分轨和转 MIDI，见[音频工具参考](tools.md)；SheetSage2 是翻唱用的扒谱模型，`lyric-align-q8` 是播放页逐字对齐歌词的可选模型，只在桌面端使用；`*-sf2` 是编曲音色库，见[编曲参考](score.md)。
 
 ## 下载与精度
 
