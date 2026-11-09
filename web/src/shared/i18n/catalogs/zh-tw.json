@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "開啟分軌"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "重新分離"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "刪除分軌"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "刪除這次分離的音軌？"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "原曲保留，之後可以重新分離。"
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "分軌 · {title}"
   },

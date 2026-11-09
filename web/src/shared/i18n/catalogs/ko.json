@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "스템 열기"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "다시 분리"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "분리 트랙 삭제"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "분리된 트랙을 삭제할까요?"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "원곡은 그대로 남으며 나중에 다시 분리할 수 있습니다."
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "스템 · {title}"
   },

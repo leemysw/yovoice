@@ -26,7 +26,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
   track: Track | null; audition: (track: Track) => void; stop: () => void; suspended: boolean;
   addVoice: () => void; editVoice: (item: Voice | Generation) => void; saveCharacter: (item: Generation) => void; reuse: (item: Generation) => void;
   exportItem: (item: Generation) => void; play: (item: Generation) => void; exportCaptions: (item: Generation) => void;
-  separate: (item: Generation) => void; transcribe: (item: Generation) => void; openStems: (item: Generation) => void; resing: (item: Generation) => (() => void) | undefined;
+  separate: (item: Generation, replace?: boolean) => void; transcribe: (item: Generation) => void; openStems: (item: Generation) => void; resing: (item: Generation) => (() => void) | undefined;
   onError: (message: string) => void;
 }) {
   const t = useTranslator();
@@ -127,6 +127,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
               ...(kind === 'music' && resing(item) ? [{ label: t('@yovoice.resing.action'), onClick: resing(item)! }] : []),
               ...(kind === 'music' && !item.stemOf && !separated.has(item.id) ? [{ label: t('@yovoice.stems.separate'), onClick: () => separate(item) }] : []),
               ...(kind === 'music' && (item.stemOf || separated.has(item.id)) ? [{ label: t('@yovoice.stems.open'), onClick: () => openStems(item) }] : []),
+              ...(kind === 'music' && !item.stemOf && separated.has(item.id) ? [{ label: t('@yovoice.stems.resplit'), onClick: () => separate(item, true) }] : []),
               ...(kind === 'music' ? [{ label: t('@yovoice.stems.toMidi'), onClick: () => transcribe(item) }] : []),
               { label: t(kind === 'music' ? '@yovoice.music.reuseTake' : '@yovoice.app.reuseSettings'), onClick: () => reuse(item) },
             ]} />

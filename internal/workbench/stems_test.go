@@ -23,21 +23,78 @@ func TestStemAndMidiValidation(t *testing.T) {
 			schema.Generation{ID: fresh, Title: "Fresh", FileName: "fresh.wav", Duration: 30},
 			schema.Generation{ID: stem, Title: "Song", FileName: "song-vocals.wav", Duration: 30, StemOf: song, Stem: "vocals"})
 	}, true))
-	if err = w.SeparateStems(stem); !isCode(err, msg.ErrStemSource) {
+	if err = w.SeparateStems(stem, false); !isCode(err, msg.ErrStemSource) {
 		t.Fatalf("分轨结果不应再分：%v", err)
 	}
-	if err = w.SeparateStems(song); err != nil {
+	if err = w.SeparateStems(song, false); err != nil {
 		t.Fatalf("已分过轨的版本应直接返回：%v", err)
 	}
-	if err = w.SeparateStems(fresh); !isCode(err, msg.ErrStemModelRequired) {
+	if err = w.SeparateStems(song, true); !isCode(err, msg.ErrStemModelRequired) {
+		t.Fatalf("重新分离应真正执行，没装模型时提示下载：%v", err)
+	}
+	if err = w.SeparateStems(fresh, false); !isCode(err, msg.ErrStemModelRequired) {
 		t.Fatalf("没装分轨模型时应提示下载：%v", err)
 	}
 	if err = w.TranscribeMIDI(fresh); !isCode(err, msg.ErrMidiModelRequired) {
 		t.Fatalf("没装扒谱模型时应提示下载：%v", err)
 	}
-	if err = w.SeparateStems("../x"); err == nil {
+	if err = w.SeparateStems("../x", false); err == nil {
 		t.Fatal("无效 ID 应被拒绝")
 	}
+}
+
+// 删除分轨：原版本和别的版本保留，分轨记录和文件一并删掉；分轨在时间线上时整体拒绝，重新分离也一样。
+func TestDeleteStems(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	song, vocals, drums, other := schema.NewID(), schema.NewID(), schema.NewID(), schema.NewID()
+	paths := map[string]string{}
+	for _, name := range []string{"mix.wav", "vocals.wav", "drums.wav", "other.wav"} {
+		path, e := w.Store.MediaPath("outputs", name)
+		must(t, e)
+		must(t, os.WriteFile(path, []byte(name), 0600))
+		paths[name] = path
+	}
+	draft := schema.DefaultDraft()
+	draft.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: schema.NewID(), Clips: []schema.AudioClip{{ID: schema.NewID(), GenerationID: drums}}}}, AcceptedGenerations: []string{vocals}}
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Drafts = append(s.Drafts, draft)
+		s.History = append(s.History,
+			schema.Generation{ID: song, Title: "Song", FileName: "mix.wav", Duration: 30},
+			schema.Generation{ID: vocals, Title: "Song", FileName: "vocals.wav", StemOf: song, Stem: "vocals"},
+			schema.Generation{ID: drums, Title: "Song", FileName: "drums.wav", StemOf: song, Stem: "drums"},
+			schema.Generation{ID: other, Title: "Other", FileName: "other.wav"})
+	}, true))
+	if err = w.DeleteStems(song); !isCode(err, msg.ErrTimelineInUse) {
+		t.Fatalf("分轨在时间线上时应拒绝删除：%v", err)
+	}
+	if err = w.SeparateStems(song, true); !isCode(err, msg.ErrTimelineInUse) {
+		t.Fatalf("分轨在时间线上时应拒绝重新分离：%v", err)
+	}
+	if _, e := os.Stat(paths["vocals.wav"]); e != nil || len(w.Store.Read().History) != 4 {
+		t.Fatal("拒绝时不应动任何分轨")
+	}
+	must(t, w.Store.Update(func(s *schema.State) { s.Drafts[len(s.Drafts)-1].Timeline.Tracks[0].Clips = nil }, true))
+	must(t, w.DeleteStems(song))
+	s := w.Store.Read()
+	var ids []string
+	for _, g := range s.History {
+		ids = append(ids, g.ID)
+	}
+	if !slices.Equal(ids, []string{song, other}) {
+		t.Fatalf("应只删分轨：%v", ids)
+	}
+	for name, path := range paths {
+		_, e := os.Stat(path)
+		if gone := os.IsNotExist(e); gone != (name == "vocals.wav" || name == "drums.wav") {
+			t.Fatalf("%s 文件状态不对：%v", name, e)
+		}
+	}
+	if accepted := s.Drafts[len(s.Drafts)-1].Timeline.AcceptedGenerations; len(accepted) != 0 {
+		t.Fatalf("已采纳标记应一并清掉：%v", accepted)
+	}
+	must(t, w.DeleteStems(song))
 }
 
 // 导出分轨：原混音和各轨按 DAW 顺序命名，放进新建的文件夹；同名文件夹已存在时另起一个。

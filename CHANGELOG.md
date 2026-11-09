@@ -38,6 +38,8 @@
 - Settings read more cleanly: shorter descriptions, no repeated precision note on every model, and import instructions moved into the import button tooltip. The right-panel toggle in the title bar hides while the stem studio is open.
 - Roll a model back: models replaced by a catalog update get a version picker in Settings. “Before 2026-10-27 update” re-downloads the earlier file from its pinned commit and stops the update prompt; “Latest” switches back.
 - Sidebar: Transcribe now sits right under Text to speech; the Chinese label for the voice library is now 我的声音.
+- Stems can now be deleted or separated again: “Separate again” in a version's menu or the stem studio replaces the old stems only after the new ones are ready, and “Delete stems” removes them while keeping the original. Both are refused while a stem is on the timeline.
+- Fixed stem separation failing with “unexpected EOF” on songs longer than about 3 minutes: the separated stems are now written to disk one at a time instead of being read back as a single size-capped response.
 - “Transcribe to MIDI” gives each track a role from its instrument: the vocal melody and synth leads play as the lead, 3 dB above the accompaniment, instead of sitting at the same level and getting lost under guitar and bass; bass, piano, strings and pads get their matching roles too.
 - Stem studio: after “Separate stems” or “Transcribe to MIDI” finishes, a full-screen multitrack page opens with the original and every stem (or every MIDI instrument, rendered with your sound font) side by side — one transport and playhead, a waveform per track, volume, mute and solo, click to seek, Space to play. Reopen it from “Open stems” in the version menu or “Preview tracks” on a score project; “Export all stems” moved inside it.
 - Lighter when idle: Ocho's avatar and the launcher glow only animate while the assistant works, on hover or for an occasional glance, and stop when the window is in the background, so the idle app no longer keeps a CPU core busy; the assistant panel and the Transcribe page load on demand.
@@ -83,6 +85,8 @@
 - 设置页更简洁：说明文字精简，每个模型下不再重复精度说明，导入说明收进导入按钮的提示；分轨工作台打开时隐藏标题栏的右侧面板开关。
 - 模型可以回退：经目录更新替换过的模型在设置里多一个版本选择，选“2026/10/27 更新前”按当时的提交重新下载旧文件，并不再提示更新；选回“最新版”即恢复。
 - 侧栏：语音转写移到语音生成下方；“声音库”改名为“我的声音”。
+- 分轨可以删除和重新分离：版本菜单或分轨工作台里的“重新分离”在新分轨就绪后才替换旧分轨，“删除分轨”删掉分轨、保留原曲；有分轨在时间线上时两者都会被拒绝。
+- 修复超过约 3 分钟的歌分离音轨时报“unexpected EOF”失败：分轨结果改为逐轨写盘，不再整体读入、超出回包上限后被截断。
 - “转为 MIDI”按乐器给各轨定角色：人声旋律和合成主音作为主旋律，比伴奏高 3 dB，不再和伴奏同一电平、被吉他和贝斯盖住；贝斯、钢琴、弦乐和铺底也各归其位。
 - 分轨工作台：“分离音轨”或“转为 MIDI”完成后打开全屏多轨页，原曲与各分轨（或用音色库逐轨渲染的 MIDI 各乐器）并排，统一播放和播放头，每轨有波形、音量、静音、独奏，点击定位、空格播放；之后可从版本菜单“打开分轨”或编曲页“分轨试听”进入，“导出全部分轨”移到工作台里。
 - 空闲更省资源：Ocho 形象和入口流光只在助手工作、悬停或偶尔张望时动，窗口在后台时停下，空闲时不再持续占用 CPU；助手浮窗和语音转写页按需加载。

@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "Ouvrir les pistes"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "Séparer à nouveau"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "Supprimer les pistes"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "Supprimer ces pistes ?"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "L'original est conservé ; vous pourrez le séparer à nouveau plus tard."
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "Pistes · {title}"
   },

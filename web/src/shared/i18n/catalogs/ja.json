@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "ステムを開く"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "もう一度分離"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "分離トラックを削除"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "これらの分離トラックを削除しますか？"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "元の曲は残り、あとでもう一度分離できます。"
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "ステム · {title}"
   },

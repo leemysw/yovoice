@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "Открыть дорожки"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "Разделить заново"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "Удалить дорожки"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "Удалить эти дорожки?"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "Оригинал сохранится, его можно будет разделить заново."
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "Дорожки · {title}"
   },

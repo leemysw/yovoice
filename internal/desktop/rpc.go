@@ -337,7 +337,16 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "melody.dismiss":
 		return true, w.DismissMelody(p.ID)
 	case "generation.separateStems":
-		return true, w.SeparateStems(p.ID)
+		var input struct {
+			ID      string `json:"id"`
+			Replace bool   `json:"replace"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.SeparateStems(input.ID, input.Replace)
+	case "generation.deleteStems":
+		return true, w.DeleteStems(p.ID)
 	case "generation.resing":
 		var input struct {
 			ID    string       `json:"id"`

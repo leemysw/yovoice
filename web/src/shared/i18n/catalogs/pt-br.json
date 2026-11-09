@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "Abrir faixas"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "Separar novamente"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "Excluir faixas"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "Excluir estas faixas?"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "O original é mantido e pode ser separado novamente depois."
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "Faixas · {title}"
   },

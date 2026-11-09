@@ -4358,6 +4358,18 @@
   "@yovoice.stems.open": {
     "defaultMessage": "Mở các bè"
   },
+  "@yovoice.stems.resplit": {
+    "defaultMessage": "Tách lại"
+  },
+  "@yovoice.stems.delete": {
+    "defaultMessage": "Xóa các track tách"
+  },
+  "@yovoice.stems.deleteTitle": {
+    "defaultMessage": "Xóa các track đã tách?"
+  },
+  "@yovoice.stems.deleteDescription": {
+    "defaultMessage": "Bản gốc vẫn được giữ, bạn có thể tách lại sau."
+  },
   "@yovoice.stems.studioTitle": {
     "defaultMessage": "Các bè · {title}"
   },
