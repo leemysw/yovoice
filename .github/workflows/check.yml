@@ -285,7 +285,7 @@ jobs:
           if-no-files-found: error
 
 
-  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在第 1 片跑一次。
+  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在用例最轻的第 3 片跑一次。
   web:
     if: ${{ !inputs.release }}
     strategy:
@@ -309,7 +309,7 @@ jobs:
       # 用例只用无头模式；运行器镜像已带 Chromium 所需系统库，不再 apt 安装依赖。
       - run: pnpm --dir web exec playwright install --only-shell chromium
       - run: pnpm --dir web run lint
-        if: matrix.shard == 1
+        if: matrix.shard == 3
       - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/3
         env:
           # 定时与手动触发时全量运行，包括已封存的用例。
