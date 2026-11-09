@@ -1,6 +1,9 @@
 import { openProjectHistory } from './project-actions';
 import { seedState } from './seed';
-import { emptyState } from '../src/shared/workbench';
+import { emptyState, type ModelPackage } from '../src/shared/workbench';
+import catalogFile from '../../internal/catalog/catalog.json' with { type: 'json' };
+
+const catalog = catalogFile as { models: ModelPackage[] };
 import { test, expect } from '@playwright/test';
 
 
@@ -477,6 +480,33 @@ test('已下载模型有新版本时显示轻提示，可关闭并重新下载�
   await expect(model.getByText('有新版本', { exact: true })).toHaveCount(0);
   await expect(page.getByTestId('model-update-notice')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').models?.[0]?.sha256)).not.toBe('0'.repeat(64));
+});
+
+test('目录更新过的模型可以换回更新前的版本，换回旧版后不再提示更新', async ({ page }) => {
+  const kokoro = catalog.models.find(model => model.id === 'kokoro-82m-q8')!;
+  const previous = kokoro.history![0].sha256!;
+  const state = emptyState();
+  state.models = [{ id: 'kokoro-82m-q8', path: 'kokoro-82m-q8_0.gguf', managed: true, sha256: kokoro.sha256 }];
+  await seedState(page, state);
+  await page.goto('/');
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  const model = page.locator('[data-model-id="kokoro-82m-q8"]');
+  const version = model.getByRole('combobox', { name: '模型版本', exact: true });
+  await expect(version).toContainText('最新版');
+  // 换到旧版：按旧摘要下载，记为用户固定的版本，不再出现更新提示。
+  await version.click();
+  await page.getByRole('option', { name: /更新前$/ }).click();
+  await expect(version).toContainText('更新前');
+  const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').models?.[0]);
+  await expect.poll(saved).toMatchObject({ sha256: previous, pinned: true });
+  await expect(model.getByText('有新版本', { exact: true })).toHaveCount(0);
+  await expect(page.getByTestId('model-update-notice')).toHaveCount(0);
+  // 换回最新版后恢复正常。
+  await version.click();
+  await page.getByRole('option', { name: '最新版', exact: true }).click();
+  await expect.poll(saved).toMatchObject({ sha256: kokoro.sha256 });
+  expect((await saved()).pinned).toBeFalsy();
 });
 
 // 冒烟用例：预览模式不走桌面端的 sidebar.save 解析，这里只验证启动不白屏且记录被修正；解析本身由 try/catch 兜底。

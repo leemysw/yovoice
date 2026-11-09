@@ -66,6 +66,6 @@ func (w *Workbench) ImportModel(id, path string) error {
 			return err
 		}
 		w.engine.Stop()
-		return w.register(id, root, false, digest)
+		return w.register(id, root, false, digest, false)
 	})
 }

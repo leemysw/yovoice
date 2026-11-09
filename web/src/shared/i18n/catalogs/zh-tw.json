@@ -2190,13 +2190,10 @@
     "defaultMessage": "依風格描述和歌詞生成歌曲或純音樂。"
   },
   "@yovoice.settings.modelDesc.soundfont": {
-    "defaultMessage": "通用 General MIDI 音色庫，含 128 種樂器和鼓組，音色均衡，適合大多數配樂。"
+    "defaultMessage": "128 種樂器和鼓組，音色均衡"
   },
   "@yovoice.settings.tabAI": {
     "defaultMessage": "AI 服務"
-  },
-  "@yovoice.ai.intro": {
-    "defaultMessage": "接入大型語言模型後，內建 AI 助理可在編曲中寫譜、在音樂生成中寫詞，並可在結果上繼續修改。"
   },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "自訂服務"
@@ -2291,12 +2288,6 @@
   "@yovoice.settings.available": {
     "defaultMessage": "可下載"
   },
-  "@yovoice.settings.soundfontIntro": {
-    "defaultMessage": "編曲渲染配樂時使用的 General MIDI 音色庫，與語音、音樂模型分開管理。"
-  },
-  "@yovoice.settings.uiLocaleHint": {
-    "defaultMessage": "切換後立即生效。"
-  },
   "@yovoice.settings.proxyHint": {
     "defaultMessage": "下載模型、核心和存取 AI 服務時使用。"
   },
@@ -2373,7 +2364,7 @@
     "defaultMessage": "診斷"
   },
   "@yovoice.settings.diagnosticsHint": {
-    "defaultMessage": "服務、推論引擎和 AI 請求的記錄檔都在這裡，回報問題時可以附上。"
+    "defaultMessage": "回報問題時可附上記錄。"
   },
   "@yovoice.settings.searchModels": {
     "defaultMessage": "搜尋名稱、精度或用途"
@@ -2403,7 +2394,7 @@
     "defaultMessage": "YuE2 生成帶人聲的歌曲需要歌詞；不寫歌詞可以切到純音樂。"
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "根據歌詞和風格生成整首歌曲或純音樂，可先寫出可編輯的旋律譜，長度由歌詞或譜決定。模型授權為 CC BY-NC 4.0，僅限非商業用途。"
+    "defaultMessage": "根據歌詞和風格生成整首歌，可先寫出可編輯的旋律譜 · 僅限非商業用途"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "重複使用這一版的風格和歌詞"
@@ -2412,10 +2403,10 @@
     "defaultMessage": "匯入"
   },
   "@yovoice.settings.modelDesc.soundfontGeneralUser": {
-    "defaultMessage": "體積小、音色乾淨的 GM/GS 音色庫，鋼琴與鼓組細緻，各樂器音量更均衡。可免費用於個人和商業創作。"
+    "defaultMessage": "小巧乾淨，鋼琴與鼓組細緻 · 可商用"
   },
   "@yovoice.settings.modelDesc.soundfontSgm": {
-    "defaultMessage": "更擬真的 GM 音色庫，鋼琴、弦樂、吉他與銅管取樣更豐富，體積較大、渲染稍慢。作者未明示授權，商用前請自行確認。"
+    "defaultMessage": "取樣更真實，體積大、算繪稍慢 · 授權未明示"
   },
   "@yovoice.update.group": {
     "defaultMessage": "版本與更新"
@@ -2562,7 +2553,7 @@
     "defaultMessage": "本機 API"
   },
   "@yovoice.settings.localApiIntro": {
-    "defaultMessage": "讓本機其他軟體透過 HTTP 或 MCP 呼叫 yovoice 生成語音。只在 127.0.0.1 上監聽，區域網路中的其他裝置無法存取。"
+    "defaultMessage": "讓本機其他軟體透過 HTTP 或 MCP 呼叫 yovoice，僅本機可存取。"
   },
   "@yovoice.settings.localApiEnabled": {
     "defaultMessage": "啟用本機 API"
@@ -2589,7 +2580,7 @@
     "defaultMessage": "存取權杖"
   },
   "@yovoice.settings.localApiTokenHint": {
-    "defaultMessage": "請求標頭帶上 Authorization: Bearer 和此權杖。重設後舊權杖立即失效。"
+    "defaultMessage": "以 Authorization: Bearer 傳送，重設後舊權杖失效。"
   },
   "@yovoice.settings.localApiCopy": {
     "defaultMessage": "複製"
@@ -2604,7 +2595,7 @@
     "defaultMessage": "呼叫範例"
   },
   "@yovoice.settings.localApiExampleHint": {
-    "defaultMessage": "HTTP 介面位於 {url}/v1，MCP 位址為 {url}/mcp。將 YOUR_TOKEN 換成上方複製的權杖。"
+    "defaultMessage": "HTTP {url}/v1 · MCP {url}/mcp"
   },
   "@yovoice.error.localApiPort": {
     "defaultMessage": "連接埠需在 1024–65535 之間。"
@@ -2643,7 +2634,7 @@
     "defaultMessage": "資料儲存目錄"
   },
   "@yovoice.settings.storageRelocateHint": {
-    "defaultMessage": "變更位置會將資料完整複製到新目錄，完成後 yovoice 會提示並自動重新啟動生效，舊目錄隨後自動刪除以釋放空間。"
+    "defaultMessage": "變更位置會把資料複製到新目錄並自動重新啟動。"
   },
   "@yovoice.settings.storageRelocatePending": {
     "defaultMessage": "資料已複製到新目錄。請完全結束 yovoice 並重新開啟應用程式以生效；重新啟動前無法儲存新的修改，舊目錄會在重新啟動後自動刪除。"
@@ -3153,10 +3144,10 @@
     "defaultMessage": "把歌曲的旋律與和弦扒成譜，搭配 YuE2 做翻唱。"
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
-    "defaultMessage": "可選：先分離人聲，再把歌詞逐字對齊到演唱上，用於逐字歌詞動畫和匯出逐字 LRC。支援中文、英語、日語、韓語等 11 種語言。"
+    "defaultMessage": "把歌詞逐字對齊到演唱，用於逐字歌詞和 LRC 匯出 · 11 種語言"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "可選：把聲音樣本辨識成複製所需的參考文本，把上傳的音訊轉寫成文字和字幕，並給生成的語音對齊字幕時間。支援中文、英語、粵語、日語、韓語等 30 種語言。"
+    "defaultMessage": "語音辨識：轉寫音訊、產生字幕、辨識參考文字 · 30 種語言"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律譜生成"
@@ -3921,7 +3912,7 @@
     "defaultMessage": "關閉提示"
   },
   "@yovoice.settings.assistantIntro": {
-    "defaultMessage": "Ocho 是 yovoice 的內建助手。它能看到你正在編輯的作品和選取的內容；刪除、下載和修改設定都會先請你確認。"
+    "defaultMessage": "Ocho 能看到你正在編輯的作品，刪除、下載和修改設定前會先確認。"
   },
   "@yovoice.settings.assistantBehavior": {
     "defaultMessage": "行為"
@@ -3936,7 +3927,7 @@
     "defaultMessage": "記住的偏好"
   },
   "@yovoice.settings.assistantMemoryHint": {
-    "defaultMessage": "在對話裡告訴 Ocho 你的習慣，比如常用的聲音或風格，它會記下來並在之後的對話裡遵循。"
+    "defaultMessage": "在對話裡告訴 Ocho 你的習慣，它會記住。"
   },
   "@yovoice.settings.assistantMemoryClear": {
     "defaultMessage": "全部清除"
@@ -4013,9 +4004,6 @@
   "@yovoice.settings.precisionsInstalled": {
     "defaultMessage": "已下載：{list}"
   },
-  "@yovoice.settings.precisionHint": {
-    "defaultMessage": "Q4 / Q8 體積小、速度快；BF16、F16 和 ORIG 更接近原始效果。"
-  },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
   },
@@ -4023,19 +4011,19 @@
     "defaultMessage": "功能顯示"
   },
   "@yovoice.settings.featuresHint": {
-    "defaultMessage": "關閉後對應入口會從側欄和新增選單中隱藏，現有作品與已下載的模型不受影響。"
+    "defaultMessage": "關閉後隱藏入口，現有作品和模型保留。"
   },
   "@yovoice.settings.featureStoryHint": {
     "defaultMessage": "匯入文字或字幕，依角色逐句配音。"
   },
   "@yovoice.settings.featureMusicHint": {
-    "defaultMessage": "歌曲、純音樂與編曲生成，以及對應的模型和音色庫設定。"
+    "defaultMessage": "歌曲、純音樂與編曲。"
   },
   "@yovoice.settings.featureTranscribeHint": {
-    "defaultMessage": "上傳音訊或影片轉成帶時間的文字和字幕。參考原文的「辨識文字」和匯出字幕不受影響。"
+    "defaultMessage": "把音訊或影片轉成文字和字幕。"
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "浮窗助手、標題列入口和主動提示。與音樂生成都關閉時，AI 服務設定和有聲書的 AI 分配角色也一併隱藏。"
+    "defaultMessage": "浮窗助手與主動提示。"
   },
   "@yovoice.check.summary": {
     "defaultMessage": "音訊可能有問題：{issues}。請試聽確認，需要時重新生成。"
@@ -4092,13 +4080,13 @@
     "defaultMessage": "請選擇本作品已產生的一個版本作為改編或重繪的起點，或切回文字生成。"
   },
   "@yovoice.settings.modelDesc.stableAudio.music": {
-    "defaultMessage": "根據英文描述產生純音樂，可在已產生的版本上改編或局部重繪，最長 2 分鐘。模型授權為 Stability AI 社群授權：年收入低於 100 萬美元可免費使用。"
+    "defaultMessage": "根據英文描述生成純音樂，可改編或局部重繪 · 最長 2 分鐘 · Stability AI 社群授權"
   },
   "@yovoice.settings.modelDesc.stableAudio.sfx": {
-    "defaultMessage": "根據英文描述產生音效，可在已產生的版本上改編或局部重繪，最長 2 分鐘。模型授權為 Stability AI 社群授權：年收入低於 100 萬美元可免費使用。"
+    "defaultMessage": "根據英文描述生成音效，可改編或局部重繪 · 最長 2 分鐘 · Stability AI 社群授權"
   },
   "@yovoice.settings.modelDesc.stableAudio.medium": {
-    "defaultMessage": "更大的 Stable Audio 3 模型，純音樂品質更高、可產生更長的曲子（約 6 分鐘以內），也可改編或局部重繪已產生的版本。模型授權為 Stability AI 社群授權：年收入低於 100 萬美元可免費使用。"
+    "defaultMessage": "更高品質的純音樂，可改編或局部重繪 · 最長約 6 分鐘 · Stability AI 社群授權"
   },
   "@yovoice.music.editOff": {
     "defaultMessage": "文字生成"
@@ -4203,7 +4191,7 @@
     "defaultMessage": "段落間靜音（秒）"
   },
   "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "每段文字 Token 數"
+    "defaultMessage": "每段文字 Token 上限"
   },
   "@yovoice.voxtral.generalVoices": {
     "defaultMessage": "通用音色"
@@ -4320,7 +4308,7 @@
     "defaultMessage": "匯入本機模型"
   },
   "@yovoice.settings.localModelHint": {
-    "defaultMessage": "先選擇對應型號和精度，再匯入 audio.cpp GGUF 檔案（編曲音色庫為 SF2）。多檔案套件請選擇主 GGUF，並保留配套檔案的原目錄結構。檔案原地使用，移除時只解除登記。PyTorch／MLX 原始權重須先轉換。"
+    "defaultMessage": "匯入本機 GGUF 檔案（音色庫為 SF2），檔案原地使用"
   },
   "@yovoice.error.localModelInvalid": {
     "defaultMessage": "請選擇與所選模型家族相符的 audio.cpp GGUF，或支援的 SF2。PyTorch／MLX 原始權重須先轉換。"
@@ -4356,10 +4344,10 @@
     "defaultMessage": "把一首歌分成鼓、貝斯、人聲、吉他、鋼琴和其他六軌 · 44.1 kHz 立體聲"
   },
   "@yovoice.settings.modelDesc.vocalSplit": {
-    "defaultMessage": "高品質人聲分離（BS-RoFormer）· 裝好後「分離音軌」先用它分出人聲，再拆伴奏，人聲更乾淨、不串軌"
+    "defaultMessage": "人聲分離 · 分離音軌時先分出人聲，更乾淨"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "把一首歌轉成多樂器 MIDI，可在編曲頁繼續編輯 · 僅限非商業用途（CC BY-NC）"
+    "defaultMessage": "把歌曲轉為多樂器 MIDI · 僅限非商業用途"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "分離音軌"
@@ -4505,9 +4493,6 @@
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "已選 {selected} 秒，原錄音 {total} 秒。請保留 1–60 秒。"
   },
-  "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "每段文字 Token 上限"
-  },
   "@yovoice.options.text_normalization": {
     "defaultMessage": "正規化數字與符號"
   },
@@ -4518,7 +4503,7 @@
     "defaultMessage": "執行參數"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "對所有模型生效，修改後下一次任務會依新參數重新載入模型。"
+    "defaultMessage": "對所有模型生效，下次任務時重新載入。"
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "邊產生邊試聽"
@@ -4527,7 +4512,7 @@
     "defaultMessage": "模型工作階段參數"
   },
   "@yovoice.runtime.sessionHelp": {
-    "defaultMessage": "引擎為各模型提供的記憶體、快取與精度選項，只列出目前引擎支援的項目；不確定時保持預設。"
+    "defaultMessage": "只列出目前引擎支援的項目，不確定時保持預設。"
   },
   "@yovoice.runtime.sessionModel": {
     "defaultMessage": "模型"
@@ -4591,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "固定"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "模型版本"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "最新版"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "{date} 更新前"
   }
 }

@@ -9,7 +9,16 @@
       "remotePath": "IndexTTS2.5-GGUF/index-tts2_5-q8_0.gguf",
       "size": 3502960096,
       "sha256": "d1ab7b5c3f5ecf2bcd285753be76c7290b0a54939a76b7c39e8f886f80cf6b5c",
-      "family": "index_tts2"
+      "family": "index_tts2",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 3502955328,
+          "sha256": "5e827b2072042e4a1b21ccf24a5cb4f71cb1011403067a0a9b039311d8b38628"
+        }
+      ]
     },
     {
       "id": "index-2.5-f16",
@@ -19,7 +28,16 @@
       "remotePath": "IndexTTS2.5-GGUF/index-tts2_5-f16.gguf",
       "size": 4547359840,
       "sha256": "505f896d83aa5d309a3180e5e72f95a9b192c95930d6d9d534b93c0ca8b42e73",
-      "family": "index_tts2"
+      "family": "index_tts2",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4547355072,
+          "sha256": "87bed9b82fc8f22119a1a1042332091016c28e37f29b0e93343ccdbfa76ef66a"
+        }
+      ]
     },
     {
       "name": "IndexTTS 2.5",
@@ -29,7 +47,16 @@
       "precision": "ORIG",
       "remotePath": "IndexTTS2.5-GGUF/index-tts2_5-orig.gguf",
       "size": 7885098208,
-      "sha256": "cfbf964b7692395a9cc93f57ba62ed4b069e367478254fec8180282f205c5d75"
+      "sha256": "cfbf964b7692395a9cc93f57ba62ed4b069e367478254fec8180282f205c5d75",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 7885093440,
+          "sha256": "2c736df55a306155df4e607f49fe963cf2192fc2193ad449a4bdffb15e52b93a"
+        }
+      ]
     },
     {
       "id": "index-2-q8",
@@ -39,7 +66,16 @@
       "remotePath": "IndexTTS2-GGUF/index-tts2-q8_0.gguf",
       "size": 3633895968,
       "sha256": "a56e09f49fd39a894dfe1b065ab94884e9ed3515a92f75aff06fb6e6714b6b2c",
-      "family": "index_tts2"
+      "family": "index_tts2",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 3633888608,
+          "sha256": "f9be73ac5b6cbdc5f603f04dcb6c9fe37b3a301a365a1ea8d580d3ef7ba22e8e"
+        }
+      ]
     },
     {
       "id": "index-2-f16",
@@ -49,7 +85,16 @@
       "remotePath": "IndexTTS2-GGUF/index-tts2-f16.gguf",
       "size": 4646905664,
       "sha256": "4bed1d526a81a7a7bfd5ebd72006bf7168ef061261b9d85b6dce30cfc882fda8",
-      "family": "index_tts2"
+      "family": "index_tts2",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4646898304,
+          "sha256": "0f7b95d3d32e18bf9352912a7b21a0bd4a8406853a0aaa2c9180f77389c21523"
+        }
+      ]
     },
     {
       "name": "IndexTTS 2.0",
@@ -59,7 +104,16 @@
       "precision": "ORIG",
       "remotePath": "IndexTTS2-GGUF/index-tts2-orig.gguf",
       "size": 8084559360,
-      "sha256": "3affa94a9b02040fa06774c6047806bbc0f0a90d57ab4de7e50d31d1b19f0350"
+      "sha256": "3affa94a9b02040fa06774c6047806bbc0f0a90d57ab4de7e50d31d1b19f0350",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 8084552000,
+          "sha256": "c96cb948339b7169b7240f43dbd42ad6354ae3d0a22465e292ec8e090c338e16"
+        }
+      ]
     },
     {
       "id": "voxcpm2-q8",
@@ -69,7 +123,16 @@
       "precision": "Q8",
       "remotePath": "VoxCPM2-GGUF/voxcpm2-q8_0.gguf",
       "size": 2955007488,
-      "sha256": "8df1faf274e1bdeedef1fd9ddd6aba6632536f66f2e080991d2352af35ceef72"
+      "sha256": "8df1faf274e1bdeedef1fd9ddd6aba6632536f66f2e080991d2352af35ceef72",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2955000480,
+          "sha256": "c8e01ab4416011e12a28f24ede298a1aa5ce64b43f8e8aaad53b1e2fe7c96432"
+        }
+      ]
     },
     {
       "id": "voxcpm2-bf16",
@@ -79,7 +142,16 @@
       "precision": "BF16",
       "remotePath": "VoxCPM2-GGUF/voxcpm2-bf16.gguf",
       "size": 4772295296,
-      "sha256": "dc48028ebf08b9fd2456cbf5fa1ab52568d16660e34d0fa418c35e251ca1ecab"
+      "sha256": "dc48028ebf08b9fd2456cbf5fa1ab52568d16660e34d0fa418c35e251ca1ecab",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4772288288,
+          "sha256": "0c0cd2515c7a1145c0ddba06c871724656c36cb53ee3b0118116b34cb4153699"
+        }
+      ]
     },
     {
       "name": "VoxCPM2",
@@ -89,7 +161,16 @@
       "precision": "ORIG",
       "remotePath": "VoxCPM2-GGUF/voxcpm2-orig.gguf",
       "size": 4960723200,
-      "sha256": "30dfeb1f74a8d7efb893ae625f3c4ec9651b2dd8c22d5e40dc08ced2aa9cac89"
+      "sha256": "30dfeb1f74a8d7efb893ae625f3c4ec9651b2dd8c22d5e40dc08ced2aa9cac89",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4960716192,
+          "sha256": "13181e01e15d555c9eae7779626eb395c69334f15e948c9ea265ddf37ab50b16"
+        }
+      ]
     },
     {
       "id": "omnivoice-q8",
@@ -99,7 +180,16 @@
       "precision": "Q8",
       "remotePath": "OmniVoice-GGUF/omnivoice-q8_0.gguf",
       "size": 1350296096,
-      "sha256": "0e5a721edd1b08d9067ef66f40ded609a6b14f5a8445c703f9869736cabd350a"
+      "sha256": "0e5a721edd1b08d9067ef66f40ded609a6b14f5a8445c703f9869736cabd350a",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1350288416,
+          "sha256": "2f4be637278043c6842de5b85d681532030e9eb6ffe0f8b0e320f68238e3da8b"
+        }
+      ]
     },
     {
       "id": "omnivoice-bf16",
@@ -109,7 +199,16 @@
       "precision": "BF16",
       "remotePath": "OmniVoice-GGUF/omnivoice-bf16.gguf",
       "size": 1639556288,
-      "sha256": "a5e0b148274f1bd719dd9e30b2d400671e587b0457a9c7e8840cfe7be94c5b62"
+      "sha256": "a5e0b148274f1bd719dd9e30b2d400671e587b0457a9c7e8840cfe7be94c5b62",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1639548640,
+          "sha256": "7301a41a0a5a2cb04430c1831a705e3906bfca51562c5cdb2f30a90d505a819c"
+        }
+      ]
     },
     {
       "name": "OmniVoice",
@@ -119,7 +218,16 @@
       "precision": "F16",
       "remotePath": "OmniVoice-GGUF/omnivoice-f16.gguf",
       "size": 1639556448,
-      "sha256": "cec92925cddef7d8ef33a462155b268a662a15a9ebd40cb5a284ccc1179d6a08"
+      "sha256": "cec92925cddef7d8ef33a462155b268a662a15a9ebd40cb5a284ccc1179d6a08",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1639548768,
+          "sha256": "7421b6c387351d2cdce7eb8b931fa279739d628ef25acd4ff2062a70e6e1ab63"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-base-q8",
@@ -131,7 +239,16 @@
       "size": 2695186240,
       "sha256": "92641a8022d521efd79a5db45e952589b3f2b781680f9abfcf26f075d37b86c6",
       "variant": "base",
-      "task": "tts"
+      "task": "tts",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2695175104,
+          "sha256": "b55e06c7890d43c208d15aed8b4ed3f18215f295e47d5960e061b15bff338ab0"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-base-bf16",
@@ -143,7 +260,16 @@
       "size": 4203169600,
       "sha256": "db237375e0f04d10fd0ac0afc2855e6844fdcb04a7d471e8a4b6c36bdb6030d7",
       "variant": "base",
-      "task": "tts"
+      "task": "tts",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4203158464,
+          "sha256": "f5cf4c37b969335e0ffb657119e52025e26192553119590d59fa17b8d36e8b29"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-base-orig",
@@ -155,7 +281,16 @@
       "precision": "ORIG",
       "remotePath": "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-orig.gguf",
       "size": 4544284416,
-      "sha256": "8b7248c563cef53e269a4f168ce6e23a7d6117e77ae2aa1d51b1d64084a1550f"
+      "sha256": "8b7248c563cef53e269a4f168ce6e23a7d6117e77ae2aa1d51b1d64084a1550f",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4544273280,
+          "sha256": "7ab774d56ab9ed9ee7d0ae50917798cda23c7bcc11eaa6c3a4ae32068718b1c1"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-customvoice-q8",
@@ -167,7 +302,16 @@
       "precision": "Q8",
       "remotePath": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF/qwen3-tts-12hz-1.7b-customvoice-q8_0.gguf",
       "size": 2817055200,
-      "sha256": "c8ac3f94b6e73f137c0e7ecc9270bc8faec7a476ff799b87e48844d1d0987ac3"
+      "sha256": "c8ac3f94b6e73f137c0e7ecc9270bc8faec7a476ff799b87e48844d1d0987ac3",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2817044064,
+          "sha256": "3cfaac8e9f13554f6daea3c5e0c53fede71ef5500cbaae7445e5fc3a5bb12e72"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-customvoice-bf16",
@@ -179,7 +323,16 @@
       "precision": "BF16",
       "remotePath": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF/qwen3-tts-12hz-1.7b-customvoice-bf16.gguf",
       "size": 4179155488,
-      "sha256": "5be0742e196ea9cd9ce0d7d8b69b0fc4fa8181b06cb0bd0591fb1dcdfce6c5a5"
+      "sha256": "5be0742e196ea9cd9ce0d7d8b69b0fc4fa8181b06cb0bd0591fb1dcdfce6c5a5",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4179144352,
+          "sha256": "ef55652c7aa919dc5eeb7967c782a17a6f5d9a8b775337376a4678d37e71a11c"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-base-0.6b-q8",
@@ -191,7 +344,16 @@
       "precision": "Q8",
       "remotePath": "Qwen3-TTS-12Hz-0.6B-Base-GGUF/qwen3-tts-12hz-0.6b-base-q8_0.gguf",
       "size": 1991217728,
-      "sha256": "c7d0e6c9485a25ae1f6a4c0796f0023230a0051c44cbd2bd05d73770f2cce637"
+      "sha256": "c7d0e6c9485a25ae1f6a4c0796f0023230a0051c44cbd2bd05d73770f2cce637",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1991211136,
+          "sha256": "771420bd20ff5f35407b4fa9cf9c5461e153800d3d772ef51c9febc0a520855d"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-base-0.6b-bf16",
@@ -203,7 +365,16 @@
       "precision": "BF16",
       "remotePath": "Qwen3-TTS-12Hz-0.6B-Base-GGUF/qwen3-tts-12hz-0.6b-base-bf16.gguf",
       "size": 2516161088,
-      "sha256": "b730cd6dfe549d7afd2b4735f57558744d5118db11ba0f7b8d2d42278cc431c7"
+      "sha256": "b730cd6dfe549d7afd2b4735f57558744d5118db11ba0f7b8d2d42278cc431c7",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2516154496,
+          "sha256": "97d418048b07b5b267628da955b27db4c57b353ded8089de01a469b474255b8d"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-voicedesign-q8",
@@ -215,7 +386,16 @@
       "precision": "Q8",
       "remotePath": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF/qwen3-tts-12hz-1.7b-voicedesign-q8_0.gguf",
       "size": 2817000064,
-      "sha256": "b86e03d1d2077bbaed157ab7a7fc646c3e309e69afa52c5e1c86b622b4715057"
+      "sha256": "b86e03d1d2077bbaed157ab7a7fc646c3e309e69afa52c5e1c86b622b4715057",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2816988960,
+          "sha256": "1bcef9a8c021072fca40e00498e00af9091fbe6d3ae4f87567cfee885d6c7554"
+        }
+      ]
     },
     {
       "id": "qwen3-tts-voicedesign-bf16",
@@ -227,7 +407,16 @@
       "precision": "BF16",
       "remotePath": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF/qwen3-tts-12hz-1.7b-voicedesign-bf16.gguf",
       "size": 4179100352,
-      "sha256": "f12c79e8c492f006b04f5ba823bebe512c9d46e13a7837081f1d34803b4bac0e"
+      "sha256": "f12c79e8c492f006b04f5ba823bebe512c9d46e13a7837081f1d34803b4bac0e",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 4179089248,
+          "sha256": "f4cebcd68023a2db7c3fc8d52d1d28eafb22d4e3b7a64e12c4f946a300536f86"
+        }
+      ]
     },
     {
       "id": "breeze-tts-2-q8",
@@ -242,7 +431,16 @@
       "precision": "Q8",
       "remotePath": "Breeze-TTS-2-GGUF/breeze-tts-2-q8_0.gguf",
       "size": 5079670336,
-      "sha256": "b17b89b1c21107c44e8d556ab0a856d7acd06bdd0c914e68e0e57f6e33f555a3"
+      "sha256": "b17b89b1c21107c44e8d556ab0a856d7acd06bdd0c914e68e0e57f6e33f555a3",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 5079668352,
+          "sha256": "0de52d61560f9f6b2dfeca79f9100f8fce0c2b17c52ec30622e23e150df1ad88"
+        }
+      ]
     },
     {
       "id": "breeze-tts-2-q4",
@@ -257,7 +455,16 @@
       "precision": "Q4",
       "remotePath": "Breeze-TTS-2-GGUF/breeze-tts-2-q4_0.gguf",
       "size": 3794800192,
-      "sha256": "56b3cc598b1f9220b6fb23dc9eaa098a9a1d0cc6604298a76faac79eef4824b8"
+      "sha256": "56b3cc598b1f9220b6fb23dc9eaa098a9a1d0cc6604298a76faac79eef4824b8",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "f861648c0c1f4da9f18e9a0ce5e217b0679bb2f5",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 3794799296,
+          "sha256": "b1c2467ac542d9ba05ad0e7bd331b09137f3752f1be2d3c491bd1b2045df6767"
+        }
+      ]
     },
     {
       "id": "breeze-tts-2-bf16",
@@ -272,7 +479,16 @@
       "precision": "BF16",
       "remotePath": "Breeze-TTS-2-GGUF/breeze-tts-2-bf16.gguf",
       "size": 7342918784,
-      "sha256": "5620623371e2011e9bb22389f12252d3969061adad139b3cdda6b1473a82a0d5"
+      "sha256": "5620623371e2011e9bb22389f12252d3969061adad139b3cdda6b1473a82a0d5",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 7342916800,
+          "sha256": "a00c9f678b4c5ae03d1dcd228f636b329352cda200823faef4e01d3bd97c0a89"
+        }
+      ]
     },
     {
       "id": "ming3-tts-0.5b-q8",
@@ -532,6 +748,15 @@
         "zm_yunxi",
         "zm_yunxia",
         "zm_yunyang"
+      ],
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "0a104324546d2622985e3c676a4b5550cc772127",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 189549408,
+          "sha256": "5d800fd204029302c10313daeafdb31c875c7c29ae31974d0d156cc7f512d1d0"
+        }
       ]
     },
     {
@@ -593,6 +818,15 @@
         "zm_yunxi",
         "zm_yunxia",
         "zm_yunyang"
+      ],
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "0a104324546d2622985e3c676a4b5550cc772127",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 211954816,
+          "sha256": "51d10c63557d21f70ef5d607e91c11023cf408dbc3af24c283b18106778e1e67"
+        }
       ]
     },
     {
@@ -723,7 +957,16 @@
       "precision": "BF16",
       "remotePath": "ACE-Step1.5-GGUF/turbo/ace-step-1.5-turbo-bf16.gguf",
       "size": 10090406336,
-      "sha256": "7aa8cc911bb7e47647bba619cf25afc22a42e35c568a102cd9a3b28a54b94013"
+      "sha256": "7aa8cc911bb7e47647bba619cf25afc22a42e35c568a102cd9a3b28a54b94013",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 10090398272,
+          "sha256": "93974239a29a1a821b3cc1b1ca7e1c6229b1a900a0e44a1a9770bb2271d2be5f"
+        }
+      ]
     },
     {
       "id": "ace-step-1.5-turbo-q8",
@@ -735,7 +978,16 @@
       "precision": "Q8",
       "remotePath": "ACE-Step1.5-GGUF/turbo/ace-step-1.5-turbo-q8_0.gguf",
       "size": 6185468096,
-      "sha256": "1f0015f81c10a1182531e6207c7aeaa060b8cad3470a2f88daa3cb74ed636e63"
+      "sha256": "1f0015f81c10a1182531e6207c7aeaa060b8cad3470a2f88daa3cb74ed636e63",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 6185460032,
+          "sha256": "cd7bf272588f548d4a253f57483132ef0f8f54a549f26471b09caa72c654270b"
+        }
+      ]
     },
     {
       "id": "ace-step-1.5-xl-turbo-bf16",
@@ -783,7 +1035,16 @@
       "precision": "Q8",
       "remotePath": "Stable-Audio-3-Small-Music-GGUF/stable-audio-3-small-music-q8_0.gguf",
       "size": 1683576608,
-      "sha256": "a6d9176e11b857409b28cf5a69f4fefd8f3e61907b3b10d867f1f4c0a7eb9418"
+      "sha256": "a6d9176e11b857409b28cf5a69f4fefd8f3e61907b3b10d867f1f4c0a7eb9418",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1683570752,
+          "sha256": "89bb22db5fa68ab8f1d90af0a9f88121977c945bdb99a57c96b1e88fa34bf1c8"
+        }
+      ]
     },
     {
       "id": "stable-audio-3-small-music-f16",
@@ -797,7 +1058,16 @@
       "precision": "F16",
       "remotePath": "Stable-Audio-3-Small-Music-GGUF/stable-audio-3-small-music-f16.gguf",
       "size": 2358473088,
-      "sha256": "560ea1505deadf6c37689b672bda13be6cfbc6e996eaf574cac7f546347e3754"
+      "sha256": "560ea1505deadf6c37689b672bda13be6cfbc6e996eaf574cac7f546347e3754",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2358467232,
+          "sha256": "66f36741c19f9ca08e7239f89253141fe08a1f88de92f4459385ad80fc1c0e23"
+        }
+      ]
     },
     {
       "id": "stable-audio-3-small-sfx-q8",
@@ -811,7 +1081,16 @@
       "precision": "Q8",
       "remotePath": "Stable-Audio-3-Small-SFX-GGUF/stable-audio-3-small-sfx-q8_0.gguf",
       "size": 1683576512,
-      "sha256": "bfe435d2c5841868a7025433929ee250e51e491be369a279f341221539c71841"
+      "sha256": "bfe435d2c5841868a7025433929ee250e51e491be369a279f341221539c71841",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1683570688,
+          "sha256": "5bb1ec653134e63dac46264e336ae198a2590195fc996fcd0605021215e9b26f"
+        }
+      ]
     },
     {
       "id": "stable-audio-3-small-sfx-f16",
@@ -825,7 +1104,16 @@
       "precision": "F16",
       "remotePath": "Stable-Audio-3-Small-SFX-GGUF/stable-audio-3-small-sfx-f16.gguf",
       "size": 2358472992,
-      "sha256": "0ecda5dbf3b4107eb63678535b387e6e53289b622db2164f17ff13f9d0eb19a9"
+      "sha256": "0ecda5dbf3b4107eb63678535b387e6e53289b622db2164f17ff13f9d0eb19a9",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 2358467168,
+          "sha256": "0d8948b947f137c163983f060973d80e9bb699ea11c303327cd7005402f93918"
+        }
+      ]
     },
     {
       "id": "stable-audio-3-medium-q8",
@@ -839,7 +1127,16 @@
       "precision": "Q8",
       "remotePath": "Stable-Audio-3-Medium-GGUF/stable-audio-3-medium-q8_0.gguf",
       "size": 3582601408,
-      "sha256": "d239eba564bd049b6fc0b103ee51cf179dc1a836ac7904c0d50088c6d45018a3"
+      "sha256": "d239eba564bd049b6fc0b103ee51cf179dc1a836ac7904c0d50088c6d45018a3",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 3582595584,
+          "sha256": "262c8259cfeac055258d28bfc126bcafb5c776fac44165222b186270f99b07ca"
+        }
+      ]
     },
     {
       "id": "stable-audio-3-medium-f16",
@@ -853,7 +1150,16 @@
       "precision": "F16",
       "remotePath": "Stable-Audio-3-Medium-GGUF/stable-audio-3-medium-f16.gguf",
       "size": 5834365856,
-      "sha256": "539df1f5794242c01152894f00e3454182f8974e07952f72417786c08ff33dcc"
+      "sha256": "539df1f5794242c01152894f00e3454182f8974e07952f72417786c08ff33dcc",
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "e479ac197bae727f69574261a8025696bc51de48",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 5834360000,
+          "sha256": "d701796858eb54347ade9e80240a58d4eccf1890a9ccff3ed3b0640be5273a23"
+        }
+      ]
     },
     {
       "id": "yue2-3b-q8",
@@ -1040,6 +1346,18 @@
           "path": "Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
           "size": 1129969856,
           "sha256": "bf4fec616f77a20d89a649cd1c97bda269644eeb3cf906d1f7488a52d71f7cb2"
+        }
+      ],
+      "history": [
+        {
+          "replaced": "2026-10-27",
+          "revision": "6d5436fc85f7a20c2e9f4e472b7f3a532f686444",
+          "modelScopeRevision": "63d135e95ebee8d3ac36a0dd69540518b65c8f64",
+          "size": 1302498752,
+          "files": [
+            {"path": "BS-RoFormer-ep368-GGUF/bs-roformer-ep368-q8_0.gguf", "size": 172532256, "sha256": "9a55a8cad369d00f6e0fb208bb0cd87e30e25430772b8491e20a4eace6423ad2"},
+            {"path": "Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf", "size": 1129966496, "sha256": "75209490b11cec2b0db749ca5f4ff92266f58efd30f7fd04d9eb2a3ac9cc929f"}
+          ]
         }
       ]
     },

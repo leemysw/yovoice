@@ -13,7 +13,7 @@ yovoice runs every model locally through its inference engine. Models and the en
 | --- | --- | --- |
 | text | 语音生成 Voice | One script read by one voice. Model, voice and advanced options sit in the right inspector. |
 | story | 故事配音 Story | Multi-speaker dubbing: speakers, lines (cues) and a timeline. Each line can be regenerated alone. Novels and subtitle files can be imported. |
-| music | 音乐 Music | Songs or instrumentals from a style prompt and lyrics (ACE-Step, YuE2), or instrumental music from an English description (Stable Audio 3). YuE2 can write an editable melody score first or extract one from a song (cover). A version's menu can separate stems or transcribe to MIDI; both results open in the 分轨工作台 stem studio (play all tracks together with mute/solo/volume; reopen via 打开分轨 Open stems, or 分轨试听 Preview tracks on a score project). |
+| music | 音乐 Music | Songs or instrumentals from a style prompt and lyrics (ACE-Step, YuE2), or instrumental music from an English description (Stable Audio 3). YuE2 can write an editable melody score first or extract one from a song (cover). A version's menu can separate stems or transcribe to MIDI; both results open in the 分轨工作台 stem studio (play all tracks together with mute/solo/volume; reopen via 打开分轨 Open stems, or 分轨试听 Preview tracks on a score project). Stems are a fixed six (drums, bass, vocals, guitar, piano, other; guitar/piano are weak); with the optional BS-RoFormer model vocals come out cleaner. For per-instrument parts suggest 转为 MIDI. |
 | score | 编曲 Arrangement | Multi-track score rendered through a SoundFont. |
 | sfx | 音效 Sound effects | Short sound effects from an English description (Stable Audio 3 Small SFX or Medium), default 5 s; rework or inpaint an existing take. |
 | characters | 声音库 Voice library | Saved characters: designed or cloned voices with a preview, reusable across works. |
@@ -60,6 +60,7 @@ Recommend in this order: what the user already has installed (list_models), then
 - Audio check warnings (shown on a take, a story line or in `inspect_audio`): clipping / clicks / cutoff / silence / silent → regenerate that take or line; quiet → pick a target loudness when exporting (Audiobook −18, Podcast −16, Video −14 LUFS), no need to regenerate; dc → ignore.
 - Slow or out of memory: pick Q8 or a smaller model, close other GPU apps, or switch compute device in Settings › Engine.
 - Model missing or engine too old: the user installs it in Settings › Voice models, Settings › Music models (ACE-Step, YuE2, Stable Audio 3, SheetSage2) or Settings › Engine; you can propose it with propose_action.
+- A model got worse after updating: models replaced by a catalog update have a 模型版本 Model version picker in their settings row. Choosing “… 更新前 Before … update” re-downloads the earlier file and stops the update prompt; “最新版 Latest” switches back.
 
 ## Error codes
 

@@ -7,7 +7,7 @@ import { hasTransitionSource, withViewTransition } from '../shared/lib/view-tran
 import { featureHidden, modelTab, type Draft, type ModelPackage, type Preferences } from '../shared/workbench';
 
 // 工作台的导航与面板状态：当前页面与已访问记录、设置页定位、侧栏宽度与收起、右侧检查器的收起与展开。
-export function useWorkbenchNavigation({ draft, catalog, preferences, setActive, setError }: { draft: Draft; catalog: ModelPackage[]; preferences: Preferences; setActive: (active: boolean) => void; setError: (message: string) => void }) {
+export function useWorkbenchNavigation({ draft, catalog, preferences, overlay, setActive, setError }: { draft: Draft; catalog: ModelPackage[]; preferences: Preferences; overlay: boolean; setActive: (active: boolean) => void; setError: (message: string) => void }) {
   const navigation = useResizable({ defaultSize: 224, minSize: 180, maxSize: 360, collapsible: true, autoSaveId: 'workbench-sidebar' });
   const { isCollapsed, expand, collapse } = navigation;
   // 侧栏收起展开用视图过渡：侧栏滑出、右侧整张工作区随左边缘一起移动，而不是瞬间跳宽。
@@ -58,6 +58,7 @@ export function useWorkbenchNavigation({ draft, catalog, preferences, setActive,
   }), []);
   // 窗口右上角的右侧面板开关：创作区较窄时检查器已自动收起（见 styles.css 的 studio 容器查询），开关改为展开或收回检查器。
   // 右侧面板收起时滑出、正文随之变宽，“生成”按钮从面板顶部移到标题栏（展开时反向）；窄屏浮出同样滑入。
+  const inspectorAvailable = page === 'create' && !overlay;
   const toggleInspectorPanel = useCallback(() => {
     // 角色编辑器离开后只隐藏不卸载，它的 .studio 宽度为 0，需取当前可见的创作区。
     const studio = Array.from(document.querySelectorAll<HTMLElement>('.studio')).find(element => element.clientWidth > 0);
@@ -67,13 +68,13 @@ export function useWorkbenchNavigation({ draft, catalog, preferences, setActive,
     }, 'inspector');
   }, [toggleInspector]);
   useEffect(() => {
-    // 只有工作区有右侧面板；列表、设置等页面忽略开关，不跳回上次的作品。
-    const handleToggle = () => { if (page === 'create') toggleInspectorPanel(); };
+    // 只有工作区有右侧面板；列表、设置等页面和盖住工作区的分轨工作台忽略开关，不跳回上次的作品。
+    const handleToggle = () => { if (inspectorAvailable) toggleInspectorPanel(); };
     window.addEventListener('workbench-toggle-inspector', handleToggle);
     return () => window.removeEventListener('workbench-toggle-inspector', handleToggle);
-  }, [page, toggleInspectorPanel]);
-  // 标题栏的右侧面板开关由宿主绘制：离开工作区时让宿主隐藏它。
-  useEffect(() => { if (isDesktop) void call('inspector.available', { available: page === 'create' }).catch(() => undefined); }, [page]);
+  }, [inspectorAvailable, toggleInspectorPanel]);
+  // 标题栏的右侧面板开关由宿主绘制：离开工作区或打开分轨工作台时让宿主隐藏它。
+  useEffect(() => { if (isDesktop) void call('inspector.available', { available: inspectorAvailable }).catch(() => undefined); }, [inspectorAvailable]);
   // 侧栏宽度由 useResizable 记在本机，桌面端再同步给宿主绘制标题栏；记录损坏时删掉它跳过，不让每次启动都卡在这里。
   useEffect(() => {
     const key = 'astryx-resizable:workbench-sidebar';
@@ -85,5 +86,5 @@ export function useWorkbenchNavigation({ draft, catalog, preferences, setActive,
   }, [navigation.size, navigation.isCollapsed, setError]);
   // 窄屏浮出的面板用“关闭”收起时也走同一过渡。
   const showInspectorPanel = useCallback((show: boolean) => withViewTransition(() => setShowInspector(show), 'inspector'), []);
-  return { navigation, inspectorPanel, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector: showInspectorPanel, inspectorCollapsed, toggleInspectorPanel };
+  return { navigation, inspectorPanel, isCollapsed, expand, toggleSidebar, page, setPage, visited, settingsFocus, openSettings, showInspector, setShowInspector: showInspectorPanel, inspectorCollapsed, inspectorAvailable, toggleInspectorPanel };
 }

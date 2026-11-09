@@ -113,7 +113,7 @@ test('新建编曲作品：示例乐谱、音块总览、声部调整与持久�
   // 未安装音色库时渲染直接打开独立的“编曲音色库”页；配音作品的模型列表不包含音色库。
   await page.getByRole('button', { name: '渲染配乐', exact: true }).click();
   await expect(page.getByRole('tab', { name: '编曲音色库', exact: true, selected: true })).toBeVisible();
-  await expect(page.locator('[data-model-id="musescore-general-sf2"]')).toContainText('General MIDI 音色库');
+  await expect(page.locator('[data-model-id="musescore-general-sf2"]')).toContainText('128 种乐器和鼓组');
   await expect(page.locator('[data-model-id$="-sf2"]')).toHaveCount(3);
   // 编曲生成并入音乐生成：侧栏只保留「音乐生成」，编曲标签页也高亮它。
   await expect(page.getByTestId('nav-score')).toHaveCount(0);

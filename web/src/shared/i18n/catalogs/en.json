@@ -2190,13 +2190,10 @@
     "defaultMessage": "Generates songs and instrumentals from a style description and lyrics."
   },
   "@yovoice.settings.modelDesc.soundfont": {
-    "defaultMessage": "General MIDI sound font with 128 instruments and drum kits; balanced and suited to most scores."
+    "defaultMessage": "128 instruments and drum kits, well balanced"
   },
   "@yovoice.settings.tabAI": {
     "defaultMessage": "AI services"
-  },
-  "@yovoice.ai.intro": {
-    "defaultMessage": "Connect a large language model and the built-in AI assistant writes arrangements in Score and lyrics in Music, with follow-up edits on the results."
   },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "Custom service"
@@ -2291,12 +2288,6 @@
   "@yovoice.settings.available": {
     "defaultMessage": "Available"
   },
-  "@yovoice.settings.soundfontIntro": {
-    "defaultMessage": "General MIDI sound fonts used to render scores, managed separately from voice and music models."
-  },
-  "@yovoice.settings.uiLocaleHint": {
-    "defaultMessage": "Takes effect immediately."
-  },
   "@yovoice.settings.proxyHint": {
     "defaultMessage": "Used for model and runtime downloads and AI services."
   },
@@ -2373,7 +2364,7 @@
     "defaultMessage": "Diagnostics"
   },
   "@yovoice.settings.diagnosticsHint": {
-    "defaultMessage": "Logs for the service, inference engine and AI requests. Attach them when reporting a problem."
+    "defaultMessage": "Attach these when reporting a problem."
   },
   "@yovoice.settings.searchModels": {
     "defaultMessage": "Search name, precision or use"
@@ -2403,7 +2394,7 @@
     "defaultMessage": "YuE2 needs lyrics for a vocal song; switch to instrumental to skip them."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Generates a full song or instrumental from lyrics and style, and can write an editable melody score first; length follows the lyrics or score. Licensed CC BY-NC 4.0, non-commercial use only."
+    "defaultMessage": "Full songs from lyrics and style, with an editable melody sheet first · non-commercial only"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Reuse this take's style and lyrics"
@@ -2412,10 +2403,10 @@
     "defaultMessage": "Import"
   },
   "@yovoice.settings.modelDesc.soundfontGeneralUser": {
-    "defaultMessage": "Compact, clean GM/GS sound font with detailed piano and drums and well-balanced instrument levels. Free for personal and commercial music."
+    "defaultMessage": "Small and clean, with detailed piano and drums · free for commercial use"
   },
   "@yovoice.settings.modelDesc.soundfontSgm": {
-    "defaultMessage": "More realistic GM sound font with richer piano, string, guitar and brass samples; larger and slower to render. The author states no license, so check before commercial use."
+    "defaultMessage": "More realistic samples, larger and slower to render · license unstated"
   },
   "@yovoice.update.group": {
     "defaultMessage": "Version and updates"
@@ -2562,7 +2553,7 @@
     "defaultMessage": "Local API"
   },
   "@yovoice.settings.localApiIntro": {
-    "defaultMessage": "Let other apps on this computer generate speech with yovoice through HTTP or MCP. It listens only on 127.0.0.1, so other devices on your network cannot reach it."
+    "defaultMessage": "Let other apps on this computer call yovoice over HTTP or MCP. Local only."
   },
   "@yovoice.settings.localApiEnabled": {
     "defaultMessage": "Enable local API"
@@ -2589,7 +2580,7 @@
     "defaultMessage": "Access token"
   },
   "@yovoice.settings.localApiTokenHint": {
-    "defaultMessage": "Send it as Authorization: Bearer followed by this token. Resetting it revokes the old token immediately."
+    "defaultMessage": "Send as Authorization: Bearer. Resetting revokes the old token."
   },
   "@yovoice.settings.localApiCopy": {
     "defaultMessage": "Copy"
@@ -2604,7 +2595,7 @@
     "defaultMessage": "Example"
   },
   "@yovoice.settings.localApiExampleHint": {
-    "defaultMessage": "HTTP endpoints are under {url}/v1 and MCP is at {url}/mcp. Replace YOUR_TOKEN with the token copied above."
+    "defaultMessage": "HTTP {url}/v1 · MCP {url}/mcp"
   },
   "@yovoice.error.localApiPort": {
     "defaultMessage": "Use a port between 1024 and 65535."
@@ -2643,7 +2634,7 @@
     "defaultMessage": "Data directory"
   },
   "@yovoice.settings.storageRelocateHint": {
-    "defaultMessage": "Changing the location copies all data to the new folder. When it finishes, yovoice restarts automatically to apply it, and the old folder is then deleted to free space."
+    "defaultMessage": "Moving copies your data to the new folder and restarts yovoice."
   },
   "@yovoice.settings.storageRelocatePending": {
     "defaultMessage": "Data has been copied to the new location. Please fully quit and reopen yovoice to take effect. New changes cannot be saved until then, and the old directory is removed automatically after the restart."
@@ -3153,10 +3144,10 @@
     "defaultMessage": "Transcribes the melody and chords of a song into a score, used for covers with YuE2."
   },
   "@yovoice.settings.modelDesc.lyricAlign": {
-    "defaultMessage": "Optional: separates the vocals and aligns the lyrics word by word to the singing, for word-by-word lyric animation and word LRC export. Supports 11 languages including Chinese, English, Japanese and Korean."
+    "defaultMessage": "Aligns lyrics word by word to the vocals for karaoke lyrics and LRC · 11 languages"
   },
   "@yovoice.settings.modelDesc.recognize": {
-    "defaultMessage": "Optional: fills in the reference transcript for voice samples, transcribes uploaded audio to text and subtitles, and times subtitles for generated speech. Supports 30 languages including Chinese, English, Cantonese, Japanese and Korean."
+    "defaultMessage": "Speech recognition for transcripts, subtitles and reference text · 30 languages"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generate from score"
@@ -3921,7 +3912,7 @@
     "defaultMessage": "Dismiss"
   },
   "@yovoice.settings.assistantIntro": {
-    "defaultMessage": "Ocho is the built-in assistant in yovoice. It sees the work you are editing and what you have selected, and asks before deleting, downloading or changing settings."
+    "defaultMessage": "Ocho sees what you’re editing and asks before deleting, downloading or changing settings."
   },
   "@yovoice.settings.assistantBehavior": {
     "defaultMessage": "Behavior"
@@ -3936,7 +3927,7 @@
     "defaultMessage": "Remembered preferences"
   },
   "@yovoice.settings.assistantMemoryHint": {
-    "defaultMessage": "Tell Ocho your habits in chat, such as a favourite voice or style. It remembers them and follows them in later conversations."
+    "defaultMessage": "Tell Ocho your habits in chat and it will remember them."
   },
   "@yovoice.settings.assistantMemoryClear": {
     "defaultMessage": "Clear all"
@@ -4013,9 +4004,6 @@
   "@yovoice.settings.precisionsInstalled": {
     "defaultMessage": "Downloaded: {list}"
   },
-  "@yovoice.settings.precisionHint": {
-    "defaultMessage": "Q4/Q8 are smaller and faster; BF16, F16 and ORIG stay closest to the original quality."
-  },
   "@yovoice.create.precision": {
     "defaultMessage": "Precision"
   },
@@ -4023,19 +4011,19 @@
     "defaultMessage": "Features"
   },
   "@yovoice.settings.featuresHint": {
-    "defaultMessage": "Turning a feature off hides its entries in the sidebar and the New menu. Existing works and downloaded models stay as they are."
+    "defaultMessage": "Turning one off hides its entries; existing projects and models are kept."
   },
   "@yovoice.settings.featureStoryHint": {
     "defaultMessage": "Import text or subtitles and voice each line by character."
   },
   "@yovoice.settings.featureMusicHint": {
-    "defaultMessage": "Songs, instrumentals and scores, plus their model and sound font settings."
+    "defaultMessage": "Songs, instrumentals and arrangements."
   },
   "@yovoice.settings.featureTranscribeHint": {
-    "defaultMessage": "Turn uploaded audio or video into timed text and subtitles. “Recognize text” for reference transcripts and subtitle export are unaffected."
+    "defaultMessage": "Turn audio or video into text and subtitles."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "The floating assistant, its title bar entry and suggestions. With music generation also off, AI service settings and AI casting for books are hidden too."
+    "defaultMessage": "The floating assistant and its suggestions."
   },
   "@yovoice.check.summary": {
     "defaultMessage": "This audio may have problems: {issues}. Listen to check and regenerate if needed."
@@ -4092,13 +4080,13 @@
     "defaultMessage": "Choose an existing take of this work to rework or inpaint, or switch back to text generation."
   },
   "@yovoice.settings.modelDesc.stableAudio.music": {
-    "defaultMessage": "Generates instrumental music from an English description and can rework or inpaint an existing take; up to 2 minutes. Stability AI Community License: free below USD 1M annual revenue."
+    "defaultMessage": "Instrumentals from English prompts, with remix and inpainting · up to 2 min · Stability AI Community License"
   },
   "@yovoice.settings.modelDesc.stableAudio.sfx": {
-    "defaultMessage": "Generates sound effects from an English description and can rework or inpaint an existing take; up to 2 minutes. Stability AI Community License: free below USD 1M annual revenue."
+    "defaultMessage": "Sound effects from English prompts, with remix and inpainting · up to 2 min · Stability AI Community License"
   },
   "@yovoice.settings.modelDesc.stableAudio.medium": {
-    "defaultMessage": "The larger Stable Audio 3 model for higher-quality instrumental music and longer pieces (up to about 6 minutes); can rework or inpaint an existing take. Stability AI Community License: free below USD 1M annual revenue."
+    "defaultMessage": "Higher-quality instrumentals, with remix and inpainting · up to about 6 min · Stability AI Community License"
   },
   "@yovoice.music.editOff": {
     "defaultMessage": "From text"
@@ -4203,7 +4191,7 @@
     "defaultMessage": "Silence between chunks (seconds)"
   },
   "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "Text tokens per chunk"
+    "defaultMessage": "Text tokens per segment"
   },
   "@yovoice.voxtral.generalVoices": {
     "defaultMessage": "General voices"
@@ -4320,7 +4308,7 @@
     "defaultMessage": "Import local model"
   },
   "@yovoice.settings.localModelHint": {
-    "defaultMessage": "Select the matching model and precision, then import its audio.cpp GGUF file (SF2 for sound fonts). For multi-file packages, select the main GGUF and keep companion files in their original layout. Files stay in place; removing an imported model only unregisters it. PyTorch/MLX weights need conversion first."
+    "defaultMessage": "Import a local GGUF file (SF2 for sound fonts), used in place"
   },
   "@yovoice.error.localModelInvalid": {
     "defaultMessage": "Select an audio.cpp GGUF matching this model family, or a supported SF2. PyTorch/MLX weights need conversion first."
@@ -4356,10 +4344,10 @@
     "defaultMessage": "Splits a song into drums, bass, vocals, guitar, piano and other · 44.1 kHz stereo"
   },
   "@yovoice.settings.modelDesc.vocalSplit": {
-    "defaultMessage": "High-quality vocal separation (BS-RoFormer) · once installed, “Separate stems” isolates vocals with it first, then splits the accompaniment — cleaner vocals, less bleed"
+    "defaultMessage": "Vocal separation · used first when splitting stems for cleaner vocals"
   },
   "@yovoice.settings.modelDesc.muscriptor": {
-    "defaultMessage": "Transcribes a song into multi-instrument MIDI you can keep editing in Arrange · Non-commercial use only (CC BY-NC)"
+    "defaultMessage": "Turns a song into multi-instrument MIDI · non-commercial only"
   },
   "@yovoice.stems.separate": {
     "defaultMessage": "Separate stems"
@@ -4505,9 +4493,6 @@
   "@yovoice.voice.excerptLength": {
     "defaultMessage": "Selected {selected} s of {total} s. Keep 1–60 seconds."
   },
-  "@yovoice.options.text_chunk_tokens": {
-    "defaultMessage": "Text tokens per segment"
-  },
   "@yovoice.options.text_normalization": {
     "defaultMessage": "Normalize numbers and symbols"
   },
@@ -4518,7 +4503,7 @@
     "defaultMessage": "Runtime"
   },
   "@yovoice.runtime.help": {
-    "defaultMessage": "Applies to every model. Changes reload the model on the next task."
+    "defaultMessage": "Applies to all models; reloaded on the next task."
   },
   "@yovoice.runtime.streaming": {
     "defaultMessage": "Listen while generating"
@@ -4527,7 +4512,7 @@
     "defaultMessage": "Model session options"
   },
   "@yovoice.runtime.sessionHelp": {
-    "defaultMessage": "Memory, cache and precision options the engine offers for each model. Only options the current engine supports are listed; keep the defaults if unsure."
+    "defaultMessage": "Only options the engine supports are listed. If unsure, keep the defaults."
   },
   "@yovoice.runtime.sessionModel": {
     "defaultMessage": "Model"
@@ -4591,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "Fixed"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "Model version"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "Latest"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "Before {date} update"
   }
 }
