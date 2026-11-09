@@ -69,7 +69,8 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 
 - **Speech, voice design and cloning** — clone a reference voice, design a voice from a description, adjust emotion and delivery, and edit takes on a timeline.
 - **Story dubbing** — import text or subtitle files, assign a character to each line, and generate line by line.
-- **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or songs and score-based instrumentals with YuE2, or instrumental music and sound effects from an English description with Stable Audio 3; the playback page syncs lyrics to the vocals.
+- **Transcribe and subtitles** — turn audio or video into timed subtitle lines and export SRT / WebVTT, fill in a reference transcript automatically, or export aligned subtitles for a speech version.
+- **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or songs and score-based instrumentals with YuE2, or instrumental music and sound effects from an English description with Stable Audio 3; the playback page syncs lyrics to the vocals. Separate any song into six stems and mix them in the stem studio, or transcribe it to multi-instrument MIDI.
 - **Score** — write parts by bar and beat, import MIDI or let an Agent compose, render with a General MIDI sound font, and export MIDI and stems. See [Score](docs/score.md).
 - **Optional AI service** — the built-in assistant panel chats with DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API and acts on your works: it writes arrangements and lyrics, edits text, assigns voices and starts generation; keys stay on this computer. See [AI service](docs/ai.md).
 - **12 interface languages** — English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português (Brasil), Русский, Italiano and Tiếng Việt; switch anytime in Settings, no restart needed.
@@ -81,12 +82,15 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 | Use | Models |
 | --- | --- |
 | Voice cloning and emotion | IndexTTS 2.0 / 2.5, Qwen3-TTS Base |
-| Voice design and cloning | VoxCPM2, OmniVoice, Qwen3-TTS VoiceDesign, Breeze TTS 2 |
-| Built-in voices | Kokoro-82M, Qwen3-TTS CustomVoice |
+| Voice design and cloning | VoxCPM2, OmniVoice, Qwen3-TTS VoiceDesign, Breeze TTS 2, Ming 3.0 TTS |
+| More voice cloning | XTTS v2 (17 languages), Plapre 3 (Danish), Fish Audio Drama 3 (speaker and event tags) |
+| Built-in voices | Kokoro-82M, Qwen3-TTS CustomVoice, Voxtral 4B TTS, Gradium Phonon |
 | Songs and instrumentals | ACE-Step 1.5 Turbo / XL Turbo, YuE2 3B |
 | Instrumentals and sound effects | Stable Audio 3 Small Music / Small SFX / Medium |
+| Speech recognition and subtitles | Qwen3 ASR 0.6B |
+| Stems, MIDI and lyric alignment | HTDemucs 6-stem, BS-RoFormer, MuScriptor, Lyric Aligner, SheetSage2 |
 
-All models are downloaded inside the App or with the CLI. See [model selection](docs/models.md) for file sizes, hardware requirements, inputs and examples. OmniVoice, YuE2 and Breeze TTS 2 weights are restricted to non-commercial use; Stable Audio 3 is free below USD 1M annual revenue under the Stability AI Community License.
+All models are downloaded inside the App or with the CLI. See [model selection](docs/models.md) for file sizes, hardware requirements, inputs and examples. OmniVoice, YuE2, Breeze TTS 2, Voxtral 4B TTS and MuScriptor weights are restricted to non-commercial use; XTTS v2 and Drama 3 use their own Coqui and Fish Audio licenses; Stable Audio 3 is free below USD 1M annual revenue under the Stability AI Community License.
 
 ---
 
