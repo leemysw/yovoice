@@ -223,7 +223,7 @@ Kokoro 不支持音色克隆或文字情绪控制。请保留 CLI 安装包中�
 
 桌面端的“音乐生成”作品可用 ACE-Step 1.5 Turbo 或 XL Turbo 生成歌曲与纯音乐，用 YuE2 3B 生成歌曲和按谱演奏的纯音乐，或用 Stable Audio 3 生成纯音乐；独立的“音效”标签用 Stable Audio 3 Small SFX 或 Medium 根据英文描述生成短音效，默认 5 秒，均需要 v0.9.1 及以上的推理内核。
 
-- **风格**：一句描述加若干标签，例如 `city pop, warm synths, chill, female vocals`，最多 512 字。
+- **风格**：一句描述加若干标签，例如 `city pop, warm synths, chill, female vocals`，最多 512 字（YuE2 最多 2000 字，可以再写几句歌曲怎样展开，例如 `piano and flute open, the vocal enters softly, drums join in the second verse, ends on a fade`）。
 - **歌词**：用 `[verse]`、`[chorus]`、`[bridge]` 等标记段落，最多 4000 字；打开“纯音乐”后只生成伴奏，歌词仍会保留。
 - **时长与语言**：时长可选自动或 10–300 秒；演唱语言需与歌词一致。
 - **编曲细节**：速度（30–300 BPM）、调性、拍号默认由模型规划，也可手动指定。

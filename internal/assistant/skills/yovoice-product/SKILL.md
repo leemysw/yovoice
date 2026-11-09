@@ -13,7 +13,7 @@ yovoice runs every model locally through its inference engine. Models and the en
 | --- | --- | --- |
 | text | 语音生成 Voice | One script read by one voice. Model, voice and advanced options sit in the right inspector. |
 | story | 故事配音 Story | Multi-speaker dubbing: speakers, lines (cues) and a timeline. Each line can be regenerated alone. Novels and subtitle files can be imported. |
-| music | 音乐 Music | Songs or instrumentals from a style prompt and lyrics (ACE-Step, YuE2), or instrumental music from an English description (Stable Audio 3). YuE2 can write an editable melody score first or extract one from a song (cover). A version's menu can separate stems or transcribe to MIDI; both results open in the 分轨工作台 stem studio (play all tracks together with mute/solo/volume; reopen via 打开分轨 Open stems, or 分轨试听 Preview tracks on a score project). Stems are a fixed six (drums, bass, vocals, guitar, piano, other; guitar/piano are weak); with the optional BS-RoFormer model vocals come out cleaner. For per-instrument parts suggest 转为 MIDI. |
+| music | 音乐 Music | Songs or instrumentals from a style prompt and lyrics (ACE-Step, YuE2), or instrumental music from an English description (Stable Audio 3). YuE2 can write an editable melody score first or extract one from a song (cover). For YuE2 the right panel also has 歌曲展开 Song shape chips (sung language, tempo, opening, development, ending) that add phrases to the style. A version's menu can separate stems or transcribe to MIDI; both results open in the 分轨工作台 stem studio (play all tracks together with mute/solo/volume; reopen via 打开分轨 Open stems, or 分轨试听 Preview tracks on a score project). Stems are a fixed six (drums, bass, vocals, guitar, piano, other; guitar/piano are weak); with the optional BS-RoFormer model vocals come out cleaner. For per-instrument parts suggest 转为 MIDI. |
 | score | 编曲 Arrangement | Multi-track score rendered through a SoundFont. |
 | sfx | 音效 Sound effects | Short sound effects from an English description (Stable Audio 3 Small SFX or Medium), default 5 s; rework or inpaint an existing take. |
 | characters | 我的声音 Voice library | Saved characters: designed or cloned voices with a preview, reusable across works. |
@@ -154,7 +154,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.legacyRestore` 旧数据无法读取。
 - `error.jobMissing` 任务不存在或已过期。
 - `error.jobConflict` 任务 ID 已用于不同参数，或推理服务繁忙。
-- `error.musicStyle` 请用 1–512 字描述风格。
+- `error.musicStyle` 请用 1–{max} 字描述风格。
 - `error.musicLyrics` 歌词最多 4000 字。
 - `error.musicParams` 音乐参数超出当前模型的范围，请检查时长、速度或重绘区间。
 - `error.musicLyricsRequired` YuE2 生成带人声的歌曲需要歌词；不写歌词可以切到纯音乐。

@@ -7,12 +7,12 @@ import { Check, ChevronRight, ChevronUp, LoaderCircle } from 'lucide-react';
 import { Selector } from '../../shared/selector';
 import definitions from '@internal/catalog/generation_options.json';
 import { formatActivity } from '../../shared/i18n/format';
-import { formatTime, isMusicModel, isStableAudio, isYuE, modelEngineReady, type Draft, type ModelPackage, type State } from '../../shared/workbench';
+import { formatTime, isMusicModel, isStableAudio, isYuE, modelEngineReady, musicStyleLimit, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';
 import { ModelSelector } from '../create/model-selector';
 import { ModelOptions } from '../create/model-options';
 import { YueAdapters } from './yue-adapters';
-import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, splitTags, stylePresets, styleTags, tagHintKey } from './music-draft';
+import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, splitTags, stylePresets, styleTags, tagHintKey, toggleStyleTag, yueStyleTags } from './music-draft';
 import { useElapsed } from '../../shared/lib/use-elapsed';
 import { StableAudioControls, stableAudioOptions, stableAudioReady } from './stable-audio-controls';
 import { sfxDurationPresets } from '../sfx/sfx-draft';
@@ -52,10 +52,23 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   const engineOutdated = !!state.runtimePath && !modelEngineReady(state, model);
   const tags = splitTags(draft.text);
   const groups = Object.keys(styleTags) as (keyof typeof styleTags)[];
-  const toggleTag = (tag: string) => {
-    const next = tags.includes(tag) ? tags.filter(item => item !== tag) : [...tags, tag];
-    change({ text: next.join(', ').slice(0, 512) });
-  };
+  const yueGroups = Object.keys(yueStyleTags) as (keyof typeof yueStyleTags)[];
+  const toggleTag = (tag: string) => change({ text: toggleStyleTag(tags, tag).join(', ').slice(0, musicStyleLimit(draft.modelId)) });
+  const tagButtons = (items: readonly string[]) => <HStack gap={1} vAlign="center" wrap="wrap">
+    {items.map(tag => (
+      <Button
+        key={tag}
+        className="music-tag"
+        size="sm"
+        variant="secondary"
+        icon={tags.includes(tag) ? <Check size={12} /> : undefined}
+        aria-pressed={tags.includes(tag)}
+        label={tag}
+        tooltip={t(tagHintKey(tag))}
+        onClick={() => toggleTag(tag)}
+      />
+    ))}
+  </HStack>;
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
     <MorphFrame><VStack className="generation-action" gap={3}>
       {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
@@ -113,7 +126,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
               size="sm"
               variant="secondary"
               aria-pressed={isPresetActive(preset, tags)}
-              onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, 512) })}
+              onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, musicStyleLimit(draft.modelId)) })}
             />
           ))}
         </HStack>
@@ -126,7 +139,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
                 size="sm"
                 variant="secondary"
                 aria-pressed={isPresetActive(preset, tags)}
-                onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, 512) })}
+                onClick={() => change({ text: applyPresetTags(preset, tags).join(', ').slice(0, musicStyleLimit(draft.modelId)) })}
               />
             ))}
           </HStack>
@@ -142,6 +155,19 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
           onClick={() => setMoreStyles(!moreStyles)}
         />
       </VStack>
+      {/* YuE2 的编配引导：演唱语言、速度和歌曲怎样展开，常驻显示；同一组的风格写法让每首歌的开场与起伏不同。 */}
+      {yue ? <VStack gap={2}>
+        <h3>{t('@yovoice.music.arrangement')}</h3>
+        <small>{t('@yovoice.music.arrangementHint')}</small>
+        <VStack gap={2} role="group" aria-label={t('@yovoice.music.arrangement')} className="music-tag-panel">
+          {yueGroups.map(group => (
+            <VStack key={group} gap={1} className="music-tag-group-col">
+              <small className="music-tag-group-title">{t(`@yovoice.music.tagGroup.${group}`)}</small>
+              {tagButtons(yueStyleTags[group])}
+            </VStack>
+          ))}
+        </VStack>
+      </VStack> : null}
       {/* 微调元素：按流派、情绪、乐器、人声分类折叠展开 */}
       <VStack gap={2}>
         <Button
@@ -159,21 +185,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
             {groups.map(group => (
               <VStack key={group} gap={1} className="music-tag-group-col">
                 <small className="music-tag-group-title">{t(`@yovoice.music.tagGroup.${group}`)}</small>
-                <HStack gap={1} vAlign="center" wrap="wrap">
-                  {styleTags[group].map(tag => (
-                    <Button
-                      key={tag}
-                      className="music-tag"
-                      size="sm"
-                      variant="secondary"
-                      icon={tags.includes(tag) ? <Check size={12} /> : undefined}
-                      aria-pressed={tags.includes(tag)}
-                      label={tag}
-                      tooltip={t(tagHintKey(tag))}
-                      onClick={() => toggleTag(tag)}
-                    />
-                  ))}
-                </HStack>
+                {tagButtons(styleTags[group])}
               </VStack>
             ))}
           </VStack>
