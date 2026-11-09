@@ -7,7 +7,7 @@
 import subprocess
 import sys
 
-# 最慢的包：Windows 上单包超过 100 秒，竞态检测下也占 Linux 测试的大半时间。
+# 最慢的包：Windows 上单包超过 100 秒，其余包合计也只有它的一半左右。
 SPLIT = 'yovoice/internal/workbench'
 
 

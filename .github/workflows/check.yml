@@ -53,14 +53,9 @@ jobs:
           go -C desktop/linux vet ./...
       - name: Check release notes extraction
         run: python3 scripts/test-release-notes.py
-  # 竞态检测只在 Linux 上跑，最慢的 workbench 包单独一台机器。
+  # 竞态检测只在 Linux 上跑；go test 自身会并行跑各包，热缓存下与浏览器测试分片耗时相当，不再拆机器。
   go-race:
     if: ${{ !inputs.release && github.event_name != 'schedule' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
-    name: go-race (${{ matrix.shard }}/2)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -68,7 +63,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-      - run: python3 scripts/go-test-shard.py ${{ matrix.shard }} 2 -race
+      - run: go test -race ./...
   # Windows/macOS 验证平台相关的 Go 行为与 macOS 更新器；Windows 上 workbench 包单包超过 100 秒，拆到多台机器。
   # macOS 只占一台（免费账号全部工作流共用 5 台并发）。
   go-test:
@@ -285,14 +280,14 @@ jobs:
           if-no-files-found: error
 
 
-  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在用例最轻的第 3 片跑一次。
+  # 前端检查与浏览器测试与平台无关，在 Linux 上分片并行；静态检查只在第 4 片跑一次。
   web:
     if: ${{ !inputs.release }}
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
-    name: web (${{ matrix.shard }}/3)
+        shard: [1, 2, 3, 4]
+    name: web (${{ matrix.shard }}/4)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -309,8 +304,8 @@ jobs:
       # 用例只用无头模式；运行器镜像已带 Chromium 所需系统库，不再 apt 安装依赖。
       - run: pnpm --dir web exec playwright install --only-shell chromium
       - run: pnpm --dir web run lint
-        if: matrix.shard == 3
-      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/3
+        if: matrix.shard == 4
+      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/4
         env:
           # 定时与手动触发时全量运行，包括已封存的用例。
           PW_ALL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
