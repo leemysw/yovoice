@@ -73,11 +73,10 @@ export async function coverMelodyFile(projectId: string, file: File): Promise<vo
 }
 
 // 语音转写：上传音频或视频交给后台用语音识别模型逐段转写；浏览器预览不上传音频，只演示结果。
-// 桌面端把文件作为原始请求体直接上传，不转 base64，视频等大文件（4 GB 以内）也能转写。
-const maxTranscribeBytes = 4 * 1024 * 1024 * 1024;
-export async function transcribeSpeechFile(file: File): Promise<void> {
+// 桌面端把文件作为原始请求体直接上传，不转 base64，视频等大文件也能转写；maxMB 是设置里的文件上限，超出时先在界面拒绝。
+export async function transcribeSpeechFile(file: File, maxMB: number): Promise<void> {
   if (!isDesktop) { await call('speech.transcribe', { name: file.name, base64: '' }); return; }
-  if (file.size > maxTranscribeBytes) throw new CallError('@yovoice.error.transcribeTooLarge');
+  if (file.size > maxMB * 1024 * 1024) throw new CallError('@yovoice.error.transcribeTooLarge', { size: maxMB % 1024 ? `${maxMB} MB` : `${maxMB / 1024} GB` });
   const response = await fetch(`/api/transcribe?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
   const reply = await response.json().catch(() => ({})) as { result?: boolean; error?: unknown };
   if (reply.error) throw parseCallError(reply.error);

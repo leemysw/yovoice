@@ -334,6 +334,8 @@ type Preferences struct {
 	HiddenFeatures []string `json:"hiddenFeatures,omitempty"`
 	// Engine 是推理引擎的运行参数（设置 › 推理引擎 › 高级运行参数），为空时全部沿用默认值。
 	Engine *EngineSettings `json:"engine,omitempty"`
+	// Transcribe 是语音转写的限制与断句参数（设置 › 常规 › 语音转写），为空时全部沿用默认值。
+	Transcribe *TranscribeSettings `json:"transcribe,omitempty"`
 }
 
 // OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）、语音转写与 Ocho 助手。

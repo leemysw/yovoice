@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "Chuyển âm thanh hoặc video thành văn bản và phụ đề."
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "Chép lời"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "Giới hạn tệp và cách chia phụ đề thành dòng. Cài đặt dòng áp dụng cho bản chép lời mới và những bản chưa chỉnh sửa."
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "Kích thước tối đa (MB)"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "Thời lượng tối đa (phút)"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "Tối đa 180 phút. Càng dài, chép lời càng dùng nhiều bộ nhớ."
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "Số ký tự tối đa mỗi dòng"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "Chữ Hán, Kana và Hangul tính là 1, ký tự khác tính là 0,5."
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "Số giây tối đa mỗi dòng"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "Xuống dòng sau khi ngừng (giây)"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "Bắt đầu dòng mới khi người nói ngừng lâu chừng này."
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "Khôi phục mặc định"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Trợ lý nổi và các gợi ý."
   },
@@ -4218,7 +4251,10 @@
     "defaultMessage": "Không nhận ra lời nói nào. Hãy kiểm tra âm thanh có giọng nói rõ ràng"
   },
   "@yovoice.error.transcribeTooLarge": {
-    "defaultMessage": "Tệp âm thanh hoặc video phải nhỏ hơn 4 GB."
+    "defaultMessage": "Tệp âm thanh hoặc video phải nhỏ hơn {size}. Bạn có thể đổi giới hạn trong Cài đặt › Chung › Chép lời."
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "Âm thanh hoặc video phải dài tối đa {minutes} phút. Bạn có thể đổi giới hạn trong Cài đặt › Chung › Chép lời."
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Bản chép lời này đã bị xóa hoặc thiếu tệp phụ đề"

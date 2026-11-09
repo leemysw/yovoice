@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "Convierte audio o vídeo en texto y subtítulos."
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "Transcripción"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "Límites de archivo y cómo se dividen los subtítulos en líneas. Los ajustes de línea se aplican a transcripciones nuevas y a las que aún no has editado."
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "Tamaño máximo (MB)"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "Duración máxima (minutos)"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "Hasta 180 minutos. Cuanto más largo, más memoria usa la transcripción."
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "Caracteres máximos por línea"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "Los caracteres chinos, japoneses y coreanos cuentan 1; los demás, 0,5."
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "Segundos máximos por línea"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "Nueva línea tras pausa (segundos)"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "Empieza una línea nueva cuando se hace una pausa así de larga."
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "Restablecer valores"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "El asistente flotante y sus sugerencias."
   },
@@ -4218,7 +4251,10 @@
     "defaultMessage": "No se reconoció ningún texto. Comprueba que el audio tenga voz clara"
   },
   "@yovoice.error.transcribeTooLarge": {
-    "defaultMessage": "Los archivos de audio o vídeo deben ocupar menos de 4 GB."
+    "defaultMessage": "Los archivos de audio o vídeo deben ocupar menos de {size}. Puedes cambiar el límite en Ajustes › General › Transcripción."
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "El audio o vídeo debe durar como máximo {minutes} minutos. Puedes cambiar el límite en Ajustes › General › Transcripción."
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Esta transcripción se eliminó o falta su archivo de subtítulos"

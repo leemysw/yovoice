@@ -4022,6 +4022,39 @@
   "@yovoice.settings.featureTranscribeHint": {
     "defaultMessage": "Превращает аудио и видео в текст и субтитры."
   },
+  "@yovoice.settings.transcribe": {
+    "defaultMessage": "Расшифровка"
+  },
+  "@yovoice.settings.transcribeHint": {
+    "defaultMessage": "Лимиты файлов и разбиение субтитров на строки. Настройки строк применяются к новым и ещё не отредактированным расшифровкам."
+  },
+  "@yovoice.settings.transcribeMaxFile": {
+    "defaultMessage": "Макс. размер файла (МБ)"
+  },
+  "@yovoice.settings.transcribeMaxMinutes": {
+    "defaultMessage": "Макс. длительность (мин)"
+  },
+  "@yovoice.settings.transcribeMaxMinutesHint": {
+    "defaultMessage": "До 180 минут. Чем длиннее запись, тем больше памяти нужно для расшифровки."
+  },
+  "@yovoice.settings.transcribeLineChars": {
+    "defaultMessage": "Макс. символов в строке"
+  },
+  "@yovoice.settings.transcribeLineCharsHint": {
+    "defaultMessage": "Китайские, японские и корейские символы считаются за 1, остальные — за 0,5."
+  },
+  "@yovoice.settings.transcribeLineSeconds": {
+    "defaultMessage": "Макс. секунд в строке"
+  },
+  "@yovoice.settings.transcribeLinePause": {
+    "defaultMessage": "Новая строка после паузы (с)"
+  },
+  "@yovoice.settings.transcribeLinePauseHint": {
+    "defaultMessage": "Начинать новую строку, если пауза в речи длится столько."
+  },
+  "@yovoice.settings.transcribeReset": {
+    "defaultMessage": "Сбросить по умолчанию"
+  },
   "@yovoice.settings.featureAssistantHint": {
     "defaultMessage": "Плавающий ассистент и его подсказки."
   },
@@ -4218,7 +4251,10 @@
     "defaultMessage": "Речь не распознана. Убедитесь, что в записи есть отчётливый голос"
   },
   "@yovoice.error.transcribeTooLarge": {
-    "defaultMessage": "Аудио- или видеофайл должен быть меньше 4 ГБ."
+    "defaultMessage": "Аудио- или видеофайл должен быть меньше {size}. Лимит можно изменить в «Настройки › Общие › Расшифровка»."
+  },
+  "@yovoice.error.transcribeDuration": {
+    "defaultMessage": "Аудио или видео должно быть не длиннее {minutes} мин. Лимит можно изменить в «Настройки › Общие › Расшифровка»."
   },
   "@yovoice.error.transcriptMissing": {
     "defaultMessage": "Эта расшифровка удалена или её файл субтитров отсутствует"

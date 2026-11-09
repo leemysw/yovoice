@@ -7,15 +7,15 @@ import { call, transcribeSpeechFile } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 import { useElapsed } from '../../shared/lib/use-elapsed';
-import { formatTime, type State } from '../../shared/workbench';
+import { formatTime, transcribeSettings, type State } from '../../shared/workbench';
 import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from '../library/library-layout';
 import { WaveRing } from '../library/wave-ring';
 import { micError, RecordingMeter, useRecorder } from '../media/recorder';
 import { TranscriptEditor } from './transcript-editor';
 import { TranscriptMenu } from './transcript-menu';
 
-// 录音最长 1 小时，与转写上限一致；码率压低到 32 kbps，一小时的录音也在上传上限以内。
-const recordLimit = 3600, recordBitrate = 32000;
+// 录音码率压低到 32 kbps，三小时的录音也只有约 40 MB；录音时长上限跟随设置里的转写时长上限。
+const recordBitrate = 32000;
 
 // 语音转写页：与作品库一样用票根列出保存的转写，上传音频或直接录音生成新的一份；
 // 打开一份转写进入字幕编辑。录音与识别进度在列表上方原地显示，出错在页面里说明，不走全局通知。
@@ -23,6 +23,8 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
   const t = useTranslator();
   const locale = useLocale();
   const input = useRef<HTMLInputElement>(null);
+  const settings = transcribeSettings(state.preferences);
+  const recordLimit = settings.maxMinutes * 60;
   const recorder = useRecorder(recordLimit);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
@@ -49,7 +51,7 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
     setPendingName(file.name.replace(/\.[^.]+$/, ''));
     setSince(activity?.startedAt ?? null);
     setKnown(transcripts.map(item => item.id));
-    try { await transcribeSpeechFile(file); }
+    try { await transcribeSpeechFile(file, settings.maxFileMB); }
     catch (e) { setSince(undefined); setKnown(null); setError(formatCallError(t, e)); }
   }
   async function record() {
@@ -69,7 +71,7 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
 
   const fileInput = <input ref={input} hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.mkv,.mp4,.mov" aria-label={t('@yovoice.transcribe.upload')}
     onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void start(file); }} />;
-  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} onBack={() => open(null)} /></>;
+  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} lines={settings} onBack={() => open(null)} /></>;
 
   // 正在录音或识别时不能再发起；其他任务占用推理时提示稍后。
   const blocked = busy || recorder.recording;

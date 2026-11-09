@@ -6,6 +6,8 @@ export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 // 作品的运行方式：是否边生成边试听。
 export interface RuntimeSettings { streaming?: boolean }
 // 推理引擎的运行参数（设置 › 推理引擎），对所有模型生效；session 的键带模型族前缀。
+// 语音转写的限制与断句参数（设置 › 常规 › 语音转写），不填的项用默认值（见 transcribeDefaults）。
+export interface TranscribeSettings { maxFileMB?: number; maxMinutes?: number; lineChars?: number; lineSeconds?: number; linePause?: number }
 export interface EngineSettings { threads?: number; device?: number; idleUnloadSeconds?: number; session?: Record<string, string | number | boolean> }
 export interface SynthesisSettings {
   runtime?: RuntimeSettings;
@@ -110,7 +112,7 @@ export interface CleanupReport {
   cleanedCount: number;
   freedBytes: number;
 }
-export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; engine?: EngineSettings }
+export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; engine?: EngineSettings; transcribe?: TranscribeSettings }
 // 可在设置中隐藏的功能入口：故事配音、音乐生成（含编曲与音效）与 Ocho 助手，默认全部显示。
 export const optionalFeatures = ['story', 'music', 'transcribe', 'assistant'] as const;
 export type Feature = typeof optionalFeatures[number];
