@@ -612,8 +612,16 @@ func packageStage(m schema.InstalledModel, prefix, family, task string) (string,
 	return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
 }
 
-// SeparateVocals 用歌词对齐模型包里的 BS-RoFormer 从混音分出人声，写到 output；input 须为 44.1 kHz WAV。
-func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema.InstalledModel, backend, input, output string, progress func(msg.Code, msg.Params)) (err error) {
+// SeparateVocals 用 BS-RoFormer 从混音快速分出人声（单遍推理），写到 output；input 须为 44.1 kHz WAV。
+// 歌词对齐只需要听得清人声，单遍推理比包内默认的 4 次重叠快约 4 倍。
+func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema.InstalledModel, backend, input, output string, progress func(msg.Code, msg.Params)) error {
+	return e.SplitVocals(ctx, executable, m, backend, input, output, "", true, progress)
+}
+
+// SplitVocals 用 BS-RoFormer 把混音分成人声（vocals）和伴奏（instrumental，混音减人声），instrumental 为空时只写人声。
+// 模型可以是单独下载的 BS-RoFormer，也可以是歌词对齐或语音识别包里带的那一份。fast 为假时用包内默认的
+// 4 次重叠推理，音质最好，用于分轨。
+func (e *Engine) SplitVocals(ctx context.Context, executable string, m schema.InstalledModel, backend, input, vocals, instrumental string, fast bool, progress func(msg.Code, msg.Params)) (err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	defer func() {
@@ -621,12 +629,18 @@ func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema
 			e.stop()
 		}
 	}()
-	path, definition, err := packageStage(m, "BS-RoFormer", "bs_roformer", "sep")
-	if err != nil {
+	path, definition := m.Path, catalog.ModelPackage{}
+	if definition, err = catalog.Lookup(m.ID); err != nil {
 		return err
 	}
-	// 包内默认 4 次重叠推理是为了分轨音质；对齐只需要听得清人声，单遍推理快约 4 倍。
-	definition.SessionOptions = map[string]string{"bs_roformer.num_overlap": "1"}
+	if definition.Family != "bs_roformer" {
+		if path, definition, err = packageStage(m, "BS-RoFormer", "bs_roformer", "sep"); err != nil {
+			return err
+		}
+	}
+	if fast {
+		definition.SessionOptions = map[string]string{"bs_roformer.num_overlap": "1"}
+	}
 	if err = e.start(ctx, executable, path, definition, backend, false, 0, progress); err != nil {
 		return err
 	}
@@ -635,17 +649,26 @@ func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema
 	if err != nil {
 		return err
 	}
+	outputs := map[string]string{"vocals": vocals, "instrumental": instrumental}
+	written := 0
 	for _, stem := range result.Stems {
-		if stem.ID != "vocals" {
+		target := outputs[stem.ID]
+		if target == "" {
 			continue
 		}
 		b, err := base64.StdEncoding.DecodeString(stem.Audio)
 		if err != nil || len(b) <= 44 {
 			return msg.Err(msg.ErrEngineNoAudio, nil)
 		}
-		return os.WriteFile(output, b, 0600)
+		if err = os.WriteFile(target, b, 0600); err != nil {
+			return err
+		}
+		written++
 	}
-	return msg.Err(msg.ErrEngineNoAudio, nil)
+	if written == 0 || (instrumental != "" && written < 2) {
+		return msg.Err(msg.ErrEngineNoAudio, nil)
+	}
+	return nil
 }
 
 // AlignWords 用歌词对齐包或语音识别包里的 Qwen3 Forced Aligner 把 text 逐字对到 wav（16 kHz 人声）上；

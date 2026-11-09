@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "Trennt einen Song in Schlagzeug, Bass, Gesang, Gitarre, Klavier und Sonstiges · 44,1 kHz Stereo"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "Hochwertige Gesangstrennung (BS-RoFormer) · nach der Installation trennt „Stems trennen“ zuerst den Gesang und teilt dann die Begleitung – klarerer Gesang, weniger Übersprechen"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "Wandelt einen Song in Mehrinstrumenten-MIDI um, das du im Arrangement weiter bearbeiten kannst · Nur nicht kommerziell (CC BY-NC)"
   },

@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "把一首歌分成鼓、贝斯、人声、吉他、钢琴和其他六轨 · 44.1 kHz 立体声"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "高质量人声分离（BS-RoFormer）· 装好后“分离音轨”先用它分出人声，再拆伴奏，人声更干净、不串轨"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "把一首歌转为多乐器 MIDI，可在编曲页继续编辑 · 仅限非商业用途（CC BY-NC）"
   },

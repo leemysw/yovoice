@@ -4355,6 +4355,9 @@
   "@yovoice.settings.modelDesc.stems": {
     "defaultMessage": "Splits a song into drums, bass, vocals, guitar, piano and other · 44.1 kHz stereo"
   },
+  "@yovoice.settings.modelDesc.vocalSplit": {
+    "defaultMessage": "High-quality vocal separation (BS-RoFormer) · once installed, “Separate stems” isolates vocals with it first, then splits the accompaniment — cleaner vocals, less bleed"
+  },
   "@yovoice.settings.modelDesc.muscriptor": {
     "defaultMessage": "Transcribes a song into multi-instrument MIDI you can keep editing in Arrange · Non-commercial use only (CC BY-NC)"
   },
