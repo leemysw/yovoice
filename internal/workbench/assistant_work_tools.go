@@ -21,7 +21,12 @@ func (w *Workbench) listWorksTool(ctx context.Context, req *mcp.CallToolRequest,
 		if in.Kind != "" && in.Kind != kind {
 			continue
 		}
-		works = append(works, map[string]any{"id": d.ID, "kind": kind, "title": d.Title, "updatedAt": d.UpdatedAt})
+		work := map[string]any{"id": d.ID, "kind": kind, "title": d.Title, "updatedAt": d.UpdatedAt}
+		// 音乐作品带上风格，写新歌时可以对照已有作品，避免每首都是同一种流派和速度。
+		if kind == "music" {
+			work["style"] = schema.TruncateRunes(d.Text, 200)
+		}
+		works = append(works, work)
 	}
 	w.chatCard("list_works", fmt.Sprintf("查看了作品列表（%d 个）", len(works)), fmt.Sprintf("Viewed the works list (%d)", len(works)), "done")
 	return nil, map[string]any{"works": works}, nil

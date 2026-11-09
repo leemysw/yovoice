@@ -14,6 +14,8 @@
 - Transcribe now accepts audio and video files up to 4 GB and 1 hour by default, so videos no longer need converting to audio first. Both limits, plus how subtitles are split into lines (characters and seconds per line, pause length), can be changed in Settings › General › Transcribe.
 - Transcript lines no longer leave the last one or two characters of a sentence on a line of their own.
 - With ModelScope selected as the download source, YuE2, SheetSage2, Ming 3.0 TTS, Phonon and ACE-Step 1.5 XL Turbo (BF16) now download from ModelScope instead of falling back to hf-mirror.
+- YuE2 songs vary more: Write score now uses a new random seed each time instead of returning the same score for the same lyrics and style. Instrumentals without lyrics no longer always follow one form. The style can be up to 2000 characters, so you can describe how a song unfolds, and Ocho writes YuE2 styles and section tags that way. The default score-writing settings shown match the official ones.
+- For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
 
 ### 简体中文
 
@@ -25,6 +27,8 @@
 - 语音转写默认支持 4 GB、1 小时以内的音频和视频文件，视频不必先转成音频；文件与时长上限，以及字幕每行字数、每行时长和停顿换行，都可以在“设置 › 常规 › 语音转写”里调整。
 - 修复转写字幕偶尔把一句话最后一两个字单独断成一行的问题。
 - 下载来源选 ModelScope 时，YuE2、SheetSage2、Ming 3.0 TTS、Phonon 和 ACE-Step 1.5 XL Turbo（BF16）改从 ModelScope 下载，不再转到 hf-mirror。
+- YuE2 歌曲更多变：「写旋律谱」每次换一个随机种子，同样的歌词和风格不再总写出同一份谱；不填歌词的纯音乐不再总是同一种曲式；风格描述最多 2000 字，可以写歌曲怎样展开，Ocho 也会这样写风格和段落标记；写谱参数显示的默认值与官方一致。
+- YuE2 右侧面板新增“歌曲展开”：选择演唱语言、速度以及开场、展开和结尾的方式，对应的描述会加进风格；Ocho 写新歌时也会对照已有作品，避开相同的流派和速度。
 
 ## [0.6.0] - 2026-11-09
 

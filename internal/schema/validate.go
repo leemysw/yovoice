@@ -270,12 +270,20 @@ func Validate(d Draft) error {
 // MusicLanguages 是 ACE-Step 规划器接受的演唱语言；unknown 交给模型判断。
 var MusicLanguages = []string{"ar", "az", "bg", "bn", "ca", "cs", "da", "de", "el", "en", "es", "fa", "fi", "fr", "he", "hi", "hr", "ht", "hu", "id", "is", "it", "ja", "ko", "la", "lt", "ms", "ne", "nl", "no", "pa", "pl", "pt", "ro", "ru", "sa", "sk", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur", "vi", "yue", "zh", "unknown"}
 
+// MusicStyleLimit 是风格描述的字数上限：YuE2 接受成段的编配描述（官方示例常超过 512 字），其余音乐模型保持 512。
+func MusicStyleLimit(family string) int {
+	if family == "yue2" {
+		return 2000
+	}
+	return 512
+}
+
 func validateMusic(d Draft, family string) error {
 	if strings.TrimSpace(d.Title) == "" || TextLen(d.Title) > 120 {
 		return msg.Err(msg.ErrTitleLength, nil)
 	}
-	if strings.TrimSpace(d.Text) == "" || TextLen(d.Text) > 512 {
-		return msg.Err(msg.ErrMusicStyle, nil)
+	if limit := MusicStyleLimit(family); strings.TrimSpace(d.Text) == "" || TextLen(d.Text) > limit {
+		return msg.Err(msg.ErrMusicStyle, msg.Params{"max": limit})
 	}
 	if TextLen(d.Lyrics) > 4000 {
 		return msg.Err(msg.ErrMusicLyrics, nil)

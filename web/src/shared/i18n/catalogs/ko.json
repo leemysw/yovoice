@@ -1923,7 +1923,7 @@
     "defaultMessage": "연기 이름 변경"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "스타일을 1~512자로 설명하세요."
+    "defaultMessage": "스타일을 1~{max}자로 설명하세요."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "가사는 최대 4000자까지 입력할 수 있습니다."
@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "녹음 중"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "곡 전개"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2는 문장 설명도 읽습니다. 언어와 템포를 고르고 시작·전개·끝맺음을 골라 곡마다 흐름을 다르게 하세요."
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "가창 언어"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "템포"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "시작"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "전개"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "끝맺음"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "표준 중국어로 노래"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "광둥어로 노래"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "영어로 노래"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "일본어로 노래"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "한국어로 노래"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "느림 · 발라드"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "보통 · 팝, R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "경쾌 · 댄스, 록"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "빠름 · 펑크, 일렉트로닉"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "바로 노래가 시작됨"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "긴 악기 인트로로 시작"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "후렴 훅으로 시작"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "잔잔한 벌스, 밝은 후렴"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "브리지는 악기를 덜어냄"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "마지막 후렴 전 악기 솔로"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "마지막 후렴으로 크게 고조"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "인트로 테마로 페이드아웃"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "마지막 한 줄은 아카펠라"
   }
 }

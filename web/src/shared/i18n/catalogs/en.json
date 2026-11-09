@@ -1923,7 +1923,7 @@
     "defaultMessage": "Rename performance"
   },
   "@yovoice.error.musicStyle": {
-    "defaultMessage": "Describe the style in 1–512 characters."
+    "defaultMessage": "Describe the style in 1–{max} characters."
   },
   "@yovoice.error.musicLyrics": {
     "defaultMessage": "Lyrics can be up to 4000 characters."
@@ -4726,5 +4726,80 @@
   },
   "@yovoice.transcribe.recording": {
     "defaultMessage": "Recording"
+  },
+  "@yovoice.music.arrangement": {
+    "defaultMessage": "Song shape"
+  },
+  "@yovoice.music.arrangementHint": {
+    "defaultMessage": "YuE2 reads whole phrases: pick the language and tempo, then how the song opens, builds and ends, so each song moves differently."
+  },
+  "@yovoice.music.tagGroup.language": {
+    "defaultMessage": "Sung language"
+  },
+  "@yovoice.music.tagGroup.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.music.tagGroup.opening": {
+    "defaultMessage": "Opening"
+  },
+  "@yovoice.music.tagGroup.development": {
+    "defaultMessage": "Development"
+  },
+  "@yovoice.music.tagGroup.ending": {
+    "defaultMessage": "Ending"
+  },
+  "@yovoice.music.tagHint.mandarin": {
+    "defaultMessage": "Sung in Mandarin"
+  },
+  "@yovoice.music.tagHint.cantonese": {
+    "defaultMessage": "Sung in Cantonese"
+  },
+  "@yovoice.music.tagHint.english": {
+    "defaultMessage": "Sung in English"
+  },
+  "@yovoice.music.tagHint.japanese": {
+    "defaultMessage": "Sung in Japanese"
+  },
+  "@yovoice.music.tagHint.korean": {
+    "defaultMessage": "Sung in Korean"
+  },
+  "@yovoice.music.tagHint.72-bpm": {
+    "defaultMessage": "Slow · ballads"
+  },
+  "@yovoice.music.tagHint.96-bpm": {
+    "defaultMessage": "Medium · pop, R&B"
+  },
+  "@yovoice.music.tagHint.120-bpm": {
+    "defaultMessage": "Upbeat · dance, rock"
+  },
+  "@yovoice.music.tagHint.150-bpm": {
+    "defaultMessage": "Fast · punk, electronic"
+  },
+  "@yovoice.music.tagHint.vocals-enter-immediately": {
+    "defaultMessage": "The voice starts right away"
+  },
+  "@yovoice.music.tagHint.long-instrumental-intro": {
+    "defaultMessage": "A long instrumental intro first"
+  },
+  "@yovoice.music.tagHint.opens-on-the-chorus-hook": {
+    "defaultMessage": "Opens on the chorus hook"
+  },
+  "@yovoice.music.tagHint.intimate-verses-and-a-bright-singable-chorus": {
+    "defaultMessage": "Quiet verses, a bright catchy chorus"
+  },
+  "@yovoice.music.tagHint.stripped-down-bridge": {
+    "defaultMessage": "A sparse, stripped-down bridge"
+  },
+  "@yovoice.music.tagHint.instrumental-solo-before-the-last-chorus": {
+    "defaultMessage": "An instrumental solo before the last chorus"
+  },
+  "@yovoice.music.tagHint.builds-to-a-big-final-chorus": {
+    "defaultMessage": "Builds to a big final chorus"
+  },
+  "@yovoice.music.tagHint.fades-out-on-the-intro-theme": {
+    "defaultMessage": "Fades out on the intro theme"
+  },
+  "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
+    "defaultMessage": "Ends on one unaccompanied line"
   }
 }
