@@ -14,7 +14,9 @@ import (
 
 // 分离结果逐轨写盘（id 在 audio 前后都能识别）：不需要的轨和其他字段跳过；回包中途断开时报错，而不是把半截音频当成结果。
 func TestRunStemsWritesEachStem(t *testing.T) {
-	wav := func(n int) string { return base64.StdEncoding.EncodeToString(append([]byte("RIFF"), make([]byte, n)...)) }
+	wav := func(n int) string {
+		return base64.StdEncoding.EncodeToString(append([]byte("RIFF"), make([]byte, n)...))
+	}
 	big := wav(4 << 20)
 	truncate := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
