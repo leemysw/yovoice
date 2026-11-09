@@ -4576,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "Fixa"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "Versão do modelo"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "Mais recente"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "Antes de {date}"
   }
 }

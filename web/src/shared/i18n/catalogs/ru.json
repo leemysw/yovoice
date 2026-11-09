@@ -4576,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "Фиксированная"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "Версия модели"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "Последняя"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "До обновления {date}"
   }
 }

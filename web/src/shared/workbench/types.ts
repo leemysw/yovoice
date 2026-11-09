@@ -48,8 +48,11 @@ export interface Voice { referenceText?: string; source?: string; sourceGenerati
 /** 导入的录音过长时自动截取的片段：start/end 为在原录音里的秒数，total 为原录音时长。 */
 export interface VoiceExcerpt { start: number; end: number; total: number }
 export interface ModelFile { path: string; size: number; sha256: string }
-export interface ModelPackage { voices?: string[]; variant?: string; maxDuration?: number; loadOptions?: Record<string, string>; sessionOptions?: Record<string, string>; files?: ModelFile[]; directory?: string; stripPrefix?: string; task?: string; engineMinimum?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
-export interface InstalledModel { id: string; path: string; managed: boolean; sha256?: string }
+export interface ModelPackage { voices?: string[]; variant?: string; maxDuration?: number; loadOptions?: Record<string, string>; sessionOptions?: Record<string, string>; files?: ModelFile[]; directory?: string; stripPrefix?: string; task?: string; engineMinimum?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string; history?: ModelVersion[] }
+/** 被目录更新替换掉的旧版本，replaced 为替换日期；多文件包的版本由 files 里主文件的摘要区分。 */
+export interface ModelVersion { replaced: string; revision: string; modelScopeRevision: string; size: number; sha256?: string; files?: ModelFile[] }
+/** pinned：用户主动换到了旧版本，不再提示更新。 */
+export interface InstalledModel { id: string; path: string; managed: boolean; sha256?: string; pinned?: boolean }
 export interface GenerationSegment { cueId: string; speakerId: string; speakerName: string; batchId: string; index: number; targetClipId?: string; placement?: 'ripple' | 'preserve' }
 // 本机 Codex CLI 的检测结果：path 为空表示未安装，login 为 chatgpt、apikey 或空（未登录）。
 export interface CodexInfo { path?: string; version?: string; login?: 'chatgpt' | 'apikey' }

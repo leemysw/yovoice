@@ -8,7 +8,9 @@ import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { CircleCheck, FolderOpen, Download, Pause, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { call } from '../../shared/lib/client';
-import { formatBytes, groupModels, modelUpdateAvailable, type Draft, type ModelPackage, type State } from '../../shared/workbench';
+import { formatBytes, groupModels, modelMainFile, modelUpdateAvailable, modelVersionDigest, type Draft, type ModelPackage, type State } from '../../shared/workbench';
+import { formatDateTime } from '../../shared/i18n/format';
+import { Selector } from '../../shared/selector';
 import { SettingsGroup } from '../../shared/ui/settings-group';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 
@@ -74,7 +76,13 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
     const owned = group.filter(isInstalled);
     const update = modelUpdateAvailable(state, model);
     // 应用下载的模型移除时连同文件删除；导入的模型只解除登记。
-    const managed = state.models.find(m => m.id === model.id)?.managed ?? false;
+    const record = state.models.find(m => m.id === model.id);
+    const managed = record?.managed ?? false;
+    // 目录更新替换过的模型可以换回旧版本；已安装文件不属于任何已知版本（如自行转换的导入文件）时不显示。
+    const latest = modelMainFile(model).sha256;
+    const versions = model.history?.length ? [{ value: latest, label: t('@yovoice.settings.modelVersionLatest') },
+      ...model.history.map(version => ({ value: modelVersionDigest(model, version), label: t('@yovoice.settings.modelVersionBefore', { date: formatDateTime(version.replaced, state.preferences.uiLocale, 'date') }) }))] : [];
+    const currentVersion = ready && versions.some(version => version.value === record?.sha256) ? record?.sha256 : undefined;
     return <VStack className="model-row settings-row" data-model-id={model.id} data-model-ids={group.map(item => item.id).join(' ')} data-installed={ready} key={group[0].name} gap={3}>
       <HStack className="model-summary" gap={4} vAlign="center" wrap="wrap">
         <VStack className="grow" gap={1}>
@@ -93,6 +101,8 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
           {!ready && !downloading ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.importLocalModel')} tooltip={t('@yovoice.settings.localModelHint')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} /> : null}
           {downloading ? <Button size="sm" label={t('@yovoice.action.pause')} icon={<Pause size={16} />} onClick={() => run(() => call('model.cancel'))} />
             : ready ? <HStack gap={1} vAlign="center">
+              {currentVersion ? <Selector size="sm" className="model-version" label={t('@yovoice.settings.modelVersion')} isLabelHidden value={currentVersion} options={versions} isDisabled={busy || modelBusy}
+                onChange={version => { if (version !== currentVersion) run(() => call('model.download', { id: model.id, version: version === latest ? undefined : version })); }} width="calc(var(--spacing-10) * 4)" /> : null}
               {update ? <Button size="sm" variant="secondary" label={t('@yovoice.settings.updateModel')} icon={<RefreshCw size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
               <Button size="sm" variant="ghost" label={t('@yovoice.settings.removeModel')} icon={<Trash2 size={16} />} isDisabled={removeBlocked} tooltip={removeBlocked ? t('@yovoice.settings.removeBlocked') : t(managed ? '@yovoice.settings.removeManagedTooltip' : '@yovoice.settings.removeTooltip')} onClick={() => run(() => call('model.forget', { id: model.id }))} />
             </HStack>

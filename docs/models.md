@@ -29,6 +29,10 @@ In Settings → Voice models, Music models or Score sound fonts, choose the matc
 
 Single-file imports check the GGUF header and model family and record the file's SHA-256. Locally converted GGUFs are accepted, but you must choose the correct version and precision; a matching family does not guarantee that every custom conversion is usable. Multi-file packages and SF2 imports must match the supported package checksums. Raw PyTorch (`.pth`, `.pt`, `.safetensors`) and MLX weights cannot run in the native audio.cpp engine directly: convert them with the matching upstream audio.cpp converter first. Importing does not install or run Python and does not convert weights automatically. Imported models use the same voice and advanced generation controls as downloaded models.
 
+## Model versions and rollback
+
+When the model catalog updates, downloaded models show **Update available**. Models replaced by a catalog update also get a version picker in Settings: choosing **Before <date> update** downloads the earlier file from its pinned repository commit, verifies it and replaces the current file, and the update prompt stops. Choose **Latest** to go back. Switching versions keeps no second copy on disk and works with all three download sources.
+
 ## Model files and hardware
 
 | Model | Parameters | Model file size by precision | Core capabilities |

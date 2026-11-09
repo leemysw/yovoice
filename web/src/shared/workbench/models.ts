@@ -1,11 +1,13 @@
 // 模型包的判断：按模型 id 识别家族与用途、设置页分组、新作品的默认模型，以及是否需要参考音色。
-import type { Draft, ModelFile, ModelPackage, State } from './types';
+import type { Draft, ModelFile, ModelPackage, ModelVersion, State } from './types';
 
 export const modelMainFile = (model: ModelPackage): ModelFile => model.files?.find(file => file.path === model.remotePath) ?? { path: model.remotePath, size: model.size, sha256: model.sha256 };
 export const modelUpdateAvailable = (state: Pick<State, 'models'>, model: ModelPackage) => {
   const installed = state.models.find(item => item.id === model.id);
-  return installed?.sha256 && installed.sha256 !== modelMainFile(model).sha256 ? installed : undefined;
+  return installed?.sha256 && !installed.pinned && installed.sha256 !== modelMainFile(model).sha256 ? installed : undefined;
 };
+/** 旧版本的主文件摘要，用来和已安装模型记录的 sha256 比对、作为 model.download 的 version。 */
+export const modelVersionDigest = (model: ModelPackage, version: ModelVersion) => version.files?.find(file => file.path === model.remotePath)?.sha256 ?? version.sha256 ?? '';
 
 export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
 /** Stable Audio 3 用英文描述生成纯音乐或音效，不唱歌词；可在作品已有的版本上改编或局部重绘。 */

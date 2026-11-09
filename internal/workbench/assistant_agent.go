@@ -328,7 +328,7 @@ func (w *Workbench) runProposal(p schema.AssistantProposal) error {
 	case "delete_character":
 		return w.DeleteCharacter(p.Target)
 	case "install_model":
-		return w.DownloadModel(p.Target)
+		return w.DownloadModel(p.Target, "")
 	case "install_engine":
 		return w.InstallRuntime()
 	case "cleanup_storage":

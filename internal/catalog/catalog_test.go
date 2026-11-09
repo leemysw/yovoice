@@ -83,3 +83,61 @@ func TestRepoFileURL(t *testing.T) {
 		}
 	}
 }
+
+// 旧版本按当时的提交下载：三个下载源都指向那次提交，文件大小与摘要取旧值，未知版本报错。
+func TestModelVersionAt(t *testing.T) {
+	m, err := Lookup("kokoro-82m-q8")
+	if err != nil || len(m.History) == 0 {
+		t.Fatal(err, m.History)
+	}
+	latest, _ := m.At("")
+	if same, _ := m.At(m.SHA256); latest.SHA256 != m.SHA256 || same.SHA256 != m.SHA256 {
+		t.Fatal("最新版应保持不变")
+	}
+	v := m.History[0]
+	old, err := m.At(v.SHA256)
+	if err != nil || old.Size != v.Size || old.MainFile().SHA256 != v.SHA256 || len(old.History) != 0 {
+		t.Fatal(err, old)
+	}
+	for source, want := range map[string]string{
+		"huggingface": "https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/" + v.Revision + "/" + m.RemotePath,
+		"mirror":      "https://hf-mirror.com/audio-cpp/audio.cpp-gguf/resolve/" + v.Revision + "/" + m.RemotePath,
+		"modelscope":  "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/" + v.ModelScopeRevision + "/" + m.RemotePath,
+	} {
+		if url, _ := old.URL(source); url != want {
+			t.Fatal(source, url)
+		}
+	}
+	if url, _ := m.URL("modelscope"); !strings.Contains(url, ModelScopeRevision) {
+		t.Fatal("最新版仍用当前 ModelScope 提交", url)
+	}
+	if _, err := m.At(strings.Repeat("0", 64)); err == nil {
+		t.Fatal("未知版本应报错")
+	}
+}
+
+// 目录里的旧版本必须可下载：固定完整提交号，主文件摘要与最新版不同，多文件包列全文件且包含主文件。
+func TestModelHistoryComplete(t *testing.T) {
+	commit := regexp.MustCompile(`^[0-9a-f]{40}$`)
+	digest := regexp.MustCompile(`^[0-9a-f]{64}$`)
+	for _, m := range Models {
+		for _, v := range m.History {
+			old, err := m.At(v.SHA256)
+			if v.SHA256 == "" && len(v.Files) > 0 {
+				old, err = m.At(ModelPackage{RemotePath: m.RemotePath, Files: v.Files}.MainFile().SHA256)
+			}
+			if err != nil || !commit.MatchString(v.Revision) || !commit.MatchString(v.ModelScopeRevision) || v.Size <= 0 || v.Replaced == "" {
+				t.Fatal(m.ID, err, v)
+			}
+			if old.MainFile().SHA256 == m.MainFile().SHA256 || !digest.MatchString(old.MainFile().SHA256) {
+				t.Fatal(m.ID, "旧版本主文件与最新版相同或缺少摘要")
+			}
+			if (len(v.Files) > 0) != (len(m.Files) > 0) {
+				t.Fatal(m.ID, "旧版本与最新版的文件结构不同")
+			}
+			if legacy, ok := LegacyModelFiles[m.ID]; ok && legacy.SHA256 != old.MainFile().SHA256 {
+				t.Fatal(m.ID, "旧版本应与冻结表一致")
+			}
+		}
+	}
+}

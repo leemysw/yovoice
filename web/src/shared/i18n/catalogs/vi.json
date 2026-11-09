@@ -4576,5 +4576,14 @@
   },
   "@yovoice.options.value.fixed": {
     "defaultMessage": "Cố định"
+  },
+  "@yovoice.settings.modelVersion": {
+    "defaultMessage": "Phiên bản mô hình"
+  },
+  "@yovoice.settings.modelVersionLatest": {
+    "defaultMessage": "Mới nhất"
+  },
+  "@yovoice.settings.modelVersionBefore": {
+    "defaultMessage": "Trước {date}"
   }
 }

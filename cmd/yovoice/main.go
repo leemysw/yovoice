@@ -427,7 +427,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		p := w.Store.Read().Preferences
 		p.DownloadSource = source
 		if err = w.SavePreferences(p); err == nil {
-			err = waitModel(func() error { return w.DownloadModel(operand) })
+			err = waitModel(func() error { return w.DownloadModel(operand, "") })
 		}
 		result = w.Store.Read().Models
 	case "generate":
