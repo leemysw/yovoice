@@ -84,15 +84,23 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      # Swift 更新器测试不依赖 Go，先在后台编译，与 Go 的准备和测试重叠。
+      - name: Build macOS updater tests in background
+        if: runner.os == 'macOS'
+        run: |
+          (swift build --build-tests --package-path desktop/macos; echo $? > "$RUNNER_TEMP/swift.status") > "$RUNNER_TEMP/swift.log" 2>&1 &
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - run: ${{ matrix.python }} scripts/go-test-shard.py ${{ matrix.shard }} ${{ matrix.total }} -v
+      - run: ${{ matrix.python }} scripts/go-test-shard.py ${{ matrix.shard }} ${{ matrix.total }}
       - run: python3 scripts/desktop/check-signing.py
         if: runner.os == 'macOS'
       - name: Verify macOS updater
         if: runner.os == 'macOS'
         run: |
+          timeout 600 bash -c 'until [[ -f "$RUNNER_TEMP/swift.status" ]]; do sleep 1; done'
+          cat "$RUNNER_TEMP/swift.log"
+          if [[ "$(cat "$RUNNER_TEMP/swift.status")" != 0 ]]; then exit 1; fi
           swift test --package-path desktop/macos
           python3 scripts/desktop/check-macos-update.py
   package:
@@ -300,7 +308,8 @@ jobs:
       - run: pnpm --dir web exec playwright install --only-shell chromium
       - run: pnpm --dir web run lint
         if: matrix.shard == 1
-      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/3
+      # 用例大多在等待音频时钟与界面，CPU 占用低；4 核运行器上开 4 个 worker（默认只开一半）。
+      - run: pnpm --dir web exec playwright test --shard=${{ matrix.shard }}/3 --workers=4
         env:
           # 定时与手动触发时全量运行，包括已封存的用例。
           PW_ALL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
