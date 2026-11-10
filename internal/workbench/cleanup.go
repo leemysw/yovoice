@@ -45,6 +45,7 @@ func (w *Workbench) removeStale() {
 	// Kokoro 发音库安装中途退出时遗留的临时目录。
 	remove(filepath.Join(root, "runtime"), func(e os.DirEntry) bool { return e.IsDir() && strings.HasPrefix(e.Name(), "kokoro-") })
 	w.removeStaleRuntimes()
+	w.removeStaleConversions(nil)
 }
 
 // removeStaleRuntimes 删除当前运行时与各后端已登记内核以外的安装目录。
@@ -386,6 +387,7 @@ func (w *Workbench) CleanupResiduals() (CleanupReport, error) {
 	w.mu.Lock()
 	if w.cancel == nil && w.installCancel == nil {
 		removeStaleFiles(downloads, cutoff, func(name string) bool { return stagingTarget(name) == "" }, &report)
+		w.removeStaleConversions(&report)
 	}
 	// 5. 模型目录里下载或更新中途留下的临时文件：仍属于已登记模型或最近一次下载的保留，其余超过 24 小时的回收。
 	//    有模型下载或目录恢复在进行时整体跳过，保护正在写入或校验的文件。

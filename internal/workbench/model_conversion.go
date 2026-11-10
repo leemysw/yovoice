@@ -8,8 +8,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
@@ -19,6 +21,77 @@ import (
 
 //go:embed converters/index_tts.py
 var indexConversionScript []byte
+
+var conversionRecordName = regexp.MustCompile(`^\.conversion-([0-9a-f]{32})\.json$`)
+
+// 暂存放在成品所在的磁盘；在应用数据目录记录位置，重启时即使已换模型目录也能找到。
+func (w *Workbench) newConversionWorkspace(target string) (string, func(), error) {
+	id := schema.NewID()
+	record := filepath.Join(w.Store.Root, "downloads", ".conversion-"+id+".json")
+	data, err := json.Marshal(target)
+	if err != nil {
+		return "", nil, err
+	}
+	if err := platform.WriteFileAtomic(record, data, 0600); err != nil {
+		return "", nil, err
+	}
+	temp := conversionWorkspacePath(target, id)
+	if err := os.Mkdir(temp, 0700); err != nil {
+		_ = os.Remove(record)
+		return "", nil, err
+	}
+	return temp, func() { w.removeConversionWorkspace(temp, record, nil) }, nil
+}
+
+func conversionWorkspacePath(target, id string) string {
+	return filepath.Join(target, ".yovoice-convert-"+id)
+}
+
+func (w *Workbench) removeConversionWorkspace(temp, record string, report *CleanupReport) {
+	// 模型目录可能在暂时离线的磁盘上。保留记录，等磁盘重新挂载再清理。
+	parent := filepath.Dir(temp)
+	if _, err := os.Stat(parent); err != nil {
+		return
+	}
+	var size int64
+	var existed bool
+	if report != nil {
+		if _, err := os.Lstat(temp); err == nil {
+			existed = true
+			size = dirSize(temp)
+		}
+	}
+	if err := os.RemoveAll(temp); err != nil {
+		diag.Log(w.Store.Root, "model.conversion_cleanup_failed", "path", temp, "error", diag.Error(err))
+		return
+	}
+	if existed {
+		report.CleanedCount++
+		report.FreedBytes += size
+	}
+	platform.SyncDir(parent)
+	if err := os.Remove(record); err != nil && !os.IsNotExist(err) {
+		diag.Log(w.Store.Root, "model.conversion_record_remove_failed", "path", record, "error", diag.Error(err))
+	}
+}
+
+// 调用方须确保本数据目录没有正在运行的转换任务。
+func (w *Workbench) removeStaleConversions(report *CleanupReport) {
+	dir := filepath.Join(w.Store.Root, "downloads")
+	entries, _ := os.ReadDir(dir)
+	for _, entry := range entries {
+		match := conversionRecordName.FindStringSubmatch(entry.Name())
+		if match == nil || !entry.Type().IsRegular() {
+			continue
+		}
+		record := filepath.Join(dir, entry.Name())
+		data, err := os.ReadFile(record)
+		var target string
+		if err == nil && json.Unmarshal(data, &target) == nil && filepath.IsAbs(target) {
+			w.removeConversionWorkspace(conversionWorkspacePath(target, match[1]), record, report)
+		}
+	}
+}
 
 type LocalModelConversion struct {
 	ID        string `json:"id"`
@@ -78,11 +151,11 @@ func (w *Workbench) convertIndexModel(ctx context.Context, input LocalModelConve
 	if space < uint64(2*model.Size+(100<<20)) {
 		return msg.Err(msg.ErrModelDirSpace, nil)
 	}
-	temp, err := os.MkdirTemp(target, ".yovoice-convert-")
+	temp, cleanup, err := w.newConversionWorkspace(target)
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(temp)
+	defer cleanup()
 	script := filepath.Join(temp, "index_tts.py")
 	stage, output := filepath.Join(temp, "stage"), filepath.Join(temp, "model.gguf")
 	if err := platform.WriteFileAtomic(script, indexConversionScript, 0600); err != nil {
@@ -134,6 +207,10 @@ func runLocalConverter(ctx context.Context, dir, executable string, args ...stri
 	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = dir
 	platform.ConfigureProcess(cmd)
+	cmd.Cancel = func() error {
+		platform.KillProcess(cmd)
+		return nil
+	}
 	_, err := cmd.Output()
 	if err == nil {
 		return nil
