@@ -109,8 +109,10 @@ test('上传音频转写后保存为记录：编辑字幕自动保存，重新�
 
 test('录音后直接转写：停止录音即上传，新记录自动打开；放弃录音不转写', async ({ page }) => {
   await page.addInitScript(() => {
-    // 模拟麦克风：getUserMedia 返回没有音轨的流，MediaRecorder 停止时交出一小段数据。
-    navigator.mediaDevices.getUserMedia = async () => new MediaStream();
+    // 无头 WebKit 可能没有媒体设备接口。测试用空音轨的流，不申请真实麦克风。
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true, value: { getUserMedia: async () => ({ getTracks: () => [], getAudioTracks: () => [] }) },
+    });
     class FakeRecorder extends EventTarget {
       state = 'inactive'; mimeType = 'audio/webm'; stream: MediaStream;
       ondataavailable: ((event: { data: Blob }) => void) | null = null; onstop: (() => void) | null = null;
@@ -164,4 +166,47 @@ test('语音版本导出字幕：先对齐正文时间，保存在版本上，�
   await page.getByRole('button', { name: '音频操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '导出字幕', exact: true }).click();
   await expect(dialog).toContainText('字幕时间已对齐');
+});
+
+declare global { interface Window { __transcribeTrackCalls: { method: string; data: unknown }[] } }
+
+test('多音轨上传可取消或选择指定音轨，确认时不重复上传', async ({ page }) => {
+  const state = emptyState();
+  state.models = [recognizer];
+  state.preferences = { ...state.preferences, introSeen: true, tourSeen: true };
+  await page.addInitScript(state => {
+    window.__transcribeTrackCalls = [];
+    let receive: (event: { data: unknown }) => void;
+    Object.defineProperty(window, 'chrome', { value: { webview: {
+      addEventListener: (_name: string, listener: typeof receive) => { receive = listener; },
+      postMessage: (message: { id: string; method: string; data: unknown }) => queueMicrotask(() => {
+        if (message.method.startsWith('speech.transcribe.')) window.__transcribeTrackCalls.push({ method: message.method, data: message.data });
+        const result = message.method === 'state.get' ? { state, catalog: [], engine: { version: 'v0.9.3' }, assistant: { available: false } } : true;
+        receive({ data: { id: message.id, result } });
+      }),
+    } } });
+  }, state);
+  let uploads = 0;
+  await page.route('**/api/transcribe?*', route => {
+    uploads++;
+    return route.fulfill({ json: { result: { id: String(uploads), tracks: [
+      { number: 1, language: 'eng', title: 'English', default: true, codec: 'aac' },
+      { number: 2, language: 'jpn', title: '日本語', codec: 'eac3' },
+    ] } } });
+  });
+  await page.goto('/');
+  await page.getByTestId('nav-transcribe').click();
+  await upload(page);
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: '选择转写音轨' })).toBeVisible();
+  await dialog.getByRole('button', { name: '取消', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.__transcribeTrackCalls)).toEqual([{ method: 'speech.transcribe.discard', data: { id: '1' } }]);
+  await upload(page);
+  await dialog.getByRole('combobox').click();
+  await page.getByRole('option', { name: /音轨 2.*日本語.*EAC3/ }).click();
+  await dialog.getByRole('button', { name: '转写所选音轨' }).click();
+  await expect.poll(() => page.evaluate(() => window.__transcribeTrackCalls[1])).toEqual({
+    method: 'speech.transcribe.select', data: { id: '2', name: '采访录音.mp3', track: 2 },
+  });
+  expect(uploads).toBe(2);
 });

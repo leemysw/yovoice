@@ -170,6 +170,10 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.alignModelRequired` 请先在设置的音乐模型里下载歌词对齐模型
 - `error.recognizeModelRequired` 请先在设置的语音模型里下载语音识别模型 Qwen3 ASR
 - `error.recognizeEmpty` 没有识别出文字，请换一段人声更清晰的样本
+- `error.transcribeVocalModel` 预先提取人声需要安装 BS-RoFormer 或歌词对齐模型。
+- `error.transcribeNoTrack` 这个文件没有音轨。
+- `error.transcribeTrackInvalid` 所选音轨不存在。
+- `error.transcribeTrackExpired` 上传文件已失效，请重新选择文件。
 - `error.transcribeEmpty` 没有识别出文字，请确认音频里有清晰的人声
 - `error.transcribeTooLarge` 音视频文件需小于 {size}。可以在“设置 › 常规 › 语音转写”里调整上限。
 - `error.transcribeDuration` 音视频时长需在 {minutes} 分钟以内。可以在“设置 › 常规 › 语音转写”里调整上限。

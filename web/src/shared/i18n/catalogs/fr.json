@@ -4807,5 +4807,41 @@
   },
   "@yovoice.error.localModelProtected": {
     "defaultMessage": "Retirez le modèle installé de la liste avant de changer de source."
+  },
+  "@yovoice.transcribe.chooseTrack": {
+    "defaultMessage": "Choisir une piste audio"
+  },
+  "@yovoice.transcribe.audioTrack": {
+    "defaultMessage": "Piste {number}"
+  },
+  "@yovoice.transcribe.defaultTrack": {
+    "defaultMessage": "Par défaut"
+  },
+  "@yovoice.transcribe.startTrack": {
+    "defaultMessage": "Transcrire la piste sélectionnée"
+  },
+  "@yovoice.error.transcribeNoTrack": {
+    "defaultMessage": "Ce fichier ne contient aucune piste audio."
+  },
+  "@yovoice.error.transcribeTrackInvalid": {
+    "defaultMessage": "La piste audio sélectionnée n’existe pas."
+  },
+  "@yovoice.error.transcribeTrackExpired": {
+    "defaultMessage": "Le fichier téléversé n’est plus disponible. Sélectionnez-le à nouveau."
+  },
+  "@yovoice.error.transcribeVocalModel": {
+    "defaultMessage": "Installez BS-RoFormer ou le modèle d’alignement des paroles pour isoler les voix avant la transcription."
+  },
+  "@yovoice.settings.transcribeNormalize": {
+    "defaultMessage": "Normaliser le volume sonore"
+  },
+  "@yovoice.settings.transcribeNormalizeHint": {
+    "defaultMessage": "Ajuste le volume pour la reconnaissance et limite les crêtes. La lecture conserve le niveau d’origine."
+  },
+  "@yovoice.settings.transcribeIsolate": {
+    "defaultMessage": "Isoler d’abord les voix"
+  },
+  "@yovoice.settings.transcribeIsolateHint": {
+    "defaultMessage": "Atténue la musique de fond avec BS-RoFormer. Nécessite BS-RoFormer ou le modèle d’alignement des paroles et prend plus de temps."
   }
 }

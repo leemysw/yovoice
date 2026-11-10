@@ -2,7 +2,6 @@ package workbench
 
 import (
 	"context"
-	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -98,116 +97,6 @@ func (w *Workbench) toolModel(s schema.State, families ...string) (schema.Instal
 		}
 	}
 	return schema.InstalledModel{}, msg.Err(msg.ErrRecognizeModelRequired, nil)
-}
-
-// MaxTranscribeUpload 是转写上传在请求层的硬上限（设置里允许的最大值）；实际上限按设置在接收时检查。
-const MaxTranscribeUpload = int64(schema.TranscribeFileMBMax) << 20
-
-// 转写：上传的文件大小与时长上限按设置（默认 4 GB、60 分钟）；按停顿切成不超过 transcribeChunk 秒的段逐段识别，
-// 识别和对齐都在一段里完成，段越短越稳，30 秒以内识别质量最好。
-const transcribeChunk = 30.0
-
-// TranscribeSpeech 用语音识别模型转写上传的音频：逐段识别出文字和逐词时间，接成整段保存为转写记录，
-// 由转写页编辑并导出字幕。name 是原文件名，用作记录名称与导出时的默认名称。
-func (w *Workbench) TranscribeSpeech(name string, r io.Reader) error {
-	settings := w.Store.Read().Preferences.Transcribe
-	limit, size := settings.FileLimit()
-	seconds := settings.Minutes() * 60
-	upload, e := w.receiveUpTo(r, limit, msg.Err(msg.ErrTranscribeTooLarge, msg.Params{"size": size}))
-	if e != nil {
-		return e
-	}
-	w.edit.Lock()
-	defer w.edit.Unlock()
-	s := w.Store.Read()
-	model, e := w.toolModel(s, "qwen3_asr")
-	if e != nil {
-		_ = os.Remove(upload)
-		return e
-	}
-	// WAV 直接读取，其他格式交给安装包里的转换器；没有转换器时在开始前就提示。
-	converter := ""
-	if _, e := audio.Duration(upload); e != nil {
-		if converter, e = audio.Converter(); e != nil {
-			_ = os.Remove(upload)
-			return e
-		}
-	}
-	original := name
-	name = transcriptName(name)
-	_, e = w.start("generate", msg.ActivityRecognize, nil, &model.ID, func(ctx context.Context) error {
-		// 保存成功时上传的文件已移作原音频，这里的删除不会生效。
-		defer os.Remove(upload)
-		runtimeDir := filepath.Join(w.Store.Root, "runtime")
-		if e := os.MkdirAll(runtimeDir, 0700); e != nil {
-			return e
-		}
-		dir, e := os.MkdirTemp(runtimeDir, "transcribe-")
-		if e != nil {
-			return e
-		}
-		defer os.RemoveAll(dir)
-		wav := upload
-		if converter != "" {
-			wav = filepath.Join(dir, "source.wav")
-			if e := audio.ConvertWithLimit(ctx, converter, upload, wav, seconds); e != nil {
-				return e
-			}
-		}
-		samples, rate, e := audio.ReadMono(wav)
-		if e != nil {
-			return e
-		}
-		duration := float64(len(samples)) / float64(max(rate, 1))
-		if duration > float64(seconds) {
-			return msg.Err(msg.ErrTranscribeDuration, msg.Params{"minutes": seconds / 60})
-		}
-		speech := audio.Resample(samples, rate, recognizeRate)
-		chunks := speechChunks(speech, recognizeRate, int(transcribeChunk*recognizeRate))
-		var text, language string
-		var words []schema.LyricWord
-		for j, c := range chunks {
-			part := filepath.Join(dir, "part.wav")
-			if e := audio.WriteMono(part, speech[c[0]:c[1]], recognizeRate); e != nil {
-				return e
-			}
-			// 引擎就绪后报告的“正在识别”换成带段数的进度；启动引擎等其他消息照常显示。
-			progress := func(code msg.Code, params msg.Params) {
-				if code == msg.ActivityRecognize {
-					code, params = msg.ActivityTranscribeSpeech, msg.Params{"done": j + 1, "total": len(chunks)}
-				}
-				w.progress(code, params, int64(j), int64(len(chunks)))
-			}
-			result, e := w.engine.Recognize(ctx, *s.RuntimePath, model, s.Preferences.Backend, part, true, progress)
-			if e != nil {
-				return e
-			}
-			text = joinSpeech(text, result.Text)
-			if language == "" {
-				language = result.Language
-			}
-			offset := float64(c[0]) / recognizeRate
-			for _, a := range result.Words {
-				start := offset + a.Start
-				words = append(words, schema.LyricWord{Word: a.Word, Start: round3(start), End: round3(max(start, offset+a.End))})
-			}
-		}
-		if strings.TrimSpace(text) == "" {
-			return msg.Err(msg.ErrTranscribeEmpty, nil)
-		}
-		diag.Log(w.Store.Root, "speech.transcribed", "seconds", round3(duration), "chunks", len(chunks), "chars", schema.TextLen(text), "words", len(words), "language", language)
-		if words == nil {
-			words = []schema.LyricWord{}
-		}
-		record := schema.Transcript{ID: schema.NewID(), Name: name, Language: language, Duration: round3(duration), CreatedAt: time.Now().UTC()}
-		return w.saveTranscript(record, schema.TranscriptContent{Text: text, Words: words}, upload, original, converter == "")
-	})
-	if e == nil {
-		w.tagActivity("transcribe")
-	} else {
-		_ = os.Remove(upload)
-	}
-	return e
 }
 
 // transcriptName 去掉文件名的目录与扩展名，限制长度；空名留给界面用默认名。

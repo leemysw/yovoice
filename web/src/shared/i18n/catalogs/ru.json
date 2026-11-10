@@ -4807,5 +4807,41 @@
   },
   "@yovoice.error.localModelProtected": {
     "defaultMessage": "Перед сменой источника удалите регистрацию установленной модели."
+  },
+  "@yovoice.transcribe.chooseTrack": {
+    "defaultMessage": "Выбрать звуковую дорожку"
+  },
+  "@yovoice.transcribe.audioTrack": {
+    "defaultMessage": "Дорожка {number}"
+  },
+  "@yovoice.transcribe.defaultTrack": {
+    "defaultMessage": "По умолчанию"
+  },
+  "@yovoice.transcribe.startTrack": {
+    "defaultMessage": "Расшифровать выбранную дорожку"
+  },
+  "@yovoice.error.transcribeNoTrack": {
+    "defaultMessage": "В этом файле нет звуковых дорожек."
+  },
+  "@yovoice.error.transcribeTrackInvalid": {
+    "defaultMessage": "Выбранной звуковой дорожки нет."
+  },
+  "@yovoice.error.transcribeTrackExpired": {
+    "defaultMessage": "Загруженный файл больше недоступен. Выберите его снова."
+  },
+  "@yovoice.error.transcribeVocalModel": {
+    "defaultMessage": "Установите BS-RoFormer или модель выравнивания текста песни, чтобы выделять голос перед расшифровкой."
+  },
+  "@yovoice.settings.transcribeNormalize": {
+    "defaultMessage": "Нормализовать громкость"
+  },
+  "@yovoice.settings.transcribeNormalizeHint": {
+    "defaultMessage": "Подстраивает громкость для распознавания и ограничивает пики. При воспроизведении сохраняется исходная громкость."
+  },
+  "@yovoice.settings.transcribeIsolate": {
+    "defaultMessage": "Сначала выделить голос"
+  },
+  "@yovoice.settings.transcribeIsolateHint": {
+    "defaultMessage": "BS-RoFormer приглушает фоновую музыку. Требуется BS-RoFormer или модель выравнивания текста песни, обработка занимает больше времени."
   }
 }

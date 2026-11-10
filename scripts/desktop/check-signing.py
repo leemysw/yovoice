@@ -47,11 +47,12 @@ if name == 'xcrun' and args[:2] == ['notarytool', 'submit']:
     result, calls = run(YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1')
     assert result.returncode == 0, result.stderr
     signed = [call for call in calls if call[0] == 'codesign' and '--sign' in call]
-    assert len(signed) == 4 and all('--timestamp' in call and 'runtime' in call for call in signed)
+    assert len(signed) == 5 and all('--timestamp' in call and 'runtime' in call for call in signed)
     assert signed[0][-1].endswith('/service/yovoice-service')
     assert signed[1][-1].endswith('/engine/audiocpp_server')
     assert signed[2][-1].endswith("/tools/ffmpeg")
-    assert signed[3][-1] == str(app)
+    assert signed[3][-1].endswith('/tools/ffprobe')
+    assert signed[4][-1] == str(app)
     submit = next(i for i, call in enumerate(calls) if call[:3] == ['xcrun', 'notarytool', 'submit'])
     staple = next(i for i, call in enumerate(calls) if call[:3] == ['xcrun', 'stapler', 'staple'])
     assert submit < staple and calls[-1][0] == 'spctl'
@@ -69,8 +70,9 @@ if name == 'xcrun' and args[:2] == ['notarytool', 'submit']:
     result, calls = run(cli, YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1')
     assert result.returncode == 0, result.stderr
     signed = [call for call in calls if call[0] == 'codesign' and '--sign' in call]
-    assert len(signed) == 2 and all('--timestamp' in call and 'runtime' in call for call in signed)
+    assert len(signed) == 3 and all('--timestamp' in call and 'runtime' in call for call in signed)
     assert signed[0][-1].endswith('/tools/ffmpeg')
+    assert signed[1][-1].endswith('/tools/ffprobe')
     assert any(call[:3] == ['xcrun', 'notarytool', 'submit'] for call in calls)
     assert not any(call[:2] == ['xcrun', 'stapler'] for call in calls)
     result, calls = run(cli, YOVOICE_CODESIGN_IDENTITY=identity, YOVOICE_NOTARIZE='1', CHECK_STATUS='Invalid')

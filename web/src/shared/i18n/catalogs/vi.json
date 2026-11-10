@@ -4807,5 +4807,41 @@
   },
   "@yovoice.error.localModelProtected": {
     "defaultMessage": "Hãy bỏ đăng ký mô hình đã cài đặt trước khi đổi nguồn."
+  },
+  "@yovoice.transcribe.chooseTrack": {
+    "defaultMessage": "Chọn bản âm thanh"
+  },
+  "@yovoice.transcribe.audioTrack": {
+    "defaultMessage": "Bản âm thanh {number}"
+  },
+  "@yovoice.transcribe.defaultTrack": {
+    "defaultMessage": "Mặc định"
+  },
+  "@yovoice.transcribe.startTrack": {
+    "defaultMessage": "Chép lời bản đã chọn"
+  },
+  "@yovoice.error.transcribeNoTrack": {
+    "defaultMessage": "Tệp này không có bản âm thanh."
+  },
+  "@yovoice.error.transcribeTrackInvalid": {
+    "defaultMessage": "Bản âm thanh đã chọn không tồn tại."
+  },
+  "@yovoice.error.transcribeTrackExpired": {
+    "defaultMessage": "Tệp đã tải lên không còn khả dụng. Hãy chọn lại tệp."
+  },
+  "@yovoice.error.transcribeVocalModel": {
+    "defaultMessage": "Cài BS-RoFormer hoặc mô hình căn chỉnh lời bài hát để tách giọng trước khi chép lời."
+  },
+  "@yovoice.settings.transcribeNormalize": {
+    "defaultMessage": "Chuẩn hóa độ lớn âm thanh"
+  },
+  "@yovoice.settings.transcribeNormalizeHint": {
+    "defaultMessage": "Điều chỉnh độ lớn để nhận dạng và giới hạn đỉnh. Khi phát lại vẫn giữ mức âm thanh gốc."
+  },
+  "@yovoice.settings.transcribeIsolate": {
+    "defaultMessage": "Tách giọng trước"
+  },
+  "@yovoice.settings.transcribeIsolateHint": {
+    "defaultMessage": "Dùng BS-RoFormer để giảm nhạc nền. Cần BS-RoFormer hoặc mô hình căn chỉnh lời bài hát và mất thêm thời gian."
   }
 }
