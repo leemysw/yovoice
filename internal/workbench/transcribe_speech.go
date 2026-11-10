@@ -75,13 +75,6 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 		var speech []float32
 		if settings.IsolateVocals {
 			speech, err = w.transcribeVocals(ctx, s, splitter, converter, wav, dir, duration)
-			// 分离需要 44.1 kHz 双声道输入；试听文件与不分离时一样存 24 kHz 单声道，长视频不多占磁盘。
-			if err == nil && wav != upload {
-				playback := filepath.Join(dir, "playback.wav")
-				if err = audio.ConvertTrack(ctx, converter, wav, playback, 0, 1, 24000, 0); err == nil {
-					wav = playback
-				}
-			}
 		} else {
 			var samples []float32
 			var rate int
@@ -135,6 +128,14 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 			words = []schema.LyricWord{}
 		}
 		record := schema.Transcript{ID: schema.NewID(), Name: transcriptName(original), Language: language, Duration: round3(duration), CreatedAt: time.Now().UTC()}
+		if settings.IsolateVocals {
+			// 双声道原音轨只供分离使用，试听保留未处理的原音轨，但统一转成 24 kHz 单声道。
+			playback := filepath.Join(dir, "playback.wav")
+			if err := audio.ConvertWithLimit(ctx, converter, wav, playback, seconds); err != nil {
+				return err
+			}
+			wav = playback
+		}
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -147,17 +148,18 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 }
 
 // 每分钟分别分离人声，长录音不会一次性占用分轨模型的内存。
-// 每段前后多取几秒送去分离，只保留中间部分，避免切点两侧缺少上下文造成残留或截断。
-// 分离结果按原片段时长补齐或截断，保持逐词时间与所选音轨的播放位置一致。
+// 各段前后多取两秒供模型处理边界，只保留对应原时间轴的中间部分。
 func (w *Workbench) transcribeVocals(ctx context.Context, s schema.State, model schema.InstalledModel, converter, wav, dir string, duration float64) ([]float32, error) {
-	const segmentSeconds, padSeconds = 60, 2
+	const segmentSeconds, contextSeconds = 60, 2
 	total := int(duration * recognizeRate)
 	speech := make([]float32, total)
 	part, vocals := filepath.Join(dir, "vocal-input.wav"), filepath.Join(dir, "vocals.wav")
 	segments := (total + segmentSeconds*recognizeRate - 1) / (segmentSeconds * recognizeRate)
 	for i := range segments {
-		from := max(0, i*segmentSeconds-padSeconds)
-		if err := audio.StereoSegment(ctx, converter, wav, part, separateRate, from, i*segmentSeconds-from+segmentSeconds+padSeconds); err != nil {
+		start := i * segmentSeconds
+		windowStart := max(0, start-contextSeconds)
+		windowLength := start - windowStart + segmentSeconds + contextSeconds
+		if err := audio.StereoSegment(ctx, converter, wav, part, separateRate, windowStart, windowLength); err != nil {
 			return nil, err
 		}
 		progress := func(code msg.Code, params msg.Params) { w.progress(code, params, int64(i), int64(segments)) }
@@ -168,10 +170,11 @@ func (w *Workbench) transcribeVocals(ctx context.Context, s schema.State, model 
 		if err != nil {
 			return nil, err
 		}
-		voice = audio.Resample(voice, rate, recognizeRate)
-		start := i * segmentSeconds * recognizeRate
-		skip := min(len(voice), (i*segmentSeconds-from)*recognizeRate)
-		copy(speech[start:min(total, start+segmentSeconds*recognizeRate)], voice[skip:])
+		samples := audio.Resample(voice, rate, recognizeRate)
+		offset := (start - windowStart) * recognizeRate
+		// 分离结果较短时，未覆盖的区间保留静音，后续片段的时间不变。
+		end := min(total, (start+segmentSeconds)*recognizeRate)
+		copy(speech[start*recognizeRate:end], samples[min(len(samples), offset):])
 		_ = os.Remove(vocals)
 	}
 	return speech, nil
