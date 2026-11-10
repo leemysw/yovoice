@@ -301,3 +301,86 @@ func TestCancelActiveModelDownloadStopsTransferAndKeepsInstallation(t *testing.T
 		t.Fatal(string(data))
 	}
 }
+
+// 更新提交后回收旧的托管包，旧版布局和新版专用目录都不留下另一份文件。
+func TestModelUpdateRetiresPreviousManagedPackage(t *testing.T) {
+	root := t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	defer w.Close()
+	oldData, newData := []byte("old weights....."), []byte("new weights!!!!!")
+	old, newer := modelTestFile("voice.gguf", oldData), modelTestFile("voice.gguf", newData)
+	definition := catalog.ModelPackage{
+		ID: "voice", RemotePath: "voice.gguf", SHA256: newer.SHA256, Size: newer.Size, Revision: "latest",
+		History: []catalog.ModelVersion{{Revision: "old", ModelScopeRevision: "old", SHA256: old.SHA256, Size: old.Size}},
+	}
+	legacy := filepath.Join(root, "models", "voice.gguf")
+	must(t, os.MkdirAll(filepath.Dir(legacy), 0700))
+	must(t, os.WriteFile(legacy, oldData, 0600))
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{{ID: "voice", Path: legacy, Managed: true, SHA256: old.SHA256}}
+	}, true))
+	server := httptest.NewServer(http.HandlerFunc(func(out http.ResponseWriter, req *http.Request) {
+		if strings.Contains(req.URL.Path, "/old/") {
+			_, _ = out.Write(oldData)
+			return
+		}
+		_, _ = out.Write(newData)
+	}))
+	defer server.Close()
+	useModelTestServer(t, w, server)
+
+	must(t, w.downloadCatalogModel(definition, ""))
+	<-w.ModelDone()
+	updated, _ := installedModel(w.Store.Read(), "voice")
+	if updated.SHA256 != newer.SHA256 || !existsPath(updated.Path) {
+		t.Fatal(updated, w.Store.Read().ModelActivity)
+	}
+	if existsPath(legacy) {
+		t.Fatal("旧版布局的包应在更新后删除")
+	}
+
+	// 切回历史版本：上一份专用目录整体回收。
+	must(t, w.downloadCatalogModel(definition, old.SHA256))
+	<-w.ModelDone()
+	pinned, _ := installedModel(w.Store.Read(), "voice")
+	if !pinned.Pinned || pinned.SHA256 != old.SHA256 || !existsPath(pinned.Path) {
+		t.Fatal(pinned)
+	}
+	if existsPath(filepath.Dir(updated.Path)) {
+		t.Fatal("上一份专用包目录应在切换后删除")
+	}
+}
+
+// 重新指定模型目录时认回应用下载的专用包目录，按托管登记并识别历史版本。
+func TestAdoptModelsRecognizesDownloadedPackages(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	dir := t.TempDir()
+	oldData, newData := []byte("old weights....."), []byte("new weights!!!!!")
+	old, newer := modelTestFile("voice.gguf", oldData), modelTestFile("voice.gguf", newData)
+	single := catalog.ModelPackage{
+		ID: "voice", RemotePath: "voice.gguf", SHA256: newer.SHA256, Size: newer.Size,
+		History: []catalog.ModelVersion{{Revision: "old", SHA256: old.SHA256, Size: old.Size}},
+	}
+	files := []catalog.ModelFile{modelTestFile("main.gguf", newData), modelTestFile("config.json", oldData)}
+	multi := catalog.ModelPackage{ID: "multi", Directory: "multi", RemotePath: files[0].Path, Files: files}
+	singleRoot := filepath.Join(dir, ".yovoice-model-"+schema.NewID())
+	multiRoot := filepath.Join(dir, ".yovoice-model-"+schema.NewID())
+	must(t, os.Mkdir(singleRoot, 0700))
+	must(t, os.Mkdir(multiRoot, 0700))
+	must(t, os.WriteFile(filepath.Join(singleRoot, "voice.gguf"), oldData, 0600))
+	must(t, os.WriteFile(filepath.Join(multiRoot, "main.gguf"), newData, 0600))
+	must(t, os.WriteFile(filepath.Join(multiRoot, "config.json"), oldData, 0600))
+	must(t, w.adoptModels(context.Background(), dir, []catalog.ModelPackage{single, multi}))
+	s := w.Store.Read()
+	voice, ok := installedModel(s, "voice")
+	if !ok || !voice.Managed || !voice.Pinned || voice.SHA256 != old.SHA256 || voice.Path != filepath.Join(singleRoot, "voice.gguf") {
+		t.Fatal(voice)
+	}
+	pack, ok := installedModel(s, "multi")
+	if !ok || !pack.Managed || pack.Pinned || pack.Path != multiRoot {
+		t.Fatal(pack)
+	}
+}

@@ -75,6 +75,13 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 		var speech []float32
 		if settings.IsolateVocals {
 			speech, err = w.transcribeVocals(ctx, s, splitter, converter, wav, dir, duration)
+			// 分离需要 44.1 kHz 双声道输入；试听文件与不分离时一样存 24 kHz 单声道，长视频不多占磁盘。
+			if err == nil && wav != upload {
+				playback := filepath.Join(dir, "playback.wav")
+				if err = audio.ConvertTrack(ctx, converter, wav, playback, 0, 1, 24000, 0); err == nil {
+					wav = playback
+				}
+			}
 		} else {
 			var samples []float32
 			var rate int
@@ -140,15 +147,17 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 }
 
 // 每分钟分别分离人声，长录音不会一次性占用分轨模型的内存。
+// 每段前后多取几秒送去分离，只保留中间部分，避免切点两侧缺少上下文造成残留或截断。
 // 分离结果按原片段时长补齐或截断，保持逐词时间与所选音轨的播放位置一致。
 func (w *Workbench) transcribeVocals(ctx context.Context, s schema.State, model schema.InstalledModel, converter, wav, dir string, duration float64) ([]float32, error) {
-	const segmentSeconds = 60
+	const segmentSeconds, padSeconds = 60, 2
 	total := int(duration * recognizeRate)
 	speech := make([]float32, total)
 	part, vocals := filepath.Join(dir, "vocal-input.wav"), filepath.Join(dir, "vocals.wav")
 	segments := (total + segmentSeconds*recognizeRate - 1) / (segmentSeconds * recognizeRate)
 	for i := range segments {
-		if err := audio.StereoSegment(ctx, converter, wav, part, separateRate, i*segmentSeconds, segmentSeconds); err != nil {
+		from := max(0, i*segmentSeconds-padSeconds)
+		if err := audio.StereoSegment(ctx, converter, wav, part, separateRate, from, i*segmentSeconds-from+segmentSeconds+padSeconds); err != nil {
 			return nil, err
 		}
 		progress := func(code msg.Code, params msg.Params) { w.progress(code, params, int64(i), int64(segments)) }
@@ -159,8 +168,10 @@ func (w *Workbench) transcribeVocals(ctx context.Context, s schema.State, model 
 		if err != nil {
 			return nil, err
 		}
+		voice = audio.Resample(voice, rate, recognizeRate)
 		start := i * segmentSeconds * recognizeRate
-		copy(speech[start:min(total, start+segmentSeconds*recognizeRate)], audio.Resample(voice, rate, recognizeRate))
+		skip := min(len(voice), (i*segmentSeconds-from)*recognizeRate)
+		copy(speech[start:min(total, start+segmentSeconds*recognizeRate)], voice[skip:])
 		_ = os.Remove(vocals)
 	}
 	return speech, nil

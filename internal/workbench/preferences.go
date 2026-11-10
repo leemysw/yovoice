@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"runtime"
 	"slices"
@@ -96,9 +97,18 @@ func (w *Workbench) SetModelDirectoryContext(ctx context.Context, path string) e
 	return w.adoptModels(ctx, path, catalog.Models)
 }
 
-// adoptModels 只认完整且摘要匹配的包。目录中已有的文件按外部导入登记，不归应用删除。
+// adoptModels 只认完整且摘要匹配的包。应用下载的专用包目录（.yovoice-model-*）按托管登记，
+// 可继续更新和随移除删除；目录根部按旧版布局放置的文件按外部导入登记，不归应用删除。
 func (w *Workbench) adoptModels(ctx context.Context, dir string, models []catalog.ModelPackage) error {
 	initial := w.Store.Read()
+	var packages []string
+	if entries, err := os.ReadDir(dir); err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() && modelTransferDirectory.MatchString(entry.Name()) {
+				packages = append(packages, filepath.Join(dir, entry.Name()))
+			}
+		}
+	}
 	var found []schema.InstalledModel
 	for _, m := range models {
 		if old, ok := installedModel(initial, m.ID); ok && existsPath(old.Path) {
@@ -107,41 +117,18 @@ func (w *Workbench) adoptModels(ctx context.Context, dir string, models []catalo
 		if _, pending := initial.ModelDownloads[m.ID]; pending {
 			continue
 		}
-		path := filepath.Join(dir, filepath.Base(m.RemotePath))
-		if len(m.Files) > 0 {
-			path = filepath.Join(dir, m.Directory)
-		}
-		main := m.MainFile()
-		files := m.PackageFiles()
-		if len(m.Files) == 0 && download.FileSize(path) != main.Size {
-			legacy := catalog.LegacyModelFiles[m.ID]
-			if legacy.Size <= 0 || download.FileSize(path) != legacy.Size {
-				continue
-			}
-			main = legacy
-			files = []catalog.ModelFile{legacy}
-		}
-		valid := true
-		for _, file := range files {
-			target := path
-			if len(m.Files) > 0 {
-				target = filepath.Join(path, filepath.FromSlash(m.LocalPath(file.Path)))
-			}
-			if file.Size <= 0 || download.FileSize(target) != file.Size {
-				valid = false
+		model, ok, err := adoptLegacyLayout(ctx, dir, m)
+		for _, root := range packages {
+			if ok || err != nil {
 				break
 			}
-			digest, err := download.Hash(ctx, target)
-			if err != nil || digest != file.SHA256 {
-				valid = false
-				break
-			}
+			model, ok, err = adoptPackage(ctx, root, m)
 		}
-		if err := ctx.Err(); err != nil {
+		if err != nil {
 			return err
 		}
-		if valid {
-			found = append(found, schema.InstalledModel{ID: m.ID, Path: path, SHA256: main.SHA256})
+		if ok {
+			found = append(found, model)
 		}
 	}
 	if len(found) == 0 {
@@ -163,6 +150,78 @@ func (w *Workbench) adoptModels(ctx context.Context, dir string, models []catalo
 			putInstalledModel(s, model)
 		}
 	}, true)
+}
+
+// adoptLegacyLayout 认回旧版直接放在目录根部的包：单文件匹配当前或更新前清单，多文件须匹配当前清单。
+func adoptLegacyLayout(ctx context.Context, dir string, m catalog.ModelPackage) (schema.InstalledModel, bool, error) {
+	path := filepath.Join(dir, filepath.Base(m.RemotePath))
+	if len(m.Files) > 0 {
+		path = filepath.Join(dir, m.Directory)
+	}
+	main, files := m.MainFile(), m.PackageFiles()
+	if len(m.Files) == 0 && download.FileSize(path) != main.Size {
+		legacy := catalog.LegacyModelFiles[m.ID]
+		if legacy.Size <= 0 || download.FileSize(path) != legacy.Size {
+			return schema.InstalledModel{}, false, nil
+		}
+		main, files = legacy, []catalog.ModelFile{legacy}
+	}
+	ok, err := packageVerified(ctx, m, path, files)
+	return schema.InstalledModel{ID: m.ID, Path: path, SHA256: main.SHA256}, ok, err
+}
+
+// adoptPackage 认回应用下载的专用包目录，按主文件摘要确定版本，再校验该版本的全部文件。
+func adoptPackage(ctx context.Context, root string, m catalog.ModelPackage) (schema.InstalledModel, bool, error) {
+	mainPath := filepath.Join(root, filepath.Base(m.RemotePath))
+	if len(m.Files) > 0 {
+		mainPath = filepath.Join(root, filepath.FromSlash(m.LocalPath(m.RemotePath)))
+	}
+	size := download.FileSize(mainPath)
+	known := size == m.MainFile().Size
+	for _, version := range m.History {
+		if old, err := m.At(version.SHA256); err == nil && old.MainFile().Size == size {
+			known = true
+		}
+	}
+	if size <= 0 || !known {
+		return schema.InstalledModel{}, false, nil
+	}
+	digest, err := download.Hash(ctx, mainPath)
+	if err != nil {
+		return schema.InstalledModel{}, false, ctx.Err()
+	}
+	version, err := m.At(digest)
+	if err != nil {
+		return schema.InstalledModel{}, false, nil
+	}
+	path := root
+	if len(m.Files) == 0 {
+		path = mainPath
+	}
+	ok, err := packageVerified(ctx, version, path, version.PackageFiles())
+	latest := m.MainFile().SHA256
+	return schema.InstalledModel{ID: m.ID, Path: path, Managed: true, SHA256: digest, Pinned: digest != latest}, ok, err
+}
+
+// packageVerified 校验包内每个文件的大小和摘要；path 是单文件模型的文件或多文件模型的目录。
+func packageVerified(ctx context.Context, m catalog.ModelPackage, path string, files []catalog.ModelFile) (bool, error) {
+	for _, file := range files {
+		target := path
+		if len(m.Files) > 0 {
+			target = filepath.Join(path, filepath.FromSlash(m.LocalPath(file.Path)))
+		}
+		if file.Size <= 0 || download.FileSize(target) != file.Size {
+			return false, nil
+		}
+		digest, err := download.Hash(ctx, target)
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
+		if err != nil || digest != file.SHA256 {
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
 // performanceFirstEngine 是性能优先模式所需的最低内核：各模型的 perf_mode=cuda_perf 从 v0.9.3 起才有。

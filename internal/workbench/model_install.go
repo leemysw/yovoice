@@ -52,13 +52,17 @@ func (w *Workbench) ForgetModel(id string) error {
 	if err != nil {
 		return err
 	}
-	// 真正删除放在锁外：删几 GB 的模型期间不挡住生成、下载与取消。
+	w.removeRetired(id, doomed)
+	return nil
+}
+
+// removeRetired 在锁外删除已改名的文件：删几 GB 的模型期间不挡住生成、下载与取消。
+func (w *Workbench) removeRetired(id string, doomed []string) {
 	for _, path := range doomed {
 		if err := os.RemoveAll(path); err != nil {
 			diag.Log(w.Store.Root, "model.files_remove_failed", "model_id", id, "path", path, "error", diag.Error(err))
 		}
 	}
-	return nil
 }
 
 // retireModel 在锁内解除登记，并把要删除的文件改名移出原位（同目录改名瞬间完成），返回待删除的路径。
@@ -84,6 +88,11 @@ func (w *Workbench) retireModel(id string) ([]string, error) {
 	if path == "" {
 		return nil, nil
 	}
+	return w.retireFiles(id, path), nil
+}
+
+// retireFiles 把模型文件及其临时文件改名为待删除，调用方须持有 w.mu，并在释放锁后删除返回的路径。
+func (w *Workbench) retireFiles(id, path string) []string {
 	score.ForgetSoundFont(path)
 	var doomed []string
 	for _, candidate := range append([]string{path}, stagingFiles(path)...) {
@@ -98,7 +107,7 @@ func (w *Workbench) retireModel(id string) ([]string, error) {
 		}
 		doomed = append(doomed, target)
 	}
-	return doomed, nil
+	return doomed
 }
 
 // managedModelPath 返回可安全删除的下载模型路径：必须是应用下载的模型，位于模型目录内部（不是目录本身），

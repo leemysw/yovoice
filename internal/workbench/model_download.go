@@ -201,24 +201,40 @@ func (w *Workbench) downloadModelFiles(ctx context.Context, model catalog.ModelP
 	return w.publishModelDownload(ctx, model.ID, job, path, previous.Managed, latest)
 }
 
-// publishModelDownload 一次提交完整包的路径。旧包未被覆盖，失败或中断仍能使用。
+// publishModelDownload 一次提交完整包的路径。提交前旧包未被覆盖，失败或中断仍能使用；
+// 提交后旧的托管包随即回收，更新和切换版本不会留下另一份文件。
 func (w *Workbench) publishModelDownload(ctx context.Context, id string, job schema.ModelDownload, path string, replacing bool, latest string) error {
+	doomed, err := w.commitModelDownload(ctx, id, job, path, replacing, latest)
+	w.removeRetired(id, doomed)
+	return err
+}
+
+func (w *Workbench) commitModelDownload(ctx context.Context, id string, job schema.ModelDownload, path string, replacing bool, latest string) ([]string, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if err := ctx.Err(); err != nil {
-		return err
+		return nil, err
 	}
 	// 内核复用旧模型时先等待推理退出，保留已校验的新包供继续。
+	var previous string
 	if replacing {
 		if w.cancel != nil {
-			return msg.Err(msg.ErrBusy, nil)
+			return nil, msg.Err(msg.ErrBusy, nil)
 		}
 		w.engine.Stop()
+		previous = managedModelPath(w.Store.Read(), w.Store.Root, id)
 	}
-	return w.Store.Update(func(s *schema.State) {
+	if err := w.Store.Update(func(s *schema.State) {
 		putInstalledModel(s, schema.InstalledModel{ID: id, Path: path, Managed: true, SHA256: job.Version, Pinned: job.Version != latest})
 		delete(s.ModelDownloads, id)
-	}, true)
+	}, true); err != nil {
+		return nil, err
+	}
+	// 新包里复用的硬链接各自独立，删除旧路径不影响新包。
+	if previous == "" || store.Within(previous, path) || store.Within(path, previous) {
+		return nil, nil
+	}
+	return w.retireFiles(id, previous), nil
 }
 
 // PauseModelDownload 停止目标任务的网络传输，保留续传数据。
