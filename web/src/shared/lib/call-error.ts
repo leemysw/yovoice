@@ -28,8 +28,11 @@ export function parseCallError(wire: unknown): CallError {
   return new CallError('@yovoice.error.unknown', detail ? { detail } : {});
 }
 
-/** 存入界面状态的错误文本：消息码保持可翻译，未知错误附带底层原因，格式为 `code::detail`。 */
+/** 存入界面状态的错误文本：保留结构化参数，渲染时按当前语言翻译。 */
 export function noticeMessage(error: unknown): string {
-  if (error instanceof CallError && error.code === '@yovoice.error.unknown' && error.params.detail) return `${error.code}::${String(error.params.detail)}`;
+  if (error instanceof CallError && Object.keys(error.params).length) {
+    if (error.code === '@yovoice.error.unknown') return error.params.detail ? `${error.code}::${String(error.params.detail)}` : error.code;
+    return `${error.code}::${JSON.stringify(error.params)}`;
+  }
   return error instanceof Error ? error.message : String(error);
 }

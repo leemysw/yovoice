@@ -87,7 +87,7 @@ export interface Activity {
   modelId?: string | null;
   kind: string;
   // melody 为出谱或扒谱，align 为歌词对齐，recognize 为识别声音样本的参考文本。
-  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption' | 'stems' | 'midi';
+  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption' | 'stems' | 'midi' | 'local-model-import';
   code: MessageCode;
   params: MessageParams | null;
   status: string;

@@ -6,6 +6,8 @@
 
 ### English
 
+- Scan a local folder for model files and confirm their mappings in one step. Convert supported IndexTTS checkpoints on the device. Model imports show verification progress and catch an IndexTTS version mismatch before hashing.
+
 - Model downloads now keep their version and progress when paused. Cancelling a download leaves installed models intact, updates verify the entire new package before removing the old one, and imported weights no longer show catalog update prompts. Selecting an existing download folder can recover verified packages in a cancellable background task.
 - Transcribe opens a track picker for files with multiple audio tracks and plays the selected track in the transcript editor. Extracted playback stays at 24 kHz mono when vocal isolation is enabled. Single-track files start directly. Optional loudness normalization and vocal isolation help with quiet recordings and background music.
 - On Windows, custom data folders with Chinese characters in their paths are now read correctly at startup.
@@ -22,6 +24,8 @@
 - For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
 
 ### 简体中文
+
+- 扫描本地模型目录，确认识别结果后批量登记。支持在本机转换 IndexTTS 检查点。导入时显示校验进度，并在读取整个文件前提示 IndexTTS 版本选错。
 
 - 模型下载可分别暂停、继续和取消，保留所选版本和断点。完整校验后才切换更新并清理旧包，取消不影响已安装模型。导入的本地模型不再误报目录更新。重新选择下载目录时，可以在可取消的后台任务中校验并恢复已有模型包。
 - 转写多音轨文件时可以选择音轨，字幕编辑器会播放所选音轨。开启人声提取时，提取后的试听音轨也采用 24 kHz 单声道。单音轨文件直接开始转写。设置中可选响度归一化和预先提取人声，用于音量偏小或带背景音乐的录音。

@@ -29,6 +29,7 @@ const (
 const (
 	ActivityDownload        Code = "@yovoice.activity.download"
 	ActivityDownloading     Code = "@yovoice.activity.downloading"
+	ActivityModelConverting Code = "@yovoice.activity.modelConverting"
 	ActivityVerifying       Code = "@yovoice.activity.verifying"
 	ActivityRuntimeDownload Code = "@yovoice.activity.runtimeDownload"
 	ActivityRuntimeExtract  Code = "@yovoice.activity.runtimeExtract"
@@ -102,6 +103,8 @@ const (
 	ErrModelOptionUnsupported Code = "@yovoice.error.modelOptionUnsupported"
 
 	ErrLocalModelProtected  Code = "@yovoice.error.localModelProtected"
+	ErrLocalModelVersion    Code = "@yovoice.error.localModelVersion"
+	ErrModelConversion      Code = "@yovoice.error.modelConversion"
 	ErrLocalModelInvalid    Code = "@yovoice.error.localModelInvalid"
 	ErrLocalModelIncomplete Code = "@yovoice.error.localModelIncomplete"
 	ErrModelRequired        Code = "@yovoice.error.modelRequired"
@@ -261,7 +264,7 @@ func All() []Code {
 		ErrVoiceInUse, ErrVoiceReferenced, ErrCharacterInvalid,
 		ErrOmniReferenceRequired, ErrReferenceTextRequired, ErrXTTSReferenceDuration,
 		ErrVoiceDescriptionRequired, ErrOmniAttributes, ErrSpeakerInvalid,
-		ActivityDownload, ActivityDownloading, ActivityVerifying,
+		ActivityDownload, ActivityDownloading, ActivityVerifying, ActivityModelConverting,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
 		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,
 		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted, ActivityRelocate, ActivityPlanMelody, ActivityTranscribe, ActivitySeparateVocals, ActivityAlignLyrics, ActivityRecognize, ActivityTranscribeSpeech, ActivityAlignText, ActivitySeparateStems, ActivityTranscribeMIDI, ActivityResing,
@@ -274,7 +277,7 @@ func All() []Code {
 		ErrNameLength, ErrDraftLimits, ErrDraftIDInvalid, ErrTextRequired, ErrTitleLength,
 		ErrLanguageUnsupported, ErrModeInvalid, ErrEmotionInvalid, ErrEmotionStrength,
 		ErrEmotionTextRequired, ErrEmotionVoiceRequired, ErrVoiceRequired, ErrVoiceBusyDelete,
-		ErrStreamingRetry, ErrModelOptionUnsupported, ErrLocalModelProtected, ErrLocalModelInvalid, ErrLocalModelIncomplete, ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelForgetBlocked,
+		ErrStreamingRetry, ErrModelOptionUnsupported, ErrLocalModelProtected, ErrLocalModelInvalid, ErrLocalModelVersion, ErrModelConversion, ErrLocalModelIncomplete, ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelForgetBlocked,
 		ErrDownloadSource, ErrRuntimeRequired, ErrRuntimeMissing, ErrRuntimeUnique,
 		ErrRuntimeArchivePath, ErrRuntimeArchiveLink, ErrRuntimeArchiveSize,
 		ErrEngineStartFailed, ErrEngineStartTimeout, ErrEngineNoAudio, ErrEngineCrashed,

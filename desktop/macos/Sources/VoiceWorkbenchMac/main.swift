@@ -656,7 +656,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             data["path"] = url.path
             message["data"] = data
         }
-        if ["model.directory", "storage.directory", "stems.export"].contains(method) {
+        if ["model.directory", "model.scan", "storage.directory", "stems.export"].contains(method) {
             let panel = NSOpenPanel()
             panel.canChooseDirectories = true
             panel.canChooseFiles = false

@@ -245,7 +245,7 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, err
 		}
 		return a.svc.Call(method, map[string]any{"id": input.ID, "path": path}, 10*time.Minute)
-	case "model.directory":
+	case "model.scan", "model.directory":
 		path := a.pick(chooseFolder, T("选择模型目录", "Choose Model Folder"), "")
 		if path == "" {
 			return nil, nil

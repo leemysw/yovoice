@@ -4843,5 +4843,53 @@
   },
   "@yovoice.settings.transcribeIsolateHint": {
     "defaultMessage": "使用 BS-RoFormer 减少背景音乐。需要安装 BS-RoFormer 或歌词对齐模型，处理耗时会增加。"
+  },
+  "@yovoice.activity.modelConverting": {
+    "defaultMessage": "正在本机转换模型"
+  },
+  "@yovoice.error.localModelVersion": {
+    "defaultMessage": "这个文件是 IndexTTS {actual}。请选择对应的 {actual} 型号导入，当前选的是 {expected}。"
+  },
+  "@yovoice.error.modelConversion": {
+    "defaultMessage": "本地模型转换失败。{detail}"
+  },
+  "@yovoice.settings.localSources": {
+    "defaultMessage": "本地模型文件"
+  },
+  "@yovoice.settings.scanLocalModels": {
+    "defaultMessage": "扫描本地模型目录"
+  },
+  "@yovoice.settings.localModelChoice": {
+    "defaultMessage": "对应型号"
+  },
+  "@yovoice.settings.skipModel": {
+    "defaultMessage": "跳过此文件"
+  },
+  "@yovoice.settings.importSelection": {
+    "defaultMessage": "导入选中的模型"
+  },
+  "@yovoice.settings.convertCheckpoint": {
+    "defaultMessage": "转换 IndexTTS 检查点"
+  },
+  "@yovoice.settings.converterToolsHint": {
+    "defaultMessage": "使用装有 PyTorch 2.6 或更新版本及 safetensors 的本地 Python，以及 audio.cpp 的 audiocpp_gguf 工具。转换结果保存到模型下载目录，并作为本地模型登记。"
+  },
+  "@yovoice.settings.pythonPath": {
+    "defaultMessage": "Python 可执行文件路径"
+  },
+  "@yovoice.settings.ggufToolPath": {
+    "defaultMessage": "audiocpp_gguf 可执行文件路径"
+  },
+  "@yovoice.settings.modelMappingConflict": {
+    "defaultMessage": "每个型号只能选一个文件。"
+  },
+  "@yovoice.settings.modelScanEmpty": {
+    "defaultMessage": "未发现可导入的新模型。请检查所选目录，或直接选择模型文件。"
+  },
+  "@yovoice.settings.modelScanLimited": {
+    "defaultMessage": "扫描最多检查 5,000 个目录条目或列出 100 个模型来源。要查找更多，请选择范围更小的目录。"
+  },
+  "@yovoice.settings.localModelImported": {
+    "defaultMessage": "本地模型已登记。"
   }
 }

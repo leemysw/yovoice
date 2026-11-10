@@ -124,6 +124,8 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.streamingRetry` VoxCPM2 流式生成不支持失败重试，请关闭重试或流式输出。
 - `error.modelOptionUnsupported` 当前推理引擎不支持参数 {name}。请使用兼容的引擎，或移除此设置。
 - `error.localModelProtected` 切换模型来源前，请先移除当前模型的登记。
+- `error.localModelVersion` 这个文件是 IndexTTS {actual}。请选择对应的 {actual} 型号导入，当前选的是 {expected}。
+- `error.modelConversion` 本地模型转换失败。{detail}
 - `error.localModelInvalid` 请选择与所选模型家族匹配的 audio.cpp GGUF，或受支持的 SF2。PyTorch／MLX 原始权重须先转换。
 - `error.localModelIncomplete` 模型包缺少文件或校验不符。请选择主 GGUF，并保留全部配套文件的原目录结构。
 - `error.modelRequired` 请先在设置中下载或导入模型。

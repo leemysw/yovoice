@@ -9,6 +9,7 @@ import (
 	"yovoice/internal/download"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
+	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
 
@@ -19,15 +20,8 @@ func (w *Workbench) ImportModel(id, path string) error {
 	if err != nil {
 		return err
 	}
-	if !filepath.IsAbs(path) {
-		return msg.Err(msg.ErrLocalModelInvalid, nil)
-	}
-	info, err := os.Stat(path)
-	if err != nil {
+	if err := checkLocalModelFile(model, path); err != nil {
 		return err
-	}
-	if !info.Mode().IsRegular() {
-		return msg.Err(msg.ErrLocalModelInvalid, nil)
 	}
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -40,49 +34,110 @@ func (w *Workbench) ImportModel(id, path string) error {
 		return msg.Err(msg.ErrLocalModelProtected, nil)
 	}
 	_, err = w.startLocked("import", msg.ActivityVerifying, nil, ptr(id), func(ctx context.Context) error {
-		digest, err := download.Hash(ctx, path)
+		result, err := w.verifyLocalModel(ctx, model, path)
 		if err != nil {
 			return err
 		}
-		root := path
-		if len(model.Files) > 0 {
-			// 目录里的旧版也可原地登记，但配套文件必须匹配该版清单。
-			model, err = model.At(digest)
-			if err != nil {
-				return msg.Err(msg.ErrLocalModelIncomplete, nil)
-			}
-			root = filepath.Dir(path)
-			for range strings.Count(model.LocalPath(model.RemotePath), "/") {
-				root = filepath.Dir(root)
-			}
-			for _, file := range model.Files {
-				local := filepath.Join(root, filepath.FromSlash(model.LocalPath(file.Path)))
-				if download.FileSize(local) != file.Size {
-					return msg.Err(msg.ErrLocalModelIncomplete, nil)
-				}
-				hash, err := download.Hash(ctx, local)
-				if err != nil {
-					return err
-				}
-				if hash != file.SHA256 {
-					return msg.Err(msg.ErrLocalModelIncomplete, nil)
-				}
-			}
-		} else if digest != model.SHA256 && digest != catalog.LegacyModelFiles[id].SHA256 {
-			// 声音字体沿用已发布包；GGUF 转换器版本可能改变文件大小和摘要，但家族必须与所选型号一致。
-			family, err := engine.GGUFArchitecture(path)
-			if err != nil || family != model.Family || model.Family == "soundfont" {
-				return msg.Err(msg.ErrLocalModelInvalid, nil)
-			}
-		}
+		w.engine.Stop()
+		w.mu.Lock()
+		defer w.mu.Unlock()
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		w.engine.Stop()
-		managed := exists && installed.Managed && store.SamePath(installed.Path, root)
-		return w.register(id, root, managed, digest, managed && installed.Pinned)
-	}, nil)
+		managed := exists && installed.Managed && store.SamePath(installed.Path, result.Path)
+		return w.register(id, result.Path, managed, result.SHA256, managed && installed.Pinned)
+	}, func(s *schema.State) { s.Activity.Task = "local-model-import" })
 	return err
+}
+
+// 识别到版本不符时直接返回 RPC 错误，无需先读取几 GB 权重。
+func checkLocalModelFile(model catalog.ModelPackage, path string) error {
+	if !filepath.IsAbs(path) {
+		return msg.Err(msg.ErrLocalModelInvalid, nil)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	if !info.Mode().IsRegular() {
+		return msg.Err(msg.ErrLocalModelInvalid, nil)
+	}
+	if model.Family == "index_tts2" {
+		identity, err := engine.ReadGGUFIdentity(path)
+		if err == nil && identity.IndexVersion != "" && identity.IndexVersion != indexModelVersion(model) {
+			return msg.Err(msg.ErrLocalModelVersion, msg.Params{"actual": identity.IndexVersion, "expected": indexModelVersion(model)})
+		}
+	}
+	return nil
+}
+
+func (w *Workbench) verifyLocalModel(ctx context.Context, model catalog.ModelPackage, path string) (schema.InstalledModel, error) {
+	var result schema.InstalledModel
+	if err := checkLocalModelFile(model, path); err != nil {
+		return result, err
+	}
+	mainSize := download.FileSize(path)
+	total := mainSize + max(0, model.Size-model.MainFile().Size)
+	var done int64
+	hash := func(path string) (string, error) {
+		w.progressOf("import", msg.ActivityVerifying, nil, done, total)
+		digest, err := download.HashProgress(ctx, path, func(received int64) {
+			w.progressOf("import", msg.ActivityVerifying, nil, min(done+received, total), total)
+		})
+		done += download.FileSize(path)
+		return digest, err
+	}
+	digest, err := hash(path)
+	if err != nil {
+		return result, err
+	}
+	root := path
+	if len(model.Files) > 0 {
+		model, err = model.At(digest)
+		if err != nil {
+			return result, msg.Err(msg.ErrLocalModelIncomplete, nil)
+		}
+		total = 0
+		for _, file := range model.Files {
+			total += file.Size
+		}
+		root = filepath.Dir(path)
+		for range strings.Count(model.LocalPath(model.RemotePath), "/") {
+			root = filepath.Dir(root)
+		}
+		for _, file := range model.Files {
+			local := filepath.Join(root, filepath.FromSlash(model.LocalPath(file.Path)))
+			if download.FileSize(local) != file.Size {
+				return result, msg.Err(msg.ErrLocalModelIncomplete, nil)
+			}
+			if store.SamePath(local, path) {
+				continue
+			}
+			digest, err := hash(local)
+			if err != nil {
+				return result, err
+			}
+			if digest != file.SHA256 {
+				return result, msg.Err(msg.ErrLocalModelIncomplete, nil)
+			}
+		}
+	} else if digest != model.SHA256 && digest != catalog.LegacyModelFiles[model.ID].SHA256 {
+		family, err := engine.GGUFArchitecture(path)
+		if err != nil || family != model.Family || model.Family == "soundfont" {
+			return result, msg.Err(msg.ErrLocalModelInvalid, nil)
+		}
+		if model.Family == "index_tts2" {
+			identity, err := engine.ReadGGUFIdentity(path)
+			if err != nil || identity.IndexVersion != indexModelVersion(model) {
+				return result, msg.Err(msg.ErrLocalModelInvalid, nil)
+			}
+		}
+	}
+	if err := ctx.Err(); err != nil {
+		return result, err
+	}
+	w.progressOf("import", msg.ActivityVerifying, nil, total, total)
+	return schema.InstalledModel{ID: model.ID, Path: root, SHA256: digest}, nil
 }
 
 func existsPath(path string) bool {

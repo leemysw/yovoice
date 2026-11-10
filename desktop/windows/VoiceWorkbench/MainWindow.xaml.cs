@@ -533,6 +533,7 @@ public partial class MainWindow : Window
                 case "stems.export":
                     var stemFolder = new OpenFolderDialog { Title = HostL10n.T("导出分轨到文件夹", "Export Stems to Folder") };
                     result = stemFolder.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = stemFolder.FolderName }, TimeSpan.FromMinutes(10)) : null; break;
+                case "model.scan":
                 case "model.directory":
                     var folder = new OpenFolderDialog { Title = HostL10n.T("选择模型目录", "Choose Model Folder") };
                     result = folder.ShowDialog(this) == true ? await service.CallAsync(method, new { path = folder.FolderName }) : null; break;

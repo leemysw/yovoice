@@ -129,3 +129,51 @@ func TestModelImportAndDownloadAreMutuallyExclusive(t *testing.T) {
 		<-done
 	}
 }
+
+func indexFixture(weight, tokenizer string) []byte {
+	data := bytes.Clone(localGGUF("index_tts2"))
+	binary.LittleEndian.PutUint64(data[16:24], 3)
+	b := bytes.NewBuffer(data[:len(data)-64])
+	number := func(n any) { _ = binary.Write(b, binary.LittleEndian, n) }
+	text := func(s string) { number(uint64(len(s))); b.WriteString(s) }
+	text("audiocpp.weight_type")
+	number(uint32(8))
+	text(weight)
+	text("audiocpp.embedded_files.names")
+	number(uint32(9))
+	number(uint32(8))
+	number(uint64(1))
+	text(tokenizer)
+	b.Write(make([]byte, 64))
+	return b.Bytes()
+}
+
+func TestScanAndImportLocalIndexModels(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	dir := t.TempDir()
+	old := filepath.Join(dir, "copy A.gguf")
+	current := filepath.Join(dir, "copy B.gguf")
+	must(t, os.WriteFile(old, indexFixture("q8_0", "bpe.model"), 0600))
+	must(t, os.WriteFile(current, indexFixture("q8_0", "multilingual_zh_ja_yue_char_del.tiktoken"), 0600))
+	must(t, os.WriteFile(filepath.Join(dir, "broken.gguf"), []byte("GGUF"), 0600))
+	if err := w.ImportModel("index-2.5-q8", old); !isCode(err, msg.ErrLocalModelVersion) {
+		t.Fatalf("导入错误版本应立即报告：%v", err)
+	}
+	result, err := w.ScanLocalModels(context.Background(), dir)
+	must(t, err)
+	if len(result.Sources) != 2 || result.Sources[0].Models[0] != "index-2-q8" || result.Sources[1].Models[0] != "index-2.5-q8" {
+		t.Fatalf("扫描结果不正确：%+v", result)
+	}
+	must(t, w.ImportLocalModels([]LocalModelMapping{{ID: "index-2-q8", Path: old}, {ID: "index-2.5-q8", Path: current}}))
+	<-w.Done()
+	state := w.Store.Read()
+	if state.Activity.Status != "completed" || len(state.Models) != 2 || state.Models[0].Managed || state.Models[1].Managed ||
+		state.Activity.Total == 0 || state.Activity.Received != state.Activity.Total {
+		t.Fatalf("导入状态不正确：%+v %+v", state.Activity, state.Models)
+	}
+	if err := w.ImportLocalModels([]LocalModelMapping{{ID: "index-2-q8", Path: old}}); !isCode(err, msg.ErrLocalModelProtected) {
+		t.Fatal(err)
+	}
+}

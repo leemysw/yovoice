@@ -4843,5 +4843,53 @@
   },
   "@yovoice.settings.transcribeIsolateHint": {
     "defaultMessage": "使用 BS-RoFormer 減少背景音樂。需要安裝 BS-RoFormer 或歌詞對齊模型，處理時間會增加。"
+  },
+  "@yovoice.activity.modelConverting": {
+    "defaultMessage": "正在本機轉換模型"
+  },
+  "@yovoice.error.localModelVersion": {
+    "defaultMessage": "這個檔案是 IndexTTS {actual}。請選擇對應的 {actual} 型號匯入，目前選的是 {expected}。"
+  },
+  "@yovoice.error.modelConversion": {
+    "defaultMessage": "本機模型轉換失敗。{detail}"
+  },
+  "@yovoice.settings.localSources": {
+    "defaultMessage": "本機模型檔案"
+  },
+  "@yovoice.settings.scanLocalModels": {
+    "defaultMessage": "掃描本機模型目錄"
+  },
+  "@yovoice.settings.localModelChoice": {
+    "defaultMessage": "對應型號"
+  },
+  "@yovoice.settings.skipModel": {
+    "defaultMessage": "略過此檔案"
+  },
+  "@yovoice.settings.importSelection": {
+    "defaultMessage": "匯入選取的模型"
+  },
+  "@yovoice.settings.convertCheckpoint": {
+    "defaultMessage": "轉換 IndexTTS 檢查點"
+  },
+  "@yovoice.settings.converterToolsHint": {
+    "defaultMessage": "使用裝有 PyTorch 2.6 或更新版本及 safetensors 的本機 Python，以及 audio.cpp 的 audiocpp_gguf 工具。轉換結果存到模型下載目錄，並登記為本機模型。"
+  },
+  "@yovoice.settings.pythonPath": {
+    "defaultMessage": "Python 執行檔路徑"
+  },
+  "@yovoice.settings.ggufToolPath": {
+    "defaultMessage": "audiocpp_gguf 執行檔路徑"
+  },
+  "@yovoice.settings.modelMappingConflict": {
+    "defaultMessage": "每個型號只能選一個檔案。"
+  },
+  "@yovoice.settings.modelScanEmpty": {
+    "defaultMessage": "未發現可匯入的新模型。請檢查所選目錄，或直接選擇模型檔案。"
+  },
+  "@yovoice.settings.modelScanLimited": {
+    "defaultMessage": "掃描最多檢查 5,000 個目錄項目或列出 100 個模型來源。若要尋找更多，請選擇範圍較小的目錄。"
+  },
+  "@yovoice.settings.localModelImported": {
+    "defaultMessage": "本機模型已登記。"
   }
 }
