@@ -6,6 +6,8 @@
 
 ### English
 
+- Task progress bars now follow the app theme across model downloads, verification, transcription and book preparation.
+
 - Scan a local folder for model files and confirm their mappings in one step. Convert supported IndexTTS checkpoints on the device. Model imports show verification progress and catch an IndexTTS version mismatch before hashing.
 
 - Model downloads now keep their version and progress when paused. Cancelling a download leaves installed models intact, updates verify the entire new package before removing the old one, and imported weights no longer show catalog update prompts. Selecting an existing download folder can recover verified packages in a cancellable background task.
@@ -24,6 +26,8 @@
 - For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
 
 ### 简体中文
+
+- 模型下载、校验、转写和有声书准备的任务进度条统一使用应用主题。
 
 - 扫描本地模型目录，确认识别结果后批量登记。支持在本机转换 IndexTTS 检查点。导入时显示校验进度，并在读取整个文件前提示 IndexTTS 版本选错。
 

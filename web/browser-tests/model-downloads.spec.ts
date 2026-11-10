@@ -83,7 +83,7 @@ test('切换模型目录后能看到校验进度并取消', async ({ page }) => 
   const changeDirectory = page.getByRole('button', { name: '更改位置', exact: true });
   await changeDirectory.click();
   const activity = page.getByRole('status').filter({ hasText: '正在校验模型' });
-  await expect(activity.getByRole('progressbar')).toHaveAttribute('value', '512');
+  await expect(activity.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '512');
   await expect(activity).toContainText('512 B / 1.00 KB');
   await expect(changeDirectory).toBeDisabled();
   await activity.getByRole('button', { name: '取消', exact: true }).click();

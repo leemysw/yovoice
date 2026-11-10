@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { Captions, Download, Mic, Square, Upload, X } from 'lucide-react';
@@ -136,7 +137,6 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
 
   // 录音与识别进度：作为一张进行中的票根排在列表最前，标题栏与搜索框位置不变。
   // 录音时封面的麦克风随声音起伏，识别时封面声波环转动、进度条上有流光。
-  const progress = activity?.total ? Math.min(1, activity.received / activity.total) : 0;
   const task = recorder.stream ? <Ticket key="task" className="transcribe-task" coverClassName="is-recording"
     cover={<WaveRing seed="recording" duration={30}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Mic /></HStack></WaveRing>}
     eyebrow={t('@yovoice.transcribe.recording')}
@@ -149,7 +149,7 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
     cover={<WaveRing seed={pendingName || 'transcribe'} duration={60}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Captions /></HStack></WaveRing>}
     eyebrow={<span role="status">{formatActivity(t, activity)}</span>}
     title={<VStack gap={2}><h3>{pendingName || fallbackName}</h3>
-      <HStack className="transcribe-progress" gap={0} aria-hidden="true" style={{ '--progress': progress } as CSSProperties}><HStack className="transcribe-progress-fill" gap={0} /></HStack></VStack>}
+      <ProgressBar label={formatActivity(t, activity)} isLabelHidden value={activity.received} max={activity.total || 1} isIndeterminate={!activity.total} /></VStack>}
     stub={<TicketStamp value={formatTime(elapsed)} unit={t('@yovoice.create.elapsed')} />}
     stubActions={<Button size="sm" variant="ghost" isIconOnly icon={<X />} label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('operation.cancel').catch(() => undefined)} />} />
   : null;

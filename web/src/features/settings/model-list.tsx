@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { StatusDot } from '@astryxdesign/core/StatusDot';
@@ -132,7 +133,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
         {download ? <small>{versions.find(version => version.value === download.version)?.label
           ?? (download.version === latest ? t('@yovoice.settings.modelVersionLatest') : download.version.slice(0, 12))}</small> : null}
         <HStack hAlign="between" gap={3}><small>{downloadStatusLabel(t, downloading, received, total, download?.status ?? legacy?.status ?? 'running')}</small><small className="model-size">{formatBytes(received)} / {formatBytes(total)}</small></HStack>
-        <progress aria-label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })} value={received} max={total} />
+        <ProgressBar label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })} isLabelHidden value={received} max={total || 1} isIndeterminate={downloading && !total} />
       </VStack> : null}
     </VStack>;
   };
