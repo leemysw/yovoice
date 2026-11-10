@@ -2,8 +2,10 @@ package workbench
 
 import (
 	"bytes"
+	"context"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"yovoice/internal/audio"
@@ -159,5 +161,63 @@ func TestTranscribeSpeech(t *testing.T) {
 	}
 	if left, _ := filepath.Glob(filepath.Join(wb.Store.Root, "downloads", "upload-*")); len(left) != 0 {
 		t.Fatalf("%v", left)
+	}
+}
+
+// 模拟分离器在每段的 0.5～1 秒、2.5～3 秒返回信号。第二段裁去前两秒，试听仍来自完整原音轨。
+func TestTranscribeIsolatedPlaybackAndBoundaries(t *testing.T) {
+	converter := os.Getenv("YOVOICE_TEST_FFMPEG")
+	if converter == "" {
+		var err error
+		converter, err = exec.LookPath("ffmpeg")
+		if err != nil {
+			t.Skip("需要 FFmpeg 执行真实转换")
+		}
+	}
+	wb := recognizeWorkbench(t, true)
+	vocalModel := schema.InstalledModel{ID: "bs-roformer-q8", Path: filepath.Join(wb.Store.Root, "models", "vocals.gguf")}
+	must(t, os.WriteFile(vocalModel.Path, nil, 0600))
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, vocalModel)
+		s.Preferences.Transcribe = &schema.TranscribeSettings{IsolateVocals: true}
+	}, true))
+
+	const seconds, playbackRate = 63, 24000
+	dir := t.TempDir()
+	upload := filepath.Join(dir, "input.wav")
+	must(t, audio.WriteMono(upload, tone(seconds, playbackRate), playbackRate))
+	stereo := filepath.Join(dir, "stereo.wav")
+	ctx := context.Background()
+	must(t, audio.ConvertStereo(ctx, converter, upload, stereo, separateRate))
+	voice, err := wb.transcribeVocals(ctx, wb.Store.Read(), vocalModel, converter, stereo, dir, seconds)
+	must(t, err)
+	windowDuration, err := audio.Duration(filepath.Join(dir, "vocal-input.wav"))
+	must(t, err)
+	if windowDuration != 5 || len(voice) != seconds*recognizeRate {
+		t.Fatalf("末段窗口 %.3f 秒，人声长度 %d 样本", windowDuration, len(voice))
+	}
+	if voice[60*recognizeRate+recognizeRate/4] != 0 ||
+		math.Abs(float64(voice[60*recognizeRate+3*recognizeRate/4+1])) < .01 ||
+		voice[62*recognizeRate+3*recognizeRate/4+1] != 0 {
+		t.Fatal("第二段应裁掉前两秒上下文，保留原时间轴上的人声")
+	}
+
+	must(t, wb.startTranscribeSpeech("访谈.wav", upload, converter, 1))
+	<-wb.Done()
+	state := wb.Store.Read()
+	if state.Activity.Status != "completed" || len(state.Transcripts) != 1 {
+		t.Fatalf("转写未完成：%+v", state.Activity)
+	}
+	record := state.Transcripts[0]
+	playback := filepath.Join(wb.Store.Root, "outputs", record.AudioFile)
+	samples, rate, err := audio.ReadMono(playback)
+	must(t, err)
+	info, err := os.Stat(playback)
+	must(t, err)
+	if rate != playbackRate || len(samples) != seconds*rate || info.Size() > int64(seconds*rate*2+1024) {
+		t.Fatalf("试听应为 24 kHz 单声道：%d Hz，%d 样本，%d 字节", rate, len(samples), info.Size())
+	}
+	if math.Abs(float64(samples[62*rate+3*rate/4+1])) < .01 || record.Duration != seconds {
+		t.Fatal("试听应保留原音轨和时长")
 	}
 }
