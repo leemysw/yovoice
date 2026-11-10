@@ -115,14 +115,6 @@ func liveModelPaths(s schema.State, root string) []string {
 			live = append(live, filepath.Clean(m.Path))
 		}
 	}
-	// 旧版没有每模型下载记录，保留最近任务的传统断点，避免清理误删。
-	if a := s.ModelActivity; a != nil && a.Status != "completed" && a.ModelID != nil {
-		if _, tracked := s.ModelDownloads[*a.ModelID]; !tracked {
-			if model, err := catalog.Lookup(*a.ModelID); err == nil {
-				live = append(live, modelDestination(s, root, model))
-			}
-		}
-	}
 	for _, job := range s.ModelDownloads {
 		if path := modelTransferPath(job); path != "" {
 			live = append(live, path)
@@ -396,9 +388,9 @@ func (w *Workbench) CleanupResiduals() (CleanupReport, error) {
 		removeStaleFiles(downloads, cutoff, func(name string) bool { return stagingTarget(name) == "" }, &report)
 	}
 	// 5. 模型目录里下载或更新中途留下的临时文件：仍属于已登记模型或最近一次下载的保留，其余超过 24 小时的回收。
-	//    有模型下载在进行时整体跳过，不与它写入的文件赛跑。
-	if w.installCancel == nil {
-		s := w.Store.Read()
+	//    有模型下载或目录恢复在进行时整体跳过，保护正在写入或校验的文件。
+	s := w.Store.Read()
+	if w.installCancel == nil && !scanningModelDirectory(s) {
 		live := liveModelPaths(s, w.Store.Root)
 		dirs := []string{filepath.Join(w.Store.Root, "models")}
 		if dir := modelDirectory(s, w.Store.Root); !store.SamePath(dir, dirs[0]) {

@@ -36,6 +36,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
   const t = useTranslator();
   const [license, setLicense] = useState<string | null>(null);
   const [tab, setTab] = useState('general'); const busy = state.activity?.status === 'running'; const modelBusy = state.modelActivity?.status === 'running';
+  const recoveringModels = busy && state.activity?.kind === 'import' && !state.activity.modelId;
   useEffect(() => { if (focus) setTab(focus.tab); }, [focus]);
   useEffect(() => {
     if (!focus || !modelTabs.includes(tab)) return;
@@ -107,7 +108,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Selector size="sm" label={t('@yovoice.settings.downloadSource')} isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: t('@yovoice.settings.source.modelscope') }, { value: 'huggingface', label: t('@yovoice.settings.source.huggingface') }, { value: 'mirror', label: t('@yovoice.settings.source.mirror') }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 5)" className="download-source" />
         </SettingsRow>
         <SettingsRow className="settings-directory" label={t('@yovoice.settings.modelDirectory')} hint={<Text type="inherit" color="inherit" className="model-path" onPointerEnter={overflowTitle}>{preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}</Text>}>
-          <Button size="sm" label={t('@yovoice.settings.changeLocation')} icon={<FolderCog size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.directory'))} />
+          <Button size="sm" label={t('@yovoice.settings.changeLocation')} icon={<FolderCog size={16} />} isDisabled={modelBusy || recoveringModels} onClick={() => run(() => call('model.directory'))} />
           <Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} />
         </SettingsRow>
       </SettingsGroup>
