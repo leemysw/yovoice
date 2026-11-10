@@ -6,7 +6,7 @@
 
 ### English
 
-- Model downloads now keep their version and progress when paused. Cancelling a download leaves installed models intact, updates switch only after the entire package is verified, and imported weights no longer show catalog update prompts.
+- Model downloads now keep their version and progress when paused. Cancelling a download leaves installed models intact, updates verify the entire new package before removing the old one, and imported weights no longer show catalog update prompts. Selecting an existing download folder can recover verified packages in a cancellable background task.
 - On Windows, custom data folders with Chinese characters in their paths are now read correctly at startup.
 - On macOS, “Style from image” now lets you choose PNG, JPEG and WebP images. Other file pickers also use the formats accepted by each import action.
 - Transcripts are now saved and listed like your other work. Open one to edit the subtitles as plain text: Enter splits at the cursor, Backspace at the start of a line joins it to the line above. You can also find and replace, undo, and play a line from the original audio, and changes save automatically. You can also record directly on the Transcribe page.
@@ -22,7 +22,7 @@
 
 ### 简体中文
 
-- 模型下载可分别暂停、继续和取消，保留所选版本和断点。完整校验后才切换更新，取消不影响已安装模型。导入的本地模型不再误报目录更新。
+- 模型下载可分别暂停、继续和取消，保留所选版本和断点。完整校验后才切换更新并清理旧包，取消不影响已安装模型。导入的本地模型不再误报目录更新。重新选择下载目录时，可以在可取消的后台任务中校验并恢复已有模型包。
 - 修复 Windows 启动时可能把含中文的自定义数据目录误报为不存在的问题。
 - 修复 macOS「看图取风格」无法选择 PNG、JPEG 和 WebP 图片的问题，其他导入窗口也按各自支持的格式筛选文件。
 - 语音转写的结果会保存下来，像作品一样列出。打开后像改文档一样编辑字幕：回车在光标处拆分，行首退格与上一行合并，也可以查找替换、撤销，点时间试听原音频，改动自动保存；转写页也可以直接录音。

@@ -90,24 +90,47 @@ func sleepContext(ctx context.Context, d time.Duration) error {
 }
 
 type contextReader struct {
-	ctx context.Context
-	r   io.Reader
+	ctx    context.Context
+	r      io.Reader
+	onRead func(int)
 }
 
 func (r contextReader) Read(p []byte) (int, error) {
 	if e := r.ctx.Err(); e != nil {
 		return 0, e
 	}
-	return r.r.Read(p)
+	n, err := r.r.Read(p)
+	if r.onRead != nil {
+		r.onRead(n)
+	}
+	return n, err
 }
+
 func Hash(ctx context.Context, path string) (string, error) {
+	return HashProgress(ctx, path, nil)
+}
+
+// HashProgress 计算文件摘要，并按读取量限频汇报进度。
+func HashProgress(ctx context.Context, path string, progress func(int64)) (string, error) {
 	f, e := os.Open(path)
 	if e != nil {
 		return "", e
 	}
 	defer f.Close()
 	h := sha256.New()
-	if _, e = io.Copy(h, contextReader{ctx, f}); e != nil {
+	reader := contextReader{ctx: ctx, r: f}
+	if progress != nil {
+		var read int64
+		last := time.Now()
+		reader.onRead = func(n int) {
+			read += int64(n)
+			if time.Since(last) >= 200*time.Millisecond {
+				progress(read)
+				last = time.Now()
+			}
+		}
+	}
+	if _, e = io.Copy(h, reader); e != nil {
 		return "", e
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
@@ -375,7 +398,7 @@ func ExtractFiles(ctx context.Context, archive, destination string, pick func(na
 		if e != nil {
 			return e
 		}
-		_, e = io.CopyN(f, contextReader{ctx, r}, size)
+		_, e = io.CopyN(f, contextReader{ctx: ctx, r: r}, size)
 		ce := f.Close()
 		if e != nil {
 			return e

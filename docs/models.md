@@ -37,7 +37,9 @@ A downloaded model can be updated to the package shown in the catalog. An import
 
 ## Model versions and rollback
 
-When the model catalog updates, downloaded models show **Update available**. Models replaced by a catalog update also get a version picker in Settings: choosing **Before <date> update** downloads the earlier file from its pinned repository commit, verifies it and replaces the current file, and the update prompt stops. Choose **Latest** to go back. Switching versions keeps no second copy on disk and works with all three download sources.
+When the model catalog updates, downloaded models show **Update available**. In the version picker, choose **Before <date> update** to download the earlier package from its pinned repository commit and stop update prompts for that model. Choose **Latest** to switch back. All three download sources support version switching.
+
+YoVoice downloads and verifies the new package separately, then switches the registration and removes the previous app-managed package if no other model uses it. Selecting an existing download folder in Settings verifies and recovers recognized packages in the background. You can cancel verification without changing their files.
 
 ## Model files and hardware
 

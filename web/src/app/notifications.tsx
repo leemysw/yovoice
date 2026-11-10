@@ -8,9 +8,9 @@ import { formatActivity, formatActivityError, formatNotice } from '../shared/i18
 import { readLocal, writeLocal } from '../shared/lib/local-store';
 import { withViewTransition } from '../shared/lib/view-transition';
 
-// 只有下载类进度的 received / total 是字节数；转写、对齐、渲染等任务报的是段数，进度条照常显示，不标字节。
+// 下载和模型校验的 received / total 是字节数；转写、对齐、渲染等任务报的是段数，进度条照常显示，不标字节。
 // 语音转写页在列表里自己显示进行中的转写，停在这一页时不再弹出全局进度条。
-const byteCodes: string[] = ['@yovoice.activity.downloading', '@yovoice.activity.runtimeDownload'];
+const byteCodes: string[] = ['@yovoice.activity.downloading', '@yovoice.activity.runtimeDownload', '@yovoice.activity.verifying'];
 
 function NoticeText({ error, activity }: { error: string; activity: Activity | null | undefined }) {
   const t = useTranslator();

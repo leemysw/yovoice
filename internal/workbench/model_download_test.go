@@ -16,6 +16,7 @@ import (
 	"time"
 	"yovoice/internal/catalog"
 	"yovoice/internal/download"
+	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
 
@@ -204,27 +205,198 @@ func TestModelPackageFailureKeepsPreviousAndDoesNotOverwriteLocalFiles(t *testin
 	}
 }
 
-func TestAdoptModelsVerifiesEveryFileAndKeepsOwnershipExternal(t *testing.T) {
+func TestModelUpdateRetiresPreviousPackages(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	oldDir := t.TempDir()
+	must(t, w.SetModelDirectory(oldDir))
+	content := []byte("weights")
+	main := modelTestFile("voice.gguf", content)
+	definition := catalog.ModelPackage{
+		ID: "voice", RemotePath: main.Path, Size: main.Size, SHA256: main.SHA256,
+		History: []catalog.ModelVersion{{Revision: "old", ModelScopeRevision: "old", Size: 3, SHA256: modelTestFile("voice.gguf", []byte("old")).SHA256}},
+	}
+	legacy := filepath.Join(oldDir, main.Path)
+	must(t, os.WriteFile(legacy, []byte("old"), 0600))
+	must(t, w.register(definition.ID, legacy, true, definition.History[0].SHA256, false))
+	// 改过默认目录后，更新也会回收留在原目录里的旧版布局。
+	must(t, w.SetModelDirectory(t.TempDir()))
+	server := httptest.NewServer(http.HandlerFunc(func(out http.ResponseWriter, req *http.Request) {
+		body := content
+		if strings.Contains(req.URL.Path, "/old/") {
+			body = []byte("old")
+		}
+		_, _ = out.Write(body)
+	}))
+	defer server.Close()
+	useModelTestServer(t, w, server)
+
+	must(t, w.downloadCatalogModel(definition, ""))
+	<-w.ModelDone()
+	first, _ := installedModel(w.Store.Read(), definition.ID)
+	if existsPath(legacy) || !existsPath(first.Path) || first.SHA256 != main.SHA256 {
+		t.Fatal("更新后应移除旧版布局的文件", legacy, first)
+	}
+
+	must(t, w.downloadCatalogModel(definition, definition.History[0].SHA256))
+	<-w.ModelDone()
+	rolledBack, _ := installedModel(w.Store.Read(), definition.ID)
+	if existsPath(filepath.Dir(first.Path)) || !existsPath(rolledBack.Path) || !rolledBack.Pinned {
+		t.Fatal("回退后应移除上一版包目录", first, rolledBack)
+	}
+}
+
+func TestModelUpdateRetainsHardLinkedCompanion(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	weights, config := []byte("new weights"), []byte("unchanged config")
+	files := []catalog.ModelFile{modelTestFile("voice.gguf", weights), modelTestFile("config.json", config)}
+	model := catalog.ModelPackage{ID: "multi", Directory: "pack", RemotePath: "voice.gguf", Size: files[0].Size + files[1].Size, Files: files}
+	previous := filepath.Join(w.Store.Root, "models", model.Directory)
+	must(t, os.Mkdir(previous, 0700))
+	must(t, os.WriteFile(filepath.Join(previous, "voice.gguf"), []byte("old weights"), 0600))
+	oldConfig := filepath.Join(previous, "config.json")
+	must(t, os.WriteFile(oldConfig, config, 0600))
+	must(t, w.register(model.ID, previous, true, "old", false))
+	server := httptest.NewServer(http.HandlerFunc(func(out http.ResponseWriter, req *http.Request) {
+		if strings.HasSuffix(req.URL.Path, "/config.json") {
+			t.Error("不应重新下载通过校验的硬链接配套文件")
+			http.Error(out, "unexpected request", http.StatusBadRequest)
+			return
+		}
+		_, _ = out.Write(weights)
+	}))
+	defer server.Close()
+	useModelTestServer(t, w, server)
+	must(t, w.downloadCatalogModel(model, ""))
+	<-w.ModelDone()
+	installed, _ := installedModel(w.Store.Read(), model.ID)
+	data, err := os.ReadFile(filepath.Join(installed.Path, "config.json"))
+	if existsPath(previous) || err != nil || !bytes.Equal(data, config) {
+		t.Fatal(installed, err)
+	}
+}
+
+func TestModelDirectoryRecoversVerifiedPackages(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
 	dir := t.TempDir()
 	content := []byte("good")
 	files := []catalog.ModelFile{modelTestFile("main.gguf", content), modelTestFile("config.json", content)}
-	model := catalog.ModelPackage{ID: "package", Directory: "package", RemotePath: files[0].Path, Files: files}
-	modelDir := filepath.Join(dir, model.Directory)
+	pack := catalog.ModelPackage{ID: "package", Directory: "package", RemotePath: files[0].Path, Files: files}
+	modelDir := modelTransferPath(schema.ModelDownload{Directory: dir, Token: schema.NewID()})
 	must(t, os.Mkdir(modelDir, 0700))
 	must(t, os.WriteFile(filepath.Join(modelDir, files[0].Path), content, 0600))
 	must(t, os.WriteFile(filepath.Join(modelDir, files[1].Path), []byte("fake"), 0600))
-	must(t, w.adoptModels(context.Background(), dir, []catalog.ModelPackage{model}))
+	must(t, w.setModelDirectory(context.Background(), dir, []catalog.ModelPackage{pack}))
+	<-w.Done()
 	if len(w.Store.Read().Models) != 0 {
 		t.Fatal("同样大小的损坏文件不应登记")
 	}
+
+	current := modelTestFile("voice.gguf", []byte("latest"))
+	historical := modelTestFile("voice.gguf", []byte("old"))
+	single := catalog.ModelPackage{
+		ID: "voice", RemotePath: current.Path, Size: current.Size, SHA256: current.SHA256,
+		History: []catalog.ModelVersion{{Size: historical.Size, SHA256: historical.SHA256}},
+	}
+	singleRoot := modelTransferPath(schema.ModelDownload{Directory: dir, Token: schema.NewID()})
+	must(t, os.Mkdir(singleRoot, 0700))
+	singlePath := filepath.Join(singleRoot, single.RemotePath)
+	must(t, os.WriteFile(singlePath, []byte("old"), 0600))
 	must(t, os.WriteFile(filepath.Join(modelDir, files[1].Path), content, 0600))
-	must(t, w.adoptModels(context.Background(), dir, []catalog.ModelPackage{model}))
-	installed, ok := installedModel(w.Store.Read(), model.ID)
-	if !ok || installed.Managed || installed.SHA256 != files[0].SHA256 {
-		t.Fatal(installed)
+
+	legacyFile := modelTestFile("legacy.gguf", content)
+	legacy := catalog.ModelPackage{ID: "legacy", RemotePath: legacyFile.Path, Size: legacyFile.Size, SHA256: legacyFile.SHA256}
+	legacyPath := filepath.Join(dir, legacy.RemotePath)
+	must(t, os.WriteFile(legacyPath, content, 0600))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	must(t, w.setModelDirectory(ctx, dir, []catalog.ModelPackage{pack, single, legacy}))
+	cancel() // RPC 返回后取消请求上下文，不应中止后台任务。
+	<-w.Done()
+	state := w.Store.Read()
+	for _, want := range []schema.InstalledModel{
+		{ID: pack.ID, Path: modelDir, SHA256: files[0].SHA256, Managed: true},
+		{ID: single.ID, Path: singlePath, SHA256: historical.SHA256, Managed: true},
+		{ID: legacy.ID, Path: legacyPath, SHA256: legacyFile.SHA256, Managed: true},
+	} {
+		got, ok := installedModel(state, want.ID)
+		if !ok || got != want {
+			t.Fatal(got, want, state.Activity)
+		}
+	}
+	if got, _ := installedModel(state, single.ID); !modelUpdateAvailable(got, single) {
+		t.Fatal("恢复的旧版托管包应可更新")
+	}
+}
+
+func TestModelDirectoryRecoveryCancellationKeepsFiles(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	dir := t.TempDir()
+	content := []byte("good")
+	file := modelTestFile("voice.gguf", content)
+	model := catalog.ModelPackage{ID: "voice", RemotePath: file.Path, Size: file.Size, SHA256: file.SHA256}
+	path := filepath.Join(dir, file.Path)
+	must(t, os.WriteFile(path, content, 0600))
+	w.mu.Lock()
+	done, err := w.startLocked("import", msg.ActivityVerifying, nil, nil, func(ctx context.Context) error {
+		return w.recoverModels(ctx, dir, nil, []catalog.ModelPackage{model})
+	}, nil)
+	if err == nil {
+		w.cancel()
+	}
+	w.mu.Unlock()
+	must(t, err)
+	<-done
+	s := w.Store.Read()
+	if len(s.Models) != 0 || s.Activity.Status != "cancelled" || !existsPath(path) {
+		t.Fatal(s.Activity, s.Models)
+	}
+}
+
+func TestModelDirectoryKeepsPendingPackagesAndExtraFiles(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	dir := t.TempDir()
+	content := []byte("good")
+	file := modelTestFile("main.gguf", content)
+	pack := catalog.ModelPackage{ID: "pack", Directory: "pack", RemotePath: file.Path, Files: []catalog.ModelFile{file}}
+	legacy := filepath.Join(dir, pack.Directory)
+	must(t, os.Mkdir(legacy, 0700))
+	must(t, os.WriteFile(filepath.Join(legacy, file.Path), content, 0600))
+	extra := filepath.Join(legacy, "my-notes.txt")
+	must(t, os.WriteFile(extra, []byte("keep"), 0600))
+
+	pending := schema.ModelDownload{Token: schema.NewID(), Directory: dir, Version: file.SHA256, Status: "paused"}
+	must(t, os.Mkdir(modelTransferPath(pending), 0700))
+	must(t, os.WriteFile(filepath.Join(modelTransferPath(pending), file.Path), content, 0600))
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.ModelDownloads = map[string]schema.ModelDownload{"other": pending}
+	}, true))
+	// 外部盘断开后，选择新下载目录也不应覆盖原来的导入登记。
+	offline := catalog.ModelPackage{ID: "offline", RemotePath: "offline.gguf", Size: file.Size, SHA256: file.SHA256}
+	offlinePath := filepath.Join(t.TempDir(), offline.RemotePath)
+	must(t, w.register(offline.ID, offlinePath, false, file.SHA256, false))
+	must(t, os.WriteFile(filepath.Join(dir, offline.RemotePath), content, 0600))
+	must(t, w.setModelDirectory(context.Background(), dir, []catalog.ModelPackage{pack, offline}))
+	<-w.Done()
+	installed, _ := installedModel(w.Store.Read(), pack.ID)
+	if installed.Path != legacy || installed.Managed {
+		t.Fatal("不能接管另一个任务的包或含用户文件的旧目录", installed)
+	}
+	if external, _ := installedModel(w.Store.Read(), offline.ID); external.Path != offlinePath || external.Managed {
+		t.Fatal("断开的外部盘登记必须保留", external)
+	}
+	must(t, w.ForgetModel(pack.ID))
+	if !existsPath(extra) || !existsPath(modelTransferPath(pending)) {
+		t.Fatal("用户文件和暂停的任务必须保留")
 	}
 }
 
