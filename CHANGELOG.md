@@ -6,7 +6,7 @@
 
 ### English
 
-- Transcribe opens a track picker for files with multiple audio tracks and plays the selected track in the transcript editor. Single-track files start directly. Optional loudness normalization and vocal isolation help with quiet recordings and background music.
+- Transcribe opens a track picker for files with multiple audio tracks and plays the selected track in the transcript editor. Extracted playback stays at 24 kHz mono when vocal isolation is enabled. Single-track files start directly. Optional loudness normalization and vocal isolation help with quiet recordings and background music.
 
 - On Windows, custom data folders with Chinese characters in their paths are now read correctly at startup.
 - On macOS, “Style from image” now lets you choose PNG, JPEG and WebP images. Other file pickers also use the formats accepted by each import action.
@@ -23,7 +23,7 @@
 
 ### 简体中文
 
-- 转写多音轨文件时可以选择音轨，字幕编辑器会播放所选音轨。单音轨文件直接开始转写。设置中可选响度归一化和预先提取人声，用于音量偏小或带背景音乐的录音。
+- 转写多音轨文件时可以选择音轨，字幕编辑器会播放所选音轨。开启人声提取时，提取后的试听音轨也采用 24 kHz 单声道。单音轨文件直接开始转写。设置中可选响度归一化和预先提取人声，用于音量偏小或带背景音乐的录音。
 
 - 修复 Windows 启动时可能把含中文的自定义数据目录误报为不存在的问题。
 - 修复 macOS「看图取风格」无法选择 PNG、JPEG 和 WebP 图片的问题，其他导入窗口也按各自支持的格式筛选文件。
