@@ -115,6 +115,19 @@ func liveModelPaths(s schema.State, root string) []string {
 			live = append(live, filepath.Clean(m.Path))
 		}
 	}
+	// 旧版没有每模型下载记录，保留最近任务的传统断点，避免清理误删。
+	if a := s.ModelActivity; a != nil && a.Status != "completed" && a.ModelID != nil {
+		if _, tracked := s.ModelDownloads[*a.ModelID]; !tracked {
+			if model, err := catalog.Lookup(*a.ModelID); err == nil {
+				live = append(live, modelDestination(s, root, model))
+			}
+		}
+	}
+	for _, job := range s.ModelDownloads {
+		if path := modelTransferPath(job); path != "" {
+			live = append(live, path)
+		}
+	}
 	if a := s.ModelActivity; a != nil && a.ModelID != nil {
 		if m, e := catalog.Lookup(*a.ModelID); e == nil {
 			live = append(live, modelDestination(s, root, m))
@@ -125,12 +138,30 @@ func liveModelPaths(s schema.State, root string) []string {
 
 // removeStaleStaging 删除模型目录里不再属于任何有效模型、且超过保留期的临时文件。
 // 移除模型时改名待删的文件或目录（多文件模型整个目录改名，里面的文件不带后缀）不会再被任何人使用，直接整体回收。
-func removeStaleStaging(dir string, cutoff time.Time, live []string, report *CleanupReport) {
+var modelRetiredName = regexp.MustCompile(`\.[0-9a-f]{32}\.deleting$`)
+
+func removeStaleStaging(dir string, cutoff time.Time, live []string, legacyOwned bool, report *CleanupReport) {
+	// 自定义目录可能同时存放用户的其他文件，旧版后缀只用于清单内的路径。
+	legacy := make(map[string]bool)
+	legacyDirs := make(map[string]bool)
+	if !legacyOwned {
+		for _, model := range catalog.Models {
+			if len(model.Files) == 0 {
+				legacy[filepath.Join(dir, filepath.Base(model.RemotePath))] = true
+				continue
+			}
+			root := filepath.Join(dir, model.Directory)
+			legacy[root] = true
+			for _, file := range model.Files {
+				legacy[filepath.Join(root, filepath.FromSlash(model.LocalPath(file.Path)))] = true
+			}
+		}
+	}
 	_ = filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil || path == dir {
 			return nil
 		}
-		if strings.HasSuffix(path, deletingSuffix) {
+		if strings.HasSuffix(path, deletingSuffix) && (legacyOwned || modelRetiredName.MatchString(path) || legacy[stagingTarget(path)]) {
 			size := int64(0)
 			if entry.IsDir() {
 				size = dirSize(path)
@@ -147,10 +178,26 @@ func removeStaleStaging(dir string, cutoff time.Time, live []string, report *Cle
 			return nil
 		}
 		if entry.IsDir() {
-			return nil
+			if filepath.Dir(path) != dir || !modelTransferDirectory.MatchString(entry.Name()) {
+				if !legacyOwned && !legacyDirs[path] {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if slices.ContainsFunc(live, func(p string) bool { return store.Within(path, p) }) {
+				return filepath.SkipDir
+			}
+			if info, e := entry.Info(); e == nil && info.ModTime().Before(cutoff) {
+				size := dirSize(path)
+				if os.RemoveAll(path) == nil {
+					report.CleanedCount++
+					report.FreedBytes += size
+				}
+			}
+			return filepath.SkipDir
 		}
 		target := stagingTarget(path)
-		if target == "" {
+		if target == "" || (!legacyOwned && !legacy[target]) {
 			return nil
 		}
 		if slices.ContainsFunc(live, func(p string) bool { return store.Within(p, target) }) {
@@ -357,8 +404,24 @@ func (w *Workbench) CleanupResiduals() (CleanupReport, error) {
 		if dir := modelDirectory(s, w.Store.Root); !store.SamePath(dir, dirs[0]) {
 			dirs = append(dirs, dir)
 		}
+		for _, job := range s.ModelDownloads {
+			if filepath.IsAbs(job.Directory) && !slices.ContainsFunc(dirs, func(dir string) bool { return store.SamePath(dir, job.Directory) }) {
+				dirs = append(dirs, job.Directory)
+			}
+		}
+		for _, model := range s.Models {
+			if model.Managed {
+				managed := modelPackageDirectory(model.Path)
+				if managed != "" {
+					dir := filepath.Dir(managed)
+					if !slices.ContainsFunc(dirs, func(existing string) bool { return store.SamePath(dir, existing) }) {
+						dirs = append(dirs, dir)
+					}
+				}
+			}
+		}
 		for _, dir := range dirs {
-			removeStaleStaging(dir, cutoff, live, &report)
+			removeStaleStaging(dir, cutoff, live, store.SamePath(dir, dirs[0]), &report)
 		}
 	}
 	w.mu.Unlock()

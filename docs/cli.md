@@ -91,11 +91,12 @@ These commands take an existing audio or video file in any common format:
 
 ```sh
 yovoice transcribe interview.mp4 --output interview.srt
+yovoice transcribe multilingual.mkv --audio-track 2 --output second-track.srt
 yovoice separate song.mp3 --output-dir stems
 yovoice to-midi song.mp3 --output song.mid
 ```
 
-- `transcribe` needs `qwen3-asr-0.6b-q8`. The output extension picks the format: `.srt`, `.vtt`, `.txt` (one line per caption) or `.json` (text, word timings and caption lines). Lines are split using the Transcribe settings in the app, and the result is also saved as a transcript you can edit in the app.
+- `transcribe` needs `qwen3-asr-0.6b-q8`. The output extension picks the format: `.srt`, `.vtt`, `.txt` (one line per caption) or `.json` (text, word timings and caption lines). Lines are split using the Transcribe settings in the app, and the result is also saved as a transcript you can edit in the app. Use `--audio-track 2` to select the second audio track. The CLI defaults to the first audio track. YoVoice stores the selected audio as WAV for playback in the transcript editor. Loudness normalization and vocal isolation, when enabled in Settings › General › Transcribe, affect recognition only. Vocal isolation requires BS-RoFormer or the lyric alignment model.
 - `separate` needs `htdemucs-6stems-q8` (with `bs-roformer-q8` installed, the vocals are cleaner). It writes the mix and six stems (vocals, drums, bass, guitar, piano, other) of equal length into a new “<name> Stems” folder.
 - `to-midi` needs `muscriptor-small-f32`. Write `.mid` for multi-instrument MIDI, or `.json` for a score you can edit and render with `yovoice score render`.
 - Songs for `separate` and `to-midi` can be up to 10 minutes long.

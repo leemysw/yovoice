@@ -4801,5 +4801,47 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "最後の一行はアカペラ"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "ダウンロードをキャンセル"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "別の入手先に切り替える前に、インストール済みモデルの登録を解除してください。"
+  },
+  "@yovoice.transcribe.chooseTrack": {
+    "defaultMessage": "文字起こしする音声トラックを選択"
+  },
+  "@yovoice.transcribe.audioTrack": {
+    "defaultMessage": "トラック {number}"
+  },
+  "@yovoice.transcribe.defaultTrack": {
+    "defaultMessage": "既定"
+  },
+  "@yovoice.transcribe.startTrack": {
+    "defaultMessage": "選択したトラックを文字起こし"
+  },
+  "@yovoice.error.transcribeNoTrack": {
+    "defaultMessage": "このファイルに音声トラックがありません。"
+  },
+  "@yovoice.error.transcribeTrackInvalid": {
+    "defaultMessage": "選択した音声トラックがありません。"
+  },
+  "@yovoice.error.transcribeTrackExpired": {
+    "defaultMessage": "アップロードしたファイルは無効になりました。選択し直してください。"
+  },
+  "@yovoice.error.transcribeVocalModel": {
+    "defaultMessage": "音声を分離するには BS-RoFormer または歌詞アライメントモデルをインストールしてください。"
+  },
+  "@yovoice.settings.transcribeNormalize": {
+    "defaultMessage": "ラウドネスを正規化"
+  },
+  "@yovoice.settings.transcribeNormalizeHint": {
+    "defaultMessage": "認識用の音量を調整し、ピークを抑えます。再生時は選択したトラックの音量を維持します。"
+  },
+  "@yovoice.settings.transcribeIsolate": {
+    "defaultMessage": "先に音声を分離"
+  },
+  "@yovoice.settings.transcribeIsolateHint": {
+    "defaultMessage": "BS-RoFormer で背景音楽を抑えます。BS-RoFormer または歌詞アライメントモデルが必要で、処理に時間がかかります。"
   }
 }

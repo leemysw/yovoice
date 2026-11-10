@@ -4801,5 +4801,47 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "마지막 한 줄은 아카펠라"
+  },
+  "@yovoice.settings.cancelDownload": {
+    "defaultMessage": "다운로드 취소"
+  },
+  "@yovoice.error.localModelProtected": {
+    "defaultMessage": "모델 출처를 바꾸기 전에 설치된 모델의 등록을 해제하세요."
+  },
+  "@yovoice.transcribe.chooseTrack": {
+    "defaultMessage": "전사할 오디오 트랙 선택"
+  },
+  "@yovoice.transcribe.audioTrack": {
+    "defaultMessage": "트랙 {number}"
+  },
+  "@yovoice.transcribe.defaultTrack": {
+    "defaultMessage": "기본"
+  },
+  "@yovoice.transcribe.startTrack": {
+    "defaultMessage": "선택한 트랙 전사"
+  },
+  "@yovoice.error.transcribeNoTrack": {
+    "defaultMessage": "이 파일에 오디오 트랙이 없습니다."
+  },
+  "@yovoice.error.transcribeTrackInvalid": {
+    "defaultMessage": "선택한 오디오 트랙이 없습니다."
+  },
+  "@yovoice.error.transcribeTrackExpired": {
+    "defaultMessage": "업로드한 파일을 사용할 수 없습니다. 다시 선택하세요."
+  },
+  "@yovoice.error.transcribeVocalModel": {
+    "defaultMessage": "음성을 먼저 분리하려면 BS-RoFormer 또는 가사 정렬 모델을 설치하세요."
+  },
+  "@yovoice.settings.transcribeNormalize": {
+    "defaultMessage": "음량 정규화"
+  },
+  "@yovoice.settings.transcribeNormalizeHint": {
+    "defaultMessage": "인식용 음량을 조정하고 피크를 제한합니다. 재생 시 선택한 트랙의 원래 음량을 유지합니다."
+  },
+  "@yovoice.settings.transcribeIsolate": {
+    "defaultMessage": "음성 먼저 분리"
+  },
+  "@yovoice.settings.transcribeIsolateHint": {
+    "defaultMessage": "BS-RoFormer로 배경 음악을 줄입니다. BS-RoFormer 또는 가사 정렬 모델이 필요하며 처리 시간이 늘어납니다."
   }
 }

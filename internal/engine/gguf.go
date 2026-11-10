@@ -2,6 +2,7 @@ package engine
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"io"
 	"os"
@@ -28,6 +29,8 @@ func GGUFArchitecture(path string) (string, error) {
 	if binary.Read(r, binary.LittleEndian, &header) != nil || string(header.Magic[:]) != "GGUF" || (header.Version != 2 && header.Version != 3) || header.Tensors == 0 || header.Metadata > 1<<20 {
 		return "", invalid
 	}
+	var architecture, family, specFamily string
+	var specVersion uint32
 	for range header.Metadata {
 		key, err := ggufString(r)
 		if err != nil {
@@ -37,14 +40,43 @@ func GGUFArchitecture(path string) (string, error) {
 		if binary.Read(r, binary.LittleEndian, &kind) != nil {
 			return "", invalid
 		}
-		if key == "general.architecture" {
+		switch key {
+		case "general.architecture", "audiocpp.model_spec.family", "audiocpp.model_spec.json":
 			if kind != 8 {
 				return "", invalid
 			}
-			return ggufString(r)
+			value, err := ggufString(r)
+			if err != nil {
+				return "", err
+			}
+			switch key {
+			case "general.architecture":
+				architecture = value
+				if architecture != "" && architecture != "audiocpp" {
+					return architecture, nil
+				}
+			case "audiocpp.model_spec.family":
+				family = value
+			case "audiocpp.model_spec.json":
+				var spec struct {
+					Family string `json:"family"`
+				}
+				if err := json.Unmarshal([]byte(value), &spec); err != nil {
+					return "", invalid
+				}
+				specFamily = spec.Family
+			}
+		case "audiocpp.model_spec.version":
+			if kind != 4 || binary.Read(r, binary.LittleEndian, &specVersion) != nil {
+				return "", invalid
+			}
+		default:
+			if err := skipGGUFValue(r, kind, 1); err != nil {
+				return "", err
+			}
 		}
-		if err := skipGGUFValue(r, kind, 1); err != nil {
-			return "", err
+		if architecture == "audiocpp" && specVersion == 1 && family != "" && specFamily == family {
+			return family, nil
 		}
 	}
 	return "", invalid

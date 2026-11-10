@@ -450,14 +450,30 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   // 分轨、转为 MIDI 与导入 LoRA 需要本地模型和文件选择框，预览里只给出空列表。
   if (method === 'adapter.list') return [] as T;
   if (method === 'midi.dismiss') { delete state.midiImport; publish(); return true as T; }
+  if (method === 'model.cancel') {
+    const { id } = data as { id: string };
+    if (state.modelDownloads) delete state.modelDownloads[id];
+    if (state.modelActivity?.modelId === id) state.modelActivity = null;
+    publish();
+    return true as T;
+  }
+  if (method === 'model.pause') {
+    const { id } = data as { id: string };
+    if (state.modelDownloads?.[id]) state.modelDownloads[id].status = 'paused';
+    if (state.modelActivity?.modelId === id) state.modelActivity = null;
+    publish();
+    return true as T;
+  }
   if (method === 'model.download') {
     // 预览只模拟更新或换版本：记下所选版本的主文件摘要，换到旧版本时不再提示更新。
     const { id, version } = data as { id: string; version?: string };
     const installed = state.models.find(model => model.id === id);
     const definition = catalog.find(model => model.id === id) as Parameters<typeof modelMainFile>[0] | undefined;
     if (!installed || !definition) throw new CallError('@yovoice.error.previewDesktopOnly');
+    if (!installed.managed) throw new CallError('@yovoice.error.localModelProtected');
     const latest = modelMainFile(definition).sha256;
-    installed.sha256 = version || latest;
+    installed.sha256 = state.modelDownloads?.[id]?.version || version || latest;
+    if (state.modelDownloads) delete state.modelDownloads[id];
     installed.pinned = installed.sha256 !== latest || undefined;
     publish();
     return true as T;

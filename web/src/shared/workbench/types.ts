@@ -7,7 +7,7 @@ export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface RuntimeSettings { streaming?: boolean }
 // 推理引擎的运行参数（设置 › 推理引擎），对所有模型生效；session 的键带模型族前缀。
 // 语音转写的限制与断句参数（设置 › 常规 › 语音转写），不填的项用默认值（见 transcribeDefaults）。
-export interface TranscribeSettings { maxFileMB?: number; maxMinutes?: number; lineChars?: number; lineSeconds?: number; linePause?: number }
+export interface TranscribeSettings { maxFileMB?: number; maxMinutes?: number; lineChars?: number; lineSeconds?: number; linePause?: number; normalizeLoudness?: boolean; isolateVocals?: boolean }
 export interface EngineSettings { threads?: number; device?: number; idleUnloadSeconds?: number; session?: Record<string, string | number | boolean> }
 export interface SynthesisSettings {
   runtime?: RuntimeSettings;
@@ -122,6 +122,7 @@ export interface State {
   runtimeSessionOptions?: Record<string, string[]>;
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
+  modelDownloads?: Record<string, { version: string; received: number; total: number; status: string }>;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
   melody?: MelodyResult;
   midiImport?: MidiImport;

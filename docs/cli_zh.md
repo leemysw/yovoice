@@ -91,11 +91,12 @@ yovoice generate --model stable-audio-3-small-sfx-q8 --text "door creaks open sl
 
 ```sh
 yovoice transcribe interview.mp4 --output interview.srt
+yovoice transcribe multilingual.mkv --audio-track 2 --output second-track.srt
 yovoice separate song.mp3 --output-dir stems
 yovoice to-midi song.mp3 --output song.mid
 ```
 
-- `transcribe` 需要 `qwen3-asr-0.6b-q8`。输出扩展名决定格式：`.srt`、`.vtt`、`.txt`（每行一句）或 `.json`（原文、逐词时间与字幕行）。断句沿用 App 的语音转写设置，结果同时保存为转写记录，可在 App 中继续编辑。
+- `transcribe` 需要 `qwen3-asr-0.6b-q8`。输出扩展名决定格式：`.srt`、`.vtt`、`.txt`（每行一句）或 `.json`（原文、逐词时间与字幕行）。断句沿用 App 的语音转写设置，结果同时保存为转写记录，可在 App 中继续编辑。 用 `--audio-track 2` 选择第二条音轨，命令行默认选择第一条。YoVoice 将所选音频保存为 WAV，供字幕编辑器试听。在「设置 › 常规 › 语音转写」打开响度归一化或预先提取人声后，只对识别输入应用处理。人声提取需要 BS-RoFormer 或歌词对齐模型。
 - `separate` 需要 `htdemucs-6stems-q8`（另装 `bs-roformer-q8` 时人声更干净），在新建的“<文件名> Stems”文件夹中写入原混音和人声、鼓、贝斯、吉他、钢琴、其他六轨，长度一致。
 - `to-midi` 需要 `muscriptor-small-f32`。输出 `.mid` 为多乐器 MIDI，`.json` 为编曲乐谱，可修改后用 `yovoice score render` 渲染。
 - `separate` 和 `to-midi` 接受 10 分钟以内的歌曲。

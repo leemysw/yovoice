@@ -29,6 +29,12 @@ func New(root string) (store *Store, err error) {
 	s.settleDeleted()
 	s.state.Activity = settleActivity(s.state.Activity)
 	s.state.ModelActivity = settleActivity(s.state.ModelActivity)
+	for id, job := range s.state.ModelDownloads {
+		if job.Status == "running" {
+			job.Status = "paused"
+			s.state.ModelDownloads[id] = job
+		}
+	}
 	// AI 任务、旋律谱与识别结果、助手对话的实时状态只属于本次会话，助手消息记录保留。
 	s.state.AITask = nil
 	s.state.Melody = nil

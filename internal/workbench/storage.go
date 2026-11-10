@@ -155,6 +155,10 @@ func (w *Workbench) RelocateStorage(ctx context.Context, targetPath string) erro
 	for i := range snapshot.Models {
 		snapshot.Models[i].Path = rebase(snapshot.Models[i].Path)
 	}
+	for id, job := range snapshot.ModelDownloads {
+		job.Directory = rebase(job.Directory)
+		snapshot.ModelDownloads[id] = job
+	}
 	for backend, installed := range snapshot.Runtimes {
 		installed.Path = rebase(installed.Path)
 		snapshot.Runtimes[backend] = installed

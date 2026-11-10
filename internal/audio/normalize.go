@@ -1,6 +1,7 @@
 package audio
 
 import (
+	"context"
 	"math"
 	"os"
 )
@@ -32,10 +33,8 @@ func Normalize(path string, target, ceiling float64) (Normalized, error) {
 	if before <= Silence {
 		return result, nil
 	}
-	gain := target - before
-	if peak+gain > ceiling {
-		gain, result.Limited = ceiling-peak, true
-	}
+	gain, limited := normalizationGain(before, peak, target, ceiling)
+	result.Limited = limited
 	if math.Abs(gain) < 0.05 {
 		return result, f.Close()
 	}
@@ -61,4 +60,37 @@ func Normalize(path string, target, ceiling float64) (Normalized, error) {
 	}
 	result.Gain, result.After, result.Peak = gain, before+gain, peak+gain
 	return result, f.Close()
+}
+
+// NormalizeMono 调整内存中的单声道转写输入，保留时长，播放文件仍为未经处理的音轨。
+func NormalizeMono(ctx context.Context, samples []float32, rate int, target, ceiling float64) error {
+	const blockSize = 1 << 15
+	meter := NewMeter(rate, 1)
+	for start := 0; start < len(samples); start += blockSize {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		meter.Write(samples[start:min(start+blockSize, len(samples))])
+	}
+	if before := meter.Loudness(); before > Silence {
+		gain, _ := normalizationGain(before, meter.TruePeak(), target, ceiling)
+		scale := float32(math.Pow(10, gain/20))
+		for start := 0; start < len(samples); start += blockSize {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+			for i := start; i < min(start+blockSize, len(samples)); i++ {
+				samples[i] *= scale
+			}
+		}
+	}
+	return ctx.Err()
+}
+
+func normalizationGain(before, peak, target, ceiling float64) (float64, bool) {
+	gain := target - before
+	if peak+gain > ceiling {
+		return ceiling - peak, true
+	}
+	return gain, false
 }

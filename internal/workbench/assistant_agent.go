@@ -34,7 +34,8 @@ func (w *Workbench) appStatusTool(ctx context.Context, req *mcp.CallToolRequest,
 		item := map[string]any{"id": installed.ID}
 		if definition, e := catalog.Lookup(installed.ID); e == nil {
 			item["name"], item["family"] = definition.Name, definition.Family
-			item["updateAvailable"] = installed.SHA256 != "" && installed.SHA256 != definition.MainFile().SHA256
+			_, pending := s.ModelDownloads[installed.ID]
+			item["updateAvailable"] = !pending && modelUpdateAvailable(installed, definition)
 		}
 		models = append(models, item)
 	}
@@ -235,12 +236,15 @@ func (w *Workbench) proposalLabel(action, target, value string) (string, error) 
 		}
 		return "", fmt.Errorf("声音库里没有角色 %s", target)
 	case "install_model":
+		if _, pending := s.ModelDownloads[target]; pending {
+			return "", fmt.Errorf("模型 %s 已有下载任务，请在模型设置中继续或取消", target)
+		}
 		definition, e := catalog.Lookup(target)
 		if e != nil {
 			return "", fmt.Errorf("未知模型 %s，请用 list_models 查询模型 ID", target)
 		}
 		for _, installed := range s.Models {
-			if installed.ID == target && (installed.SHA256 == "" || installed.SHA256 == definition.MainFile().SHA256) {
+			if installed.ID == target && !modelUpdateAvailable(installed, definition) {
 				return "", fmt.Errorf("模型 %s 已经安装且没有可用更新", target)
 			}
 		}

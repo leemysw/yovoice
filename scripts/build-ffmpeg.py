@@ -18,16 +18,17 @@ name = {'Darwin': 'macos', 'Windows': 'windows', 'Linux': 'linux'}.get(system)
 if (name, arch) not in [('macos', 'arm64'), ('windows', 'x64'), ('linux', 'x64')]:
     raise SystemExit('不支持的 FFmpeg 构建平台')
 output = root / 'artifacts' / 'ffmpeg' / f'{name}-{arch}'
-executable = output / ('ffmpeg.exe' if system == 'Windows' else 'ffmpeg')
+suffix = '.exe' if system == 'Windows' else ''
+tools = [output / f'{name}{suffix}' for name in ('ffmpeg', 'ffprobe')]
 archive = root / 'artifacts' / 'downloads' / f'ffmpeg-{version}.tar.xz'
 flags = [
     '--disable-everything', '--disable-autodetect', '--disable-network', '--disable-doc',
-    '--disable-debug', '--disable-ffplay', '--disable-ffprobe', '--disable-avdevice',
+    '--disable-debug', '--disable-ffplay', '--disable-avdevice',
     '--disable-swscale', '--disable-x86asm', '--enable-small', '--enable-static', '--disable-shared',
-    '--enable-ffmpeg', '--enable-protocol=file',
+    '--enable-ffmpeg', '--enable-ffprobe', '--enable-protocol=file',
     '--enable-demuxer=wav,mp3,mov,aac,flac,ogg,aiff,asf,matroska,ffmetadata,image_jpeg_pipe',
-    '--enable-decoder=mp3,mp3float,aac,alac,flac,vorbis,opus,wmav1,wmav2,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f32be,pcm_f64le,pcm_f64be,pcm_u8,pcm_alaw,pcm_mulaw,mjpeg',
-    '--enable-parser=mpegaudio,aac,flac,vorbis,opus,mjpeg', '--enable-muxer=wav,flac,ipod',
+    '--enable-decoder=mp3,mp3float,aac,alac,ac3,eac3,dca,flac,vorbis,opus,wmav1,wmav2,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f32be,pcm_f64le,pcm_f64be,pcm_u8,pcm_alaw,pcm_mulaw,mjpeg',
+    '--enable-parser=mpegaudio,aac,ac3,dca,flac,vorbis,opus,mjpeg', '--enable-muxer=wav,flac,ipod',
     # 导出：FLAC 与 AAC 都是 FFmpeg 自带的 LGPL 编码器；封面原样复制，mjpeg 解码只用来读出尺寸。
     '--enable-encoder=pcm_s16le,flac,aac', '--enable-filter=aresample,aformat,anull', '--extra-cflags=-Os',
 ]
@@ -45,7 +46,7 @@ if not archive.exists():
     partial.replace(archive)
 if hashlib.sha256(archive.read_bytes()).hexdigest() != digest:
     raise SystemExit('FFmpeg 源码校验失败，请删除下载缓存后重试')
-if not executable.exists() or not stamp.exists() or json.loads(stamp.read_text()).get('fingerprint') != fingerprint:
+if not all(tool.exists() for tool in tools) or not stamp.exists() or json.loads(stamp.read_text()).get('fingerprint') != fingerprint:
     work = root / 'artifacts' / 'ffmpeg-build' / f'{name}-{arch}'
     shutil.rmtree(work, ignore_errors=True)
     work.mkdir(parents=True)
@@ -58,14 +59,15 @@ if not executable.exists() or not stamp.exists() or json.loads(stamp.read_text()
     log = work / 'build.log'
     print(f'构建精简 FFmpeg {version}，日志：{log}', flush=True)
     with log.open('w') as stream:
-        for command in [ ['bash', f'../ffmpeg-{version}/configure', *flags], ['make', '-j', str(min(os.cpu_count() or 2, 8)), executable.name] ]:
+        for command in [ ['bash', f'../ffmpeg-{version}/configure', *flags], ['make', '-j', str(min(os.cpu_count() or 2, 8)), *(tool.name for tool in tools)] ]:
             # Windows 默认先搜索系统目录，显式解析 PATH，避免误启动 WSL 的 bash。
             command[0] = shutil.which(command[0]) or command[0]
             result = subprocess.run(command, cwd=build, stdout=stream, stderr=subprocess.STDOUT)
             if result.returncode:
                 stream.flush()
                 raise SystemExit(log.read_text(errors='replace')[-6000:])
-    shutil.copy2(build / executable.name, executable)
+    for tool in tools:
+        shutil.copy2(build / tool.name, tool)
     shutil.copy2(source / 'COPYING.LGPLv2.1', output / 'FFmpeg-LICENSE.txt')
     stamp.write_text(json.dumps({'version': version, 'source': f'https://ffmpeg.org/releases/{archive.name}', 'sha256': digest, 'configure': flags, 'fingerprint': fingerprint}, indent=2) + '\n')
 # 发布对应源码及构建脚本，用户无需下载源码包即可使用转换功能。
@@ -76,6 +78,7 @@ with tarfile.open(source_bundle, 'w:gz') as package:
 if len(sys.argv) > 1:
     destination = Path(sys.argv[1])
     destination.mkdir(parents=True, exist_ok=True)
-    for filename in (executable.name, 'FFmpeg-LICENSE.txt', 'build.json'):
+    for filename in (*(tool.name for tool in tools), 'FFmpeg-LICENSE.txt', 'build.json'):
         shutil.copy2(output / filename, destination / filename)
-print(f'{executable}: {executable.stat().st_size / 1024 / 1024:.2f} MiB', flush=True)
+for tool in tools:
+    print(f'{tool}: {tool.stat().st_size / 1024 / 1024:.2f} MiB', flush=True)

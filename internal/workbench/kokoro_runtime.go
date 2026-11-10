@@ -37,6 +37,10 @@ func kokoroMissing(root string) ([]catalog.KokoroWheel, error) {
 // installKokoro 下载 wheel 并只解出原生库与 eSpeak 数据，整体替换发音库目录。
 // progress 报告本次下载的累计字节数与总字节数。
 func (w *Workbench) installKokoro(ctx context.Context, source string, progress func(received, total int64)) error {
+	return w.installKokoroWithCache(ctx, source, filepath.Join(w.Store.Root, "downloads"), progress)
+}
+
+func (w *Workbench) installKokoroWithCache(ctx context.Context, source, cache string, progress func(received, total int64)) error {
 	// 模型下载与生成都可能触发安装，串行执行并在拿到锁后重新判断。
 	w.kokoro.Lock()
 	defer w.kokoro.Unlock()
@@ -64,7 +68,7 @@ func (w *Workbench) installKokoro(ctx context.Context, source string, progress f
 		if err != nil {
 			return err
 		}
-		archive := filepath.Join(w.Store.Root, "downloads", path.Base(wheel.Path))
+		archive := filepath.Join(cache, path.Base(wheel.Path))
 		if err = download.File(ctx, w.client, url, archive, wheel.SHA256, wheel.Size, func(received, _ int64) { progress(done+received, total) }); err != nil {
 			return err
 		}

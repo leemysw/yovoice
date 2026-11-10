@@ -45,7 +45,7 @@ export function WorkbenchOverlays({ state, catalog, ready, error, setError, page
     setPronunciation({ ...selection, sound: '' });
   }
   return <>
-    <PageBoundary name="notifications" resetKey={error}><Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}
+    <PageBoundary name="notifications" resetKey={error}><Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))}
       aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /><LiveAudioNotice projectId={draft.id} page={page} activity={state.activity} /></Notifications></PageBoundary>
     <PageBoundary name="update-dialog"><UpdateDialogHost /></PageBoundary>
     {ready && !draft.subtitles && !instrumental && isIndexModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <PageBoundary name="selection-action"><SelectionAction key={draft.id} editor={editor} onEdit={annotate} /></PageBoundary> : null}

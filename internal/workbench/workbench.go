@@ -112,6 +112,11 @@ func (w *Workbench) slot(kind string) (*context.CancelFunc, *chan struct{}) {
 func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) (<-chan struct{}, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+	return w.startLocked(kind, code, params, modelID, action, nil, requestIDs...)
+}
+
+// startLocked 将任务和其进度入口在同一次状态提交中写入。
+func (w *Workbench) startLocked(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, initialize func(*schema.State), requestIDs ...string) (<-chan struct{}, error) {
 	slotCancel, slotDone := w.slot(kind)
 	if w.closed || *slotCancel != nil || (kind == "import" && w.installCancel != nil) {
 		return nil, msg.Err(msg.ErrBusy, nil)
@@ -137,6 +142,9 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 			}
 		}
 		*activitySlot(s, kind) = a
+		if initialize != nil {
+			initialize(s)
+		}
 	}, true); e != nil {
 		cancel()
 		return nil, e
@@ -202,6 +210,16 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 					a.ErrorParams = msg.Params{"detail": err.Error()}
 				}
 			}
+			if kind == "download" && modelID != nil {
+				if job, ok := s.ModelDownloads[*modelID]; ok {
+					job.Status = a.Status
+					if a.Status == "cancelled" {
+						job.Status = "paused"
+					}
+					job.Received, job.Total = a.Received, a.Total
+					s.ModelDownloads[*modelID] = job
+				}
+			}
 		}
 		if e := w.Store.Update(update, true); e != nil {
 			_ = w.Store.Update(func(s *schema.State) {
@@ -252,7 +270,7 @@ func (w *Workbench) cancelOperation(done <-chan struct{}) {
 	}
 }
 
-// CancelModel 暂停模型下载或取消导入，不影响正在进行的生成。
+// CancelModel 暂停当前模型下载，供服务退出和非界面调用使用。
 func (w *Workbench) CancelModel() {
 	diag.Log(w.Store.Root, "model.cancel_requested")
 	w.mu.Lock()

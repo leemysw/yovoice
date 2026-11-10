@@ -29,6 +29,12 @@ In Settings → Voice models, Music models or Score sound fonts, choose the matc
 
 Single-file imports check the GGUF header and model family and record the file's SHA-256. Locally converted GGUFs are accepted, but you must choose the correct version and precision; a matching family does not guarantee that every custom conversion is usable. Multi-file packages and SF2 imports must match the supported package checksums. Raw PyTorch (`.pth`, `.pt`, `.safetensors`) and MLX weights cannot run in the native audio.cpp engine directly: convert them with the matching upstream audio.cpp converter first. Importing does not install or run Python and does not convert weights automatically. Imported models use the same voice and advanced generation controls as downloaded models.
 
+## Model downloads
+
+A downloaded model can be updated to the package shown in the catalog. An imported model stays linked to its own file, even when its checksum differs from the catalog. To switch an imported model to a catalog download, remove its registration and start a new download.
+
+**Pause** keeps the downloaded bytes and the selected version. **Resume download** continues the same task, including after restarting or changing the default download folder. **Cancel download** removes the unfinished files for that task. **Remove model** removes an installed registration and deletes the installed files only for an app-managed download. The new package is checked before replacing a model registration, so a failed update leaves the previous package intact. If an old paused task does not identify its target version, cancel it and start the intended version again.
+
 ## Model versions and rollback
 
 When the model catalog updates, downloaded models show **Update available**. Models replaced by a catalog update also get a version picker in Settings: choosing **Before <date> update** downloads the earlier file from its pinned repository commit, verifies it and replaces the current file, and the update prompt stops. Choose **Latest** to go back. Switching versions keeps no second copy on disk and works with all three download sources.

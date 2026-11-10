@@ -195,6 +195,17 @@ type VoiceExcerpt struct {
 	End   float64 `json:"end"`
 	Total float64 `json:"total"`
 }
+
+// ModelDownload 记录未完成的下载。文件写在专用目录，提交前不会成为已安装模型。
+type ModelDownload struct {
+	Version   string `json:"version"`
+	Directory string `json:"directory"`
+	Token     string `json:"token"`
+	Received  int64  `json:"received"`
+	Total     int64  `json:"total"`
+	Status    string `json:"status"`
+}
+
 type InstalledModel struct {
 	ID      string `json:"id"`
 	Path    string `json:"path"`
@@ -360,7 +371,8 @@ type State struct {
 	Runtimes map[string]InstalledRuntime `json:"runtimes,omitempty"`
 	Activity *Activity                   `json:"activity"`
 	// ModelActivity 是模型下载或导入：不占用推理引擎，与 Activity 中的生成等操作同时进行。
-	ModelActivity *Activity `json:"modelActivity"`
+	ModelActivity  *Activity                `json:"modelActivity"`
+	ModelDownloads map[string]ModelDownload `json:"modelDownloads,omitempty"`
 	// AIProviders 为可选的大模型服务，AIProviderID 指向当前使用的服务。
 	AIProviders  []AIProvider `json:"aiProviders,omitempty"`
 	AIProviderID string       `json:"aiProviderID,omitempty"`

@@ -123,6 +123,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.voiceBusyDelete` 请等待生成结束后再删除声音。
 - `error.streamingRetry` VoxCPM2 流式生成不支持失败重试，请关闭重试或流式输出。
 - `error.modelOptionUnsupported` 当前推理引擎不支持参数 {name}。请使用兼容的引擎，或移除此设置。
+- `error.localModelProtected` 切换模型来源前，请先移除当前模型的登记。
 - `error.localModelInvalid` 请选择与所选模型家族匹配的 audio.cpp GGUF，或受支持的 SF2。PyTorch／MLX 原始权重须先转换。
 - `error.localModelIncomplete` 模型包缺少文件或校验不符。请选择主 GGUF，并保留全部配套文件的原目录结构。
 - `error.modelRequired` 请先在设置中下载或导入模型。
@@ -169,6 +170,10 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.alignModelRequired` 请先在设置的音乐模型里下载歌词对齐模型
 - `error.recognizeModelRequired` 请先在设置的语音模型里下载语音识别模型 Qwen3 ASR
 - `error.recognizeEmpty` 没有识别出文字，请换一段人声更清晰的样本
+- `error.transcribeVocalModel` 预先提取人声需要安装 BS-RoFormer 或歌词对齐模型。
+- `error.transcribeNoTrack` 这个文件没有音轨。
+- `error.transcribeTrackInvalid` 所选音轨不存在。
+- `error.transcribeTrackExpired` 上传文件已失效，请重新选择文件。
 - `error.transcribeEmpty` 没有识别出文字，请确认音频里有清晰的人声
 - `error.transcribeTooLarge` 音视频文件需小于 {size}。可以在“设置 › 常规 › 语音转写”里调整上限。
 - `error.transcribeDuration` 音视频时长需在 {minutes} 分钟以内。可以在“设置 › 常规 › 语音转写”里调整上限。

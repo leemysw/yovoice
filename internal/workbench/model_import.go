@@ -9,6 +9,7 @@ import (
 	"yovoice/internal/download"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
+	"yovoice/internal/store"
 )
 
 // ImportModel 登记所选型号的本地包，保留原路径和文件，不复制、不改动下载目录。
@@ -28,14 +29,26 @@ func (w *Workbench) ImportModel(id, path string) error {
 	if !info.Mode().IsRegular() {
 		return msg.Err(msg.ErrLocalModelInvalid, nil)
 	}
-	return w.begin("import", msg.ActivityVerifying, nil, ptr(id), func(ctx context.Context) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	state := w.Store.Read()
+	if _, pending := state.ModelDownloads[id]; pending {
+		return msg.Err(msg.ErrBusy, nil)
+	}
+	installed, exists := installedModel(state, id)
+	if exists && !store.SamePath(installed.Path, path) && (installed.Managed || existsPath(installed.Path)) {
+		return msg.Err(msg.ErrLocalModelProtected, nil)
+	}
+	_, err = w.startLocked("import", msg.ActivityVerifying, nil, ptr(id), func(ctx context.Context) error {
 		digest, err := download.Hash(ctx, path)
 		if err != nil {
 			return err
 		}
 		root := path
 		if len(model.Files) > 0 {
-			if digest != model.MainFile().SHA256 {
+			// 目录里的旧版也可原地登记，但配套文件必须匹配该版清单。
+			model, err = model.At(digest)
+			if err != nil {
 				return msg.Err(msg.ErrLocalModelIncomplete, nil)
 			}
 			root = filepath.Dir(path)
@@ -66,6 +79,13 @@ func (w *Workbench) ImportModel(id, path string) error {
 			return err
 		}
 		w.engine.Stop()
-		return w.register(id, root, false, digest, false)
-	})
+		managed := exists && installed.Managed && store.SamePath(installed.Path, root)
+		return w.register(id, root, managed, digest, managed && installed.Pinned)
+	}, nil)
+	return err
+}
+
+func existsPath(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
