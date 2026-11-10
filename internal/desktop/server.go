@@ -144,11 +144,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/api/transcribe" && r.Method == "POST":
 		// 转写上传走原始请求体，不经 base64 消息，视频等大文件也能上传；name 是原文件名。
 		started := time.Now()
-		_, err := s.guard("speech.transcribe", func() (any, error) {
-			return true, s.Workbench.TranscribeSpeech(r.URL.Query().Get("name"), r.Body)
+		ctx, cancel := context.WithCancel(r.Context())
+		defer cancel()
+		release := context.AfterFunc(s.lifetime(), func() {
+			cancel()
+			_ = r.Body.Close()
+		})
+		defer release()
+		result, err := s.guard("speech.transcribe", func() (any, error) {
+			selection, err := s.Workbench.PrepareTranscribeSpeech(ctx, r.URL.Query().Get("name"), r.Body)
+			if selection != nil {
+				return selection, err
+			}
+			return true, err
 		})
 		diag.Log(s.Workbench.Store.Root, "speech.transcribe", "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))
-		reply := map[string]any{"result": true}
+		reply := map[string]any{"result": result}
 		if err != nil {
 			reply = map[string]any{"error": msg.Encode(err)}
 		}

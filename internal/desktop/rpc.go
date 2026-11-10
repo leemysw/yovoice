@@ -343,7 +343,23 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		if e != nil {
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
-		return true, w.TranscribeSpeech(input.Name, bytes.NewReader(b))
+		selection, err := w.PrepareTranscribeSpeech(ctx, input.Name, bytes.NewReader(b))
+		if selection != nil {
+			return selection, err
+		}
+		return true, err
+	case "speech.transcribe.select":
+		var input struct {
+			ID    string `json:"id"`
+			Name  string `json:"name"`
+			Track int    `json:"track"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.SelectTranscribeTrack(ctx, input.ID, input.Name, input.Track)
+	case "speech.transcribe.discard":
+		return true, w.DiscardTranscribeUpload(p.ID)
 	case "melody.listen":
 		var input struct {
 			Abc string `json:"abc"`

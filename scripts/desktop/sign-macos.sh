@@ -26,7 +26,7 @@ sign_ocho() {
 case "$target" in
   *.app)
     # 先签嵌入的服务，再签主应用；不使用 --deep 代替逐项签名。
-    for executable in "$target/Contents/Resources/service/yovoice-service" "$target/Contents/Resources/engine/audiocpp_server" "$target/Contents/Resources/tools/ffmpeg" "$target/Contents/MacOS/VoiceWorkbenchMac"; do
+    for executable in "$target/Contents/Resources/service/yovoice-service" "$target/Contents/Resources/engine/audiocpp_server" "$target/Contents/Resources/tools/ffmpeg" "$target/Contents/Resources/tools/ffprobe" "$target/Contents/MacOS/VoiceWorkbenchMac"; do
       if [[ "$(lipo -archs "$executable")" != arm64 ]]; then echo "仅支持 Apple Silicon：$executable" >&2; exit 1; fi
     done
     codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/service/yovoice-service"
@@ -38,6 +38,7 @@ case "$target" in
       codesign "${sign_args[@]}" --options runtime --entitlements desktop/macos/engine-entitlements.plist "$target/Contents/Resources/engine/audiocpp_server"
     fi
     codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/tools/ffmpeg"
+    codesign "${sign_args[@]}" --options runtime "$target/Contents/Resources/tools/ffprobe"
     sign_ocho "$target/Contents/Resources/tools/ocho/ocho"
     codesign "${sign_args[@]}" --options runtime --entitlements desktop/macos/entitlements.plist "$target"
     codesign --verify --deep --strict "$target"
@@ -45,10 +46,12 @@ case "$target" in
   *.dmg) codesign "${sign_args[@]}" "$target"; codesign --verify --strict "$target" ;;
   */yovoice)
     if [[ "$(lipo -archs "$target")" != arm64 ]]; then echo "仅支持 Apple Silicon：$target" >&2; exit 1; fi
-    converter="$(dirname "$target")/tools/ffmpeg"
-    if [[ "$(lipo -archs "$converter")" != arm64 ]]; then echo 'CLI 转换器必须为 arm64。' >&2; exit 1; fi
-    codesign "${sign_args[@]}" --options runtime "$converter"
-    codesign --verify --strict "$converter"
+    for tool in ffmpeg ffprobe; do
+      executable="$(dirname "$target")/tools/$tool"
+      if [[ "$(lipo -archs "$executable")" != arm64 ]]; then echo "CLI 工具必须为 arm64：$executable" >&2; exit 1; fi
+      codesign "${sign_args[@]}" --options runtime "$executable"
+      codesign --verify --strict "$executable"
+    done
     sign_ocho "$(dirname "$target")/tools/ocho/ocho"
     codesign "${sign_args[@]}" --options runtime "$target"
     codesign --verify --strict "$target"

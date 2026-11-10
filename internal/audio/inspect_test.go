@@ -1,6 +1,8 @@
 package audio
 
 import (
+	"context"
+	"errors"
 	"math"
 	"math/rand"
 	"path/filepath"
@@ -115,6 +117,22 @@ func TestNormalize(t *testing.T) {
 	silent := write(t, make([]float32, 24000), 24000)
 	if result, e = Normalize(silent, -16, -1); e != nil || result.Gain != 0 {
 		t.Fatal(result, e)
+	}
+}
+
+func TestNormalizeMonoForTranscription(t *testing.T) {
+	const rate = 16000
+	samples := sine(rate, 3, 997, .015, 0)
+	must(t, NormalizeMono(context.Background(), samples, rate, -18, -1))
+	meter := NewMeter(rate, 1)
+	meter.Write(samples)
+	if len(samples) != 3*rate || math.Abs(meter.Loudness()+18) > .15 || meter.TruePeak() > -1 {
+		t.Fatalf("响度 %.2f LUFS，真峰值 %.2f dBTP", meter.Loudness(), meter.TruePeak())
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := NormalizeMono(ctx, samples, rate, -18, -1); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
 	}
 }
 

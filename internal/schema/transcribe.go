@@ -8,11 +8,13 @@ import (
 // TranscribeSettings 是语音转写的限制与字幕断句参数（设置 › 常规 › 语音转写），0 表示用默认值。
 // 上传上限与时长上限在服务端生效；断句参数由界面把逐词时间分成字幕行时使用。
 type TranscribeSettings struct {
-	MaxFileMB   int     `json:"maxFileMB,omitempty"`
-	MaxMinutes  int     `json:"maxMinutes,omitempty"`
-	LineChars   int     `json:"lineChars,omitempty"`
-	LineSeconds float64 `json:"lineSeconds,omitempty"`
-	LinePause   float64 `json:"linePause,omitempty"`
+	MaxFileMB         int     `json:"maxFileMB,omitempty"`
+	MaxMinutes        int     `json:"maxMinutes,omitempty"`
+	LineChars         int     `json:"lineChars,omitempty"`
+	LineSeconds       float64 `json:"lineSeconds,omitempty"`
+	LinePause         float64 `json:"linePause,omitempty"`
+	NormalizeLoudness bool    `json:"normalizeLoudness,omitempty"`
+	IsolateVocals     bool    `json:"isolateVocals,omitempty"`
 }
 
 // 各项的默认值与允许范围。时长上限受内存约束：整段音频解码后常驻内存，3 小时约占 1 GB。

@@ -4801,5 +4801,41 @@
   },
   "@yovoice.music.tagHint.ends-on-an-a-cappella-line": {
     "defaultMessage": "最後一句只留人聲清唱"
+  },
+  "@yovoice.transcribe.chooseTrack": {
+    "defaultMessage": "選擇轉寫音軌"
+  },
+  "@yovoice.transcribe.audioTrack": {
+    "defaultMessage": "音軌 {number}"
+  },
+  "@yovoice.transcribe.defaultTrack": {
+    "defaultMessage": "預設"
+  },
+  "@yovoice.transcribe.startTrack": {
+    "defaultMessage": "轉寫所選音軌"
+  },
+  "@yovoice.error.transcribeNoTrack": {
+    "defaultMessage": "這個檔案沒有音軌。"
+  },
+  "@yovoice.error.transcribeTrackInvalid": {
+    "defaultMessage": "所選音軌不存在。"
+  },
+  "@yovoice.error.transcribeTrackExpired": {
+    "defaultMessage": "上傳檔案已失效，請重新選擇檔案。"
+  },
+  "@yovoice.error.transcribeVocalModel": {
+    "defaultMessage": "預先擷取人聲需要安裝 BS-RoFormer 或歌詞對齊模型。"
+  },
+  "@yovoice.settings.transcribeNormalize": {
+    "defaultMessage": "響度正規化"
+  },
+  "@yovoice.settings.transcribeNormalizeHint": {
+    "defaultMessage": "調整辨識使用的響度並限制峰值。試聽保留所選音軌的原有響度。"
+  },
+  "@yovoice.settings.transcribeIsolate": {
+    "defaultMessage": "預先擷取人聲"
+  },
+  "@yovoice.settings.transcribeIsolateHint": {
+    "defaultMessage": "使用 BS-RoFormer 減少背景音樂。需要安裝 BS-RoFormer 或歌詞對齊模型，處理時間會增加。"
   }
 }

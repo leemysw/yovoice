@@ -11,6 +11,6 @@ export const codexProvider = (p?: AIProvider) => p?.format === 'codex_cli';
 export const assistantUsable = (p?: AIProvider) => !!p?.model && !codexProvider(p);
 
 // 语音转写的默认值与允许范围，与服务端 schema.TranscribeSettings 一致。
-export const transcribeDefaults: Required<TranscribeSettings> = { maxFileMB: 4096, maxMinutes: 60, lineChars: 20, lineSeconds: 6, linePause: .8 };
-export const transcribeRanges: Record<keyof TranscribeSettings, [number, number]> = { maxFileMB: [20, 16384], maxMinutes: [1, 180], lineChars: [6, 80], lineSeconds: [1, 20], linePause: [.2, 5] };
+export const transcribeDefaults: Required<TranscribeSettings> = { maxFileMB: 4096, maxMinutes: 60, lineChars: 20, lineSeconds: 6, linePause: .8, normalizeLoudness: false, isolateVocals: false };
+export const transcribeRanges = { maxFileMB: [20, 16384], maxMinutes: [1, 180], lineChars: [6, 80], lineSeconds: [1, 20], linePause: [.2, 5] };
 export const transcribeSettings = (preferences: Preferences): Required<TranscribeSettings> => ({ ...transcribeDefaults, ...preferences.transcribe });

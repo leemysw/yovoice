@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,7 +13,7 @@ import (
 
 // transcribeFile 转写一个音频或视频文件：与桌面端“语音转写”相同，结果同时保存为一份转写记录（App 里可继续编辑），
 // 再按输出扩展名写出字幕。断句沿用“设置 › 常规 › 语音转写”的规则。
-func transcribeFile(w *workbench.Workbench, input, output string, wait func(func() error) error) (any, error) {
+func transcribeFile(ctx context.Context, w *workbench.Workbench, input, output string, track int, wait func(func() error) error) (any, error) {
 	before := map[string]bool{}
 	for _, t := range w.Store.Read().Transcripts {
 		before[t.ID] = true
@@ -23,7 +24,7 @@ func transcribeFile(w *workbench.Workbench, input, output string, wait func(func
 			return e
 		}
 		defer f.Close()
-		return w.TranscribeSpeech(filepath.Base(input), f)
+		return w.TranscribeSpeechTrack(ctx, filepath.Base(input), f, track)
 	}); err != nil {
 		return nil, err
 	}

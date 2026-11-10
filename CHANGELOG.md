@@ -6,6 +6,8 @@
 
 ### English
 
+- Transcribe opens a track picker for files with multiple audio tracks and plays the selected track in the transcript editor. Single-track files start directly. Optional loudness normalization and vocal isolation help with quiet recordings and background music.
+
 - On Windows, custom data folders with Chinese characters in their paths are now read correctly at startup.
 - On macOS, “Style from image” now lets you choose PNG, JPEG and WebP images. Other file pickers also use the formats accepted by each import action.
 - Transcripts are now saved and listed like your other work. Open one to edit the subtitles as plain text: Enter splits at the cursor, Backspace at the start of a line joins it to the line above. You can also find and replace, undo, and play a line from the original audio, and changes save automatically. You can also record directly on the Transcribe page.
@@ -20,6 +22,8 @@
 - For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
 
 ### 简体中文
+
+- 转写多音轨文件时可以选择音轨，字幕编辑器会播放所选音轨。单音轨文件直接开始转写。设置中可选响度归一化和预先提取人声，用于音量偏小或带背景音乐的录音。
 
 - 修复 Windows 启动时可能把含中文的自定义数据目录误报为不存在的问题。
 - 修复 macOS「看图取风格」无法选择 PNG、JPEG 和 WebP 图片的问题，其他导入窗口也按各自支持的格式筛选文件。

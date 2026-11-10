@@ -72,15 +72,18 @@ export async function coverMelodyFile(projectId: string, file: File): Promise<vo
   await call('melody.cover', { projectId, base64: await toBase64(file) });
 }
 
-// 语音转写：上传音频或视频交给后台用语音识别模型逐段转写；浏览器预览不上传音频，只演示结果。
-// 桌面端把文件作为原始请求体直接上传，不转 base64，视频等大文件也能转写；maxMB 是设置里的文件上限，超出时先在界面拒绝。
-export async function transcribeSpeechFile(file: File, maxMB: number): Promise<void> {
-  if (!isDesktop) { await call('speech.transcribe', { name: file.name, base64: '' }); return; }
+export interface TranscribeTrack { number: number; title?: string; language?: string; codec?: string; default?: boolean }
+export interface TranscribeSelection { id: string; tracks: TranscribeTrack[] }
+
+// 文件只上传一次。单轨立即转写，多轨返回待选择的上传编号。
+export async function transcribeSpeechFile(file: File, maxMB: number, signal: AbortSignal): Promise<TranscribeSelection | null> {
+  if (!isDesktop) { await call('speech.transcribe', { name: file.name, base64: '' }); return null; }
   if (file.size > maxMB * 1024 * 1024) throw new CallError('@yovoice.error.transcribeTooLarge', { size: maxMB % 1024 ? `${maxMB} MB` : `${maxMB / 1024} GB` });
-  const response = await fetch(`/api/transcribe?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
-  const reply = await response.json().catch(() => ({})) as { result?: boolean; error?: unknown };
+  const response = await fetch(`/api/transcribe?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file, signal });
+  const reply = await response.json().catch(() => ({})) as { result?: true | TranscribeSelection; error?: unknown };
   if (reply.error) throw parseCallError(reply.error);
   if (!response.ok || !reply.result) throw new CallError('@yovoice.error.unknown', { detail: `transcribe upload ${response.status}` });
+  return reply.result === true ? null : reply.result;
 }
 
 // 音频地址：桌面端是服务上的固定地址，浏览器预览是临时 blob 地址；用完交给 releaseMediaUrl 释放。

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"math"
 	"os"
-	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -19,13 +17,9 @@ import (
 // 一份转写最多保存的字幕行数与每行字数：1 小时的音频按句分行约一两千行，留足余量。
 const maxTranscriptCaptions, maxCaptionRunes = 20000, 1000
 
-// 原音频按扩展名保存，便于浏览器按类型播放；扩展名不像音视频格式时不保存。
-var audioExt = regexp.MustCompile(`^\.[a-z0-9]{1,5}$`)
-
-// saveTranscript 把一次转写写入 outputs 目录并加进转写记录：字幕文件保存原文与逐词时间，
-// 上传的音频移到同目录供边听边改。upload 是收到的原文件，成功时由这里接管。
+// saveTranscript 保存字幕和实际送去转写的原始音轨，成功后接管音频文件。
 // 新记录在一次状态更新里加到最前面，与生成结果写入历史一样不需要编辑锁。
-func (w *Workbench) saveTranscript(record schema.Transcript, content schema.TranscriptContent, upload, original string, wav bool) error {
+func (w *Workbench) saveTranscript(record schema.Transcript, content schema.TranscriptContent, upload, ext string) error {
 	data, e := json.Marshal(content)
 	if e != nil {
 		return e
@@ -39,21 +33,19 @@ func (w *Workbench) saveTranscript(record schema.Transcript, content schema.Tran
 	if e = platform.WriteFileAtomic(path, data, 0600); e != nil {
 		return e
 	}
-	ext := strings.ToLower(filepath.Ext(original))
-	if wav {
-		ext = ".wav"
+	record.AudioFile = record.ID + ext
+	target, e := w.Store.MediaPath("outputs", record.AudioFile)
+	if e == nil {
+		e = os.Rename(upload, target)
 	}
-	if audioExt.MatchString(ext) {
-		if target, e := w.Store.MediaPath("outputs", record.ID+ext); e == nil && os.Rename(upload, target) == nil {
-			record.AudioFile = record.ID + ext
-		}
+	if e != nil {
+		_ = os.Remove(path)
+		return e
 	}
 	e = w.Store.Update(func(s *schema.State) { s.Transcripts = append([]schema.Transcript{record}, s.Transcripts...) }, true)
 	if e != nil {
 		_ = os.Remove(path)
-		if record.AudioFile != "" {
-			_ = os.Remove(filepath.Join(filepath.Dir(path), record.AudioFile))
-		}
+		_ = os.Remove(target)
 	}
 	return e
 }
