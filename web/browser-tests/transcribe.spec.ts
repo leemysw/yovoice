@@ -109,8 +109,10 @@ test('上传音频转写后保存为记录：编辑字幕自动保存，重新�
 
 test('录音后直接转写：停止录音即上传，新记录自动打开；放弃录音不转写', async ({ page }) => {
   await page.addInitScript(() => {
-    // 模拟麦克风：getUserMedia 返回没有音轨的流，MediaRecorder 停止时交出一小段数据。
-    navigator.mediaDevices.getUserMedia = async () => new MediaStream();
+    // 无头 WebKit 可能没有媒体设备接口。测试用空音轨的流，不申请真实麦克风。
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true, value: { getUserMedia: async () => ({ getTracks: () => [], getAudioTracks: () => [] }) },
+    });
     class FakeRecorder extends EventTarget {
       state = 'inactive'; mimeType = 'audio/webm'; stream: MediaStream;
       ondataavailable: ((event: { data: Blob }) => void) | null = null; onstop: (() => void) | null = null;
