@@ -15,6 +15,12 @@ $update = (Resolve-Path 'artifacts/yovoice-windows-x64-update.exe').Path
 $process = Start-Process -FilePath $update -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=`"$directory`"") -Wait -PassThru
 if ($process.ExitCode -ne 0) { throw "更新包安装失败：$($process.ExitCode)" }
 if ((Get-Content -LiteralPath $marker).Trim() -ne 'kept' -or !(Test-Path "$directory/engine/audiocpp_server.exe")) { throw "更新包不应改动内核" }
+# 使用真实的外部文件安装器与当前安装目录验证差分路径。
+$version = [Diagnostics.FileVersionInfo]::GetVersionInfo("$directory/yovoice.exe")
+$tag = "v$($version.FileMajorPart).$($version.FileMinorPart).$($version.FileBuildPart)"
+python scripts/desktop/build-update-delta.py $tag $directory
+if ($LASTEXITCODE -ne 0) { throw "Windows 差分安装检查失败" }
+if ((Get-Content -LiteralPath $marker).Trim() -ne 'kept') { throw "差分更新未保留原内核" }
 Remove-Item -LiteralPath $marker
 $process = Start-Process -FilePath "$directory/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -Wait -PassThru
 if ($process.ExitCode -ne 0) { throw "卸载失败：$($process.ExitCode)" }

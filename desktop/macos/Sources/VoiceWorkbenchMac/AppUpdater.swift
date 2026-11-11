@@ -147,22 +147,27 @@ final class AppUpdater {
                 let checksums = try release.asset(named: "SHA256SUMS.txt")
                 let (hashData, hashResponse) = try await URLSession.shared.data(for: request(checksums.browser_download_url))
                 try Self.validate(hashResponse)
-                let expected = try UpdateRelease.checksum(String(decoding: hashData, as: UTF8.self), for: asset.name)
+                let sums = String(decoding: hashData, as: UTF8.self)
                 let directory = root.appendingPathComponent("updates/\(release.tag_name)", isDirectory: true)
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-                let archive = directory.appendingPathComponent(asset.name)
-                menuItem.title = HostL10n.t("menu.downloadingUpdate", release.version)
-                if !FileManager.default.fileExists(atPath: archive.path) {
-                    try await UpdateDownload.run(request(asset.browser_download_url, timeout: 600), to: archive) { [weak self] received, total in
-                        Task { @MainActor in self?.progress(received, total) }
+                let base = currentVersion
+                let deltaName = "yovoice-v\(base)-to-\(release.tag_name)-macos-arm64.delta"
+                let app: URL
+                // 补丁下载或重建失败过的版本记下 use-full，之后直接用常规更新包，不再重复尝试。
+                let useFull = directory.appendingPathComponent("use-full")
+                if !FileManager.default.fileExists(atPath: useFull.path), let delta = try? release.asset(named: deltaName) {
+                    do {
+                        app = try await prepareAsset(delta, sums: sums, directory: directory, version: release.version, team: team, deltaBase: (target, base))
+                    } catch {
+                        log(error)
+                        try Task.checkCancellation()
+                        try? Data("1".utf8).write(to: useFull)
+                        try? FileManager.default.removeItem(at: directory.appendingPathComponent(deltaName))
+                        app = try await prepareAsset(asset, sums: sums, directory: directory, version: release.version, team: team, deltaBase: nil)
                     }
+                } else {
+                    app = try await prepareAsset(asset, sums: sums, directory: directory, version: release.version, team: team, deltaBase: nil)
                 }
-                menuItem.title = HostL10n.t("menu.verifyingUpdate")
-                snapshot.status = "verifying"
-                publish()
-                let app = try await Task.detached(priority: .utility) {
-                    try Self.prepare(archive: archive, hash: expected, version: release.version, team: team)
-                }.value
                 ready = (app, release.version)
                 menuItem.title = HostL10n.t("menu.restartUpdate", release.version)
                 snapshot.status = "ready"
@@ -179,6 +184,28 @@ final class AppUpdater {
                 if showResult { showFailure(error) }
             }
         }
+    }
+
+    private func prepareAsset(_ candidate: UpdateRelease.Asset, sums: String, directory: URL, version: String, team: String, deltaBase: (URL, String)?) async throws -> URL {
+        let expected = try UpdateRelease.checksum(sums, for: candidate.name)
+        let archive = directory.appendingPathComponent(candidate.name)
+        snapshot.status = "downloading"
+        snapshot.received = 0
+        snapshot.total = 0
+        menuItem.title = HostL10n.t("menu.downloadingUpdate", version)
+        publish()
+        if !FileManager.default.fileExists(atPath: archive.path) {
+            try await UpdateDownload.run(request(candidate.browser_download_url, timeout: 600), to: archive) { [weak self] received, total in
+                Task { @MainActor in self?.progress(received, total) }
+            }
+        }
+        menuItem.title = HostL10n.t("menu.verifyingUpdate")
+        snapshot.status = "verifying"
+        publish()
+        return try await Task.detached(priority: .utility) {
+            try Self.prepare(archive: archive, hash: expected, version: version, team: team,
+                             deltaBase: deltaBase)
+        }.value
     }
 
     private func progress(_ received: Int64, _ total: Int64) {
@@ -309,7 +336,7 @@ final class AppUpdater {
         return team
     }
 
-    nonisolated static func prepare(archive: URL, hash: String, version: String, team: String) throws -> URL {
+    nonisolated static func prepare(archive: URL, hash: String, version: String, team: String, deltaBase: (URL, String)? = nil) throws -> URL {
         let file = try FileHandle(forReadingFrom: archive)
         defer { try? file.close() }
         var digest = SHA256()
@@ -321,7 +348,12 @@ final class AppUpdater {
         let directory = archive.deletingLastPathComponent()
         let app = directory.appendingPathComponent("yovoice.app")
         try? FileManager.default.removeItem(at: app)
-        _ = try run("/usr/bin/ditto", ["-x", "-k", archive.path, directory.path])
+        if let (base, from) = deltaBase {
+            let service = base.appendingPathComponent("Contents/Resources/service/yovoice-service")
+            _ = try run(service.path, ["--apply-update-delta", archive.path, from, version, base.path, app.path])
+        } else {
+            _ = try run("/usr/bin/ditto", ["-x", "-k", archive.path, directory.path])
+        }
         guard let bundle = Bundle(url: app), bundle.bundleIdentifier == "app.voiceworkbench.desktop",
               bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == version else {
             throw UpdateRelease.failure(HostL10n.t("err.updateIdentity"))
