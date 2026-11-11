@@ -54,7 +54,7 @@ export interface ModelPackage { voices?: string[]; variant?: string; maxDuration
 /** 被目录更新替换掉的旧版本，replaced 为替换日期；多文件包的版本由 files 里主文件的摘要区分。 */
 export interface ModelVersion { replaced: string; revision: string; modelScopeRevision: string; size: number; sha256?: string; files?: ModelFile[] }
 /** pinned：用户主动换到了旧版本，不再提示更新。 */
-export interface InstalledModel { id: string; path: string; managed: boolean; sha256?: string; pinned?: boolean }
+export interface InstalledModel { id: string; path: string; managed: boolean; sha256?: string; pinned?: boolean; converted?: boolean }
 export interface GenerationSegment { cueId: string; speakerId: string; speakerName: string; batchId: string; index: number; targetClipId?: string; placement?: 'ripple' | 'preserve' }
 // 本机 Codex CLI 的检测结果：path 为空表示未安装，login 为 chatgpt、apikey 或空（未登录）。
 export interface CodexInfo { path?: string; version?: string; login?: 'chatgpt' | 'apikey' }
@@ -87,7 +87,7 @@ export interface Activity {
   modelId?: string | null;
   kind: string;
   // melody 为出谱或扒谱，align 为歌词对齐，recognize 为识别声音样本的参考文本。
-  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption' | 'stems' | 'midi';
+  task?: 'melody' | 'align' | 'recognize' | 'transcribe' | 'caption' | 'stems' | 'midi' | 'local-model-import';
   code: MessageCode;
   params: MessageParams | null;
   status: string;

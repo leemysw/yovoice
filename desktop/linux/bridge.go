@@ -215,6 +215,12 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, errors.New(T("音频文件不存在。", "The audio file doesn't exist."))
 		}
 		return true, reveal(path)
+	case "model.conversionTool":
+		path := a.pick(chooseOpen, T("选择转换工具", "Choose Conversion Tool"), "")
+		if path == "" {
+			return nil, nil
+		}
+		return path, nil
 	case "model.import":
 		path := a.pick(chooseOpen, T("导入本地模型", "Import Local Model"), "", fileFilter{"GGUF / SF2", []string{"gguf", "sf2"}})
 		if path == "" {
@@ -245,7 +251,7 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, err
 		}
 		return a.svc.Call(method, map[string]any{"id": input.ID, "path": path}, 10*time.Minute)
-	case "model.directory":
+	case "model.scan", "model.directory":
 		path := a.pick(chooseFolder, T("选择模型目录", "Choose Model Folder"), "")
 		if path == "" {
 			return nil, nil

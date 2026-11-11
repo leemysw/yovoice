@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextInput } from '@astryxdesign/core/TextInput';
@@ -182,7 +183,7 @@ function BookDialog({ book, state, modelId, configureAI, create, close, onError 
         : provider?.model ? <Button size="sm" variant="secondary" icon={<UsersRound />} label={t('@yovoice.book.aiCast')} isDisabled={elsewhere} onClick={() => void runAI()} />
         : <Button size="sm" variant="secondary" icon={<Settings2 />} label={t('@yovoice.ai.configure')} onClick={() => { dismiss(); configureAI(); }} />}
     </HStack>
-    {running && task?.total ? <progress className="ai-composer-progress" value={task.done ?? 0} max={task.total} aria-label={t('@yovoice.book.aiCast')} /> : null}
+    {running && task ? <ProgressBar label={t('@yovoice.book.aiCast')} isLabelHidden value={task.done ?? 0} max={task.total || 1} isIndeterminate={!task.total} /> : null}
     <VStack className="book-roles" gap={0}>
       {roleRow('', t('@yovoice.library.narrator'), t('@yovoice.book.lines', { count: narration }), '')}
       {[...roles.filter(r => r.name !== unknownKey), ...roles.filter(r => r.name === unknownKey)].map(role => roleRow(role.name, role.name === unknownKey ? t('@yovoice.book.unknown') : role.name,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { StatusDot } from '@astryxdesign/core/StatusDot';
@@ -90,7 +91,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
     const latest = modelMainFile(model).sha256;
     const versions = model.history?.length ? [{ value: latest, label: t('@yovoice.settings.modelVersionLatest') },
       ...model.history.map(version => ({ value: modelVersionDigest(model, version), label: t('@yovoice.settings.modelVersionBefore', { date: formatDateTime(version.replaced, state.preferences.uiLocale, 'date') }) }))] : [];
-    const currentVersion = managed && versions.some(version => version.value === record?.sha256) ? record?.sha256 : undefined;
+    const currentVersion = managed && !record?.converted && versions.some(version => version.value === record?.sha256) ? record?.sha256 : undefined;
     return <VStack className="model-row settings-row" data-model-id={model.id} data-model-ids={group.map(item => item.id).join(' ')} data-installed={ready} key={group[0].name} gap={3}>
       <HStack className="model-summary" gap={4} vAlign="center" wrap="wrap">
         <VStack className="grow" gap={1}>
@@ -121,7 +122,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
           </HStack> : <Button size="sm" label={t('@yovoice.settings.downloadModel')} icon={<Download size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} />}
         </HStack>
       </HStack>
-      {ready && !managed ? <small className="model-path" title={state.models.find(m => m.id === model.id)?.path}>{state.models.find(m => m.id === model.id)?.path}</small> : null}
+      {ready && (!managed || record?.converted) ? <small className="model-path" title={record?.path}>{record?.path}</small> : null}
       {group.length > 1 ? <HStack className="model-precisions" gap={3} vAlign="center" wrap="wrap">
         <SegmentedControl size="sm" label={t('@yovoice.settings.precisionOf', { name: model.name })} value={model.id} onChange={id => setPicks(current => ({ ...current, [model.name]: id }))}>
           {group.map(item => <SegmentedControlItem onPointerEnter={overflowTitle} key={item.id} value={item.id} label={item.precision} icon={isInstalled(item) ? <CircleCheck /> : undefined} />)}
@@ -132,7 +133,7 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
         {download ? <small>{versions.find(version => version.value === download.version)?.label
           ?? (download.version === latest ? t('@yovoice.settings.modelVersionLatest') : download.version.slice(0, 12))}</small> : null}
         <HStack hAlign="between" gap={3}><small>{downloadStatusLabel(t, downloading, received, total, download?.status ?? legacy?.status ?? 'running')}</small><small className="model-size">{formatBytes(received)} / {formatBytes(total)}</small></HStack>
-        <progress aria-label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })} value={received} max={total} />
+        <ProgressBar label={t('@yovoice.settings.downloadProgress', { name: model.name, precision: model.precision })} isLabelHidden value={received} max={total || 1} isIndeterminate={downloading && !total} />
       </VStack> : null}
     </VStack>;
   };

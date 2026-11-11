@@ -524,6 +524,9 @@ public partial class MainWindow : Window
                     var explorer = new ProcessStartInfo("explorer.exe");
                     explorer.ArgumentList.Add("/select,"); explorer.ArgumentList.Add(path);
                     Process.Start(explorer); result = true; break;
+                case "model.conversionTool":
+                    var conversionTool = new OpenFileDialog { Filter = "Executable|*.exe|All files|*.*" };
+                    result = conversionTool.ShowDialog(this) == true ? conversionTool.FileName : null; break;
                 case "model.import":
                     var localModel = new OpenFileDialog { Filter = "GGUF / SF2|*.gguf;*.sf2" };
                     result = localModel.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = localModel.FileName }) : null; break;
@@ -533,6 +536,7 @@ public partial class MainWindow : Window
                 case "stems.export":
                     var stemFolder = new OpenFolderDialog { Title = HostL10n.T("导出分轨到文件夹", "Export Stems to Folder") };
                     result = stemFolder.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = stemFolder.FolderName }, TimeSpan.FromMinutes(10)) : null; break;
+                case "model.scan":
                 case "model.directory":
                     var folder = new OpenFolderDialog { Title = HostL10n.T("选择模型目录", "Choose Model Folder") };
                     result = folder.ShowDialog(this) == true ? await service.CallAsync(method, new { path = folder.FolderName }) : null; break;

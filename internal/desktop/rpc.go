@@ -257,6 +257,24 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.CleanupResiduals()
 	case "model.directory":
 		return true, w.SetModelDirectoryContext(ctx, p.Path)
+	case "model.scan":
+		return w.ScanLocalModels(ctx, p.Path)
+	case "model.importBatch":
+		var input struct {
+			Models []workbench.LocalModelMapping `json:"models"`
+		}
+		if err := json.Unmarshal(data, &input); err != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.ImportLocalModels(input.Models)
+	case "model.conversionTools":
+		return w.ConversionTools()
+	case "model.convert":
+		var input workbench.LocalModelConversion
+		if err := json.Unmarshal(data, &input); err != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.ConvertLocalModel(input)
 	case "model.import":
 		return true, w.ImportModel(p.ID, p.Path)
 	case "model.download":

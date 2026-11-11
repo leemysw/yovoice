@@ -52,6 +52,8 @@ var migrations = []migration{
 	}},
 	// 4：转写页的转写记录改为长期保存。
 	{sql: `CREATE TABLE transcripts (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);`},
+	// 5：已有模型均不是应用内转换成品，补齐来源标记。
+	{sql: `UPDATE models SET data = json_set(data, '$.converted', json('false')) WHERE json_type(data, '$.converted') IS NULL;`},
 }
 
 func backfillModelSHA256(data []byte) ([]byte, error) {

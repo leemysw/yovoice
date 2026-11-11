@@ -134,6 +134,110 @@ func TestCleanupResiduals(t *testing.T) {
 	}
 }
 
+func TestRecoverConversionWorkspaceAfterRestart(t *testing.T) {
+	root, target := t.TempDir(), t.TempDir()
+	w, err := New(root)
+	must(t, err)
+	temp, _, err := w.newConversionWorkspace(target)
+	must(t, err)
+	must(t, os.WriteFile(filepath.Join(temp, "partial.gguf"), []byte("partial"), 0600))
+	// 同一模型盘可能也被另一个数据目录使用。
+	other, err := New(t.TempDir())
+	must(t, err)
+	otherTemp, cleanupOther, err := other.newConversionWorkspace(target)
+	must(t, err)
+	defer other.Close()
+	defer cleanupOther()
+	finished := filepath.Join(target, "installed.gguf")
+	must(t, os.WriteFile(finished, []byte("finished"), 0600))
+	w.Close()
+
+	w, err = New(root)
+	must(t, err)
+	defer w.Close()
+	if _, err := os.Stat(temp); !os.IsNotExist(err) {
+		t.Fatalf("重启应清除中断的转换目录，得到 %v", err)
+	}
+	_, err = os.Stat(otherTemp)
+	must(t, err)
+	_, err = os.Stat(finished)
+	must(t, err)
+	records, err := os.ReadDir(filepath.Join(root, "downloads"))
+	must(t, err)
+	if len(records) != 0 {
+		t.Fatalf("清理后仍有转换记录：%v", records)
+	}
+}
+
+func TestCleanupConversionAfterModelDiskReturns(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	target, err := os.MkdirTemp(t.TempDir(), "models-")
+	must(t, err)
+	temp, _, err := w.newConversionWorkspace(target)
+	must(t, err)
+	moved := target + "-offline"
+	must(t, os.Rename(target, moved))
+	_, err = w.CleanupResiduals()
+	must(t, err)
+	must(t, os.Rename(moved, target))
+	report, err := w.CleanupResiduals()
+	must(t, err)
+	if report.CleanedCount != 1 {
+		t.Fatalf("模型盘恢复后应清除残留目录：%+v", report)
+	}
+	if _, err := os.Stat(temp); !os.IsNotExist(err) {
+		t.Fatalf("模型盘恢复后临时目录仍存在，得到 %v", err)
+	}
+}
+
+func TestCleanupResidualsSkipsActiveConversion(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	target := t.TempDir()
+	ready := make(chan string, 1)
+	done, err := w.start("import", msg.ActivityModelConverting, nil, nil, func(ctx context.Context) error {
+		temp, cleanup, err := w.newConversionWorkspace(target)
+		if err != nil {
+			return err
+		}
+		defer cleanup()
+		ready <- temp
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	must(t, err)
+	var temp string
+	select {
+	case temp = <-ready:
+	case <-done:
+		t.Fatal("转换未创建临时目录")
+	}
+	_, err = w.CleanupResiduals()
+	must(t, err)
+	_, err = os.Stat(temp)
+	must(t, err)
+	w.Cancel()
+	<-done
+	if _, err := os.Stat(temp); !os.IsNotExist(err) {
+		t.Fatalf("取消应清除转换目录，得到 %v", err)
+	}
+
+	temp, _, err = w.newConversionWorkspace(target)
+	must(t, err)
+	must(t, os.WriteFile(filepath.Join(temp, "stage"), []byte("1234"), 0600))
+	report, err := w.CleanupResiduals()
+	must(t, err)
+	if report.CleanedCount != 1 || report.FreedBytes != 4 {
+		t.Fatalf("应统计已清理的转换目录：%+v", report)
+	}
+	if _, err := os.Stat(temp); !os.IsNotExist(err) {
+		t.Fatalf("手动清理应删除残留转换目录，得到 %v", err)
+	}
+}
+
 // isolateConfig 让存储重定向配置写入临时目录，避免测试改动开发者本机的配置。
 func isolateConfig(t *testing.T) {
 	t.Helper()

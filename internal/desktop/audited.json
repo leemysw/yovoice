@@ -35,6 +35,8 @@
   "storage.cleanup",
   "model.directory",
   "model.import",
+  "model.importBatch",
+  "model.convert",
   "adapter.import",
   "adapter.delete",
   "model.download",

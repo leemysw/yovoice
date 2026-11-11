@@ -45,7 +45,15 @@ export function formatNotice(t: TranslatorFn, text: string): string {
   const split = text.indexOf('::');
   const code = split < 0 ? text : text.slice(0, split);
   if (!code.startsWith('@yovoice.')) return text;
-  return translate(t, code as MessageCode, split < 0 ? undefined : { detail: text.slice(split + 2) });
+  if (split < 0) return translate(t, code as MessageCode);
+  const detail = text.slice(split + 2);
+  if (code !== unknownCode) {
+    try {
+      const params: unknown = JSON.parse(detail);
+      if (params && typeof params === 'object' && !Array.isArray(params)) return translate(t, code as MessageCode, params as MessageParams);
+    } catch { /* 兼容已保存的非结构化错误说明。 */ }
+  }
+  return translate(t, code as MessageCode, { detail });
 }
 
 /** Translate CallError or activity errorCode. */

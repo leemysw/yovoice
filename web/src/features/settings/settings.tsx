@@ -14,6 +14,7 @@ import { aiServiceHidden, featureHidden, runtimeStatus, type EngineInfo, type Mo
 import { CallError } from '../../shared/lib/call-error';
 import { uiLocales } from '../../shared/i18n/locale';
 import { AISettings } from './ai-settings';
+import { LocalModelSources } from './local-model-sources';
 import { ModelGroups } from './model-list';
 import { SettingsGroup, SettingsRow } from '../../shared/ui/settings-group';
 import { overflowTitle } from '../../shared/ui/overflow-title';
@@ -110,6 +111,9 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
         <SettingsRow className="settings-directory" label={t('@yovoice.settings.modelDirectory')} hint={<Text type="inherit" color="inherit" className="model-path" onPointerEnter={overflowTitle}>{preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}</Text>}>
           <Button size="sm" label={t('@yovoice.settings.changeLocation')} icon={<FolderCog size={16} />} isDisabled={modelBusy || recoveringModels} onClick={() => run(() => call('model.directory'))} />
           <Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} />
+        </SettingsRow>
+        <SettingsRow label={t('@yovoice.settings.localSources')}>
+          <LocalModelSources catalog={catalog} busy={busy || modelBusy} />
         </SettingsRow>
       </SettingsGroup>
       <ModelGroups key={tab} models={catalog.filter(model => modelTab(model.family) === tab)} state={state} draft={draft} run={run} focus={focus?.modelId} />

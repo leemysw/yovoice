@@ -6,6 +6,10 @@
 
 ### English
 
+- Task progress bars now follow the app theme across model downloads, verification, transcription and book preparation.
+
+- Scan a local folder for model files and confirm their mappings in one step. Convert supported IndexTTS checkpoints on the device, with file pickers that remember the conversion tools. Removing a converted model reclaims its generated package. Temporary conversion files are cleaned up when the task ends or when the app restarts after an interruption. Model imports show verification progress and catch an IndexTTS version mismatch before hashing.
+
 - From this version on, updates on macOS and Windows download only a much smaller patch when you are on the previous stable version. If the patch can't be applied, the regular update package is used instead.
 - Model downloads now keep their version and progress when paused. Cancelling a download leaves installed models intact, updates verify the entire new package before removing the old one, and imported weights no longer show catalog update prompts. Selecting an existing download folder can recover verified packages in a cancellable background task.
 - Transcribe opens a track picker for files with multiple audio tracks and plays the selected track in the transcript editor. Extracted playback stays at 24 kHz mono when vocal isolation is enabled. Single-track files start directly. Optional loudness normalization and vocal isolation help with quiet recordings and background music.
@@ -23,6 +27,10 @@
 - For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
 
 ### 简体中文
+
+- 模型下载、校验、转写和有声书准备的任务进度条统一使用应用主题。
+
+- 扫描本地模型目录，确认识别结果后批量登记。支持在本机转换 IndexTTS 检查点，可选择并记住转换工具路径。移除转换成品时回收生成的模型包，任务结束或意外中断后重新启动时自动清理转换临时文件。导入时显示校验进度，并在读取整个文件前提示 IndexTTS 版本选错。
 
 - 从本版本起，macOS 和 Windows 在上一正式版上升级时只需下载体积小得多的差分包；补丁无法应用时自动改用常规更新包。
 - 模型下载可分别暂停、继续和取消，保留所选版本和断点。完整校验后才切换更新并清理旧包，取消不影响已安装模型。导入的本地模型不再误报目录更新。重新选择下载目录时，可以在可取消的后台任务中校验并恢复已有模型包。

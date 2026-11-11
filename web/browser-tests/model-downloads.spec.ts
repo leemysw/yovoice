@@ -5,9 +5,9 @@ import catalog from '../../internal/catalog/catalog.json' with { type: 'json' };
 
 const id = 'kokoro-82m-q8';
 
-test('本地模型摘要不同也没有更新入口', async ({ page }) => {
+for (const converted of [false, true]) test(`本地模型摘要不同也没有更新入口（应用内转换 ${converted}）`, async ({ page }) => {
   const state = emptyState();
-  state.models = [{ id, path: '/Volumes/Models/local.gguf', managed: false, sha256: '0'.repeat(64) }];
+  state.models = [{ id, path: '/Volumes/Models/local.gguf', managed: converted, converted, sha256: '0'.repeat(64) }];
   await seedState(page, state);
   await page.goto('/');
   await expect(page.getByTestId('model-update-notice')).toHaveCount(0);
@@ -83,7 +83,7 @@ test('切换模型目录后能看到校验进度并取消', async ({ page }) => 
   const changeDirectory = page.getByRole('button', { name: '更改位置', exact: true });
   await changeDirectory.click();
   const activity = page.getByRole('status').filter({ hasText: '正在校验模型' });
-  await expect(activity.getByRole('progressbar')).toHaveAttribute('value', '512');
+  await expect(activity.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '512');
   await expect(activity).toContainText('512 B / 1.00 KB');
   await expect(changeDirectory).toBeDisabled();
   await activity.getByRole('button', { name: '取消', exact: true }).click();
