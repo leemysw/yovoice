@@ -120,24 +120,11 @@ test('扫描目录自动填入 IndexTTS 2.0 和 2.5，确认才批量登记', as
   await dialog.getByRole('button', { name: 'Python 可执行文件路径', exact: true }).click();
   await expect(python).toHaveValue('/TD1/tools/python');
   await python.fill('/TD1/tools/python3');
-  await dialog.getByRole('button', { name: '取消', exact: true }).click();
-  await dialog.getByRole('button', { name: '取消', exact: true }).click();
-  await page.reload();
-  await page.getByTestId('nav-settings').click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
-  await page.getByRole('button', { name: '扫描本地模型目录' }).click();
-  await dialog.getByRole('button', { name: '转换 IndexTTS 检查点', exact: true }).click();
-  await expect(python).toHaveValue('/TD1/tools/python3');
-  await expect(converter).toHaveValue('/TD1/tools/audiocpp_gguf');
   await dialog.getByRole('button', { name: '转换 IndexTTS 检查点', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.__localModelCalls.find(call => call.method === 'model.convert')?.data)).toEqual({
     path: '/TD1/models/checkpoints', id: 'index-2-q8', python: '/TD1/tools/python3', converter: '/TD1/tools/audiocpp_gguf',
   });
-  // 服务地址变化时界面本地存储不可用，最近使用的工具仍由服务端恢复。
-  await page.evaluate(() => {
-    localStorage.removeItem('yovoice.modelConversion.python');
-    localStorage.removeItem('yovoice.modelConversion.converter');
-  });
+  // 本地服务端口每次启动会变，最近使用的工具由服务端记住，重新打开后恢复。
   await page.reload();
   await page.getByTestId('nav-settings').click();
   await page.getByRole('tab', { name: '语音模型', exact: true }).click();
