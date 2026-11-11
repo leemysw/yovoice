@@ -128,24 +128,27 @@ public sealed class AppUpdater : IDisposable
             string directory = Path.Combine(root, "updates", release.Tag);
             Directory.CreateDirectory(directory);
             string package = Path.Combine(directory, asset.Name);
-            if (!File.Exists(package)) await DownloadAsync(asset.Url, package);
-            Publish(Snapshot with { Status = "verifying" });
-            await using (var file = File.OpenRead(package))
+            if (!File.Exists(package) && !File.Exists(Path.Combine(directory, "use-full")))
             {
-                string actual = Convert.ToHexString(await SHA256.HashDataAsync(file, stopped.Token));
-                if (!actual.Equals(hash, StringComparison.OrdinalIgnoreCase))
+                try { ready = await PrepareDeltaAsync(release, directory, checksums); }
+                catch (Exception error) when (!stopped.IsCancellationRequested)
                 {
-                    file.Close(); File.Delete(package);
-                    throw new IOException(HostL10n.T("更新包校验失败，已删除下载文件，请重试。", "The update package failed verification and was deleted. Try again."));
+                    // 记下这一版改用常规更新包，之后不再重复下载和重建。
+                    HostLog.Write(root, "update.delta_fallback", error);
+                    File.WriteAllText(Path.Combine(directory, "use-full"), "1");
+                    Publish(Snapshot with { Status = "downloading", Received = 0, Total = 0 });
                 }
             }
-            // 当前应用带有效签名时，更新包必须由同一发行者签名，避免发布渠道被冒用时安装来路不明的程序。
-            if (Environment.ProcessPath is { } self && Authenticode.Signer(self) is { } publisher && Authenticode.Signer(package) != publisher)
+            if (ready is null)
             {
-                File.Delete(package);
-                throw new IOException(HostL10n.T("更新包的签名与当前应用不一致，已删除下载文件。请从 GitHub 手动下载最新版本。", "The update package isn't signed by the same publisher as this app and was deleted. Download the latest version from GitHub manually."));
+                // 改用常规更新包时，重建目录（整份应用）和补丁不再需要。
+                DeleteDeltaFiles(directory);
+                if (!File.Exists(package)) await DownloadAsync(asset.Url, package);
+                Publish(Snapshot with { Status = "verifying" });
+                await VerifyHashAsync(package, hash);
+                VerifyPublisher(package);
+                ready = new ReadyUpdate(package, hash, release.Version);
             }
-            ready = new ReadyUpdate(package, hash, release.Version);
             Publish(Snapshot with { Status = "ready" });
             Ready?.Invoke(release.Version);
             if (showResult) PromptInstall();
@@ -165,6 +168,68 @@ public sealed class AppUpdater : IDisposable
                 Process.Start(new ProcessStartInfo("https://github.com/leemysw/yovoice/releases/latest") { UseShellExecute = true });
         }
         finally { checking = false; showResult = false; }
+    }
+    private async Task<ReadyUpdate?> PrepareDeltaAsync(UpdateRelease release, string directory, string checksums)
+    {
+        string deltaName = $"yovoice-v{current}-to-{release.Tag}-windows-x64.delta";
+        if (!release.Assets.Any(item => item.Name == deltaName)) return null;
+        var delta = release.Asset(deltaName);
+        string patch = Path.Combine(directory, delta.Name);
+        if (!File.Exists(patch)) await DownloadAsync(delta.Url, patch);
+        Publish(Snapshot with { Status = "verifying" });
+        await VerifyHashAsync(patch, UpdateRelease.Checksum(checksums, delta.Name));
+        string stage = Path.Combine(directory, "delta-stage");
+        if (Directory.Exists(stage)) Directory.Delete(stage, true);
+        var start = new ProcessStartInfo(Path.Combine(target, "service", "yovoice-service.exe")) {
+            UseShellExecute = false, CreateNoWindow = true
+        };
+        foreach (string arg in new[] { "--apply-update-delta", patch, current, release.Version, target, stage })
+            start.ArgumentList.Add(arg);
+        using var helper = Process.Start(start) ?? throw new IOException("Delta helper");
+        try { await helper.WaitForExitAsync(stopped.Token); }
+        catch (OperationCanceledException) { if (!helper.HasExited) helper.Kill(true); throw; }
+        if (helper.ExitCode != 0) throw new IOException("Delta reconstruction failed");
+        string bootstrap = Path.Combine(stage, "delta-install.exe");
+        // 补丁已校验，重建器又逐文件核验；记录安装器摘要供退出后的独立助手复核。
+        string bootstrapHash = await FileHashAsync(bootstrap);
+        VerifyPublisher(bootstrap);
+        return new ReadyUpdate(bootstrap, bootstrapHash, release.Version);
+    }
+
+    private static void DeleteDeltaFiles(string directory)
+    {
+        try
+        {
+            string stage = Path.Combine(directory, "delta-stage");
+            if (Directory.Exists(stage)) Directory.Delete(stage, true);
+            foreach (string patch in Directory.EnumerateFiles(directory, "*.delta")) File.Delete(patch);
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+    }
+
+    private async Task<string> FileHashAsync(string path)
+    {
+        await using var file = File.OpenRead(path);
+        return Convert.ToHexString(await SHA256.HashDataAsync(file, stopped.Token));
+    }
+
+    private async Task VerifyHashAsync(string package, string hash)
+    {
+        if (!(await FileHashAsync(package)).Equals(hash, StringComparison.OrdinalIgnoreCase))
+        {
+            File.Delete(package);
+            throw new IOException(HostL10n.T("更新包校验失败，已删除下载文件，请重试。", "The update package failed verification and was deleted. Try again."));
+        }
+    }
+    private static void VerifyPublisher(string package)
+    {
+        // 当前应用带有效签名时，更新包必须由同一发行者签名，避免发布渠道被冒用时安装来路不明的程序。
+        if (Environment.ProcessPath is { } self && Authenticode.Signer(self) is { } publisher && Authenticode.Signer(package) != publisher)
+        {
+            File.Delete(package);
+            throw new IOException(HostL10n.T("更新包的签名与当前应用不一致，已删除下载文件。请从 GitHub 手动下载最新版本。", "The update package isn't signed by the same publisher as this app and was deleted. Download the latest version from GitHub manually."));
+        }
     }
     // 断点续传到 .part 文件，并按字节上报进度；最终由 SHA-256 校验完整性。
     private async Task DownloadAsync(Uri url, string package)
@@ -230,7 +295,7 @@ public sealed class AppUpdater : IDisposable
     public async Task PrepareInstallAsync()
     {
         if (!installRequested || ready is null) return;
-        string directory = Path.Combine(Path.GetDirectoryName(ready.Package)!, Guid.NewGuid().ToString("N"));
+        string directory = Path.Combine(root, "updates", "v" + ready.Version, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
         string script = Path.Combine(directory, "install-update.ps1");
         File.Copy(Path.Combine(AppContext.BaseDirectory, "install-update.ps1"), script);
@@ -272,7 +337,16 @@ public sealed class AppUpdater : IDisposable
         installer?.Dispose(); installer = null;
         if (commitPath is not null) File.Delete(commitPath);
         // 用户取消退出后更新仍可再次安装。
-        if (wasRequested && ready is not null && !disposed) Publish(Snapshot with { Status = "ready" });
+        if (wasRequested && ready is not null && !disposed)
+        {
+            if (Path.GetFileName(ready.Package) == "delta-install.exe" &&
+                File.Exists(Path.Combine(root, "updates", "v" + ready.Version, "use-full")))
+            {
+                ready = null;
+                _ = CheckAsync();
+            }
+            else Publish(Snapshot with { Status = "ready" });
+        }
     }
     public void Dispose()
     {

@@ -257,6 +257,16 @@ jobs:
           command -v ffmpeg >/dev/null || brew install ffmpeg
           tools="$PWD/artifacts/macos-arm64/yovoice.app/Contents/Resources/tools"
           YOVOICE_TEST_FFMPEG="$tools/ffmpeg" YOVOICE_TEST_FFPROBE="$tools/ffprobe" go test -race ./internal/audio -run '^(TestAudioConversion|TestAudioTrackSelection|TestEncode)$' -count=1
+      - name: Build and verify desktop delta
+        if: inputs.release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WINDOWS_SIGN_PFX_BASE64: ${{ runner.os == 'Windows' && secrets.WINDOWS_SIGN_PFX_BASE64 || '' }}
+          WINDOWS_SIGN_PASSWORD: ${{ runner.os == 'Windows' && secrets.WINDOWS_SIGN_PASSWORD || '' }}
+          TAG: ${{ inputs.tag }}
+        # Windows 运行器只有 python，没有 python3。
+        run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} scripts/desktop/build-update-delta.py "$TAG"
+        shell: bash
       - name: Delete macOS signing keychain
         if: always() && runner.os == 'macOS' && env.MACOS_CODESIGN_KEYCHAIN_PATH != ''
         run: security delete-keychain "$MACOS_CODESIGN_KEYCHAIN_PATH"
@@ -270,6 +280,7 @@ jobs:
             artifacts/yovoice-macos-arm64.dmg
             artifacts/yovoice-windows-x64-setup.exe
             artifacts/yovoice-windows-x64-update.exe
+            artifacts/*.delta
             artifacts/yovoice-windows-x64-cuda*.exe
           if-no-files-found: error
           retention-days: 14

@@ -40,7 +40,11 @@ Type: filesandordirs; Name: "{app}\engine"
 Type: filesandordirs; Name: "{app}\tools\kokoro"
 
 [Files]
+#ifdef DeltaFiles
+#include DeltaFiles
+#else
 Source: "{#AppDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+#endif
 Source: "{#Bootstrapper}"; DestName: "MicrosoftEdgeWebView2Setup.exe"; Flags: dontcopy
 
 [Icons]
