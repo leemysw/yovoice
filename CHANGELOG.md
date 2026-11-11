@@ -4,49 +4,37 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-11
+
 ### English
 
-- Task progress bars now follow the app theme across model downloads, verification, transcription and book preparation.
-
-- Scan a local folder for model files and confirm their mappings in one step. Convert supported IndexTTS checkpoints on the device, with file pickers that remember the conversion tools. Removing a converted model reclaims its generated package. Temporary conversion files are cleaned up when the task ends or when the app restarts after an interruption. Model imports show verification progress and catch an IndexTTS version mismatch before hashing.
-
-- From this version on, updates on macOS and Windows download only a much smaller patch when you are on the previous stable version. If the patch can't be applied, the regular update package is used instead.
-- Model downloads now keep their version and progress when paused. Cancelling a download leaves installed models intact, updates verify the entire new package before removing the old one, and imported weights no longer show catalog update prompts. Selecting an existing download folder can recover verified packages in a cancellable background task.
-- Transcribe opens a track picker for files with multiple audio tracks and plays the selected track in the transcript editor. Extracted playback stays at 24 kHz mono when vocal isolation is enabled. Single-track files start directly. Optional loudness normalization and vocal isolation help with quiet recordings and background music.
-- On Windows, custom data folders with Chinese characters in their paths are now read correctly at startup.
-- On macOS, “Style from image” now lets you choose PNG, JPEG and WebP images. Other file pickers also use the formats accepted by each import action.
-- Transcripts are now saved and listed like your other work. Open one to edit the subtitles as plain text: Enter splits at the cursor, Backspace at the start of a line joins it to the line above. You can also find and replace, undo, and play a line from the original audio, and changes save automatically. You can also record directly on the Transcribe page.
-- The progress bar for transcription, lyric alignment, rendering and similar tasks no longer shows step counts as file sizes (such as “4 B / 11 B”).
-- On macOS, when the window fails to load, the app now checks the local service directly and writes the result to `host.log`, making it easier to tell whether a proxy or security tool is blocking it.
-- Transcribe now accepts audio and video files up to 4 GB and 1 hour by default, so videos no longer need converting to audio first. Both limits, plus how subtitles are split into lines (characters and seconds per line, pause length), can be changed in Settings › General › Transcribe.
-- Transcript lines no longer leave the last one or two characters of a sentence on a line of their own.
-- The `yovoice generate` CLI now makes songs and sound effects with ACE-Step, YuE2 and Stable Audio 3: `--text` is the style, with `--lyrics`/`--lyrics-file` and `--instrumental`. YuE2 returns the score it used, which you can edit and pass back with `--abc-file`. The Agent Skill gains a music reference and now lists Kokoro.
-- New CLI commands: `yovoice transcribe` turns audio or video into SRT, WebVTT, text or JSON subtitles; `yovoice separate` splits a song into six stems; `yovoice to-midi` converts a song to MIDI or an editable score. The Agent Skill covers all three.
-- With ModelScope selected as the download source, YuE2, SheetSage2, Ming 3.0 TTS, Phonon and ACE-Step 1.5 XL Turbo (BF16) now download from ModelScope instead of falling back to hf-mirror.
-- YuE2 songs vary more: Write score now uses a new random seed each time instead of returning the same score for the same lyrics and style. Instrumentals without lyrics no longer always follow one form. The style can be up to 2000 characters, so you can describe how a song unfolds, and Ocho writes YuE2 styles and section tags that way. The default score-writing settings shown match the official ones.
-- For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
+- Transcripts are saved and listed like your other work. Edit subtitles as plain text: Enter splits a line, Backspace at the start joins it, with find and replace, undo and line playback; changes save automatically. You can record on the Transcribe page, pick the track of multi-track files, and turn on loudness normalization or vocal isolation for quiet recordings or background music.
+- Transcribe accepts audio and video up to 4 GB and 1 hour by default; the limits and how lines are split can be changed in Settings › General › Transcribe. Lines no longer leave the last characters of a sentence on their own.
+- Local models: scan a folder and register the matching models in one step, or convert IndexTTS 2.0 / 2.5 checkpoints on your device. Imports show verification progress and catch a wrong IndexTTS version early.
+- Model downloads can be paused, resumed and cancelled one by one and keep their version. Updates verify the whole new package before replacing the old one, and choosing an existing download folder recovers verified packages in the background.
+- Starting with the next update, macOS and Windows download a much smaller patch when you are on the previous stable version; if the patch can't be applied, the full package is used.
+- CLI: `yovoice generate` now makes songs and sound effects with ACE-Step, YuE2 and Stable Audio 3, and new `yovoice transcribe`, `yovoice separate` and `yovoice to-midi` commands turn audio into subtitles, stems and MIDI. The Agent Skill covers them all.
+- YuE2 songs vary more: a new seed for every score, more song forms for instrumentals, styles up to 2000 characters, and a new Song shape section for language, tempo and structure. Ocho steers new songs away from the genre and tempo of earlier ones.
+- With ModelScope as the download source, YuE2, SheetSage2, Ming 3.0 TTS, Phonon and ACE-Step 1.5 XL Turbo (BF16) download from ModelScope too.
+- Progress bars follow the app theme and no longer show step counts as file sizes.
+- Fixes: custom data folders with Chinese characters on Windows; choosing PNG, JPEG and WebP images for “Style from image” on macOS, with each import dialog filtering its own formats; a `host.log` check of the local service when the macOS window fails to load.
 
 ### 简体中文
 
-- 模型下载、校验、转写和有声书准备的任务进度条统一使用应用主题。
+- 语音转写结果像作品一样保存和列出。像改文档一样编辑字幕：回车拆分、行首退格合并，可查找替换、撤销、点行试听，改动自动保存。转写页可直接录音；多音轨文件可选择音轨；可选响度归一化和预先提取人声，应对音量偏小或带背景音乐的录音。
+- 语音转写默认支持 4 GB、1 小时以内的音频和视频，上限和字幕断行方式可在“设置 › 常规 › 语音转写”调整；不再把一句话最后一两个字单独断成一行。
+- 本地模型：扫描目录后一次确认并登记匹配的模型，也可在本机把 IndexTTS 2.0 / 2.5 检查点转换为可用模型。导入时显示校验进度，并提前提示 IndexTTS 版本选错。
+- 模型下载可逐个暂停、继续和取消，并保留所选版本。更新完整校验新包后才替换旧包；重新选择已有的下载目录时，会在后台校验并恢复已有模型包。
+- 从下一次更新起，macOS 和 Windows 在上一正式版上升级只需下载体积小得多的差分包；补丁无法应用时自动改用完整更新包。
+- 命令行：`yovoice generate` 支持用 ACE-Step、YuE2 和 Stable Audio 3 写歌和生成音效；新增 `yovoice transcribe`、`yovoice separate` 和 `yovoice to-midi`，把音频转成字幕、分轨和 MIDI。Agent Skill 同步说明。
+- YuE2 歌曲更多变：每次写谱换新种子，纯音乐曲式更丰富，风格描述最多 2000 字，新增“歌曲展开”可选语言、速度和结构；Ocho 写新歌时会避开已有作品的流派和速度。
+- 下载来源选 ModelScope 时，YuE2、SheetSage2、Ming 3.0 TTS、Phonon 和 ACE-Step 1.5 XL Turbo（BF16）也从 ModelScope 下载。
+- 进度条统一使用应用主题，不再把段数显示成文件大小。
+- 修复：Windows 含中文的自定义数据目录启动时被误报为不存在；macOS「看图取风格」无法选择 PNG、JPEG 和 WebP，各导入窗口改按自身支持的格式筛选；macOS 窗口加载失败时把本地服务检查结果写入 `host.log`。
 
-- 扫描本地模型目录，确认识别结果后批量登记。支持在本机转换 IndexTTS 检查点，可选择并记住转换工具路径。移除转换成品时回收生成的模型包，任务结束或意外中断后重新启动时自动清理转换临时文件。导入时显示校验进度，并在读取整个文件前提示 IndexTTS 版本选错。
+### 贡献者 / Contributors
 
-- 从本版本起，macOS 和 Windows 在上一正式版上升级时只需下载体积小得多的差分包；补丁无法应用时自动改用常规更新包。
-- 模型下载可分别暂停、继续和取消，保留所选版本和断点。完整校验后才切换更新并清理旧包，取消不影响已安装模型。导入的本地模型不再误报目录更新。重新选择下载目录时，可以在可取消的后台任务中校验并恢复已有模型包。
-- 转写多音轨文件时可以选择音轨，字幕编辑器会播放所选音轨。开启人声提取时，提取后的试听音轨也采用 24 kHz 单声道。单音轨文件直接开始转写。设置中可选响度归一化和预先提取人声，用于音量偏小或带背景音乐的录音。
-- 修复 Windows 启动时可能把含中文的自定义数据目录误报为不存在的问题。
-- 修复 macOS「看图取风格」无法选择 PNG、JPEG 和 WebP 图片的问题，其他导入窗口也按各自支持的格式筛选文件。
-- 语音转写的结果会保存下来，像作品一样列出。打开后像改文档一样编辑字幕：回车在光标处拆分，行首退格与上一行合并，也可以查找替换、撤销，点时间试听原音频，改动自动保存；转写页也可以直接录音。
-- 修复语音转写、歌词对齐、渲染等任务的进度条把段数显示成文件大小（如“4 B / 11 B”）的问题。
-- macOS 窗口加载失败时会直接检查本地服务，并把结果写入 `host.log`，便于判断是否被代理或安全软件拦截。
-- 语音转写默认支持 4 GB、1 小时以内的音频和视频文件，视频不必先转成音频；文件与时长上限，以及字幕每行字数、每行时长和停顿换行，都可以在“设置 › 常规 › 语音转写”里调整。
-- 修复转写字幕偶尔把一句话最后一两个字单独断成一行的问题。
-- 命令行 `yovoice generate` 支持用 ACE-Step、YuE2 和 Stable Audio 3 写歌和生成音效：`--text` 写风格，配合 `--lyrics`/`--lyrics-file`、`--instrumental`；YuE2 会返回所用的旋律谱，改谱后用 `--abc-file` 再生成。Agent Skill 新增音乐参考，并补上 Kokoro 模型说明。
-- 命令行新增 `yovoice transcribe`（把音频或视频转写为 SRT、WebVTT、文本或 JSON 字幕）、`yovoice separate`（把歌曲分成六轨）和 `yovoice to-midi`（把歌曲转为 MIDI 或可编辑的乐谱），Agent Skill 同步说明。
-- 下载来源选 ModelScope 时，YuE2、SheetSage2、Ming 3.0 TTS、Phonon 和 ACE-Step 1.5 XL Turbo（BF16）改从 ModelScope 下载，不再转到 hf-mirror。
-- YuE2 歌曲更多变：「写旋律谱」每次换一个随机种子，同样的歌词和风格不再总写出同一份谱；不填歌词的纯音乐不再总是同一种曲式；风格描述最多 2000 字，可以写歌曲怎样展开，Ocho 也会这样写风格和段落标记；写谱参数显示的默认值与官方一致。
-- YuE2 右侧面板新增“歌曲展开”：选择演唱语言、速度以及开场、展开和结尾的方式，对应的描述会加进风格；Ocho 写新歌时也会对照已有作品，避开相同的流派和速度。
+@leemysw @david-bowiegxw
 
 ## [0.6.0] - 2026-11-09
 
