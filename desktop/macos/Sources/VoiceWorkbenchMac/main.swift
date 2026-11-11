@@ -634,6 +634,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
             return ["id": message["id"]!, "result": true]
         }
+        if method == "model.conversionTool" {
+            let panel = NSOpenPanel()
+            panel.canChooseDirectories = false
+            panel.canChooseFiles = true
+            panel.allowsMultipleSelection = false
+            panel.resolvesAliases = false
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": NSNull()] }
+            return ["id": message["id"]!, "result": url.path]
+        }
         if method == "model.import" {
             let panel = NSOpenPanel()
             panel.canChooseDirectories = false

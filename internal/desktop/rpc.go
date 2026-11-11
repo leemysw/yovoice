@@ -267,6 +267,8 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, w.ImportLocalModels(input.Models)
+	case "model.conversionTools":
+		return w.ConversionTools()
 	case "model.convert":
 		var input workbench.LocalModelConversion
 		if err := json.Unmarshal(data, &input); err != nil {

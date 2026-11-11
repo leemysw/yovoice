@@ -3,8 +3,9 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { FolderSearch } from 'lucide-react';
+import { FolderOpen, FolderSearch } from 'lucide-react';
 import { call, isDesktop } from '../../shared/lib/client';
+import { readLocal, writeLocal } from '../../shared/lib/local-store';
 import { formatCallError } from '../../shared/i18n/format';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
@@ -12,6 +13,7 @@ import type { ModelPackage } from '../../shared/workbench';
 
 interface Source { path: string; models: string[]; convert?: boolean; manual?: boolean }
 interface Scan { directory: string; sources: Source[]; limited?: boolean }
+interface ConversionTools { python: string; converter: string }
 
 export function LocalModelSources({ catalog, busy }: { catalog: ModelPackage[]; busy: boolean }) {
   const t = useTranslator();
@@ -19,8 +21,8 @@ export function LocalModelSources({ catalog, busy }: { catalog: ModelPackage[]; 
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [checkpoint, setCheckpoint] = useState<Source | null>(null);
   const [convertID, setConvertID] = useState('');
-  const [python, setPython] = useState('');
-  const [converter, setConverter] = useState('');
+  const [python, setPython] = useState(() => readLocal('yovoice.modelConversion.python') ?? '');
+  const [converter, setConverter] = useState(() => readLocal('yovoice.modelConversion.converter') ?? '');
   const [working, setWorking] = useState(false);
   const [error, setError] = useState('');
   const label = (id: string) => {
@@ -40,6 +42,9 @@ export function LocalModelSources({ catalog, busy }: { catalog: ModelPackage[]; 
     void run(async () => {
       const result = await call<Scan | null>('model.scan');
       if (!result) return;
+      const tools = await call<ConversionTools>('model.conversionTools');
+      if (tools.python) setPython(tools.python);
+      if (tools.converter) setConverter(tools.converter);
       setMapping(Object.fromEntries(result.sources.filter(source => !source.convert && !source.manual && source.models.length === 1).map(source => [source.path, source.models[0]])));
       setScan(result);
     });
@@ -58,8 +63,22 @@ export function LocalModelSources({ catalog, busy }: { catalog: ModelPackage[]; 
     </>}>
       <p>{t('@yovoice.settings.converterToolsHint')}</p>
       <Selector label={t('@yovoice.settings.localModelChoice')} options={checkpoint.models.map(id => ({ value: id, label: label(id) }))} value={convertID} onChange={setConvertID} />
-      <TextInput label={t('@yovoice.settings.pythonPath')} value={python} onChange={setPython} />
-      <TextInput label={t('@yovoice.settings.ggufToolPath')} value={converter} onChange={setConverter} />
+      {([
+        { key: 'python', label: '@yovoice.settings.pythonPath', value: python, set: setPython },
+        { key: 'converter', label: '@yovoice.settings.ggufToolPath', value: converter, set: setConverter },
+      ] as const).map(tool => {
+        const change = (path: string) => {
+          tool.set(path);
+          writeLocal(`yovoice.modelConversion.${tool.key}`, path);
+        };
+        return <HStack key={tool.key} gap={2} vAlign="end">
+          <TextInput className="grow" label={t(tool.label)} value={tool.value} onChange={change} isDisabled={working} />
+          <Button variant="secondary" isIconOnly icon={<FolderOpen />} label={t(tool.label)} isDisabled={working} onClick={() => void run(async () => {
+            const path = await call<string | null>('model.conversionTool');
+            if (path) change(path);
+          })} />
+        </HStack>;
+      })}
     </AppDialog> : <AppDialog title={t('@yovoice.settings.scanLocalModels')} subtitle={scan.directory} width={680} busy={working} error={error || (conflict ? t('@yovoice.settings.modelMappingConflict') : '')} onClose={close} actions={<>
       <Button label={t('@yovoice.action.cancel')} isDisabled={working} onClick={close} />
       <Button label={t('@yovoice.settings.importSelection')} variant="primary" isLoading={working} isDisabled={busy || !selected.length || conflict} onClick={() => void run(async () => {

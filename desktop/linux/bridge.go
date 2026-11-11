@@ -215,6 +215,12 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return nil, errors.New(T("音频文件不存在。", "The audio file doesn't exist."))
 		}
 		return true, reveal(path)
+	case "model.conversionTool":
+		path := a.pick(chooseOpen, T("选择转换工具", "Choose Conversion Tool"), "")
+		if path == "" {
+			return nil, nil
+		}
+		return path, nil
 	case "model.import":
 		path := a.pick(chooseOpen, T("导入本地模型", "Import Local Model"), "", fileFilter{"GGUF / SF2", []string{"gguf", "sf2"}})
 		if path == "" {

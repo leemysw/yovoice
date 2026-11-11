@@ -100,6 +100,19 @@ type LocalModelConversion struct {
 	Converter string `json:"converter"`
 }
 
+type LocalConversionTools struct {
+	Python    string `json:"python"`
+	Converter string `json:"converter"`
+}
+
+const localConversionToolsKey = "model-conversion-tools"
+
+func (w *Workbench) ConversionTools() (LocalConversionTools, error) {
+	var tools LocalConversionTools
+	_, err := w.Store.Private(localConversionToolsKey, &tools)
+	return tools, err
+}
+
 func (w *Workbench) ConvertLocalModel(input LocalModelConversion) error {
 	model, err := catalog.Lookup(input.ID)
 	if err != nil || model.Family != "index_tts2" || (model.Precision != "Q8" && model.Precision != "F16") {
@@ -137,6 +150,10 @@ func (w *Workbench) ConvertLocalModel(input LocalModelConversion) error {
 		return msg.Err(msg.ErrRequestInvalid, nil)
 	}
 	_, err = w.startLocked("import", msg.ActivityModelConverting, nil, &model.ID, func(ctx context.Context) error {
+		// 本地服务端口每次启动会变化，最近使用的工具须记在状态库中。
+		if err := w.Store.SetPrivate(localConversionToolsKey, LocalConversionTools{Python: input.Python, Converter: input.Converter}); err != nil {
+			return err
+		}
 		return w.convertIndexModel(ctx, input, source, target, precision, model)
 	}, func(s *schema.State) { s.Activity.Task = "local-model-import" })
 	return err
@@ -183,19 +200,30 @@ func (w *Workbench) convertIndexModel(ctx context.Context, input LocalModelConve
 	if err != nil {
 		return err
 	}
+	return w.publishConvertedModel(ctx, model, result, target, output)
+}
+
+func (w *Workbench) publishConvertedModel(ctx context.Context, model catalog.ModelPackage, result schema.InstalledModel, target, output string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
+	if err := localModelSlot(w.Store.Read(), model.ID); err != nil {
+		return err
+	}
 	// 发布到独占目录，现有模型及原始检查点不会被覆盖。
-	dest, err := os.MkdirTemp(target, "local-"+model.ID+"-")
-	if err != nil {
+	dest := filepath.Join(target, ".yovoice-model-"+schema.NewID())
+	if err := os.Mkdir(dest, 0700); err != nil {
 		return err
 	}
 	result.Path = filepath.Join(dest, filepath.Base(model.RemotePath))
+	result.Managed, result.Converted = true, true
+	var err error
 	if err = os.Rename(output, result.Path); err == nil {
-		err = w.register(result.ID, result.Path, false, result.SHA256, false)
+		platform.SyncDir(dest)
+		platform.SyncDir(target)
+		err = w.commitLocalModels([]schema.InstalledModel{result})
 	}
 	if err != nil {
 		_ = os.RemoveAll(dest)

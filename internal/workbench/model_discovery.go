@@ -69,7 +69,7 @@ func (w *Workbench) ScanLocalModels(ctx context.Context, path string) (LocalMode
 		}
 		if entry.IsDir() {
 			relative, _ := filepath.Rel(root, path)
-			if path != root && (strings.HasPrefix(entry.Name(), ".") || strings.Count(relative, string(filepath.Separator)) >= 3) {
+			if path != root && ((strings.HasPrefix(entry.Name(), ".") && !modelTransferDirectory.MatchString(entry.Name())) || strings.Count(relative, string(filepath.Separator)) >= 3) {
 				return fs.SkipDir
 			}
 			if version := indexCheckpointVersion(path); version != "" {
@@ -202,13 +202,24 @@ func (w *Workbench) ImportLocalModels(mappings []LocalModelMapping) error {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		return w.Store.Update(func(s *schema.State) {
-			for _, model := range installed {
-				putInstalledModel(s, model)
-			}
-		}, true)
+		return w.commitLocalModels(installed)
 	}, func(s *schema.State) { s.Activity.Task = "local-model-import" })
 	return err
+}
+
+// 调用方持有 mu；校验耗时较长，提交前须对全部型号重新检查，避免覆盖后来登记的模型或下载任务。
+func (w *Workbench) commitLocalModels(models []schema.InstalledModel) error {
+	state := w.Store.Read()
+	for _, model := range models {
+		if err := localModelSlot(state, model.ID); err != nil {
+			return err
+		}
+	}
+	return w.Store.Update(func(s *schema.State) {
+		for _, model := range models {
+			putInstalledModel(s, model)
+		}
+	}, true)
 }
 
 func localModelSlot(state schema.State, id string) error {

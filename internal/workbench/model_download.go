@@ -34,7 +34,7 @@ func installedModel(s schema.State, id string) (schema.InstalledModel, bool) {
 }
 
 func modelUpdateAvailable(installed schema.InstalledModel, definition catalog.ModelPackage) bool {
-	return installed.Managed && !installed.Pinned && installed.SHA256 != "" && installed.SHA256 != definition.MainFile().SHA256
+	return installed.Managed && !installed.Converted && !installed.Pinned && installed.SHA256 != "" && installed.SHA256 != definition.MainFile().SHA256
 }
 
 // DownloadModel 下载或续传目录里的模型包。暂停的任务保留原版本和目录，避免续传时切到另一个版本。
@@ -59,7 +59,7 @@ func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, versio
 	}
 	installed, exists := installedModel(s, id)
 	// 导入的模型可以解除登记后另行下载，下载接口不能隐式替换外部文件的引用。
-	if exists && !installed.Managed {
+	if exists && (!installed.Managed || installed.Converted) {
 		return msg.Err(msg.ErrLocalModelProtected, nil)
 	}
 	job, pending := s.ModelDownloads[id]

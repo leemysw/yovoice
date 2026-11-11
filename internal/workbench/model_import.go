@@ -44,8 +44,16 @@ func (w *Workbench) ImportModel(id, path string) error {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
+		current := w.Store.Read()
+		if _, pending := current.ModelDownloads[id]; pending {
+			return msg.Err(msg.ErrBusy, nil)
+		}
+		if latest, ok := installedModel(current, id); ok != exists || latest != installed {
+			return msg.Err(msg.ErrLocalModelProtected, nil)
+		}
 		managed := exists && installed.Managed && store.SamePath(installed.Path, result.Path)
-		return w.register(id, result.Path, managed, result.SHA256, managed && installed.Pinned)
+		result.Managed, result.Pinned, result.Converted = managed, managed && installed.Pinned, managed && installed.Converted
+		return w.Store.Update(func(s *schema.State) { putInstalledModel(s, result) }, true)
 	}, func(s *schema.State) { s.Activity.Task = "local-model-import" })
 	return err
 }
