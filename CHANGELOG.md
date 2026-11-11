@@ -6,6 +6,8 @@
 
 ### English
 
+- Share a song to the yovoice community from the player or version menu. Sign in through your browser, add a title, tags and a license, and the version is uploaded for review. Reference voices are never included. Settings lists what you have shared, with its review status, and lets you delete it.
+
 - Task progress bars now follow the app theme across model downloads, verification, transcription and book preparation.
 
 - Scan a local folder for model files and confirm their mappings in one step. Convert supported IndexTTS checkpoints on the device, with file pickers that remember the conversion tools. Removing a converted model reclaims its generated package. Temporary conversion files are cleaned up when the task ends or when the app restarts after an interruption. Model imports show verification progress and catch an IndexTTS version mismatch before hashing.
@@ -27,6 +29,8 @@
 - For YuE2 the right panel has a new Song shape section: pick the sung language, tempo, and how the song opens, builds and ends, and the matching phrases are added to the style. Ocho also checks your earlier songs and steers new ones away from the same genre and tempo.
 
 ### 简体中文
+
+- 可以把歌曲分享到 yovoice 社区：在播放器或版本菜单里选择“分享到社区”，在浏览器里登录，填写标题、标签和使用许可后上传并提交审核；参考音色不会随歌曲上传。设置里可以查看自己分享的作品和审核状态，也可以删除。
 
 - 模型下载、校验、转写和有声书准备的任务进度条统一使用应用主题。
 

@@ -19,7 +19,7 @@ flowchart TB
     remote["remote<br/>HTTP API · 任务 · MCP"]
     wb["workbench<br/>应用服务层"]
     infra["engine · store · download · audio · score"]
-    leaf["schema · catalog · llm · msg · diag · platform"]
+    leaf["schema · catalog · llm · community · msg · diag · platform"]
   end
   engine[["audio.cpp 服务<br/>子进程"]]
   ffmpeg[["ffmpeg<br/>子进程"]]
@@ -119,7 +119,9 @@ sequenceDiagram
 
 ## AI 服务
 
-`internal/llm` 按设置中选择的服务商发送提示词，支持 OpenAI 兼容接口、Anthropic 和 Ollama，预设见 `presets.json`。`workbench` 用它做导入小说选角等后台任务，回复校验通过后才保存；写谱、写词与改旋律谱由内置创作助手（`internal/assistant`）完成，每次修改都经工具校验。密钥保存在本地数据库的私有表中，不会广播给界面。除模型和运行时下载外，yovoice 的其他部分都不联网。见 [AI 服务](ai_zh.md)。
+`internal/llm` 按设置中选择的服务商发送提示词，支持 OpenAI 兼容接口、Anthropic 和 Ollama，预设见 `presets.json`。`workbench` 用它做导入小说选角等后台任务，回复校验通过后才保存；写谱、写词与改旋律谱由内置创作助手（`internal/assistant`）完成，每次修改都经工具校验。密钥保存在本地数据库的私有表中，不会广播给界面。除模型和运行时下载、以及用户主动使用的社区分享外，yovoice 的其他部分都不联网。见 [AI 服务](ai_zh.md)。
+
+`internal/community` 是 yovoice 社区服务的客户端。用户在播放器里选择“分享到社区”时，`workbench` 把这一版歌曲打成作品包（只含该版本的音频、歌词和生成设置，不含参考音色和角色）并编码一份 M4A 试听，两个文件直传对象存储后提交审核。登录走设备授权：应用只显示确认码，用户在浏览器里确认，令牌保存在私有表中。服务地址可用环境变量 `YOVOICE_COMMUNITY_API` 改写。
 
 ## 数据目录
 

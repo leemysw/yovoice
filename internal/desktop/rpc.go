@@ -504,6 +504,26 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return true, diag.Bundle(w.Store.Root, p.Path, schema.Clip(p.Version, 40))
+	case "community.login":
+		return w.CommunityLogin()
+	case "community.login.cancel":
+		w.CommunityCancelLogin()
+		return true, nil
+	case "community.logout":
+		return true, w.CommunityLogout()
+	case "community.share":
+		var input workbench.CommunityShareRequest
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return w.CommunityShare(input)
+	case "community.share.close":
+		w.CommunityCloseShare()
+		return true, nil
+	case "community.mine":
+		return w.CommunityMine(ctx)
+	case "community.delete":
+		return true, w.CommunityDelete(ctx, p.ID)
 	case "ai.dismiss":
 		return true, w.DismissAI(p.ID)
 	case "operation.cancel":

@@ -4891,5 +4891,128 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.community.share": {
+    "defaultMessage": "Поделиться в сообществе"
+  },
+  "@yovoice.community.loginIntro": {
+    "defaultMessage": "Чтобы делиться, нужна учётная запись leemysw. Вход выполняется в браузере, поэтому приложение не видит ваш пароль."
+  },
+  "@yovoice.community.login": {
+    "defaultMessage": "Войти"
+  },
+  "@yovoice.community.loginCode": {
+    "defaultMessage": "Убедитесь, что в браузере показан код {code}, и нажмите «Разрешить»."
+  },
+  "@yovoice.community.loginReopen": {
+    "defaultMessage": "Открыть браузер снова"
+  },
+  "@yovoice.community.loginExpired": {
+    "defaultMessage": "Срок действия кода истёк. Войдите снова."
+  },
+  "@yovoice.community.title": {
+    "defaultMessage": "Название"
+  },
+  "@yovoice.community.description": {
+    "defaultMessage": "Описание"
+  },
+  "@yovoice.community.tags": {
+    "defaultMessage": "Теги"
+  },
+  "@yovoice.community.tagsHint": {
+    "defaultMessage": "Через запятую, не больше 8"
+  },
+  "@yovoice.community.license": {
+    "defaultMessage": "Лицензия"
+  },
+  "@yovoice.community.licenseNoncommercial": {
+    "defaultMessage": "Только некоммерческое использование"
+  },
+  "@yovoice.community.licenseOpen": {
+    "defaultMessage": "Свободное использование, включая коммерческое"
+  },
+  "@yovoice.community.licenseHint": {
+    "defaultMessage": "Убедитесь, что модель, которой создана эта песня, разрешает коммерческое использование."
+  },
+  "@yovoice.community.contents": {
+    "defaultMessage": "Загружаются аудио, текст и настройки генерации этой версии, но не образцы голоса. После проверки песня станет общедоступной."
+  },
+  "@yovoice.community.terms": {
+    "defaultMessage": "У меня есть право делиться этой песней, и я принимаю условия сообщества"
+  },
+  "@yovoice.community.termsLink": {
+    "defaultMessage": "Прочитать условия сообщества"
+  },
+  "@yovoice.community.submit": {
+    "defaultMessage": "Поделиться"
+  },
+  "@yovoice.community.stagePacking": {
+    "defaultMessage": "Упаковка…"
+  },
+  "@yovoice.community.stageUploading": {
+    "defaultMessage": "Загрузка…"
+  },
+  "@yovoice.community.stageSubmitting": {
+    "defaultMessage": "Отправка…"
+  },
+  "@yovoice.community.done": {
+    "defaultMessage": "Отправлено на проверку. После одобрения песня появится в сообществе."
+  },
+  "@yovoice.community.cancelled": {
+    "defaultMessage": "Публикация отменена."
+  },
+  "@yovoice.community.settings": {
+    "defaultMessage": "Сообщество"
+  },
+  "@yovoice.community.account": {
+    "defaultMessage": "Учётная запись сообщества"
+  },
+  "@yovoice.community.logout": {
+    "defaultMessage": "Выйти"
+  },
+  "@yovoice.community.mine": {
+    "defaultMessage": "Мои публикации"
+  },
+  "@yovoice.community.mineEmpty": {
+    "defaultMessage": "Вы пока ничем не поделились."
+  },
+  "@yovoice.community.statusDraft": {
+    "defaultMessage": "Не завершено"
+  },
+  "@yovoice.community.statusPending": {
+    "defaultMessage": "На проверке"
+  },
+  "@yovoice.community.statusPublished": {
+    "defaultMessage": "Опубликовано"
+  },
+  "@yovoice.community.statusRejected": {
+    "defaultMessage": "Не одобрено"
+  },
+  "@yovoice.community.statusRemoved": {
+    "defaultMessage": "Снято с публикации"
+  },
+  "@yovoice.community.stats": {
+    "defaultMessage": "Отметок «нравится»: {likes} · использований: {uses}"
+  },
+  "@yovoice.community.deleteTitle": {
+    "defaultMessage": "Удалить из сообщества"
+  },
+  "@yovoice.community.deleteConfirm": {
+    "defaultMessage": "Удалить «{name}» из сообщества? Это действие нельзя отменить."
+  },
+  "@yovoice.community.loginRequired": {
+    "defaultMessage": "Сначала войдите в учётную запись сообщества."
+  },
+  "@yovoice.community.network": {
+    "defaultMessage": "Не удалось связаться со службой сообщества: {detail}"
+  },
+  "@yovoice.community.rejected": {
+    "defaultMessage": "Сообщество не приняло этот запрос: {message}"
+  },
+  "@yovoice.community.tooLarge": {
+    "defaultMessage": "Эта песня превышает ограничение размера в сообществе ({limit} МБ)."
+  },
+  "@yovoice.community.sourceInvalid": {
+    "defaultMessage": "Делиться можно только полными версиями песен."
   }
 }

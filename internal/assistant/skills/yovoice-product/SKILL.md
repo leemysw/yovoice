@@ -82,6 +82,11 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.voiceDescriptionRequired` 请填写声音描述。
 - `error.omniAttributes` OmniVoice 仅接受预定义音色属性，同一类别只能选择一个。
 - `error.speakerInvalid` 请选择有效的内置音色。
+- `community.loginRequired` 请先登录社区账号。
+- `community.network` 连不上社区服务：{detail}
+- `community.rejected` 社区没有接受这次请求：{message}
+- `community.tooLarge` 这首歌超过了社区的大小上限（{limit} MB）。
+- `community.sourceInvalid` 只有完整的歌曲版本可以分享。
 - `error.busy` 请等待当前操作结束，或先取消。
 - `error.proxyURL` 请输入有效的 HTTP、HTTPS 或 SOCKS5 代理地址及端口，不包含路径或账号密码。
 - `error.modelDirAbsolute` 模型目录必须是绝对路径。

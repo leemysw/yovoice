@@ -18,7 +18,7 @@ function load(): State {
       state = value; break;
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
-  state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody; delete state.transcript; state.assistantLive = undefined;
+  state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody; delete state.transcript; state.assistantLive = undefined; delete state.community;
   // 浏览器预览默认跳过首次启动的开场画面和功能引导；需要查看时在状态里把 introSeen / tourSeen 设为 false。
   state.preferences = { ...state.preferences, introSeen: state.preferences?.introSeen ?? true, tourSeen: state.preferences?.tourSeen ?? true };
   if (!isUiLocale(state.preferences?.uiLocale)) {

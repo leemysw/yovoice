@@ -41,6 +41,7 @@ func New(root string) (store *Store, err error) {
 	s.state.MidiImport = nil
 	s.state.Transcript = nil
 	s.state.AssistantLive = nil
+	s.state.Community = nil
 	// 未保存的试听不跨会话保留，角色已保存的试听使用独立文件。
 	s.state.Previews = []schema.CharacterPreview{}
 	files, _ := filepath.Glob(filepath.Join(root, "outputs", "audition-*.wav"))

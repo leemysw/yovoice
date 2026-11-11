@@ -26,6 +26,20 @@ const (
 	ErrSpeakerInvalid           Code = "@yovoice.error.speakerInvalid"
 )
 
+// 社区：登录、分享到 yovoice 社区。
+const (
+	// ErrCommunityLogin 表示还没登录或登录已失效。
+	ErrCommunityLogin Code = "@yovoice.community.loginRequired"
+	// ErrCommunityNetwork 表示连不上社区服务或上传中断，detail 是底层错误。
+	ErrCommunityNetwork Code = "@yovoice.community.network"
+	// ErrCommunityRejected 表示社区服务拒绝了请求，message 是服务给出的说明。
+	ErrCommunityRejected Code = "@yovoice.community.rejected"
+	// ErrCommunityTooLarge 表示文件超过社区的大小上限，limit 是上限。
+	ErrCommunityTooLarge Code = "@yovoice.community.tooLarge"
+	// ErrCommunitySource 表示这个版本不能分享（不是歌曲，或是分轨结果）。
+	ErrCommunitySource Code = "@yovoice.community.sourceInvalid"
+)
+
 const (
 	ActivityDownload        Code = "@yovoice.activity.download"
 	ActivityDownloading     Code = "@yovoice.activity.downloading"
@@ -289,6 +303,7 @@ func All() []Code {
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,
 		ErrStorageInsideApp, ErrStorageTargetNotEmpty, ErrStorageSame, ErrStorageInsideData, ErrStorageRestart, ErrDataRootMissing, ErrDiskFull,
+		ErrCommunityLogin, ErrCommunityNetwork, ErrCommunityRejected, ErrCommunityTooLarge, ErrCommunitySource,
 		ErrLegacyRestore, ErrJobMissing, ErrJobConflict, ErrUnknown,
 	}
 }

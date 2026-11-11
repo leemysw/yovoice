@@ -130,6 +130,8 @@ export interface State {
   transcripts?: Transcript[];
   /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
   assistantSessions?: AssistantSessions; assistantLive?: AssistantLive; assistantMemory?: AssistantMemo[];
+  /** 社区账号与进行中的登录、分享，与 Go 的 schema.CommunityState 一致；只在本次会话有效。 */
+  community?: CommunityState;
   /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
   assistantMissing?: boolean;
 }
@@ -152,6 +154,16 @@ export interface TranscriptContent { text: string; words: AlignedWord[]; caption
 export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
 export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }
 
+// 社区状态，与 Go 的 schema.Community* 一致。登录在浏览器里确认：code 是要核对的确认码，url 是确认页。
+export interface CommunityAccount { nickname: string; email: string }
+export interface CommunityLogin { code: string; url: string; expiresAt: string; expired?: boolean }
+export interface CommunityShare {
+  id: string; generationId: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'packing' | 'uploading' | 'submitting';
+  received: number; total: number; errorCode?: string; errorParams?: Record<string, unknown>;
+}
+export interface CommunityState { account?: CommunityAccount; login?: CommunityLogin; share?: CommunityShare }
+/** 自己分享到社区的一个作品，由 community.mine 返回。 */
+export interface CommunityItem { id: string; kind: string; status: 'draft' | 'pending' | 'published' | 'rejected' | 'removed'; title: string; reviewNote?: string; likeCount: number; useCount: number; createdAt: string }
 // 可选的大模型服务，与 Go 的 schema.AIProvider 一致；密钥不在状态中，只有掩码。
 export interface AITest { ok: boolean; code?: string; params?: Record<string, unknown>; at: string }
 // 后台 AI 写作任务，与 Go 的 schema.AITask 一致；只在本次会话有效。

@@ -4891,5 +4891,128 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.community.share": {
+    "defaultMessage": "Compartir en la comunidad"
+  },
+  "@yovoice.community.loginIntro": {
+    "defaultMessage": "Para compartir necesitas una cuenta de leemysw. Inicias sesión en el navegador, así que la app nunca ve tu contraseña."
+  },
+  "@yovoice.community.login": {
+    "defaultMessage": "Iniciar sesión"
+  },
+  "@yovoice.community.loginCode": {
+    "defaultMessage": "Comprueba que el navegador muestra el código {code} y elige Permitir."
+  },
+  "@yovoice.community.loginReopen": {
+    "defaultMessage": "Abrir el navegador de nuevo"
+  },
+  "@yovoice.community.loginExpired": {
+    "defaultMessage": "El código ha caducado. Inicia sesión de nuevo."
+  },
+  "@yovoice.community.title": {
+    "defaultMessage": "Título"
+  },
+  "@yovoice.community.description": {
+    "defaultMessage": "Descripción"
+  },
+  "@yovoice.community.tags": {
+    "defaultMessage": "Etiquetas"
+  },
+  "@yovoice.community.tagsHint": {
+    "defaultMessage": "Separadas por comas, 8 como máximo"
+  },
+  "@yovoice.community.license": {
+    "defaultMessage": "Licencia"
+  },
+  "@yovoice.community.licenseNoncommercial": {
+    "defaultMessage": "Solo uso no comercial"
+  },
+  "@yovoice.community.licenseOpen": {
+    "defaultMessage": "Uso libre, también comercial"
+  },
+  "@yovoice.community.licenseHint": {
+    "defaultMessage": "Comprueba que el modelo usado para esta canción permite el uso comercial."
+  },
+  "@yovoice.community.contents": {
+    "defaultMessage": "Se suben el audio, la letra y los ajustes de generación de esta versión, pero no las voces de referencia. La canción se publica tras la revisión."
+  },
+  "@yovoice.community.terms": {
+    "defaultMessage": "Tengo derecho a compartir esta canción y acepto las condiciones de la comunidad"
+  },
+  "@yovoice.community.termsLink": {
+    "defaultMessage": "Leer las condiciones de la comunidad"
+  },
+  "@yovoice.community.submit": {
+    "defaultMessage": "Compartir"
+  },
+  "@yovoice.community.stagePacking": {
+    "defaultMessage": "Empaquetando…"
+  },
+  "@yovoice.community.stageUploading": {
+    "defaultMessage": "Subiendo…"
+  },
+  "@yovoice.community.stageSubmitting": {
+    "defaultMessage": "Enviando…"
+  },
+  "@yovoice.community.done": {
+    "defaultMessage": "Enviada para revisión. Aparecerá en la comunidad cuando se apruebe."
+  },
+  "@yovoice.community.cancelled": {
+    "defaultMessage": "Se canceló el envío."
+  },
+  "@yovoice.community.settings": {
+    "defaultMessage": "Comunidad"
+  },
+  "@yovoice.community.account": {
+    "defaultMessage": "Cuenta de la comunidad"
+  },
+  "@yovoice.community.logout": {
+    "defaultMessage": "Cerrar sesión"
+  },
+  "@yovoice.community.mine": {
+    "defaultMessage": "Lo que he compartido"
+  },
+  "@yovoice.community.mineEmpty": {
+    "defaultMessage": "Todavía no has compartido nada."
+  },
+  "@yovoice.community.statusDraft": {
+    "defaultMessage": "Incompleta"
+  },
+  "@yovoice.community.statusPending": {
+    "defaultMessage": "En revisión"
+  },
+  "@yovoice.community.statusPublished": {
+    "defaultMessage": "Pública"
+  },
+  "@yovoice.community.statusRejected": {
+    "defaultMessage": "No aprobada"
+  },
+  "@yovoice.community.statusRemoved": {
+    "defaultMessage": "Retirada"
+  },
+  "@yovoice.community.stats": {
+    "defaultMessage": "{likes} me gusta · {uses} usos"
+  },
+  "@yovoice.community.deleteTitle": {
+    "defaultMessage": "Eliminar de la comunidad"
+  },
+  "@yovoice.community.deleteConfirm": {
+    "defaultMessage": "¿Eliminar «{name}» de la comunidad? Esta acción no se puede deshacer."
+  },
+  "@yovoice.community.loginRequired": {
+    "defaultMessage": "Primero inicia sesión en tu cuenta de la comunidad."
+  },
+  "@yovoice.community.network": {
+    "defaultMessage": "No se pudo conectar con el servicio de la comunidad: {detail}"
+  },
+  "@yovoice.community.rejected": {
+    "defaultMessage": "La comunidad no aceptó esta solicitud: {message}"
+  },
+  "@yovoice.community.tooLarge": {
+    "defaultMessage": "Esta canción supera el límite de tamaño de la comunidad ({limit} MB)."
+  },
+  "@yovoice.community.sourceInvalid": {
+    "defaultMessage": "Solo se pueden compartir versiones completas de canciones."
   }
 }

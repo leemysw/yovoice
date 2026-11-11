@@ -392,6 +392,8 @@ type State struct {
 	AssistantLive     *AssistantLive     `json:"assistantLive,omitempty"`
 	// AssistantMemory 是助手记住的用户偏好，所有会话共用。
 	AssistantMemory []AssistantMemo `json:"assistantMemory,omitempty"`
+	// Community 是社区账号与进行中的登录、分享；只属于本次会话。
+	Community *CommunityState `json:"community,omitempty"`
 }
 
 // MidiImport 记录转为 MIDI 新建的编曲作品：ProjectID 是新作品，SourceID 是来源版本。

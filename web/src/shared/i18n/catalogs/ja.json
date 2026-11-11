@@ -4891,5 +4891,128 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.community.share": {
+    "defaultMessage": "コミュニティに共有"
+  },
+  "@yovoice.community.loginIntro": {
+    "defaultMessage": "共有には leemysw アカウントが必要です。ログインはブラウザで行うため、アプリがパスワードを知ることはありません。"
+  },
+  "@yovoice.community.login": {
+    "defaultMessage": "ログイン"
+  },
+  "@yovoice.community.loginCode": {
+    "defaultMessage": "ブラウザに確認コード {code} が表示されていることを確かめて、「許可」を選んでください。"
+  },
+  "@yovoice.community.loginReopen": {
+    "defaultMessage": "ブラウザをもう一度開く"
+  },
+  "@yovoice.community.loginExpired": {
+    "defaultMessage": "確認コードの有効期限が切れました。もう一度ログインしてください。"
+  },
+  "@yovoice.community.title": {
+    "defaultMessage": "タイトル"
+  },
+  "@yovoice.community.description": {
+    "defaultMessage": "説明"
+  },
+  "@yovoice.community.tags": {
+    "defaultMessage": "タグ"
+  },
+  "@yovoice.community.tagsHint": {
+    "defaultMessage": "カンマ区切りで最大 8 個"
+  },
+  "@yovoice.community.license": {
+    "defaultMessage": "ライセンス"
+  },
+  "@yovoice.community.licenseNoncommercial": {
+    "defaultMessage": "非商用のみ"
+  },
+  "@yovoice.community.licenseOpen": {
+    "defaultMessage": "自由に利用可（商用を含む）"
+  },
+  "@yovoice.community.licenseHint": {
+    "defaultMessage": "この曲の生成に使ったモデルが商用利用を許可しているか確認してください。"
+  },
+  "@yovoice.community.contents": {
+    "defaultMessage": "このバージョンの音声、歌詞、生成設定をアップロードします。参照音声は含まれません。審査を通過すると公開されます。"
+  },
+  "@yovoice.community.terms": {
+    "defaultMessage": "この曲を共有する権利があり、コミュニティ規約に同意します"
+  },
+  "@yovoice.community.termsLink": {
+    "defaultMessage": "コミュニティ規約を読む"
+  },
+  "@yovoice.community.submit": {
+    "defaultMessage": "共有"
+  },
+  "@yovoice.community.stagePacking": {
+    "defaultMessage": "パッケージを作成中…"
+  },
+  "@yovoice.community.stageUploading": {
+    "defaultMessage": "アップロード中…"
+  },
+  "@yovoice.community.stageSubmitting": {
+    "defaultMessage": "送信中…"
+  },
+  "@yovoice.community.done": {
+    "defaultMessage": "審査に提出しました。承認されるとコミュニティに表示されます。"
+  },
+  "@yovoice.community.cancelled": {
+    "defaultMessage": "共有をキャンセルしました。"
+  },
+  "@yovoice.community.settings": {
+    "defaultMessage": "コミュニティ"
+  },
+  "@yovoice.community.account": {
+    "defaultMessage": "コミュニティアカウント"
+  },
+  "@yovoice.community.logout": {
+    "defaultMessage": "ログアウト"
+  },
+  "@yovoice.community.mine": {
+    "defaultMessage": "共有した作品"
+  },
+  "@yovoice.community.mineEmpty": {
+    "defaultMessage": "まだ何も共有していません。"
+  },
+  "@yovoice.community.statusDraft": {
+    "defaultMessage": "未完了"
+  },
+  "@yovoice.community.statusPending": {
+    "defaultMessage": "審査中"
+  },
+  "@yovoice.community.statusPublished": {
+    "defaultMessage": "公開中"
+  },
+  "@yovoice.community.statusRejected": {
+    "defaultMessage": "不承認"
+  },
+  "@yovoice.community.statusRemoved": {
+    "defaultMessage": "公開停止"
+  },
+  "@yovoice.community.stats": {
+    "defaultMessage": "いいね {likes} 件 · 利用 {uses} 回"
+  },
+  "@yovoice.community.deleteTitle": {
+    "defaultMessage": "コミュニティから削除"
+  },
+  "@yovoice.community.deleteConfirm": {
+    "defaultMessage": "「{name}」をコミュニティから削除しますか？この操作は取り消せません。"
+  },
+  "@yovoice.community.loginRequired": {
+    "defaultMessage": "先にコミュニティアカウントにログインしてください。"
+  },
+  "@yovoice.community.network": {
+    "defaultMessage": "コミュニティサービスに接続できません：{detail}"
+  },
+  "@yovoice.community.rejected": {
+    "defaultMessage": "コミュニティがこのリクエストを受け付けませんでした：{message}"
+  },
+  "@yovoice.community.tooLarge": {
+    "defaultMessage": "この曲はコミュニティのサイズ上限（{limit} MB）を超えています。"
+  },
+  "@yovoice.community.sourceInvalid": {
+    "defaultMessage": "共有できるのは曲の完全なバージョンだけです。"
   }
 }

@@ -40,6 +40,7 @@ import { InspectorSlot } from './inspector-slot';
 import { WorkbenchOverlays, type VoicePickerMode } from './workbench-overlays';
 import { CaptionDialog } from '../features/media/caption-dialog';
 import { VersionExportDialog } from '../features/media/version-export-dialog';
+import { ShareDialog } from '../features/community/share-dialog';
 import { coverJpeg } from '../features/music/song-cover';
 import type { StudioTarget } from '../features/music/stem-studio';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
@@ -121,6 +122,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   // 正在导出字幕的语音版本。
   const [captionTarget, setCaptionTarget] = useState<Generation | null>(null);
   const [exportTarget, setExportTarget] = useState<Generation | null>(null);
+  const [shareTarget, setShareTarget] = useState<Generation | null>(null);
   const pendingStems = useRef<{ sourceId: string; old: Set<string> } | null>(null);
   const [nowPlaying, setNowPlaying] = useState<Generation | null>(null);
   const libraryTabs = <TabList value={page === 'voices' ? 'voices' : 'characters'} onChange={setPage} role="tablist" hasDivider>
@@ -230,6 +232,7 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     <Button className="player-tool" label={historyLabel} tooltip={historyLabel} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} />
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
       { label: t('@yovoice.app.exportVersion'), isDisabled: busy, onClick: () => exportVersion(currentVersion) },
+      ...(music && !currentVersion.stemOf ? [{ label: t('@yovoice.community.share'), onClick: () => setShareTarget(currentVersion) }] : []),
       ...(music && !currentVersion.stemOf && !state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.separate'), isDisabled: busy, onClick: () => separateStems(currentVersion) }] : []),
       ...(canResing(currentVersion) ? [{ label: t('@yovoice.resing.action'), isDisabled: busy, onClick: () => resing(currentVersion) }] : []),
       ...(music && (currentVersion.stemOf || state.history.some(item => item.stemOf === currentVersion.id)) ? [{ label: t('@yovoice.stems.open'), onClick: () => openStems(currentVersion) }] : []),
@@ -287,13 +290,14 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
               query={destination === 'voices' ? voiceQuery : historyQuery} onQueryChange={destination === 'voices' ? setVoiceQuery : setHistoryQuery}
               track={page === destination ? previewTrack : null} audition={audition} stop={() => setPreviewTrack(null)} suspended={page !== destination || voicePicker !== null || !!voiceEditor || !!nowPlaying}
               addVoice={() => setVoicePicker('add')} editVoice={setVoiceEditor} exportCaptions={setCaptionTarget} saveCharacter={characterFromGeneration} onError={onError}
-              reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} openStems={openStems} resing={item => canResing(item) ? () => resing(item) : undefined} />
+              reuse={reuseGeneration} exportItem={exportVersion} share={setShareTarget} play={setNowPlaying} separate={separateStems} transcribe={transcribeMidi} openStems={openStems} resing={item => canResing(item) ? () => resing(item) : undefined} />
           </PageBoundary></VStack>)}
         </>}
 
       </VStack>} /></VStack>
     </VStack></AppShell>
     {ready && !assistantHidden ? <PageBoundary name="assistant"><Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense></PageBoundary> : null}
+    {shareTarget ? <PageBoundary name="community-share"><ShareDialog generation={shareTarget} name={shareTarget.settings.title.trim() || versionName(shareTarget)} community={state.community} onClose={() => setShareTarget(null)} /></PageBoundary> : null}
     {exportTarget ? <PageBoundary name="version-export"><VersionExportDialog generation={exportTarget} name={versionName(exportTarget)} tags={exportTags(exportTarget)} onClose={() => setExportTarget(null)} /></PageBoundary> : null}
     {studio ? <PageBoundary name="stem-studio"><Suspense fallback={null}><StemStudio target={studio} history={state.history} project={studio.kind === 'midi' ? (studio.projectId === draft.id ? draft : state.drafts.find(item => item.id === studio.projectId)) : undefined}
       onClose={() => setStudio(null)} onExport={exportStems} onResplit={source => separateStems(source, true)} onDeleteStems={deleteStems} busy={busy} openSoundFonts={() => { setStudio(null); openSettings('musescore-general-sf2'); }} /></Suspense></PageBoundary> : null}
