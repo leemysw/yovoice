@@ -16,6 +16,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"yovoice/internal/appdelta"
 	"yovoice/internal/catalog"
 	"yovoice/internal/desktop"
 	"yovoice/internal/diag"
@@ -28,6 +29,21 @@ import (
 func run() error {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
+		case "--apply-update-delta":
+			// 只在更新缓存里创建新目录，安装和签名校验仍由原生宿主负责。
+			if len(os.Args) != 7 {
+				return fmt.Errorf("补丁参数无效")
+			}
+			f, err := os.Open(os.Args[2])
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			stat, err := f.Stat()
+			if err != nil {
+				return err
+			}
+			return appdelta.ApplyDelta(f, stat.Size(), os.Args[3], os.Args[4], os.Args[5], os.Args[6])
 		case "--prepare-data":
 			return store.PrepareDefault()
 		case "--data-root":

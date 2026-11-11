@@ -7,9 +7,14 @@ $staging = Join-Path (Split-Path $target -Parent) ('.yovoice-update.' + [Guid]::
 $backup = Join-Path $staging 'previous'
 $installationStarted = $false
 $committed = $false
+$packageRejected = $false
+# 差分安装器放在重建目录 delta-stage 里，补丁和 use-full 标记在上一级的版本目录。
+$delta = [IO.Path]::GetFileName($package) -eq 'delta-install.exe' -and (Split-Path (Split-Path $package -Parent) -Leaf) -eq 'delta-stage'
+$versionDirectory = Split-Path (Split-Path $package -Parent) -Parent
 
 function Confirm-Package {
     if ((Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash -ne $settings.ExpectedHash) {
+        $script:packageRejected = $true
         throw '更新包校验失败。'
     }
     # 已安装的应用带有效签名时，更新包必须由同一发行者签名；未签名的开发构建不受影响。
@@ -17,6 +22,7 @@ function Confirm-Package {
     if ($installed.Status -eq 'Valid') {
         $signature = Get-AuthenticodeSignature -LiteralPath $package
         if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -ne $installed.SignerCertificate.Subject) {
+            $script:packageRejected = $true
             throw '更新包签名与当前应用不一致。'
         }
     }
@@ -52,10 +58,17 @@ try {
     Start-Process -FilePath $executable -WorkingDirectory $target | Out-Null
     $committed = $true
     Remove-Item -LiteralPath $backup -Recurse -Force
-    Remove-Item -LiteralPath $package -Force
+    if ($delta) {
+        Remove-Item -LiteralPath (Split-Path $package -Parent) -Recurse -Force
+        Get-ChildItem -LiteralPath $versionDirectory -Filter '*.delta' -File | Remove-Item -Force
+    } else { Remove-Item -LiteralPath $package -Force }
     Add-Content -LiteralPath $settings.LogPath -Value "$(Get-Date -Format o) 更新完成。"
 }
 catch {
+    # 差分安装器校验不过或安装失败时，下次改用常规更新包；应用未退出等与补丁无关的中断不改。
+    if ($delta -and !$committed -and ($packageRejected -or $installationStarted)) {
+        Set-Content -LiteralPath (Join-Path $versionDirectory 'use-full') -Value '1'
+    }
     Add-Content -LiteralPath $settings.LogPath -Value "$(Get-Date -Format o) $($_.Exception.Message)"
     if (!$committed -and $installationStarted -and (Test-Path -LiteralPath $backup)) {
         try {
