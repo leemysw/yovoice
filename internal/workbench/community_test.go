@@ -27,6 +27,8 @@ type fakeCommunity struct {
 	submitted bool
 	deleted   bool
 	reject    bool
+	// rejectCode 是拒绝时带的原因码，空表示服务端没给。
+	rejectCode string
 }
 
 func (f *fakeCommunity) serve(t *testing.T) *httptest.Server {
@@ -67,7 +69,7 @@ func (f *fakeCommunity) serve(t *testing.T) *httptest.Server {
 			f.uploads[name] = body
 		case strings.HasSuffix(r.URL.Path, "/submit"):
 			if f.reject {
-				reply(w, 400, map[string]string{"message": "分享包结构不正确"})
+				reply(w, 400, map[string]string{"code": f.rejectCode, "message": "分享包结构不正确"})
 				return
 			}
 			f.submitted = true
@@ -188,6 +190,18 @@ func TestCommunityLoginAndShare(t *testing.T) {
 	failed := waitCommunity(t, w, func(c schema.CommunityState) bool { return c.Share != nil && c.Share.Status != "running" })
 	if failed.Share.Status != "failed" || failed.Share.ErrorCode != msg.ErrCommunityRejected || failed.Share.ErrorParams["message"] != "分享包结构不正确" || !fake.deleted {
 		t.Fatal("被拒绝的分享状态不对", *failed.Share, fake.deleted)
+	}
+
+	// 服务端给了已知的原因码时，用本机语言的文案而不是服务端的中文说明。
+	w.CommunityCloseShare()
+	fake.mu.Lock()
+	fake.rejectCode = "pack_invalid"
+	fake.mu.Unlock()
+	_, err = w.CommunityShare(request)
+	must(t, err)
+	failed = waitCommunity(t, w, func(c schema.CommunityState) bool { return c.Share != nil && c.Share.Status != "running" })
+	if failed.Share.ErrorCode != msg.ErrCommunityPackInvalid {
+		t.Fatal("已知原因没有换成本机文案", *failed.Share)
 	}
 
 	// 重启后账号仍在；退出登录后令牌被删除。

@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "Делиться можно только полными версиями песен."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "Перед публикацией подтвердите адрес электронной почты учётной записи leemysw."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "Сегодняшний лимит публикаций исчерпан. Попробуйте завтра."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "Слишком много ваших работ ждут проверки. Отправьте снова, когда их проверят."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "Не больше 8 тегов, каждый не длиннее 24 символов."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "Пакет не прошёл проверку сообщества. Создайте эту версию заново и повторите попытку."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "Сообщество временно недоступно. Повторите попытку позже."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "Этой работы больше нет в сообществе."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "Похоже на голос реального человека, использованный без разрешения"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "Возможно нарушение авторских прав"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "Фрагмент не соответствует описанию"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "Плохое качество звука или неполное содержание"
   }
 }

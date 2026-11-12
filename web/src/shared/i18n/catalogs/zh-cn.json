@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "只有完整的歌曲版本可以分享。"
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "请先在 leemysw 账号里验证邮箱，再来分享。"
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "今天的分享次数已用完，明天再来。"
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "待审核的分享太多了，等审核完成后再提交。"
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "标签最多 8 个，每个不超过 24 个字。"
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "分享包没有通过社区的检查，请重新生成这一版后再试。"
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "社区暂时不可用，请稍后再试。"
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "这个作品已经不在社区里了。"
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "疑似未经授权的真人声音"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "可能侵犯他人版权"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "试听与描述不符"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "音质或内容不完整"
   }
 }

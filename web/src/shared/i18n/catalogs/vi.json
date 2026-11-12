@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "Chỉ có thể chia sẻ phiên bản bài hát đầy đủ."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "Hãy xác minh email của tài khoản leemysw trước khi chia sẻ."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "Bạn đã dùng hết lượt chia sẻ hôm nay. Hãy thử lại vào ngày mai."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "Bạn có quá nhiều bài đang chờ duyệt. Hãy gửi lại sau khi chúng được duyệt."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "Tối đa 8 thẻ, mỗi thẻ không quá 24 ký tự."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "Gói chia sẻ không vượt qua bước kiểm tra của cộng đồng. Hãy tạo lại phiên bản này rồi thử lại."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "Cộng đồng tạm thời không khả dụng. Hãy thử lại sau."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "Tác phẩm này không còn trong cộng đồng."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "Có vẻ là giọng người thật được dùng khi chưa được phép"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "Có thể vi phạm bản quyền"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "Bản nghe thử không khớp với mô tả"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "Chất lượng âm thanh kém hoặc nội dung chưa hoàn chỉnh"
   }
 }

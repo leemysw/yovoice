@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "只有完整的歌曲版本可以分享。"
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "請先在 leemysw 帳號中驗證電子郵件，再來分享。"
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "今天的分享次數已用完，明天再來。"
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "待審核的分享太多了，等審核完成後再提交。"
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "標籤最多 8 個，每個不超過 24 個字。"
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "分享包沒有通過社群的檢查，請重新生成這一版後再試。"
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "社群暫時無法使用，請稍後再試。"
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "這個作品已經不在社群中了。"
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "疑似未經授權的真人聲音"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "可能侵犯他人著作權"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "試聽與描述不符"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "音質或內容不完整"
   }
 }

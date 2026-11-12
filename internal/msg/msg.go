@@ -38,6 +38,15 @@ const (
 	ErrCommunityTooLarge Code = "@yovoice.community.tooLarge"
 	// ErrCommunitySource 表示这个版本不能分享（不是歌曲，或是分轨结果）。
 	ErrCommunitySource Code = "@yovoice.community.sourceInvalid"
+	// 社区服务按原因码拒绝请求时的说明：邮箱未验证、当天次数用完、待审核太多、标签不合规、
+	// 分享包没通过检查、社区暂不可用、作品已不存在。没有对应文案的原因仍用 ErrCommunityRejected。
+	ErrCommunityEmail        Code = "@yovoice.community.reason.emailUnverified"
+	ErrCommunityDailyLimit   Code = "@yovoice.community.reason.dailyLimit"
+	ErrCommunityPendingLimit Code = "@yovoice.community.reason.pendingLimit"
+	ErrCommunityTags         Code = "@yovoice.community.reason.tags"
+	ErrCommunityPackInvalid  Code = "@yovoice.community.reason.packInvalid"
+	ErrCommunityUnavailable  Code = "@yovoice.community.reason.unavailable"
+	ErrCommunityNotFound     Code = "@yovoice.community.reason.notFound"
 )
 
 const (
@@ -304,6 +313,7 @@ func All() []Code {
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,
 		ErrStorageInsideApp, ErrStorageTargetNotEmpty, ErrStorageSame, ErrStorageInsideData, ErrStorageRestart, ErrDataRootMissing, ErrDiskFull,
 		ErrCommunityLogin, ErrCommunityNetwork, ErrCommunityRejected, ErrCommunityTooLarge, ErrCommunitySource,
+		ErrCommunityEmail, ErrCommunityDailyLimit, ErrCommunityPendingLimit, ErrCommunityTags, ErrCommunityPackInvalid, ErrCommunityUnavailable, ErrCommunityNotFound,
 		ErrLegacyRestore, ErrJobMissing, ErrJobConflict, ErrUnknown,
 	}
 }

@@ -11,6 +11,8 @@ import type { CommunityItem, State } from '../../shared/workbench';
 import { CommunityLogin } from './community-login';
 
 const statusLabel = { draft: '@yovoice.community.statusDraft', pending: '@yovoice.community.statusPending', published: '@yovoice.community.statusPublished', rejected: '@yovoice.community.statusRejected', removed: '@yovoice.community.statusRemoved' } as const;
+// 审核时选的预设原因以 preset:<名称> 返回，按界面语言显示；审核员自己写的原因原样显示。
+const noteLabel = { 'preset:voice': '@yovoice.community.note.voice', 'preset:copyright': '@yovoice.community.note.copyright', 'preset:mismatch': '@yovoice.community.note.mismatch', 'preset:quality': '@yovoice.community.note.quality' } as const;
 
 // 设置 › 通用里的“社区”：登录或退出账号，查看自己分享的作品和审核结果，并可从社区删除。
 export function CommunitySettings({ state, run }: { state: State; run: (task: () => Promise<unknown>) => void }) {
@@ -43,7 +45,7 @@ export function CommunitySettings({ state, run }: { state: State; run: (task: ()
     </SettingsRow>
     {account && loadError ? <SettingsRow label={t('@yovoice.community.mine')} hint={formatCallError(t, parseCallError(loadError))} /> : null}
     {account && !loadError && items?.length === 0 ? <SettingsRow label={t('@yovoice.community.mine')} hint={t('@yovoice.community.mineEmpty')} /> : null}
-    {account && !loadError ? items?.map(item => <SettingsRow key={item.id} label={item.title} hint={item.reviewNote && item.status !== 'published' ? `${t(statusLabel[item.status])} · ${item.reviewNote}` : t(statusLabel[item.status])}>
+    {account && !loadError ? items?.map(item => <SettingsRow key={item.id} label={item.title} hint={item.reviewNote && item.status !== 'published' ? `${t(statusLabel[item.status])} · ${item.reviewNote in noteLabel ? t(noteLabel[item.reviewNote as keyof typeof noteLabel]) : item.reviewNote}` : t(statusLabel[item.status])}>
       {item.status === 'published' ? <Text type="supporting" color="secondary">{t('@yovoice.community.stats', { likes: item.likeCount, uses: item.useCount })}</Text> : null}
       <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.action.delete')} tooltip={t('@yovoice.action.delete')} icon={<Trash2 size={15} />} onClick={() => setDeleting(item)} />
     </SettingsRow>) : null}

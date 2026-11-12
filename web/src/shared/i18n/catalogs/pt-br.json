@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "Só é possível compartilhar versões completas de músicas."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "Verifique o e-mail da sua conta leemysw antes de compartilhar."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "Você já usou os compartilhamentos de hoje. Tente de novo amanhã."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "Há compartilhamentos demais aguardando revisão. Envie de novo quando forem revisados."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "Use até 8 tags, cada uma com no máximo 24 caracteres."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "O pacote não passou nas verificações da comunidade. Gere esta versão de novo e tente outra vez."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "A comunidade está temporariamente indisponível. Tente mais tarde."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "Esta obra não está mais na comunidade."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "Parece a voz de uma pessoa real usada sem permissão"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "Pode infringir direitos autorais"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "A prévia não corresponde à descrição"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "Qualidade de áudio ruim ou conteúdo incompleto"
   }
 }

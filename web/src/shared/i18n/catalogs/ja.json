@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "共有できるのは曲の完全なバージョンだけです。"
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "共有する前に、leemysw アカウントのメールアドレスを確認してください。"
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "今日の共有回数を使い切りました。明日もう一度お試しください。"
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "審査待ちの共有が多すぎます。審査が終わってからもう一度提出してください。"
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "タグは 8 個まで、それぞれ 24 文字以内です。"
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "パッケージがコミュニティの検査を通りませんでした。このバージョンを生成し直してからもう一度お試しください。"
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "コミュニティは現在利用できません。しばらくしてからもう一度お試しください。"
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "この作品はもうコミュニティにありません。"
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "実在の人物の声を無断で使用している疑いがあります"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "著作権を侵害している可能性があります"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "試聴と説明が一致していません"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "音質が悪い、または内容が不完全です"
   }
 }

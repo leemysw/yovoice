@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "Nur vollständige Songversionen können geteilt werden."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "Bestätige zuerst die E-Mail-Adresse deines leemysw-Kontos."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "Du hast heute alle Freigaben verbraucht. Versuch es morgen wieder."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "Zu viele deiner Werke warten auf Prüfung. Reiche wieder ein, sobald sie geprüft sind."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "Höchstens 8 Tags mit je bis zu 24 Zeichen."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "Das Paket hat die Prüfung der Community nicht bestanden. Erzeuge diese Version neu und versuch es noch einmal."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "Die Community ist vorübergehend nicht erreichbar. Versuch es später erneut."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "Dieses Werk ist nicht mehr in der Community."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "Vermutlich die Stimme einer realen Person ohne Erlaubnis"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "Verletzt möglicherweise Urheberrechte"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "Die Hörprobe passt nicht zur Beschreibung"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "Schlechte Tonqualität oder unvollständiger Inhalt"
   }
 }

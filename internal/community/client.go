@@ -96,6 +96,18 @@ type Item struct {
 	CreatedAt  time.Time `json:"createdAt"`
 }
 
+// reasons 把服务端的原因码对应到界面文案；没列出的原因显示服务端给的说明。
+var reasons = map[string]msg.Code{
+	"email_unverified": msg.ErrCommunityEmail,
+	"daily_limit":      msg.ErrCommunityDailyLimit,
+	"pending_limit":    msg.ErrCommunityPendingLimit,
+	"tags":             msg.ErrCommunityTags,
+	"pack_invalid":     msg.ErrCommunityPackInvalid,
+	"upload_missing":   msg.ErrCommunityPackInvalid,
+	"unavailable":      msg.ErrCommunityUnavailable,
+	"not_found":        msg.ErrCommunityNotFound,
+}
+
 // call 发送 JSON 请求并解码回复，返回 HTTP 状态码。
 // 连不上记为网络错误；401 表示登录已失效；其余失败带上服务端给出的说明。
 func (c *Client) call(ctx context.Context, method, path string, in, out any) (int, error) {
@@ -134,10 +146,14 @@ func (c *Client) call(ctx context.Context, method, path string, in, out any) (in
 	}
 	if resp.StatusCode >= 300 {
 		var failure struct {
+			Code    string `json:"code"`
 			Message string `json:"message"`
 		}
 		if json.Unmarshal(data, &failure) != nil || failure.Message == "" {
 			failure.Message = resp.Status
+		}
+		if code, ok := reasons[failure.Code]; ok {
+			return resp.StatusCode, msg.Err(code, nil)
 		}
 		return resp.StatusCode, msg.Err(msg.ErrCommunityRejected, msg.Params{"message": failure.Message})
 	}

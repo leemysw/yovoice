@@ -5014,5 +5014,38 @@
   },
   "@yovoice.community.sourceInvalid": {
     "defaultMessage": "완전한 곡 버전만 공유할 수 있습니다."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "공유하기 전에 leemysw 계정의 이메일을 인증하세요."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "오늘 공유 횟수를 모두 사용했습니다. 내일 다시 시도하세요."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "심사를 기다리는 공유가 너무 많습니다. 심사가 끝난 뒤 다시 제출하세요."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "태그는 최대 8개, 각각 24자 이하입니다."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "패키지가 커뮤니티 검사를 통과하지 못했습니다. 이 버전을 다시 생성한 뒤 시도하세요."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "커뮤니티를 일시적으로 사용할 수 없습니다. 나중에 다시 시도하세요."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "이 작품은 더 이상 커뮤니티에 없습니다."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "실제 인물의 목소리를 허락 없이 사용한 것으로 보입니다"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "저작권을 침해할 수 있습니다"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "미리듣기가 설명과 맞지 않습니다"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "음질이 나쁘거나 내용이 완전하지 않습니다"
   }
 }
