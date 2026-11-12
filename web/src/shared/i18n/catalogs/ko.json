@@ -4891,5 +4891,35 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "오디오 {seconds}초 생성됨 ({chunks}개 청크)"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "모델 불러오는 중"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "음성 합성 중"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "불러온 모델 없음"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "모델 불러옴"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "모델 메모리 해제됨"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "모델 메모리 해제 중"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "모델 상태를 확인할 수 없음"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "{seconds}초 동안 사용하지 않으면 자동 해제"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "유휴 시 자동 해제 꺼짐"
   }
 }

@@ -4891,5 +4891,35 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "本地模型已登记。"
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "已生成 {seconds} 秒音频（{chunks} 个片段）"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "正在加载模型"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "正在合成语音"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "模型未加载"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "模型已加载"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "模型已卸载"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "正在卸载模型"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "暂时无法确认模型状态"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "空闲 {seconds} 秒后自动卸载"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "已关闭空闲自动卸载"
   }
 }

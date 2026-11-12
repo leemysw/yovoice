@@ -4891,5 +4891,35 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "Создано {seconds} с аудио в {chunks} фрагментах"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "Загрузка модели"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "Синтез речи"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "Модель не загружена"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "Модель загружена"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "Модель выгружена"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "Выгрузка модели"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "Состояние модели недоступно"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "Выгружать после {seconds} секунд бездействия"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "Автоматическая выгрузка отключена"
   }
 }

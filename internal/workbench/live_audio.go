@@ -2,8 +2,11 @@ package workbench
 
 import (
 	"context"
+	"encoding/base64"
+	"strconv"
 	"sync"
 	"time"
+	"yovoice/internal/audio"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
@@ -62,6 +65,7 @@ func (w *Workbench) synthesizePart(ctx context.Context, state schema.State, part
 	}
 	id := schema.NewID()
 	sequence := 0
+	seconds := 0.0
 	event := func() AudioEvent {
 		return AudioEvent{Event: "audio", ID: id, ProjectID: part.draft.ID, Sequence: sequence}
 	}
@@ -79,10 +83,19 @@ func (w *Workbench) synthesizePart(ctx context.Context, state schema.State, part
 		defer cancel()
 		_ = w.publishAudio(finish, end)
 	}()
-	return w.engine.Generate(ctx, *state.RuntimePath, part.model, state.Preferences.Backend, performanceFirst(state), part.draft, part.voice, part.emotion, path, progress, func(audio string) error {
+	return w.engine.Generate(ctx, *state.RuntimePath, part.model, state.Preferences.Backend, performanceFirst(state), part.draft, part.voice, part.emotion, path, progress, func(encoded string) error {
 		sequence++
 		chunk := event()
-		chunk.Audio = audio
-		return w.publishAudio(ctx, chunk)
+		chunk.Audio = encoded
+		if err := w.publishAudio(ctx, chunk); err != nil {
+			return err
+		}
+		if data, err := base64.StdEncoding.DecodeString(encoded); err == nil {
+			if duration, err := audio.DurationBytes(data); err == nil {
+				seconds += duration
+			}
+		}
+		progress(msg.ActivityStreamingAudio, msg.Params{"chunks": sequence, "seconds": strconv.FormatFloat(seconds, 'f', 1, 64)})
+		return nil
 	})
 }

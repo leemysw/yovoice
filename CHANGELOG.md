@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### English
+
+- Speech generation distinguishes model loading from synthesis and saving, shows model residency and automatic idle unloading, and reports received audio duration and chunk counts during streaming. Requests without a known total use an indeterminate progress bar.
+
+### 简体中文
+
+- 语音生成分别显示模型加载、合成和保存阶段，展示模型驻留与空闲卸载状态；流式生成显示实际收到的音频时长与片段数，没有已知总量的请求使用等待态进度条。
+
 ## [0.7.0] - 2026-11-11
 
 ### English

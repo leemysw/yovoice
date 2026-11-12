@@ -4891,5 +4891,35 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "Generati {seconds} s di audio in {chunks} segmenti"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "Caricamento del modello"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "Sintesi vocale in corso"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "Nessun modello caricato"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "Modello caricato"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "Modello scaricato dalla memoria"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "Rilascio del modello dalla memoria"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "Stato del modello non disponibile"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "Rilascio automatico dopo {seconds} secondi di inattività"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "Rilascio automatico per inattività disattivato"
   }
 }

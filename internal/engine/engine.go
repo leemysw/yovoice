@@ -38,6 +38,7 @@ type Engine struct {
 	stopping *atomic.Bool
 	// settings 是偏好里的引擎运行参数，下次启动引擎时生效；变化后引擎按新参数重启。
 	settings      atomic.Pointer[schema.EngineSettings]
+	live          atomic.Pointer[liveRuntime]
 	endpoint, key string
 	client        *http.Client
 }
@@ -197,15 +198,16 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	if len(session) > 0 {
 		entry["session_options"] = session
 	}
-	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": catalog.ServerBackend(backend), "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": 300000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{entry}}
+	idleSeconds := 300
+	if settings != nil && settings.IdleUnloadSeconds != nil {
+		idleSeconds = *settings.IdleUnloadSeconds
+	}
+	config := map[string]any{"host": "127.0.0.1", "port": port, "backend": catalog.ServerBackend(backend), "device": 0, "threads": max(1, min(runtime.NumCPU()/2, 8)), "lazy_load": true, "max_loaded_models": 1, "idle_unload_ms": idleSeconds * 1000, "log_request_body": false, "max_request_body_bytes": 1048576, "models": []any{entry}}
 	if settings != nil {
 		if settings.Threads > 0 {
 			config["threads"] = settings.Threads
 		}
 		config["device"] = settings.Device
-		if settings.IdleUnloadSeconds != nil {
-			config["idle_unload_ms"] = *settings.IdleUnloadSeconds * 1000
-		}
 	}
 	b, err := json.Marshal(config)
 	if err != nil {
@@ -256,10 +258,18 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	e.process = c
 	e.done = make(chan error, 1)
 	e.stopping = new(atomic.Bool)
+	e.endpoint = fmt.Sprintf("http://127.0.0.1:%d/", port)
+	live := &liveRuntime{
+		endpoint: e.endpoint,
+		status:   Status{ModelID: definition.ID, ModelName: definition.Name, IdleUnloadSeconds: idleSeconds},
+		stopping: e.stopping,
+	}
+	e.live.Store(live)
 	done, stopping, pid, launched := e.done, e.stopping, c.Process.Pid, time.Now()
 	diag.Log(e.root, "engine.started", "family", family, "task", task, "backend", backend, "pid", pid)
 	diag.Go(e.root, "engine.wait", func() {
 		err := c.Wait()
+		e.live.CompareAndSwap(live, nil)
 		event := "engine.exited"
 		if stopping.Load() {
 			event = "engine.stopped"
@@ -273,7 +283,6 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		done <- err
 		close(done)
 	})
-	e.endpoint = fmt.Sprintf("http://127.0.0.1:%d/", port)
 	attempts := 120
 	if family == "kokoro_tts" {
 		// 多语言包包含日文词典；首次读取内嵌资源需要更长时间。
@@ -299,6 +308,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		}
 		cancel()
 		if healthy {
+			live.ready.Store(true)
 			e.key = key
 			diag.Log(e.root, "engine.ready", "family", family, "pid", pid, "startup_ms", time.Since(launched).Milliseconds())
 			return nil
