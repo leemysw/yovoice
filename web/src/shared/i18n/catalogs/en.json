@@ -4891,5 +4891,161 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.community.share": {
+    "defaultMessage": "Share to community"
+  },
+  "@yovoice.community.loginIntro": {
+    "defaultMessage": "Sharing needs a leemysw account. You sign in in your browser, so the app never sees your password."
+  },
+  "@yovoice.community.login": {
+    "defaultMessage": "Sign in"
+  },
+  "@yovoice.community.loginCode": {
+    "defaultMessage": "Check that your browser shows the code {code}, then choose Allow."
+  },
+  "@yovoice.community.loginReopen": {
+    "defaultMessage": "Open browser again"
+  },
+  "@yovoice.community.loginExpired": {
+    "defaultMessage": "The code expired. Sign in again."
+  },
+  "@yovoice.community.title": {
+    "defaultMessage": "Title"
+  },
+  "@yovoice.community.description": {
+    "defaultMessage": "Description"
+  },
+  "@yovoice.community.tags": {
+    "defaultMessage": "Tags"
+  },
+  "@yovoice.community.tagsHint": {
+    "defaultMessage": "Separate with commas, up to 8"
+  },
+  "@yovoice.community.license": {
+    "defaultMessage": "License"
+  },
+  "@yovoice.community.licenseNoncommercial": {
+    "defaultMessage": "Non-commercial use only"
+  },
+  "@yovoice.community.licenseOpen": {
+    "defaultMessage": "Free to use, including commercially"
+  },
+  "@yovoice.community.licenseHint": {
+    "defaultMessage": "Check that the model used for this song allows commercial use."
+  },
+  "@yovoice.community.contents": {
+    "defaultMessage": "This version's audio, lyrics and generation settings are uploaded. Reference voices are not. The song becomes public after review."
+  },
+  "@yovoice.community.terms": {
+    "defaultMessage": "I have the right to share this song and agree to the community terms"
+  },
+  "@yovoice.community.termsLink": {
+    "defaultMessage": "Read the community terms"
+  },
+  "@yovoice.community.submit": {
+    "defaultMessage": "Share"
+  },
+  "@yovoice.community.stagePacking": {
+    "defaultMessage": "Packing…"
+  },
+  "@yovoice.community.stageUploading": {
+    "defaultMessage": "Uploading…"
+  },
+  "@yovoice.community.stageSubmitting": {
+    "defaultMessage": "Submitting…"
+  },
+  "@yovoice.community.done": {
+    "defaultMessage": "Submitted for review. It will appear in the community once approved."
+  },
+  "@yovoice.community.cancelled": {
+    "defaultMessage": "Sharing was cancelled."
+  },
+  "@yovoice.community.settings": {
+    "defaultMessage": "Community"
+  },
+  "@yovoice.community.account": {
+    "defaultMessage": "Community account"
+  },
+  "@yovoice.community.logout": {
+    "defaultMessage": "Sign out"
+  },
+  "@yovoice.community.mine": {
+    "defaultMessage": "My shares"
+  },
+  "@yovoice.community.mineEmpty": {
+    "defaultMessage": "You haven't shared anything yet."
+  },
+  "@yovoice.community.statusDraft": {
+    "defaultMessage": "Incomplete"
+  },
+  "@yovoice.community.statusPending": {
+    "defaultMessage": "In review"
+  },
+  "@yovoice.community.statusPublished": {
+    "defaultMessage": "Public"
+  },
+  "@yovoice.community.statusRejected": {
+    "defaultMessage": "Not approved"
+  },
+  "@yovoice.community.statusRemoved": {
+    "defaultMessage": "Taken down"
+  },
+  "@yovoice.community.stats": {
+    "defaultMessage": "{likes} likes · {uses} uses"
+  },
+  "@yovoice.community.deleteTitle": {
+    "defaultMessage": "Delete from community"
+  },
+  "@yovoice.community.deleteConfirm": {
+    "defaultMessage": "Delete “{name}” from the community? This can't be undone."
+  },
+  "@yovoice.community.loginRequired": {
+    "defaultMessage": "Sign in to your community account first."
+  },
+  "@yovoice.community.network": {
+    "defaultMessage": "Couldn't reach the community service: {detail}"
+  },
+  "@yovoice.community.rejected": {
+    "defaultMessage": "The community didn't accept this request: {message}"
+  },
+  "@yovoice.community.tooLarge": {
+    "defaultMessage": "This song is over the community size limit ({limit} MB)."
+  },
+  "@yovoice.community.sourceInvalid": {
+    "defaultMessage": "Only full song versions can be shared."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "Verify the email on your leemysw account before sharing."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "You've used today's shares. Try again tomorrow."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "Too many of your shares are waiting for review. Submit again once they've been reviewed."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "Use up to 8 tags, each 24 characters or fewer."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "The package didn't pass the community's checks. Generate this version again and retry."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "The community is temporarily unavailable. Try again later."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "This work is no longer in the community."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "Looks like a real person's voice used without permission"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "May infringe someone's copyright"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "The preview doesn't match the description"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "Poor audio quality or incomplete content"
   }
 }

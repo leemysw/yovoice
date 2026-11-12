@@ -19,7 +19,7 @@ flowchart TB
     remote["remote<br/>HTTP API · jobs · MCP"]
     wb["workbench<br/>application service"]
     infra["engine · store · download · audio · score"]
-    leaf["schema · catalog · llm · msg · diag · platform"]
+    leaf["schema · catalog · llm · community · msg · diag · platform"]
   end
   engine[["audio.cpp server<br/>child process"]]
   ffmpeg[["ffmpeg<br/>child process"]]
@@ -119,7 +119,9 @@ The engine process stays loaded between generations of the same model, which mak
 
 ## AI service
 
-`internal/llm` sends prompts to the provider configured in Settings: an OpenAI-compatible API, Anthropic, or Ollama, using the presets in `presets.json`. `workbench` uses it for background tasks such as casting imported novels and checks the replies before saving; scores, lyrics and melody scores are written by the built-in assistant (`internal/assistant`), whose tools validate every change. Keys are stored in a private table of the local database that is never broadcast to the UI, and no other part of yovoice talks to the network except model and runtime downloads. See [AI service](ai.md).
+`internal/llm` sends prompts to the provider configured in Settings: an OpenAI-compatible API, Anthropic, or Ollama, using the presets in `presets.json`. `workbench` uses it for background tasks such as casting imported novels and checks the replies before saving; scores, lyrics and melody scores are written by the built-in assistant (`internal/assistant`), whose tools validate every change. Keys are stored in a private table of the local database that is never broadcast to the UI, and no other part of yovoice talks to the network except model and runtime downloads and the community sharing a user starts. See [AI service](ai.md).
+
+`internal/community` is the client for the yovoice community service. When a user chooses “Share to community” in the player, `workbench` packs that song version as a project archive (only that version's audio, lyrics and generation settings, without reference voices or characters) and encodes an M4A preview; both files are uploaded directly to object storage and then submitted for review. Sign-in uses device authorization: the app only shows a code, the user confirms in the browser, and the token is stored in the private table. The service address can be overridden with the `YOVOICE_COMMUNITY_API` environment variable.
 
 ## Data directory
 

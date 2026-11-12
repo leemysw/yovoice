@@ -112,6 +112,11 @@ func (w *Workbench) ExportProject(id, path string) error {
 	if len(voices) != 0 {
 		return msg.Err(msg.ErrVoiceRequired, nil)
 	}
+	return w.writeArchive(pack, path)
+}
+
+// writeArchive 把清单和它引用的音频写成作品包；先写临时文件，完成后改名到 path。
+func (w *Workbench) writeArchive(pack projectArchive, path string) error {
 	manifest, err := json.Marshal(pack)
 	if err != nil {
 		return err

@@ -46,6 +46,7 @@ type Workbench struct {
 	bundled         map[string]bundledRuntime
 	ai              aiState
 	chat            chatState
+	community       communityState
 	assistant       *assistant.Manager
 	pendingDataPath string
 }
@@ -80,6 +81,7 @@ func New(root string) (*Workbench, error) {
 		return nil, e
 	}
 	w.removeStale()
+	w.restoreCommunity()
 	return w, nil
 }
 
@@ -299,6 +301,7 @@ func (w *Workbench) Close() {
 		}
 		w.stopAI()
 		w.stopChat()
+		w.stopCommunity()
 		w.assistant.Stop()
 		w.engine.Stop()
 		w.client.CloseIdleConnections()

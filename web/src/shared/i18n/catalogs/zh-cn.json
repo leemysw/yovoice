@@ -4891,5 +4891,161 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "本地模型已登记。"
+  },
+  "@yovoice.community.share": {
+    "defaultMessage": "分享到社区"
+  },
+  "@yovoice.community.loginIntro": {
+    "defaultMessage": "分享需要登录 leemysw 账号。登录在浏览器里完成，应用不会看到你的密码。"
+  },
+  "@yovoice.community.login": {
+    "defaultMessage": "登录"
+  },
+  "@yovoice.community.loginCode": {
+    "defaultMessage": "在浏览器里核对确认码 {code}，然后点“允许”。"
+  },
+  "@yovoice.community.loginReopen": {
+    "defaultMessage": "重新打开浏览器"
+  },
+  "@yovoice.community.loginExpired": {
+    "defaultMessage": "确认码已过期，请重新登录。"
+  },
+  "@yovoice.community.title": {
+    "defaultMessage": "标题"
+  },
+  "@yovoice.community.description": {
+    "defaultMessage": "简介"
+  },
+  "@yovoice.community.tags": {
+    "defaultMessage": "标签"
+  },
+  "@yovoice.community.tagsHint": {
+    "defaultMessage": "用逗号分隔，最多 8 个"
+  },
+  "@yovoice.community.license": {
+    "defaultMessage": "使用许可"
+  },
+  "@yovoice.community.licenseNoncommercial": {
+    "defaultMessage": "仅限非商用"
+  },
+  "@yovoice.community.licenseOpen": {
+    "defaultMessage": "可自由使用（含商用）"
+  },
+  "@yovoice.community.licenseHint": {
+    "defaultMessage": "请先确认生成这首歌的模型允许商用。"
+  },
+  "@yovoice.community.contents": {
+    "defaultMessage": "会上传这一版的音频、歌词和生成设置，不包含参考音色。审核通过后公开。"
+  },
+  "@yovoice.community.terms": {
+    "defaultMessage": "我有权分享这首歌，并同意社区条款"
+  },
+  "@yovoice.community.termsLink": {
+    "defaultMessage": "查看社区条款"
+  },
+  "@yovoice.community.submit": {
+    "defaultMessage": "分享"
+  },
+  "@yovoice.community.stagePacking": {
+    "defaultMessage": "正在打包…"
+  },
+  "@yovoice.community.stageUploading": {
+    "defaultMessage": "正在上传…"
+  },
+  "@yovoice.community.stageSubmitting": {
+    "defaultMessage": "正在提交…"
+  },
+  "@yovoice.community.done": {
+    "defaultMessage": "已提交审核，通过后会出现在社区里。"
+  },
+  "@yovoice.community.cancelled": {
+    "defaultMessage": "分享已取消。"
+  },
+  "@yovoice.community.settings": {
+    "defaultMessage": "社区"
+  },
+  "@yovoice.community.account": {
+    "defaultMessage": "社区账号"
+  },
+  "@yovoice.community.logout": {
+    "defaultMessage": "退出登录"
+  },
+  "@yovoice.community.mine": {
+    "defaultMessage": "我的分享"
+  },
+  "@yovoice.community.mineEmpty": {
+    "defaultMessage": "还没有分享过作品。"
+  },
+  "@yovoice.community.statusDraft": {
+    "defaultMessage": "未完成"
+  },
+  "@yovoice.community.statusPending": {
+    "defaultMessage": "待审核"
+  },
+  "@yovoice.community.statusPublished": {
+    "defaultMessage": "已公开"
+  },
+  "@yovoice.community.statusRejected": {
+    "defaultMessage": "未通过"
+  },
+  "@yovoice.community.statusRemoved": {
+    "defaultMessage": "已下架"
+  },
+  "@yovoice.community.stats": {
+    "defaultMessage": "{likes} 赞 · {uses} 次使用"
+  },
+  "@yovoice.community.deleteTitle": {
+    "defaultMessage": "从社区删除"
+  },
+  "@yovoice.community.deleteConfirm": {
+    "defaultMessage": "从社区删除“{name}”？此操作无法撤销。"
+  },
+  "@yovoice.community.loginRequired": {
+    "defaultMessage": "请先登录社区账号。"
+  },
+  "@yovoice.community.network": {
+    "defaultMessage": "连不上社区服务：{detail}"
+  },
+  "@yovoice.community.rejected": {
+    "defaultMessage": "社区没有接受这次请求：{message}"
+  },
+  "@yovoice.community.tooLarge": {
+    "defaultMessage": "这首歌超过了社区的大小上限（{limit} MB）。"
+  },
+  "@yovoice.community.sourceInvalid": {
+    "defaultMessage": "只有完整的歌曲版本可以分享。"
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "请先在 leemysw 账号里验证邮箱，再来分享。"
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "今天的分享次数已用完，明天再来。"
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "待审核的分享太多了，等审核完成后再提交。"
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "标签最多 8 个，每个不超过 24 个字。"
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "分享包没有通过社区的检查，请重新生成这一版后再试。"
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "社区暂时不可用，请稍后再试。"
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "这个作品已经不在社区里了。"
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "疑似未经授权的真人声音"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "可能侵犯他人版权"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "试听与描述不符"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "音质或内容不完整"
   }
 }

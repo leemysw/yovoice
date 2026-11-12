@@ -1,7 +1,7 @@
 import catalogFile from '@internal/catalog/catalog.json';
 import aiPresets from '@internal/llm/presets.json';
 import audited from '@internal/desktop/audited.json';
-import { performanceSettings, newId, type Draft, type State, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type Activity, type LocalAPIStatus, type LogFilter, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile, type MessageCode, type TranscriptCaption, type TranscriptContent } from '../../workbench';
+import { performanceSettings, newId, type Draft, type State, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type Activity, type LocalAPIStatus, type LogFilter, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind, modelMainFile, type MessageCode, type TranscriptCaption, type TranscriptContent, type CommunityItem } from '../../workbench';
 import { download } from '../client';
 import { CallError } from '../call-error';
 import { encodeError, previewExportLogs, previewLog, previewQueryLogs } from '../preview-logs';
@@ -10,6 +10,9 @@ import { blobDelete, blobStore } from './blobs';
 import { previewImportVoice } from './media';
 import { previewInspectMelody, previewTransformMelody } from './melody';
 import { assistantCancel, assistantDelete, assistantForget, assistantNew, assistantOpen, assistantProposal, assistantSend } from './assistant';
+
+// 预览里“我的分享”只存在内存中，刷新后清空。
+const communityItems: CommunityItem[] = [];
 
 // 与 Go 服务同一份清单（internal/desktop/audited.json）：这些方法无论成败都留一条日志。
 const auditedMethods = new Set<string>(audited);
@@ -431,6 +434,38 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     }, 1500);
     return task as T;
   }
+  // 社区：预览里登录立即成功，分享走完三个阶段后记为待审核，方便查看整个流程的界面。
+  if (method === 'community.login') {
+    const login = { code: 'ABCD-EFGH', url: 'https://app.leemysw.com/device?code=ABCD-EFGH', expiresAt: new Date(Date.now() + 600_000).toISOString() };
+    state.community = { ...state.community, login }; publish();
+    setTimeout(() => { if (state.community?.login?.code === login.code) { state.community = { ...state.community, login: undefined, account: { nickname: 'Preview', email: 'preview@example.com' } }; publish(); } }, 2500);
+    return login as T;
+  }
+  if (method === 'community.login.cancel') { state.community = { ...state.community, login: undefined }; publish(); return true as T; }
+  if (method === 'community.logout') { state.community = { ...state.community, login: undefined, account: undefined }; publish(); return true as T; }
+  if (method === 'community.share') {
+    const input = data as { generationId: string; title: string };
+    if (!state.community?.account) throw new CallError('@yovoice.community.loginRequired');
+    if (state.community.share?.status === 'running') throw new CallError('@yovoice.error.busy');
+    const share = { id: newId(), generationId: input.generationId, status: 'running' as const, stage: 'packing' as const, received: 0, total: 0 };
+    state.community = { ...state.community, share }; publish();
+    const total = 8_000_000;
+    const step = (patch: object, delay: number) => setTimeout(() => {
+      if (state.community?.share?.id !== share.id || state.community.share.status !== 'running') return;
+      state.community = { ...state.community, share: { ...state.community.share, ...patch } }; publish();
+    }, delay);
+    step({ stage: 'uploading', total }, 600); step({ received: total / 2 }, 1200); step({ received: total, stage: 'submitting' }, 1800);
+    setTimeout(() => { if (state.community?.share?.id === share.id && state.community.share.status === 'running') communityItems.unshift({ id: newId(), kind: 'song', status: 'pending', title: input.title, likeCount: 0, useCount: 0, createdAt: new Date().toISOString() }); }, 2300);
+    step({ status: 'completed' }, 2400);
+    return share as T;
+  }
+  if (method === 'community.share.close') {
+    const share = state.community?.share;
+    if (share) { state.community = { ...state.community, share: share.status === 'running' ? { ...share, status: 'cancelled' } : undefined }; publish(); }
+    return true as T;
+  }
+  if (method === 'community.mine') return [...communityItems] as T;
+  if (method === 'community.delete') { const index = communityItems.findIndex(item => item.id === (data as { id: string }).id); if (index >= 0) communityItems.splice(index, 1); return true as T; }
   if (method === 'ai.cancel') {
     if (state.aiTask?.status === 'running') { state.aiTask = { ...state.aiTask, status: 'cancelled', finishedAt: new Date().toISOString() }; publish(); }
     return true as T;

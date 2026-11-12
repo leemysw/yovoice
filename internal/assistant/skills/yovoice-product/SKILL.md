@@ -82,6 +82,18 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.voiceDescriptionRequired` 请填写声音描述。
 - `error.omniAttributes` OmniVoice 仅接受预定义音色属性，同一类别只能选择一个。
 - `error.speakerInvalid` 请选择有效的内置音色。
+- `community.loginRequired` 请先登录社区账号。
+- `community.network` 连不上社区服务：{detail}
+- `community.rejected` 社区没有接受这次请求：{message}
+- `community.tooLarge` 这首歌超过了社区的大小上限（{limit} MB）。
+- `community.sourceInvalid` 只有完整的歌曲版本可以分享。
+- `community.reason.emailUnverified` 请先在 leemysw 账号里验证邮箱，再来分享。
+- `community.reason.dailyLimit` 今天的分享次数已用完，明天再来。
+- `community.reason.pendingLimit` 待审核的分享太多了，等审核完成后再提交。
+- `community.reason.tags` 标签最多 8 个，每个不超过 24 个字。
+- `community.reason.packInvalid` 分享包没有通过社区的检查，请重新生成这一版后再试。
+- `community.reason.unavailable` 社区暂时不可用，请稍后再试。
+- `community.reason.notFound` 这个作品已经不在社区里了。
 - `error.busy` 请等待当前操作结束，或先取消。
 - `error.proxyURL` 请输入有效的 HTTP、HTTPS 或 SOCKS5 代理地址及端口，不包含路径或账号密码。
 - `error.modelDirAbsolute` 模型目录必须是绝对路径。

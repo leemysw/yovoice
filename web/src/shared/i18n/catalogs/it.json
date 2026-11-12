@@ -4891,5 +4891,161 @@
   },
   "@yovoice.settings.localModelImported": {
     "defaultMessage": "Local models are ready to use."
+  },
+  "@yovoice.community.share": {
+    "defaultMessage": "Condividi nella community"
+  },
+  "@yovoice.community.loginIntro": {
+    "defaultMessage": "Per condividere serve un account leemysw. L'accesso avviene nel browser, quindi l'app non vede mai la tua password."
+  },
+  "@yovoice.community.login": {
+    "defaultMessage": "Accedi"
+  },
+  "@yovoice.community.loginCode": {
+    "defaultMessage": "Controlla che il browser mostri il codice {code}, poi scegli Consenti."
+  },
+  "@yovoice.community.loginReopen": {
+    "defaultMessage": "Riapri il browser"
+  },
+  "@yovoice.community.loginExpired": {
+    "defaultMessage": "Il codice è scaduto. Accedi di nuovo."
+  },
+  "@yovoice.community.title": {
+    "defaultMessage": "Titolo"
+  },
+  "@yovoice.community.description": {
+    "defaultMessage": "Descrizione"
+  },
+  "@yovoice.community.tags": {
+    "defaultMessage": "Tag"
+  },
+  "@yovoice.community.tagsHint": {
+    "defaultMessage": "Separati da virgole, al massimo 8"
+  },
+  "@yovoice.community.license": {
+    "defaultMessage": "Licenza"
+  },
+  "@yovoice.community.licenseNoncommercial": {
+    "defaultMessage": "Solo uso non commerciale"
+  },
+  "@yovoice.community.licenseOpen": {
+    "defaultMessage": "Uso libero, anche commerciale"
+  },
+  "@yovoice.community.licenseHint": {
+    "defaultMessage": "Controlla che il modello usato per questo brano consenta l'uso commerciale."
+  },
+  "@yovoice.community.contents": {
+    "defaultMessage": "Vengono caricati l'audio, il testo e le impostazioni di generazione di questa versione, ma non le voci di riferimento. Il brano diventa pubblico dopo la revisione."
+  },
+  "@yovoice.community.terms": {
+    "defaultMessage": "Ho il diritto di condividere questo brano e accetto i termini della community"
+  },
+  "@yovoice.community.termsLink": {
+    "defaultMessage": "Leggi i termini della community"
+  },
+  "@yovoice.community.submit": {
+    "defaultMessage": "Condividi"
+  },
+  "@yovoice.community.stagePacking": {
+    "defaultMessage": "Preparazione…"
+  },
+  "@yovoice.community.stageUploading": {
+    "defaultMessage": "Caricamento…"
+  },
+  "@yovoice.community.stageSubmitting": {
+    "defaultMessage": "Invio…"
+  },
+  "@yovoice.community.done": {
+    "defaultMessage": "Inviato per la revisione. Apparirà nella community dopo l'approvazione."
+  },
+  "@yovoice.community.cancelled": {
+    "defaultMessage": "La condivisione è stata annullata."
+  },
+  "@yovoice.community.settings": {
+    "defaultMessage": "Community"
+  },
+  "@yovoice.community.account": {
+    "defaultMessage": "Account della community"
+  },
+  "@yovoice.community.logout": {
+    "defaultMessage": "Esci"
+  },
+  "@yovoice.community.mine": {
+    "defaultMessage": "Le mie condivisioni"
+  },
+  "@yovoice.community.mineEmpty": {
+    "defaultMessage": "Non hai ancora condiviso nulla."
+  },
+  "@yovoice.community.statusDraft": {
+    "defaultMessage": "Incompleto"
+  },
+  "@yovoice.community.statusPending": {
+    "defaultMessage": "In revisione"
+  },
+  "@yovoice.community.statusPublished": {
+    "defaultMessage": "Pubblico"
+  },
+  "@yovoice.community.statusRejected": {
+    "defaultMessage": "Non approvato"
+  },
+  "@yovoice.community.statusRemoved": {
+    "defaultMessage": "Rimosso"
+  },
+  "@yovoice.community.stats": {
+    "defaultMessage": "{likes} mi piace · {uses} utilizzi"
+  },
+  "@yovoice.community.deleteTitle": {
+    "defaultMessage": "Elimina dalla community"
+  },
+  "@yovoice.community.deleteConfirm": {
+    "defaultMessage": "Eliminare «{name}» dalla community? L'operazione non può essere annullata."
+  },
+  "@yovoice.community.loginRequired": {
+    "defaultMessage": "Accedi prima al tuo account della community."
+  },
+  "@yovoice.community.network": {
+    "defaultMessage": "Impossibile raggiungere il servizio della community: {detail}"
+  },
+  "@yovoice.community.rejected": {
+    "defaultMessage": "La community non ha accettato questa richiesta: {message}"
+  },
+  "@yovoice.community.tooLarge": {
+    "defaultMessage": "Questo brano supera il limite di dimensione della community ({limit} MB)."
+  },
+  "@yovoice.community.sourceInvalid": {
+    "defaultMessage": "Si possono condividere solo versioni complete dei brani."
+  },
+  "@yovoice.community.reason.emailUnverified": {
+    "defaultMessage": "Verifica l'email del tuo account leemysw prima di condividere."
+  },
+  "@yovoice.community.reason.dailyLimit": {
+    "defaultMessage": "Hai esaurito le condivisioni di oggi. Riprova domani."
+  },
+  "@yovoice.community.reason.pendingLimit": {
+    "defaultMessage": "Hai troppe condivisioni in attesa di revisione. Invia di nuovo quando saranno state esaminate."
+  },
+  "@yovoice.community.reason.tags": {
+    "defaultMessage": "Al massimo 8 tag, ciascuno di 24 caratteri o meno."
+  },
+  "@yovoice.community.reason.packInvalid": {
+    "defaultMessage": "Il pacchetto non ha superato i controlli della community. Genera di nuovo questa versione e riprova."
+  },
+  "@yovoice.community.reason.unavailable": {
+    "defaultMessage": "La community non è al momento disponibile. Riprova più tardi."
+  },
+  "@yovoice.community.reason.notFound": {
+    "defaultMessage": "Quest'opera non è più nella community."
+  },
+  "@yovoice.community.note.voice": {
+    "defaultMessage": "Sembra la voce di una persona reale usata senza permesso"
+  },
+  "@yovoice.community.note.copyright": {
+    "defaultMessage": "Potrebbe violare il diritto d'autore"
+  },
+  "@yovoice.community.note.mismatch": {
+    "defaultMessage": "L'anteprima non corrisponde alla descrizione"
+  },
+  "@yovoice.community.note.quality": {
+    "defaultMessage": "Qualità audio scarsa o contenuto incompleto"
   }
 }
