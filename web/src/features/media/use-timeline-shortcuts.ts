@@ -1,28 +1,29 @@
 import { useEffect } from 'react';
+import { composing, dialogOpen, platform, typingTarget } from '../../shared/hotkeys/hotkeys';
+import { eventBindings, historyAction } from '../../shared/hotkeys/keys';
 
-// 时间线快捷键：空格播放、撤销重做在页面任意位置生效，其余只在时间线内响应；焦点在输入框、菜单里或有对话框可见时不拦截。
-export function useTimelineShortcuts({ blocked, duration, play, restoreEdit, copy, paste, split, remove, seek, selectAll, clearSelection }: {
-  blocked: boolean; duration: number; play: () => Promise<void>; restoreEdit: (direction: 'undo' | 'redo') => void;
-  copy: () => void; paste: (duplicate?: boolean) => void; split: () => void; remove: (ripple?: boolean) => void;
-  seek: (time: number) => void; selectAll: () => void; clearSelection: () => void;
+// 时间线的固定按键（不能在设置里修改）：撤销重做在页面任意位置生效，复制粘贴、全选、删除与 Esc 只在时间线内响应；
+// 焦点在输入框、菜单里，正在用输入法组字或有对话框可见时不拦截。可修改的命令（播放、分割、缩放等）在 TimelineEditor 里用 useHotkey 注册。
+// 主修饰键 macOS 是 ⌘、Windows / Linux 是 Ctrl；重做在 Windows / Linux 上还可以用 Ctrl+Y。
+export function useTimelineShortcuts({ blocked, restoreEdit, copy, paste, remove, selectAll, clearSelection }: {
+  blocked: boolean; restoreEdit: (direction: 'undo' | 'redo') => void;
+  copy: () => void; paste: () => void; remove: (ripple?: boolean) => void;
+  selectAll: () => void; clearSelection: () => void;
 }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (blocked || event.defaultPrevented || event.isComposing || event.altKey) return;
-      if ((event.target as Element)?.closest('textarea, input:not([type="range"]), select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="menu"]') || Array.from(document.querySelectorAll('[role="dialog"], [role="alertdialog"]')).some(e => e.getClientRects().length > 0)) return;
-      const key = event.key.toLowerCase(), command = event.metaKey || event.ctrlKey;
-      if (key === ' ' && !command) { event.preventDefault(); void play(); return; }
-      if (command && (key === 'z' || key === 'y')) { event.preventDefault(); restoreEdit(key === 'y' || event.shiftKey ? 'redo' : 'undo'); return; }
-      if (!(event.target as Element)?.closest('.multitrack')) return;
-      if (command && key === 'c') { event.preventDefault(); copy(); }
-      else if (command && key === 'v') { event.preventDefault(); paste(); }
-      else if (command && key === 'd') { event.preventDefault(); paste(true); }
-      else if (command && key === 'a') { event.preventDefault(); selectAll(); }
-      else if (command && key === 'i') { event.preventDefault(); split(); }
-      else if (key === 'delete' || key === 'backspace') { event.preventDefault(); remove(event.shiftKey); }
-      else if (key === 'home') { event.preventDefault(); seek(0); }
-      else if (key === 'end') { event.preventDefault(); seek(duration); }
-      else if (key === 'escape') { clearSelection(); }
+      if (blocked || event.defaultPrevented || composing(event)) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (typingTarget(target) || target?.closest('[role="menu"]') || dialogOpen()) return;
+      const history = historyAction(event, platform);
+      if (history) { event.preventDefault(); restoreEdit(history); return; }
+      if (!target?.closest('.multitrack')) return;
+      const pressed = eventBindings(event, platform)[0]?.binding;
+      if (pressed === 'mod+C') { event.preventDefault(); copy(); }
+      else if (pressed === 'mod+V') { event.preventDefault(); paste(); }
+      else if (pressed === 'mod+A') { event.preventDefault(); selectAll(); }
+      else if (pressed === 'delete' || pressed === 'backspace' || pressed === 'shift+delete' || pressed === 'shift+backspace') { event.preventDefault(); remove(event.shiftKey); }
+      else if (pressed === 'esc') { clearSelection(); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

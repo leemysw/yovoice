@@ -59,6 +59,14 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 			p.Transcribe = nil
 		}
 	}
+	if p.Hotkeys != nil {
+		if err := p.Hotkeys.Validate(); err != nil {
+			return err
+		}
+		if p.Hotkeys.Empty() {
+			p.Hotkeys = nil
+		}
+	}
 	if p.ModelDirectory != nil && !filepath.IsAbs(*p.ModelDirectory) {
 		return msg.Err(msg.ErrModelDirAbsolute, nil)
 	}

@@ -71,8 +71,9 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   </HStack>;
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
     <MorphFrame><VStack className="generation-action" gap={3}>
-      {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
-        : <Button label={t(stable ? '@yovoice.music.generateAudio' : yue && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.instrumental && !draft.lyrics?.trim()) || (stable && !stableAudioReady(draft, state.history))} onClick={generate} />}
+      {/* 生成与取消是两个不同的按钮（key 不同）：鼠标点了“生成”后焦点不会留在原地变成“取消生成”，再按空格不会误取消。 */}
+      {generating ? <Button key="cancel" label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
+        : <Button key="generate" label={t(stable ? '@yovoice.music.generateAudio' : yue && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.instrumental && !draft.lyrics?.trim()) || (stable && !stableAudioReady(draft, state.history))} onClick={generate} />}
       {generating ? <HStack className="generation-status" gap={2} vAlign="center">
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>

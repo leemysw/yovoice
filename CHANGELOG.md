@@ -6,6 +6,19 @@
 
 ### English
 
+- Keyboard shortcuts: a new Settings › Keyboard shortcuts tab lists every shortcut by area — Global, Speech generation, Transcribe, Story narration, Music generation, Sound library and Ocho. Click a shortcut and press new keys to change it; conflicts and keys reserved by the system are flagged, and you can restore defaults per shortcut or all at once. Turn all shortcuts or a single area off, and export or import your shortcuts as a file with a preview of every change. Press ⌘/ (Ctrl+/ on Windows and Linux) on any page to see the shortcuts available there.
+- Shortcuts no longer step on each other or on typing:
+  - ⌘↩ / Ctrl+Enter in the Ocho box only sends the message and no longer also starts a generation.
+  - Only the dialog you are in responds, so keys no longer reach the page or player behind it.
+  - Space presses a button you moved to with the keyboard; after a mouse click it plays and pauses, so it no longer cancels a generation you just started or re-splits stems.
+  - Menus, sliders and input-method candidates keep their own keys, and holding a key no longer marks or merges several lines at once.
+  - Characters typed with ⌥ on macOS or AltGr on Windows, such as @ { [ é, are no longer swallowed by shortcuts.
+  - Undo on another page no longer changes a transcript left open in the background.
+- Shortcut settings stop recording when you leave the page, list every command a key would collide with, and check imported files strictly; a file from the other platform keeps its default keys as defaults. Some defaults changed to avoid system and input-method keys: Story speaker is ⌃⌥1–9 on macOS, and on Windows and Linux Inspector is Ctrl+Shift+B, Fit selection is Ctrl+Shift+0 and Expand lyrics is Ctrl+Shift+L. Letters follow the labels on your keyboard layout.
+- Story shortcuts act on the focused line on the current page, and lines with different speakers are not merged. With a clip selected, ⌥← / ⌥→ jumps to clip edges. Paging a transcript keeps ⌥↑ / ⌥↓ on the current page.
+- ⌘J puts the cursor in Ocho's box and closing it keeps your unsent draft. ⌘. stops the current page's recording, upload or generation before Ocho's reply, and also works with Ocho minimized. Esc closes the character editor.
+- In Now Playing, the A key asks before replacing lyric timing and only shows a hint when the aligner isn't installed. Now Playing can go full screen in the macOS and Windows apps.
+- On macOS, ⇧⌘Z redoes in text fields, and ⌘H, ⌥⌘H, ⌘W and ⌃⌘F work as in other apps. On Windows, F5, Ctrl+R, Ctrl+P and other browser keys no longer reload or print the interface. Hints and the onboarding tour show the keys you have set.
 - Share a song to the yovoice community from the player or version menu. Sign in through your browser, add a title, tags (prefilled with the song's short style tags) and a license, and the version is uploaded for review. Reference voices are never included. Aligned lyrics go with the song so the community page can scroll them; the dialog tells you when a version's lyrics aren't aligned yet. Settings › Community has your account and what you have shared, with its review status, and lets you delete it.
 - Settings › General › Appearance offers six themes: Paper, Ink, Lagoon, Sand, Sage and Abyss, two of them dark. The default, Match system, uses Paper in light mode and Ink in dark mode. On macOS the title bar follows the theme too.
 - Transcript editing: line playback can carry on to the next line (Continuous playback, on by default) and skips long silences. Ctrl+Z / ⌘Z undoes and Ctrl+Shift+Z, Ctrl+Y or ⇧⌘Z redoes. Delete at the end of a line joins the next one, and on macOS Ctrl+H / Ctrl+D also join lines.
@@ -15,6 +28,19 @@
 
 ### 简体中文
 
+- 快捷键：设置里新增“快捷键”标签，按全局、语音生成、语音转写、故事配音、音乐生成、我的声音和 Ocho 分区列出全部快捷键。点按键后按下新的组合即可修改，遇到冲突或系统占用的按键会提示，可逐条或全部恢复默认；可以关闭全部快捷键或单个功能区，也可以把快捷键导出成文件，导入时先预览每一处变化。在任意页面按 ⌘/（Windows 和 Linux 上为 Ctrl+/）查看当前页面能用的快捷键。
+- 快捷键不再互相干扰，也不再妨碍打字：
+  - 在 Ocho 输入框里按 ⌘↩ / Ctrl+Enter 只发送消息，不会同时开始生成。
+  - 只有焦点所在的弹窗响应按键，不再作用到背后的页面或播放页。
+  - 用键盘移到按钮上时空格是按下按钮；鼠标点过按钮后空格照常播放、暂停，不会误点刚变出来的“取消生成”或重新分离分轨。
+  - 菜单、滑块和输入法候选保留自己的按键；按住不放不会连续标记或连续合并。
+  - macOS 上用 ⌥、Windows 上用 AltGr 打的 @ { [ é 等字符不再被快捷键吞掉。
+  - 在别的页面撤销，不会改动后台还开着的转写。
+- 快捷键设置：离开页面时自动结束录制；撞上几条命令时一并列出；导入文件按严格的写法检查，来自另一平台的默认按键仍按默认处理。部分默认按键为避开系统和输入法做了调整：故事“设为第 N 个说话人”在 macOS 上是 ⌃⌥1–9；Windows 和 Linux 上检查器是 Ctrl+Shift+B、适应选区是 Ctrl+Shift+0、放大编辑歌词是 Ctrl+Shift+L。字母按键盘布局上印的字认。
+- 故事配音的快捷键只作用于当前页、焦点所在的那句，说话人不同的两句不会合并；时间线上选中片段后 ⌥← / ⌥→ 跳到片段边界；转写翻页后 ⌥↑ / ⌥↓ 留在当前页。
+- ⌘J 打开 Ocho 时光标直接进输入框，收起后没发出的草稿仍在；⌘. 先停当前页面的录音、上传或生成，再停 Ocho 的回复，Ocho 收起时也能停；角色编辑器可以按 Esc 关闭。
+- 播放页按 A 一键对齐会先确认再覆盖已有的歌词时间，没装对齐模型时只提示；macOS 和 Windows 桌面端的播放页可以真正全屏。
+- macOS 上输入框可以用 ⇧⌘Z 重做，⌘H、⌥⌘H、⌘W、⌃⌘F 与其他应用一致；Windows 上按 F5、Ctrl+R、Ctrl+P 等浏览器按键不会再刷新或打印界面。按钮提示和新手引导显示的是你设置的按键。
 - 可以把歌曲分享到 yovoice 社区：在播放器或版本菜单里选择“分享到社区”，在浏览器里登录，填写标题、标签（默认带上生成时的短风格标签）和使用许可后上传并提交审核；参考音色不会随歌曲上传。对齐过的歌词会一起分享，社区页按时间滚动显示；还没对齐时弹窗会提醒。设置 › 社区里是你的账号和分享过的作品，可以查看审核状态，也可以删除。
 - 设置 › 常规 › 外观新增 6 套主题：纸白、夜墨、青岸、宣纸、苔绿、深海，其中夜墨和深海是深色。默认“跟随系统”，系统浅色时用纸白，深色时用夜墨；macOS 的标题栏也会跟着换色。
 - 转写编辑：试听一行时可以接着播下一行（“连续播放”，默认打开），并跳过较长的静音；支持 Ctrl+Z / ⌘Z 撤销，Ctrl+Shift+Z、Ctrl+Y 或 ⇧⌘Z 重做；在行尾按 Delete 与下一行合并，macOS 上 Ctrl+H / Ctrl+D 同样可以合并。

@@ -3639,7 +3639,7 @@
     "defaultMessage": "Scarica e gestisci i modelli, configura i servizi IA, riordina le risorse, cambia la lingua e sposta la cartella dati. Al primo avvio, scarica qui un modello."
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "Premi ⌘J (Ctrl+J su Windows) o il pulsante dell’assistente nella barra del titolo e di’ cosa vuoi, ad esempio: «Crea una narrazione e dai una voce a ogni personaggio». Prima configura un servizio IA nelle Impostazioni."
+    "defaultMessage": "Premi {keys} o il pulsante dell’assistente nella barra del titolo e di’ cosa vuoi, ad esempio: «Crea una narrazione e dai una voce a ogni personaggio». Prima configura un servizio IA nelle Impostazioni."
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "Animazione di benvenuto"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "Nascondi avvio"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "Puoi aprirlo dall’angolo in alto a destra o con ⌘J"
+    "defaultMessage": "Puoi aprirlo dall’angolo in alto a destra o con {keys}"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "Apri o chiudi Ocho (⌘J)"
+    "defaultMessage": "Apri o chiudi Ocho ({keys})"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "Sto pensando"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "Torna alla versione {n}"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "Mantiene la posizione di riproduzione; premi B per passare"
+    "defaultMessage": "Mantiene la posizione di riproduzione"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Modelli musicali"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "Rilascio automatico per inattività disattivato"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "Globali"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "Navigazione"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "Finestra e pannelli"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "Azioni comuni"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "Player in basso"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "Player a traccia singola"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "Timeline multitraccia"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "Generazione vocale"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "Modifica e genera"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "Ispettore"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "Versioni"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "Trascrizione"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "Elenco"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "Editor"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "Riproduzione e navigazione"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "Modifica sottotitoli"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "Esportazione e pagine"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "Narrazione di storie"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "Righe"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "Genera"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "Naviga e modifica"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "Voci narranti"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "Opere"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "Generazione musicale"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "Brano"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "Modifica e genera"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "In riproduzione"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "Tempi delle parole"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "Studio tracce"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "Partitura"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "Effetti sonori"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "Libreria suoni"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "Voci"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "Elenco voci"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "Editor personaggio"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "Audio di riferimento"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "Elenco riferimenti"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "Finestra di modifica"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "Selettore voce"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "Pannello assistente"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "Nuovo"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "Vai a Generazione vocale"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "Vai a Trascrizione"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "Vai a Narrazione di storie"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "Vai a Generazione musicale"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "Vai a Libreria suoni"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "Apri impostazioni"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "Indietro"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "Scheda successiva"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "Scheda precedente"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "Apri / chiudi Ocho"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "Mostra / nascondi barra laterale"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "Mostra / nascondi ispettore"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "Panoramica scorciatoie da tastiera"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "Annulla / interrompi"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "Riproduci / pausa (anche durante la digitazione)"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "Riproduci / pausa"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "Indietro di 5 secondi"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "Avanti di 5 secondi"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "Vai all’inizio"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "Vai alla fine"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "Disattiva audio"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "Riproduci / pausa"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "Riproduci selezione"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "Anteprima con margini di 1 s"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "Rigenera la clip selezionata"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "Duplica"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "Dividi"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "Bordo clip precedente"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "Bordo clip successivo"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "Vai all’inizio"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "Vai alla fine"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "Disattiva audio della traccia corrente"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "Solo sulla traccia corrente"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "Attiva / disattiva aggancio"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "Ingrandisci"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "Riduci"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "Adatta allo spazio"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "Zoom sulla selezione"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "Esporta"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "Annulla / ripeti"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "Copia / incolla / seleziona tutto"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "Elimina / elimina e chiudi lo spazio"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "Sposta clip di poco"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "Genera"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "Regola la pronuncia"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "Importa file"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "Scegli personaggio"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "Aggiungi o cambia audio di riferimento"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "Cronologia versioni"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "Esporta questa versione"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "Carica audio o video"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "Registra / interrompi e trascrivi"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "Cerca nelle trascrizioni"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "Riproduci la riga corrente"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "Riga precedente"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "Riga successiva"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "Attiva / disattiva riproduzione continua"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "Trova e sostituisci"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "Risultato successivo"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "Risultato precedente"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "Elimina la riga corrente"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "Annulla"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "Ripeti"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "Dividi la riga al cursore"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "Unisci alla riga precedente"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "Unisci alla riga successiva"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "Elimina indietro / avanti"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "Esporta sottotitoli"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "Pagina precedente"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "Pagina successiva"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "Genera tutte le righe"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "Rigenera la riga corrente"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "Riga precedente"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "Riga successiva"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "Inserisci riga sotto"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "Elimina la riga corrente"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "Pagina precedente"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "Pagina successiva"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "Dividi la riga al cursore"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "Unisci alla riga precedente"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "Unisci alla riga successiva"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "Assegna voce narrante 1–9"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "Apri il menu delle voci narranti"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "Importa manoscritto"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "Genera"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "Apri In riproduzione"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "Voce / strumentale"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "Inserisci tag di sezione"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "Espandi l’editor del testo"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "Canticchia una melodia"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "Apri le tracce"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "Cronologia versioni"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "Esporta questa versione"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "Riproduci / pausa"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "Indietro di 10 secondi"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "Avanti di 10 secondi"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "Passa alla versione precedente"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "Allinea automaticamente"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "Sincronizza riga per riga"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "Modifica i tempi delle parole"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "Schermo intero"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "Cambia stile del testo"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "Esporta LRC"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "Segna la riga successiva durante la sincronizzazione"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "Annulla segno"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "Esci dalla sincronizzazione / chiudi"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "Anticipa la riga di 0,5 s"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "Posticipa la riga di 0,5 s"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "Riproduci questa riga"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "Avvia / ferma la sincronizzazione a tocchi"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "Salva"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "Riga precedente / successiva"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "Sposta la riga di 0,1 s"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "Ancora alla riproduzione"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "Annulla"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "Esci dai tempi delle parole"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "Riproduci / pausa"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "Solo sulla traccia 1–6"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "Disattiva audio della traccia 1–6"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "Indietro di 5 secondi"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "Avanti di 5 secondi"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "Esporta tutte le tracce"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "Genera rendering"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "Importa MIDI"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "Esporta"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "Anteprima delle tracce"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "Traccia precedente"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "Traccia successiva"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "Disattiva / riattiva audio della traccia corrente"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "Cambia strumento"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "Ingrandisci"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "Riduci"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "Adatta allo spazio"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "Genera"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "Cronologia versioni"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "Esporta questa versione"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "Cerca"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "Ascolta la voce selezionata"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "Genera anteprima"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "Salva"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "Salva e applica"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "Chiudi"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "Cerca"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "Ascolta la clip selezionata"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "Salva"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "Registra / interrompi registrazione"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "Importa audio"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "Riduci a icona il pannello"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "Invia"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "A capo"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "Crea un’opera, una voce o una clip di riferimento per la pagina corrente; in Ocho avvia una nuova chat"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "Da una trascrizione torna all’elenco, dalla cronologia torna all’opera"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "Annulla la generazione, interrompe la registrazione o ferma Ocho"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "Tieni premuto Shift per passi più ampi"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "Seleziona prima il testo nello script"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "Premi di nuovo per fermare"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "Con il cursore all’inizio della riga"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "Con il cursore alla fine della riga"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "Con il cursore all’inizio della riga"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "Con il cursore alla fine della riga"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "Nell’ordine dell’elenco delle voci narranti"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "Propone [Verse], [Chorus] e altro"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "Se serve, separa prima le tracce"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "Tieni premuto Shift per 0,02 s"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "Premi di nuovo per annullare"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "Apertura e chiusura si trovano in Globali › Finestra e pannelli"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "Scorciatoie da tastiera"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "Premi {keys} in qualsiasi pagina per vedere le scorciatoie disponibili."
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "Attiva le scorciatoie da tastiera"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "Disattiva tutte le scorciatoie modificabili qui sotto. I tasti di modifica nei campi di testo (dividi, unisci, annulla) e i menu di sistema continuano a funzionare."
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "Importa…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "Esporta…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "Ripristina tutti i valori predefiniti"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "Tutte le scorciatoie e gli interruttori delle aree torneranno ai valori predefiniti."
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "Cerca comandi o tasti"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "Tutte"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "Modificate"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "Non impostate"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "Le scorciatoie sono disattivate. Le tue impostazioni qui sotto vengono conservate e si applicano di nuovo quando le riattivi."
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "Nessuna scorciatoia corrispondente."
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "{count} scorciatoie"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "{count} modificate"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "Disattivato"
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "Attiva le scorciatoie per {area}"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "Non impostata"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "Segue i tasti di modifica standard e non può essere cambiata"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "Solo macOS"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "oppure"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "Cambia scorciatoia per {name}"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "Ripristina predefinita"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "Premi la nuova combinazione di tasti"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc per annullare · Backspace per cancellare"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "Cancella"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys} è usata dal sistema. Prova un’altra combinazione."
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "Le scorciatoie globali richiedono {mods} per funzionare anche durante la digitazione."
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys} è già usata da “{name}”."
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys} è già usata da “{name}”, che non può essere cambiata. Prova un’altra combinazione."
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "Sostituisci"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "Scorciatoie da tastiera"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "In questa pagina non ci sono scorciatoie disponibili."
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "Personalizza scorciatoie"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "Le scorciatoie sono disattivate. Puoi riattivarle nelle Impostazioni."
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "Esporta scorciatoie"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "Solo scorciatoie modificate"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "{count} elementi; le altre scorciatoie mantengono le impostazioni di chi importa."
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "Tutte le scorciatoie"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "{count} elementi, inclusi i valori predefiniti."
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "Includi l’interruttore generale e quelli delle aree"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "Salva file"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "scorciatoie yovoice"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "Importa scorciatoie"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "Scegli il file delle scorciatoie"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "Questo non è un file di scorciatoie esportato da yovoice."
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "Da {platform} · {count} scorciatoie"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "Unisci"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "Modifica solo le scorciatoie presenti nel file e mantiene le altre."
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "Sostituisci"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "Le scorciatoie non presenti nel file tornano ai valori predefiniti."
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "{count} modifiche"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "Non cambierà nulla."
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "Sovrascrive la tua modifica"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "In conflitto con “{name}”; verrà cancellata"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "Torna al predefinito"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "{count} saltate: questi comandi non sono presenti in questa versione o i loro tasti non possono essere usati."
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "Anche l’interruttore generale e quelli delle aree seguiranno il file."
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "Applica"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "Questa scorciatoia usa i tasti numerici: premi i modificatori con una cifra qualsiasi."
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "Ripristina predefinita ({keys})"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "Filtro"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "Puoi aprirlo dall’angolo in alto a destra"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys} è già usato da «{name}» e da altri comandi ({count} in tutto)."
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "Al momento il riepilogo non ha una scorciatoia. Fai clic su Scorciatoie da tastiera per vedere quelle disponibili in questa pagina."
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "Elimina indietro / avanti"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "Il modello di allineamento del testo non è ancora scaricato. Scegli Allinea automaticamente nel menu Strumenti testo per scaricarlo."
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "Riallineare il testo?"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "L’allineamento automatico sostituirà la sincronizzazione attuale del testo di questa versione, comprese le modifiche manuali."
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "Premi il pulsante dell’assistente nella barra del titolo e di’ cosa vuoi, ad esempio: «Crea una narrazione e dai una voce a ogni personaggio». Prima configura un servizio IA nelle Impostazioni."
   }
 }

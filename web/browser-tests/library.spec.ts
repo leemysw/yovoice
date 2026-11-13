@@ -1,7 +1,7 @@
 import { openProjectHistory, saveAsCharacter } from './project-actions';
 import { seedState } from './seed';
 import { test, expect } from '@playwright/test';
-import { emptyState } from '../src/shared/workbench';
+import { emptyState, synthesisSettings } from '../src/shared/workbench';
 
 test('角色退出保存、无修改退出、另存为和应用保留正文', async ({ page }) => {
   await page.goto('/');
@@ -52,6 +52,31 @@ test('角色退出保存、无修改退出、另存为和应用保留正文', as
   await expect(dialog.getByLabel('角色名称')).toBeInViewport();
 });
 
+test('角色编辑器按 Esc 关闭：没有修改直接关闭，有修改先确认；确认框里的 Esc 只关确认框', async ({ page }) => {
+  const state = emptyState();
+  state.characters = [{ id: 'a'.repeat(32), name: '旁白', settings: synthesisSettings(state.drafts[0]), demoText: '试听台词。' }];
+  await seedState(page, state);
+  await page.goto('/');
+  await page.getByTestId('nav-characters').click();
+  const editor = page.getByTestId('character-editor');
+  await page.getByRole('button', { name: '编辑角色', exact: true }).click();
+  await expect(editor).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(editor).toHaveCount(0);
+  await page.getByRole('button', { name: '编辑角色', exact: true }).click();
+  await editor.getByLabel('角色名称').fill('新旁白');
+  await page.keyboard.press('Escape');
+  const confirm = page.getByRole('dialog', { name: '保存角色修改？' });
+  await expect(confirm).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(confirm).toHaveCount(0);
+  await expect(editor).toBeVisible();
+  await page.keyboard.press('Escape');
+  await confirm.getByRole('button', { name: '放弃修改', exact: true }).click();
+  await expect(editor).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '旁白', exact: true })).toBeVisible();
+});
+
 test('从生成记录保存参考音频，删除生成记录后仍保留素材和原文', async ({ page }, testInfo) => {
   const state = emptyState();
   const id = 'a'.repeat(32);
@@ -72,7 +97,7 @@ test('从生成记录保存参考音频，删除生成记录后仍保留素材�
   await page.locator('.recent-projects .project-link').first().click();
   const download = page.waitForEvent('download');
   await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: '导出音频', exact: true }).click();
+  await page.getByRole('menuitem', { name: /^导出音频/ }).click();
   expect(await (await download).failure()).toBeNull();
   await openProjectHistory(page);
   await page.getByRole('button', { name: '音频操作', exact: true }).click();

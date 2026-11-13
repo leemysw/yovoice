@@ -9,6 +9,7 @@ import { BookOpen, LoaderCircle, Settings2, UsersRound } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
 import { call, CallError } from '../../shared/lib/client';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 import { formatCallError } from '../../shared/i18n/format';
 import { aiServiceHidden, createDraft, formatTime, type Draft, type State } from '../../shared/workbench';
 import { Player } from '../media/player';
@@ -24,9 +25,10 @@ const unknownKey = '@unknown';
 /**
  * 导入小说 / 有声书：选章节 → 分角色与选角 → 每章生成一个故事作品。
  * 规则识别离线完成；配置了 AI 服务时可让 AI 补全说话人和角色特征，并按特征从我的声音选角。
+ * active：故事列表页当前可见（页面常驻挂载、切走只隐藏），为 true 时导入书稿的快捷键才响应。
  */
-export function BookImport({ state, modelId, configureAI, create, onError }: {
-  state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[], saved: Set<string>) => Promise<void>; onError: (error: string) => void;
+export function BookImport({ state, modelId, configureAI, create, onError, active = false }: {
+  state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[], saved: Set<string>) => Promise<void>; onError: (error: string) => void; active?: boolean;
 }) {
   const t = useTranslator();
   const input = useRef<HTMLInputElement>(null);
@@ -38,8 +40,10 @@ export function BookImport({ state, modelId, configureAI, create, onError }: {
     catch (error) { onError(formatCallError(t, error)); }
     finally { setLoading(false); }
   }
+  useHotkey('story.importBook', () => input.current?.click(), { enabled: active && !loading && !book });
+  const keys = useHotkeyText('story.importBook'), aria = useHotkeyAria('story.importBook');
   return <>
-    <Button size="sm" variant="secondary" icon={<BookOpen />} label={t('@yovoice.book.import')} isLoading={loading} onClick={() => input.current?.click()} />
+    <Button size="sm" variant="secondary" icon={<BookOpen />} label={t('@yovoice.book.import')} tooltip={withHotkey(t('@yovoice.book.import'), keys, undefined)} aria-keyshortcuts={aria} isLoading={loading} onClick={() => input.current?.click()} />
     <input ref={input} hidden type="file" accept={manuscriptAccept} aria-label={t('@yovoice.book.file')} onChange={event => {
       const file = event.target.files?.[0]; event.target.value = '';
       if (file) void open(file);

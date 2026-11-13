@@ -3639,7 +3639,7 @@
     "defaultMessage": "모델 다운로드와 관리, AI 서비스 설정, 리소스 정리, 인터페이스 언어 변경, 데이터 폴더 이동을 합니다. 처음이라면 여기서 모델을 하나 내려받으세요."
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "⌘J(Windows에서는 Ctrl+J)를 누르거나 제목 표시줄의 어시스턴트 버튼을 눌러 원하는 작업을 말해 보세요. 예: “스토리 내레이션을 만들고 캐릭터마다 목소리를 정해 줘”. 먼저 설정에서 AI 서비스를 추가해야 합니다."
+    "defaultMessage": "{keys} 키를 누르거나 제목 표시줄의 어시스턴트 버튼을 눌러 원하는 작업을 말해 보세요. 예: “스토리 내레이션을 만들고 캐릭터마다 목소리를 정해 줘”. 먼저 설정에서 AI 서비스를 추가해야 합니다."
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "시작 애니메이션"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "실행 버튼 숨기기"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "오른쪽 위 또는 ⌘J로 열 수 있어요"
+    "defaultMessage": "오른쪽 위 또는 {keys}로 열 수 있어요"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "Ocho 열기/닫기 (⌘J)"
+    "defaultMessage": "Ocho 열기/닫기 ({keys})"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "생각하는 중"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "버전 {n}(으)로"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "재생 위치를 유지한 채 전환 (B 키로도 가능)"
+    "defaultMessage": "재생 위치를 유지한 채 전환"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "음악 모델"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "유휴 시 자동 해제 꺼짐"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "전역"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "탐색"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "창 및 패널"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "공통 작업"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "하단 플레이어"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "단일 트랙 플레이어"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "멀티트랙 타임라인"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "음성 생성"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "편집 및 생성"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "인스펙터"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "버전"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "받아쓰기"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "목록"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "편집기"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "재생 및 이동"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "자막 편집"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "내보내기 및 페이지"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "스토리 내레이션"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "대사"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "생성"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "이동 및 편집"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "화자"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "작품"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "음악 생성"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "노래"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "편집 및 생성"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "지금 재생 중"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "단어 타이밍"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "스템 스튜디오"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "악보"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "효과음"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "사운드 라이브러리"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "캐릭터"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "캐릭터 목록"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "캐릭터 편집기"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "참조 오디오"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "참조 목록"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "편집 대화상자"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "음성 선택기"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "어시스턴트 패널"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "새로 만들기"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "음성 생성으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "받아쓰기로 이동"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "스토리 내레이션으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "음악 생성으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "사운드 라이브러리로 이동"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "설정 열기"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "뒤로 가기"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "다음 탭"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "이전 탭"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "Ocho 열기 / 닫기"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "사이드바 전환"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "인스펙터 전환"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "단축키 개요"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "취소 / 중지"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "재생 / 일시정지 (입력 중에도 작동)"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "재생 / 일시정지"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "5초 뒤로"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "5초 앞으로"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "처음으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "끝으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "음소거"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "재생 / 일시정지"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "선택 영역 재생"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "앞뒤 1초 여유를 두고 미리 듣기"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "선택한 클립 다시 생성"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "복제"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "분할"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "이전 클립 경계"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "다음 클립 경계"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "처음으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "끝으로 이동"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "현재 트랙 음소거"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "현재 트랙 솔로"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "스냅 전환"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "확대"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "축소"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "화면에 맞추기"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "선택 영역에 맞추기"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "내보내기"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "실행 취소 / 다시 실행"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "복사 / 붙여넣기 / 모두 선택"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "삭제 / 리플 삭제"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "클립 미세 이동"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "생성"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "발음 조정"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "파일 가져오기"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "캐릭터 선택"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "참조 오디오 추가 또는 변경"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "버전 기록"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "이 버전 내보내기"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "오디오 또는 비디오 업로드"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "녹음 / 중지 후 받아쓰기"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "받아쓰기 기록 검색"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "현재 줄 재생"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "이전 줄"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "다음 줄"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "연속 재생 전환"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "찾기 및 바꾸기"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "다음 일치 항목"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "이전 일치 항목"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "현재 줄 삭제"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "실행 취소"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "다시 실행"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "커서 위치에서 줄 나누기"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "이전 줄과 병합"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "다음 줄과 병합"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "앞 / 뒤 삭제"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "자막 내보내기"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "이전 페이지"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "다음 페이지"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "모든 대사 생성"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "현재 대사 다시 생성"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "이전 줄"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "다음 줄"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "아래에 줄 삽입"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "현재 줄 삭제"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "이전 페이지"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "다음 페이지"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "커서 위치에서 줄 나누기"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "이전 줄과 병합"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "다음 줄과 병합"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "화자 1–9 지정"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "화자 메뉴 열기"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "원고 가져오기"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "생성"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "지금 재생 중 열기"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "보컬 / 연주곡"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "구간 태그 삽입"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "가사 편집기 확장"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "멜로디 흥얼거리기"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "스템 열기"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "버전 기록"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "이 버전 내보내기"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "재생 / 일시정지"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "10초 뒤로"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "10초 앞으로"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "이전 버전과 전환"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "자동 정렬"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "줄별 싱크"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "단어 타이밍 편집"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "전체 화면"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "가사 스타일 변경"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "LRC 내보내기"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "싱크 중 다음 줄 표시"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "표시 취소"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "싱크 종료 / 닫기"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "줄을 0.5초 앞당기기"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "줄을 0.5초 늦추기"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "이 줄 재생"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "탭 타이밍 시작 / 중지"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "저장"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "이전 / 다음 줄"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "줄을 0.1초 이동"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "재생 헤드에 맞추기"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "실행 취소"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "단어 타이밍 종료"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "재생 / 일시정지"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "트랙 1–6 솔로"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "트랙 1–6 음소거"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "5초 뒤로"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "5초 앞으로"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "모든 스템 내보내기"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "렌더링"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "MIDI 가져오기"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "내보내기"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "스템 미리 듣기"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "이전 트랙"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "다음 트랙"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "현재 트랙 음소거 / 해제"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "악기 변경"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "확대"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "축소"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "화면에 맞추기"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "생성"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "버전 기록"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "이 버전 내보내기"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "검색"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "선택한 캐릭터 미리 듣기"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "미리 듣기 생성"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "저장"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "저장 후 적용"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "닫기"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "검색"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "선택한 클립 미리 듣기"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "저장"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "녹음 / 녹음 중지"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "오디오 가져오기"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "패널 최소화"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "보내기"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "줄바꿈"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "현재 페이지에 맞는 작품, 캐릭터 또는 참조 클립을 만들고, Ocho에서는 새 대화를 시작합니다"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "받아쓰기 기록에서 목록으로, 기록에서 작품으로 돌아갑니다"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "생성을 취소하고, 녹음을 중지하거나 Ocho를 멈춥니다"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "Shift를 누르면 더 크게 이동합니다"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "먼저 스크립트에서 텍스트를 선택하세요"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "다시 누르면 중지됩니다"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "커서가 줄 맨 앞에 있을 때"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "커서가 줄 맨 끝에 있을 때"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "커서가 줄 맨 앞에 있을 때"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "커서가 줄 맨 끝에 있을 때"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "화자 목록 순서대로"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "[Verse], [Chorus] 등을 제안합니다"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "필요하면 먼저 스템을 분리합니다"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "Shift를 누르면 0.02초"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "다시 누르면 해제됩니다"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "열기와 닫기는 전역 › 창 및 패널에 있습니다"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "단축키"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "아무 페이지에서나 {keys}을(를) 누르면 해당 페이지에서 사용할 수 있는 단축키를 볼 수 있습니다."
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "단축키 사용"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "아래의 변경 가능한 모든 단축키를 끕니다. 텍스트 입력란의 편집 키(나누기, 병합, 실행 취소)와 시스템 메뉴는 계속 작동합니다."
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "가져오기…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "내보내기…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "모두 기본값으로 복원"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "모든 단축키와 영역 스위치가 기본값으로 돌아갑니다."
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "명령 또는 키 검색"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "전체"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "변경됨"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "설정 안 됨"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "단축키가 꺼져 있습니다. 아래 설정은 유지되며 다시 켜면 다시 적용됩니다."
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "일치하는 단축키가 없습니다."
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "단축키 {count}개"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "{count}개 변경됨"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "끔"
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "{area} 단축키 사용"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "설정 안 됨"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "표준 편집 키를 따르며 변경할 수 없습니다"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "macOS 전용"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "또는"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "{name} 단축키 변경"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "기본값 복원"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "새 키 조합을 누르세요"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc로 취소 · Backspace로 지우기"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "지우기"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys}은(는) 시스템에서 사용 중입니다. 다른 조합을 시도하세요."
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "전역 단축키는 입력 중에도 작동하도록 {mods}이(가) 필요합니다."
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys}은(는) 이미 “{name}”에 사용 중입니다."
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys}은(는) 변경할 수 없는 “{name}”에 이미 사용 중입니다. 다른 조합을 시도하세요."
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "바꾸기"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "단축키"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "이 페이지에서 사용할 수 있는 단축키가 없습니다."
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "단축키 사용자 지정"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "단축키가 꺼져 있습니다. 설정에서 다시 켤 수 있습니다."
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "단축키 내보내기"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "변경한 단축키만"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "{count}개 항목이며, 나머지 단축키는 가져오는 쪽의 설정을 유지합니다."
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "모든 단축키"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "기본값을 포함해 {count}개 항목입니다."
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "메인 스위치와 영역 스위치 포함"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "파일 저장"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "yovoice 단축키"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "단축키 가져오기"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "단축키 파일 선택"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "yovoice에서 내보낸 단축키 파일이 아닙니다."
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "{platform}에서 · 단축키 {count}개"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "병합"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "파일에 있는 단축키만 변경하고 나머지는 유지합니다."
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "바꾸기"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "파일에 없는 단축키는 기본값으로 돌아갑니다."
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "{count}개 변경"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "변경되는 항목이 없습니다."
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "내가 변경한 내용을 덮어씁니다"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "“{name}”과(와) 충돌하여 지워집니다"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "기본값으로"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "{count}개 건너뜀: 이 버전에 없는 명령이거나 해당 키를 사용할 수 없습니다."
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "메인 스위치와 영역 스위치도 파일을 따릅니다."
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "적용"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "이 단축키는 숫자 키를 사용합니다. 보조 키와 아무 숫자를 함께 누르세요."
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "기본값 복원 ({keys})"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "필터"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "오른쪽 위에서 열 수 있어요"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys}은(는) “{name}” 등 {count}개 명령에서 사용 중입니다."
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "지금은 빠른 참조에 단축키가 없습니다. “키보드 단축키”를 클릭하면 현재 페이지에서 쓸 수 있는 단축키를 볼 수 있습니다."
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "앞 / 뒤 삭제"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "가사 정렬 모델을 아직 내려받지 않았습니다. “가사 도구” 메뉴에서 “자동 정렬”을 선택하면 내려받을 수 있습니다."
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "가사를 다시 정렬할까요?"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "자동 정렬은 이 버전의 기존 가사 타이밍과 글자별 타이밍을 바꿉니다. 직접 조정한 부분도 포함됩니다."
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "제목 표시줄의 어시스턴트 버튼을 눌러 원하는 작업을 말해 보세요. 예: “스토리 내레이션을 만들고 캐릭터마다 목소리를 정해 줘”. 먼저 설정에서 AI 서비스를 추가해야 합니다."
   }
 }

@@ -12,6 +12,7 @@ import { Player } from './player';
 import { VoiceExcerptEditor, type ExcerptRange } from './voice-excerpt';
 import { micError, RecordingMeter, useRecorder } from './recorder';
 import { formatTime, type Track, type Voice } from '../../shared/workbench';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
 // 参考音频的最长时长（秒），与本地服务一致。
 const maxReference = 60;
@@ -86,6 +87,15 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
     } catch (e) { setError(micError(t, e)); }
     finally { setBusy(false); }
   }
+  // 选择器是对话框：快捷键只在焦点位于这个对话框里时响应，被别的对话框（如速查浮层）盖住时不响应。
+  // 录音键：没在录音时打开录音表单并开始录，录音中则停止；取消键在录音中也停止。
+  const dialog = useRef<HTMLDialogElement>(null);
+  const openRecording = () => { setShowRecording(true); setCrop(null); setPreview(null); void record(); };
+  useHotkey('picker.record', () => { if (recording) recorder.stop(); else openRecording(); }, { enabled: recording || !busy, within: dialog });
+  useHotkey('picker.import', () => input.current?.click(), { enabled: !busy && !recording, within: dialog });
+  useHotkey('global.cancel', () => recorder.stop(), { enabled: recording, within: dialog });
+  const recordKeys = useHotkeyText('picker.record'), recordAria = useHotkeyAria('picker.record');
+  const importKeys = useHotkeyText('picker.import'), importAria = useHotkeyAria('picker.import');
   async function suggest() {
     if (crop?.suggestion) { setRange(crop.suggestion); return; }
     if (!crop?.voice) return;
@@ -104,23 +114,23 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
       choose(voice);
     } catch (e) { setError(formatCallError(t, e)); } finally { setBusy(false); }
   }
-  return <AppDialog title={t(adding ? '@yovoice.voice.addTitle' : '@yovoice.voice.pickTitle')}
+  return <AppDialog dialogRef={dialog} title={t(adding ? '@yovoice.voice.addTitle' : '@yovoice.voice.pickTitle')}
     width={adding ? 400 : 560} busy={busy} error={error} onClose={() => { cancelRecording(); onClose(); }} closeLabel={t(adding ? '@yovoice.voice.closeAdd' : '@yovoice.voice.closePick')}
     actions={!adding && !showRecording && !crop ? <Button label={t('@yovoice.voice.confirmSelection')} variant="primary" isDisabled={!selected || busy || recording} onClick={() => { if (selected) onSelect(selected); }} /> : undefined}>
-      {!showRecording ? <HStack gap={2} wrap="wrap"><Button label={t('@yovoice.voice.import')} size="sm" icon={<Upload size={16} />} isLoading={busy} isDisabled={recording} onClick={() => input.current?.click()} /><Button label={t('@yovoice.voice.record')} size="sm" variant="secondary" icon={<Mic size={16} />} isDisabled={busy || recording} aria-expanded={showRecording} onClick={() => { setShowRecording(value => !value); setCrop(null); setPreview(null); }} /></HStack> : null}
+      {!showRecording ? <HStack gap={2} wrap="wrap"><Button label={t('@yovoice.voice.import')} tooltip={withHotkey(t('@yovoice.voice.import'), importKeys)} aria-keyshortcuts={importAria} size="sm" icon={<Upload size={16} />} isLoading={busy} isDisabled={recording} onClick={() => input.current?.click()} /><Button label={t('@yovoice.voice.record')} tooltip={withHotkey(t('@yovoice.voice.record'), recordKeys)} aria-keyshortcuts={recordAria} size="sm" variant="secondary" icon={<Mic size={16} />} isDisabled={busy || recording} aria-expanded={showRecording} onClick={() => { setShowRecording(value => !value); setCrop(null); setPreview(null); }} /></HStack> : null}
       <input type="file" hidden ref={input} accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={e => { const file = e.target.files?.[0]; if (file) void importing(file); e.target.value = ''; }} />
       {showRecording ? <VStack className="recording-form" gap={4}>
         <HStack className="recording-name" gap={3} vAlign="center"><label htmlFor={nameId}>{t('@yovoice.voice.recordName')}</label><TextInput id={nameId} label={t('@yovoice.voice.recordName')} isLabelHidden value={name} onChange={setName} /></HStack>
         {stream ? <RecordingMeter stream={stream} limit={maxReference} /> : null}
         {recorded ? <>
           <RecordingPlayback url={recordingURL} levels={waveform} onError={() => setError(t('@yovoice.error.audioPlayFailed'))} />
-          <HStack gap={2} hAlign="end"><Button label={t('@yovoice.voice.rerecord')} isDisabled={busy} onClick={() => void record()} /><Button label={t('@yovoice.voice.saveRecording')} variant="primary" isDisabled={!name.trim()} isLoading={busy} onClick={async () => {
+          <HStack gap={2} hAlign="end"><Button label={t('@yovoice.voice.rerecord')} tooltip={withHotkey(t('@yovoice.voice.rerecord'), recordKeys)} aria-keyshortcuts={recordAria} isDisabled={busy} onClick={() => void record()} /><Button label={t('@yovoice.voice.saveRecording')} variant="primary" isDisabled={!name.trim()} isLoading={busy} onClick={async () => {
             setBusy(true); setError('');
             try { const voice = await call<Voice>('voice.record', { name, base64: await toBase64(recorded) }); setRecorded(null); setShowRecording(false); choose(voice); }
             catch (error) { setError(formatCallError(t, error)); }
             finally { setBusy(false); }
           }} /></HStack>
-        </> : <Button label={recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord')} icon={recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} />}
+        </> : <Button label={recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord')} tooltip={withHotkey(recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord'), recordKeys)} aria-keyshortcuts={recordAria} icon={recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} />}
       </VStack> : null}
       {!adding && !showRecording && !crop && voices.length ? <TextInput label={t('@yovoice.library.searchVoices')} isLabelHidden placeholder={t('@yovoice.library.searchVoices')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear /> : null}
       {!adding && !showRecording && !crop ? <VStack className="voice-list" gap={0}>{voices.length ? voices.filter(v => v.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(voice => <HStack key={voice.id} className="voice-row" data-selected={selected?.id === voice.id} gap={3} vAlign="center">

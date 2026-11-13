@@ -3639,7 +3639,7 @@
     "defaultMessage": "Tải và quản lý mô hình, thiết lập dịch vụ AI, dọn dẹp tài nguyên, đổi ngôn ngữ giao diện và di chuyển thư mục dữ liệu. Lần đầu sử dụng, hãy tải một mô hình tại đây."
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "Nhấn ⌘J (Ctrl+J trên Windows) hoặc nút trợ lý trên thanh tiêu đề rồi nói điều bạn muốn, ví dụ: “Tạo một dự án kể chuyện và chọn giọng cho từng nhân vật”. Trước tiên hãy thêm dịch vụ AI trong Cài đặt."
+    "defaultMessage": "Nhấn {keys} hoặc nút trợ lý trên thanh tiêu đề rồi nói điều bạn muốn, ví dụ: “Tạo một dự án kể chuyện và chọn giọng cho từng nhân vật”. Trước tiên hãy thêm dịch vụ AI trong Cài đặt."
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "Hoạt ảnh mở đầu"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "Ẩn lối vào"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "Vẫn mở được ở góc trên bên phải hoặc ⌘J"
+    "defaultMessage": "Vẫn mở được ở góc trên bên phải hoặc {keys}"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "Mở hoặc đóng Ocho (⌘J)"
+    "defaultMessage": "Mở hoặc đóng Ocho ({keys})"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "Đang suy nghĩ"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "Quay lại phiên bản {n}"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "Giữ nguyên vị trí phát; nhấn B để chuyển"
+    "defaultMessage": "Giữ nguyên vị trí phát"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Mô hình âm nhạc"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "Đã tắt tự giải phóng khi không hoạt động"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "Chung"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "Điều hướng"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "Cửa sổ và bảng"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "Thao tác chung"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "Trình phát phía dưới"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "Trình phát một track"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "Dòng thời gian nhiều track"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "Tạo giọng nói"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "Chỉnh sửa và tạo"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "Bảng thông tin"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "Phiên bản"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "Chép lời"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "Danh sách"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "Trình chỉnh sửa"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "Phát và định vị"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "Chỉnh sửa phụ đề"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "Xuất và chuyển trang"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "Kể chuyện"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "Lời thoại"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "Tạo"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "Di chuyển và chỉnh sửa"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "Người nói"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "Tác phẩm"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "Tạo nhạc"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "Bài hát"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "Chỉnh sửa và tạo"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "Đang phát"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "Thời gian từng từ"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "Xưởng bè"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "Phối khí"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "Hiệu ứng âm thanh"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "Thư viện âm thanh"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "Giọng nói"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "Danh sách giọng nói"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "Trình chỉnh sửa nhân vật"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "Âm thanh tham chiếu"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "Danh sách âm thanh tham chiếu"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "Hộp thoại chỉnh sửa"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "Bộ chọn giọng nói"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "Bảng trợ lý"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "Mới"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "Chuyển đến Tạo giọng nói"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "Chuyển đến Chép lời"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "Chuyển đến Kể chuyện"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "Chuyển đến Tạo nhạc"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "Chuyển đến Thư viện âm thanh"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "Mở cài đặt"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "Quay lại"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "Thẻ tiếp theo"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "Thẻ trước"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "Mở / đóng Ocho"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "Ẩn / hiện thanh bên"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "Ẩn / hiện bảng thông tin"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "Tổng quan phím tắt"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "Hủy / dừng"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "Phát / tạm dừng (dùng được cả khi đang nhập)"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "Phát / tạm dừng"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "Lùi 5 giây"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "Tua tới 5 giây"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "Về đầu"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "Đến cuối"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "Tắt tiếng"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "Phát / tạm dừng"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "Phát vùng chọn"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "Nghe thử cộng thêm 1 giây hai đầu"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "Tạo lại đoạn đã chọn"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "Nhân bản"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "Cắt"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "Mép đoạn trước"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "Mép đoạn sau"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "Về đầu"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "Đến cuối"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "Tắt tiếng track hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "Solo track hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "Bật / tắt bắt dính"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "Phóng to"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "Thu nhỏ"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "Vừa toàn bộ"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "Vừa vùng chọn"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "Xuất"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "Hoàn tác / làm lại"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "Sao chép / dán / chọn tất cả"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "Xóa / xóa và dồn đoạn"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "Nhích đoạn"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "Tạo"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "Chỉnh cách đọc"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "Nhập tệp"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "Chọn nhân vật"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "Thêm hoặc đổi âm thanh tham chiếu"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "Lịch sử phiên bản"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "Xuất phiên bản này"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "Tải lên âm thanh hoặc video"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "Ghi âm / dừng và chép lời"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "Tìm bản chép lời"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "Phát dòng hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "Dòng trước"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "Dòng sau"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "Bật / tắt phát liên tục"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "Tìm và thay thế"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "Kết quả tiếp theo"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "Kết quả trước"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "Xóa dòng hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "Hoàn tác"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "Làm lại"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "Tách dòng tại con trỏ"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "Gộp với dòng trước"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "Gộp với dòng sau"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "Xóa lùi / xóa tiến"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "Xuất phụ đề"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "Trang trước"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "Trang sau"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "Tạo tất cả lời thoại"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "Tạo lại lời thoại hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "Lời thoại trước"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "Lời thoại sau"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "Chèn lời thoại bên dưới"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "Xóa lời thoại hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "Trang trước"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "Trang sau"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "Tách lời thoại tại con trỏ"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "Gộp với lời thoại trước"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "Gộp với lời thoại sau"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "Gán người nói 1–9"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "Mở menu người nói"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "Nhập bản thảo"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "Tạo"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "Mở Đang phát"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "Có lời / không lời"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "Chèn thẻ đoạn"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "Phóng to trình soạn lời"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "Ngân nga một giai điệu"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "Mở các bè"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "Lịch sử phiên bản"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "Xuất phiên bản này"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "Phát / tạm dừng"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "Lùi 10 giây"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "Tua tới 10 giây"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "Đổi qua lại với phiên bản trước"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "Tự động căn chỉnh"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "Đồng bộ từng dòng"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "Chỉnh thời gian từng từ"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "Toàn màn hình"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "Đổi kiểu lời bài hát"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "Xuất LRC"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "Đánh dấu dòng tiếp theo khi đồng bộ"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "Hoàn tác đánh dấu"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "Thoát đồng bộ / đóng"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "Dời cả dòng sớm 0,5 giây"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "Dời cả dòng muộn 0,5 giây"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "Phát dòng này"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "Bắt đầu / dừng gõ nhịp theo bài hát"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "Lưu"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "Dòng trước / dòng sau"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "Dời cả dòng 0,1 giây"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "Neo vào vị trí phát"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "Hoàn tác"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "Thoát chỉnh từng từ"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "Phát / tạm dừng"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "Solo bè 1–6"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "Tắt tiếng bè 1–6"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "Lùi 5 giây"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "Tua tới 5 giây"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "Xuất tất cả bè"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "Kết xuất"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "Nhập MIDI"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "Xuất"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "Nghe thử các bè"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "Track trước"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "Track sau"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "Tắt / bật tiếng track hiện tại"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "Đổi nhạc cụ"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "Phóng to"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "Thu nhỏ"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "Vừa toàn bộ"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "Tạo"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "Lịch sử phiên bản"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "Xuất phiên bản này"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "Tìm kiếm"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "Nghe thử giọng đã chọn"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "Tạo bản nghe thử"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "Lưu"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "Lưu và áp dụng"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "Đóng"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "Tìm kiếm"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "Nghe thử mục đã chọn"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "Lưu"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "Ghi âm / dừng ghi âm"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "Nhập âm thanh"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "Thu nhỏ bảng"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "Gửi"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "Xuống dòng"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "Tạo tác phẩm, giọng nói hoặc âm thanh tham chiếu cho trang hiện tại; trong Ocho thì bắt đầu cuộc trò chuyện mới"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "Từ bản chép lời về danh sách, hoặc từ lịch sử về tác phẩm"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "Hủy việc tạo, dừng ghi âm hoặc dừng Ocho"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "Giữ Shift để nhích bước lớn hơn"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "Hãy chọn đoạn văn bản trong kịch bản trước"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "Nhấn lần nữa để dừng"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "Khi con trỏ ở đầu dòng"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "Khi con trỏ ở cuối dòng"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "Khi con trỏ ở đầu dòng"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "Khi con trỏ ở cuối dòng"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "Theo thứ tự trong danh sách người nói"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "Hiện [Verse], [Chorus] và các thẻ khác"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "Nếu chưa tách thì tách các bè trước"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "Giữ Shift để dời 0,02 giây"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "Nhấn lần nữa để hủy"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "Mở và đóng nằm ở Chung › Cửa sổ và bảng"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "Phím tắt"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "Nhấn {keys} ở bất kỳ trang nào để xem các phím tắt dùng được tại đó."
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "Bật phím tắt"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "Tắt mọi phím tắt có thể thay đổi bên dưới. Phím chỉnh sửa trong ô nhập (tách, gộp, hoàn tác) và menu hệ thống vẫn hoạt động."
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "Nhập…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "Xuất…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "Khôi phục tất cả mặc định"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "Tất cả phím tắt và công tắc khu vực sẽ trở về mặc định."
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "Tìm lệnh hoặc phím"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "Tất cả"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "Đã sửa"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "Chưa đặt"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "Phím tắt đang tắt. Các thiết lập bên dưới được giữ lại và có hiệu lực trở lại khi bạn bật lên."
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "Không tìm thấy phím tắt phù hợp."
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "{count} phím tắt"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "Đã sửa {count}"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "Tắt"
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "Bật phím tắt cho {area}"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "Chưa đặt"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "Theo phím chỉnh sửa chuẩn và không thể thay đổi"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "Chỉ macOS"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "hoặc"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "Đổi phím tắt của {name}"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "Khôi phục mặc định"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "Nhấn tổ hợp phím mới"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc để hủy · ⌫ để xóa"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "Xóa"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys} đã được hệ thống sử dụng. Hãy thử tổ hợp khác."
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "Phím tắt chung cần có {mods} để cũng dùng được khi đang nhập."
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys} đã được dùng cho “{name}”."
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys} đã được dùng cho “{name}” và không thể thay đổi. Hãy thử tổ hợp khác."
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "Thay thế"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "Phím tắt"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "Trang này không có phím tắt nào."
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "Tùy chỉnh phím tắt"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "Phím tắt đang tắt. Bạn có thể bật lại trong Cài đặt."
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "Xuất phím tắt"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "Chỉ phím tắt đã đổi"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "{count} mục; các phím tắt khác giữ nguyên thiết lập của người nhập."
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "Tất cả phím tắt"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "{count} mục, gồm cả giá trị mặc định."
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "Gồm công tắc chính và công tắc khu vực"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "Lưu tệp"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "Phím tắt yovoice"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "Nhập phím tắt"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "Chọn tệp phím tắt"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "Đây không phải tệp phím tắt xuất từ yovoice."
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "Từ {platform} · {count} phím tắt"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "Gộp"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "Chỉ đổi các phím tắt có trong tệp và giữ nguyên phần còn lại."
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "Thay thế"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "Các phím tắt không có trong tệp sẽ trở về mặc định."
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "{count} thay đổi"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "Sẽ không có gì thay đổi."
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "Ghi đè thay đổi của bạn"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "Xung đột với “{name}”; sẽ bị xóa"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "Về mặc định"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "Bỏ qua {count}: các lệnh này không có trong phiên bản này hoặc không dùng được phím."
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "Công tắc chính và công tắc khu vực cũng sẽ theo tệp."
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "Áp dụng"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "Phím tắt này dùng phím số: nhấn phím bổ trợ cùng một chữ số bất kỳ."
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "Khôi phục mặc định ({keys})"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "Lọc"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "Vẫn mở được ở góc trên bên phải"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys} đã được dùng cho “{name}” và các lệnh khác ({count} lệnh)."
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "Bảng tra cứu hiện chưa có phím tắt. Nhấp Phím tắt để xem các phím tắt dùng được trên trang này."
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "Xóa lùi / xóa tiến"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "Chưa tải mô hình căn chỉnh lời bài hát. Chọn Tự căn chỉnh trong menu Công cụ lời bài hát để tải về."
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "Căn chỉnh lại lời bài hát?"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "Tự căn chỉnh sẽ thay thế thời gian lời bài hát hiện có của phiên bản này, kể cả những chỗ đã chỉnh tay."
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "Nhấn nút trợ lý trên thanh tiêu đề rồi nói điều bạn muốn, ví dụ: “Tạo một dự án kể chuyện và chọn giọng cho từng nhân vật”. Trước tiên hãy thêm dịch vụ AI trong Cài đặt."
   }
 }

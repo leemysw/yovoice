@@ -4,6 +4,7 @@ import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { Captions, Download, Mic, Square, Upload, X } from 'lucide-react';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 import { call, transcribeSpeechFile, type TranscribeSelection } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { overflowTitle } from '../../shared/ui/overflow-title';
@@ -21,9 +22,11 @@ const recordBitrate = 32000;
 
 // 语音转写页：与作品库一样用票根列出保存的转写，上传音频或直接录音生成新的一份；
 // 打开一份转写进入字幕编辑。录音与识别进度在列表上方原地显示，出错在页面里说明，不走全局通知。
-export function TranscribePage({ state, openSettings }: { state: State; openSettings: () => void }) {
+// active 表示转写页当前显示：页面切走后仍保持挂载，快捷键只在显示时响应。
+export function TranscribePage({ state, openSettings, active = false }: { state: State; openSettings: () => void; active?: boolean }) {
   const t = useTranslator();
   const locale = useLocale();
+  const search = useRef<HTMLInputElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const upload = useRef<AbortController | null>(null);
   const pending = useRef<string | null>(null);
@@ -120,18 +123,30 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
   }
   const open = (id: string | null) => { setKnown(null); setOpenId(id); };
 
-  const fileInput = <input ref={input} hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.mkv,.mp4,.mov" aria-label={t('@yovoice.transcribe.upload')}
-    onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void start(file); }} />;
-  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} onBack={() => open(null)} /></>;
-
   // 正在录音或识别时不能再发起；其他任务占用推理时提示稍后。
   const blocked = busy || recorder.recording || uploading || !!selection;
   const blockedTip = busy && !working ? t('@yovoice.transcribe.busy') : undefined;
+  // 列表页的快捷键：上传、开始或停止录音、聚焦搜索框；取消在录音时停止录音（录下的照常转写），上传中中止上传。
+  const listing = active && !opened;
+  const canStart = listing && !needsModel && !blocked;
+  useHotkey('transcribe.upload', () => input.current?.click(), { enabled: canStart });
+  useHotkey('transcribe.record', () => { if (recorder.recording) recorder.stop(); else void record(); }, { enabled: listing && !needsModel && (recorder.recording || !blocked) });
+  useHotkey('transcribe.search', () => { search.current?.focus(); search.current?.select(); }, { enabled: listing && transcripts.length > 0 });
+  useHotkey('global.cancel', () => { if (recorder.recording) recorder.stop(); else upload.current?.abort(); }, { enabled: listing && (recorder.recording || (uploading && !!upload.current)) });
+  const uploadKeys = useHotkeyText('transcribe.upload'), recordKeys = useHotkeyText('transcribe.record'), searchKeys = useHotkeyText('transcribe.search');
+  const uploadAria = useHotkeyAria('transcribe.upload'), recordAria = useHotkeyAria('transcribe.record'), searchAria = useHotkeyAria('transcribe.search');
+
+  const fileInput = <input ref={input} hidden type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.mkv,.mp4,.mov" aria-label={t('@yovoice.transcribe.upload')}
+    onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void start(file); }} />;
+  if (opened) return <>{fileInput}<TranscriptEditor key={opened.id} transcript={opened} active={active} onBack={() => open(null)} /></>;
+
   const sources = (size: 'sm' | 'md') => needsModel
     ? <Button size={size} variant="primary" icon={<Download />} label={t('@yovoice.transcribe.openModels')} onClick={openSettings} />
     : <HStack gap={2} vAlign="center">
-      <Button size={size} variant="secondary" icon={<Mic />} label={t('@yovoice.transcribe.record')} isDisabled={blocked} tooltip={blockedTip} onClick={() => void record()} />
-      <Button size={size} variant="primary" icon={<Upload />} label={t('@yovoice.transcribe.upload')} isLoading={uploading} isDisabled={blocked} tooltip={blockedTip} onClick={() => input.current?.click()} />
+      <Button size={size} variant="secondary" icon={<Mic />} label={t('@yovoice.transcribe.record')} isDisabled={blocked} aria-keyshortcuts={recordAria}
+        tooltip={blockedTip ?? withHotkey(t('@yovoice.transcribe.record'), recordKeys)} onClick={() => void record()} />
+      <Button size={size} variant="primary" icon={<Upload />} label={t('@yovoice.transcribe.upload')} isLoading={uploading} isDisabled={blocked} aria-keyshortcuts={uploadAria}
+        tooltip={blockedTip ?? withHotkey(t('@yovoice.transcribe.upload'), uploadKeys)} onClick={() => input.current?.click()} />
       {uploading && upload.current ? <Button size={size} label={t('@yovoice.action.cancel')} onClick={() => upload.current?.abort()} /> : null}
     </HStack>;
 
@@ -142,7 +157,8 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
     eyebrow={t('@yovoice.transcribe.recording')}
     title={<RecordingMeter stream={recorder.stream} limit={recordLimit} />}
     stubActions={<HStack gap={1}>
-      <Button size="sm" variant="primary" isIconOnly icon={<Square />} label={t('@yovoice.transcribe.stopRecord')} onClick={recorder.stop} />
+      <Button size="sm" variant="primary" isIconOnly icon={<Square />} label={t('@yovoice.transcribe.stopRecord')} aria-keyshortcuts={recordAria}
+        tooltip={withHotkey(t('@yovoice.transcribe.stopRecord'), recordKeys)} onClick={recorder.stop} />
       <Button size="sm" variant="ghost" isIconOnly icon={<X />} label={t('@yovoice.transcribe.discardRecord')} onClick={recorder.cancel} />
     </HStack>} />
   : working ? <Ticket key="task" className="transcribe-task is-working" coverClassName="is-working"
@@ -164,6 +180,7 @@ export function TranscribePage({ state, openSettings }: { state: State; openSett
     {selection ? <AudioTrackDialog key={selection.id} name={selection.name} tracks={selection.tracks} onCancel={cancelSelection} onSelect={track => void selectTrack(track)} /> : null}
     <LibraryPage title={t('@yovoice.transcribe.title')} actions={transcripts.length ? <HStack className="transcribe-actions" gap={3} vAlign="center">{message ? notice : null}{sources('sm')}</HStack> : undefined}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.transcribe.search')} noResults={t('@yovoice.library.noSearchResults')}
+      searchRef={search} searchKeys={searchKeys} searchAria={searchAria}
       hasItems={transcripts.length > 0 || !!task} hasSearch={transcripts.length > 0} hasResults={shown.length > 0 || !!task} layout="tickets"
       empty={<LibraryEmpty
         art={<WaveRing seed="empty-transcript" duration={30}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Captions /></HStack></WaveRing>}

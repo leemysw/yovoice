@@ -10,6 +10,7 @@ import { beatsPerBar, noteCount, scoreBars, scoreDuration, scoreRoles, scoreSeco
 import { gmPrograms } from './score-instruments';
 import { TrackZoom } from '../media/playback-toolbar';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
 // 一个声部的音块：横向是时间（按段落变速换算），纵向是该声部自己的音域，深浅对应力度。
 function ScoreLane({ score, track, zoom }: { score: Score; track: ScoreTrack; zoom: number }) {
@@ -64,9 +65,11 @@ function ScoreLane({ score, track, zoom }: { score: Score; track: ScoreTrack; zo
 // 编曲视图：参照 GarageBand、Logic 的轨道区，上方是段落标尺，每个声部一行——左边窄轨头（色点切换角色，名称、电平、发声一行，音色在下一行），
 // 右边是对齐时间的音块。轨道区可以像底部播放器一样缩放、横向滚动，播放时显示指针并跟随，点标尺跳到对应位置。
 // 只读时（如由旋律谱换算的轨道）轨头只显示名称，改动回到谱面本身。
-export function ScoreArrangement({ score, selected, select, label, updateTrack, playhead, seek, readOnly }: {
+// active 表示轨道区此刻显示着（编辑页常驻挂载、切走只隐藏），只读时不注册快捷键。缩放在显示时就能用；
+// 换轨、静音、换乐器是单键，只在焦点位于轨道区里时响应（点一下轨道即可），以免抢走页面滚动和播放器的按键。
+export function ScoreArrangement({ score, selected, select, label, updateTrack, playhead, seek, readOnly, active = false }: {
   score: Score; selected?: string; select: (id: string) => void; label: string; updateTrack: (id: string, patch: Partial<ScoreTrack>) => void;
-  playhead?: { time: number; playing: boolean }; seek: (time: number) => void; readOnly?: boolean;
+  playhead?: { time: number; playing: boolean }; seek: (time: number) => void; readOnly?: boolean; active?: boolean;
 }) {
   const t = useTranslator();
   const total = Math.max(1, scoreDuration(score));
@@ -149,6 +152,39 @@ export function ScoreArrangement({ score, selected, select, label, updateTrack, 
     element.addEventListener('wheel', wheel, { passive: false });
     return () => element.removeEventListener('wheel', wheel);
   }, []);
+  // 快捷键：缩放与底部播放器的缩放一致（倍数 1–8，适应全部回到 1）；换轨后把选中的轨道滚进视野。
+  const root = useRef<HTMLElement>(null);
+  const keyed = active && !readOnly;
+  const current = score.tracks.findIndex(track => track.id === selected);
+  const step = (delta: number) => {
+    const next = score.tracks[current < 0 ? 0 : Math.max(0, Math.min(score.tracks.length - 1, current + delta))];
+    if (!next) return;
+    select(next.id);
+    requestAnimationFrame(() => root.current?.querySelector('.score-track[aria-current="true"]')?.scrollIntoView({ block: 'nearest' }));
+  };
+  // 换乐器：打开选中轨道的音色选择器（鼓组没有音色可选）。
+  const chooseInstrument = () => {
+    const trigger = root.current?.querySelector<HTMLElement>('.score-track[aria-current="true"] .score-instrument button, .score-track[aria-current="true"] button.score-instrument, .score-track[aria-current="true"] select.native-selector');
+    trigger?.focus();
+    if (trigger instanceof HTMLSelectElement) trigger.showPicker?.(); else trigger?.click();
+  };
+  const selectedTrack = current >= 0 ? score.tracks[current] : undefined;
+  // 焦点进入轨道区时还没选中轨道，就选中第一轨：单键命令总有作用的轨道，M 也不会落到底部播放器的静音上。
+  const selectFirst = () => { if (keyed && !selectedTrack && score.tracks[0]) select(score.tracks[0].id); };
+  useHotkey('score.prevTrack', () => step(-1), { enabled: keyed && score.tracks.length > 0, within: root, repeat: true });
+  useHotkey('score.nextTrack', () => step(1), { enabled: keyed && score.tracks.length > 0, within: root, repeat: true });
+  // 没有选中轨道时也由轨道区接下 M：选中第一轨并切换它的发声。
+  useHotkey('score.mute', () => {
+    const track = selectedTrack ?? score.tracks[0];
+    if (!track) return;
+    if (!selectedTrack) select(track.id);
+    updateTrack(track.id, { mute: !track.mute || undefined });
+  }, { enabled: keyed && score.tracks.length > 0, within: root });
+  useHotkey('score.instrument', chooseInstrument, { enabled: keyed && !!selectedTrack && !selectedTrack.drums, within: root });
+  useHotkey('score.zoomIn', () => setZoom(value => Math.min(8, value * 2)), { enabled: keyed && zoom < 8 });
+  useHotkey('score.zoomOut', () => setZoom(value => Math.max(1, value / 2)), { enabled: keyed && zoom > 1 });
+  useHotkey('score.zoomFit', () => setZoom(1), { enabled: keyed });
+  const muteKeys = useHotkeyText('score.mute'), instrumentAria = useHotkeyAria('score.instrument'), muteAria = useHotkeyAria('score.mute');
   const seekAt = (event: ReactPointerEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     seek(Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * total);
@@ -162,7 +198,7 @@ export function ScoreArrangement({ score, selected, select, label, updateTrack, 
       (scrollerMetrics.clientWidth === 0 || playheadOffset <= scrollLeft + scrollerMetrics.clientWidth - scrollerMetrics.headWidth + 1)
     )
   );
-  return <VStack className="score-arrangement" data-readonly={readOnly || undefined} gap={0} role="group" aria-label={label}>
+  return <VStack ref={root} tabIndex={keyed ? -1 : undefined} className="score-arrangement" data-readonly={readOnly || undefined} gap={0} role="group" aria-label={label} onFocus={selectFirst}>
     <VStack className="score-scroll" ref={scroller} gap={0}>
       <VStack className="score-content" gap={0} style={{ '--score-lane': laneExpr, width: `calc(var(--score-head) + ${laneExpr})` } as CSSProperties}>
         <HStack className="score-ruler-row" gap={0}>
@@ -187,13 +223,14 @@ export function ScoreArrangement({ score, selected, select, label, updateTrack, 
             <b className="score-track-name" onPointerEnter={overflowTitle}>{track.name}</b>
             {/* 音色不占宽度：只显示图标，点开后可搜索选择，当前音色放在提示里。 */}
             {track.drums ? <Drum className="score-drum-kit" role="img" aria-hidden={false} aria-label={t('@yovoice.score.drumKit')}><title>{t('@yovoice.score.drumKit')}</title></Drum>
-              : <Selector label={t('@yovoice.score.instrumentOf', { name: track.name })} isLabelHidden size="sm" variant="ghost" hasSearch className="score-instrument" value={String(track.program)}
+              : <Selector label={t('@yovoice.score.instrumentOf', { name: track.name })} aria-keyshortcuts={track.id === selected ? instrumentAria : undefined} isLabelHidden size="sm" variant="ghost" hasSearch className="score-instrument" value={String(track.program)}
                 options={gmPrograms.map((name, program) => ({ value: String(program), label: name }))} renderValue={option => <Piano size={14} aria-label={option.label} role="img"><title>{option.label}</title></Piano>}
                 onChange={value => updateTrack(track.id, { program: Number(value) })} />}
             {/* 电平只接受 -60 到 -1 dB：0 表示未设置，所以上限是 -1。 */}
             <label className="number-field compact" title={t('@yovoice.score.levelOf', { name: track.name })}><input type="number" aria-label={t('@yovoice.score.levelOf', { name: track.name })} min={-60} max={-1} step={1} value={targetLevel(track)} onChange={event => { const level = Number(event.target.value); if (level >= -60 && level < 0) updateTrack(track.id, { level }); }} /><small aria-hidden="true">dB</small></label>
             <Button size="sm" variant="ghost" isIconOnly className="score-mute" aria-pressed={!track.mute} icon={track.mute ? <VolumeX /> : <Volume2 />}
-              label={t('@yovoice.score.playTrack', { name: track.name })} tooltip={t('@yovoice.score.playTrack', { name: track.name })} onClick={() => updateTrack(track.id, { mute: !track.mute || undefined })} />
+              label={t('@yovoice.score.playTrack', { name: track.name })} tooltip={track.id === selected ? withHotkey(t('@yovoice.score.playTrack', { name: track.name }), muteKeys) : t('@yovoice.score.playTrack', { name: track.name })}
+              aria-keyshortcuts={track.id === selected ? muteAria : undefined} onClick={() => updateTrack(track.id, { mute: !track.mute || undefined })} />
             </>}
           </HStack>
           <ScoreLane score={score} track={track} zoom={zoom} />
@@ -204,9 +241,9 @@ export function ScoreArrangement({ score, selected, select, label, updateTrack, 
   </VStack>;
 }
 
-// 底部轨道区：和下方音轨一样横向贯穿整个工作区（含检查器下方），播放器紧随其下。
-export function ScoreDock({ draft, change, playhead, seek }: {
-  draft: Draft; change: (patch: Partial<Draft>) => void; playhead?: { time: number; playing: boolean }; seek: (time: number) => void;
+// 底部轨道区：和下方音轨一样横向贯穿整个工作区（含检查器下方），播放器紧随其下。active 表示编辑页此刻显示着，快捷键只在这时生效。
+export function ScoreDock({ draft, change, playhead, seek, active }: {
+  draft: Draft; change: (patch: Partial<Draft>) => void; playhead?: { time: number; playing: boolean }; seek: (time: number) => void; active: boolean;
 }) {
   const t = useTranslator();
   const [selected, setSelected] = useState<string>();
@@ -214,5 +251,5 @@ export function ScoreDock({ draft, change, playhead, seek }: {
   const notes = score ? noteCount(score) : 0;
   if (!score || !notes) return null;
   const updateTrack = (id: string, patch: Partial<ScoreTrack>) => change({ score: { ...score, tracks: score.tracks.map(track => track.id === id ? { ...track, ...patch } : track) } });
-  return <ScoreArrangement score={score} selected={selected} select={setSelected} updateTrack={updateTrack} playhead={playhead} seek={seek} label={t('@yovoice.score.rollLabel', { tracks: score.tracks.length, notes })} />;
+  return <ScoreArrangement score={score} selected={selected} select={setSelected} updateTrack={updateTrack} playhead={playhead} seek={seek} active={active} label={t('@yovoice.score.rollLabel', { tracks: score.tracks.length, notes })} />;
 }

@@ -47,7 +47,7 @@ MORE CLI:
 - 浏览器测试较耗时，日常调试优先定向执行相关用例（如 `pnpm --dir web exec playwright test browser-tests/<file>.spec.ts`），提交前再运行 `pnpm --dir web test`。
 - 功能稳定的用例在 `web/playwright.config.ts` 的 `sealed` 列表中封存，`pnpm --dir web test` 和日常 CI 不跑；改到这些功能或发布前运行 `pnpm --dir web run test:all`（CI 每周一全量跑一次）。功能重新频繁改动时移出列表。
 - 不将浏览器预览和交叉编译视为 Windows 实机推理已验证。
-- 公共实现只保留一处，不再各写一份：Go 写文件用 `platform.WriteFileAtomic`；界面偏好读写用 `shared/lib/local-store`；音频解码与峰值用 `shared/lib/sound`，波形用 `features/media/waveform`；`mediaUrl` 的结果用 `releaseMediaUrl` 释放；任务计时用 `useElapsed`。
+- 公共实现只保留一处，不再各写一份：Go 写文件用 `platform.WriteFileAtomic`；界面偏好读写用 `shared/lib/local-store`；音频解码与峰值用 `shared/lib/sound`，波形用 `features/media/waveform`；`mediaUrl` 的结果用 `releaseMediaUrl` 释放；任务计时用 `useElapsed`；快捷键统一走 `shared/hotkeys`：可修改的命令在 `commands.ts` 登记、用 `useHotkey` 注册，组件自己处理的固定按键也从这里取平台修饰键、输入法组字、弹窗与输入框判断、系统撤销重做键和按键显示。
 - 不使用“闪光星星”（Sparkles、Sparkle、WandSparkles 等）图标，按功能选具体的图标；eslint 已禁止从 lucide-react 引入这些图标。
 - 状态库格式变化（建表、改字段、旧数据补齐）只在 `internal/store/migrate.go` 末尾追加升级步骤，已发布的步骤不改；读取代码和界面只认当前格式，不再各自兼容旧数据。外部输入（保存、作品包导入）统一经 `Draft.Normalize` 补齐。
 - AI 署名：AI 写的提交在提交信息末尾单独一行加 `Co-Authored-By: <工具或模型名> <邮箱>`，如 `Co-Authored-By: Claude <noreply@anthropic.com>`、`Co-Authored-By: Codex <noreply@openai.com>`；PR 描述末尾写一行「由 <工具> 生成」。几个 AI 接力或审核改写时，各自在自己的提交上署自己的名，不改别人的提交；人工写的提交不加。

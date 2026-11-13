@@ -143,7 +143,7 @@ test('录音后直接转写：停止录音即上传，新记录自动打开；�
   await expect(pageRoot.getByRole('button', { name: '周会', exact: true })).toBeVisible();
 });
 
-test('字幕行尾按 Delete 与下一行合并；Ctrl+Z 撤销、Ctrl+Shift+Z 与 Ctrl+Y 重做，查找框里不拦截', async ({ page }) => {
+test('字幕行尾按 Delete 与下一行合并；Ctrl+Z / ⌘Z 撤销，Ctrl+Shift+Z、Ctrl+Y / ⇧⌘Z 重做，查找框里不拦截', async ({ page }) => {
   await openTranscribe(page, [recognizer]);
   await upload(page);
   const editor = page.getByTestId('transcript-editor');
@@ -163,19 +163,19 @@ test('字幕行尾按 Delete 与下一行合并；Ctrl+Z 撤销、Ctrl+Shift+Z �
   await expect(first).toBeFocused();
   expect(await first.evaluate((field: HTMLTextAreaElement) => field.selectionStart)).toBe(11);
   // 撤销合并，再撤销删字；重做两种快捷键都能用。
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(rows).toHaveCount(3);
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(first).toHaveValue('浏览器预览不运行识别模型');
   await expect(editor.getByRole('button', { name: '撤销', exact: true })).toBeDisabled();
-  await page.keyboard.press('Control+Shift+z');
+  await page.keyboard.press('ControlOrMeta+Shift+z');
   await expect(first).toHaveValue('览器预览不运行识别模型');
-  await page.keyboard.press('Control+y');
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+Shift+z' : 'Control+y');
   await expect(rows).toHaveCount(2);
   await expect(editor.getByRole('button', { name: '重做', exact: true })).toBeDisabled();
   // 焦点不在输入框时快捷键也生效；查找框里的 Ctrl+Z 留给输入框自己。
   await editor.getByRole('heading', { name: '采访录音', exact: true }).click();
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(rows).toHaveCount(3);
   await editor.getByRole('button', { name: '查找替换', exact: true }).click();
   const find = editor.getByRole('textbox', { name: '查找' });
@@ -236,6 +236,25 @@ test('试听一行：连续播放时播完接着播下一行并跳过长静音�
   await page.getByTestId('nav-transcribe').click();
   await page.getByTestId('transcribe-page').getByRole('button', { name: '访谈', exact: true }).click();
   await expect(editor.getByRole('button', { name: '连续播放', exact: true })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('翻页后上一行 / 下一行留在当前页：没有焦点行时从本页第一行开始，翻页快捷键把光标放到新页第一行', async ({ page }) => {
+  const captions = Array.from({ length: 60 }, (_, i) => ({ start: i * .08, end: i * .08 + .07, text: `第 ${i + 1} 句` }));
+  const editor = await seedTranscript(page, captions);
+  const line = (n: number) => editor.getByRole('textbox', { name: `第 ${n} 行字幕`, exact: true });
+  await expect(line(1)).toBeVisible();
+  // 用按钮翻到第 2 页，焦点不在任何一行里：⌥↓ 落在第 2 页第一行，而不是跳回第 1 页。
+  await editor.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(line(51)).toBeVisible();
+  await page.keyboard.press('Alt+ArrowDown');
+  await expect(line(51)).toBeFocused();
+  await page.keyboard.press('Alt+ArrowDown');
+  await expect(line(52)).toBeFocused();
+  // 翻页快捷键：翻过去后光标在新页第一行。
+  await page.keyboard.press('ControlOrMeta+Shift+BracketLeft');
+  await expect(line(1)).toBeFocused();
+  await page.keyboard.press('ControlOrMeta+Shift+BracketRight');
+  await expect(line(51)).toBeFocused();
 });
 
 test('原文件是视频时显示画面；视频放不了时提示并退回只播原音频', async ({ page }) => {

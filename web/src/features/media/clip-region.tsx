@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack } from '@astryxdesign/core/Layout';
 import type { TranslatorFn } from '@astryxdesign/core/i18n';
@@ -8,11 +8,13 @@ import type { AudioClip, AudioLane, AudioTimeline, Draft, Generation } from '../
 import { Timeline, type AudioSource } from './timeline';
 import type { Waveform } from './waveform';
 import type { TimelineGestures } from './use-timeline-gestures';
+import { claimedByHotkey } from '../../shared/hotkeys/hotkeys';
 
 // 片段与空隙手柄共用的时间线上下文：每个片段只额外收自己的 clip 与所在音轨。翻译函数由编辑器传入，片段多时不必各自订阅。
+// blocked：生成、导出、导入中或有对话框时不接受编辑，方向键微调也不改动片段。
 export type ClipSharedProps = {
   t: TranslatorFn; value: AudioTimeline; history: Generation[]; draft: Draft; audioSources: Map<string, AudioSource>;
-  scale: number; time: number; snap: boolean; selectedIds: string[];
+  scale: number; time: number; snap: boolean; selectedIds: string[]; blocked: boolean;
   peaks: Record<string, number[]>; waves: RefObject<Map<string, Waveform>>; unavailable: Record<string, boolean>;
   selectClip: (clip: AudioClip, event?: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }) => void;
   gestures: TimelineGestures; seek: (time: number) => void; setRange: (range: { start: number; end: number } | undefined) => void; edit: (next: AudioTimeline) => void;
@@ -23,8 +25,15 @@ function ClipWaveform({ clip: c, peaks, wave }: { clip: AudioClip; peaks: number
   return <svg className="clip-waveform" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">{peaks.slice(Math.floor(c.offset / wave.duration * peaks.length), Math.ceil((c.offset + c.duration) / wave.duration * peaks.length)).map((peak, i, values) => <line key={i} x1={i / values.length * 400} x2={i / values.length * 400} y1={20 - peak * 18} y2={20 + peak * 18} />)}</svg>;
 }
 
+// 片段、裁剪手柄与空隙手柄的方向键：只认不带修饰键或只带 ⇧ 的按键（⇧ 步长更大）。
+// 按键是某条快捷键此刻的按键时让给它（例如 ⌥←/⌥→ 跳到片段边界）；带 ⌘/Ctrl、⌥ 的其他组合也不吃掉，交给浏览器与系统。
+function nudgeKey(event: ReactKeyboardEvent, keys: string[]): boolean {
+  if (!keys.includes(event.key) || event.metaKey || event.ctrlKey || event.altKey) return false;
+  return !claimedByHotkey(event.nativeEvent);
+}
+
 // 音轨上的一个片段：主体按下拖动移动（可跨轨、可吸附），两端手柄裁剪，方向键微调。
-export function ClipRegion({ t, clip: c, track, value, history, draft, audioSources, scale, time, snap, selectedIds, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit }: ClipSharedProps & { clip: AudioClip; track: AudioLane }) {
+export function ClipRegion({ t, clip: c, track, value, history, draft, audioSources, scale, time, snap, selectedIds, blocked, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit }: ClipSharedProps & { clip: AudioClip; track: AudioLane }) {
   const { beginGesture, preview, setGuide, suppressClick } = gestures;
   const key = Timeline.sourceKey(c);
   const source = audioSources.get(key);
@@ -49,12 +58,13 @@ export function ClipRegion({ t, clip: c, track, value, history, draft, audioSour
       }}
       onClick={e => { if (suppressClick.current) { suppressClick.current = false; return; } selectClip(c, e); if (e.detail === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey) { seek(c.start); setRange(undefined); } }}
       onKeyDown={e => {
-        if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+        if (!nudgeKey(e, ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'])) return;
         e.preventDefault(); if (!selectedIds.includes(c.id)) selectClip(c);
+        if (blocked) return;
         const lane = value.tracks.indexOf(track);
         const destination = value.tracks[lane + (e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0)];
         const delta = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
-        if (destination) edit(Timeline.moveGroup(value, selectedIds.includes(c.id) ? selectedIds : [c.id], delta * (e.shiftKey ? 0.1 : 0.01), value.tracks.indexOf(destination) - lane, snap && !e.altKey));
+        if (destination) edit(Timeline.moveGroup(value, selectedIds.includes(c.id) ? selectedIds : [c.id], delta * (e.shiftKey ? 0.1 : 0.01), value.tracks.indexOf(destination) - lane, snap));
       }} />
     {(['start', 'end'] as const).map(edge => <Button key={edge} size="sm" variant="ghost" isIconOnly className="multitrack-trim" data-edge={edge}
       label={t(edge === 'start' ? '@yovoice.timeline.trimStart' : '@yovoice.timeline.trimEnd')} role="slider" aria-orientation="horizontal"
@@ -72,15 +82,16 @@ export function ClipRegion({ t, clip: c, track, value, history, draft, audioSour
         }, c.start + (edge === 'end' ? c.duration : 0));
       }}
       onKeyDown={e => {
-        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        if (!nudgeKey(e, ['ArrowLeft', 'ArrowRight'])) return;
         e.preventDefault(); selectClip(c);
-        edit(Timeline.trimEdge(value, c.id, edge, (e.key === 'ArrowLeft' ? -1 : 1) * (e.shiftKey ? 0.1 : 0.01), source?.duration ?? 0, snap && !e.altKey));
+        if (blocked) return;
+        edit(Timeline.trimEdge(value, c.id, edge, (e.key === 'ArrowLeft' ? -1 : 1) * (e.shiftKey ? 0.1 : 0.01), source?.duration ?? 0, snap));
       }} />)}
   </HStack>;
 }
 
 // 片段前的空隙手柄：拖动或方向键调整与前一片段的间距；end 是前一片段的结束时间，gap 是空隙长度。
-export function GapHandle({ t, clip: c, gap, end, track, value, scale, selectClip, gestures, edit }: Pick<ClipSharedProps, 't' | 'value' | 'scale' | 'selectClip' | 'gestures' | 'edit'> & { clip: AudioClip; gap: number; end: number; track: AudioLane }) {
+export function GapHandle({ t, clip: c, gap, end, track, value, scale, blocked, selectClip, gestures, edit }: Pick<ClipSharedProps, 't' | 'value' | 'scale' | 'blocked' | 'selectClip' | 'gestures' | 'edit'> & { clip: AudioClip; gap: number; end: number; track: AudioLane }) {
   const { beginGesture, preview } = gestures;
-  return <Button size="sm" variant="ghost" isIconOnly icon={<GripVertical />} className="timeline-gap" label={`${t('@yovoice.timeline.gap')} ${gap.toFixed(2)}s`} tooltip={`${gap.toFixed(2)}s`} isDisabled={!!track.locked} style={{ left: `${(end + gap / 2) / scale * 100}%` }} onPointerDown={e => { selectClip(c); const pps = e.currentTarget.closest('.multitrack-lane')!.getBoundingClientRect().width / scale; beginGesture(e, dx => preview(Timeline.gap(value, c.id, Math.max(0, gap + dx / pps)))); }} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); edit(Timeline.gap(value, c.id, Math.max(0, gap + (e.key === 'ArrowRight' ? 0.1 : -0.1)))); } }} />;
+  return <Button size="sm" variant="ghost" isIconOnly icon={<GripVertical />} className="timeline-gap" label={`${t('@yovoice.timeline.gap')} ${gap.toFixed(2)}s`} tooltip={`${gap.toFixed(2)}s`} isDisabled={!!track.locked} style={{ left: `${(end + gap / 2) / scale * 100}%` }} onPointerDown={e => { selectClip(c); const pps = e.currentTarget.closest('.multitrack-lane')!.getBoundingClientRect().width / scale; beginGesture(e, dx => preview(Timeline.gap(value, c.id, Math.max(0, gap + dx / pps)))); }} onKeyDown={e => { if (!nudgeKey(e, ['ArrowLeft', 'ArrowRight'])) return; e.preventDefault(); if (!blocked) edit(Timeline.gap(value, c.id, Math.max(0, gap + (e.key === 'ArrowRight' ? 0.1 : -0.1)))); }} />;
 }

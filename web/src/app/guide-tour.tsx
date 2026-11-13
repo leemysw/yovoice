@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
+import { useHotkeyText } from '../shared/hotkeys/hotkeys';
 import type { Feature } from '../shared/workbench';
 
 // 每一步高亮的入口，标题沿用导航文案；目标不在页面上时卡片居中显示。
@@ -35,6 +36,9 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
   const step = steps[index];
   const last = index === steps.length - 1;
   const target = step.target;
+  // 助手一步写出开关 Ocho 的当前按键（跟随快捷键设置）；按键被清除或快捷键关闭时用不提按键的说法。
+  const assistantKeys = useHotkeyText('global.assistant');
+  const body = step.id !== 'assistant' ? t(`@yovoice.guide.${step.id}`) : assistantKeys ? t('@yovoice.guide.assistant', { keys: assistantKeys }) : t('@yovoice.guide.assistantPlain');
 
   // 目标可能随窗口缩放或侧栏拖动改变位置，逐帧跟随；侧栏收起时目标不可见，卡片改为居中。
   useLayoutEffect(() => {
@@ -85,7 +89,7 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
     <VStack ref={card} className={`guide-card ${box ? '' : 'guide-card-center'}`} style={cardStyle} gap={3}>
       <small className="guide-count">{t('@yovoice.guide.count', { current: index + 1, total: steps.length })}</small>
       <h2 id="guide-title">{t(step.title)}</h2>
-      <p id="guide-body">{t(`@yovoice.guide.${step.id}`)}</p>
+      <p id="guide-body">{body}</p>
       <HStack className="guide-actions" hAlign="between" vAlign="center" gap={2}>
         {last ? <StackItem as="span" /> : <Button size="sm" variant="ghost" label={t('@yovoice.guide.skip')} onClick={onClose} />}
         <HStack gap={2}>

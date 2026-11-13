@@ -1,11 +1,18 @@
-import { useEffect, useEffectEvent } from 'react';
 import { liveAudioPlayer, prepareLivePlayback } from '../features/media/live-audio-player';
 import { call } from '../shared/lib/client';
-import { modelEngineReady, projectKind, requiresVoice, runtimeStatus, runtimeUsable, type EngineInfo, type ModelPackage, type State } from '../shared/workbench';
+import { useHotkey } from '../shared/hotkeys/hotkeys';
+import { modelEngineReady, projectKind, requiresVoice, runtimeStatus, runtimeUsable, type Draft, type EngineInfo, type ModelPackage, type State } from '../shared/workbench';
 import type { DraftSession } from './use-draft-session';
 import type { VoicePickerMode } from './workbench-overlays';
+import { kindHidden } from './use-workbench-navigation';
 
-// 生成前的校验与启动：缺参考音频、模型或推理引擎时先引导到对应位置；Ctrl/⌘+Enter 快捷键只在创作页生效。
+/** 作品类型对应的生成命令：快捷键与按钮提示共用。 */
+export function generateCommand(draft: Draft): string {
+  const kind = projectKind(draft);
+  return kind === 'story' ? 'story.generate' : kind === 'music' ? 'music.generate' : kind === 'score' ? 'score.render' : kind === 'sfx' ? 'sfx.generate' : 'create.generate';
+}
+
+// 生成前的校验与启动：缺参考音频、模型或推理引擎时先引导到对应位置；生成快捷键只在编辑页生效。
 export function useGenerate({ state, engine, catalog, draft, page, openSettings, run, persistDraft, setVoicePicker }: Pick<DraftSession, 'draft' | 'persistDraft'> & {
   state: State; engine: EngineInfo; catalog: ModelPackage[]; page: string; openSettings: (modelId?: string, requested?: string) => void; run: (action: () => Promise<unknown>) => void; setVoicePicker: (picker: VoicePickerMode) => void;
 }) {
@@ -36,11 +43,15 @@ export function useGenerate({ state, engine, catalog, draft, page, openSettings,
     }
     start();
   };
-  // Ctrl/⌘+Enter 在创作页生成，对话框或角色编辑器打开时不响应。
-  const generateShortcut = useEffectEvent((event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && page === 'create' && !Array.from(document.querySelectorAll('[role=dialog], [data-character-active=true]')).some(e => e.getClientRects().length > 0)) { event.preventDefault(); generate(); } });
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => generateShortcut(event);
-    window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  // 生成快捷键（默认 ⌘↵ / Ctrl+Enter）按作品类型对应不同的命令，只在编辑页生效；对话框或角色编辑器打开时不响应。
+  // 作品所属的功能（故事配音、音乐生成）在设置里隐藏后，仍停留在它的编辑页也不响应。
+  const command = generateCommand(draft);
+  const editing = page === 'create' && !kindHidden(state.preferences, projectKind(draft));
+  const shortcut = () => { if (!Array.from(document.querySelectorAll('[data-character-active=true]')).some(e => e.getClientRects().length > 0)) generate(); };
+  useHotkey('create.generate', shortcut, { enabled: editing && command === 'create.generate' });
+  useHotkey('story.generate', shortcut, { enabled: editing && command === 'story.generate' });
+  useHotkey('music.generate', shortcut, { enabled: editing && command === 'music.generate' });
+  useHotkey('score.render', shortcut, { enabled: editing && command === 'score.render' });
+  useHotkey('sfx.generate', shortcut, { enabled: editing && command === 'sfx.generate' });
   return generate;
 }

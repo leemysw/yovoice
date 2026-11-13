@@ -16,6 +16,8 @@ import { MelodyStaff } from './melody-staff';
 import { useMelodyPreview } from './melody-preview';
 import { useHumRecorder } from './use-hum-recorder';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { activeBinding, composing, useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
+import { HotkeyKeys } from '../../shared/hotkeys/hotkey-keys';
 
 const maxLength = 64 << 10;
 // 手写旋律谱时的提示：ABC 谱头（标题、拍号、单位时值、速度、调号）加一小节示例。
@@ -42,8 +44,9 @@ function useInspection(abc: string) {
 
 // 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
 // 然后按谱生成整首歌。参照 YuE 官方的 ABC 方言：人声行带和弦、伴奏行写配器动机，两行成组。
-export function MelodyScore({ draft, state, change, onError }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; onError: (message: string) => void;
+// active 表示所在的编辑页正显示着，“哼一段”的快捷键只在这时生效。
+export function MelodyScore({ draft, state, change, onError, active }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; onError: (message: string) => void; active: boolean;
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
@@ -112,11 +115,16 @@ export function MelodyScore({ draft, state, change, onError }: {
 
   const transformLabel = { stripChords: '@yovoice.melody.stripChords', tempo: '@yovoice.melody.tempo', instrumental: '@yovoice.melody.toInstrumental' } as const;
   const transform = (op: 'stripChords' | 'tempo' | 'instrumental', value = 0) => attempt(async () => replace(await call<string>('melody.transform', { abc, op, tempo: value }), t(transformLabel[op])));
+  // 速度框只认普通回车提交；⌘↩ / Ctrl+Enter 留给生成快捷键。
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
   // 哼一段：录下的哼唱或清唱和“从歌曲提取”走同一条扒谱流程，只留旋律，伴奏由 YuE2 按风格编配。
   const hum = useHumRecorder(picked => void attempt(() => coverMelodyFile(draft.id, picked)), fail);
   const humLabel = t(hum.recording ? '@yovoice.melody.humStop' : '@yovoice.melody.hum');
+  // 快捷键开始或停止哼唱；出谱、扒谱等任务进行中只能停止。
+  useHotkey('music.hum', () => void hum.toggle(), { enabled: active && (!busy || hum.recording) });
+  const humKeys = useHotkeyText('music.hum'), humAria = useHotkeyAria('music.hum');
+  const humBinding = humKeys ? activeBinding('music.hum') : '';
   // 试听：用已装的音色库把谱渲染成音频，在谱面里播放并显示进度，底部播放器留给歌曲。
   const preview = useMelodyPreview(abc, fail);
   const playing = preview.status === 'playing';
@@ -141,7 +149,7 @@ export function MelodyScore({ draft, state, change, onError }: {
   // 从音频得到旋律谱的两种方式：选一首歌，或现场哼一段；说明放在菜单项里，不另占位置。
   const sourceItems = [
     { id: 'cover', label: t('@yovoice.melody.cover'), description: t('@yovoice.melody.coverHint'), isDisabled: busy, onClick: () => audio.current?.click() },
-    { id: 'hum', label: humLabel, description: t('@yovoice.melody.humHint'), isDisabled: busy && !hum.recording, onClick: () => void hum.toggle() },
+    { id: 'hum', label: humLabel, description: t('@yovoice.melody.humHint'), isDisabled: busy && !hum.recording, endContent: humBinding ? <HotkeyKeys binding={humBinding} /> : undefined, onClick: () => void hum.toggle() },
   ];
   const progress = working ? <HStack className="melody-progress" gap={2} vAlign="center" role="status">
     <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
@@ -190,7 +198,7 @@ export function MelodyScore({ draft, state, change, onError }: {
       <small className="score-summary grow" title={summary}>{summary || ' '}</small>
       {undoButton}
       <label className="number-field compact melody-tempo" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
-        onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
+        onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter' && !event.metaKey && !event.ctrlKey && !event.altKey && !composing(event.nativeEvent)) commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
     </HStack> : null}
 
     {pending && abc.trim() ? <HStack className="melody-notice" data-tone="info" gap={3} vAlign="center" wrap="wrap" role="status">
@@ -204,7 +212,7 @@ export function MelodyScore({ draft, state, change, onError }: {
     {/* 还没有谱时只留三个来源：写谱、从音频提取（歌曲或哼唱）、导入谱文件；哼唱中换成停止按钮。 */}
     {!abc.trim() ? working ? null : <HStack className="melody-empty" gap={2} wrap="wrap" vAlign="center">
       <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />
-      {hum.recording ? <Button variant="primary" icon={<Square />} label={humLabel} onClick={() => void hum.toggle()} />
+      {hum.recording ? <Button variant="primary" icon={<Square />} label={humLabel} tooltip={withHotkey(humLabel, humKeys)} aria-keyshortcuts={humAria} onClick={() => void hum.toggle()} />
         : <DropdownMenu hasChevron button={{ variant: 'secondary', icon: <Mic2 />, label: t('@yovoice.melody.fromAudio'), isDisabled: busy }} items={sourceItems} />}
       <Button variant="ghost" icon={<FileMusic />} label={t('@yovoice.melody.import')} onClick={() => file.current?.click()} />
       {undoButton}

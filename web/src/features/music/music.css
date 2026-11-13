@@ -2,7 +2,7 @@
 
 @layer app {
   /* ===== 分轨工作台：全屏调音台。左侧轨头（色条、名称、音量、静音、独奏），右侧波形；播放头贯穿各轨。 ===== */
-  .stem-studio { height: 100%; min-height: 0; background: var(--app-paper); color: var(--app-ink); --stem-head: calc(var(--spacing-10) * 7); --stem-pad: var(--spacing-6); }
+  .stem-studio { height: 100%; min-height: 0; background: var(--app-paper); color: var(--app-ink); outline: none; --stem-head: calc(var(--spacing-10) * 7); --stem-pad: var(--spacing-6); }
   .stem-studio-header { padding: var(--spacing-5) var(--stem-pad) var(--spacing-3); }
   .stem-studio-header h2 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); }
   .stem-studio-header small, .stem-time { color: var(--app-muted); font-size: var(--app-small-font); font-variant-numeric: tabular-nums; }

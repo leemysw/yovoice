@@ -217,17 +217,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             return true
         }
         appItem.submenu?.addItem(.separator())
+        // 隐藏（⌘H）、隐藏其他（⌥⌘H）与全部显示，和系统里其他应用一致。
+        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.hideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h").keyEquivalentModifierMask = [.command, .option]
+        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.showAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        appItem.submenu?.addItem(.separator())
         appItem.submenu?.addItem(withTitle: HostL10n.t("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        // 编辑菜单：WKWebView 里的撤销、重做与剪贴板快捷键都经菜单项转给网页的输入框；网页自己处理（preventDefault）的按键不会走到这里。
+        // 键位写大写 Z 即 ⇧⌘Z。
         let edit = NSMenuItem()
         menu.addItem(edit)
         edit.submenu = NSMenu(title: HostL10n.t("menu.edit"))
-        for (title, action, key) in [(HostL10n.t("menu.undo"), "undo:", "z"), (HostL10n.t("menu.cut"), "cut:", "x"), (HostL10n.t("menu.copy"), "copy:", "c"), (HostL10n.t("menu.paste"), "paste:", "v"), (HostL10n.t("menu.selectAll"), "selectAll:", "a")] {
+        for (title, action, key) in [(HostL10n.t("menu.undo"), "undo:", "z"), (HostL10n.t("menu.redo"), "redo:", "Z"), ("", "", ""), (HostL10n.t("menu.cut"), "cut:", "x"), (HostL10n.t("menu.copy"), "copy:", "c"), (HostL10n.t("menu.paste"), "paste:", "v"), (HostL10n.t("menu.selectAll"), "selectAll:", "a")] {
+            if action.isEmpty { edit.submenu?.addItem(.separator()); continue }
             edit.submenu?.addItem(withTitle: title, action: Selector(action), keyEquivalent: key)
         }
+        // 窗口菜单：没有单独的“文件”“显示”菜单，关闭窗口（⌘W）与全屏（⌃⌘F）也放在这里；关闭后点程序坞图标重新打开。
         let windowItem = NSMenuItem()
         menu.addItem(windowItem)
         windowItem.submenu = NSMenu(title: HostL10n.t("menu.window"))
         windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.fullScreen"), action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f").keyEquivalentModifierMask = [.command, .control]
+        windowItem.submenu?.addItem(.separator())
+        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         NSApp.windowsMenu = windowItem.submenu
         NSApp.mainMenu = menu
     }
@@ -314,6 +327,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         web?.configuration.userContentController.removeScriptMessageHandler(forName: "workbench")
         let configuration = WKWebViewConfiguration()
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        // 开启网页元素全屏（requestFullscreen）：播放页按 F 或点全屏按钮时铺满整个屏幕；WKWebView 默认关闭，document.fullscreenEnabled 为假。
+        // 最低支持 macOS 14，这个属性（macOS 12.3 起）无需再判断版本。
+        configuration.preferences.isElementFullscreenEnabled = true
         configuration.userContentController.add(self, name: "workbench")
         let savedSidebar = UserDefaults.standard.string(forKey: "sidebar-layout") ?? ""
         let sidebarJSON = String(data: try! JSONSerialization.data(withJSONObject: [savedSidebar]), encoding: .utf8)!
@@ -653,9 +669,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             return ["id": message["id"]!, "result": true]
         }
         if method == "text.export" {
-            // 字幕（SRT/VTT）、歌词（LRC）与旋律谱（ABC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+            // 字幕（SRT/VTT）、歌词（LRC）、旋律谱（ABC）与快捷键设置（JSON）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
             let format = data["format"] as? String ?? ""
-            guard ["srt", "vtt", "lrc", "abc"].contains(format), let text = data["text"] as? String, text.utf8.count <= 20_000_000 else { throw failure(HostL10n.t("err.textExportInvalid")) }
+            guard ["srt", "vtt", "lrc", "abc", "json"].contains(format), let text = data["text"] as? String, text.utf8.count <= 20_000_000 else { throw failure(HostL10n.t("err.textExportInvalid")) }
             let panel = NSSavePanel()
             panel.allowedContentTypes = [UTType(filenameExtension: format) ?? .plainText]
             panel.nameFieldStringValue = (data["name"] as? String ?? "yovoice." + format)

@@ -3639,7 +3639,7 @@
     "defaultMessage": "モデルのダウンロードと管理、AI サービスの設定、リソースの整理、表示言語の切り替え、データフォルダーの移動ができます。最初はここでモデルを 1 つダウンロードしましょう。"
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "⌘J（Windows は Ctrl+J）を押すか、タイトルバーのアシスタントボタンをクリックして、やりたいことを話しかけてください。例：「物語の朗読を作って、各キャラクターに声を付けて」。先に設定で AI サービスを追加してください。"
+    "defaultMessage": "{keys} を押すか、タイトルバーのアシスタントボタンをクリックして、やりたいことを話しかけてください。例：「物語の朗読を作って、各キャラクターに声を付けて」。先に設定で AI サービスを追加してください。"
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "オープニングアニメーション"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "ランチャーを隠す"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "右上または ⌘J から開けます"
+    "defaultMessage": "右上または {keys} から開けます"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "Ocho を開く／閉じる（⌘J）"
+    "defaultMessage": "Ocho を開く／閉じる（{keys}）"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "考え中"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "バージョン {n} に戻す"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "再生位置を保ったまま切り替え（B キーでも可）"
+    "defaultMessage": "再生位置を保ったまま切り替え"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "音楽モデル"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "未使用時の自動解放はオフ"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "グローバル"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "ナビゲーション"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "ウィンドウとパネル"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "共通の操作"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "下部プレーヤー"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "シングルトラックプレーヤー"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "マルチトラックタイムライン"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "音声生成"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "編集と生成"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "インスペクター"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "バージョン"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "文字起こし"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "一覧"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "エディター"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "再生と移動"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "字幕の編集"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "書き出しとページ移動"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "物語の朗読"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "セリフ"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "移動と編集"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "話者"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "作品一覧"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "音楽生成"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "楽曲"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "編集と生成"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "再生中"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "単語タイミング"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "ステムスタジオ"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "スコア"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "効果音"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "サウンドライブラリ"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "ボイス"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "ボイス一覧"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "キャラクターエディター"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "参照音声"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "参照音声一覧"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "編集ダイアログ"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "ボイスピッカー"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "アシスタントパネル"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "新規作成"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "音声生成へ移動"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "文字起こしへ移動"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "物語の朗読へ移動"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "音楽生成へ移動"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "サウンドライブラリへ移動"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "設定を開く"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "前の画面に戻る"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "次のタブ"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "前のタブ"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "Ocho を開く / 閉じる"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "サイドバーの表示切り替え"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "インスペクターの表示切り替え"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "キーボードショートカット一覧"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "キャンセル / 停止"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "再生 / 一時停止（入力中も有効）"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "再生 / 一時停止"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "5 秒戻る"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "5 秒進む"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "先頭へ移動"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "末尾へ移動"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "ミュート"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "再生 / 一時停止"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "選択範囲を再生"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "前後 1 秒を含めて試聴"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "選択したクリップを再生成"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "複製"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "分割"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "前のクリップの境界"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "次のクリップの境界"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "先頭へ移動"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "末尾へ移動"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "現在のトラックをミュート"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "現在のトラックをソロ"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "スナップの切り替え"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "拡大"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "縮小"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "全体に合わせる"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "選択範囲に合わせる"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "書き出し"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "元に戻す / やり直す"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "コピー / 貼り付け / すべて選択"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "削除 / リップル削除"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "クリップを微調整"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "読みを調整"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "ファイルを読み込む"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "キャラクターを選択"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "参照音声を追加または変更"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "バージョン履歴"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "このバージョンを書き出す"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "音声または動画をアップロード"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "録音開始 / 停止して文字起こし"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "文字起こしを検索"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "現在の行を再生"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "前の行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "次の行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "連続再生の切り替え"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "検索と置換"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "次の一致"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "前の一致"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "現在の行を削除"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "元に戻す"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "やり直す"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "カーソル位置で行を分割"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "前の行と結合"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "次の行と結合"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "後ろ / 前を削除"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "字幕を書き出す"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "前のページ"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "次のページ"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "すべてのセリフを生成"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "現在のセリフを再生成"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "前のセリフ"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "次のセリフ"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "下にセリフを挿入"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "現在のセリフを削除"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "前のページ"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "次のページ"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "カーソル位置でセリフを分割"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "前のセリフと結合"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "次のセリフと結合"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "話者 1～9 に割り当て"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "話者メニューを開く"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "原稿を読み込む"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "再生中を開く"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "ボーカル / インスト"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "セクションタグを挿入"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "歌詞エディターを拡大"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "メロディをハミング"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "ステムを開く"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "バージョン履歴"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "このバージョンを書き出す"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "再生 / 一時停止"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "10 秒戻る"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "10 秒進む"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "前のバージョンと切り替え"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "自動で合わせる"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "行ごとに同期"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "単語タイミングを編集"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "全画面"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "歌詞スタイルを変更"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "LRC を書き出す"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "同期中に次の行をマーク"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "マークを取り消す"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "同期を終了 / 閉じる"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "行を 0.5 秒早める"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "行を 0.5 秒遅らせる"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "この行を再生"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "タップでのタイミング入力を開始 / 停止"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "保存"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "前の行 / 次の行"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "行を 0.1 秒ずらす"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "再生位置に合わせる"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "元に戻す"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "単語タイミングを終了"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "再生 / 一時停止"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "トラック 1～6 をソロ"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "トラック 1～6 をミュート"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "5 秒戻る"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "5 秒進む"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "すべてのステムを書き出す"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "レンダリング"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "MIDI を読み込む"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "書き出し"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "ステムを試聴"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "前のトラック"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "次のトラック"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "現在のトラックのミュート / 解除"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "楽器を変更"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "拡大"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "縮小"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "全体に合わせる"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "バージョン履歴"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "このバージョンを書き出す"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "検索"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "選択したボイスを試聴"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "試聴を生成"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "保存"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "保存して適用"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "閉じる"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "検索"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "選択したクリップを試聴"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "保存"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "録音 / 録音を停止"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "音声を読み込む"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "パネルを最小化"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "送信"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "改行"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "現在のページに応じて作品、ボイス、参照音声を作成します。Ocho では新しいチャットを開始します"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "文字起こしからは一覧へ、履歴からは作品へ戻ります"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "生成のキャンセル、録音の停止、Ocho の応答の停止を行います"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "Shift を押しながらで大きく移動"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "先に原稿内のテキストを選択してください"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "もう一度押すと停止します"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "カーソルが行頭にあるとき"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "カーソルが行末にあるとき"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "カーソルが行頭にあるとき"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "カーソルが行末にあるとき"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "話者リストの順序に従います"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "[Verse]、[Chorus] などを表示します"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "未分離の場合は先に分離します"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "Shift を押しながらで 0.02 秒"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "もう一度押すと解除します"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "開く / 閉じるは「グローバル › ウィンドウとパネル」にあります"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "キーボードショートカット"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "どのページでも {keys} を押すと、そのページで使えるショートカットを表示します。"
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "キーボードショートカットを有効にする"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "変更可能な以下のショートカットをすべて無効にします。テキスト欄での編集キー（分割、結合、元に戻す）とシステムメニューは引き続き使えます。"
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "読み込み…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "書き出し…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "すべてデフォルトに戻す"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "すべてのショートカットとエリアのスイッチがデフォルトに戻ります。"
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "コマンドまたはキーを検索"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "すべて"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "変更済み"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "未設定"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "ショートカットはオフです。以下の設定は保持され、オンに戻すと再び有効になります。"
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "一致するショートカットがありません。"
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "{count} 件"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "{count} 件変更済み"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "オフ"
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "{area} のショートカットを有効にする"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "未設定"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "標準の編集キーに従うため変更できません"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "macOS のみ"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "または"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "{name} のショートカットを変更"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "デフォルトに戻す"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "新しいキーの組み合わせを押してください"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc でキャンセル · ⌫ でクリア"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "クリア"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys} はシステムで使用されています。別の組み合わせをお試しください。"
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "グローバルショートカットは入力中も使えるよう、{mods} が必要です。"
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys} は「{name}」で使用中です。"
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys} は変更できない「{name}」で使用中です。別の組み合わせをお試しください。"
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "置き換える"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "キーボードショートカット"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "このページで使えるショートカットはありません。"
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "ショートカットをカスタマイズ"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "ショートカットはオフです。設定でオンに戻せます。"
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "ショートカットを書き出す"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "変更したショートカットのみ"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "{count} 件。それ以外のショートカットは読み込み側の設定のままになります。"
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "すべてのショートカット"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "デフォルトを含めて {count} 件。"
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "メインスイッチとエリアのスイッチを含める"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "ファイルを保存"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "yovoice ショートカット"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "ショートカットを読み込む"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "ショートカットファイルを選択"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "yovoice から書き出されたショートカットファイルではありません。"
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "{platform} から · {count} 件のショートカット"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "マージ"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "ファイル内のショートカットのみ変更し、それ以外はそのままにします。"
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "置き換える"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "ファイルにないショートカットはデフォルトに戻ります。"
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "{count} 件を変更"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "変更はありません。"
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "変更済みのキーを上書き"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "「{name}」と競合するためクリアされます"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "デフォルトに戻す"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "{count} 件をスキップ：このバージョンにないコマンド、または使用できないキーです。"
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "メインスイッチとエリアのスイッチもファイルに合わせて更新されます。"
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "適用"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "このショートカットは数字キーを使います。修飾キーと任意の数字を押してください。"
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "デフォルトに戻す（{keys}）"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "絞り込み"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "右上から開けます"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys} は「{name}」など {count} 件のコマンドで使用中です。"
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "早見表には現在ショートカットがありません。「キーボードショートカット」をクリックすると、このページで使えるショートカットを確認できます。"
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "後ろ / 前を削除"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "歌詞アラインモデルはまだダウンロードされていません。「歌詞ツール」メニューの「自動アライン」からダウンロードできます。"
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "歌詞をアラインし直しますか？"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "自動アラインを行うと、このバージョンの歌詞タイミングと文字ごとのタイミングが置き換わります。手動で調整した部分も含みます。"
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "タイトルバーのアシスタントボタンをクリックして、やりたいことを話しかけてください。例：「物語の朗読を作って、各キャラクターに声を付けて」。先に設定で AI サービスを追加してください。"
   }
 }

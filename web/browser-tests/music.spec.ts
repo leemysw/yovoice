@@ -276,7 +276,8 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
   const transport = page.locator('.player .transport');
   await expect(transport.getByRole('button', { name: '打开位置', exact: true })).toBeVisible();
   await transport.getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '分享到社区', '分离音轨', '转为 MIDI']);
+  // 菜单项右侧可能带快捷键徽标（⌘E、⇧⌘S），只比对名称开头。
+  await expect(page.getByRole('menuitem')).toHaveText([/^导出音频/, /^分享到社区/, /^分离音轨/, /^转为 MIDI/]);
   await page.keyboard.press('Escape');
   await expect(transport.getByRole('button', { name: '播放页', exact: true })).toBeVisible();
   await transport.getByRole('button', { name: '历史版本', exact: true }).click();

@@ -21,15 +21,17 @@ import { TapeCover } from './tape-cover';
 import { WaveRing } from './wave-ring';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 import { markTransitionSource } from '../../shared/lib/view-transition';
+import { useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
-export function NewProject({ locale, modelId, modelFor, create, onError, button, kind, hidden = [] }: {
-  kind?: 'text' | 'story' | 'music' | 'score' | 'sfx'; locale: UiLocale; modelId?: string;
-  // 在设置中隐藏的功能不出现在新建菜单里；编曲与音效随音乐生成一起隐藏。
-  hidden?: Feature[];
+type ProjectKind = 'text' | 'story' | 'music' | 'score' | 'sfx';
+interface NewProjectOptions {
+  locale: UiLocale; modelId?: string;
   // 按作品类型给出默认模型（优先已下载的），不给时用各类型的内置默认。
-  modelFor?: (kind: 'text' | 'story' | 'music' | 'score' | 'sfx') => string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
-  button?: Omit<ComponentProps<typeof Button>, 'onClick' | 'label'> & { label?: string };
-}) {
+  modelFor?: (kind: ProjectKind) => string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
+}
+
+// 新建作品与导入文本或字幕：新建按钮和快捷键（新建、导入文件）共用；input 是隐藏的文件选择框，由调用方放进界面。
+export function useNewProject({ locale, modelId, modelFor, create, onError }: NewProjectOptions) {
   const t = useTranslator();
   const [busy, setBusy] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -44,7 +46,7 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
     } catch (error) { onError(noticeMessage(error)); }
     finally { setBusy(false); }
   }
-  async function start(kind: 'text' | 'story' | 'music' | 'score' | 'sfx') {
+  async function start(kind: ProjectKind) {
     setBusy(true);
     const base: Draft = kind === 'music' ? createMusicDraft(locale, false) : kind === 'score' ? createScoreDraft(locale, false) : kind === 'sfx' ? createSfxDraft(locale) : { ...createDraft(false, locale, modelId), kind };
     const next: Draft = modelFor ? { ...base, modelId: modelFor(kind) } : base;
@@ -53,9 +55,36 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
     catch (error) { onError(noticeMessage(error)); }
     finally { setBusy(false); }
   }
-  if (kind) return <Button label={t(`@yovoice.project.new.${kind}`)} icon={<Plus />} size="sm" {...button} isLoading={busy} onClick={() => void start(kind)} />;
+  const chooseFile = () => fileInput.current?.click();
+  // 导入作品包（只有桌面端有），由宿主弹出文件选择框。
+  const importPackage = () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); };
+  const input = <input ref={fileInput} hidden type="file" accept={importAccept} aria-label={t('@yovoice.import.file')} onChange={event => {
+    const file = event.target.files?.[0]; event.target.value = '';
+    if (file) void importFile(file);
+  }} />;
+  return { busy, start, chooseFile, importPackage, input };
+}
+
+export function NewProject({ locale, modelId, modelFor, create, onError, button, kind, hidden = [], creator, hotkey = true }: NewProjectOptions & {
+  kind?: ProjectKind;
+  // 新建快捷键此刻是不是“新建作品”：侧栏的新建按钮在所有页面都在，到了我的声音等页面 ⌘N 做别的事，就不在提示里写按键。
+  hotkey?: boolean;
+  // 工作台已有一份新建逻辑（快捷键也用它）时传进来共用，不再各放一个文件选择框。
+  creator?: ReturnType<typeof useNewProject>;
+  // 在设置中隐藏的功能不出现在新建菜单里；编曲与音效随音乐生成一起隐藏。
+  hidden?: Feature[];
+  button?: Omit<ComponentProps<typeof Button>, 'onClick' | 'label'> & { label?: string };
+}) {
+  const t = useTranslator();
+  const own = useNewProject({ locale, modelId, modelFor, create, onError });
+  const { busy, start, chooseFile, importPackage } = creator ?? own;
+  // 新建快捷键随当前页面新建（由工作台注册），这里只在按钮提示里写出按键。
+  const keys = useHotkeyText('global.new'), aria = useHotkeyAria('global.new');
+  const label = t(kind ? `@yovoice.project.new.${kind}` : '@yovoice.project.new');
+  const hint = { tooltip: withHotkey(label, hotkey ? keys : '', undefined), 'aria-keyshortcuts': hotkey ? aria : undefined };
+  if (kind) return <Button label={label} icon={<Plus />} size="sm" {...hint} {...button} isLoading={busy} onClick={() => void start(kind)} />;
   return <><DropdownMenu data-testid={button?.['data-testid']} presentation="popover" hasChevron={false}
-    button={{ label: t('@yovoice.project.new'), icon: <Plus />, size: 'sm', ...button, isLoading: busy }}
+    button={{ label, icon: <Plus />, size: 'sm', tooltip: hint.tooltip, ...button, isLoading: busy }}
     items={[
       // 图标与侧栏导航一致。
       { id: 'text', label: t('@yovoice.project.text'), icon: <Mic className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('text') },
@@ -65,13 +94,10 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
         { id: 'score', label: t('@yovoice.project.score'), icon: <FileMusic className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('score') },
         { id: 'sfx', label: t('@yovoice.project.sfx'), icon: <AudioWaveform className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('sfx') },
       ]),
-      { id: 'file', label: t('@yovoice.import.file'), icon: <FileText className="project-menu-icon" strokeWidth={1.5} />, onClick: () => fileInput.current?.click() },
-      ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), icon: <FolderInput className="project-menu-icon" strokeWidth={1.5} />, onClick: () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); } }] : []),
+      { id: 'file', label: t('@yovoice.import.file'), icon: <FileText className="project-menu-icon" strokeWidth={1.5} />, onClick: chooseFile },
+      ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), icon: <FolderInput className="project-menu-icon" strokeWidth={1.5} />, onClick: importPackage }] : []),
     ]} />
-    <input ref={fileInput} hidden type="file" accept={importAccept} aria-label={t('@yovoice.import.file')} onChange={event => {
-      const file = event.target.files?.[0]; event.target.value = '';
-      if (file) void importFile(file);
-    }} />
+    {creator ? null : own.input}
   </>;
 }
 

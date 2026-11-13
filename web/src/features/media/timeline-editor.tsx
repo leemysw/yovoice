@@ -21,6 +21,18 @@ import { TimelineExportDialog } from './timeline-export-dialog';
 import { GenerationImportDialog, HistoryImportDialog } from './timeline-source-dialogs';
 import { TrackHeader } from './track-header';
 import { ClipRegion, GapHandle, type ClipSharedProps } from './clip-region';
+import { platform, useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
+import { bindingAria, bindingText } from '../../shared/hotkeys/keys';
+
+// 固定按键的显示：主修饰键 macOS 是 ⌘、其他平台是 Ctrl；删除片段在 macOS 键盘上是退格（⌫），Windows / Linux 显示 Delete，两种键都能删除。
+const fixedKeys = {
+  copy: bindingText('mod+C', platform), paste: bindingText('mod+V', platform),
+  remove: bindingText(platform === 'mac' ? 'backspace' : 'delete', platform), ripple: bindingText(platform === 'mac' ? 'shift+backspace' : 'shift+delete', platform),
+  undo: bindingText('mod+Z', platform), redo: bindingText('mod+shift+Z', platform),
+  // 拖动时按住它临时不吸附：macOS 是 ⌥，其他平台是 Alt。
+  noSnap: platform === 'mac' ? '⌥' : 'Alt',
+  undoAria: bindingAria('mod+Z', platform), redoAria: [bindingAria('mod+shift+Z', platform), ...(platform === 'mac' ? [] : [bindingAria('mod+Y', platform)])].join(' '),
+};
 
 export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject, selectCue, selectedCue, cueSelectionRevision, playbackCue, value, history, change, suspended, onError }: {
   exportProject: () => Promise<void>; cueSelectionRevision?: number; selectedCue?: number; playbackCue?: (index: number) => void; draft: Draft; drafts: Draft[]; busy: boolean; regenerate: (cueId: string, clipId: string) => Promise<void>; selectCue: (index: number) => void;
@@ -96,7 +108,7 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
   const fitSelection = () => { const target = range ?? selectionRange(); if (!target) return; fitRange(target); };
   const selectAll = () => { setSelection(value.tracks.flatMap(t => t.clips.map(c => c.id))); setSelected(value.tracks.flatMap(t => t.clips)[0]?.id ?? ''); };
   const clearSelection = () => { finishGesture(false); setSelected(''); setSelection([]); setRange(undefined); };
-  useTimelineShortcuts({ blocked: historyBlocked, duration, play, restoreEdit, copy, paste, split, remove, seek, selectAll, clearSelection });
+  useTimelineShortcuts({ blocked: historyBlocked, restoreEdit, copy, paste: () => paste(), remove, selectAll, clearSelection });
   const { peaks, unavailable, waves } = useClipWaveforms({ value, zoom, suspended, audioSources, buffers });
 
   const clip = (trimPreview ?? value).tracks.flatMap(track => track.clips).find(c => c.id === selected);
@@ -151,31 +163,83 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
     if (!cue?.id || !clip || !editable || busy || exporting) return; stop(); setRegenerating(true);
     try { await regenerate(cue.id, clip.id); } catch (error) { onError(noticeMessage(error)); } finally { setRegenerating(false); }
   };
+  // 可修改的快捷键：播放、试听选区、缩放与导出在整页响应（与原来的空格一致）；其余编辑、定位、轨道与吸附只在焦点位于时间线里时响应，
+  // 不和同页面上同样按键的命令（如故事台词的重新生成）抢。对话框打开时由分发器挡下。
+  const root = useRef<HTMLElement>(null);
+  const playable = !suspended && !exporting && duration > 0;
+  const hasRange = !!range || selectedIds.length > 0;
+  const canRegenerate = !historyBlocked && editable && !!cue?.text.trim() && !exporting;
+  const canExport = value.tracks.some(t => !t.muted && t.clips.length) && !exporting;
+  const openExport = () => { stop(); setExportOpen(true); };
+  // 带前后 1 秒试听选中的片段。
+  const contextRange = () => { const r = selectionRange(); return r ? { start: Math.max(0, r.start - 1), end: Math.min(duration, r.end + 1) } : undefined; };
+  // 试听类按键再按一次停止，而不是从头再播。
+  const audition = (target?: { start: number; end: number }) => { if (playing || loading) stop(); else if (target) void play(target); };
+  // 上一个、下一个片段边界：所有片段的起止点与时间线首尾，跳过当前位置 10 毫秒以内的点。
+  const jumpEdge = (step: -1 | 1) => {
+    const edges = [0, duration, ...value.tracks.flatMap(t => t.clips.flatMap(c => [c.start, c.start + c.duration]))];
+    const target = step > 0 ? Math.min(...edges.filter(edge => edge > time + 0.01)) : Math.max(...edges.filter(edge => edge < time - 0.01));
+    if (Number.isFinite(target)) seek(target);
+  };
+  // 静音、独奏当前轨：最近选中片段或点过的那条音轨。
+  const lane = value.tracks[activeLane];
+  const toggleLane = (field: 'muted' | 'solo') => { if (lane) edit({ ...value, tracks: value.tracks.map(t => t.id !== lane.id ? t : field === 'muted' ? { ...t, muted: !t.muted } : { ...t, solo: !t.solo }) }); };
+  useHotkey('timeline.play', () => void play(), { enabled: playable });
+  // 焦点在时间线里（例如刚点选了片段）时空格照常播放，不去激活片段按钮。
+  useHotkey('timeline.play', () => void play(), { enabled: playable, within: root, onControl: true });
+  useHotkey('timeline.playSelection', () => audition(range ?? selectionRange()), { enabled: playable && hasRange, within: root, onControl: true });
+  useHotkey('global.playPause', () => void play(), { enabled: playable, inInput: true });
+  useHotkey('timeline.playSelection', () => audition(range ?? selectionRange()), { enabled: playable && hasRange });
+  useHotkey('timeline.preview', () => audition(contextRange()), { enabled: playable && selectedIds.length > 0, within: root });
+  useHotkey('timeline.regenerate', () => void regenerateClip(), { enabled: canRegenerate, within: root });
+  useHotkey('timeline.duplicate', () => paste(true), { enabled: !historyBlocked && editable, within: root });
+  useHotkey('timeline.split', split, { enabled: !historyBlocked && editable, within: root });
+  useHotkey('timeline.prevEdge', () => jumpEdge(-1), { enabled: !suspended && duration > 0, within: root, repeat: true });
+  useHotkey('timeline.nextEdge', () => jumpEdge(1), { enabled: !suspended && duration > 0, within: root, repeat: true });
+  useHotkey('timeline.start', () => seek(0), { enabled: !suspended, within: root });
+  useHotkey('timeline.end', () => seek(duration), { enabled: !suspended, within: root });
+  useHotkey('timeline.mute', () => toggleLane('muted'), { enabled: !historyBlocked && !!lane, within: root });
+  useHotkey('timeline.solo', () => toggleLane('solo'), { enabled: !historyBlocked && !!lane, within: root });
+  useHotkey('timeline.snap', () => setSnap(current => !current), { enabled: !suspended, within: root });
+  useHotkey('timeline.zoomIn', () => zoomTo(zoom * 2), { enabled: !suspended && duration > 0, repeat: true });
+  useHotkey('timeline.zoomOut', () => zoomTo(zoom / 2), { enabled: !suspended && duration > 0, repeat: true });
+  useHotkey('timeline.zoomFit', fitAll, { enabled: !suspended && duration > 0 });
+  useHotkey('timeline.zoomSelection', fitSelection, { enabled: !suspended && hasRange });
+  useHotkey('timeline.export', openExport, { enabled: !suspended && canExport });
+  const keys = {
+    play: useHotkeyText('timeline.play'), playSelection: useHotkeyText('timeline.playSelection'), preview: useHotkeyText('timeline.preview'),
+    regenerate: useHotkeyText('timeline.regenerate'), duplicate: useHotkeyText('timeline.duplicate'), split: useHotkeyText('timeline.split'),
+    snap: useHotkeyText('timeline.snap'), export: useHotkeyText('timeline.export'),
+    zoomIn: useHotkeyText('timeline.zoomIn'), zoomOut: useHotkeyText('timeline.zoomOut'), zoomFit: useHotkeyText('timeline.zoomFit'), zoomSelection: useHotkeyText('timeline.zoomSelection'),
+  };
+  const playAria = useHotkeyAria('timeline.play');
+  const tip = (label: string, key: string) => withHotkey(label, key);
   const menuItems = [
     { type: 'section' as const, items: [
-      { label: t('@yovoice.timeline.copy'), endContent: '⌘/Ctrl+C', isDisabled: !selectedIds.length, onClick: copy },
-      { label: t('@yovoice.timeline.paste'), endContent: '⌘/Ctrl+V', isDisabled: !clipboard.current.length, onClick: () => paste() },
-      { label: t('@yovoice.timeline.duplicate'), endContent: '⌘/Ctrl+D', isDisabled: !editable, onClick: () => paste(true) },
-      { label: t('@yovoice.timeline.split'), endContent: '⌘/Ctrl+I', isDisabled: !editable, onClick: split },
-      { label: t('@yovoice.timeline.removeClip'), endContent: 'Delete', isDisabled: !editable, onClick: () => remove() },
-      { label: t('@yovoice.timeline.regenerate'), isDisabled: !editable || !cue?.text.trim() || busy, onClick: () => void regenerateClip() },
-      { label: t('@yovoice.timeline.rippleDelete'), endContent: 'Shift+Delete', isDisabled: !editable, onClick: () => remove(true) },
+      { label: t('@yovoice.timeline.copy'), endContent: fixedKeys.copy, isDisabled: !selectedIds.length, onClick: copy },
+      { label: t('@yovoice.timeline.paste'), endContent: fixedKeys.paste, isDisabled: !clipboard.current.length, onClick: () => paste() },
+      { label: t('@yovoice.timeline.duplicate'), endContent: keys.duplicate || undefined, isDisabled: !editable, onClick: () => paste(true) },
+      { label: t('@yovoice.timeline.split'), endContent: keys.split || undefined, isDisabled: !editable, onClick: split },
+      { label: t('@yovoice.timeline.removeClip'), endContent: fixedKeys.remove, isDisabled: !editable, onClick: () => remove() },
+      { label: t('@yovoice.timeline.regenerate'), endContent: keys.regenerate || undefined, isDisabled: !editable || !cue?.text.trim() || busy, onClick: () => void regenerateClip() },
+      { label: t('@yovoice.timeline.rippleDelete'), endContent: fixedKeys.ripple, isDisabled: !editable, onClick: () => remove(true) },
     ] },
     { type: 'section' as const, items: [
-      { label: t('@yovoice.timeline.audition'), isDisabled: !range && !selectedIds.length, onClick: () => void play(range ?? selectionRange()) },
-      { label: t('@yovoice.timeline.contextPlay'), isDisabled: !selectedIds.length, onClick: () => { const r = selectionRange(); if (r) void play({ start: Math.max(0, r.start - 1), end: Math.min(duration, r.end + 1) }); } },
-      { label: t('@yovoice.timeline.snap'), onClick: () => setSnap(!snap) },
-      { label: t('@yovoice.player.zoomFit'), onClick: fitAll },
-      { label: t('@yovoice.timeline.fitSelection'), isDisabled: !range && !selectedIds.length, onClick: fitSelection },
+      { label: t('@yovoice.timeline.audition'), endContent: keys.playSelection || undefined, isDisabled: !hasRange, onClick: () => void play(range ?? selectionRange()) },
+      { label: t('@yovoice.timeline.contextPlay'), endContent: keys.preview || undefined, isDisabled: !selectedIds.length, onClick: () => { const r = contextRange(); if (r) void play(r); } },
+      { label: t('@yovoice.timeline.snap'), endContent: keys.snap || undefined, onClick: () => setSnap(!snap) },
+      { label: t('@yovoice.player.zoomFit'), endContent: keys.zoomFit || undefined, onClick: fitAll },
+      { label: t('@yovoice.timeline.fitSelection'), endContent: keys.zoomSelection || undefined, isDisabled: !hasRange, onClick: fitSelection },
       ...(isDesktop ? [{ label: t('@yovoice.timeline.package'), onClick: () => void exportProject().catch(e => onError(noticeMessage(e))) }] : []),
       { label: t('@yovoice.timeline.balance'), isDisabled: !duration, onClick: () => void (async () => { try { const audio = context.current ??= new AudioContext(); for (const c of value.tracks.flatMap(t => t.clips)) await load(Timeline.sourceKey(c), audio); edit(Timeline.balance(value, history, buffers.current)); } catch (e) { onError(noticeMessage(e)); } })() },
     ] },
   ];
   // 片段与空隙手柄共用的时间线上下文。
-  const clipShared: ClipSharedProps = { t, value, history, draft, audioSources, scale, time, snap, selectedIds, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit };
+  const clipShared: ClipSharedProps = { t, value, history, draft, audioSources, scale, time, snap, selectedIds, blocked: historyBlocked, peaks, waves, unavailable, selectClip, gestures, seek, setRange, edit };
   // 菜单打开时 Esc 交给菜单关闭：macOS 上右键菜单打开后焦点可能仍在剪辑上，不能在这里拦下。
-  return <VStack as="footer" className="multitrack audio-panel" gap={0} style={{ height: panel.size }} onKeyDown={e => {
-    if (e.key === 'Escape' && !e.defaultPrevented && !(e.target as Element).closest('[role=menu], [role=dialog]') && !document.querySelector('[role=menu]') && !exportOpen && !historyTrack && !generationTrack) { clearSelection(); e.stopPropagation(); }
+  // tabIndex=-1：点时间线空白处时焦点落到时间线上，只在时间线里响应的快捷键随即可用。
+  return <VStack as="footer" ref={root} tabIndex={-1} className="multitrack audio-panel" gap={0} style={{ height: panel.size }} onKeyDown={e => {
+    if (e.key === 'Escape' && !e.defaultPrevented && !(e.target as Element).closest('[role=menu], [role=dialog], dialog, [aria-modal="true"]') && !document.querySelector('[role=menu]') && !exportOpen && !historyTrack && !generationTrack) { clearSelection(); e.stopPropagation(); }
   }}>
     <input ref={input} type="file" hidden accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={async e => {
       const file = e.target.files?.[0]; e.target.value = '';
@@ -191,16 +255,16 @@ export function TimelineEditor({ draft, drafts, busy, regenerate, exportProject,
     {historyTrack ? <HistoryImportDialog key={historyTrack} trackId={historyTrack} draft={draft} history={history} append={append} onClose={() => setHistoryTrack('')} /> : null}
     {generationTrack ? <GenerationImportDialog key={generationTrack} trackId={generationTrack} draft={draft} drafts={drafts} history={history} importing={importing} importGeneration={importGeneration} onClose={() => setGenerationTrack('')} /> : null}
     <ResizeHandle label={t('@yovoice.timeline.resize')} direction="vertical" pillPlacement="center" isReversed resizable={panel.props} />
-    <PlaybackToolbar time={time} duration={duration} playing={playing} disabled={!duration || suspended || exporting} loading={loading} toggle={() => void play()}>
-      <Button size="sm" variant="ghost" isIconOnly icon={<Undo2 />} label={t('@yovoice.timeline.undo')} tooltip={`${t('@yovoice.timeline.undo')} (⌘/Ctrl+Z)`} aria-keyshortcuts="Meta+Z Control+Z" isDisabled={historyBlocked || !!trimPreview || !edits.canUndo} onClick={() => restoreEdit('undo')} />
-      <Button size="sm" variant="ghost" isIconOnly icon={<Redo2 />} label={t('@yovoice.timeline.redo')} tooltip={`${t('@yovoice.timeline.redo')} (⌘/Ctrl+Shift+Z)`} aria-keyshortcuts="Meta+Shift+Z Control+Shift+Z Control+Y" isDisabled={historyBlocked || !!trimPreview || !edits.canRedo} onClick={() => restoreEdit('redo')} />
-      <Button className="timeline-extra" size="sm" variant="ghost" isIconOnly tooltip={t('@yovoice.timeline.split')} label={t('@yovoice.timeline.split')} icon={<Scissors />} isDisabled={!editable || !clip || time - clip.start < 0.01 || clip.start + clip.duration - time < 0.01} onClick={split} />
+    <PlaybackToolbar time={time} duration={duration} playing={playing} disabled={!duration || suspended || exporting} loading={loading} toggle={() => void play()} keys={keys.play} aria={playAria}>
+      <Button size="sm" variant="ghost" isIconOnly icon={<Undo2 />} label={t('@yovoice.timeline.undo')} tooltip={`${t('@yovoice.timeline.undo')} (${fixedKeys.undo})`} aria-keyshortcuts={fixedKeys.undoAria} isDisabled={historyBlocked || !!trimPreview || !edits.canUndo} onClick={() => restoreEdit('undo')} />
+      <Button size="sm" variant="ghost" isIconOnly icon={<Redo2 />} label={t('@yovoice.timeline.redo')} tooltip={`${t('@yovoice.timeline.redo')} (${fixedKeys.redo})`} aria-keyshortcuts={fixedKeys.redoAria} isDisabled={historyBlocked || !!trimPreview || !edits.canRedo} onClick={() => restoreEdit('redo')} />
+      <Button className="timeline-extra" size="sm" variant="ghost" isIconOnly tooltip={tip(t('@yovoice.timeline.split'), keys.split)} label={t('@yovoice.timeline.split')} icon={<Scissors />} isDisabled={!editable || !clip || time - clip.start < 0.01 || clip.start + clip.duration - time < 0.01} onClick={split} />
       <Button className="timeline-extra" size="sm" variant="ghost" isIconOnly tooltip={t('@yovoice.timeline.removeClip')} label={t('@yovoice.timeline.removeClip')} icon={<Trash2 />} isDisabled={!editable} onClick={() => remove()} />
-      <Button className="timeline-extra" size="sm" variant="ghost" isIconOnly icon={<RefreshCw />} label={t('@yovoice.timeline.regenerate')} tooltip={t('@yovoice.timeline.regenerate')} isLoading={regenerating} isDisabled={!editable || !cue?.text.trim() || busy || exporting} onClick={() => void regenerateClip()} />
-      <Button size="sm" label={t('@yovoice.timeline.export')} isDisabled={!value.tracks.some(t => !t.muted && t.clips.length) || exporting} onClick={() => { stop(); setExportOpen(true); }} />
-      <Button className="timeline-extra timeline-snap-toggle" size="sm" variant={snap ? "secondary" : "ghost"} isIconOnly label={t('@yovoice.timeline.snap')} tooltip={`${t('@yovoice.timeline.snap')} · Alt`} icon={<Magnet />} aria-pressed={snap} onClick={() => setSnap(!snap)} />
+      <Button className="timeline-extra" size="sm" variant="ghost" isIconOnly icon={<RefreshCw />} label={t('@yovoice.timeline.regenerate')} tooltip={tip(t('@yovoice.timeline.regenerate'), keys.regenerate)} isLoading={regenerating} isDisabled={!editable || !cue?.text.trim() || busy || exporting} onClick={() => void regenerateClip()} />
+      <Button size="sm" label={t('@yovoice.timeline.export')} tooltip={keys.export ? tip(t('@yovoice.timeline.export'), keys.export) : undefined} isDisabled={!canExport} onClick={openExport} />
+      <Button className="timeline-extra timeline-snap-toggle" size="sm" variant={snap ? "secondary" : "ghost"} isIconOnly label={t('@yovoice.timeline.snap')} tooltip={`${tip(t('@yovoice.timeline.snap'), keys.snap)} · ${fixedKeys.noSnap}`} icon={<Magnet />} aria-pressed={snap} onClick={() => setSnap(!snap)} />
       <DropdownMenu presentation="popover" placement="above" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, label: t('@yovoice.timeline.more'), icon: <MoreHorizontal />, 'data-timeline-more': 'true' }} items={menuItems} />
-      <TrackZoom value={zoom} change={zoomTo} fit={fitAll} disabled={!duration} min={minZoom} max={32} />
+      <TrackZoom value={zoom} change={zoomTo} fit={fitAll} disabled={!duration} min={minZoom} max={32} keys={{ out: keys.zoomOut, fit: keys.zoomFit, in: keys.zoomIn }} />
     </PlaybackToolbar>
     <TimelineExportDialog open={exportOpen} value={value} history={history} draft={draft} range={range} context={context} load={load} exporting={exporting} setExporting={setExporting} onClose={() => setExportOpen(false)} />
     <ContextMenu items={menuItems} size="sm" menuWidth="max-content" label={t('@yovoice.timeline.more')} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>

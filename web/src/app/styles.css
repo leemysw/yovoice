@@ -4,6 +4,7 @@
 @import './shell.css';
 @import './intro.css';
 @import './guide-tour.css';
+@import './hotkeys.css';
 @import '../features/create/create.css';
 @import '../features/media/media.css';
 @import '../features/library/library.css';

@@ -4,7 +4,7 @@ import { emptyState, type ModelPackage } from '../src/shared/workbench';
 import catalogFile from '../../internal/catalog/catalog.json' with { type: 'json' };
 
 const catalog = catalogFile as { models: ModelPackage[] };
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 
 test('四种表达方式、草稿持久化与模型协议', async ({ page }) => {
@@ -261,7 +261,7 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '保存为角色', exact: true })).toHaveCount(0);
   await transport.getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '导出字幕', '保存为参考音频', '保存为角色']);
+  await expect(page.getByRole('menuitem')).toHaveText([/^导出音频/, '导出字幕', '保存为参考音频', '保存为角色']);
   await page.keyboard.press('Escape');
 
   // 历史生成汇总所有语音作品的结果，不分版本；改过名的显示名称，其余显示正文。
@@ -599,4 +599,77 @@ test('长录音可试听并保存一分钟之后的选段，取消时不登记�
   const audio = page.locator('footer audio');
   await expect.poll(() => audio.evaluate((el: HTMLAudioElement) => el.duration)).toBeCloseTo(5);
   expect(await audio.evaluate(hasSelectedAudio)).toBe(true);
+});
+
+/** 语音作品带一版 4 秒的生成音频，底部是带波形的播放器。 */
+async function openWithVersion(page: Page) {
+  const state = emptyState();
+  const draft = state.drafts[0];
+  state.history = [{ id: '1'.repeat(32), title: draft.title, fileName: 'tone.wav', createdAt: '2026-09-15T10:00:00Z', duration: 4, settings: { ...draft } }];
+  await page.goto('/');
+  await page.evaluate(async () => {
+    const rate = 8000, seconds = 4, bytes = new Uint8Array(44 + rate * seconds * 2); const view = new DataView(bytes.buffer);
+    const text = (offset: number, value: string) => bytes.set(new TextEncoder().encode(value), offset);
+    text(0, 'RIFF'); view.setUint32(4, bytes.length - 8, true); text(8, 'WAVEfmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, rate * seconds * 2, true);
+    for (let i = 0; i < rate * seconds; i++) view.setInt16(44 + i * 2, Math.round(Math.sin(i * 220 * Math.PI * 2 / rate) * 4000), true);
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('voice-workbench-audio', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('audio');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => { const db = request.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([bytes], { type: 'audio/wav' }), 'tone.wav'); tx.oncomplete = () => { db.close(); resolve(); }; };
+    });
+  });
+  await seedState(page, state); await page.reload();
+  return page.locator('.player');
+}
+
+test('点过波形上的进度条（透明滑块）后，空格照常播放、M 静音', async ({ page }) => {
+  const player = await openWithVersion(page);
+  await player.getByRole('slider', { name: '播放进度' }).click();
+  await page.keyboard.press('Space');
+  await expect(player.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
+  await page.keyboard.press('m');
+  await expect(player.getByRole('button', { name: '取消静音', exact: true })).toBeVisible();
+  await expect.poll(() => page.locator('footer audio').evaluate((element: HTMLAudioElement) => element.volume)).toBe(0);
+});
+
+test('鼠标点过的按钮留着焦点时，空格播放而不是再按一次那个按钮', async ({ page }) => {
+  const player = await openWithVersion(page);
+  const zoom = player.getByRole('button', { name: '适应完整音轨' });
+  // 鼠标点的按钮在 Windows / Linux 上会留着焦点，但不是用键盘移到的：空格交给播放，不再放大一次。
+  await player.getByRole('button', { name: '放大音轨', exact: true }).click();
+  await expect(zoom).toHaveText('200%');
+  await page.keyboard.press('Space');
+  await expect(player.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
+  await expect(zoom).toHaveText('200%');
+});
+
+test('鼠标点“生成语音”后按钮换成“取消生成”，再按空格或回车不会误取消', async ({ page }) => {
+  const state = emptyState();
+  state.drafts[0].text = '你好。';
+  await seedState(page, state);
+  await page.goto('/');
+  // 预览没有推理引擎：点“生成语音”时直接把任务标成进行中，模拟生成开始；之后被点到的按钮都记下来。
+  await page.evaluate(() => {
+    const clicks: string[] = [];
+    Object.assign(window, { clicks });
+    document.addEventListener('click', event => {
+      const button = (event.target as Element).closest('button');
+      if (!button) return;
+      clicks.push(button.textContent ?? '');
+      if (!button.textContent?.includes('生成语音')) return;
+      event.stopPropagation();
+      (window as unknown as { __previewActivity: (slot: string, value: unknown) => void }).__previewActivity('activity', {
+        kind: 'generate', code: '@yovoice.activity.generate', params: {}, status: 'running', received: 0, total: 0, startedAt: '2026-10-18T00:00:00Z', errorCode: null, errorParams: {}, modelId: null,
+      });
+    }, true);
+  });
+  const inspector = page.locator('.inspector');
+  await inspector.getByRole('button', { name: '生成语音', exact: true }).click();
+  await expect(inspector.getByRole('button', { name: '取消生成', exact: true })).toBeVisible();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('Enter');
+  await expect(inspector.getByRole('button', { name: '取消生成', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { clicks: string[] }).clicks.filter(text => text.includes('取消生成')))).toEqual([]);
 });

@@ -5,8 +5,10 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { CircleAlert, FastForward, Pause, Play, Rewind, X } from 'lucide-react';
 import { isDesktop, isMac } from '../../shared/lib/client';
+import { useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 import { formatNotice } from '../../shared/i18n/format';
 import { formatTime, type Activity, type Generation } from '../../shared/workbench';
+import { AppDialog } from '../../shared/ui/app-dialog';
 import { splitTags } from './music-draft';
 import { LyricWordEditor } from './lyric-word-editor';
 import { useKineticLyrics, useLyricFollow } from './kinetic-lyrics';
@@ -15,6 +17,7 @@ import { useSongAnalysis } from './use-song-analysis';
 import { useLyricTiming } from './use-lyric-timing';
 import { useImmersiveChrome } from './use-immersive-chrome';
 import { useNowPlayingKeys } from './use-now-playing-keys';
+import { useFocusHome } from './use-focus-home';
 import { NowPlayingToolbar, useLyricStyle } from './now-playing-toolbar';
 import { ScrollLyrics } from './scroll-lyrics';
 import { StageBackdrop, StageLyrics } from './stage-lyrics';
@@ -30,7 +33,7 @@ const skipStep = 10;
 // 下载了可选的歌词对齐模型时可以一键逐字对齐（分离人声后强制对齐），结果随版本保存，和手动校准以最近一次为准；
 // aligner 表示模型已安装，没装时 getAligner 打开设置里的下载项。activity 是当前后台任务，用来显示对齐进度。
 // 播放页是全屏弹窗，会盖住全局通知：读取、保存、对齐、导出失败都在页内的提示条里显示。
-// 音频分析、歌词时间状态、沉浸式窗口和键盘分别在 useSongAnalysis、useLyricTiming、useImmersiveChrome、useNowPlayingKeys 里，这里负责播放与版本切换并组装页面。
+// 音频分析、歌词时间状态、沉浸式窗口和快捷键分别在 useSongAnalysis、useLyricTiming、useImmersiveChrome、useNowPlayingKeys 里，这里负责播放与版本切换并组装页面。
 export function NowPlaying({ item: opened, title: openedTitle, versions = [], aligner = false, activity, getAligner, close }: {
   item: Generation; title: string; versions?: Generation[]; aligner?: boolean; activity?: Activity | null; getAligner?: () => void; close: () => void;
 }) {
@@ -77,6 +80,8 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
     setPrevious(item); setItem(next); timing.reset(next); setDuration(next.duration);
   };
   const { hidden, fullscreen, leaving, wake, setIdle, toggleFullscreen, leave, finish } = useImmersiveChrome({ stage, playing, busy: !!sync || !!edit, close });
+  // 快捷键限定在播放页里：焦点因按钮消失等落到 body 时放回播放页。
+  useFocusHome(stage);
 
   // 逐字点亮：按播放位置把每个字的进度（--word-fill，0~1）和状态（data-sung）直接写到元素上，播放中逐帧更新，不经过 React 渲染。
   const paintWords = useEffectEvent(() => {
@@ -105,7 +110,10 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   // 当前句（校准时是待标记的一行，编辑时是正在编辑的一句）平滑地停到歌词区中线。
   useLyricFollow(lyricsBox, focus, !staged && lines.length > 0);
   const rewind = () => seek(time - skipStep), forward = () => seek(time + skipStep);
-  useNowPlayingKeys({ wake, editing: !!edit, syncing: !!sync, toggle, mark, undo, switchBack: previous ? () => switchTo(previous) : null, rewind, forward });
+  useNowPlayingKeys({ stage, wake, timing, url, toggle, rewind, forward, switchBack: previous ? () => switchTo(previous) : null,
+    toggleStyle: () => chooseStyle(lyricStyle === 'stage' ? 'scroll' : 'stage'), toggleFullscreen });
+  const playKeys = useHotkeyText('nowPlaying.play'), backKeys = useHotkeyText('nowPlaying.back'), forwardKeys = useHotkeyText('nowPlaying.forward');
+  const playAria = useHotkeyAria('nowPlaying.play'), backAria = useHotkeyAria('nowPlaying.back'), forwardAria = useHotkeyAria('nowPlaying.forward');
   const progress = duration ? time / duration * 100 : 0;
   return <Dialog className="now-playing-dialog" isOpen variant="fullscreen" padding={0} aria-label={t('@yovoice.music.nowPlayingTitle', { title })}
     onOpenChange={open => { if (open) return; if (sync) setSync(null); else if (edit) setEdit(null); else leave(); }}>
@@ -143,9 +151,9 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
             <input className="now-playing-progress" aria-label={t('@yovoice.player.progress')} aria-valuetext={t('@yovoice.player.progressValue', { current: formatTime(time), total: formatTime(duration) })} type="range" min={0} max={duration || 1} step={0.01} value={time} disabled={!url} onChange={event => seek(Number(event.target.value))} style={{ '--now-playing-progress': `${progress}%` } as CSSProperties} />
             <HStack className="now-playing-times" hAlign="between"><small>{formatTime(time)}</small><small>-{formatTime(Math.max(0, duration - time))}</small></HStack>
             <HStack className="now-playing-transport" gap={6} hAlign="center" vAlign="center">
-              <Button className="now-playing-skip" label={t('@yovoice.music.rewind', { n: skipStep })} isIconOnly variant="ghost" icon={<Rewind fill="currentColor" />} isDisabled={!url} onClick={rewind} />
-              <Button className="now-playing-toggle" label={playing ? t('@yovoice.player.pause') : t('@yovoice.player.play')} isIconOnly variant="ghost" icon={playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />} isDisabled={!url} onClick={toggle} />
-              <Button className="now-playing-skip" label={t('@yovoice.music.forward', { n: skipStep })} isIconOnly variant="ghost" icon={<FastForward fill="currentColor" />} isDisabled={!url} onClick={forward} />
+              <Button className="now-playing-skip" label={t('@yovoice.music.rewind', { n: skipStep })} tooltip={withHotkey(t('@yovoice.music.rewind', { n: skipStep }), backKeys)} aria-keyshortcuts={backAria} isIconOnly variant="ghost" icon={<Rewind fill="currentColor" />} isDisabled={!url} onClick={rewind} />
+              <Button className="now-playing-toggle" label={playing ? t('@yovoice.player.pause') : t('@yovoice.player.play')} tooltip={withHotkey(playing ? t('@yovoice.player.pause') : t('@yovoice.player.play'), playKeys)} aria-keyshortcuts={playAria} isIconOnly variant="ghost" icon={playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />} isDisabled={!url} onClick={toggle} />
+              <Button className="now-playing-skip" label={t('@yovoice.music.forward', { n: skipStep })} tooltip={withHotkey(t('@yovoice.music.forward', { n: skipStep }), forwardKeys)} aria-keyshortcuts={forwardAria} isIconOnly variant="ghost" icon={<FastForward fill="currentColor" />} isDisabled={!url} onClick={forward} />
             </HStack>
           </VStack>
         </VStack>
@@ -153,7 +161,12 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
           : lines.length ? <ScrollLyrics box={lyricsBox} lines={lines} current={current} sync={sync} editing={!!edit} editLine={editLine} lineClick={lineClick} audio={audio} seek={seek} play={() => void play()} /> : null}
       </HStack>
       {sync ? <LyricSyncBar done={sync.length} total={rows.length} ready={!!url} undo={undo} cancel={() => setSync(null)} mark={mark} />
-        : edit ? <LyricWordEditor lines={edit} setLines={setEdit} line={editLine} setLine={setEditLine} audio={audio} duration={duration} seek={seek} play={() => void play()} lineClick={lineClick} onSave={saveWords} onCancel={() => setEdit(null)} /> : null}
+        : edit ? <LyricWordEditor scope={stage} lines={edit} setLines={setEdit} line={editLine} setLine={setEditLine} audio={audio} duration={duration} seek={seek} play={() => void play()} lineClick={lineClick} onSave={saveWords} onCancel={() => setEdit(null)} /> : null}
     </VStack>
+    {/* 单键对齐会覆盖已有的校准或逐字时间，先确认；确认框在播放页之外，打开时播放页的快捷键不响应。 */}
+    {timing.confirmAlign ? <AppDialog title={t('@yovoice.music.alignReplaceTitle')} onClose={() => timing.setConfirmAlign(false)} actions={<>
+      <Button label={t('@yovoice.action.cancel')} onClick={() => timing.setConfirmAlign(false)} />
+      <Button variant="primary" label={t('@yovoice.music.alignLyrics')} onClick={() => { timing.setConfirmAlign(false); timing.alignNow(); }} />
+    </>}><p className="helper">{t('@yovoice.music.alignReplaceDescription')}</p></AppDialog> : null}
   </Dialog>;
 }

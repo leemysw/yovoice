@@ -8,9 +8,11 @@ import { readLocal, writeLocal } from '../../shared/lib/local-store';
 import { formatTime, type AlignedWord } from '../../shared/workbench';
 import { estimateWords, type LyricLine } from './lyric-timing';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { claimedByHotkey, composing, platform, useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
+import { bindingText, historyAction } from '../../shared/hotkeys/keys';
 
-// 每个字最短的时长与键盘微调的步长（秒）；按住 Shift 时用细步长。整句微调的步长单独一组。
-const minWord = 0.05, nudge = 0.05, fineNudge = 0.01, lineNudge = 0.1, fineLineNudge = 0.02;
+// 每个字最短的时长与键盘微调的步长（秒）；按住 Shift 时用细步长。整句微调的步长单独一组，大步长给按钮和快捷键。
+const minWord = 0.05, nudge = 0.05, fineNudge = 0.01, lineNudge = 0.1, fineLineNudge = 0.02, bigLineNudge = 0.5;
 // 整句调整的方式记在本机：ripple 是后面的句子跟着一起移，single 是只改这一句。
 const shiftModeKey = 'yovoice-lyric-shift';
 type ShiftMode = 'ripple' | 'single';
@@ -78,8 +80,9 @@ function settle(lines: LyricLine[], line: number, index: number, start: number, 
 // 也可以“跟唱打点”：边听边在每个字开始唱时按 ↓ 或回车，自动跳到下一个字和下一句。编辑结果实时显示在歌词上，保存后随版本记录。
 // lines 是正在编辑的歌词（含器乐段落），line 是当前编辑的行号，由播放页持有以便同步滚动和高亮。
 // lineClick 由编辑器填入：播放中点歌词里的某一句，就把这句锚定到当前播放位置；暂停时只选中这一句。
-export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio, duration, seek, play, lineClick, onSave, onCancel }: {
-  lines: LyricLine[]; setLines: (lines: LyricLine[]) => void; line: number; setLine: (line: number) => void; audio: RefObject<HTMLAudioElement | null>; duration: number;
+// scope 是键盘作用的范围（播放页）：焦点在其中时快捷键和固定按键才生效，上面盖着速查浮层等对话框时不作用到编辑器。
+export function LyricWordEditor({ scope, lines, setLines: setRaw, line, setLine, audio, duration, seek, play, lineClick, onSave, onCancel }: {
+  scope: RefObject<HTMLElement | null>; lines: LyricLine[]; setLines: (lines: LyricLine[]) => void; line: number; setLine: (line: number) => void; audio: RefObject<HTMLAudioElement | null>; duration: number;
   seek: (time: number) => void; play: () => void; lineClick: RefObject<((index: number) => void) | null>; onSave: (words: AlignedWord[]) => void; onCancel: () => void;
 }) {
   const setLines = (next: LyricLine[]) => setRaw(retime(next, duration));
@@ -150,17 +153,33 @@ export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio,
     };
     return () => { lineClick.current = null; };
   });
-  // 键盘：←/→ 整句提前、推后（Shift 更细），↑/↓ 换句，回车把这一句锚定到播放位置；焦点在字块上时方向键改的是那个字。
+  const toggleTap = () => tapping ? setTapping(false) : startTap();
+  const save = () => onSave(editedWords(lines));
+  // 可修改的快捷键：⌥←/⌥→ 整句提前、推后 0.5 秒，播放这一句，开始或停止跟唱打点，保存。限定在播放页里。
+  useHotkey('words.earlierBig', () => shift(-bigLineNudge), { within: scope, enabled: !tapping, repeat: true });
+  useHotkey('words.laterBig', () => shift(bigLineNudge), { within: scope, enabled: !tapping, repeat: true });
+  useHotkey('words.playLine', playLine, { within: scope, enabled: !tapping && words.length > 0 });
+  useHotkey('words.tap', toggleTap, { within: scope });
+  useHotkey('words.save', save, { within: scope, enabled: history.length > 0 });
+  const earlierKeys = useHotkeyText('words.earlierBig'), laterKeys = useHotkeyText('words.laterBig'), playKeys = useHotkeyText('words.playLine'), tapKeys = useHotkeyText('words.tap'), saveKeys = useHotkeyText('words.save');
+  const earlierAria = useHotkeyAria('words.earlierBig'), laterAria = useHotkeyAria('words.laterBig'), playAria = useHotkeyAria('words.playLine'), tapAria = useHotkeyAria('words.tap'), saveAria = useHotkeyAria('words.save');
+  // 固定按键（在捕获阶段先于快捷键分发）：←/→ 整句提前、推后（Shift 更细），↑/↓ 换句，回车把这一句锚定到播放位置，⌘Z 撤销；
+  // 打点时 ↓/回车打点（按住不放的重复不再打点）、Esc 停止。焦点在字块上时方向键改的是那个字。按键是某条已注册命令当前的按键时不处理，交给快捷键。
+  // 撤销是 ⌘Z / Ctrl+Z；这里没有重做，⇧⌘Z / Ctrl+Y 只拦下不执行，免得被宿主菜单转去重做别处输入框的文字。
+  // 别处已处理、输入法组字、焦点在菜单里或不在播放页里（上面盖着速查浮层等对话框）时不接管。
   const keys = useEffectEvent((event: globalThis.KeyboardEvent) => {
-    if (event.target instanceof HTMLInputElement) return;
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') { event.preventDefault(); undo(); return; }
-    if (tapping && (event.key === 'ArrowDown' || event.key === 'Enter' && !(event.target instanceof HTMLButtonElement))) { event.preventDefault(); tap(); return; }
+    const target = event.target instanceof Element ? event.target : null;
+    if (event.defaultPrevented || !target || !scope.current?.contains(target) || target instanceof HTMLInputElement || composing(event) || target.closest('[role="menu"], [role="listbox"]')) return;
+    if (claimedByHotkey(event)) return;
+    const history = historyAction(event, platform);
+    if (history) { event.preventDefault(); if (history === 'undo') undo(); return; }
+    if (tapping && (event.key === 'ArrowDown' || event.key === 'Enter' && !(target instanceof HTMLButtonElement))) { event.preventDefault(); if (!event.repeat) tap(); return; }
     if (event.key === 'Escape' && tapping) { event.preventDefault(); event.stopPropagation(); setTapping(false); return; }
-    if (tapping || event.target instanceof Element && event.target.closest('.lyric-word-track, [role="radiogroup"]')) return;
+    if (tapping || event.altKey || event.metaKey || event.ctrlKey || target.closest('.lyric-word-track, [role="radiogroup"]')) return;
     const step = event.shiftKey ? fineLineNudge : lineNudge;
     const action = event.key === 'ArrowLeft' ? () => shift(-step) : event.key === 'ArrowRight' ? () => shift(step)
       : event.key === 'ArrowUp' ? () => goto(position - 1) : event.key === 'ArrowDown' ? () => goto(position + 1)
-        : event.key === 'Enter' && !(event.target instanceof HTMLButtonElement) ? () => anchor() : null;
+        : event.key === 'Enter' && !(target instanceof HTMLButtonElement) ? () => anchor() : null;
     if (!action) return;
     event.preventDefault(); action();
   });
@@ -195,7 +214,7 @@ export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio,
     target.addEventListener('pointermove', move); target.addEventListener('pointerup', up); target.addEventListener('pointercancel', up);
   };
   const nudgeKey = (event: KeyboardEvent<HTMLElement>, index: number, mode: 'move' | 'start' | 'end') => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    if ((event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') || event.altKey || event.metaKey || event.ctrlKey) return;
     event.preventDefault(); event.stopPropagation();
     const word = words[index], step = (event.shiftKey ? fineNudge : nudge) * (event.key === 'ArrowLeft' ? -1 : 1);
     change(index, mode === 'end' ? word.start : word.start + step, mode === 'start' ? word.end : word.end + step);
@@ -211,11 +230,11 @@ export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio,
       <Button className="now-playing-glass now-playing-round" size="sm" variant="ghost" isIconOnly icon={<ChevronRight />} label={t('@yovoice.music.nextLine')} tooltip={`${t('@yovoice.music.nextLine')} · ↓`} isDisabled={position >= sung.length - 1 || tapping} onClick={() => goto(position + 1)} />
       <small className="lyric-word-editor-time" aria-live="polite">{stamp(lineStart)}</small>
       <HStack className="lyric-word-editor-nudge" gap={1} vAlign="center">
-        <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftEarlier', { n: '0.5' })} isDisabled={tapping} onClick={() => shift(-.5)} />
+        <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftEarlier', { n: '0.5' })} tooltip={earlierKeys || undefined} aria-keyshortcuts={earlierAria} isDisabled={tapping} onClick={() => shift(-bigLineNudge)} />
         <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftEarlier', { n: '0.1' })} tooltip="←" isDisabled={tapping} onClick={() => shift(-lineNudge)} />
         <Button className="now-playing-mark" size="sm" variant="ghost" label={t('@yovoice.music.anchorLine')} tooltip={t('@yovoice.music.anchorLineHint')} isDisabled={tapping} onClick={() => anchor()} />
         <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftLater', { n: '0.1' })} tooltip="→" isDisabled={tapping} onClick={() => shift(lineNudge)} />
-        <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftLater', { n: '0.5' })} isDisabled={tapping} onClick={() => shift(.5)} />
+        <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.shiftLater', { n: '0.5' })} tooltip={laterKeys || undefined} aria-keyshortcuts={laterAria} isDisabled={tapping} onClick={() => shift(bigLineNudge)} />
       </HStack>
       <SegmentedControl size="sm" label={t('@yovoice.music.shiftMode')} value={mode} onChange={chooseMode} isDisabled={tapping}>
         <SegmentedControlItem onPointerEnter={overflowTitle} value="ripple" label={t('@yovoice.music.shiftRipple')} />
@@ -234,12 +253,12 @@ export function LyricWordEditor({ lines, setLines: setRaw, line, setLine, audio,
       <StackItem as="span" className="lyric-word-head" aria-hidden />
     </VStack>
     <HStack gap={2} vAlign="center" wrap="wrap">
-      <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Play />} label={t('@yovoice.music.playLine')} isDisabled={tapping} onClick={playLine} />
-      <Button className={tapping ? 'now-playing-mark' : 'now-playing-glass'} size="sm" variant="ghost" label={t(tapping ? '@yovoice.music.wordTapStop' : '@yovoice.music.wordTap')} tooltip={t('@yovoice.music.wordTapHint')} aria-pressed={tapping} onClick={() => tapping ? setTapping(false) : startTap()} />
+      <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Play />} label={t('@yovoice.music.playLine')} tooltip={withHotkey(t('@yovoice.music.playLine'), playKeys)} aria-keyshortcuts={playAria} isDisabled={tapping} onClick={playLine} />
+      <Button className={tapping ? 'now-playing-mark' : 'now-playing-glass'} size="sm" variant="ghost" label={t(tapping ? '@yovoice.music.wordTapStop' : '@yovoice.music.wordTap')} tooltip={withHotkey(t('@yovoice.music.wordTapHint'), tapKeys)} aria-keyshortcuts={tapAria} aria-pressed={tapping} onClick={toggleTap} />
       <small className="lyric-word-editor-hint">{t(tapping ? '@yovoice.music.wordTapHint' : '@yovoice.music.wordEditorHint')}</small>
-      <Button className="now-playing-glass now-playing-round" size="sm" variant="ghost" isIconOnly icon={<Undo2 />} label={t('@yovoice.music.wordUndo')} tooltip={`${t('@yovoice.music.wordUndo')} · ⌘Z`} isDisabled={!history.length} onClick={undo} />
+      <Button className="now-playing-glass now-playing-round" size="sm" variant="ghost" isIconOnly icon={<Undo2 />} label={t('@yovoice.music.wordUndo')} tooltip={`${t('@yovoice.music.wordUndo')} · ${bindingText('mod+Z', platform)}`} isDisabled={!history.length} onClick={undo} />
       <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.wordCancel')} onClick={onCancel} />
-      <Button className="now-playing-mark" size="sm" variant="ghost" icon={<Check />} label={t('@yovoice.music.wordSave')} isDisabled={!history.length} onClick={() => onSave(editedWords(lines))} />
+      <Button className="now-playing-mark" size="sm" variant="ghost" icon={<Check />} label={t('@yovoice.music.wordSave')} tooltip={withHotkey(t('@yovoice.music.wordSave'), saveKeys)} aria-keyshortcuts={saveAria} isDisabled={!history.length} onClick={save} />
     </HStack>
   </VStack>;
 }

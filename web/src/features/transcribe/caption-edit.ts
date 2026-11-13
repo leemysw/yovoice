@@ -57,6 +57,13 @@ export function findRows(captions: TranscriptCaption[], find: string, matchCase 
   return captions.flatMap((c, i) => c.text.search(re) >= 0 ? [i] : []);
 }
 
+// 每一处匹配的行号与在这一行里的起止位置，按出现顺序排列；查找下一个、上一个据此跳转。
+export function findHits(captions: TranscriptCaption[], find: string, matchCase = false): { index: number; start: number; end: number }[] {
+  if (!find) return [];
+  const re = pattern(find, matchCase);
+  return captions.flatMap((c, index) => Array.from(c.text.matchAll(re), m => ({ index, start: m.index, end: m.index + m[0].length })));
+}
+
 // 把所有行里的查找内容换成 replacement，返回新字幕与替换的处数；rows 给出时只替换这些行。
 export function replaceAll(captions: TranscriptCaption[], find: string, replacement: string, matchCase = false, rows?: number[]): { captions: TranscriptCaption[]; count: number } {
   if (!find) return { captions, count: 0 };

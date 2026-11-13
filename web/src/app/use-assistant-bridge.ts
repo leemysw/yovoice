@@ -26,13 +26,10 @@ export function useAssistantBridge({ state, page, setPage, draft, setDraft, setD
   const assistantHidden = featureHidden(state.preferences, 'assistant');
   useEffect(() => {
     if (assistantHidden) return;
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); setAssistantOpen(open => !open); }
-    };
+    // 快捷键（默认 ⌘J / Ctrl+J）在 use-global-hotkeys 里注册；这里接宿主菜单与其他入口发来的切换事件。
     const onToggle = () => setAssistantOpen(open => !open);
-    window.addEventListener('keydown', onKey);
     window.addEventListener('workbench-toggle-assistant', onToggle);
-    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('workbench-toggle-assistant', onToggle); };
+    return () => window.removeEventListener('workbench-toggle-assistant', onToggle);
   }, [assistantHidden]);
   // 编辑页的当前页面键（text/story/music/score），其余页面直接用页面名。
   const assistantPage = page === 'create' || page === 'history' ? projectKind(draft) : page === 'voices' ? 'voices' : page;

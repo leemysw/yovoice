@@ -3639,7 +3639,7 @@
     "defaultMessage": "下載和管理模型、設定 AI 服務、清理資源、切換介面語言、搬移資料目錄。第一次使用，先在這裡下載一個模型。"
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "按 ⌘J（Windows 上是 Ctrl+J）或點標題列的助手按鈕，直接說要做什麼，例如「新增一個故事配音，替每個角色配好聲音」。使用前需要在設定裡設定 AI 服務。"
+    "defaultMessage": "按 {keys} 或點標題列的助手按鈕，直接說要做什麼，例如「新增一個故事配音，替每個角色配好聲音」。使用前需要在設定裡設定 AI 服務。"
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "開場動畫"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "移走入口"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "移走後可從右上角或 ⌘J 開啟"
+    "defaultMessage": "移走後可從右上角或 {keys} 開啟"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "開啟或關閉 Ocho（⌘J）"
+    "defaultMessage": "開啟或關閉 Ocho（{keys}）"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "正在思考"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "切回版本 {n}"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "保持播放位置切換，也可以按 B"
+    "defaultMessage": "保持播放位置切換"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "音樂模型"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "已關閉閒置自動卸載"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "全域"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "導覽"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "視窗與面板"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "通用操作"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "底部播放區"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "單軌播放列"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "多軌時間軸"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "語音生成"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "編輯與生成"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "檢查器"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "版本"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "語音轉寫"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "列表頁"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "編輯頁"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "播放與定位"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "編輯字幕"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "匯出與翻頁"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "故事配音"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "台詞編輯"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "定位與編輯"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "說話者"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "作品列表"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "音樂生成"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "音樂"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "編輯與生成"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "播放頁"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "逐字歌詞"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "分軌工作台"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "編曲"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "音效"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "我的聲音"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "聲音"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "聲音列表"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "角色編輯器"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "參考音訊"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "參考音訊列表"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "編輯視窗"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "聲音選擇器"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "助手面板"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "新增"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "切換到語音生成"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "切換到語音轉寫"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "切換到故事配音"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "切換到音樂生成"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "切換到我的聲音"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "開啟設定"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "返回上一層"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "下一個頁內分頁"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "上一個頁內分頁"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "開啟 / 關閉 Ocho"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "收合 / 展開側邊欄"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "收合 / 展開右側檢查器"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "快捷鍵速查"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "取消 / 停止"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "播放 / 暫停（輸入框內也可用）"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "播放 / 暫停"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "快退 5 秒"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "快進 5 秒"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "跳到開頭"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "跳到結尾"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "靜音"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "播放 / 暫停"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "試聽選取範圍"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "含前後 1 秒試聽"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "重新生成選取的片段"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "建立副本"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "分割"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "上一個片段邊界"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "下一個片段邊界"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "跳到開頭"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "跳到結尾"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "靜音目前音軌"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "獨奏目前音軌"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "切換吸附"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "放大"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "縮小"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "縮放至全部"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "縮放至選取範圍"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "匯出"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "復原 / 重做"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "複製 / 貼上 / 全選"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "刪除 / 連動刪除"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "微調片段位置"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "調整讀音"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "匯入檔案"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "選擇角色"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "新增或更換參考音訊"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "歷史版本"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "匯出此版本"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "上傳音訊或影片"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "開始錄音 / 停止並轉寫"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "搜尋轉寫"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "試聽目前這行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "上一行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "下一行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "切換連續播放"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "尋找與取代"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "下一個符合項"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "上一個符合項"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "刪除目前這行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "復原"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "重做"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "在游標處拆行"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "與上一行合併"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "與下一行合併"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "向前 / 向後刪除"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "匯出字幕"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "上一頁"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "下一頁"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "生成全部台詞"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "重新生成目前台詞"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "上一句台詞"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "下一句台詞"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "在下方插入一句"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "刪除目前台詞"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "上一頁"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "下一頁"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "在游標處拆成兩句"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "與上一句合併"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "與下一句合併"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "設為第 1–9 位說話者"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "開啟說話者選單"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "匯入書稿"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "開啟播放頁"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "人聲 / 純音樂"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "插入段落標記"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "放大編輯歌詞"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "哼一段旋律"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "開啟分軌"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "歷史版本"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "匯出此版本"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "播放 / 暫停"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "快退 10 秒"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "快進 10 秒"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "與上一個版本來回切換"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "一鍵對齊"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "逐行校準"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "逐字編輯"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "全螢幕"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "切換歌詞樣式"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "匯出 LRC"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "校準時標記下一行"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "復原標記"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "結束校準 / 關閉"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "整句提前 0.5 秒"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "整句延後 0.5 秒"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "播放這一句"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "開始 / 停止跟唱打點"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "儲存"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "上一句 / 下一句"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "整句平移 0.1 秒"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "錨定到播放位置"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "復原"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "結束逐字編輯"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "播放 / 暫停"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "獨奏第 1–6 軌"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "靜音第 1–6 軌"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "快退 5 秒"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "快進 5 秒"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "匯出全部分軌"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "渲染"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "匯入 MIDI"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "匯出"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "分軌試聽"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "上一條音軌"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "下一條音軌"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "目前音軌靜音 / 發聲"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "更換樂器"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "放大"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "縮小"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "縮放至全部"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "歷史版本"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "匯出此版本"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "搜尋"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "試聽選取的聲音"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "生成試聽"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "儲存"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "儲存並套用"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "關閉"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "搜尋"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "試聽選取項目"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "儲存"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "錄音 / 停止錄音"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "匯入音訊"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "最小化面板"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "傳送"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "換行"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "依目前頁面新增作品、聲音或參考音訊；在 Ocho 中開始新對話"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "從轉寫編輯頁回到列表，或從歷史版本回到作品"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "取消生成、停止錄音、停止 Ocho 回覆"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "按住 Shift 步距更大"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "請先在正文中選取文字"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "再按一次停止"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "游標位於行首時"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "游標位於行尾時"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "游標位於行首時"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "游標位於行尾時"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "依說話者設定中的順序"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "彈出 [Verse]、[Chorus] 等"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "尚未分離時會先分離"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "按住 Shift 每次 0.02 秒"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "再按一次取消"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "開啟 / 關閉位於 全域 › 視窗與面板"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "快捷鍵"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "在任何頁面按 {keys} 可查看該頁面可用的快捷鍵。"
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "啟用快捷鍵"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "關閉後會停用下方所有可修改的快捷鍵。輸入框中的編輯鍵（拆行、合併、復原）和系統選單不受影響。"
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "匯入…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "匯出…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "全部恢復預設"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "所有快捷鍵和功能區開關都會恢復預設。"
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "搜尋指令或按鍵"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "全部"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "已修改"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "未設定"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "快捷鍵已停用。下方的設定會保留，重新開啟後照常生效。"
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "找不到相符的快捷鍵。"
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "{count} 項"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "已修改 {count} 項"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "已停用"
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "啟用「{area}」的快捷鍵"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "未設定"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "遵循系統編輯習慣，無法修改"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "僅限 macOS"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "或"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "修改「{name}」的快捷鍵"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "恢復預設"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "請按下新的組合鍵"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc 取消 · ⌫ 清除"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "清除"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys} 已被系統佔用，請換一個組合。"
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "全域快捷鍵需要加上 {mods}，這樣在輸入框中也能使用。"
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys} 已用於「{name}」。"
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys} 已用於「{name}」，此按鍵無法修改，請換一個組合。"
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "取代"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "快捷鍵速查"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "目前頁面沒有可用的快捷鍵。"
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "自訂快捷鍵"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "快捷鍵已停用，可在設定中重新開啟。"
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "匯出快捷鍵"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "只匯出修改過的快捷鍵"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "{count} 項；匯入時其餘快捷鍵維持對方的設定。"
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "匯出全部快捷鍵"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "{count} 項；連同預設值一併寫入。"
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "同時匯出總開關與功能區開關"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "儲存檔案"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "yovoice 快捷鍵"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "匯入快捷鍵"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "選擇快捷鍵檔案"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "這不是 yovoice 匯出的快捷鍵檔案。"
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "來自 {platform} · {count} 項快捷鍵"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "合併"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "只修改檔案中有的快捷鍵，其餘維持目前設定。"
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "取代"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "檔案中沒有的快捷鍵會恢復預設。"
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "將修改 {count} 項"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "匯入後沒有變化。"
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "覆蓋你修改過的按鍵"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "與「{name}」衝突，將被清除"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "恢復預設"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "略過 {count} 項：此版本沒有這些指令，或按鍵無法使用。"
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "總開關與功能區開關也會依檔案更新。"
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "套用"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "此快捷鍵需要使用數字鍵：按下修飾鍵加任一數字。"
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "恢復預設（{keys}）"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "篩選"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "移走後可從右上角開啟"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys} 已用於「{name}」等 {count} 條命令。"
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "速查浮層現在沒有快捷鍵，可以點「快捷鍵速查」開啟，查看目前頁面能用的快捷鍵。"
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "向前 / 向後刪除"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "還沒有下載歌詞對齊模型。在「歌詞工具」選單裡選「智慧對齊」可以前往下載。"
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "重新對齊歌詞？"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "智慧對齊會取代這個版本現有的歌詞校準和逐字時間，包括手動調整過的部分。"
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "點標題列的助手按鈕，直接說要做什麼，例如「新增一個故事配音，替每個角色配好聲音」。使用前需要在設定裡設定 AI 服務。"
   }
 }

@@ -3639,7 +3639,7 @@
     "defaultMessage": "Modelle herunterladen und verwalten, KI-Dienste einrichten, Ressourcen aufräumen, Sprache ändern und den Datenordner verschieben. Lade beim ersten Start hier ein Modell herunter."
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "Drücke ⌘J (unter Windows Strg+J) oder den Assistenten-Knopf in der Titelleiste und sag einfach, was du möchtest, etwa „Erstelle eine Geschichte und gib jeder Figur eine Stimme“. Richte vorher in den Einstellungen einen KI-Dienst ein."
+    "defaultMessage": "Drücke {keys} oder den Assistenten-Knopf in der Titelleiste und sag einfach, was du möchtest, etwa „Erstelle eine Geschichte und gib jeder Figur eine Stimme“. Richte vorher in den Einstellungen einen KI-Dienst ein."
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "Begrüßungsanimation"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "Starter ausblenden"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "Weiterhin oben rechts oder mit ⌘J zu öffnen"
+    "defaultMessage": "Weiterhin oben rechts oder mit {keys} zu öffnen"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "Ocho öffnen oder schließen (⌘J)"
+    "defaultMessage": "Ocho öffnen oder schließen ({keys})"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "Denkt nach"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "Zurück zu Version {n}"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "Behält die Wiedergabeposition; mit B umschalten"
+    "defaultMessage": "Behält die Wiedergabeposition"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Musikmodelle"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "Automatisches Entladen im Leerlauf ist aus"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "Global"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "Navigation"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "Fenster und Bereiche"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "Allgemeine Aktionen"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "Unterer Player"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "Einzelspur-Player"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "Mehrspur-Timeline"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "Sprachgenerierung"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "Bearbeiten und generieren"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "Inspektor"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "Versionen"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "Transkription"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "Liste"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "Editor"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "Wiedergabe und Navigation"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "Untertitel bearbeiten"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "Export und Seiten"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "Geschichte erzählen"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "Zeilen"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "Generieren"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "Navigieren und bearbeiten"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "Sprecher"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "Werke"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "Musikgenerierung"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "Song"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "Bearbeiten und generieren"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "Wird abgespielt"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "Wortzeiten"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "Stem-Studio"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "Partitur"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "Soundeffekte"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "Klangbibliothek"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "Charaktere"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "Charakterliste"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "Charakter-Editor"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "Referenzaudio"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "Referenzliste"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "Bearbeitungsdialog"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "Stimmenauswahl"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "Assistentenbereich"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "Neu"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "Zu Sprachgenerierung wechseln"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "Zu Transkription wechseln"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "Zu Geschichte erzählen wechseln"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "Zu Musikgenerierung wechseln"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "Zu Klangbibliothek wechseln"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "Einstellungen öffnen"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "Zurück"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "Nächster Tab"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "Vorheriger Tab"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "Ocho öffnen / schließen"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "Seitenleiste ein- / ausblenden"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "Inspektor ein- / ausblenden"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "Tastenkürzel-Übersicht"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "Abbrechen / stoppen"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "Wiedergabe / Pause (auch beim Tippen)"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "Wiedergabe / Pause"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "5 Sekunden zurück"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "5 Sekunden vor"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "Zum Anfang"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "Zum Ende"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "Stummschalten"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "Wiedergabe / Pause"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "Auswahl abspielen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "Mit 1 s Rand abspielen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "Ausgewählten Clip neu generieren"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "Duplizieren"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "Teilen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "Vorherige Clip-Kante"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "Nächste Clip-Kante"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "Zum Anfang"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "Zum Ende"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "Aktuelle Spur stummschalten"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "Aktuelle Spur solo schalten"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "Einrasten ein- / ausschalten"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "Vergrößern"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "Verkleinern"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "An Fenster anpassen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "An Auswahl anpassen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "Exportieren"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "Rückgängig / Wiederholen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "Kopieren / Einfügen / Alles auswählen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "Löschen / Mit Lückenschluss löschen"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "Clips verschieben"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "Generieren"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "Aussprache anpassen"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "Datei importieren"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "Charakter wählen"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "Referenzaudio hinzufügen oder ändern"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "Versionsverlauf"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "Diese Version exportieren"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "Audio oder Video hochladen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "Aufnahme starten / stoppen und transkribieren"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "Transkripte durchsuchen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "Aktuelle Zeile abspielen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "Vorherige Zeile"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "Nächste Zeile"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "Fortlaufende Wiedergabe ein- / ausschalten"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "Suchen und ersetzen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "Nächster Treffer"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "Vorheriger Treffer"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "Aktuelle Zeile löschen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "Rückgängig"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "Wiederholen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "Zeile am Cursor teilen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "Mit vorheriger Zeile zusammenführen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "Mit nächster Zeile zusammenführen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "Rückwärts / vorwärts löschen"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "Untertitel exportieren"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "Vorherige Seite"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "Nächste Seite"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "Alle Zeilen generieren"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "Aktuelle Zeile neu generieren"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "Vorherige Zeile"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "Nächste Zeile"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "Zeile darunter einfügen"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "Aktuelle Zeile löschen"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "Vorherige Seite"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "Nächste Seite"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "Zeile am Cursor teilen"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "Mit vorheriger Zeile zusammenführen"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "Mit nächster Zeile zusammenführen"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "Sprecher 1–9 zuweisen"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "Sprechermenü öffnen"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "Manuskript importieren"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "Generieren"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "„Wird abgespielt“ öffnen"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "Gesang / Instrumental"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "Abschnittsmarke einfügen"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "Liedtext-Editor vergrößern"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "Melodie summen"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "Stems öffnen"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "Versionsverlauf"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "Diese Version exportieren"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "Wiedergabe / Pause"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "10 Sekunden zurück"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "10 Sekunden vor"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "Mit vorheriger Version wechseln"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "Automatisch ausrichten"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "Zeilenweise synchronisieren"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "Wortzeiten bearbeiten"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "Vollbild"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "Liedtextstil ändern"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "LRC exportieren"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "Beim Synchronisieren nächste Zeile markieren"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "Markierung rückgängig"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "Synchronisierung beenden / schließen"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "Zeile 0,5 s früher setzen"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "Zeile 0,5 s später setzen"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "Diese Zeile abspielen"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "Tap-Timing starten / stoppen"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "Speichern"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "Vorherige / nächste Zeile"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "Zeile um 0,1 s verschieben"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "An Abspielposition verankern"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "Rückgängig"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "Wortzeiten beenden"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "Wiedergabe / Pause"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "Spur 1–6 solo schalten"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "Spur 1–6 stummschalten"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "5 Sekunden zurück"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "5 Sekunden vor"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "Alle Stems exportieren"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "Rendern"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "MIDI importieren"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "Exportieren"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "Stems anhören"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "Vorherige Spur"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "Nächste Spur"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "Aktuelle Spur stummschalten / aufheben"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "Instrument ändern"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "Vergrößern"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "Verkleinern"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "An Fenster anpassen"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "Generieren"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "Versionsverlauf"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "Diese Version exportieren"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "Suchen"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "Ausgewählte Stimme anhören"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "Hörprobe generieren"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "Speichern"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "Speichern und anwenden"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "Schließen"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "Suchen"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "Ausgewählten Clip anhören"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "Speichern"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "Aufnahme starten / stoppen"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "Audio importieren"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "Bereich minimieren"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "Senden"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "Neue Zeile"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "Erstellt ein Werk, eine Stimme oder einen Referenzclip für die aktuelle Seite; startet in Ocho einen neuen Chat"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "Vom Transkript zurück zur Liste oder vom Verlauf zurück zum Werk"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "Bricht die Generierung ab, beendet die Aufnahme oder stoppt Ocho"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "Umschalttaste gedrückt halten für größere Schritte"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "Zuerst Text im Skript markieren"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "Erneut drücken zum Stoppen"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "Mit dem Cursor am Zeilenanfang"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "Mit dem Cursor am Zeilenende"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "Mit dem Cursor am Zeilenanfang"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "Mit dem Cursor am Zeilenende"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "In der Reihenfolge der Sprecherliste"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "Bietet [Verse], [Chorus] und mehr an"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "Trennt bei Bedarf zuerst die Stems"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "Umschalttaste gedrückt halten für 0,02 s"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "Erneut drücken zum Aufheben"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "Öffnen und Schließen unter Global › Fenster und Bereiche"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "Tastenkürzel"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "Drücke {keys} auf einer beliebigen Seite, um die dort verfügbaren Tastenkürzel zu sehen."
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "Tastenkürzel aktivieren"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "Deaktiviert alle änderbaren Tastenkürzel unten. Bearbeitungstasten in Textfeldern (Teilen, Zusammenführen, Rückgängig) und Systemmenüs funktionieren weiterhin."
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "Importieren…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "Exportieren…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "Alle auf Standard zurücksetzen"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "Alle Tastenkürzel und Bereichsschalter werden auf die Standardwerte zurückgesetzt."
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "Befehle oder Tasten suchen"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "Alle"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "Geändert"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "Nicht belegt"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "Tastenkürzel sind aus. Deine Einstellungen unten bleiben erhalten und gelten wieder, sobald du sie einschaltest."
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "Keine passenden Tastenkürzel."
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "{count} Tastenkürzel"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "{count} geändert"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "Aus"
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "Tastenkürzel für {area} aktivieren"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "Nicht belegt"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "Folgt den Standard-Bearbeitungstasten und kann nicht geändert werden"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "Nur macOS"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "oder"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "Tastenkürzel für {name} ändern"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "Standard wiederherstellen"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "Neue Tastenkombination drücken"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc zum Abbrechen · ⌫ zum Löschen"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "Löschen"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys} wird vom System verwendet. Wähle eine andere Kombination."
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "Globale Tastenkürzel benötigen {mods}, damit sie auch beim Tippen funktionieren."
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys} wird bereits von „{name}“ verwendet."
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys} wird bereits von „{name}“ verwendet und kann nicht geändert werden. Wähle eine andere Kombination."
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "Ersetzen"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "Tastenkürzel"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "Auf dieser Seite sind keine Tastenkürzel verfügbar."
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "Tastenkürzel anpassen"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "Tastenkürzel sind aus. Du kannst sie in den Einstellungen wieder einschalten."
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "Tastenkürzel exportieren"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "Nur geänderte Tastenkürzel"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "{count} Einträge; andere Tastenkürzel behalten die Einstellungen des Importierenden."
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "Alle Tastenkürzel"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "{count} Einträge, einschließlich Standardwerte."
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "Hauptschalter und Bereichsschalter einbeziehen"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "Datei speichern"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "yovoice Tastenkürzel"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "Tastenkürzel importieren"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "Tastenkürzel-Datei auswählen"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "Das ist keine aus yovoice exportierte Tastenkürzel-Datei."
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "Von {platform} · {count} Tastenkürzel"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "Zusammenführen"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "Nur die Tastenkürzel aus der Datei ändern, den Rest beibehalten."
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "Ersetzen"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "Tastenkürzel, die nicht in der Datei stehen, werden auf Standard zurückgesetzt."
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "{count} Änderungen"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "Es ändert sich nichts."
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "Überschreibt deine Änderung"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "Konflikt mit „{name}“; wird gelöscht"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "Zurück auf Standard"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "{count} werden übersprungen: Diese Befehle gibt es in dieser Version nicht oder ihre Tasten sind nicht nutzbar."
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "Hauptschalter und Bereichsschalter folgen ebenfalls der Datei."
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "Anwenden"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "Dieses Tastenkürzel verwendet Zifferntasten: Modifikatoren mit einer beliebigen Ziffer drücken."
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "Standard wiederherstellen ({keys})"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "Filtern"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "Weiterhin oben rechts zu öffnen"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys} wird bereits von „{name}“ und weiteren Befehlen verwendet ({count} insgesamt)."
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "Für die Übersicht ist gerade kein Tastenkürzel festgelegt. Klicke auf Tastenkürzel, um die auf dieser Seite verfügbaren Kürzel zu sehen."
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "Rückwärts / vorwärts löschen"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "Das Modell zur Liedtext-Ausrichtung ist noch nicht heruntergeladen. Wähle im Menü Liedtext-Werkzeuge „Automatisch ausrichten“, um es herunterzuladen."
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "Liedtext neu ausrichten?"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "Die automatische Ausrichtung ersetzt das aktuelle Liedtext-Timing dieser Version, auch manuell angepasste Stellen."
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "Drücke den Assistenten-Knopf in der Titelleiste und sag einfach, was du möchtest, etwa „Erstelle eine Geschichte und gib jeder Figur eine Stimme“. Richte vorher in den Einstellungen einen KI-Dienst ein."
   }
 }

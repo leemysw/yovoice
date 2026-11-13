@@ -3,6 +3,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Type } from 'lucide-react';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
 export interface TextSelection { start: number; end: number; word: string }
 interface SelectionAnchor extends TextSelection { rect: DOMRect; bounds: DOMRect }
@@ -43,6 +44,15 @@ export function SelectionAction({ editor, onEdit }: { editor: RefObject<HTMLText
   const [position, setPosition] = useState({ left: 0, top: 0 });
   const popup = useRef<HTMLElement>(null);
   const button = useRef<HTMLButtonElement | null>(null);
+  // 调整读音：按钮与快捷键共用；正文里没有选中文字时什么也不做。
+  const edit = () => {
+    const target = editor.current;
+    if (target) { const start = target.selectionStart; const end = target.selectionEnd; const word = target.value.slice(start, end); if (word.trim()) onEdit({ start, end, word }); }
+    setSelection(null);
+  };
+  // 快捷键只在焦点位于正文时响应，避免对正文里残留的旧选区生效。
+  useHotkey('create.pronounce', edit, { within: editor });
+  const keys = useHotkeyText('create.pronounce'), aria = useHotkeyAria('create.pronounce');
   useLayoutEffect(() => {
     if (!selection || !popup.current) return;
     const { width, height } = popup.current.getBoundingClientRect();
@@ -95,8 +105,8 @@ export function SelectionAction({ editor, onEdit }: { editor: RefObject<HTMLText
     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setSelection(null); }}
     onKeyDown={event => { if (event.key === 'Escape' || (event.key === 'Tab' && event.shiftKey)) { event.preventDefault(); setSelection(null); editor.current?.focus(); } }}>
     {/* WebKit 点击按钮时可能不转移焦点，阻止鼠标按下导致编辑器失焦并提前卸载浮层。 */}
-    <Button label={t('@yovoice.selection.adjustPronunciation')} icon={<Type size={16} />} size="sm" variant="secondary"
+    <Button label={t('@yovoice.selection.adjustPronunciation')} tooltip={withHotkey(t('@yovoice.selection.adjustPronunciation'), keys, undefined)} aria-keyshortcuts={aria} icon={<Type size={16} />} size="sm" variant="secondary"
       onMouseDown={event => { if (event.button === 0) event.preventDefault(); }}
-      onClick={() => { const target = editor.current; if (target) { const start = target.selectionStart; const end = target.selectionEnd; const word = target.value.slice(start, end); if (word.trim()) onEdit({ start, end, word }); } setSelection(null); }} />
+      onClick={edit} />
   </HStack>;
 }

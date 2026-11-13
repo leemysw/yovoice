@@ -189,12 +189,12 @@
 .assistant-launcher-wrap[data-running] .assistant-launcher.astryx-button::before { animation-duration: 1.6s; }
 .assistant-launcher .astryx-button-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .assistant-launcher-wrap[data-running] .assistant-launcher .astryx-button-label { color: var(--app-muted); font-weight: var(--font-weight-normal); }
-.assistant-launcher .astryx-kbd { flex-shrink: 0; }
+.assistant-launcher .assistant-launcher-keys { flex-shrink: 0; }
 @media (prefers-reduced-motion: reduce) {
   .assistant-panel, .assistant-launcher-wrap, .assistant-nudge, .assistant-proposal, .assistant-launcher-hide, .assistant-launcher::before, .assistant-empty-art, .assistant-empty-title, .assistant-empty-hint, .assistant-suggestions, .assistant-history, .assistant-scrim, .assistant-status-label { animation: none; transition: none; }
 }
 @media (max-width: 600px) {
-  .assistant-launcher .astryx-kbd { display: none; }
+  .assistant-launcher .assistant-launcher-keys { display: none; }
 }
 /* 助手输入框：层次与聚焦反馈。 */
 .assistant-composer > div { box-shadow: var(--app-shadow-composer); transition: box-shadow 220ms var(--app-ease-swift); }

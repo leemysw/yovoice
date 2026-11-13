@@ -1,0 +1,17 @@
+/* 快捷键：按键徽标（设置页、速查浮层、按钮提示共用）与速查浮层。 */
+
+@layer app {
+  .hotkey-keys { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1); font: inherit; background: none; border: 0; padding: 0; }
+  .hotkey-combo { display: inline-flex; align-items: center; gap: var(--spacing-0-5); font: inherit; background: none; border: 0; padding: 0; }
+  .hotkey-key { display: inline-flex; align-items: center; justify-content: center; min-width: calc(var(--spacing-5) + var(--spacing-0-5)); height: calc(var(--spacing-5) + var(--spacing-0-5)); padding: 0 var(--spacing-1-5); box-sizing: border-box;
+    border: var(--border-width) solid var(--color-border-emphasized); border-bottom-width: calc(var(--border-width) * 2); border-radius: var(--radius-inner);
+    background: var(--app-white); color: var(--color-text-primary); font-family: var(--app-mono); font-size: var(--font-size-xs); line-height: 1; white-space: nowrap; }
+  .hotkey-keys[data-platform="mac"] .hotkey-key { font-family: inherit; }
+  .hotkey-keys-or { font-size: var(--font-size-xs); }
+  /* 速查浮层：两列排开各个功能块。 */
+  .hotkey-cheatsheet h4 { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+  .hotkey-cheatsheet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(var(--spacing-10) * 7), 1fr)); gap: var(--spacing-4) var(--spacing-6); }
+  .hotkey-cheatsheet-title { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); }
+  .hotkey-cheatsheet-row { min-height: var(--spacing-7); border-bottom: var(--border-width) solid var(--app-line); }
+  .hotkey-cheatsheet-row > p { font-size: var(--font-size-sm); }
+}

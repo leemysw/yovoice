@@ -121,3 +121,40 @@
   .model-update-notice:focus-within .model-update-dismiss.astryx-button { opacity: 1; }
   .model-update-dismiss.astryx-button:hover { color: var(--app-ink); background-color: color-mix(in srgb, var(--color-accent) 22%, transparent) !important; }
 }
+
+/* 设置 › 快捷键：功能区卡片（一级）里套可折叠的页面（二级）与功能块小标题（三级）；功能区开关浮在卡片右上角。 */
+@layer app {
+  .hotkey-toolbar > .astryx-segmented-control { width: auto; flex: none; }
+  .hotkey-notice { padding: var(--spacing-3) var(--spacing-4); border: var(--border-width) dashed var(--app-line); border-radius: var(--radius-container); color: var(--app-muted); font-size: var(--font-size-sm); }
+  .hotkey-list[data-disabled] .hotkey-area { opacity: .6; }
+  .hotkey-area { position: relative; border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); overflow: hidden; }
+  .hotkey-area + .hotkey-area { margin-top: 0; }
+  .hotkey-area > .astryx-collapsible > .astryx-collapsible-trigger { padding: var(--spacing-3) var(--spacing-5); padding-inline-end: calc(var(--spacing-10) + var(--spacing-6)); }
+  .hotkey-area-switch { position: absolute; inset-block-start: var(--spacing-4); inset-inline-end: var(--spacing-5); }
+  .hotkey-area-title { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); }
+  .hotkey-area-trigger > small { font-size: var(--font-size-xs); }
+  .hotkey-area[data-off] .hotkey-rows { opacity: .55; }
+  .hotkey-groups { border-top: var(--border-width) solid var(--app-line); }
+  .hotkey-group + .hotkey-group { border-top: var(--border-width) solid var(--app-line); }
+  .hotkey-group > .astryx-collapsible-trigger { padding: var(--spacing-2) var(--spacing-5); background: var(--color-background-muted); }
+  .hotkey-group-trigger strong { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+  .hotkey-group-trigger small { font-size: var(--font-size-xs); }
+  .hotkey-sub-title { padding: var(--spacing-3) var(--spacing-5) var(--spacing-1); color: var(--app-muted); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); }
+  .hotkey-row { padding: var(--spacing-2) var(--spacing-5); border-top: var(--border-width) solid var(--app-line); }
+  .hotkey-sub-title + .hotkey-row { border-top: 0; }
+  .hotkey-row-label { flex: 1; min-width: 0; }
+  .hotkey-row-name { display: flex; align-items: center; gap: var(--spacing-2); font-size: var(--font-size-sm); }
+  .hotkey-row-label > small { font-size: var(--font-size-xs); }
+  .hotkey-row[data-modified] .hotkey-key { border-color: var(--theme-highlight, var(--color-accent)); }
+  .hotkey-row-control { flex-shrink: 0; }
+  .hotkey-edit.astryx-button { height: auto; min-height: var(--spacing-7); padding-inline: var(--spacing-1); }
+  .hotkey-unset { font-size: var(--font-size-xs); font-style: italic; }
+  .hotkey-lock { color: var(--app-muted); }
+  .hotkey-recorder { display: inline-flex; align-items: center; min-width: calc(var(--spacing-10) * 3); min-height: var(--spacing-7); padding: 0 var(--spacing-2); box-sizing: border-box; border: var(--border-width) dashed var(--color-accent); border-radius: var(--radius-inner); color: var(--app-muted); font: inherit; font-size: var(--font-size-xs); background: var(--color-background-muted); }
+  .hotkey-recorder-hint { font-size: var(--font-size-xs); white-space: nowrap; }
+  .hotkey-message { padding: var(--spacing-1-5) var(--spacing-3); border-radius: var(--radius-inner); background: var(--color-background-muted); }
+  .hotkey-message > small { color: var(--color-text-primary); }
+  .hotkey-import-list { max-height: calc(var(--spacing-10) * 8); overflow-y: auto; border: var(--border-width) solid var(--app-line); border-radius: var(--radius-inner); }
+  .hotkey-import-row { padding: var(--spacing-2) var(--spacing-3); }
+  .hotkey-import-row + .hotkey-import-row { border-top: var(--border-width) solid var(--app-line); }
+}

@@ -42,7 +42,7 @@ test('导入新作品、统一角色映射、逐句分配和重载持久化', as
   await page.getByRole('button', { name: '添加说话人' }).click();
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: '第 2 句说话人', exact: true }).click();
-  await page.getByRole('menuitem', { name: '说话人 3', exact: true }).click();
+  await page.getByRole('menuitem', { name: /^说话人 3/ }).click();
   await page.getByLabel('第 2 句台词', { exact: true }).fill('改过的台词');
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload();
@@ -71,7 +71,8 @@ test('导入新作品、统一角色映射、逐句分配和重载持久化', as
   const longText = '这是一段用于检查窄窗口下自动换行的台词。'.repeat(8);
   const firstCue = page.getByLabel('第 1 句台词', { exact: true });
   await firstCue.fill(longText);
-  expect(await firstCue.evaluate(element => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
+  // 高度变化带过渡，等过渡结束再比对。
+  await expect.poll(() => firstCue.evaluate(element => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
   await firstCue.fill('你好');
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('subtitle-editor-narrow.png') });
@@ -116,11 +117,11 @@ test('选择台词编辑对应说话人，末尾新增继承上一句并持久�
   await expect(page.getByRole('heading', { name: 'Alice', exact: true })).toBeVisible();
   await expect(page.getByLabel('声音描述', { exact: true })).toHaveValue('温柔清亮');
   await page.getByRole('button', { name: '第 4 句说话人', exact: true }).click();
-  await page.getByRole('menuitem', { name: '说话人 2 Bob', exact: true }).click();
+  await page.getByRole('menuitem', { name: /^说话人 2 Bob/ }).click();
   await expect(page.getByRole('heading', { name: 'Bob', exact: true })).toBeVisible();
   await expect(page.getByLabel('声音描述', { exact: true })).toHaveValue('低沉');
   await page.getByRole('button', { name: '第 4 句说话人', exact: true }).click();
-  await page.getByRole('menuitem', { name: '说话人 1 Alice', exact: true }).click();
+  await page.getByRole('menuitem', { name: /^说话人 1 Alice/ }).click();
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).drafts[0]);
   expect(saved.voiceDescription).toBe('默认声音');

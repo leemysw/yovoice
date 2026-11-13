@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { ChatComposer, ChatMessage, ChatMessageBubble, ChatMessageList, ChatSendButton } from '@astryxdesign/core/Chat';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
@@ -21,6 +21,7 @@ import voiceArt from '../../assets/assistant/empty-voice.webp';
 import musicArt from '../../assets/assistant/empty-music.webp';
 import storyArt from '../../assets/assistant/empty-story.webp';
 import { useAssistantLive } from '../../shared/lib/assistant-live';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
 // 助手面板：浮在工作区上的对话卡片，拖标题栏移动、拖左上边角缩放；放大只拉长到窗口高度、宽度不变，向下箭头收起成入口。
 // 对话按会话组织（标题处切换历史），发送、停止、新建、删除经 assistant.* RPC；运行中的一轮按内容块实时渲染。
@@ -40,9 +41,11 @@ export interface QuickAction {
   prompt: string;
 }
 
-export function AssistantPanel({ state, context, expanded, quickActions, frame, style, onToggleExpand, onClose, actions }: {
+// draft 是输入框里还没发出的内容，由常驻的停靠位保管，收起再打开时仍在；focusOnOpen 为真时打开后把焦点放进面板。
+export function AssistantPanel({ state, context, expanded, quickActions, frame, style, draft, setDraft, focusOnOpen, onToggleExpand, onClose, actions }: {
   state: State; context: AssistantContext; expanded: boolean; quickActions: QuickAction[];
   frame: ReturnType<typeof usePanelFrame>; style?: CSSProperties;
+  draft: string; setDraft: Dispatch<SetStateAction<string>>; focusOnOpen: boolean;
   onToggleExpand: () => void; onClose: () => void; actions: AssistantPanelActions;
 }) {
   const t = useTranslator();
@@ -59,7 +62,6 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   // 内容区自己滚动；新内容到来时，只有本来就停在底部才跟随到底，用户往上翻看时不打扰。
   const bodyRef = useRef<HTMLElement | null>(null);
   const pinned = useRef(true);
-  const [draft, setDraft] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   // 面板内的错误提示：发送、会话操作、切换模型或试听失败时显示在输入区上方。
@@ -100,6 +102,34 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   };
   const cancel = () => { void call('assistant.cancel').catch(fail); };
 
+  // 快捷键：焦点在面板里时（面板根可聚焦，点在消息上也算），新建键开新对话、取消键停止回复、Esc 先收起历史抽屉再收起面板。
+  // 历史抽屉不是模态对话框，不挡这些注册。焦点不在面板时，取消键停止回复的兜底注册在常驻的停靠位里（assistant-dock）。
+  const panelRef = useRef<HTMLDivElement>(null);
+  // 回复中新建键在面板里不做事（newSession 自己会忽略），也不落到页面上的新建。
+  useHotkey('global.new', newSession, { within: panelRef });
+  useHotkey('global.cancel', cancel, { enabled: running, within: panelRef });
+  useHotkey('ocho.minimize', event => {
+    // 下拉菜单这类展开的控件先自己处理 Esc。
+    if (event.target instanceof Element && event.target.closest('[role="combobox"][aria-expanded="true"], [aria-haspopup][aria-expanded="true"]')) return;
+    if (historyOpen) { setHistoryOpen(false); setDeleting(null); } else onClose();
+  }, { within: panelRef, inInput: true });
+  // 打开时把焦点放进面板：有输入框时放在输入框里已有文字的末尾，没有时放在面板本身，⌘N、Esc 等随即作用于面板。
+  // 收起时焦点还在面板里（用快捷键、Esc 或收起按钮收起），就还给打开前的元素，仍在页面上可见时才还。
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const active = document.activeElement;
+    const before = active instanceof HTMLElement && active !== document.body && !panel.contains(active) ? active : null;
+    if (focusOnOpen) focusPanel(panel);
+    return () => {
+      if (!panel.contains(document.activeElement)) return;
+      if (before?.isConnected && before.getClientRects().length > 0) before.focus({ preventScroll: true });
+    };
+  }, [focusOnOpen]);
+  const newKeys = useHotkeyText('global.new'), newAria = useHotkeyAria('global.new');
+  const minimizeKeys = useHotkeyText('ocho.minimize'), minimizeAria = useHotkeyAria('ocho.minimize');
+  const newChatTip = withHotkey(t('@yovoice.assistant.newChat'), newKeys);
+
   // 当前作品总是随消息带上；输入框左下角用来切换 AI 服务里的模型，与设置页共用同一份当前模型。
   const choice = (id: string, model: string) => `${id}\n${model}`;
   const modelOptions = (state.aiProviders ?? []).filter(p => p.model || p.models?.length)
@@ -133,7 +163,7 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     if (body) pinned.current = body.scrollHeight - body.scrollTop - body.clientHeight < 48;
   };
 
-  return <VStack className={`assistant-panel${expanded ? ' expanded' : ''}`} gap={0} style={style} data-moving={frame.moving || undefined} data-testid="assistant-panel" data-open="true" role="complementary" aria-label={t('@yovoice.assistant.title')}>
+  return <VStack className={`assistant-panel${expanded ? ' expanded' : ''}`} gap={0} style={style} data-moving={frame.moving || undefined} data-testid="assistant-panel" data-open="true" role="complementary" aria-label={t('@yovoice.assistant.title')} ref={panelRef} tabIndex={-1}>
     <StackItem as="span" className="assistant-resize" data-edge="left" aria-hidden onPointerDown={frame.begin('left')} />
     {expanded ? null : <>
       <StackItem as="span" className="assistant-resize" data-edge="top" aria-hidden onPointerDown={frame.begin('top')} />
@@ -149,9 +179,9 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       {/* Text 的属性类型不含 title，拖动提示用展开写法原样传给 DOM。 */}
       <Text type="inherit" color="inherit" className="assistant-title grow" {...{ title: t('@yovoice.assistant.move') }}>{title}</Text>
       {live?.queued ? <small className="assistant-queued">{t('@yovoice.assistant.queued', { count: live.queued })}</small> : null}
-      <Button size="sm" variant="ghost" isIconOnly icon={<SquarePen size={15} />} label={t('@yovoice.assistant.newChat')} isDisabled={running} onClick={newSession} />
+      <Button size="sm" variant="ghost" isIconOnly icon={<SquarePen size={15} />} label={t('@yovoice.assistant.newChat')} tooltip={newChatTip} aria-keyshortcuts={newAria} isDisabled={running} onClick={newSession} />
       <Button size="sm" variant="ghost" isIconOnly icon={expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />} label={expanded ? t('@yovoice.assistant.collapse') : t('@yovoice.assistant.expand')} onClick={onToggleExpand} />
-      <Button data-testid="assistant-minimize" size="sm" variant="ghost" isIconOnly icon={<ChevronDown size={16} />} label={t('@yovoice.assistant.close')} onClick={onClose} />
+      <Button data-testid="assistant-minimize" size="sm" variant="ghost" isIconOnly icon={<ChevronDown size={16} />} label={t('@yovoice.assistant.close')} tooltip={withHotkey(t('@yovoice.assistant.close'), minimizeKeys, undefined)} aria-keyshortcuts={minimizeAria} onClick={onClose} />
     </HStack>
     <VStack className="assistant-body" gap={0} ref={bodyRef} onScroll={onScroll}>
       {empty ? <VStack gap={3} className="assistant-empty" hAlign="center">
@@ -205,7 +235,7 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
         <HStack className="assistant-history-header" vAlign="center" gap={1}>
           <Button size="sm" variant="ghost" isIconOnly icon={<ChevronLeft size={16} />} label={t('@yovoice.assistant.back')} onClick={() => setHistoryOpen(false)} />
           <Text type="inherit" color="inherit" className="assistant-title grow">{t('@yovoice.assistant.history')}</Text>
-          <Button size="sm" variant="ghost" isIconOnly icon={<SquarePen size={15} />} label={t('@yovoice.assistant.newChat')} tooltip={t('@yovoice.assistant.newChat')} isDisabled={running} onClick={newSession} />
+          <Button size="sm" variant="ghost" isIconOnly icon={<SquarePen size={15} />} label={t('@yovoice.assistant.newChat')} tooltip={newChatTip} aria-keyshortcuts={newAria} isDisabled={running} onClick={newSession} />
         </HStack>
         <VStack className="assistant-history-list" gap={0}>
           {sessions.length === 0 ? <small className="assistant-history-empty">{t('@yovoice.assistant.historyEmpty')}</small> : <List density="compact">
@@ -221,6 +251,19 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       </VStack>
     </> : null}
   </VStack>;
+}
+
+// 把焦点放进面板：输入框（可编辑区域）在时放进去、光标落在已有草稿的末尾，没有输入框（未配置服务等）时聚焦面板本身。
+function focusPanel(panel: HTMLElement) {
+  const input = panel.querySelector<HTMLElement>('.assistant-composer [contenteditable="true"]');
+  if (!input) { panel.focus({ preventScroll: true }); return; }
+  input.focus({ preventScroll: true });
+  const range = document.createRange();
+  range.selectNodeContents(input);
+  range.collapse(false);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
 }
 
 // 空状态插图：按当前页面换一张（台词/语音、音乐/编曲、故事配音）。

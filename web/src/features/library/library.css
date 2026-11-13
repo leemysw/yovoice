@@ -49,7 +49,8 @@
 /* 以下规则在 app 层之外，优先级高于层内规则。 */
 /* 作品卡片做成票根：左边封面与摘录，右边虚线撕口后的日期存根。 */
 .ticket.library-entry { max-width: none; padding: 0; border: 0; border-radius: var(--radius-container); background: var(--app-paper); transition: background 150ms ease, box-shadow 150ms ease; }
-.ticket.library-entry:hover,.ticket.library-entry:focus-within { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); }
+/* 选中的卡片（空格试听的对象）与悬停同样提亮。 */
+.ticket.library-entry:hover,.ticket.library-entry:focus-within,.ticket.library-entry[data-selected="true"] { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); }
 .ticket-main { padding: var(--spacing-3); min-width: 0; }
 /* 封面：语音作品是以头像为标签的黑胶唱片；歌曲和编曲是随机图案的封套，唱片从右侧探出，悬停时滑出并转动。 */
 .ticket-cover { flex-shrink: 0; height: calc(var(--spacing-10) * 2); }

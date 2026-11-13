@@ -28,7 +28,8 @@ export function useTimelineGestures({ scrollRef, blocked, stop, seek, edit, setR
   const preview = (next: AudioTimeline) => { gestureNext.current = next; setTrimPreview(next); };
   const beginGesture = (event: ReactPointerEvent<HTMLElement>, apply: (x: number, y: number, alt: boolean) => void, clickTime?: number) => {
     if (event.button !== 0 || blocked) return;
-    event.preventDefault(); event.stopPropagation(); stop(); event.currentTarget.focus({ preventScroll: true });
+    // 按下时阻止了默认行为，浏览器不会再移动焦点：轨道、标尺本身不可聚焦，就聚焦到时间线（tabIndex=-1），让时间线内的快捷键可用。
+    event.preventDefault(); event.stopPropagation(); stop(); (event.currentTarget.closest<HTMLElement>('button, [tabindex]') ?? event.currentTarget).focus({ preventScroll: true });
     const scroll = scrollRef.current!; scroll.setPointerCapture(event.pointerId);
     suppressClick.current = false;
     gesture.current = { x: event.clientX, y: event.clientY, clientX: event.clientX, clientY: event.clientY, alt: event.altKey, scroll: scroll.scrollLeft, vertical: scroll.scrollTop, moved: false, raf: 0, clickTime, apply };

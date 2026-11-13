@@ -48,6 +48,40 @@ test('助手面板：右下角入口与 ⌘J 开关、空状态建议，状态�
   await expect(page.getByTestId('assistant-panel')).toHaveCount(0);
 });
 
+test('⌘J 打开后焦点在输入框：⌘N 开新对话而不新建作品；Esc 收起保留草稿，焦点回到原处', async ({ page }) => {
+  await page.goto('/');
+  await configureAI(page);
+  await page.getByTestId('nav-new').click();
+  await page.getByRole('menuitem', { name: '语音生成', exact: true }).click();
+  const script = page.getByRole('textbox', { name: '正文', exact: true });
+  await script.fill('夜色很深，风停了。');
+  const panel = page.getByTestId('assistant-panel');
+  const input = panel.getByRole('textbox');
+  await page.keyboard.press('ControlOrMeta+j');
+  await expect(input).toBeFocused();
+  await page.keyboard.type('你好');
+  await page.keyboard.press('Enter');
+  await expect(panel.getByText('好的，我先看了作品列表。').first()).toBeVisible();
+  await expect(panel.getByRole('button', { name: /停止|Stop/ })).toHaveCount(0);
+  // 回到正文后收起，再打开立刻按新建键：开的是新对话，正文所在的作品不变。
+  await script.click();
+  await page.keyboard.press('ControlOrMeta+j');
+  await expect(panel).toHaveCount(0);
+  await page.keyboard.press('ControlOrMeta+j');
+  await expect(input).toBeFocused();
+  await page.keyboard.press('ControlOrMeta+n');
+  await expect(panel.getByText('你的创作搭档，随时可以开工')).toBeVisible();
+  await expect(script).toHaveValue('夜色很深，风停了。');
+  // 输入框里写了一半按 Esc 收起：焦点回到正文，再打开草稿还在。
+  await page.keyboard.type('还没发出的草稿');
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+  await expect(script).toBeFocused();
+  await page.keyboard.press('ControlOrMeta+j');
+  await expect(input).toHaveText('还没发出的草稿');
+  await expect(input).toBeFocused();
+});
+
 test('助手对话：发送后流式回复，工具卡片联动编辑器与页面，可停止、可新对话', async ({ page }) => {
   await page.goto('/');
   await configureAI(page);

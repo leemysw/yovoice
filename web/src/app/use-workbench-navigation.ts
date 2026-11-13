@@ -1,10 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useResizable } from '@astryxdesign/core/Resizable';
 import { call, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { readLocal, removeLocal, writeLocal } from '../shared/lib/local-store';
 import { hasTransitionSource, withViewTransition } from '../shared/lib/view-transition';
-import { featureHidden, modelTab, type Draft, type ModelPackage, type Preferences } from '../shared/workbench';
+import { featureHidden, modelTab, type Draft, type Feature, type ModelPackage, type Preferences } from '../shared/workbench';
+
+/** 页面或作品类型所属的可隐藏功能：编曲与音效随音乐生成一起隐藏；语音生成等不能隐藏的为 null。 */
+export function kindFeature(kind: string): Feature | null {
+  return kind === 'story' ? 'story' : kind === 'music' || kind === 'score' || kind === 'sfx' ? 'music' : kind === 'transcribe' ? 'transcribe' : null;
+}
+/** 这个页面或这类作品所属的功能在设置里被隐藏了：它的快捷键（含生成）不再响应。 */
+export function kindHidden(preferences: Preferences, kind: string): boolean {
+  const feature = kindFeature(kind);
+  return !!feature && featureHidden(preferences, feature);
+}
 
 // 工作台的导航与面板状态：当前页面与已访问记录、设置页定位、侧栏宽度与收起、右侧检查器的收起与展开。
 export function useWorkbenchNavigation({ draft, catalog, preferences, overlay, setActive, setError }: { draft: Draft; catalog: ModelPackage[]; preferences: Preferences; overlay: boolean; setActive: (active: boolean) => void; setError: (message: string) => void }) {
@@ -36,8 +46,13 @@ export function useWorkbenchNavigation({ draft, catalog, preferences, overlay, s
     withViewTransition(() => setPageNow(next), hasTransitionSource() ? 'open-project' : 'page');
   }, []);
   // 所在页面的功能在设置里被隐藏（或上次停留的页面已隐藏、助手跳转到隐藏页面）时回到语音生成。
-  const pageFeature = page === 'story' ? 'story' : page === 'music' || page === 'score' || page === 'sfx' ? 'music' : page === 'transcribe' ? 'transcribe' : null;
-  if (pageFeature && featureHidden(preferences, pageFeature)) setPageNow('text');
+  if (kindHidden(preferences, page)) setPageNow('text');
+  // 切页后焦点若还留在被隐藏的页面里就让它离开：WebKit 不会把 display:none 元素里的焦点移走，
+  // 之后按回车、退格仍会改动看不见的台词或正文。
+  useLayoutEffect(() => {
+    const focused = document.activeElement;
+    if (focused && focused !== document.body && focused.getClientRects().length === 0) (focused as HTMLElement).blur?.();
+  }, [page]);
   // 页面第一次打开时才挂载，之后保持挂载（切走只隐藏），切回来时保留编辑、滚动与播放状态；启动时只渲染当前页。
   const [visited, setVisited] = useState(() => new Set([page]));
   if (!visited.has(page)) setVisited(new Set(visited).add(page));

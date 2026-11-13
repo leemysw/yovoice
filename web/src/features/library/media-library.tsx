@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
@@ -11,11 +11,12 @@ import { call, CallError } from '../../shared/lib/client';
 import { ConfirmDelete } from '../../shared/ui/app-dialog';
 import { formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { Player } from '../media/player';
-import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from './library-layout';
+import { LibraryEmpty, LibraryPage, Ticket, TicketStamp, toggleTicketAudition } from './library-layout';
 import { RecordCover } from './record-cover';
 import { TapeCover } from './tape-cover';
 import { WaveRing } from './wave-ring';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
 // 版本记录一次先渲染的条数，更早的点“显示更早的”再展开，记录很多时打开页面和状态推送都不用重建整张列表。
 const historyBatch = 30;
@@ -56,9 +57,9 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
   const listKey = `${page}/${project.id}/${search}`;
   const [shown, setShown] = useState({ key: listKey, count: historyBatch });
   const shownCount = shown.key === listKey ? shown.count : historyBatch;
-  // 批量删除参考音频：null 表示未进入选择模式。
   // 正在试听的语音历史，用来让磁带卷轴转动。
   const [playingId, setPlayingId] = useState<string | null>(null);
+  // 批量删除参考音频：null 表示未进入选择模式。
   const [picked, setPicked] = useState<Set<string> | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -80,23 +81,37 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
     else { setConfirming(false); setPicked(null); }
   }
   const allPicked = filteredVoices.length > 0 && visiblePicked.length === filteredVoices.length;
+  // 参考音频页的快捷键：页面常驻挂载，只在这一页显示、且没有被选择器、编辑框等盖住（suspended）时生效。
+  // 空格试听点过或焦点所在的卡片，其次是正在试听的，都没有时是第一张；批量删除时空格留给勾选框（鼠标点过的勾选框也是），不试听。
+  const pageRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const previewTarget = [selectedVoice, track?.id].find(id => id && filteredVoices.some(voice => voice.id === id)) ?? filteredVoices[0]?.id;
+  const voicesActive = voices && !suspended;
+  useHotkey('global.new', addVoice, { enabled: voicesActive && !picked });
+  useHotkey('refs.search', () => { searchRef.current?.focus(); searchRef.current?.select(); }, { enabled: voicesActive && count > 0 });
+  useHotkey('refs.preview', () => { if (previewTarget) toggleTicketAudition(pageRef.current, previewTarget); }, { enabled: voicesActive && !!previewTarget && !picked });
+  const addKeys = useHotkeyText('global.new'), addAria = useHotkeyAria('global.new');
+  const searchKeys = useHotkeyText('refs.search'), searchAria = useHotkeyAria('refs.search');
+  const addButton = (label: string) => <Button label={label} tooltip={withHotkey(label, addKeys, undefined)} aria-keyshortcuts={addAria} size="sm" icon={<Plus />} onClick={addVoice} />;
   const voiceActions = picked ? <HStack gap={2} vAlign="center" wrap="wrap">
     <CheckboxInput label={t('@yovoice.library.selectAll')} size="sm" value={allPicked ? true : visiblePicked.length ? 'indeterminate' : false} onChange={checked => setPicked(new Set(checked ? filteredVoices.map(voice => voice.id) : []))} />
     <Button label={t('@yovoice.library.deletePicked', { n: visiblePicked.length })} size="sm" variant="destructive" icon={<Trash2 />} isDisabled={!visiblePicked.length} onClick={() => { setBatchError(''); setConfirming(true); }} />
     <Button label={t('@yovoice.library.finishPicking')} size="sm" onClick={() => setPicked(null)} />
   </HStack> : <HStack gap={2} vAlign="center" wrap="wrap">
     {count > 1 ? <Button label={t('@yovoice.library.batchDelete')} size="sm" variant="secondary" icon={<ListChecks />} onClick={() => setPicked(new Set())} /> : null}
-    <Button label={t('@yovoice.library.addVoice')} size="sm" icon={<Plus />} onClick={addVoice} />
+    {addButton(t('@yovoice.library.addVoice'))}
   </HStack>;
   return <LibraryPage controls={voices ? controls : undefined} title={voices ? t('@yovoice.library.voicesTitle') : quick ? t('@yovoice.history.generations') : `${project.title} · ${t('@yovoice.history.versions')}`}
     actions={voices && count > 0 ? voiceActions : voices ? undefined : controls}
+    pageRef={voices ? pageRef : undefined} searchRef={voices ? searchRef : undefined} searchKeys={voices ? searchKeys : undefined} searchAria={voices ? searchAria : undefined}
     query={query} onQueryChange={onQueryChange} searchLabel={t(voices ? '@yovoice.library.searchVoices' : quick ? '@yovoice.library.searchGenerations' : '@yovoice.library.searchHistory')}
     hasItems={count > 0} hasResults={(voices ? filteredVoices : filteredHistory).length > 0} layout="tickets"
     noResults={t('@yovoice.library.noSearchResults')}
     empty={<LibraryEmpty icon={<Clock3 />} art={voices ? <WaveRing seed="empty-voice" duration={12}><HStack className="empty-ring-mark" gap={0} hAlign="center" vAlign="center"><Mic /></HStack></WaveRing> : undefined} title={t(voices ? '@yovoice.library.emptyVoicesTitle' : quick ? '@yovoice.library.emptyGenerationsTitle' : '@yovoice.library.emptyHistoryTitle')}
-      action={voices ? <Button label={t('@yovoice.library.addFirstVoice')} size="sm" icon={<Plus />} onClick={addVoice} /> : null} />}>
+      action={voices ? addButton(t('@yovoice.library.addFirstVoice')) : null} />}>
     {/* 参考音频：头像外围一圈声波，点卡片试听；顶部标出来源（导入或来自生成），存根显示时长。 */}
-    {voices ? filteredVoices.map((voice, index) => <Ticket key={voice.id} index={index} className="voice-row"
+    {voices ? filteredVoices.map((voice, index) => <Ticket key={voice.id} index={index} className="voice-row" itemId={voice.id} selected={voice.id === selectedVoice} onSelect={() => setSelectedVoice(voice.id)}
       cover={<WaveRing seed={voice.id} duration={voice.duration}><Player compact avatar={{ seed: voice.id, label: t('@yovoice.app.audition', { name: voice.name }), select: () => audition({ ...voice, kind: 'voices', subtitle: t('@yovoice.app.subtitleReference') }) }} suspended={suspended} track={track?.id === voice.id ? track : null} onError={onError} /></WaveRing>}
       eyebrow={voice.source === 'generation' ? t('@yovoice.voice.sourceGeneration') : voice.source === 'import' ? t('@yovoice.voice.sourceImport') : undefined}
       title={<h3 onPointerEnter={overflowTitle}>{voice.name}</h3>} excerpt={voice.referenceText?.trim()}

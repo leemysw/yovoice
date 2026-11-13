@@ -4,6 +4,8 @@ import { emptyState } from '../src/shared/workbench';
 
 // 三条用例都要加载并解码音频、反复拖拽和刷新，单跑十几秒，并发排满工作线程时会翻倍，放宽文件内所有用例的时限。
 test.setTimeout(60_000);
+// 第二种重做键：Windows / Linux 是 Ctrl+Y，macOS 没有这个键，用 ⇧⌘Z。
+const redoAlt = process.platform === 'darwin' ? 'Meta+Shift+z' : 'Control+y';
 
 async function expectPlaybackHitArea(page: Page) {
   const play = page.locator('.audio-panel .play-main');
@@ -91,18 +93,18 @@ test('多轨分割、移动、静音播放、调整高度和重载', async ({ pa
   await expect(page.locator('.multitrack-clip')).toHaveCount(1);
   await page.getByRole('button', { name: '重做', exact: true }).click();
   await expect(page.locator('.multitrack-clip')).toHaveCount(2);
-  await page.keyboard.press('Meta+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(page.locator('.multitrack-clip')).toHaveCount(1);
-  await page.keyboard.press('Meta+Shift+z');
+  await page.keyboard.press('ControlOrMeta+Shift+z');
   await expect(page.locator('.multitrack-clip')).toHaveCount(2);
   await page.locator('.multitrack-clip').nth(1).click();
   const moving = (await page.locator('.multitrack-clip').nth(1).boundingBox())!;
   const destination = (await page.locator('.multitrack-lane').nth(1).boundingBox())!;
   await page.locator('.multitrack-clip').nth(1).dragTo(page.locator('.multitrack-lane').nth(1), { targetPosition: { x: destination.width / 10 + moving.width / 2, y: destination.height / 2 } });
   await expect(page.locator('.multitrack-lane').nth(1).locator('.multitrack-clip')).toHaveCount(1);
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(page.locator('.multitrack-lane').first().locator('.multitrack-clip')).toHaveCount(2);
-  await page.keyboard.press('Control+y');
+  await page.keyboard.press(redoAlt);
   await expect(page.locator('.multitrack-lane').nth(1).locator('.multitrack-clip')).toHaveCount(1);
   await page.getByRole('button', { name: '添加音频到音轨 2', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('timeline-audio-menu.png'), animations: 'disabled' });
@@ -110,9 +112,9 @@ test('多轨分割、移动、静音播放、调整高度和重载', async ({ pa
   await page.getByRole('dialog').getByRole('button', { name: '片段 B', exact: true }).click();
   await expect(page.locator('.multitrack-clip')).toHaveCount(3);
   await page.getByRole('button', { name: '静音音轨 1', exact: true }).click();
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(page.getByRole('button', { name: '静音音轨 1', exact: true })).toBeVisible();
-  await page.keyboard.press('Control+Shift+z');
+  await page.keyboard.press('ControlOrMeta+Shift+z');
   await expect(page.getByRole('button', { name: '取消静音音轨 1', exact: true })).toBeVisible();
   await page.getByRole('slider', { name: '播放进度', exact: true }).fill('0');
   await page.evaluate(() => {
@@ -253,7 +255,7 @@ test('音轨末尾上传独立素材，裁剪后保存重载与导出', async ({
   await expect(redo).toBeDisabled();
   // 正文的原生撤销不能回退音轨。
   await page.locator('.script-editor').fill('测试撤销');
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(page.locator('.multitrack-trim[data-edge="start"]')).toHaveAttribute('aria-valuenow', '0.5');
   await clip.click();
   await page.getByRole('button', { name: '删除片段', exact: true }).click();
@@ -266,7 +268,7 @@ test('音轨末尾上传独立素材，裁剪后保存重载与导出', async ({
   await undo.click();
   // 弹窗内快捷键不改变音轨。
   await page.getByRole('button', { name: '导出音轨', exact: true }).click();
-  await page.keyboard.press('Control+z');
+  await page.keyboard.press('ControlOrMeta+z');
   await expect(page.locator('.multitrack-trim[data-edge="start"]')).toHaveAttribute('aria-valuenow', '0.5');
   await page.keyboard.press('Escape');
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();

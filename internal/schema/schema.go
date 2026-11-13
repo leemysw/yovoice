@@ -351,6 +351,8 @@ type Preferences struct {
 	Engine *EngineSettings `json:"engine,omitempty"`
 	// Transcribe 是语音转写的限制与断句参数（设置 › 常规 › 语音转写），为空时全部沿用默认值。
 	Transcribe *TranscribeSettings `json:"transcribe,omitempty"`
+	// Hotkeys 是改过的快捷键与快捷键开关（设置 › 快捷键），为空时全部沿用默认值。
+	Hotkeys *HotkeySettings `json:"hotkeys,omitempty"`
 }
 
 // OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）、语音转写与 Ocho 助手。

@@ -51,6 +51,12 @@ export function useLyricTiming({ item, versions, title, voice, duration, time, a
     if (!aligner) { getAligner?.(); return; }
     void call('generation.alignLyrics', { id: item.id, lines: alignLines(timeline, duration) }).catch(fail);
   };
+  // 单键一键对齐（A）容易误按：没装对齐模型时只在页内提示，不离开播放页；已有校准或逐字时间时先确认再覆盖（confirmAlign）。
+  const [confirmAlign, setConfirmAlign] = useState(false);
+  const alignByKey = () => {
+    if (!aligner) { setNotice('@yovoice.music.alignNeedsModel'); return; }
+    if (times?.length || aligned?.length) setConfirmAlign(true); else alignNow();
+  };
 
   // 保存校准时间：成功后才更新本地状态并收起提示；失败时在页内提示，调用方据返回值决定是否退出校准。
   const save = (next: number[] | undefined) => call('generation.lyricTimes', { id: item.id, times: next ?? [] })
@@ -82,7 +88,7 @@ export function useLyricTiming({ item, versions, title, voice, duration, time, a
     setSync(sync.slice(0, -1)); seek(last - undoRewind);
   };
   // 切换版本：换成新版本已保存的时间，退出校准和逐字编辑。
-  const reset = (next: Generation) => { setTimes(next.lyricTimes); setAligned(next.lyricWords); setSync(null); setEdit(null); };
+  const reset = (next: Generation) => { setTimes(next.lyricTimes); setAligned(next.lyricWords); setSync(null); setEdit(null); setConfirmAlign(false); };
 
-  return { times, sync, setSync, edit, setEdit, editLine, setEditLine, lineClick, rows, auto, fromModel, timeline, lines, current, focus, running, aligning, alignNow, save, startEdit, saveWords, startSync, mark, exportLrc, undo, reset };
+  return { times, sync, setSync, edit, setEdit, editLine, setEditLine, lineClick, rows, auto, fromModel, timeline, lines, current, focus, running, aligning, alignNow, alignByKey, confirmAlign, setConfirmAlign, save, startEdit, saveWords, startSync, mark, exportLrc, undo, reset };
 }

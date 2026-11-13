@@ -3639,7 +3639,7 @@
     "defaultMessage": "Загрузка и управление моделями, настройка ИИ-сервисов, очистка ресурсов, язык интерфейса и перенос папки данных. При первом запуске скачайте здесь модель."
   },
   "@yovoice.guide.assistant": {
-    "defaultMessage": "Нажмите ⌘J (Ctrl+J в Windows) или кнопку ассистента в заголовке окна и просто скажите, что нужно, например: «Создай чтение истории и подбери голос каждому персонажу». Сначала добавьте ИИ-сервис в настройках."
+    "defaultMessage": "Нажмите {keys} или кнопку ассистента в заголовке окна и просто скажите, что нужно, например: «Создай чтение истории и подбери голос каждому персонажу». Сначала добавьте ИИ-сервис в настройках."
   },
   "@yovoice.settings.intro": {
     "defaultMessage": "Приветственная анимация"
@@ -3813,10 +3813,10 @@
     "defaultMessage": "Скрыть кнопку"
   },
   "@yovoice.assistant.hideLauncherHint": {
-    "defaultMessage": "Открывается в правом верхнем углу или по ⌘J"
+    "defaultMessage": "Открывается в правом верхнем углу или по {keys}"
   },
   "@yovoice.assistant.toggleHint": {
-    "defaultMessage": "Открыть или закрыть Ocho (⌘J)"
+    "defaultMessage": "Открыть или закрыть Ocho ({keys})"
   },
   "@yovoice.assistant.phase.thinking": {
     "defaultMessage": "Думаю"
@@ -3993,7 +3993,7 @@
     "defaultMessage": "Вернуться к версии {n}"
   },
   "@yovoice.music.switchBackHint": {
-    "defaultMessage": "Позиция воспроизведения сохраняется; переключение клавишей B"
+    "defaultMessage": "Позиция воспроизведения сохраняется"
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Музыкальные модели"
@@ -5140,5 +5140,848 @@
   },
   "@yovoice.runtime.idleDisabled": {
     "defaultMessage": "Автоматическая выгрузка отключена"
+  },
+  "@yovoice.hotkeys.node.global": {
+    "defaultMessage": "Общие"
+  },
+  "@yovoice.hotkeys.node.global.nav": {
+    "defaultMessage": "Навигация"
+  },
+  "@yovoice.hotkeys.node.global.panels": {
+    "defaultMessage": "Окно и панели"
+  },
+  "@yovoice.hotkeys.node.global.common": {
+    "defaultMessage": "Общие действия"
+  },
+  "@yovoice.hotkeys.node.global.bottom": {
+    "defaultMessage": "Нижний плеер"
+  },
+  "@yovoice.hotkeys.node.global.bottom.player": {
+    "defaultMessage": "Плеер одной дорожки"
+  },
+  "@yovoice.hotkeys.node.global.bottom.timeline": {
+    "defaultMessage": "Многодорожечная шкала"
+  },
+  "@yovoice.hotkeys.node.create": {
+    "defaultMessage": "Синтез речи"
+  },
+  "@yovoice.hotkeys.node.create.edit": {
+    "defaultMessage": "Правка и генерация"
+  },
+  "@yovoice.hotkeys.node.create.inspector": {
+    "defaultMessage": "Инспектор"
+  },
+  "@yovoice.hotkeys.node.create.versions": {
+    "defaultMessage": "Версии"
+  },
+  "@yovoice.hotkeys.node.transcribe": {
+    "defaultMessage": "Расшифровка"
+  },
+  "@yovoice.hotkeys.node.transcribe.list": {
+    "defaultMessage": "Список"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit": {
+    "defaultMessage": "Редактор"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.play": {
+    "defaultMessage": "Воспроизведение и навигация"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.lines": {
+    "defaultMessage": "Правка субтитров"
+  },
+  "@yovoice.hotkeys.node.transcribe.edit.output": {
+    "defaultMessage": "Экспорт и страницы"
+  },
+  "@yovoice.hotkeys.node.story": {
+    "defaultMessage": "Чтение историй"
+  },
+  "@yovoice.hotkeys.node.story.cues": {
+    "defaultMessage": "Реплики"
+  },
+  "@yovoice.hotkeys.node.story.cues.generate": {
+    "defaultMessage": "Генерация"
+  },
+  "@yovoice.hotkeys.node.story.cues.edit": {
+    "defaultMessage": "Навигация и правка"
+  },
+  "@yovoice.hotkeys.node.story.cues.speakers": {
+    "defaultMessage": "Говорящие"
+  },
+  "@yovoice.hotkeys.node.story.list": {
+    "defaultMessage": "Работы"
+  },
+  "@yovoice.hotkeys.node.music": {
+    "defaultMessage": "Генерация музыки"
+  },
+  "@yovoice.hotkeys.node.music.song": {
+    "defaultMessage": "Песня"
+  },
+  "@yovoice.hotkeys.node.music.song.edit": {
+    "defaultMessage": "Правка и генерация"
+  },
+  "@yovoice.hotkeys.node.music.song.nowPlaying": {
+    "defaultMessage": "Сейчас играет"
+  },
+  "@yovoice.hotkeys.node.music.song.words": {
+    "defaultMessage": "Пословный тайминг"
+  },
+  "@yovoice.hotkeys.node.music.song.stems": {
+    "defaultMessage": "Студия дорожек"
+  },
+  "@yovoice.hotkeys.node.music.score": {
+    "defaultMessage": "Аранжировка"
+  },
+  "@yovoice.hotkeys.node.music.sfx": {
+    "defaultMessage": "Звуковые эффекты"
+  },
+  "@yovoice.hotkeys.node.voices": {
+    "defaultMessage": "Фонотека"
+  },
+  "@yovoice.hotkeys.node.voices.voices": {
+    "defaultMessage": "Голоса"
+  },
+  "@yovoice.hotkeys.node.voices.voices.list": {
+    "defaultMessage": "Список голосов"
+  },
+  "@yovoice.hotkeys.node.voices.voices.editor": {
+    "defaultMessage": "Редактор персонажа"
+  },
+  "@yovoice.hotkeys.node.voices.refs": {
+    "defaultMessage": "Референсное аудио"
+  },
+  "@yovoice.hotkeys.node.voices.refs.list": {
+    "defaultMessage": "Список референсов"
+  },
+  "@yovoice.hotkeys.node.voices.refs.editor": {
+    "defaultMessage": "Окно правки"
+  },
+  "@yovoice.hotkeys.node.voices.refs.picker": {
+    "defaultMessage": "Выбор голоса"
+  },
+  "@yovoice.hotkeys.node.ocho": {
+    "defaultMessage": "Ocho"
+  },
+  "@yovoice.hotkeys.node.ocho.panel": {
+    "defaultMessage": "Панель помощника"
+  },
+  "@yovoice.hotkeys.cmd.global.new": {
+    "defaultMessage": "Создать"
+  },
+  "@yovoice.hotkeys.cmd.global.page.text": {
+    "defaultMessage": "Перейти к синтезу речи"
+  },
+  "@yovoice.hotkeys.cmd.global.page.transcribe": {
+    "defaultMessage": "Перейти к расшифровке"
+  },
+  "@yovoice.hotkeys.cmd.global.page.story": {
+    "defaultMessage": "Перейти к чтению историй"
+  },
+  "@yovoice.hotkeys.cmd.global.page.music": {
+    "defaultMessage": "Перейти к генерации музыки"
+  },
+  "@yovoice.hotkeys.cmd.global.page.voices": {
+    "defaultMessage": "Перейти в фонотеку"
+  },
+  "@yovoice.hotkeys.cmd.global.settings": {
+    "defaultMessage": "Открыть настройки"
+  },
+  "@yovoice.hotkeys.cmd.global.back": {
+    "defaultMessage": "Назад"
+  },
+  "@yovoice.hotkeys.cmd.global.nextTab": {
+    "defaultMessage": "Следующая вкладка"
+  },
+  "@yovoice.hotkeys.cmd.global.prevTab": {
+    "defaultMessage": "Предыдущая вкладка"
+  },
+  "@yovoice.hotkeys.cmd.global.assistant": {
+    "defaultMessage": "Открыть / закрыть Ocho"
+  },
+  "@yovoice.hotkeys.cmd.global.sidebar": {
+    "defaultMessage": "Свернуть / развернуть боковую панель"
+  },
+  "@yovoice.hotkeys.cmd.global.inspector": {
+    "defaultMessage": "Свернуть / развернуть инспектор"
+  },
+  "@yovoice.hotkeys.cmd.global.cheatsheet": {
+    "defaultMessage": "Список сочетаний клавиш"
+  },
+  "@yovoice.hotkeys.cmd.global.cancel": {
+    "defaultMessage": "Отмена / остановка"
+  },
+  "@yovoice.hotkeys.cmd.global.playPause": {
+    "defaultMessage": "Воспроизведение / пауза (работает и при вводе текста)"
+  },
+  "@yovoice.hotkeys.cmd.player.play": {
+    "defaultMessage": "Воспроизведение / пауза"
+  },
+  "@yovoice.hotkeys.cmd.player.back": {
+    "defaultMessage": "Назад на 5 секунд"
+  },
+  "@yovoice.hotkeys.cmd.player.forward": {
+    "defaultMessage": "Вперёд на 5 секунд"
+  },
+  "@yovoice.hotkeys.cmd.player.start": {
+    "defaultMessage": "В начало"
+  },
+  "@yovoice.hotkeys.cmd.player.end": {
+    "defaultMessage": "В конец"
+  },
+  "@yovoice.hotkeys.cmd.player.mute": {
+    "defaultMessage": "Выключить звук"
+  },
+  "@yovoice.hotkeys.cmd.timeline.play": {
+    "defaultMessage": "Воспроизведение / пауза"
+  },
+  "@yovoice.hotkeys.cmd.timeline.playSelection": {
+    "defaultMessage": "Прослушать выделение"
+  },
+  "@yovoice.hotkeys.cmd.timeline.preview": {
+    "defaultMessage": "Прослушать с запасом в 1 с"
+  },
+  "@yovoice.hotkeys.cmd.timeline.regenerate": {
+    "defaultMessage": "Сгенерировать выбранный фрагмент заново"
+  },
+  "@yovoice.hotkeys.cmd.timeline.duplicate": {
+    "defaultMessage": "Дублировать"
+  },
+  "@yovoice.hotkeys.cmd.timeline.split": {
+    "defaultMessage": "Разрезать"
+  },
+  "@yovoice.hotkeys.cmd.timeline.prevEdge": {
+    "defaultMessage": "Предыдущая граница фрагмента"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nextEdge": {
+    "defaultMessage": "Следующая граница фрагмента"
+  },
+  "@yovoice.hotkeys.cmd.timeline.start": {
+    "defaultMessage": "В начало"
+  },
+  "@yovoice.hotkeys.cmd.timeline.end": {
+    "defaultMessage": "В конец"
+  },
+  "@yovoice.hotkeys.cmd.timeline.mute": {
+    "defaultMessage": "Выключить звук текущей дорожки"
+  },
+  "@yovoice.hotkeys.cmd.timeline.solo": {
+    "defaultMessage": "Соло текущей дорожки"
+  },
+  "@yovoice.hotkeys.cmd.timeline.snap": {
+    "defaultMessage": "Привязка вкл. / выкл."
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomIn": {
+    "defaultMessage": "Увеличить"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomOut": {
+    "defaultMessage": "Уменьшить"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomFit": {
+    "defaultMessage": "Показать всё"
+  },
+  "@yovoice.hotkeys.cmd.timeline.zoomSelection": {
+    "defaultMessage": "Масштаб по выделению"
+  },
+  "@yovoice.hotkeys.cmd.timeline.export": {
+    "defaultMessage": "Экспорт"
+  },
+  "@yovoice.hotkeys.cmd.timeline.undoRedo": {
+    "defaultMessage": "Отменить / повторить"
+  },
+  "@yovoice.hotkeys.cmd.timeline.clipboard": {
+    "defaultMessage": "Копировать / вставить / выделить всё"
+  },
+  "@yovoice.hotkeys.cmd.timeline.delete": {
+    "defaultMessage": "Удалить / удалить со сдвигом"
+  },
+  "@yovoice.hotkeys.cmd.timeline.nudge": {
+    "defaultMessage": "Сдвинуть фрагменты"
+  },
+  "@yovoice.hotkeys.cmd.create.generate": {
+    "defaultMessage": "Сгенерировать"
+  },
+  "@yovoice.hotkeys.cmd.create.pronounce": {
+    "defaultMessage": "Настроить произношение"
+  },
+  "@yovoice.hotkeys.cmd.create.import": {
+    "defaultMessage": "Импортировать файл"
+  },
+  "@yovoice.hotkeys.cmd.create.character": {
+    "defaultMessage": "Выбрать персонажа"
+  },
+  "@yovoice.hotkeys.cmd.create.reference": {
+    "defaultMessage": "Добавить или заменить референсное аудио"
+  },
+  "@yovoice.hotkeys.cmd.create.history": {
+    "defaultMessage": "История версий"
+  },
+  "@yovoice.hotkeys.cmd.create.export": {
+    "defaultMessage": "Экспортировать эту версию"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.upload": {
+    "defaultMessage": "Загрузить аудио или видео"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.record": {
+    "defaultMessage": "Запись / остановить и расшифровать"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.search": {
+    "defaultMessage": "Искать в расшифровках"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.playLine": {
+    "defaultMessage": "Воспроизвести текущую строку"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevLine": {
+    "defaultMessage": "Предыдущая строка"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextLine": {
+    "defaultMessage": "Следующая строка"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.continuous": {
+    "defaultMessage": "Непрерывное воспроизведение вкл. / выкл."
+  },
+  "@yovoice.hotkeys.cmd.transcribe.find": {
+    "defaultMessage": "Найти и заменить"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findNext": {
+    "defaultMessage": "Следующее совпадение"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.findPrev": {
+    "defaultMessage": "Предыдущее совпадение"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.deleteLine": {
+    "defaultMessage": "Удалить текущую строку"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.undo": {
+    "defaultMessage": "Отменить"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.redo": {
+    "defaultMessage": "Повторить"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.splitLine": {
+    "defaultMessage": "Разделить строку в позиции курсора"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinPrev": {
+    "defaultMessage": "Объединить с предыдущей строкой"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.joinNext": {
+    "defaultMessage": "Объединить со следующей строкой"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.emacsDelete": {
+    "defaultMessage": "Удалить назад / вперёд"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.export": {
+    "defaultMessage": "Экспортировать субтитры"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.prevPage": {
+    "defaultMessage": "Предыдущая страница"
+  },
+  "@yovoice.hotkeys.cmd.transcribe.nextPage": {
+    "defaultMessage": "Следующая страница"
+  },
+  "@yovoice.hotkeys.cmd.story.generate": {
+    "defaultMessage": "Сгенерировать все реплики"
+  },
+  "@yovoice.hotkeys.cmd.story.regenerate": {
+    "defaultMessage": "Сгенерировать текущую реплику заново"
+  },
+  "@yovoice.hotkeys.cmd.story.prevCue": {
+    "defaultMessage": "Предыдущая реплика"
+  },
+  "@yovoice.hotkeys.cmd.story.nextCue": {
+    "defaultMessage": "Следующая реплика"
+  },
+  "@yovoice.hotkeys.cmd.story.insert": {
+    "defaultMessage": "Вставить реплику ниже"
+  },
+  "@yovoice.hotkeys.cmd.story.deleteCue": {
+    "defaultMessage": "Удалить текущую реплику"
+  },
+  "@yovoice.hotkeys.cmd.story.prevPage": {
+    "defaultMessage": "Предыдущая страница"
+  },
+  "@yovoice.hotkeys.cmd.story.nextPage": {
+    "defaultMessage": "Следующая страница"
+  },
+  "@yovoice.hotkeys.cmd.story.splitCue": {
+    "defaultMessage": "Разделить реплику в позиции курсора"
+  },
+  "@yovoice.hotkeys.cmd.story.joinPrev": {
+    "defaultMessage": "Объединить с предыдущей репликой"
+  },
+  "@yovoice.hotkeys.cmd.story.joinNext": {
+    "defaultMessage": "Объединить со следующей репликой"
+  },
+  "@yovoice.hotkeys.cmd.story.speaker": {
+    "defaultMessage": "Назначить говорящего 1–9"
+  },
+  "@yovoice.hotkeys.cmd.story.speakerMenu": {
+    "defaultMessage": "Открыть меню говорящих"
+  },
+  "@yovoice.hotkeys.cmd.story.importBook": {
+    "defaultMessage": "Импортировать рукопись"
+  },
+  "@yovoice.hotkeys.cmd.music.generate": {
+    "defaultMessage": "Сгенерировать"
+  },
+  "@yovoice.hotkeys.cmd.music.nowPlaying": {
+    "defaultMessage": "Открыть «Сейчас играет»"
+  },
+  "@yovoice.hotkeys.cmd.music.instrumental": {
+    "defaultMessage": "Вокал / инструментал"
+  },
+  "@yovoice.hotkeys.cmd.music.section": {
+    "defaultMessage": "Вставить метку раздела"
+  },
+  "@yovoice.hotkeys.cmd.music.expandLyrics": {
+    "defaultMessage": "Развернуть редактор текста"
+  },
+  "@yovoice.hotkeys.cmd.music.hum": {
+    "defaultMessage": "Напеть мелодию"
+  },
+  "@yovoice.hotkeys.cmd.music.stems": {
+    "defaultMessage": "Открыть дорожки"
+  },
+  "@yovoice.hotkeys.cmd.music.history": {
+    "defaultMessage": "История версий"
+  },
+  "@yovoice.hotkeys.cmd.music.export": {
+    "defaultMessage": "Экспортировать эту версию"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.play": {
+    "defaultMessage": "Воспроизведение / пауза"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.back": {
+    "defaultMessage": "Назад на 10 секунд"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.forward": {
+    "defaultMessage": "Вперёд на 10 секунд"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.switch": {
+    "defaultMessage": "Переключиться на предыдущую версию и обратно"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.align": {
+    "defaultMessage": "Автовыравнивание"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.sync": {
+    "defaultMessage": "Синхронизация по строкам"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.words": {
+    "defaultMessage": "Правка пословного тайминга"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.fullscreen": {
+    "defaultMessage": "Во весь экран"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.lyricStyle": {
+    "defaultMessage": "Сменить стиль текста"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.exportLrc": {
+    "defaultMessage": "Экспортировать LRC"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.mark": {
+    "defaultMessage": "Отметить следующую строку при синхронизации"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.unmark": {
+    "defaultMessage": "Отменить отметку"
+  },
+  "@yovoice.hotkeys.cmd.nowPlaying.close": {
+    "defaultMessage": "Выйти из синхронизации / закрыть"
+  },
+  "@yovoice.hotkeys.cmd.words.earlierBig": {
+    "defaultMessage": "Сдвинуть строку на 0,5 с раньше"
+  },
+  "@yovoice.hotkeys.cmd.words.laterBig": {
+    "defaultMessage": "Сдвинуть строку на 0,5 с позже"
+  },
+  "@yovoice.hotkeys.cmd.words.playLine": {
+    "defaultMessage": "Воспроизвести эту строку"
+  },
+  "@yovoice.hotkeys.cmd.words.tap": {
+    "defaultMessage": "Начать / остановить разметку по ходу пения"
+  },
+  "@yovoice.hotkeys.cmd.words.save": {
+    "defaultMessage": "Сохранить"
+  },
+  "@yovoice.hotkeys.cmd.words.lines": {
+    "defaultMessage": "Предыдущая / следующая строка"
+  },
+  "@yovoice.hotkeys.cmd.words.shift": {
+    "defaultMessage": "Сдвинуть строку на 0,1 с"
+  },
+  "@yovoice.hotkeys.cmd.words.anchor": {
+    "defaultMessage": "Привязать к позиции воспроизведения"
+  },
+  "@yovoice.hotkeys.cmd.words.undo": {
+    "defaultMessage": "Отменить"
+  },
+  "@yovoice.hotkeys.cmd.words.exit": {
+    "defaultMessage": "Выйти из пословного тайминга"
+  },
+  "@yovoice.hotkeys.cmd.stems.play": {
+    "defaultMessage": "Воспроизведение / пауза"
+  },
+  "@yovoice.hotkeys.cmd.stems.solo": {
+    "defaultMessage": "Соло дорожки 1–6"
+  },
+  "@yovoice.hotkeys.cmd.stems.mute": {
+    "defaultMessage": "Выключить звук дорожки 1–6"
+  },
+  "@yovoice.hotkeys.cmd.stems.back": {
+    "defaultMessage": "Назад на 5 секунд"
+  },
+  "@yovoice.hotkeys.cmd.stems.forward": {
+    "defaultMessage": "Вперёд на 5 секунд"
+  },
+  "@yovoice.hotkeys.cmd.stems.export": {
+    "defaultMessage": "Экспортировать все дорожки"
+  },
+  "@yovoice.hotkeys.cmd.score.render": {
+    "defaultMessage": "Рендер"
+  },
+  "@yovoice.hotkeys.cmd.score.import": {
+    "defaultMessage": "Импортировать MIDI"
+  },
+  "@yovoice.hotkeys.cmd.score.export": {
+    "defaultMessage": "Экспорт"
+  },
+  "@yovoice.hotkeys.cmd.score.stems": {
+    "defaultMessage": "Прослушать дорожки"
+  },
+  "@yovoice.hotkeys.cmd.score.prevTrack": {
+    "defaultMessage": "Предыдущая дорожка"
+  },
+  "@yovoice.hotkeys.cmd.score.nextTrack": {
+    "defaultMessage": "Следующая дорожка"
+  },
+  "@yovoice.hotkeys.cmd.score.mute": {
+    "defaultMessage": "Выключить / включить звук текущей дорожки"
+  },
+  "@yovoice.hotkeys.cmd.score.instrument": {
+    "defaultMessage": "Сменить инструмент"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomIn": {
+    "defaultMessage": "Увеличить"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomOut": {
+    "defaultMessage": "Уменьшить"
+  },
+  "@yovoice.hotkeys.cmd.score.zoomFit": {
+    "defaultMessage": "Показать всё"
+  },
+  "@yovoice.hotkeys.cmd.sfx.generate": {
+    "defaultMessage": "Сгенерировать"
+  },
+  "@yovoice.hotkeys.cmd.sfx.history": {
+    "defaultMessage": "История версий"
+  },
+  "@yovoice.hotkeys.cmd.sfx.export": {
+    "defaultMessage": "Экспортировать эту версию"
+  },
+  "@yovoice.hotkeys.cmd.voices.search": {
+    "defaultMessage": "Поиск"
+  },
+  "@yovoice.hotkeys.cmd.voices.preview": {
+    "defaultMessage": "Прослушать выбранный голос"
+  },
+  "@yovoice.hotkeys.cmd.voices.audition": {
+    "defaultMessage": "Сгенерировать пробу"
+  },
+  "@yovoice.hotkeys.cmd.voices.save": {
+    "defaultMessage": "Сохранить"
+  },
+  "@yovoice.hotkeys.cmd.voices.saveApply": {
+    "defaultMessage": "Сохранить и применить"
+  },
+  "@yovoice.hotkeys.cmd.voices.close": {
+    "defaultMessage": "Закрыть"
+  },
+  "@yovoice.hotkeys.cmd.refs.search": {
+    "defaultMessage": "Поиск"
+  },
+  "@yovoice.hotkeys.cmd.refs.preview": {
+    "defaultMessage": "Прослушать выбранный фрагмент"
+  },
+  "@yovoice.hotkeys.cmd.refs.save": {
+    "defaultMessage": "Сохранить"
+  },
+  "@yovoice.hotkeys.cmd.picker.record": {
+    "defaultMessage": "Запись / остановить запись"
+  },
+  "@yovoice.hotkeys.cmd.picker.import": {
+    "defaultMessage": "Импортировать аудио"
+  },
+  "@yovoice.hotkeys.cmd.ocho.minimize": {
+    "defaultMessage": "Свернуть панель"
+  },
+  "@yovoice.hotkeys.cmd.ocho.send": {
+    "defaultMessage": "Отправить"
+  },
+  "@yovoice.hotkeys.cmd.ocho.newline": {
+    "defaultMessage": "Новая строка"
+  },
+  "@yovoice.hotkeys.hint.global.new": {
+    "defaultMessage": "Создаёт работу, голос или референс для текущей страницы; в Ocho начинает новый чат"
+  },
+  "@yovoice.hotkeys.hint.global.back": {
+    "defaultMessage": "Из расшифровки — к списку, из истории — к работе"
+  },
+  "@yovoice.hotkeys.hint.global.cancel": {
+    "defaultMessage": "Отменяет генерацию, останавливает запись или ответ Ocho"
+  },
+  "@yovoice.hotkeys.hint.timeline.nudge": {
+    "defaultMessage": "С Shift шаг больше"
+  },
+  "@yovoice.hotkeys.hint.create.pronounce": {
+    "defaultMessage": "Сначала выделите текст в сценарии"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playLine": {
+    "defaultMessage": "Нажмите ещё раз, чтобы остановить"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinPrev": {
+    "defaultMessage": "Когда курсор в начале строки"
+  },
+  "@yovoice.hotkeys.hint.transcribe.joinNext": {
+    "defaultMessage": "Когда курсор в конце строки"
+  },
+  "@yovoice.hotkeys.hint.story.joinPrev": {
+    "defaultMessage": "Когда курсор в начале строки"
+  },
+  "@yovoice.hotkeys.hint.story.joinNext": {
+    "defaultMessage": "Когда курсор в конце строки"
+  },
+  "@yovoice.hotkeys.hint.story.speaker": {
+    "defaultMessage": "В порядке списка говорящих"
+  },
+  "@yovoice.hotkeys.hint.music.section": {
+    "defaultMessage": "Предлагает [Verse], [Chorus] и другие"
+  },
+  "@yovoice.hotkeys.hint.music.stems": {
+    "defaultMessage": "Если дорожки ещё не разделены, сначала разделяет их"
+  },
+  "@yovoice.hotkeys.hint.words.shift": {
+    "defaultMessage": "С Shift — 0,02 с"
+  },
+  "@yovoice.hotkeys.hint.stems.solo": {
+    "defaultMessage": "Нажмите ещё раз, чтобы отменить"
+  },
+  "@yovoice.hotkeys.hint.ocho.minimize": {
+    "defaultMessage": "Открытие и закрытие — в разделе Общие › Окно и панели"
+  },
+  "@yovoice.hotkeys.title": {
+    "defaultMessage": "Сочетания клавиш"
+  },
+  "@yovoice.hotkeys.intro": {
+    "defaultMessage": "Нажмите {keys} на любой странице, чтобы увидеть доступные там сочетания."
+  },
+  "@yovoice.hotkeys.enable": {
+    "defaultMessage": "Включить сочетания клавиш"
+  },
+  "@yovoice.hotkeys.enableHint": {
+    "defaultMessage": "Отключает все изменяемые сочетания ниже. Клавиши редактирования в полях ввода (разделение, объединение, отмена) и системные меню продолжают работать."
+  },
+  "@yovoice.hotkeys.import": {
+    "defaultMessage": "Импорт…"
+  },
+  "@yovoice.hotkeys.export": {
+    "defaultMessage": "Экспорт…"
+  },
+  "@yovoice.hotkeys.resetAll": {
+    "defaultMessage": "Восстановить все по умолчанию"
+  },
+  "@yovoice.hotkeys.resetAllConfirm": {
+    "defaultMessage": "Все сочетания и переключатели областей вернутся к значениям по умолчанию."
+  },
+  "@yovoice.hotkeys.search": {
+    "defaultMessage": "Поиск команд или клавиш"
+  },
+  "@yovoice.hotkeys.filterAll": {
+    "defaultMessage": "Все"
+  },
+  "@yovoice.hotkeys.filterModified": {
+    "defaultMessage": "Изменённые"
+  },
+  "@yovoice.hotkeys.filterUnset": {
+    "defaultMessage": "Не заданы"
+  },
+  "@yovoice.hotkeys.disabledNotice": {
+    "defaultMessage": "Сочетания клавиш отключены. Настройки ниже сохраняются и снова применятся после включения."
+  },
+  "@yovoice.hotkeys.empty": {
+    "defaultMessage": "Подходящих сочетаний нет."
+  },
+  "@yovoice.hotkeys.count": {
+    "defaultMessage": "Сочетаний: {count}"
+  },
+  "@yovoice.hotkeys.modifiedCount": {
+    "defaultMessage": "Изменено: {count}"
+  },
+  "@yovoice.hotkeys.areaOff": {
+    "defaultMessage": "Выкл."
+  },
+  "@yovoice.hotkeys.areaSwitch": {
+    "defaultMessage": "Включить сочетания для «{area}»"
+  },
+  "@yovoice.hotkeys.unset": {
+    "defaultMessage": "Не задано"
+  },
+  "@yovoice.hotkeys.fixed": {
+    "defaultMessage": "Соответствует стандартным клавишам редактирования и не меняется"
+  },
+  "@yovoice.hotkeys.macOnly": {
+    "defaultMessage": "Только macOS"
+  },
+  "@yovoice.hotkeys.or": {
+    "defaultMessage": "или"
+  },
+  "@yovoice.hotkeys.edit": {
+    "defaultMessage": "Изменить сочетание для «{name}»"
+  },
+  "@yovoice.hotkeys.reset": {
+    "defaultMessage": "Восстановить по умолчанию"
+  },
+  "@yovoice.hotkeys.recording": {
+    "defaultMessage": "Нажмите новое сочетание клавиш"
+  },
+  "@yovoice.hotkeys.recordingHint": {
+    "defaultMessage": "Esc — отмена · ⌫ — очистить"
+  },
+  "@yovoice.hotkeys.clear": {
+    "defaultMessage": "Очистить"
+  },
+  "@yovoice.hotkeys.reserved": {
+    "defaultMessage": "{keys} занято системой. Попробуйте другое сочетание."
+  },
+  "@yovoice.hotkeys.needsModifier": {
+    "defaultMessage": "Глобальным сочетаниям нужен {mods}, чтобы они работали и при вводе текста."
+  },
+  "@yovoice.hotkeys.conflict": {
+    "defaultMessage": "{keys} уже используется для «{name}»."
+  },
+  "@yovoice.hotkeys.conflictFixed": {
+    "defaultMessage": "{keys} уже используется для «{name}», это сочетание нельзя изменить. Попробуйте другое."
+  },
+  "@yovoice.hotkeys.replace": {
+    "defaultMessage": "Заменить"
+  },
+  "@yovoice.hotkeys.cheatsheet": {
+    "defaultMessage": "Сочетания клавиш"
+  },
+  "@yovoice.hotkeys.cheatsheetEmpty": {
+    "defaultMessage": "На этой странице нет доступных сочетаний."
+  },
+  "@yovoice.hotkeys.cheatsheetSettings": {
+    "defaultMessage": "Настроить сочетания"
+  },
+  "@yovoice.hotkeys.cheatsheetOff": {
+    "defaultMessage": "Сочетания клавиш отключены. Их можно снова включить в настройках."
+  },
+  "@yovoice.hotkeys.exportTitle": {
+    "defaultMessage": "Экспорт сочетаний"
+  },
+  "@yovoice.hotkeys.exportModified": {
+    "defaultMessage": "Только изменённые сочетания"
+  },
+  "@yovoice.hotkeys.exportModifiedHint": {
+    "defaultMessage": "Элементов: {count}; остальные сочетания останутся как у того, кто импортирует."
+  },
+  "@yovoice.hotkeys.exportAll": {
+    "defaultMessage": "Все сочетания"
+  },
+  "@yovoice.hotkeys.exportAllHint": {
+    "defaultMessage": "Элементов: {count}, включая значения по умолчанию."
+  },
+  "@yovoice.hotkeys.exportSwitches": {
+    "defaultMessage": "Включить главный переключатель и переключатели областей"
+  },
+  "@yovoice.hotkeys.exportSave": {
+    "defaultMessage": "Сохранить файл"
+  },
+  "@yovoice.hotkeys.fileName": {
+    "defaultMessage": "Сочетания клавиш yovoice"
+  },
+  "@yovoice.hotkeys.importTitle": {
+    "defaultMessage": "Импорт сочетаний"
+  },
+  "@yovoice.hotkeys.importFile": {
+    "defaultMessage": "Выбрать файл сочетаний"
+  },
+  "@yovoice.hotkeys.importInvalid": {
+    "defaultMessage": "Это не файл сочетаний, экспортированный из yovoice."
+  },
+  "@yovoice.hotkeys.importSource": {
+    "defaultMessage": "Из {platform} · сочетаний: {count}"
+  },
+  "@yovoice.hotkeys.importMerge": {
+    "defaultMessage": "Объединить"
+  },
+  "@yovoice.hotkeys.importMergeHint": {
+    "defaultMessage": "Изменить только сочетания из файла, остальные оставить как есть."
+  },
+  "@yovoice.hotkeys.importReplace": {
+    "defaultMessage": "Заменить"
+  },
+  "@yovoice.hotkeys.importReplaceHint": {
+    "defaultMessage": "Сочетания, которых нет в файле, вернутся к значениям по умолчанию."
+  },
+  "@yovoice.hotkeys.importChanges": {
+    "defaultMessage": "Изменений: {count}"
+  },
+  "@yovoice.hotkeys.importNoChanges": {
+    "defaultMessage": "Ничего не изменится."
+  },
+  "@yovoice.hotkeys.importOverridden": {
+    "defaultMessage": "Заменяет ваше изменение"
+  },
+  "@yovoice.hotkeys.importConflict": {
+    "defaultMessage": "Конфликт с «{name}»; будет очищено"
+  },
+  "@yovoice.hotkeys.importReset": {
+    "defaultMessage": "Вернуть по умолчанию"
+  },
+  "@yovoice.hotkeys.importSkipped": {
+    "defaultMessage": "Пропущено: {count}. Этих команд нет в этой версии, или их клавиши недоступны."
+  },
+  "@yovoice.hotkeys.importSwitches": {
+    "defaultMessage": "Главный переключатель и переключатели областей тоже обновятся по файлу."
+  },
+  "@yovoice.hotkeys.importApply": {
+    "defaultMessage": "Применить"
+  },
+  "@yovoice.hotkeys.platformMac": {
+    "defaultMessage": "macOS"
+  },
+  "@yovoice.hotkeys.platformOther": {
+    "defaultMessage": "Windows / Linux"
+  },
+  "@yovoice.hotkeys.needsDigit": {
+    "defaultMessage": "Это сочетание использует цифры: нажмите модификаторы с любой цифрой."
+  },
+  "@yovoice.hotkeys.resetTo": {
+    "defaultMessage": "Восстановить по умолчанию ({keys})"
+  },
+  "@yovoice.hotkeys.filter": {
+    "defaultMessage": "Фильтр"
+  },
+  "@yovoice.assistant.hideLauncherHintPlain": {
+    "defaultMessage": "Открывается в правом верхнем углу"
+  },
+  "@yovoice.hotkeys.conflictMany": {
+    "defaultMessage": "{keys} уже используется командой «{name}» и другими ({count} всего)."
+  },
+  "@yovoice.hotkeys.introNoKey": {
+    "defaultMessage": "Сейчас у шпаргалки нет сочетания клавиш. Нажмите «Сочетания клавиш», чтобы увидеть, что доступно на этой странице."
+  },
+  "@yovoice.hotkeys.cmd.story.emacsDelete": {
+    "defaultMessage": "Удалить назад / вперёд"
+  },
+  "@yovoice.music.alignNeedsModel": {
+    "defaultMessage": "Модель выравнивания текста ещё не загружена. Выберите «Автовыравнивание» в меню «Инструменты текста», чтобы загрузить её."
+  },
+  "@yovoice.music.alignReplaceTitle": {
+    "defaultMessage": "Выровнять текст заново?"
+  },
+  "@yovoice.music.alignReplaceDescription": {
+    "defaultMessage": "Автовыравнивание заменит текущую синхронизацию текста в этой версии, включая ручные правки."
+  },
+  "@yovoice.guide.assistantPlain": {
+    "defaultMessage": "Нажмите кнопку ассистента в заголовке окна и просто скажите, что нужно, например: «Создай чтение истории и подбери голос каждому персонажу». Сначала добавьте ИИ-сервис в настройках."
   }
 }

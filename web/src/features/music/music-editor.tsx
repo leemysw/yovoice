@@ -14,11 +14,13 @@ import { isStableAudio, isUntitled, isYuE, musicStyleLimit, type Draft, type Sta
 import { createMusicDraft, instrumentalSections, lyricSections, splitTags } from './music-draft';
 import { MelodyScore } from './melody-score';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { composing, useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 
 // 音乐创作区：从上到下是“风格 → 歌词”，生成的版本在“版本记录”里查看；让 AI 写风格和歌词走创作助手。
 // 纯音乐与填写歌词是并列的两种模式。YuE2 还可以先出旋律谱、改谱后再生成。
-export function MusicEditor({ draft, state, change, locale, onError }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (message: string) => void;
+// 编辑页常驻挂载、切走只隐藏，active 表示它此刻显示着，快捷键只在这时生效。
+export function MusicEditor({ draft, state, change, locale, onError, active }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; onError: (message: string) => void; active: boolean;
 }) {
   const t = useTranslator();
   // YuE2 的纯音乐先出谱，再把人声旋律交给乐器演奏；歌词可留空，或只写段落标记安排结构。
@@ -58,7 +60,10 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
     change({ text: combined.join(', ').slice(0, musicStyleLimit(draft.modelId)) });
     setInputVal('');
   };
+  // 输入法组字时的回车是确认候选，不能把还没上屏的拼音当成标签加进去。
+  // 只处理不带 ⌘/Ctrl、⌥ 的按键：⌘↩ / Ctrl+Enter（生成）、⌘,（设置）这类组合交给快捷键。
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (composing(e.nativeEvent) || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === 'Enter' || e.key === ',' || e.key === '，') {
       e.preventDefault();
       addTag(inputVal);
@@ -87,9 +92,21 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
     change({ lyrics: (before + tag + value.slice(end)).slice(0, 4000) });
     requestAnimationFrame(() => { element?.focus(); element?.setSelectionRange(start + tag.length, start + tag.length); });
   };
-  const sectionMenu = <DropdownMenu hasChevron alignment="end" button={{ size: 'sm', variant: 'ghost', label: t('@yovoice.music.insertSection') }}
+  // 段落标记菜单在歌词区和放大的对话框里各有一个，快捷键打开当前可见的那个。
+  const [sectionOpen, setSectionOpen] = useState(false);
+  const sectionKeys = useHotkeyText('music.section'), sectionAria = useHotkeyAria('music.section');
+  const sectionMenu = (inDialog: boolean) => <DropdownMenu hasChevron alignment="end" isMenuOpen={sectionOpen && inDialog === expanded} onOpenChange={setSectionOpen}
+    button={{ size: 'sm', variant: 'ghost', label: t('@yovoice.music.insertSection'), tooltip: withHotkey(t('@yovoice.music.insertSection'), sectionKeys), 'aria-keyshortcuts': sectionAria }}
     items={[...lyricSections.map(section => ({ label: `[${section}]`, onClick: () => insertSection(section) })), { type: 'divider' as const }, ...instrumentalSections.map(section => ({ label: `[${section}]`, onClick: () => insertSection(section) }))]} />;
   const empty = !draft.text.trim() && !draft.lyrics?.trim();
+  // 快捷键：人声与纯音乐切换、插入段落标记、放大编辑歌词；放大的歌词对话框里也能插入段落标记。
+  const withLyrics = !stable && (!draft.instrumental || yue);
+  useHotkey('music.instrumental', () => change({ instrumental: !draft.instrumental }), { enabled: active && !stable });
+  // 放大编辑时页面被对话框盖住：改由对话框里的歌词框接这个快捷键（焦点在其中时响应）。
+  useHotkey('music.section', () => setSectionOpen(true), { enabled: active && withLyrics && !expanded });
+  useHotkey('music.section', () => setSectionOpen(true), { enabled: active && withLyrics && expanded, within: expandedLyrics });
+  useHotkey('music.expandLyrics', () => setExpanded(true), { enabled: active && withLyrics && !expanded });
+  const instrumentalAria = useHotkeyAria('music.instrumental'), expandKeys = useHotkeyText('music.expandLyrics'), expandAria = useHotkeyAria('music.expandLyrics');
   return <VStack className="music-editor" gap={5}>
     <VStack className="music-block" gap={3}>
       <HStack className="music-style-header" hAlign="between" vAlign="center" gap={2}>
@@ -136,9 +153,9 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
     {stable ? null : <VStack className="music-block" gap={3}>
       <HStack vAlign="center" gap={2} wrap="wrap">
         <h2 className="grow">{t('@yovoice.music.lyrics')}</h2>
-        {!draft.instrumental || yue ? sectionMenu : null}
-        {!draft.instrumental || yue ? <Button size="sm" variant="ghost" isIconOnly icon={<Maximize2 />} label={t('@yovoice.music.expandLyrics')} tooltip={t('@yovoice.music.expandLyrics')} onClick={() => setExpanded(true)} /> : null}
-        <SegmentedControl label={t('@yovoice.music.lyricsMode')} size="sm" value={draft.instrumental ? 'instrumental' : 'vocal'} onChange={value => change({ instrumental: value === 'instrumental' })}>
+        {withLyrics ? sectionMenu(false) : null}
+        {withLyrics ? <Button size="sm" variant="ghost" isIconOnly icon={<Maximize2 />} label={t('@yovoice.music.expandLyrics')} tooltip={withHotkey(t('@yovoice.music.expandLyrics'), expandKeys)} aria-keyshortcuts={expandAria} onClick={() => setExpanded(true)} /> : null}
+        <SegmentedControl label={t('@yovoice.music.lyricsMode')} aria-keyshortcuts={instrumentalAria} size="sm" value={draft.instrumental ? 'instrumental' : 'vocal'} onChange={value => change({ instrumental: value === 'instrumental' })}>
           <SegmentedControlItem onPointerEnter={overflowTitle} value="vocal" label={t('@yovoice.music.vocal')} />
           <SegmentedControlItem onPointerEnter={overflowTitle} value="instrumental" label={t('@yovoice.music.instrumental')} />
         </SegmentedControl>
@@ -147,12 +164,12 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
         : <TextArea ref={lyrics} className="music-lyrics" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={draft.instrumental ? 6 : yue ? 10 : 14} hasSpellCheck={false} placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />}
     </VStack>}
     {expanded ? <AppDialog title={t('@yovoice.music.lyrics')} width={760} closeLabel={t('@yovoice.action.close')} onClose={() => setExpanded(false)}
-      actions={sectionMenu}>
+      actions={sectionMenu(true)}>
       <TextArea ref={expandedLyrics} className="music-lyrics music-lyrics-expanded" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={20} hasSpellCheck={false}
         placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />
     </AppDialog> : null}
     {/* YuE2 的流程是“歌词 → 旋律谱 → 整首歌”，谱放在歌词之后。 */}
-    {yue ? <MelodyScore draft={draft} state={state} change={change} onError={onError} /> : null}
+    {yue ? <MelodyScore draft={draft} state={state} change={change} onError={onError} active={active} /> : null}
   </VStack>;
 }
 

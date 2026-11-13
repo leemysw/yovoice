@@ -11,6 +11,9 @@ import { ConfirmDelete } from '../../shared/ui/app-dialog';
 import { formatTime, type Draft, type Generation, type StemName } from '../../shared/workbench';
 import { waveform as readWaveform, type Waveform } from '../media/waveform';
 import { useMultitrack, type TrackMix } from '../media/use-multitrack';
+import { useFocusHome } from './use-focus-home';
+import { activeBinding, platform, useHotkey, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
+import { bindingText } from '../../shared/hotkeys/keys';
 
 // 分轨工作台要打开的内容：一个版本分离出的音轨，或一个编曲作品（转 MIDI 的结果）逐轨渲染后的试听。
 export type StudioTarget = { kind: 'stems'; sourceId: string } | { kind: 'midi'; projectId: string; sourceId?: string };
@@ -22,11 +25,13 @@ const stemOrder: StemName[] = ['vocals', 'drums', 'bass', 'guitar', 'piano', 'ot
 const colors = ['blue', 'orange', 'green', 'purple', 'pink', 'teal', 'yellow'];
 // 波形取样数：够画满一条宽轨道，又不必为长歌读太多数据。
 const bins = 720;
+// 快退、快进的步长（秒）；数字键独奏、静音的轨道数（参照轨之外的前几轨）。
+const skipStep = 5, numbered = 6;
 
 /**
  * 分轨工作台：像调音台一样把原曲和每一轨并排列出，统一播放、定位，每轨可静音、独奏、调音量，
  * 用来听清分离或转换的效果。分轨来自 HTDemucs 的分离结果；转 MIDI 的结果用编曲音色库逐轨渲染后试听。
- * 原曲作为参照轨默认静音，独奏原曲即可与分轨对比。空格播放暂停。
+ * 原曲作为参照轨默认静音，独奏原曲即可与分轨对比。快捷键：播放暂停、快退快进、数字键独奏、⇧数字静音（参照轨之外的前几轨）、导出全部分轨。
  */
 export function StemStudio({ target, history, project, onClose, onExport, onResplit, onDeleteStems, busy, openSoundFonts }: {
   target: StudioTarget; history: Generation[]; project?: Draft; onClose: () => void;
@@ -69,7 +74,10 @@ export function StemStudio({ target, history, project, onClose, onExport, onResp
   const board = useRef<HTMLElement>(null);
   const clock = useRef<HTMLElement>(null);
   const total = useRef(0);
+  // 当前播放位置：播放头逐帧回报，快退快进从这里算。
+  const position = useRef(0);
   const player = useMultitrack(tracks, fullMix, time => {
+    position.current = time;
     const length = total.current || 1;
     board.current?.style.setProperty('--stem-progress', String(Math.min(1, time / length)));
     if (clock.current) clock.current.textContent = formatTime(time);
@@ -86,14 +94,27 @@ export function StemStudio({ target, history, project, onClose, onExport, onResp
   };
   total.current = duration;
 
-  useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if (event.code !== 'Space' || (event.target as HTMLElement)?.closest('input, textarea, button, [role="slider"]')) return;
-      event.preventDefault(); toggle();
-    };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, [toggle]);
+  // 工作台是全屏弹窗：打开时焦点放在工作台本身（不落在“重新分离”或关闭按钮上，空格直接播放），快捷键限定在工作台里，
+  // 上面盖着删除确认框、速查浮层时都不响应。数字键按参照轨之外的顺序对应轨道。
+  const root = useRef<HTMLElement>(null);
+  useFocusHome(root);
+  const numberedTracks = tracks.filter(track => !track.reference).slice(0, numbered);
+  const exportable = target.kind === 'stems' && source && onExport ? () => onExport(source) : undefined;
+  const live = ready && tracks.length > 0;
+  useHotkey('stems.play', toggle, { within: root, enabled: live });
+  useHotkey('global.playPause', toggle, { within: root, enabled: live, inInput: true });
+  useHotkey('stems.back', () => seek(position.current - skipStep), { within: root, enabled: live, repeat: true });
+  useHotkey('stems.forward', () => seek(position.current + skipStep), { within: root, enabled: live, repeat: true });
+  useHotkey('stems.solo', (_, index = 0) => { const track = numberedTracks[index]; if (track) update(track, { solo: !mixFor(track).solo }); }, { within: root, enabled: numberedTracks.length > 0 });
+  useHotkey('stems.mute', (_, index = 0) => { const track = numberedTracks[index]; if (track) update(track, { mute: !mixFor(track).mute }); }, { within: root, enabled: numberedTracks.length > 0 });
+  useHotkey('stems.export', () => exportable?.(), { within: root, enabled: !!exportable });
+  const playKeys = useHotkeyText('stems.play'), exportKeys = useHotkeyText('stems.export');
+  const playAria = useHotkeyAria('stems.play'), exportAria = useHotkeyAria('stems.export');
+  // 每轨的独奏、静音按键：把数字组合里的 # 换成这一轨的序号。
+  const trackKeys = (id: 'stems.solo' | 'stems.mute', track: StudioTrack) => {
+    const binding = activeBinding(id), index = numberedTracks.indexOf(track);
+    return binding && index >= 0 ? bindingText(binding.replace('#', String(index + 1)), platform) : '';
+  };
 
   // 各轨波形按顺序读取（每条恒定内存），读到一条画一条。
   const [waves, setWaves] = useState<Record<string, Waveform>>({});
@@ -121,16 +142,16 @@ export function StemStudio({ target, history, project, onClose, onExport, onResp
   };
 
   return <Dialog className="stem-studio-dialog" isOpen variant="fullscreen" padding={0} aria-label={t('@yovoice.stems.studioTitle', { title })} onOpenChange={open => { if (!open) onClose(); }}>
-    <VStack className="stem-studio" gap={0}>
+    <VStack ref={root} tabIndex={-1} data-autofocus className="stem-studio" gap={0}>
       <HStack className="stem-studio-header" gap={3} vAlign="center">
         <VStack className="grow" gap={0}><h2>{t('@yovoice.stems.studioTitle', { title })}</h2><small>{subtitle}</small></VStack>
         {target.kind === 'stems' && source && onResplit ? <Button size="sm" variant="ghost" icon={<RotateCcw />} label={t('@yovoice.stems.resplit')} isDisabled={busy} onClick={() => onResplit(source)} /> : null}
         {target.kind === 'stems' && source && onDeleteStems ? <Button size="sm" variant="ghost" icon={<Trash2 />} label={t('@yovoice.stems.delete')} onClick={() => { setDeleteError(''); setConfirmDelete(true); }} /> : null}
-        {target.kind === 'stems' && source && onExport ? <Button size="sm" variant="secondary" icon={<Download />} label={t('@yovoice.stems.exportAll')} onClick={() => onExport(source)} /> : null}
+        {exportable ? <Button size="sm" variant="secondary" icon={<Download />} label={t('@yovoice.stems.exportAll')} tooltip={exportKeys || undefined} aria-keyshortcuts={exportAria} onClick={exportable} /> : null}
         <Button size="sm" variant="ghost" isIconOnly icon={<X />} label={t('@yovoice.action.close')} onClick={onClose} />
       </HStack>
       <HStack className="stem-transport" gap={3} vAlign="center">
-        <Button variant="primary" isIconOnly icon={playing ? <Pause /> : <Play />} label={t(playing ? '@yovoice.player.pause' : '@yovoice.player.play')} isDisabled={!ready || tracks.length === 0} onClick={toggle} />
+        <Button variant="primary" isIconOnly icon={playing ? <Pause /> : <Play />} label={t(playing ? '@yovoice.player.pause' : '@yovoice.player.play')} tooltip={withHotkey(t(playing ? '@yovoice.player.pause' : '@yovoice.player.play'), playKeys)} aria-keyshortcuts={playAria} isDisabled={!ready || tracks.length === 0} onClick={toggle} />
         <small className="stem-time"><StackItem as="span" ref={clock}>{formatTime(0)}</StackItem> / {formatTime(duration)}</small>
       </HStack>
       {soundFontMissing ? <VStack className="stem-studio-empty" gap={3} hAlign="center" role="status">
@@ -150,8 +171,8 @@ export function StemStudio({ target, history, project, onClose, onExport, onResp
                 <b className="stem-track-name">{track.name}</b>
                 <Slider label={t('@yovoice.stems.volume', { name: track.name })} isLabelHidden valueDisplay="none" min={0} max={1} step={0.01} value={item.volume} onChange={(volume: number) => update(track, { volume })} />
               </VStack>
-              <Button size="sm" variant={item.mute ? 'primary' : 'ghost'} isIconOnly className="stem-toggle" icon={item.mute ? <VolumeX /> : <Volume2 />} label={t('@yovoice.stems.mute', { name: track.name })} tooltip={t('@yovoice.stems.mute', { name: track.name })} aria-pressed={item.mute} onClick={() => update(track, { mute: !item.mute })} />
-              <Button size="sm" variant={item.solo ? 'primary' : 'ghost'} isIconOnly className="stem-toggle" icon={<Headphones />} label={t('@yovoice.stems.solo', { name: track.name })} tooltip={t('@yovoice.stems.solo', { name: track.name })} aria-pressed={item.solo} onClick={() => update(track, { solo: !item.solo })} />
+              <Button size="sm" variant={item.mute ? 'primary' : 'ghost'} isIconOnly className="stem-toggle" icon={item.mute ? <VolumeX /> : <Volume2 />} label={t('@yovoice.stems.mute', { name: track.name })} tooltip={withHotkey(t('@yovoice.stems.mute', { name: track.name }), trackKeys('stems.mute', track))} aria-pressed={item.mute} onClick={() => update(track, { mute: !item.mute })} />
+              <Button size="sm" variant={item.solo ? 'primary' : 'ghost'} isIconOnly className="stem-toggle" icon={<Headphones />} label={t('@yovoice.stems.solo', { name: track.name })} tooltip={withHotkey(t('@yovoice.stems.solo', { name: track.name }), trackKeys('stems.solo', track))} aria-pressed={item.solo} onClick={() => update(track, { solo: !item.solo })} />
             </HStack>
             <StackItem className="stem-lane" onPointerDown={seekAt} aria-hidden>
               {wave ? <svg viewBox={`0 0 ${wave.peaks.length} 100`} preserveAspectRatio="none" style={{ width: `${duration ? Math.min(100, wave.duration / duration * 100) : 100}%` }}>

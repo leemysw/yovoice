@@ -174,6 +174,31 @@ public partial class MainWindow : Window
     {
         if (web is not null) web.Visibility = WindowState == WindowState.Minimized || !IsVisible ? Visibility.Hidden : Visibility.Visible;
     }
+    // 网页元素全屏前的窗口样式、状态与标题栏高度；null 表示不在全屏。
+    private (System.Windows.WindowState State, System.Windows.WindowStyle Style, System.Windows.ResizeMode Resize, System.Windows.GridLength Caption)? beforeFullScreen;
+    // 网页里的元素进入全屏时隐藏自绘标题栏、去掉边框并最大化，让网页铺满屏幕；退出全屏时恢复原来的窗口。
+    private void ApplyWebFullScreen(bool full)
+    {
+        if (Container.Parent is not System.Windows.Controls.Grid root || root.RowDefinitions.Count == 0) return;
+        if (full)
+        {
+            if (beforeFullScreen is not null) return;
+            beforeFullScreen = (WindowState, WindowStyle, ResizeMode, root.RowDefinitions[0].Height);
+            root.RowDefinitions[0].Height = new System.Windows.GridLength(0);
+            WindowStyle = System.Windows.WindowStyle.None;
+            ResizeMode = System.Windows.ResizeMode.NoResize;
+            // 已经最大化时先还原再最大化，窗口才会按无边框的样式重新铺满。
+            if (WindowState == System.Windows.WindowState.Maximized) WindowState = System.Windows.WindowState.Normal;
+            WindowState = System.Windows.WindowState.Maximized;
+            return;
+        }
+        if (beforeFullScreen is not { } previous) return;
+        beforeFullScreen = null;
+        root.RowDefinitions[0].Height = previous.Caption;
+        WindowStyle = previous.Style;
+        ResizeMode = previous.Resize;
+        WindowState = previous.State == System.Windows.WindowState.Minimized ? System.Windows.WindowState.Normal : previous.State;
+    }
     private void ApplyMaximizeLabel()
     {
         bool maximized = WindowState == WindowState.Maximized;
@@ -386,6 +411,8 @@ public partial class MainWindow : Window
             core.Settings.AreDefaultContextMenusEnabled = false;
             core.Settings.IsPasswordAutosaveEnabled = false;
             core.Settings.IsGeneralAutofillEnabled = false;
+            // 关掉浏览器自带的快捷键（Ctrl+F 查找、Ctrl+P 打印、F5/Ctrl+R 刷新等），这些按键交给界面的快捷键设置；复制粘贴等编辑键不受影响。
+            core.Settings.AreBrowserAcceleratorKeysEnabled = false;
 #if !DEBUG
             core.Settings.AreDevToolsEnabled = false;
 #endif
@@ -408,6 +435,8 @@ public partial class MainWindow : Window
             };
             core.PermissionRequested += (_, args) => args.State = Trusted(args.Uri) && args.PermissionKind == CoreWebView2PermissionKind.Microphone ? CoreWebView2PermissionState.Allow : CoreWebView2PermissionState.Deny;
             core.WebMessageReceived += async (_, args) => await HandleMessageAsync(args);
+            // 网页元素全屏（播放页按 F 或点全屏按钮）时窗口跟着全屏，退出时还原。
+            core.ContainsFullScreenElementChanged += (_, _) => ApplyWebFullScreen(core.ContainsFullScreenElement);
             // 浏览器进程失效时必须重建控件，任务和草稿继续由 Go 服务持有。
             core.ProcessFailed += (_, _) => _ = Dispatcher.InvokeAsync(InitializeWebAsync);
             core.Navigate(Origin + "/index.html");
@@ -499,11 +528,11 @@ public partial class MainWindow : Window
                     finally { try { File.Delete(exported); } catch (IOException) { } }
                     break;
                 case "text.export":
-                    // 字幕（SRT/VTT）、歌词（LRC）与旋律谱（ABC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+                    // 字幕（SRT/VTT）、歌词（LRC）、旋律谱（ABC）与快捷键设置（JSON）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
                     string textFormat = data.TryGetProperty("format", out var textFormatValue) ? textFormatValue.GetString() ?? "" : "";
                     string text = data.TryGetProperty("text", out var textValue) ? textValue.GetString() ?? "" : "";
-                    if (textFormat is not ("srt" or "vtt" or "lrc" or "abc") || text.Length > 20_000_000) throw new ArgumentException(HostL10n.T("导出文件格式无效。", "The exported file format is invalid."));
-                    string textFilter = textFormat switch { "srt" => HostL10n.T("SRT 字幕", "SRT Subtitles"), "vtt" => HostL10n.T("WebVTT 字幕", "WebVTT Subtitles"), "abc" => HostL10n.T("ABC 旋律谱", "ABC Melody Score"), _ => HostL10n.T("LRC 歌词", "LRC Lyrics") };
+                    if (textFormat is not ("srt" or "vtt" or "lrc" or "abc" or "json") || text.Length > 20_000_000) throw new ArgumentException(HostL10n.T("导出文件格式无效。", "The exported file format is invalid."));
+                    string textFilter = textFormat switch { "srt" => HostL10n.T("SRT 字幕", "SRT Subtitles"), "vtt" => HostL10n.T("WebVTT 字幕", "WebVTT Subtitles"), "abc" => HostL10n.T("ABC 旋律谱", "ABC Melody Score"), "json" => HostL10n.T("快捷键设置", "Keyboard Shortcuts"), _ => HostL10n.T("LRC 歌词", "LRC Lyrics") };
                     var textSave = new SaveFileDialog { Filter = textFilter + "|*." + textFormat, DefaultExt = "." + textFormat, FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "yovoice." + textFormat), OverwritePrompt = true };
                     if (textSave.ShowDialog(this) != true) { result = false; break; }
                     string textTemporary = textSave.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
