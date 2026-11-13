@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Annulla"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Ripeti"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Riproduzione continua"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Anteprima video"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "Questo video non può essere riprodotto qui, quindi verrà riprodotto solo l’audio"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Elimina trascrizione"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Trova e sostituisci"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Invio divide al cursore; Backspace a inizio riga unisce alla riga precedente"
+    "defaultMessage": "Invio divide al cursore; Backspace a inizio riga unisce alla riga precedente; Canc a fine riga unisce alla riga successiva"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "La trascrizione richiede il modello di riconoscimento vocale Qwen3 ASR. Scaricalo per caricare audio o registrare."

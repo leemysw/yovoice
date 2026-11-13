@@ -19,8 +19,9 @@ func transcriptWorkbench(t *testing.T) (*Workbench, schema.Transcript) {
 	upload := filepath.Join(wb.Store.Root, "downloads", "upload-1")
 	must(t, os.WriteFile(upload, []byte("audio"), 0600))
 	record := schema.Transcript{ID: schema.NewID(), Name: "访谈", Duration: 10, CreatedAt: time.Now().UTC()}
+	record.AudioFile = record.ID + ".m4a"
 	words := []schema.LyricWord{{Word: "你", Start: 0, End: .4}, {Word: "好", Start: .5, End: .9}}
-	must(t, wb.saveTranscript(record, schema.TranscriptContent{Text: "你好", Words: words}, upload, ".m4a"))
+	must(t, wb.saveTranscript(record, schema.TranscriptContent{Text: "你好", Words: words}, upload, ""))
 	return wb, wb.Store.Read().Transcripts[0]
 }
 
@@ -115,5 +116,25 @@ func TestTranscriptExcerpt(t *testing.T) {
 	}
 	if got := transcriptExcerpt([]string{strings.Repeat("长", 100)}); utf8.RuneCountInString(got) != excerptRunes+1 {
 		t.Errorf("%q", got)
+	}
+}
+
+// 写入状态失败时，已移进 outputs 的字幕、音轨与原视频都清掉。
+func TestSaveTranscriptRollsBack(t *testing.T) {
+	wb, _ := yueWorkbench(t)
+	upload, video := filepath.Join(wb.Store.Root, "downloads", "upload-1"), filepath.Join(wb.Store.Root, "downloads", "upload-2")
+	must(t, os.WriteFile(upload, []byte("audio"), 0600))
+	must(t, os.WriteFile(video, []byte("video"), 0600))
+	record := schema.Transcript{ID: schema.NewID(), Duration: 1, CreatedAt: time.Now().UTC()}
+	record.AudioFile, record.VideoFile = record.ID+".wav", record.ID+".mp4"
+	must(t, wb.Store.Close())
+	if e := wb.saveTranscript(record, schema.TranscriptContent{Text: "你好"}, upload, video); e == nil {
+		t.Fatal("状态库已关闭，保存应失败")
+	}
+	if left, _ := filepath.Glob(filepath.Join(wb.Store.Root, "outputs", record.ID+".*")); len(left) != 0 {
+		t.Fatalf("失败后仍留下文件：%v", left)
+	}
+	if _, e := os.Stat(video); !os.IsNotExist(e) {
+		t.Fatalf("原视频应已移入后清掉：%v", e)
 	}
 }

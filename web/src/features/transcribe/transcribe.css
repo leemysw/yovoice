@@ -41,4 +41,17 @@
   .transcribe-line:hover .transcribe-line-actions, .transcribe-line:focus-within .transcribe-line-actions { opacity: 1; }
   @media (hover: none) { .transcribe-line-actions { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .transcribe-line-actions { transition: none; } }
+
+  /* 原文件是视频时字幕列表与画面并排，画面跟着滚动停在顶部；窄窗口画面排到列表上方。 */
+  .transcribe-main { min-width: 0; }
+  .transcribe-video { position: sticky; top: 0; z-index: 1; flex: 0 0 40%; max-width: calc(var(--spacing-10) * 14); }
+  .transcribe-video video { display: block; width: 100%; max-height: 60vh; border-radius: var(--radius-inner); background: var(--color-on-light); }
+  /* 当前字幕叠在画面下部、播放控件之上，不挡点击。 */
+  .transcribe-video-caption { position: absolute; inset-inline: var(--spacing-4); bottom: calc(var(--spacing-10) + var(--spacing-4)); margin: 0; text-align: center; pointer-events: none; color: var(--color-on-dark); font-size: var(--app-small-font); line-height: 1.5; text-shadow: 0 0 var(--spacing-1) var(--color-on-light), 0 0 var(--spacing-2) var(--color-on-light); }
+  @media (max-width: 900px) {
+    .transcribe-body { flex-direction: column-reverse; }
+    .transcribe-body > * { width: 100%; }
+    .transcribe-video { flex-basis: auto; max-width: none; }
+    .transcribe-video video { max-height: 35vh; }
+  }
 }

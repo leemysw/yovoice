@@ -202,7 +202,7 @@ func TestTranscribeIsolatedPlaybackAndBoundaries(t *testing.T) {
 		t.Fatal("第二段应裁掉前两秒上下文，保留原时间轴上的人声")
 	}
 
-	must(t, wb.startTranscribeSpeech("访谈.wav", upload, converter, 1))
+	must(t, wb.startTranscribeSpeech("访谈.wav", upload, converter, 1, ""))
 	<-wb.Done()
 	state := wb.Store.Read()
 	if state.Activity.Status != "completed" || len(state.Transcripts) != 1 {
@@ -219,5 +219,91 @@ func TestTranscribeIsolatedPlaybackAndBoundaries(t *testing.T) {
 	}
 	if math.Abs(float64(samples[62*rate+3*rate/4+1])) < .01 || record.Duration != seconds {
 		t.Fatal("试听应保留原音轨和时长")
+	}
+}
+
+// mediaTools 返回测试用的 FFmpeg 与 ffprobe，缺少时跳过。
+func mediaTools(t *testing.T) (string, string) {
+	t.Helper()
+	tools := [2]string{os.Getenv("YOVOICE_TEST_FFMPEG"), os.Getenv("YOVOICE_TEST_FFPROBE")}
+	for i, name := range []string{"ffmpeg", "ffprobe"} {
+		if tools[i] == "" {
+			path, err := exec.LookPath(name)
+			if err != nil {
+				t.Skip("需要 FFmpeg 与 ffprobe 执行真实转换")
+			}
+			tools[i] = path
+		}
+	}
+	return tools[0], tools[1]
+}
+
+// 只有界面能播放的容器且带画面时保留原视频：mp4 移进 outputs 供预览，删除记录时一起删；
+// mkv、带封面的 m4a 不保留；转换失败时上传照常删除，不会留下视频。
+func TestTranscribeKeepsVideo(t *testing.T) {
+	converter, prober := mediaTools(t)
+	ctx := context.Background()
+	dir := t.TempDir()
+	media := func(name string, args ...string) string {
+		path := filepath.Join(dir, name)
+		args = append([]string{"-v", "error", "-f", "lavfi", "-i", "sine=frequency=220:sample_rate=48000",
+			"-f", "lavfi", "-i", "color=size=64x64:rate=10", "-t", "3"}, args...)
+		if output, err := exec.Command(converter, append(args, path)...).CombinedOutput(); err != nil {
+			t.Fatalf("%s: %s: %v", name, output, err)
+		}
+		return path
+	}
+	mp4 := media("clip.mp4", "-map", "0:a", "-map", "1:v", "-c:v", "mpeg4", "-c:a", "aac")
+	mkv := media("clip.mkv", "-map", "0:a", "-map", "1:v", "-c:v", "mpeg4", "-c:a", "aac")
+	cover := media("cover.m4a", "-map", "0:a", "-map", "1:v", "-frames:v", "1", "-c:v", "png", "-disposition:v:0", "attached_pic", "-c:a", "aac")
+	for _, tc := range []struct{ name, path, want string }{
+		{"访谈.MP4", mp4, ".mp4"}, {"访谈.mov", mp4, ".mov"}, {"访谈.mkv", mkv, ""}, {"访谈.mp4", cover, ""}, {"访谈.m4a", cover, ""},
+	} {
+		if got := transcribeVideo(ctx, prober, tc.name, tc.path); got != tc.want {
+			t.Errorf("%s：%q，应为 %q", tc.name, got, tc.want)
+		}
+	}
+
+	wb := recognizeWorkbench(t, true)
+	original, err := os.ReadFile(mp4)
+	must(t, err)
+	upload := filepath.Join(wb.Store.Root, "downloads", "upload-video")
+	must(t, os.WriteFile(upload, original, 0600))
+	must(t, wb.startTranscribeSpeech("访谈.mp4", upload, converter, 1, ".mp4"))
+	<-wb.Done()
+	s := wb.Store.Read()
+	if s.Activity.Status != "completed" || len(s.Transcripts) != 1 {
+		t.Fatalf("转写未完成：%+v", s.Activity)
+	}
+	r := s.Transcripts[0]
+	if r.AudioFile != r.ID+".wav" || r.VideoFile != r.ID+".mp4" {
+		t.Fatalf("%+v", r)
+	}
+	outputs := filepath.Join(wb.Store.Root, "outputs")
+	if saved, err := os.ReadFile(filepath.Join(outputs, r.VideoFile)); err != nil || !bytes.Equal(saved, original) {
+		t.Fatalf("原视频没有保存：%v", err)
+	}
+	if _, err := audio.Duration(filepath.Join(outputs, r.AudioFile)); err != nil {
+		t.Fatalf("试听音轨应为 WAV：%v", err)
+	}
+	if _, err := os.Stat(upload); !os.IsNotExist(err) {
+		t.Fatalf("上传文件应已移走：%v", err)
+	}
+	must(t, wb.DeleteTranscript(r.ID))
+	if _, err := os.Stat(filepath.Join(outputs, r.VideoFile)); !os.IsNotExist(err) {
+		t.Fatalf("删除记录后原视频仍在：%v", err)
+	}
+
+	must(t, os.WriteFile(upload, []byte("不是视频"), 0600))
+	must(t, wb.startTranscribeSpeech("坏.mp4", upload, converter, 1, ".mp4"))
+	<-wb.Done()
+	if s := wb.Store.Read(); s.Activity.Status != "failed" || len(s.Transcripts) != 0 {
+		t.Fatalf("%+v", s.Activity)
+	}
+	if _, err := os.Stat(upload); !os.IsNotExist(err) {
+		t.Fatalf("失败后上传文件应删除：%v", err)
+	}
+	if left, _ := filepath.Glob(filepath.Join(outputs, "*.mp4")); len(left) != 0 {
+		t.Fatalf("失败后不应留下视频：%v", left)
 	}
 }

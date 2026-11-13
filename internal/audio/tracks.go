@@ -72,3 +72,40 @@ func AudioTracks(ctx context.Context, probe, path string) ([]Track, error) {
 	}
 	return tracks, nil
 }
+
+// HasVideo 判断文件是否带视频画面；mp3、m4a、flac 等常带的封面图（attached_pic）不算视频。
+func HasVideo(ctx context.Context, probe, path string) (bool, error) {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return false, err
+	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	args := append([]string{"-v", "error"}, localInput()...)
+	args = append(args, "-select_streams", "v", "-show_entries", "stream=codec_type:stream_disposition=attached_pic", "-of", "json", path)
+	cmd := exec.CommandContext(ctx, probe, args...)
+	platform.ConfigureProcess(cmd)
+	data, err := cmd.Output()
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return false, msg.Err(msg.ErrAudioDecode, nil)
+		}
+		return false, mediaToolError(ctx, err)
+	}
+	var result struct {
+		Streams []struct {
+			Disposition struct {
+				AttachedPic int `json:"attached_pic"`
+			}
+		}
+	}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return false, msg.Err(msg.ErrAudioDecode, nil)
+	}
+	for _, stream := range result.Streams {
+		if stream.Disposition.AttachedPic != 1 {
+			return true, nil
+		}
+	}
+	return false, nil
+}

@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Hoàn tác"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Làm lại"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Phát liên tục"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Xem trước video"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "Không thể phát video này ở đây nên chỉ phát âm thanh"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Xóa bản chép lời"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Tìm và thay thế"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter để tách tại con trỏ; Backspace ở đầu dòng để nối với dòng trên"
+    "defaultMessage": "Enter tách tại con trỏ; Backspace ở đầu dòng nối với dòng trên; Delete ở cuối dòng nối với dòng dưới"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "Chép lời cần mô hình nhận dạng giọng nói Qwen3 ASR. Tải về để tải âm thanh lên hoặc ghi âm."

@@ -436,6 +436,9 @@ type Transcript struct {
 	Duration  float64 `json:"duration"`
 	FileName  string  `json:"fileName"`
 	AudioFile string  `json:"audioFile,omitempty"`
+	// VideoFile 是输入带视频画面、且容器是界面能直接播放的格式（mp4、m4v、mov、webm）时，
+	// 保存在同目录里的原始视频，供转写编辑页预览；其他输入为空。
+	VideoFile string `json:"videoFile,omitempty"`
 	// Excerpt 是字幕开头的一小段，列表里展示，免得为显示摘录读取字幕文件。
 	Excerpt   string     `json:"excerpt,omitempty"`
 	CreatedAt time.Time  `json:"createdAt"`

@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "復原"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "重做"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "連續播放"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "影片預覽"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "這部影片無法在這裡播放，改為只播放聲音"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "刪除轉寫"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "尋找與取代"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter 在游標處拆分，行首退格與上一行合併"
+    "defaultMessage": "Enter 在游標處拆分，行首退格與上一行合併，行尾 Delete 與下一行合併"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "轉寫需要語音辨識模型 Qwen3 ASR，下載後即可上傳音訊或錄音。"

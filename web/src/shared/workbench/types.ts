@@ -148,7 +148,8 @@ export interface MelodyResult { id: string; projectId: string; source: 'plan' | 
 // 识别声音样本得到的文字，与 Go 的 schema.TranscriptResult 一致，只在本次会话有效，由发起识别的输入框填入后清除。
 export interface TranscriptResult { id: string; voiceId: string; text: string; language?: string; createdAt: string }
 // 转写页保存的转写记录，与 Go 的 schema.Transcript 一致；字幕内容由 transcript.read 读取。
-export interface Transcript { id: string; name?: string; language?: string; duration: number; fileName: string; audioFile?: string; excerpt?: string; createdAt: string; updatedAt?: string }
+// videoFile 是输入为可直接播放的视频时保存的原视频，用来在编辑页预览画面。
+export interface Transcript { id: string; name?: string; language?: string; duration: number; fileName: string; audioFile?: string; videoFile?: string; excerpt?: string; createdAt: string; updatedAt?: string }
 // 一行字幕，与 Go 的 schema.TranscriptCaption 一致。
 export interface TranscriptCaption { start: number; end: number; text: string }
 // 字幕文件的内容，与 Go 的 schema.TranscriptContent 一致；还没编辑过时本地服务读取时按逐词时间分好行。

@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "撤销"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "重做"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "连续播放"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "视频预览"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "这个视频无法在这里播放，改为只播放声音"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "删除转写"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "查找替换"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "回车在光标处拆分，行首退格与上一行合并"
+    "defaultMessage": "回车在光标处拆分，行首退格与上一行合并，行尾 Delete 与下一行合并"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "转写需要语音识别模型 Qwen3 ASR，下载后即可上传音频或录音。"

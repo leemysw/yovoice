@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Rückgängig"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Wiederholen"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Fortlaufend abspielen"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Videovorschau"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "Dieses Video kann hier nicht abgespielt werden, daher wird nur der Ton wiedergegeben"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Transkript löschen"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Suchen und ersetzen"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter teilt an der Cursorposition, Rücktaste am Zeilenanfang verbindet mit der Zeile darüber"
+    "defaultMessage": "Enter teilt an der Cursorposition; Rücktaste am Zeilenanfang verbindet mit der Zeile darüber; Entf am Zeilenende verbindet mit der Zeile darunter"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "Für die Transkription wird das Spracherkennungsmodell Qwen3 ASR benötigt. Lade es herunter, um Audio hochzuladen oder aufzunehmen."

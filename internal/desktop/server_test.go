@@ -74,8 +74,18 @@ func TestHTTPBoundaryAndEvents(t *testing.T) {
 	b, e := io.ReadAll(audio.Body)
 	audio.Body.Close()
 	must(t, e)
-	if audio.StatusCode != 206 || len(b) != 44 {
-		t.Fatal(audio.StatusCode, len(b))
+	if audio.StatusCode != 206 || len(b) != 44 || audio.Header.Get("Content-Type") != "audio/wav" {
+		t.Fatal(audio.StatusCode, len(b), audio.Header.Get("Content-Type"))
+	}
+	// 转写保留的原视频按扩展名返回视频类型，同样支持 Range，WKWebView 才能播放和拖动。
+	must(t, os.WriteFile(filepath.Join(w.Store.Root, "outputs", "clip.MOV"), make([]byte, 100), 0600))
+	r = request("/media/outputs/clip.MOV", "", true)
+	r.Header.Set("Range", "bytes=10-19")
+	video, e := server.Client().Do(r)
+	must(t, e)
+	video.Body.Close()
+	if video.StatusCode != 206 || video.Header.Get("Content-Type") != "video/quicktime" || video.Header.Get("Content-Range") != "bytes 10-19/100" {
+		t.Fatal(video.StatusCode, video.Header)
 	}
 }
 

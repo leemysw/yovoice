@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "元に戻す"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "やり直す"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "連続再生"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "動画プレビュー"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "この動画はここでは再生できないため、音声のみ再生します"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "文字起こしを削除"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "検索と置換"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter でカーソル位置で分割、行頭で Backspace を押すと前の行と結合"
+    "defaultMessage": "Enter でカーソル位置で分割、行頭で Backspace を押すと前の行と結合、行末で Delete を押すと次の行と結合"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "文字起こしには音声認識モデル Qwen3 ASR が必要です。ダウンロードすると音声のアップロードや録音ができます。"
