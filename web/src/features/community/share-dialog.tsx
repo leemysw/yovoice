@@ -14,9 +14,25 @@ import { formatCallError, formatNotice } from '../../shared/i18n/format';
 import { call } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import type { CommunityShare, CommunityState, Generation } from '../../shared/workbench';
+import { splitTags } from '../music/music-draft';
 import { CommunityLogin } from './community-login';
 
 const communityTermsUrl = 'https://yovoice.leemysw.com/community/terms';
+
+// 社区接受的标签：每个最多 24 个字、不含特殊字符，最多 8 个；和服务端的限制一致。
+const maxTags = 8;
+const shareableTag = (tag: string) => [...tag].length <= 24 && !/["\\%_<>&]/.test(tag);
+
+// 生成时用的风格标签里挑出能直接当社区标签的短标签，作为默认值，用户还可以改。
+export function defaultShareTags(style: string) {
+  const seen = new Set<string>();
+  return splitTags(style).filter(tag => {
+    const key = tag.toLowerCase();
+    if (!shareableTag(tag) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, maxTags).join(', ');
+}
 
 const stageLabel = { packing: '@yovoice.community.stagePacking', uploading: '@yovoice.community.stageUploading', submitting: '@yovoice.community.stageSubmitting' } as const;
 
@@ -25,7 +41,7 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
   const t = useTranslator();
   const [title, setTitle] = useState(name);
   const [description, setDescription] = useState('');
-  const [tags, setTags] = useState('');
+  const [tags, setTags] = useState(() => defaultShareTags(generation.settings.text));
   const [license, setLicense] = useState('noncommercial');
   const [accepted, setAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
