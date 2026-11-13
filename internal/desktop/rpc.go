@@ -283,6 +283,8 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.ForgetModel(p.ID)
 	case "runtime.unload":
 		return true, w.UnloadEngine()
+	case "runtime.status":
+		return w.EngineStatus(ctx), nil
 	case "runtime.install":
 		return true, w.InstallRuntime()
 	case "ai.provider.save":

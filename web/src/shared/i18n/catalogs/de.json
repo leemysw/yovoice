@@ -5098,5 +5098,35 @@
   },
   "@yovoice.settings.theme.abyss": {
     "defaultMessage": "Tiefsee"
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "{seconds} s Audio in {chunks} Abschnitten erzeugt"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "Modell wird geladen"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "Sprache wird synthetisiert"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "Kein Modell geladen"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "Modell geladen"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "Modell entladen"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "Modell wird entladen"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "Modellstatus nicht verfügbar"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "Nach {seconds} Sekunden Leerlauf automatisch entladen"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "Automatisches Entladen im Leerlauf ist aus"
   }
 }

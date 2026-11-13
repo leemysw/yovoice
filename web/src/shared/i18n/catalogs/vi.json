@@ -5098,5 +5098,35 @@
   },
   "@yovoice.settings.theme.abyss": {
     "defaultMessage": "Vực sâu"
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "Đã tạo {seconds} giây âm thanh trong {chunks} đoạn"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "Đang tải mô hình"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "Đang tổng hợp giọng nói"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "Chưa tải mô hình"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "Đã tải mô hình"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "Đã giải phóng mô hình"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "Đang giải phóng mô hình"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "Không xác định được trạng thái mô hình"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "Tự giải phóng sau {seconds} giây không hoạt động"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "Đã tắt tự giải phóng khi không hoạt động"
   }
 }

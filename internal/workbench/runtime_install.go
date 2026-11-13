@@ -10,6 +10,7 @@ import (
 	"strings"
 	"yovoice/internal/catalog"
 	"yovoice/internal/download"
+	"yovoice/internal/engine"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -267,4 +268,8 @@ func (w *Workbench) UnloadEngine() error {
 	}
 	w.engine.Stop()
 	return nil
+}
+
+func (w *Workbench) EngineStatus(ctx context.Context) engine.Status {
+	return w.engine.Status(ctx)
 }

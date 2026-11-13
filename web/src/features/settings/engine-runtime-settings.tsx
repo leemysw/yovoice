@@ -12,6 +12,7 @@ import { call } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatNotice } from '../../shared/i18n/format';
 import { SettingsGroup, SettingsRow } from '../../shared/ui/settings-group';
+import { EngineStatus } from '../../shared/ui/engine-status';
 import type { EngineSettings, ModelPackage, State } from '../../shared/workbench';
 import definitions from '@internal/catalog/runtime_options.json';
 
@@ -67,6 +68,7 @@ export function EngineRuntimeSettings({ state, catalog, run }: { state: State; c
     <Button size="sm" variant="secondary" label={t('@yovoice.runtime.unload')} isLoading={unloading} isDisabled={state.activity?.status === 'running' || unloading} onClick={unload} />
     <Button size="sm" variant="secondary" label={t('@yovoice.runtime.reset')} isDisabled={!preferences.engine} onClick={() => run(() => call('preferences.save', { ...preferences, engine: undefined }))} />
   </HStack>}>
+    <EngineStatus policy />
     {notice ? <SettingsRow label={<small role="status">{formatNotice(t, notice)}</small>} /> : null}
     <SettingsRow className="engine-setting-row" label={t('@yovoice.runtime.threads')}>
       <NumberInput size="sm" label={t('@yovoice.runtime.threads')} isLabelHidden isIntegerOnly min={0} max={256} value={engine.threads ?? 0} onChange={threads => save({ threads })} width="calc(var(--spacing-10) * 3)" />

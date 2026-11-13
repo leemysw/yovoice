@@ -5098,5 +5098,35 @@
   },
   "@yovoice.settings.theme.abyss": {
     "defaultMessage": "深海"
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "已生成 {seconds} 秒音訊（{chunks} 個片段）"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "正在載入模型"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "正在合成語音"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "模型未載入"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "模型已載入"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "模型已卸載"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "正在卸載模型"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "暫時無法確認模型狀態"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "閒置 {seconds} 秒後自動卸載"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "已關閉閒置自動卸載"
   }
 }

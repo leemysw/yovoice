@@ -5098,5 +5098,35 @@
   },
   "@yovoice.settings.theme.abyss": {
     "defaultMessage": "Abyss"
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "Generated {seconds} s in {chunks} audio chunks"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "Loading model"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "Synthesizing speech"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "No model loaded"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "Model loaded"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "Model unloaded"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "Unloading model"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "Model status unavailable"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "Automatically unload after {seconds} seconds idle"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "Automatic idle unloading is off"
   }
 }

@@ -5098,5 +5098,35 @@
   },
   "@yovoice.settings.theme.abyss": {
     "defaultMessage": "アビス"
+  },
+  "@yovoice.activity.streamingAudio": {
+    "defaultMessage": "音声を {seconds} 秒生成済み（{chunks} チャンク）"
+  },
+  "@yovoice.activity.modelLoading": {
+    "defaultMessage": "モデルを読み込み中"
+  },
+  "@yovoice.activity.synthesisRunning": {
+    "defaultMessage": "音声を合成中"
+  },
+  "@yovoice.runtime.modelAbsent": {
+    "defaultMessage": "モデル未読み込み"
+  },
+  "@yovoice.runtime.modelReady": {
+    "defaultMessage": "モデル読み込み済み"
+  },
+  "@yovoice.runtime.modelUnloaded": {
+    "defaultMessage": "モデルを解放済み"
+  },
+  "@yovoice.runtime.modelUnloading": {
+    "defaultMessage": "モデルを解放中"
+  },
+  "@yovoice.runtime.statusUnknown": {
+    "defaultMessage": "モデルの状態を取得できません"
+  },
+  "@yovoice.runtime.idlePolicy": {
+    "defaultMessage": "未使用が {seconds} 秒続くと自動解放"
+  },
+  "@yovoice.runtime.idleDisabled": {
+    "defaultMessage": "未使用時の自動解放はオフ"
   }
 }

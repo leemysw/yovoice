@@ -12,17 +12,16 @@ import { ModelSelector } from './model-selector';
 import { Selector } from '../../shared/selector';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ChevronUp, ChevronRight, LoaderCircle } from 'lucide-react';
+import { ChevronUp, ChevronRight } from 'lucide-react';
 import { ReferenceControls } from './reference-controls';
 import { VoxControls } from './vox-controls';
 import { DesignCloneControls } from './design-clone-controls';
-import { isVoiceModel, isReferenceModel, isVoxModel, isBreezeModel, isMingModel, isVoxtralModel, isPlapreModel, isXTTSModel, isGradiumModel, isDramaModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
+import { isVoiceModel, isReferenceModel, isVoxModel, isBreezeModel, isMingModel, isVoxtralModel, isPlapreModel, isXTTSModel, isGradiumModel, isDramaModel, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import { VoxtralControls } from './voxtral-controls';
 import { XTTSControls } from './xtts-controls';
 import { GradiumControls } from './gradium-controls';
 import type { Track } from '../../shared/workbench';
-import { formatActivity } from '../../shared/i18n/format';
-import { useElapsed } from '../../shared/lib/use-elapsed';
+import { EngineStatus } from '../../shared/ui/engine-status';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 import { MorphFrame } from '../../shared/ui/morph-frame';
 
@@ -66,7 +65,6 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
   const generating = busy && state.activity?.kind === 'generate' && (!state.activity.projectId || state.activity.projectId === draft.id) && !state.activity.characterId;
   const [tuneEmotions, setTuneEmotions] = useState(false);
   const [moreEmotions, setMoreEmotions] = useState(false);
-  const elapsed = useElapsed(generating, state.activity?.startedAt);
   const languageOptions = (draft.modelId.startsWith('index-2.5')
     ? (['zh', 'en', 'ja', 'es', 'ar'] as const)
     : (['zh', 'en'] as const)).map(value => ({ value, label: t(`@yovoice.language.${value}`) }));
@@ -77,11 +75,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
   return <VStack as="aside" className={embedded ? undefined : "inspector"} gap={0}>
     {!embedded ? <MorphFrame><VStack className="generation-action" gap={3}>
       {generationAction ?? (generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" /> : <Button label={t('@yovoice.create.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !(draft.subtitles ? draft.subtitles.cues.some(cue => cue.text.trim()) : draft.text.trim())} onClick={generate} />)}
-      {generating && !generationAction ? <HStack className="generation-status" gap={2} vAlign="center">
-        <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
-        <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
-        <small className="generation-elapsed" aria-label={t('@yovoice.create.elapsed')}>{formatTime(elapsed)}</small>
-      </HStack> : null}
+      {!generationAction ? <EngineStatus activity={generating ? state.activity : null} modelId={draft.modelId} /> : null}
     </VStack></MorphFrame>
     : null}
     <VStack className={embedded ? undefined : "inspector-scroll"} gap={5}>
