@@ -4,7 +4,7 @@ import { emptyState } from '../src/shared/workbench';
 import { createMusicDraft } from '../src/features/music/music-draft';
 
 test('分享歌曲到社区：先登录，填写后上传，设置里能看到并删除', async ({ page }, testInfo) => {
-  const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32), title: '夜航' };
+  const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32), title: '夜航', text: 'Mandarin, folk, mandarin, dreamy bamboo flute countermelody over soft rain' };
   const state = emptyState();
   state.drafts = [draft];
   state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: 4, settings: draft }];
@@ -26,7 +26,10 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   const submit = dialog.getByRole('button', { name: '分享', exact: true });
   await expect(submit).toBeDisabled();
   await expect(dialog.getByRole('combobox', { name: '使用许可' })).toContainText('仅限非商用');
-  await dialog.getByRole('textbox', { name: '标签' }).fill('民谣，夜晚');
+  // 标签默认带上生成时的短风格标签，重复和太长的不带；用户可以改。
+  const tags = dialog.getByRole('textbox', { name: '标签' });
+  await expect(tags).toHaveValue('Mandarin, folk');
+  await tags.fill('民谣，夜晚');
   await dialog.getByRole('checkbox', { name: /同意社区条款/ }).check();
   await page.screenshot({ path: testInfo.outputPath('form.png') });
   await submit.click();
