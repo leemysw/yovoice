@@ -2,6 +2,7 @@
 package audio
 
 import (
+	"bytes"
 	"encoding/binary"
 	"io"
 	"os"
@@ -18,20 +19,29 @@ func Duration(path string) (float64, error) {
 	if e != nil {
 		return 0, e
 	}
+	return duration(f, info.Size())
+}
+
+// DurationBytes 与磁盘 WAV 共用校验规则，用于统计流式生成已收到的音频时长。
+func DurationBytes(data []byte) (float64, error) {
+	return duration(bytes.NewReader(data), int64(len(data)))
+}
+
+func duration(f io.ReadSeeker, length int64) (float64, error) {
 	bad := msg.Err(msg.ErrAudioFormat, nil)
 	header := make([]byte, 12)
-	if _, e = io.ReadFull(f, header); e != nil || string(header[:4]) != "RIFF" || string(header[8:]) != "WAVE" {
+	if _, e := io.ReadFull(f, header); e != nil || string(header[:4]) != "RIFF" || string(header[8:]) != "WAVE" {
 		return 0, bad
 	}
 	var byteRate, dataLength uint32
-	for pos := int64(12); pos+8 <= info.Size(); {
+	for pos := int64(12); pos+8 <= length; {
 		h := make([]byte, 8)
-		if _, e = io.ReadFull(f, h); e != nil {
+		if _, e := io.ReadFull(f, h); e != nil {
 			return 0, e
 		}
 		size := binary.LittleEndian.Uint32(h[4:])
 		pos += 8
-		if pos+int64(size) > info.Size() {
+		if pos+int64(size) > length {
 			return 0, bad
 		}
 		switch string(h[:4]) {
@@ -40,7 +50,7 @@ func Duration(path string) (float64, error) {
 				return 0, bad
 			}
 			b := make([]byte, 16)
-			if _, e = io.ReadFull(f, b); e != nil {
+			if _, e := io.ReadFull(f, b); e != nil {
 				return 0, e
 			}
 			u16 := binary.LittleEndian.Uint16
@@ -54,7 +64,7 @@ func Duration(path string) (float64, error) {
 			dataLength = size
 		}
 		pos += int64(size) + int64(size%2)
-		if _, e = f.Seek(pos, io.SeekStart); e != nil {
+		if _, e := f.Seek(pos, io.SeekStart); e != nil {
 			return 0, e
 		}
 	}

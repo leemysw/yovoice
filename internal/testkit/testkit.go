@@ -87,6 +87,11 @@ func RunFakeEngine() {
 		os.Exit(2)
 	}
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("{}")) })
+	http.HandleFunc("/v1/tasks/stream", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		audio := base64.StdEncoding.EncodeToString(WAV())
+		_, _ = fmt.Fprintf(w, "data: {\"type\":\"task.stream.event\",\"event\":{\"audio\":%q}}\n\ndata: {\"type\":\"task.stream.done\",\"result\":{\"audio\":%q}}\n\n", audio, audio)
+	})
 	http.HandleFunc("/v1/tasks/run", func(w http.ResponseWriter, r *http.Request) {
 		var p struct {
 			Request struct {
