@@ -28,11 +28,7 @@ type liveRuntime struct {
 func (e *Engine) Status(ctx context.Context) Status {
 	live := e.live.Load()
 	if live == nil {
-		seconds := 300
-		if settings := e.settings.Load(); settings != nil && settings.IdleUnloadSeconds != nil {
-			seconds = *settings.IdleUnloadSeconds
-		}
-		return Status{Phase: "stopped", IdleUnloadSeconds: seconds}
+		return Status{Phase: "stopped", IdleUnloadSeconds: e.idleUnloadSeconds()}
 	}
 	result := live.status
 	if live.stopping.Load() {
@@ -75,7 +71,15 @@ func (e *Engine) Status(ctx context.Context) Status {
 	}
 	// 查询期间可能已经切换模型或停止进程，旧响应不能冒充新内核的状态。
 	if e.live.Load() != live {
-		return Status{Phase: "unknown", IdleUnloadSeconds: 300}
+		return Status{Phase: "unknown", IdleUnloadSeconds: e.idleUnloadSeconds()}
 	}
 	return result
+}
+
+// idleUnloadSeconds 是偏好里的空闲卸载秒数，未设置时为默认 300 秒，0 表示关闭。
+func (e *Engine) idleUnloadSeconds() int {
+	if settings := e.settings.Load(); settings != nil && settings.IdleUnloadSeconds != nil {
+		return *settings.IdleUnloadSeconds
+	}
+	return 300
 }
