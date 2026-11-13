@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { HStack } from '@astryxdesign/core/Layout';
+import { Link } from '@astryxdesign/core/Link';
 import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { Text } from '@astryxdesign/core/Text';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowUpRight } from 'lucide-react';
 import { Selector } from '../../shared/selector';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { formatCallError, formatNotice } from '../../shared/i18n/format';
@@ -77,6 +77,11 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
   }
   // 上次失败或取消后回到表单，原因显示在下方；再点分享会开始新的一次。
   const last = share?.status === 'failed' ? formatCallError(t, share) : share?.status === 'cancelled' ? t('@yovoice.community.cancelled') : '';
+  // 勾选说明里的“社区条款”本身就是链接，不再另放一个按钮；点链接以外的文字照常勾选。
+  const termsText = t('@yovoice.community.terms');
+  const termsLink = t('@yovoice.community.termsLink');
+  const termsAt = termsText.indexOf(termsLink);
+  const [termsBefore, termsAfter] = termsAt < 0 ? [`${termsText} `, ''] : [termsText.slice(0, termsAt), termsText.slice(termsAt + termsLink.length)];
   const ready = title.trim() !== '' && accepted && community.share?.status !== 'running';
   return <AppDialog title={heading} width={440} busy={busy} error={formatNotice(t, error) || last} onClose={onClose} actions={<Button label={t('@yovoice.community.submit')} variant="primary" isLoading={busy} isDisabled={!ready} onClick={() => void submit()} />}>
     <TextInput label={t('@yovoice.community.title')} value={title} onChange={value => setTitle(value.slice(0, 80))} />
@@ -86,9 +91,9 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
       options={[{ value: 'noncommercial', label: t('@yovoice.community.licenseNoncommercial') }, { value: 'open', label: t('@yovoice.community.licenseOpen') }]} />
     <Text type="supporting" color="secondary">{t('@yovoice.community.contents')}</Text>
     {lyrics.state === 'unaligned' ? <Text type="supporting" color="secondary" role="note">{t('@yovoice.community.lyricsUnaligned')}</Text> : null}
-    <HStack gap={3} hAlign="between" vAlign="center" wrap="wrap">
-      <CheckboxInput label={t('@yovoice.community.terms')} value={accepted} onChange={setAccepted} />
-      <Button size="sm" variant="ghost" label={t('@yovoice.community.termsLink')} icon={<ArrowUpRight size={15} />} onClick={() => window.open(communityTermsUrl, '_blank', 'noopener')} />
+    <HStack gap={3} vAlign="center">
+      <CheckboxInput label={termsText} isLabelHidden value={accepted} onChange={setAccepted} />
+      <Text color="secondary" onClick={() => setAccepted(value => !value)}>{termsBefore}<Link href={communityTermsUrl} isExternalLink onClick={event => event.stopPropagation()}>{termsLink}</Link>{termsAfter}</Text>
     </HStack>
   </AppDialog>;
 }

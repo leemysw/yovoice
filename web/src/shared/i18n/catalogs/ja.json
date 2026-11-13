@@ -4956,7 +4956,7 @@
     "defaultMessage": "この曲を共有する権利があり、コミュニティ規約に同意します"
   },
   "@yovoice.community.termsLink": {
-    "defaultMessage": "コミュニティ規約を読む"
+    "defaultMessage": "コミュニティ規約"
   },
   "@yovoice.community.submit": {
     "defaultMessage": "共有"
