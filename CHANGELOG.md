@@ -28,6 +28,7 @@
 - Smart align for lyrics is faster and more accurate. Aligning a version again reuses its separated vocals, or its vocals stem if you have split stems, so it finishes in seconds instead of separating again. Long songs no longer drift or squeeze lines together toward the end, words no longer start or end in silence, and vocals are separated from the stereo mix for a cleaner result. Subtitle alignment for long speech uses the same segmenting.
 - Windows updates no longer leave a `.yovoice-update.*` folder next to the install folder, and downloaded update files are removed once the update is installed. Leftovers from earlier updates are cleaned up the next time the app starts.
 - On macOS the sidebar button no longer stays in the title bar while the player is open.
+- In the Share to community dialog, “community terms” in the agreement line is now the link to the terms, replacing the separate button. Dialog backgrounds are no longer blurred, so the page behind no longer turns into blocks on macOS.
 
 ### 简体中文
 
@@ -53,6 +54,7 @@
 - 歌词“智能对齐”更快更准：同一版本再次对齐时直接用已分离的人声（分过轨的版本直接用人声轨），几秒内完成，不再重新分离；长歌后半段不再错位或挤成一团，字头字尾不再落在静音里；人声改从立体声原曲分离，更干净。语音字幕对齐长录音时也用同样的分段方式。
 - Windows 更新不再在安装目录旁边留下 `.yovoice-update.*` 文件夹，装好后自动删除下载的更新文件；以前更新留下的会在下次启动时清理。
 - macOS 上打开播放页时，标题栏左上角不再残留侧栏收起按钮。
+- 分享到社区弹窗里，同意说明中的“社区条款”直接就是条款链接，不再另放按钮；弹窗背景不再虚化，macOS 上背后的页面不会再糊成一块块方框。
 
 ## [0.7.0] - 2026-11-11
 

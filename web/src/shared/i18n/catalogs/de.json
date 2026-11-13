@@ -4956,7 +4956,7 @@
     "defaultMessage": "Ich darf diesen Song teilen und stimme den Community-Bedingungen zu"
   },
   "@yovoice.community.termsLink": {
-    "defaultMessage": "Community-Bedingungen lesen"
+    "defaultMessage": "Community-Bedingungen"
   },
   "@yovoice.community.submit": {
     "defaultMessage": "Teilen"

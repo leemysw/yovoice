@@ -4956,7 +4956,7 @@
     "defaultMessage": "Ho il diritto di condividere questo brano e accetto i termini della community"
   },
   "@yovoice.community.termsLink": {
-    "defaultMessage": "Leggi i termini della community"
+    "defaultMessage": "termini della community"
   },
   "@yovoice.community.submit": {
     "defaultMessage": "Condividi"

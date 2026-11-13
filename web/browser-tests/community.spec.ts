@@ -33,7 +33,10 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   const tags = dialog.getByRole('textbox', { name: '标签' });
   await expect(tags).toHaveValue('Mandarin, folk');
   await tags.fill('民谣，夜晚');
-  await dialog.getByRole('checkbox', { name: /同意社区条款/ }).check();
+  // 说明里的“社区条款”就是链接；点链接以外的说明文字即可勾选。
+  await expect(dialog.getByRole('link', { name: /社区条款/ })).toHaveAttribute('href', /community\/terms/);
+  await dialog.locator('.astryx-text', { hasText: '我有权分享这首歌' }).click({ position: { x: 4, y: 4 } });
+  await expect(dialog.getByRole('checkbox', { name: /同意社区条款/ })).toBeChecked();
   await page.screenshot({ path: testInfo.outputPath('form.png') });
   await submit.click();
   await expect(dialog.getByRole('progressbar')).toBeVisible();

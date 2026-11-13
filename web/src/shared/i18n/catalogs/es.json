@@ -4956,7 +4956,7 @@
     "defaultMessage": "Tengo derecho a compartir esta canción y acepto las condiciones de la comunidad"
   },
   "@yovoice.community.termsLink": {
-    "defaultMessage": "Leer las condiciones de la comunidad"
+    "defaultMessage": "condiciones de la comunidad"
   },
   "@yovoice.community.submit": {
     "defaultMessage": "Compartir"

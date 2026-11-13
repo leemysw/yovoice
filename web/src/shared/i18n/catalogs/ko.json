@@ -4956,7 +4956,7 @@
     "defaultMessage": "이 곡을 공유할 권리가 있으며 커뮤니티 약관에 동의합니다"
   },
   "@yovoice.community.termsLink": {
-    "defaultMessage": "커뮤니티 약관 보기"
+    "defaultMessage": "커뮤니티 약관"
   },
   "@yovoice.community.submit": {
     "defaultMessage": "공유"

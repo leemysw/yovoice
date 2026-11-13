@@ -4956,7 +4956,7 @@
     "defaultMessage": "У меня есть право делиться этой песней, и я принимаю условия сообщества"
   },
   "@yovoice.community.termsLink": {
-    "defaultMessage": "Прочитать условия сообщества"
+    "defaultMessage": "условия сообщества"
   },
   "@yovoice.community.submit": {
     "defaultMessage": "Поделиться"
