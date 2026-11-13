@@ -15,7 +15,7 @@ trap 'exit 143' TERM
 
 # 经 LaunchServices 启动，让麦克风授权归属于 App，而不是终端或 IDE。
 args=(-W --stdout "$logs/host.log" --stderr "$logs/host.log")
-for key in WORKBENCH_DATA WORKBENCH_DEBUG WORKBENCH_SMOKE_SCRIPT; do
+for key in WORKBENCH_DATA WORKBENCH_DEBUG WORKBENCH_SMOKE_SCRIPT YOVOICE_COMMUNITY_API; do
     if [[ -n "${!key:-}" ]]; then args+=(--env "$key=${!key}"); fi
 done
 open "${args[@]}" "$PWD/artifacts/macos-arm64/yovoice.app"

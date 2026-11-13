@@ -2,6 +2,12 @@ PNPM ?= pnpm
 GO ?= go
 CONFIGURATION ?= debug
 
+# 调试社区分享时改用本地服务：make app-run COMMUNITY_API=http://localhost:8080/api/v1
+# （本地服务在 leemysw-api 里用 make dev 启动，不需要对象存储）
+ifdef COMMUNITY_API
+export YOVOICE_COMMUNITY_API := $(COMMUNITY_API)
+endif
+
 .PHONY: help install dev build check check-web check-core app-build app-run app-package macos windows linux
 
 help: ## 查看常用命令
