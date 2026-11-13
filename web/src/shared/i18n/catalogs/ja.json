@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "このバージョンの音声、歌詞、生成設定をアップロードします。参照音声は含まれません。審査を通過すると公開されます。"
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "歌詞がまだ同期されていないため、コミュニティページには表示されません。先に再生ページで同期できます。"
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "この曲を共有する権利があり、コミュニティ規約に同意します"
   },

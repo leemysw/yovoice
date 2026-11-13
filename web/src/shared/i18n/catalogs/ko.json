@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "이 버전의 오디오, 가사, 생성 설정이 업로드되며 참조 음색은 포함되지 않습니다. 심사를 통과하면 공개됩니다."
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "가사가 아직 맞춰지지 않아 커뮤니티 페이지에 표시되지 않습니다. 먼저 재생 화면에서 가사를 맞출 수 있어요."
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "이 곡을 공유할 권리가 있으며 커뮤니티 약관에 동의합니다"
   },

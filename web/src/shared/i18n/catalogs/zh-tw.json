@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "會上傳這一版的音訊、歌詞和生成設定，不包含參考音色。審核通過後公開。"
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "歌詞還沒對齊，社群頁不會顯示歌詞。可以先在播放頁對齊後再分享。"
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "我有權分享這首歌，並同意社群條款"
   },

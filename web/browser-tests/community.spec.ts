@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { seedState } from './seed';
 import { emptyState } from '../src/shared/workbench';
 import { createMusicDraft } from '../src/features/music/music-draft';
+import { lyricRows } from '../src/features/music/lyric-timing';
 
 test('分享歌曲到社区：先登录，填写后上传，设置里能看到并删除', async ({ page }, testInfo) => {
   const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32), title: '夜航', text: 'Mandarin, folk, mandarin, dreamy bamboo flute countermelody over soft rain' };
@@ -21,6 +22,8 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   await expect(dialog.getByText(/确认码 ABCD-EFGH/)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('login.png') });
   await expect(dialog.getByRole('textbox', { name: '标题' })).toHaveValue('夜航');
+  // 这一版的歌词还没对齐：提醒社区页不会显示歌词。
+  await expect(dialog.getByRole('note')).toContainText('歌词还没对齐');
 
   // 没同意条款不能分享；默认许可是非商用。
   const submit = dialog.getByRole('button', { name: '分享', exact: true });
@@ -52,4 +55,22 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   await expect(page.getByRole('heading', { name: '把你的歌放上社区的唱片架' })).toBeVisible();
   await expect(page.getByRole('button', { name: '登录', exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('empty.png') });
+});
+
+test('分享对齐过的歌曲时不再提醒对齐歌词', async ({ page }) => {
+  const draft = { ...createMusicDraft('zh-CN'), id: 'f'.repeat(32), title: '晚风', lyrics: '[verse]\n晚风吹过街角\n灯一盏盏亮起' };
+  const state = emptyState();
+  state.drafts = [draft];
+  const rows = lyricRows(draft.lyrics);
+  state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: 8, settings: draft, lyricTimes: rows.map((_, i) => 1 + i * 3) }];
+  await page.addInitScript(() => { window.open = () => null; });
+  await page.goto('/');
+  await seedState(page, state); await page.reload();
+
+  await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '分享到社区' }).click();
+  const dialog = page.getByRole('dialog', { name: '分享到社区' });
+  await dialog.getByRole('button', { name: '登录' }).click();
+  await expect(dialog.getByRole('textbox', { name: '标题' })).toHaveValue('晚风');
+  await expect(dialog.getByRole('note')).toHaveCount(0);
 });

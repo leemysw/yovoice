@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "Vengono caricati l'audio, il testo e le impostazioni di generazione di questa versione, ma non le voci di riferimento. Il brano diventa pubblico dopo la revisione."
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "Il testo non è ancora sincronizzato, quindi non comparirà nella pagina della community. Puoi prima sincronizzarlo nella pagina di riproduzione."
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "Ho il diritto di condividere questo brano e accetto i termini della community"
   },

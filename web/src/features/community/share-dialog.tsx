@@ -16,6 +16,7 @@ import { noticeMessage } from '../../shared/lib/call-error';
 import type { CommunityShare, CommunityState, Generation } from '../../shared/workbench';
 import { splitTags } from '../music/music-draft';
 import { CommunityLogin } from './community-login';
+import { sharedLyrics } from './share-lyrics';
 
 const communityTermsUrl = 'https://yovoice.leemysw.com/community/terms';
 
@@ -47,12 +48,14 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const fail = (e: unknown) => setError(noticeMessage(e));
+  // 对齐过的歌词随歌曲分享，社区页按它滚动显示；没对齐时提醒先去对齐。
+  const lyrics = sharedLyrics(generation);
   const share: CommunityShare | undefined = community?.share?.generationId === generation.id ? community.share : undefined;
   const dismiss = () => call('community.share.close').catch(fail);
   const submit = async () => {
     setBusy(true); setError('');
     try {
-      await call('community.share', { generationId: generation.id, title: title.trim(), description: description.trim(), tags: tags.split(/[,，、]/).map(tag => tag.trim()).filter(Boolean), license, acceptTerms: accepted });
+      await call('community.share', { generationId: generation.id, title: title.trim(), description: description.trim(), tags: tags.split(/[,，、]/).map(tag => tag.trim()).filter(Boolean), license, acceptTerms: accepted, lyrics: lyrics.state === 'aligned' ? lyrics.lines : [] });
     } catch (e) { fail(e); } finally { setBusy(false); }
   };
   const heading = t('@yovoice.community.share');
@@ -82,6 +85,7 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
     <Selector label={t('@yovoice.community.license')} value={license} onChange={setLicense} description={license === 'open' ? t('@yovoice.community.licenseHint') : undefined}
       options={[{ value: 'noncommercial', label: t('@yovoice.community.licenseNoncommercial') }, { value: 'open', label: t('@yovoice.community.licenseOpen') }]} />
     <Text type="supporting" color="secondary">{t('@yovoice.community.contents')}</Text>
+    {lyrics.state === 'unaligned' ? <Text type="supporting" color="secondary" role="note">{t('@yovoice.community.lyricsUnaligned')}</Text> : null}
     <HStack gap={3} hAlign="between" vAlign="center" wrap="wrap">
       <CheckboxInput label={t('@yovoice.community.terms')} value={accepted} onChange={setAccepted} />
       <Button size="sm" variant="ghost" label={t('@yovoice.community.termsLink')} icon={<ArrowUpRight size={15} />} onClick={() => window.open(communityTermsUrl, '_blank', 'noopener')} />
