@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 	"unicode"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
@@ -16,19 +17,11 @@ import (
 )
 
 // 逐字对齐：Qwen3 Forced Aligner 的音频编码器最多 1500 个位置，每秒约 13 个，一次只能对齐约 115 秒；
-// 每段人声控制在 alignChunkSeconds 以内，留出余量。整首长度和歌词行数设上限，避免误传超长音频。
-const alignChunkSeconds, maxAlignSeconds, maxAlignLines = 100.0, 1200.0, 2000
+// 每段人声控制在 alignChunkSeconds 以内，留出余量。整首长度设上限，避免误传超长音频。
+const alignChunkSeconds, maxAlignSeconds = 100.0, 1200.0
 
 // BS-RoFormer 只接受 44.1 kHz 输入；对齐模型使用 16 kHz。
 const separateRate, alignRate = 44100, 16000
-
-// LyricLine 是一行要唱的歌词和它在歌曲里的大致范围（秒），来自界面现有的逐行时间（自动定位、校准或估算）。
-// 后端按这些范围把歌词分组切段，切点落在人声的空隙里。
-type LyricLine struct {
-	Text  string  `json:"text"`
-	Start float64 `json:"start"`
-	End   float64 `json:"end"`
-}
 
 // sungLyrics 去掉段落标记行，返回要唱的歌词，每行一句。
 func sungLyrics(d schema.Draft) string {
@@ -66,9 +59,10 @@ func alignLanguage(text string) string {
 	return "English"
 }
 
-// AlignLyrics 用可选下载的歌词对齐模型给一个生成版本做逐字对齐：先用 BS-RoFormer 分出人声，再按句分组、
-// 逐段用 Qwen3 Forced Aligner 把歌词对到人声上。结果写进 LyricWords 并替换手动校准；lines 为空时整首歌词作为一行。
-func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
+// AlignLyrics 用可选下载的歌词对齐模型给一个生成版本做逐字对齐：先取得人声（分轨里的人声轨、缓存，或用 BS-RoFormer 现分离），
+// 再按行顺序分段，逐段用 Qwen3 Forced Aligner 把歌词对到人声上，最后把落在静音里的字头字尾收到有声处。
+// 结果写进 LyricWords 并替换手动校准。
+func (w *Workbench) AlignLyrics(id string) error {
 	path, e := w.MediaFile("outputs", id)
 	if e != nil {
 		return e
@@ -81,23 +75,12 @@ func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
 		return msg.Err(msg.ErrAudioMissing, nil)
 	}
 	generation := s.History[i]
-	lyrics, duration := sungLyrics(generation.Settings), generation.Duration
+	lyrics := sungLyrics(generation.Settings)
 	if lyrics == "" {
 		return msg.Err(msg.ErrAlignLyrics, nil)
 	}
-	if len(lines) == 0 {
-		lines = []LyricLine{{Text: lyrics, Start: 0, End: duration}}
-	}
-	if len(lines) > maxAlignLines || duration > maxAlignSeconds {
+	if generation.Duration > maxAlignSeconds {
 		return msg.Err(msg.ErrAudioDuration, nil)
-	}
-	size := 0
-	for j, c := range lines {
-		size += schema.TextLen(c.Text)
-		if strings.TrimSpace(c.Text) == "" || size > 12000 || math.IsNaN(c.Start) || math.IsNaN(c.End) || c.Start < 0 || c.End < c.Start || c.End > duration+1 ||
-			(j > 0 && c.Start < lines[j-1].Start) {
-			return msg.Err(msg.ErrRequestInvalid, nil)
-		}
 	}
 	m := slices.IndexFunc(s.Models, func(m schema.InstalledModel) bool {
 		p, e := catalog.Lookup(m.ID)
@@ -120,20 +103,23 @@ func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
 			return e
 		}
 		defer os.RemoveAll(dir)
-		voice, e := w.separatedVocals(ctx, s, model, id, path, dir)
+		began := time.Now()
+		voice, source, e := w.separatedVocals(ctx, s, model, id, path, dir)
 		if e != nil {
 			return e
 		}
-		language := alignLanguage(lyrics)
-		groups := groupLines(lines, voicedSpans(voice, alignRate), len(voice))
-		words, e := w.alignGroups(ctx, s, model, voice, groups, language, dir, msg.ActivityAlignLyrics)
+		separated := time.Since(began)
+		a := w.newAligner(ctx, s, model, voice, alignLanguage(lyrics), dir, msg.ActivityAlignLyrics)
+		words, e := a.sequential(strings.Split(lyrics, "\n"))
 		if e != nil {
 			return e
 		}
 		if len(words) == 0 {
 			return msg.Err(msg.ErrAlignEmpty, nil)
 		}
-		diag.Log(w.Store.Root, "lyrics.aligned", "generation_id", id, "chunks", len(groups), "words", len(words), "language", language)
+		tidyWords(words, voicedFrames(voice, alignRate))
+		diag.Log(w.Store.Root, "lyrics.aligned", "generation_id", id, "words", len(words), "language", a.language, "vocals", source, "requests", a.requests,
+			"separate_ms", separated.Milliseconds(), "align_ms", (time.Since(began) - separated).Milliseconds())
 		return w.Store.Update(func(s *schema.State) {
 			for i := range s.History {
 				if s.History[i].ID == id {
@@ -148,140 +134,339 @@ func (w *Workbench) AlignLyrics(id string, lines []LyricLine) error {
 	return e
 }
 
-// alignGroups 逐组把文字对齐到 16 kHz 的人声 voice 上，返回整段音频上的逐字时间；code 是带 done/total 的进度消息。
-// 每组只把有声音的部分接起来送去对齐：间奏和长停顿去掉后，字不会被对到没声音的地方，音频也更短。
-func (w *Workbench) alignGroups(ctx context.Context, s schema.State, model schema.InstalledModel, voice []float32, groups []alignGroup, language, dir string, code msg.Code) ([]schema.LyricWord, error) {
+// wordAligner 是一次逐字对齐（歌词或语音正文）的上下文：16 kHz 音频、其中有声的区间和对齐语言；
+// code 是带 done/total 的进度消息，requests 记下发给对齐模型的次数。
+type wordAligner struct {
+	w        *Workbench
+	ctx      context.Context
+	s        schema.State
+	model    schema.InstalledModel
+	voice    []float32
+	spans    [][2]int
+	language string
+	dir      string
+	code     msg.Code
+	requests int
+	// done、total 用于进度：total 是预计的请求次数。
+	done, total int
+}
+
+// newAligner 准备一次对齐；进度按预计的请求次数算，每段约 3/4 上限的有声音频。
+func (w *Workbench) newAligner(ctx context.Context, s schema.State, model schema.InstalledModel, voice []float32, language, dir string, code msg.Code) *wordAligner {
 	spans := voicedSpans(voice, alignRate)
-	var words []schema.LyricWord
-	for j, g := range groups {
-		w.progress(code, msg.Params{"done": j + 1, "total": len(groups)}, int64(j), int64(len(groups)))
-		pieces := clipSpans(spans, g.from, g.to)
-		if spanLength(pieces, g.from, g.to) < alignRate/2 {
-			pieces = [][2]int{{g.from, min(g.to, g.from+int(alignChunkSeconds*alignRate))}}
-		}
-		// 一行本身就超过上限（极少见）时只送前面一段，避免整次对齐被模型拒绝。
-		pieces = trimSpans(pieces, int(alignChunkSeconds*alignRate))
-		var joined []float32
-		for _, p := range pieces {
-			joined = append(joined, voice[p[0]:p[1]]...)
-		}
-		if len(joined) < alignRate/10 {
-			continue
-		}
-		part := filepath.Join(dir, "part.wav")
-		if e := audio.WriteMono(part, joined, alignRate); e != nil {
-			return nil, e
-		}
-		aligned, e := w.engine.AlignWords(ctx, *s.RuntimePath, model, s.Preferences.Backend, part, alignText(g.text, language), language, func(code msg.Code, params msg.Params) {})
-		if e != nil {
-			return nil, e
-		}
-		for _, a := range aligned {
-			start, end := sourceTime(pieces, a.Start, false), sourceTime(pieces, max(a.Start, a.End), true)
-			words = append(words, schema.LyricWord{Word: a.Word, Start: round3(start), End: round3(max(start, end))})
-		}
+	total := max(1, int(math.Ceil(float64(spanLength(spans, 0, len(voice)))/(.75*alignChunkSeconds*alignRate))))
+	return &wordAligner{w: w, ctx: ctx, s: s, model: model, voice: voice, spans: spans, language: language, dir: dir, code: code, total: total}
+}
+
+// align 把 text 对到音频 [from, to)（样本）里有声的部分：间奏和长停顿去掉后再送去对齐，字不会被对到没声音的地方；
+// 返回整段音频上的时间。有声部分太短时整段送去，超过上限时只送前面一段。
+func (a *wordAligner) align(text string, from, to int) ([]schema.LyricWord, error) {
+	a.done++
+	a.w.progress(a.code, msg.Params{"done": min(a.done, a.total), "total": a.total}, int64(min(a.done, a.total)-1), int64(a.total))
+	from, to = max(0, from), min(len(a.voice), to)
+	pieces := clipSpans(a.spans, from, to)
+	if spanLength(pieces, from, to) < alignRate/2 {
+		pieces = [][2]int{{from, min(to, from+int(alignChunkSeconds*alignRate))}}
+	}
+	pieces = trimSpans(pieces, int(alignChunkSeconds*alignRate))
+	var joined []float32
+	for _, p := range pieces {
+		joined = append(joined, a.voice[p[0]:p[1]]...)
+	}
+	if len(joined) < alignRate/10 {
+		return nil, nil
+	}
+	part := filepath.Join(a.dir, "part.wav")
+	if e := audio.WriteMono(part, joined, alignRate); e != nil {
+		return nil, e
+	}
+	a.requests++
+	aligned, e := a.w.engine.AlignWords(a.ctx, *a.s.RuntimePath, a.model, a.s.Preferences.Backend, part, alignText(text, a.language), a.language, func(msg.Code, msg.Params) {})
+	if e != nil {
+		return nil, e
+	}
+	words := make([]schema.LyricWord, 0, len(aligned))
+	for _, w := range aligned {
+		start, end := sourceTime(pieces, w.Start, false), sourceTime(pieces, max(w.Start, w.End), true)
+		words = append(words, schema.LyricWord{Word: w.Word, Start: round3(start), End: round3(max(start, end))})
 	}
 	return words, nil
 }
 
-// separatedVocals 返回这首歌 16 kHz 的人声。分离最耗时，结果缓存在 runtime 下，同一版本重新对齐时直接复用；
-// 只保留最近一首的缓存，换一首时删掉旧的。
-func (w *Workbench) separatedVocals(ctx context.Context, s schema.State, model schema.InstalledModel, id, path, dir string) ([]float32, error) {
+// sequential 按顺序一段一段对齐 texts（每项一行歌词或一句话）。有声部分整体不超过上限时一次对齐；更长时，每段放下估计约 3/4 上限
+// 有声音频的几行，音频再多留 1/4 余量，对齐后只收下除最后一行外的各行（最后一行可能被挤压或拉长），下一段从收下的最后一行结束处接着对齐。
+// 切点来自上一段的对齐结果，不靠按字数估算的时间，前面唱快唱慢、间奏长短都不会让后面的行错位。
+func (a *wordAligner) sequential(texts []string) ([]schema.LyricWord, error) {
+	limit, total := int(alignChunkSeconds*alignRate), len(a.voice)
+	weights := lineWeights(texts)
+	var words []schema.LyricWord
+	for k, anchor := 0, 0; k < len(texts); {
+		rest := spanLength(a.spans, anchor, total)
+		m, to, last := len(texts), total, rest <= limit
+		if !last {
+			// 剩下的人声按音节数分给剩下的各行，估计每行唱多久；至少放两行，最后一行才能丢掉重来。
+			remaining := 0.0
+			for _, v := range weights[k:] {
+				remaining += v
+			}
+			per, sum := float64(rest)/remaining, 0.0
+			for m = k; m < len(texts) && (m < k+2 || sum+weights[m]*per <= .75*float64(limit)); m++ {
+				sum += weights[m] * per
+			}
+			to = voicedAt(a.spans, anchor, min(limit, int(sum*1.25)+3*alignRate), total)
+		}
+		text := strings.Join(texts[k:m], "\n")
+		got, e := a.align(text, anchor, to)
+		if e != nil {
+			return nil, e
+		}
+		own := lineOwners(texts[k:m], got)
+		accept := m
+		if !last && m-k > 1 {
+			accept = m - 1
+		}
+		lastEnd, nextStart := -1.0, -1.0
+		for j, w := range got {
+			if o := own[j] + k; o < accept {
+				words = append(words, w)
+				lastEnd = max(lastEnd, w.End)
+			} else if nextStart < 0 {
+				nextStart = w.Start
+			}
+		}
+		if accept >= len(texts) {
+			break
+		}
+		switch {
+		case lastEnd < 0:
+			// 这一段一个字也没对上：从这段音频之后接着来。
+			anchor = to
+		case nextStart > lastEnd:
+			anchor = int((lastEnd + nextStart) / 2 * alignRate)
+		default:
+			anchor = int(lastEnd * alignRate)
+		}
+		k = accept
+	}
+	return words, nil
+}
+
+// voicedAt 返回从 from 起累计 n 个有声样本时所在的样本位置；人声不够时返回 total。
+func voicedAt(spans [][2]int, from, n, total int) int {
+	for _, s := range clipSpans(spans, from, total) {
+		if length := s[1] - s[0]; n <= length {
+			return s[0] + n
+		} else {
+			n -= length
+		}
+	}
+	return total
+}
+
+// lineWeights 估计每行唱的长短：中日韩每字一个音节，拉丁文按元音组数，至少 1。
+func lineWeights(texts []string) []float64 {
+	weights := make([]float64, len(texts))
+	for i, t := range texts {
+		n := 0
+		for _, word := range strings.FieldsFunc(t, func(r rune) bool { return !unicode.IsLetter(r) && r != '\'' }) {
+			cjk, other, vowels, inVowel := 0, 0, 0, false
+			for _, r := range strings.ToLower(word) {
+				if unicode.In(r, unicode.Han, unicode.Hiragana, unicode.Katakana, unicode.Hangul) {
+					cjk, inVowel = cjk+1, false
+					continue
+				}
+				other++
+				vowel := strings.ContainsRune("aeiouyàâäéèêëîïôöùûü", r)
+				if vowel && !inVowel {
+					vowels++
+				}
+				inVowel = vowel
+			}
+			n += cjk + max(vowels, min(1, other))
+		}
+		weights[i] = float64(max(1, n))
+	}
+	return weights
+}
+
+// keptRune 是对齐模型清洗歌词后保留的字符（与界面的 alignedTimeline 一致）：ASCII 字母数字、撇号、拉丁扩展、希腊、西里尔、泰文、
+// 假名、中日韩文字与谚文。
+func keptRune(r rune) bool {
+	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '\'' ||
+		r >= 0xC0 && r <= 0x2AF || r >= 0x370 && r <= 0x3FF || r >= 0x400 && r <= 0x52F || r >= 0xE00 && r <= 0xE7F ||
+		r >= 0x3040 && r <= 0x30FF || r >= 0x3400 && r <= 0x4DBF || r >= 0x4E00 && r <= 0x9FFF || r >= 0xAC00 && r <= 0xD7AF ||
+		r >= 0xF900 && r <= 0xFAFF || r >= 0x20000 && r <= 0x2CEAF
+}
+
+// lineOwners 按字符顺序把对齐结果里的每个词归到所在的歌词行（下标对应 texts）；两边只数对齐模型保留的字符，
+// 字数有出入时按比例对应，不含保留字符的词跟前一个字同行。
+func lineOwners(texts []string, words []schema.LyricWord) []int {
+	var lineOf []int
+	for i, t := range texts {
+		for _, r := range strings.ToLower(t) {
+			if keptRune(r) {
+				lineOf = append(lineOf, i)
+			}
+		}
+	}
+	sizes, total := make([]int, len(words)), 0
+	for j, w := range words {
+		for _, r := range strings.ToLower(w.Word) {
+			if keptRune(r) {
+				sizes[j]++
+			}
+		}
+		total += sizes[j]
+	}
+	owner := make([]int, len(words))
+	if len(lineOf) == 0 {
+		return owner
+	}
+	for j, at := 0, 0; j < len(words); j++ {
+		position := at
+		if sizes[j] == 0 && at > 0 {
+			// 不含保留字符的词（如标点）跟着前一个字，算在它那一行。
+			position = at - 1
+		}
+		if total != len(lineOf) && total > 0 {
+			position = position * len(lineOf) / total
+		}
+		owner[j] = lineOf[min(position, len(lineOf)-1)]
+		at += sizes[j]
+	}
+	return owner
+}
+
+// 收拾字头字尾：字头落在静音里时往后挪到起唱处，字尾落在静音里时往前收到收声处，各最多 tidyReach 秒。
+const tidyReach = .4
+
+// voicedFrames 按 20 ms 一帧标出有人声的帧，短于 0.1 秒的停顿填平；不加前后余量。
+func voicedFrames(samples []float32, rate int) []bool {
+	levels, threshold := frameLevels(samples, rate)
+	voiced := make([]bool, len(levels))
+	for i, v := range levels {
+		voiced[i] = v >= threshold
+	}
+	for i := 0; i < len(voiced); {
+		if voiced[i] {
+			i++
+			continue
+		}
+		j := i
+		for j < len(voiced) && !voiced[j] {
+			j++
+		}
+		if i > 0 && j < len(voiced) && j-i <= 5 {
+			for k := i; k < j; k++ {
+				voiced[k] = true
+			}
+		}
+		i = j
+	}
+	return voiced
+}
+
+// tidyWords 就地调整 words：字头、字尾落在静音里时挪到最近的有声处（不越过本字的另一端）。
+func tidyWords(words []schema.LyricWord, voiced []bool) {
+	const step = .02
+	reach := int(tidyReach / step)
+	at := func(f int) bool { return f >= 0 && f < len(voiced) && voiced[f] }
+	for i := range words {
+		s, e := int(words[i].Start/step), int(math.Ceil(words[i].End/step))-1
+		if !at(s) {
+			for k := 1; k <= reach && s+k < e; k++ {
+				if at(s + k) {
+					words[i].Start = round3(float64(s+k) * step)
+					break
+				}
+			}
+		}
+		s = int(words[i].Start / step)
+		if !at(e) {
+			for k := 1; k <= reach && e-k > s; k++ {
+				if at(e - k) {
+					words[i].End = round3(float64(e-k+1) * step)
+					break
+				}
+			}
+		}
+	}
+}
+
+// 分离出的人声缓存在 runtime 下（align-vocals-<版本>.wav），同一版本重新对齐时直接复用；只留最近对齐的 alignCacheKeep 个版本。
+const alignCacheKeep = 8
+
+// separatedVocals 返回这首歌 16 kHz 的人声和它的来源（cache、stems 或 separated）。这个版本分过轨时直接用分轨里的人声；
+// 否则用 BS-RoFormer 单遍分离，送入原曲的立体声（人声多在声像正中，双声道分得更干净）。分离最耗时，结果按版本缓存。
+func (w *Workbench) separatedVocals(ctx context.Context, s schema.State, model schema.InstalledModel, id, path, dir string) ([]float32, string, error) {
 	runtimeDir := filepath.Join(w.Store.Root, "runtime")
 	cache := filepath.Join(runtimeDir, "align-vocals-"+id+".wav")
 	if samples, rate, e := audio.ReadMono(cache); e == nil && rate == alignRate {
-		return samples, nil
+		now := time.Now()
+		_ = os.Chtimes(cache, now, now)
+		return samples, "cache", nil
 	}
-	old, _ := filepath.Glob(filepath.Join(runtimeDir, "align-vocals-*.wav"))
-	for _, f := range old {
-		_ = os.Remove(f)
-	}
-	progress := func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }
-	samples, rate, e := audio.ReadMono(path)
+	voice, source, e := w.extractVocals(ctx, s, model, id, path, dir)
 	if e != nil {
-		return nil, e
+		return nil, "", e
 	}
-	mix, vocals := filepath.Join(dir, "mix.wav"), filepath.Join(dir, "vocals.wav")
-	if e = audio.WriteMono(mix, audio.Resample(samples, rate, separateRate), separateRate); e != nil {
-		return nil, e
-	}
-	if e = w.engine.SeparateVocals(ctx, *s.RuntimePath, model, s.Preferences.Backend, mix, vocals, progress); e != nil {
-		return nil, e
-	}
-	if samples, rate, e = audio.ReadMono(vocals); e != nil {
-		return nil, e
-	}
-	voice := audio.Resample(samples, rate, alignRate)
 	if e = audio.WriteMono(cache, voice, alignRate); e != nil {
 		// 缓存只是加速，写不进去就不留半个文件，下次重新分离。
 		_ = os.Remove(cache)
 		diag.Log(w.Store.Root, "align.cache_write_failed", "error", diag.Error(e))
 	}
-	return voice, nil
+	pruneAlignCache(runtimeDir)
+	return voice, source, nil
 }
 
-// alignGroup 是一次送去对齐的几行歌词和对应的人声样本范围。
-type alignGroup struct {
-	text     string
-	from, to int
-}
-
-// groupLines 把歌词行按顺序分组，每组的人声（去掉长空白后）不超过 alignChunkSeconds。组与组的切点取两行之间、
-// 离估计位置最近的人声空隙，估计的行时间稍有偏差也不会把一个字切成两半。唱的部分整首都不超过上限时只有一组。
-func groupLines(lines []LyricLine, spans [][2]int, total int) []alignGroup {
-	limit := int(alignChunkSeconds * alignRate)
-	whole := func() []alignGroup {
-		texts := make([]string, len(lines))
-		for i, l := range lines {
-			texts[i] = l.Text
-		}
-		return []alignGroup{{strings.Join(texts, "\n"), 0, total}}
-	}
-	if spanLength(spans, 0, total) <= limit || len(lines) < 2 {
-		return whole()
-	}
-	// cuts[i] 是第 i 行和第 i+1 行之间的切点（样本）。
-	cuts := make([]int, len(lines)-1)
-	for i := range cuts {
-		at := (lines[i].End + lines[i+1].Start) / 2
-		cuts[i] = snapToGap(spans, min(total, max(0, int(at*alignRate))), 4*alignRate)
-		if i > 0 {
-			cuts[i] = max(cuts[i], cuts[i-1])
-		}
-	}
-	var groups []alignGroup
-	first, from := 0, 0
-	for i := range lines {
-		end := total
-		if i < len(cuts) {
-			end = cuts[i]
-		}
-		// 加上下一行就超过上限时，在这一行后面切开。
-		next := total
-		if i+1 < len(cuts) {
-			next = cuts[i+1]
-		}
-		if i == len(lines)-1 || spanLength(spans, from, next) > limit {
-			texts := make([]string, 0, i-first+1)
-			for _, l := range lines[first : i+1] {
-				texts = append(texts, l.Text)
+// extractVocals 取得人声：优先用这个版本分轨得到的人声轨，没有时现分离。
+func (w *Workbench) extractVocals(ctx context.Context, s schema.State, model schema.InstalledModel, id, path, dir string) ([]float32, string, error) {
+	if i := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.StemOf == id && g.Stem == "vocals" }); i >= 0 {
+		if stem, e := w.Store.MediaPath("outputs", s.History[i].FileName); e == nil {
+			if samples, rate, e := audio.ReadMono(stem); e == nil {
+				return audio.Resample(samples, rate, alignRate), "stems", nil
 			}
-			groups = append(groups, alignGroup{strings.Join(texts, "\n"), from, end})
-			first, from = i+1, end
 		}
 	}
-	return groups
+	progress := func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }
+	channels, rate, e := audio.Read(path)
+	if e != nil {
+		return nil, "", e
+	}
+	for c := range channels {
+		channels[c] = audio.Resample(channels[c], rate, separateRate)
+	}
+	mix, vocals := filepath.Join(dir, "mix.wav"), filepath.Join(dir, "vocals.wav")
+	if e = audio.Write(mix, channels, separateRate); e != nil {
+		return nil, "", e
+	}
+	if e = w.engine.SeparateVocals(ctx, *s.RuntimePath, model, s.Preferences.Backend, mix, vocals, progress); e != nil {
+		return nil, "", e
+	}
+	samples, rate, e := audio.ReadMono(vocals)
+	if e != nil {
+		return nil, "", e
+	}
+	return audio.Resample(samples, rate, alignRate), "separated", nil
 }
 
-// snapToGap 把切点挪到 window 范围内最近的人声空隙中点；附近没有空隙时保持原位。
-func snapToGap(spans [][2]int, at, window int) int {
-	best, distance := at, window+1
-	for k := 0; k+1 < len(spans); k++ {
-		if mid := (spans[k][1] + spans[k+1][0]) / 2; abs(mid-at) < distance {
-			best, distance = mid, abs(mid-at)
-		}
+// pruneAlignCache 只留最近用过的 alignCacheKeep 个人声缓存。
+func pruneAlignCache(dir string) {
+	files, _ := filepath.Glob(filepath.Join(dir, "align-vocals-*.wav"))
+	if len(files) <= alignCacheKeep {
+		return
 	}
-	return best
+	modified := func(f string) time.Time {
+		info, e := os.Stat(f)
+		if e != nil {
+			return time.Time{}
+		}
+		return info.ModTime()
+	}
+	slices.SortFunc(files, func(a, b string) int { return modified(b).Compare(modified(a)) })
+	for _, f := range files[alignCacheKeep:] {
+		_ = os.Remove(f)
+	}
 }
 
 // trimSpans 截掉总长超过 limit 个样本的部分。
@@ -298,24 +483,14 @@ func trimSpans(spans [][2]int, limit int) [][2]int {
 	return out
 }
 
-func abs(v int) int {
-	if v < 0 {
-		return -v
-	}
-	return v
-}
-
 // round3 保留到毫秒，状态文件里不写无意义的长小数。
 func round3(v float64) float64 { return math.Round(v*1000) / 1000 }
 
-// 人声检测：20 ms 一帧，响度低于全曲较响部分 30 dB 的算空白；短于 voicedGap 的停顿并入演唱，
-// 每段前后各留 voicedPad 余量，避免切掉字头和尾音。返回有人声的样本区间。
-const voicedGap, voicedPad = .8, .3
-
-func voicedSpans(samples []float32, rate int) [][2]int {
+// frameLevels 按 20 ms 一帧算响度，返回各帧响度和人声门限：低于全曲较响部分 30 dB 的算空白。音频不足一帧时返回空。
+func frameLevels(samples []float32, rate int) ([]float64, float64) {
 	frame := rate / 50
 	if frame <= 0 || len(samples) < frame {
-		return nil
+		return nil, 0
 	}
 	levels := make([]float64, len(samples)/frame)
 	for i := range levels {
@@ -327,7 +502,16 @@ func voicedSpans(samples []float32, rate int) [][2]int {
 	}
 	sorted := slices.Clone(levels)
 	slices.Sort(sorted)
-	threshold := max(sorted[len(sorted)*95/100]*.03, 1e-4)
+	return levels, max(sorted[len(sorted)*95/100]*.03, 1e-4)
+}
+
+// 人声区间：短于 voicedGap 的停顿并入演唱，每段前后各留 voicedPad 余量，避免切掉字头和尾音。
+const voicedGap, voicedPad = .8, .3
+
+// voicedSpans 返回有人声的样本区间。
+func voicedSpans(samples []float32, rate int) [][2]int {
+	levels, threshold := frameLevels(samples, rate)
+	frame := rate / 50
 	var spans [][2]int
 	gap, pad := int(voicedGap*float64(rate)), int(voicedPad*float64(rate))
 	for i := 0; i < len(levels); {

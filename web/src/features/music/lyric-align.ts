@@ -284,14 +284,3 @@ export function alignedTimeline(rows: LyricRow[], aligned: AlignedWord[], durati
   // 第一句之前留出前奏，显示为省略号。
   return lines[0] && !lines[0].instrumental && lines[0].start > 1 ? [{ text: '', start: 0, end: lines[0].start, instrumental: true }, ...lines] : lines;
 }
-
-// 送去对齐的演唱行和它们现有的大致时间（自动定位、校准或估算）。对齐模型一次只能处理约 100 秒人声，
-// 后端按这些时间把行分组，切点落在人声空隙里；短歌整首一组。
-export function alignLines(lines: LyricLine[], duration: number) {
-  let last = 0;
-  return lines.filter(line => !line.instrumental && line.text.trim()).map(line => {
-    const start = Math.min(duration, Math.max(last, line.start)), end = Math.min(duration, Math.max(start, line.end));
-    last = start;
-    return { text: line.text, start: Math.round(start * 1000) / 1000, end: Math.round(end * 1000) / 1000 };
-  });
-}

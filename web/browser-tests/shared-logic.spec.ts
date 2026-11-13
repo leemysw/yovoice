@@ -4,7 +4,7 @@ import { SubtitleParser } from '../src/features/create/subtitle-parser';
 import { Timeline } from '../src/features/media/timeline';
 import { CallError, noticeMessage, parseCallError } from '../src/shared/lib/call-error';
 import { formatCallError, formatNotice } from '../src/shared/i18n/format';
-import { alignLines, alignedTimeline, alignLyrics, vocalActivity, withWords } from '../src/features/music/lyric-align';
+import { alignedTimeline, alignLyrics, vocalActivity, withWords } from '../src/features/music/lyric-align';
 import { activeLyric, estimateWords, lyricRows, lyricTimeline, lyricTokens } from '../src/features/music/lyric-timing';
 import { songLyrics, syntheticSong } from './synthetic-song';
 import { readFileSync } from 'node:fs';
@@ -190,11 +190,6 @@ test('对齐模型的逐字结果放回歌词行：词被拆开或合并都能�
   // 日文、韩文按词给时间时，词里的每个字仍各有先后；对齐模型丢掉的符号不计数，全角标点不影响对应。
   const korean = alignedTimeline(lyricRows('사랑해，さくら'), [{ word: '사랑해', start: 0, end: 3 }, { word: 'さくら', start: 4, end: 7 }], 10)!;
   expect(korean[0].words!.map(word => [word.start, word.end])).toEqual([[0, 1], [1, 2], [2, 3], [4, 5], [5, 6], [6, 7]]);
-  // 送去对齐的只有演唱行，开始时间不倒退、结束不早于开始，都在歌曲时长以内。
-  const sent = alignLines(lines, song.duration);
-  expect(sent.map(line => line.text)).toEqual(rows.filter(row => !row.instrumental).map(row => row.text));
-  for (const [i, line] of sent.entries()) { expect(line.end).toBeGreaterThanOrEqual(line.start); expect(line.end).toBeLessThanOrEqual(song.duration); if (i) expect(line.start).toBeGreaterThanOrEqual(sent[i - 1].start); }
-  expect(alignLines([{ text: '甲', start: 5, end: 9 }, { text: '乙', start: 4, end: 20 }], 12)).toEqual([{ text: '甲', start: 5, end: 9 }, { text: '乙', start: 5, end: 12 }]);
 });
 
 test('首次启动按系统语言选择界面语言，繁体与葡语按地区归并，未知语言回退英文', () => {

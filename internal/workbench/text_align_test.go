@@ -56,8 +56,4 @@ func TestSentences(t *testing.T) {
 	if !slices.Equal(got, want) {
 		t.Fatalf("%q", got)
 	}
-	lines := estimateLines([]string{"一二", "三四五六"}, [][2]int{{16000, 16000 * 4}}, 16000*5)
-	if lines[0].Start != 1 || lines[0].End != 2 || lines[1].End != 4 {
-		t.Fatalf("%+v", lines)
-	}
 }

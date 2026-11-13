@@ -149,6 +149,8 @@
   .now-playing .astryx-popover-surface { border: var(--border-width) solid color-mix(in srgb, var(--now-playing-ink) 8%, transparent); border-radius: var(--radius-container); color: var(--now-playing-ink);
     background: linear-gradient(145deg, hsl(var(--now-playing-hue) 22% 9% / 84%), hsl(var(--now-playing-hue) 22% 5% / 90%)); backdrop-filter: blur(calc(var(--spacing-8) - var(--spacing-0-5))) saturate(1.4);
     box-shadow: 0 calc(var(--spacing-5) + var(--spacing-0-5)) calc(var(--spacing-12) * 1.45) hsl(var(--now-playing-hue) 40% 2% / 46%); animation: now-playing-pop var(--duration-medium) cubic-bezier(.16, 1, .3, 1) both; }
+  /* 菜单里的按键徽标：播放页把文字色换成了浅色，徽标也改成同一种深色玻璃，不再是白底白字。 */
+  .now-playing .hotkey-key { border-color: color-mix(in srgb, var(--now-playing-ink) 24%, transparent); background: color-mix(in srgb, var(--now-playing-ink) 10%, transparent); color: var(--now-playing-ink); }
   .now-playing .astryx-button:active:not(:disabled) { transform: scale(.94); }
   .now-playing .astryx-button:focus-visible { outline: var(--spacing-0-5) solid color-mix(in srgb, var(--now-playing-ink) 70%, transparent); outline-offset: var(--spacing-0-5); box-shadow: none; }
   .now-playing .astryx-button:focus:not(:focus-visible) { outline: none; box-shadow: none; }

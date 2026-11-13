@@ -50,23 +50,31 @@ func Resample(samples []float32, from, to int) []float32 {
 	return out
 }
 
-// WriteMono 把采样写成 16 位单声道 WAV；整体原子写入，读取方不会看到只写了一半的文件（缓存会被当成截断的音频读走）。
+// WriteMono 把采样写成 16 位单声道 WAV。
 func WriteMono(path string, samples []float32, rate int) error {
-	b := make([]byte, 44+len(samples)*2)
+	return Write(path, [][]float32{samples}, rate)
+}
+
+// Write 把各声道（等长）交错写成 16 位 WAV；整体原子写入，读取方不会看到只写了一半的文件（缓存会被当成截断的音频读走）。
+func Write(path string, channels [][]float32, rate int) error {
+	count, frames := len(channels), len(channels[0])
+	b := make([]byte, 44+frames*count*2)
 	copy(b, "RIFF")
 	binary.LittleEndian.PutUint32(b[4:], uint32(len(b)-8))
 	copy(b[8:], "WAVEfmt ")
 	binary.LittleEndian.PutUint32(b[16:], 16)
 	binary.LittleEndian.PutUint16(b[20:], 1)
-	binary.LittleEndian.PutUint16(b[22:], 1)
+	binary.LittleEndian.PutUint16(b[22:], uint16(count))
 	binary.LittleEndian.PutUint32(b[24:], uint32(rate))
-	binary.LittleEndian.PutUint32(b[28:], uint32(rate*2))
-	binary.LittleEndian.PutUint16(b[32:], 2)
+	binary.LittleEndian.PutUint32(b[28:], uint32(rate*count*2))
+	binary.LittleEndian.PutUint16(b[32:], uint16(count*2))
 	binary.LittleEndian.PutUint16(b[34:], 16)
 	copy(b[36:], "data")
-	binary.LittleEndian.PutUint32(b[40:], uint32(len(samples)*2))
-	for i, v := range samples {
-		binary.LittleEndian.PutUint16(b[44+i*2:], uint16(int16(math.Round(float64(max(-1, min(1, v)))*32767))))
+	binary.LittleEndian.PutUint32(b[40:], uint32(frames*count*2))
+	for i := range frames {
+		for c, samples := range channels {
+			binary.LittleEndian.PutUint16(b[44+(i*count+c)*2:], uint16(int16(math.Round(float64(max(-1, min(1, samples[i])))*32767))))
+		}
 	}
 	return platform.WriteFileAtomic(path, b, 0600)
 }

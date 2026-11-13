@@ -67,18 +67,15 @@ func (w *Workbench) AlignText(id string) error {
 		if e != nil {
 			return e
 		}
-		voice := audio.Resample(samples, rate, alignRate)
-		spans := voicedSpans(voice, alignRate)
-		language := alignLanguage(text)
-		groups := groupLines(estimateLines(sentences(text), spans, len(voice)), spans, len(voice))
-		words, e := w.alignGroups(ctx, s, model, voice, groups, language, dir, msg.ActivityAlignText)
+		a := w.newAligner(ctx, s, model, audio.Resample(samples, rate, alignRate), alignLanguage(text), dir, msg.ActivityAlignText)
+		words, e := a.sequential(sentences(text))
 		if e != nil {
 			return e
 		}
 		if len(words) == 0 {
 			return msg.Err(msg.ErrAlignTextEmpty, nil)
 		}
-		diag.Log(w.Store.Root, "text.aligned", "generation_id", id, "chunks", len(groups), "words", len(words), "language", language)
+		diag.Log(w.Store.Root, "text.aligned", "generation_id", id, "requests", a.requests, "words", len(words), "language", a.language)
 		return w.Store.Update(func(s *schema.State) {
 			for i := range s.History {
 				if s.History[i].ID == id {
@@ -101,7 +98,7 @@ func spokenText(d schema.Draft) string {
 	return schema.SpokenText(d.Text)
 }
 
-// sentences 按换行和句末标点把正文切成句子，用来分组对齐；标点留在句尾。
+// sentences 按换行和句末标点把正文切成句子，用来分段对齐；标点留在句尾。
 func sentences(text string) []string {
 	var out []string
 	var b strings.Builder
@@ -128,32 +125,5 @@ func sentences(text string) []string {
 		}
 	}
 	flush()
-	return out
-}
-
-// estimateLines 按字数把句子摊到有声音的范围里，给出每句的大致时间，供 groupLines 选切点。
-func estimateLines(lines []string, spans [][2]int, total int) []LyricLine {
-	from, to := 0, total
-	if len(spans) > 0 {
-		from, to = spans[0][0], spans[len(spans)-1][1]
-	}
-	weights, sum := make([]int, len(lines)), 0
-	for i, line := range lines {
-		for _, r := range line {
-			if unicode.IsLetter(r) || unicode.IsNumber(r) {
-				weights[i]++
-			}
-		}
-		weights[i] = max(weights[i], 1)
-		sum += weights[i]
-	}
-	out := make([]LyricLine, len(lines))
-	at := float64(from) / alignRate
-	length := float64(to-from) / alignRate
-	for i, line := range lines {
-		next := at + length*float64(weights[i])/float64(max(sum, 1))
-		out[i] = LyricLine{Text: line, Start: at, End: next}
-		at = next
-	}
 	return out
 }
