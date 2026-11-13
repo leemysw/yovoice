@@ -305,13 +305,11 @@ func (w *Workbench) shareSong(ctx context.Context, client *community.Client, con
 	if previewInfo.Size() > limits.PreviewMax {
 		return msg.Err(msg.ErrCommunityTooLarge, msg.Params{"limit": limits.PreviewMax >> 20})
 	}
-	// 封面按这首歌的响度起伏来画；读不出采样时不带这一项，社区页会按作品编号画一张。
-	gene := ""
-	if mono, _, e := audio.ReadMono(source); e == nil {
-		gene = audio.LoudnessGene(mono)
-	}
+	// 封面按这首歌的响度起伏来画，配色和构图按版本编号定，和应用里的封面是同一张；
+	// 读不出采样时不带响度，社区页按版本编号推一条起伏。
+	gene, _ := w.GenerationGene(g.ID)
 	ticket, e := client.Create(ctx, community.CreateInput{
-		Gene: gene, Lyrics: r.Lyrics,
+		Gene: gene, CoverSeed: g.ID, Lyrics: r.Lyrics,
 		Kind: "song", Title: r.Title, Description: r.Description, Tags: r.Tags, Language: g.Settings.Language, Model: g.Settings.ModelID,
 		License: r.License, TermsVersion: limits.TermsVersion, AcceptTerms: r.AcceptTerms,
 		PackSize: packInfo.Size(), PreviewSize: previewInfo.Size(), Duration: g.Duration,

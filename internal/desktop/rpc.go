@@ -209,6 +209,8 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.DeleteAssets(in.Items), nil
 	case "assets.image":
 		return w.ImagePreview(p.ID)
+	case "generation.gene":
+		return w.GenerationGene(p.ID)
 	case "generation.lyricTimes":
 		return true, w.SetLyricTimes(p.ID, p.Times)
 	case "generation.lyricWords":

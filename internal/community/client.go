@@ -71,6 +71,8 @@ type CreateInput struct {
 	Duration     float64  `json:"duration"`
 	// Gene 是歌曲的响度起伏（96 个十六进制字符），社区页用它画封面；算不出来时留空。
 	Gene string `json:"gene,omitempty"`
+	// CoverSeed 是这首歌在应用里的版本编号，社区页用它定封面的配色和构图，和应用里的封面一致。
+	CoverSeed string `json:"cover_seed,omitempty"`
 	// Lyrics 是对齐过的歌词，社区页按它滚动显示；没对齐时不带。
 	Lyrics []LyricLine `json:"lyrics,omitempty"`
 }

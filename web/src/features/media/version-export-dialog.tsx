@@ -15,7 +15,7 @@ const formats: AudioExportFormat[] = ['wav', 'flac', 'm4a'];
 
 // 导出一个已生成的版本（桌面端）：选格式与目标响度，记住上次的选择；
 // FLAC / M4A 可写入标题、歌词与封面，tags 由调用方按作品类型给出，导出时才生成（封面要画一张图）。
-export function VersionExportDialog({ generation, name: initialName, tags, onClose }: { generation: Generation; name: string; tags?: () => AudioExportTags; onClose: () => void }) {
+export function VersionExportDialog({ generation, name: initialName, tags, onClose }: { generation: Generation; name: string; tags?: () => Promise<AudioExportTags>; onClose: () => void }) {
   const t = useTranslator();
   const [name, setName] = useState(initialName);
   const [format, setFormat] = useState<AudioExportFormat>(() => { const value = readLocal('yovoice.exportFormat'); return formats.includes(value as AudioExportFormat) ? value as AudioExportFormat : 'wav'; });
@@ -26,7 +26,7 @@ export function VersionExportDialog({ generation, name: initialName, tags, onClo
   const run = async () => {
     setBusy(true); setError('');
     try {
-      if (await exportOutput(generation.id, generation.fileName, name, { format, loudness: loudness ? Number(loudness) : undefined, tags: format !== 'wav' && withTags && tags ? tags() : undefined })) onClose();
+      if (await exportOutput(generation.id, generation.fileName, name, { format, loudness: loudness ? Number(loudness) : undefined, tags: format !== 'wav' && withTags && tags ? await tags() : undefined })) onClose();
     } catch (e) { setError(noticeMessage(e)); } finally { setBusy(false); }
   };
   return <AppDialog title={t('@yovoice.app.exportVersion')} busy={busy} error={formatNotice(t, error)} onClose={onClose} actions={<Button label={t('@yovoice.timeline.exportConfirm')} variant="primary" isLoading={busy} isDisabled={!name.trim()} onClick={() => void run()} />}>

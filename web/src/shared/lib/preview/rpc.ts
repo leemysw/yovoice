@@ -150,6 +150,8 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (index < 0) state.drafts.unshift(draft); else state.drafts[index] = draft;
     publish(); return true as T;
   }
+  // 浏览器预览不解码音频，封面按版本编号推一条起伏。
+  if (method === 'generation.gene') return '' as T;
   if (method === 'generation.lyricTimes') {
     const { id, times } = data as { id: string; times: number[] };
     const item = state.history.find(v => v.id === id);

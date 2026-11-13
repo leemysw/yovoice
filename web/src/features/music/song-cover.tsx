@@ -1,69 +1,66 @@
 import { useEffect, useRef } from 'react';
+import { call } from '../../shared/lib/client';
+import type { Generation } from '../../shared/workbench';
+import { coverArt } from './cover-art';
 
-// 同一版本 ID 总是得到同一张封面：色相、波纹位置与线条都由 ID 派生。
-function random(seed: string) {
-  let state = 0;
-  for (const char of seed) state = (state * 31 + char.charCodeAt(0)) >>> 0;
-  return () => (state = (state * 1664525 + 1013904223) >>> 0) / 4294967296;
+// 封面只看版本编号、时长和响度起伏，传整个版本进来方便取这几项。
+type CoverSource = Pick<Generation, 'id' | 'duration' | 'gene'>;
+
+// 封面的主色与对比色，播放页背景沿用同一组颜色。
+export function coverPalette(item: CoverSource) {
+  const { hue, accent } = coverArt(item.id, item.duration, item.gene);
+  return { hue, accent };
 }
 
-// 封面的主色与强调色，播放页背景沿用同一组颜色。
-export function coverPalette(seed: string) {
-  const next = random(seed);
-  const hue = Math.floor(next() * 360), accent = (hue + 40 + next() * 120) % 360;
-  return { hue, accent, next };
+// 响度起伏第一次要用时由后端算出来并随版本保存，算好后版本记录会带着它更新，封面跟着重画。
+// 同一个版本只请求一次；还没算出来时先按身份画一张。
+const asked = new Set<string>();
+function askGene(item: CoverSource) {
+  if (item.gene || asked.has(item.id)) return;
+  asked.add(item.id);
+  void call('generation.gene', { id: item.id }).catch(() => undefined);
 }
 
-export function drawCover(canvas: HTMLCanvasElement, seed: string, time = 0) {
+function coverImage(item: CoverSource) {
+  const image = new Image();
+  image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(coverArt(item.id, item.duration, item.gene).svg)}`;
+  return image.decode().then(() => image);
+}
+
+// 在画布上画封面：图案铺满，再压一层从右上方来的光和固定位置的颗粒，像印出来、被灯照着的封套。
+function paint(canvas: HTMLCanvasElement, image: HTMLImageElement, seed: string) {
   const context = canvas.getContext('2d');
   if (!context) return;
-  const { hue, accent, next } = coverPalette(seed); const { width, height } = canvas;
-  const ground = context.createLinearGradient(0, 0, width, height);
-  ground.addColorStop(0, `hsl(${hue} 30% 12%)`); ground.addColorStop(1, `hsl(${accent} 32% 26%)`);
-  context.fillStyle = ground; context.fillRect(0, 0, width, height);
-  const x = width * (0.25 + next() * 0.5), y = height * (0.3 + next() * 0.4), rings = 7 + Math.floor(next() * 6);
-  for (let i = rings; i > 0; i--) {
-    context.beginPath();
-    context.arc(x, y, (i / rings) * width * 0.62 + Math.sin(time / 600 + i) * width * 0.006, 0, Math.PI * 2);
-    context.fillStyle = `hsl(${(hue + i * 14) % 360} 42% ${30 + i * 4}% / ${0.16 + (rings - i) * 0.03})`;
-    context.fill();
-  }
-  context.lineWidth = Math.max(1, width / 120);
-  for (let line = 0; line < 3; line++) {
-    const base = height * (0.62 + line * 0.09), amplitude = height * (0.02 + next() * 0.05), frequency = 2 + next() * 5;
-    context.beginPath();
-    for (let px = 0; px <= width; px += 2) context.lineTo(px, base + Math.sin(px / width * Math.PI * frequency + time / 500 + line) * amplitude);
-    context.strokeStyle = `hsl(${accent} 60% 88% / ${0.55 - line * 0.15})`;
-    context.stroke();
-  }
-  // 胶片颗粒：同一封面颗粒位置固定。
-  const grain = random(`${seed}:grain`), dots = Math.floor(width * height / 40);
+  const { width, height } = canvas;
+  context.drawImage(image, 0, 0, width, height);
+  const light = context.createLinearGradient(width, 0, 0, height);
+  light.addColorStop(0, 'rgb(255 255 255 / 19%)'); light.addColorStop(0.38, 'rgb(255 255 255 / 0%)'); light.addColorStop(1, 'rgb(0 0 0 / 28%)');
+  context.fillStyle = light; context.fillRect(0, 0, width, height);
+  let state = 0;
+  for (const char of `${seed}:grain`) state = (state * 31 + char.charCodeAt(0)) >>> 0;
+  const grain = () => (state = (state * 1664525 + 1013904223) >>> 0) / 4294967296, dots = Math.floor(width * height / 40);
   for (let i = 0; i < dots; i++) {
-    context.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 7%)' : 'rgb(0 0 0 / 12%)';
+    context.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 6%)' : 'rgb(0 0 0 / 10%)';
     context.fillRect(Math.floor(grain() * width), Math.floor(grain() * height), 1, 1);
   }
 }
 
-// 播放中的封面缓慢起伏；系统要求减少动态时保持静止。
-export function SongCover({ seed, animated = false, size = 320 }: { seed: string; animated?: boolean; size?: number }) {
+export function SongCover({ item, size = 320 }: { item: CoverSource; size?: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const { id, duration, gene } = item;
   useEffect(() => {
-    const element = canvas.current;
-    if (!element) return;
-    const still = !animated || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (still) { drawCover(element, seed); return; }
-    let frame = 0;
-    const tick = (time: number) => { drawCover(element, seed, time); frame = requestAnimationFrame(tick); };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [seed, animated]);
+    askGene({ id, duration, gene });
+    let live = true;
+    void coverImage({ id, duration, gene }).then(image => { if (live && canvas.current) paint(canvas.current, image, id); }).catch(() => undefined);
+    return () => { live = false; };
+  }, [id, duration, gene]);
   return <canvas ref={canvas} className="song-cover" width={size} height={size} aria-hidden="true" />;
 }
 
-// 导出时写进 FLAC / M4A 的封面：与播放页同一张图，静止画面，JPEG 的 base64（不带 data: 前缀）。
-export function coverJpeg(seed: string, size = 600): string {
+// 导出时写进 FLAC / M4A 的封面：与播放页同一张图，JPEG 的 base64（不带 data: 前缀）。
+export async function coverJpeg(item: CoverSource, size = 600): Promise<string> {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
-  drawCover(canvas, seed);
+  paint(canvas, await coverImage(item), item.id);
   return canvas.toDataURL('image/jpeg', 0.9).split(',')[1] ?? '';
 }

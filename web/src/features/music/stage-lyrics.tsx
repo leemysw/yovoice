@@ -5,12 +5,14 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import type { LyricLine } from './lyric-timing';
 import { backdropScene, phraseLayout } from './kinetic-lyrics';
 import { SongCover } from './song-cover';
+import type { Generation } from '../../shared/workbench';
 
 // 浮光样式的背景：小封面铺底，几何图形与光点按作品 id 派生、各自漂浮。
-export function StageBackdrop({ seed, playing }: { seed: string; playing: boolean }) {
+export function StageBackdrop({ cover }: { cover: Pick<Generation, 'id' | 'duration' | 'gene'> }) {
+  const seed = cover.id;
   const scene = useMemo(() => backdropScene(seed), [seed]);
   return <StackItem as="span" className="now-playing-backdrop" aria-hidden>
-    <StackItem as="span" className="now-playing-backdrop-cover"><SongCover seed={seed} animated={playing} size={96} /></StackItem>
+    <StackItem as="span" className="now-playing-backdrop-cover"><SongCover item={cover} size={96} /></StackItem>
     {scene.shapes.map((shape, index) => <StackItem as="span" key={index} className="now-playing-shape" data-shape={shape.type} data-filled={shape.filled || undefined}
       style={{ '--shape-x': `${shape.x}%`, '--shape-y': `${shape.y}%`, '--shape-size': shape.size, '--shape-dir': shape.reverse ? -1 : 1, '--shape-rotate': `${shape.rotate}deg`, '--shape-opacity': shape.opacity, '--shape-band': shape.band,
         animationDuration: `${shape.duration}s`, animationDelay: `${shape.delay}s` } as CSSProperties}><StackItem as="span" className="now-playing-shape-face" /></StackItem>)}
