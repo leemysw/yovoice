@@ -1,4 +1,4 @@
-/* 设置页：模型列表、AI 服务、本地接口、日志。 */
+/* 设置页：外观、模型列表、AI 服务、本地接口、日志。 */
 
 @layer app {
   .license-text { white-space: pre-wrap; overflow: auto; max-height: 60vh; font: inherit; line-height: 1.8; }
@@ -19,6 +19,24 @@
     .model-row .model-size { margin-left: auto; }
   }
   /* 设置页：每组一张白卡片，行高、内边距和字号统一；标题与说明左对齐，控件右对齐。 */
+  /* 常规 › 外观：主题卡片里的缩略界面。外面套着对应主题的 Theme，所以这里只用主题令牌（--color-*、--theme-highlight），
+     不用 --app-*：后者在根元素上算好后继承下来，仍是当前主题的颜色。 */
+  .settings-theme-preview { height: calc(var(--spacing-10) * 2); padding: var(--spacing-2); box-sizing: border-box; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-inner); background: var(--color-background-body); }
+  .settings-theme-preview-nav, .settings-theme-preview-sheet { padding: var(--spacing-1-5); box-sizing: border-box; border-radius: calc(var(--radius-inner) * .75); background: var(--color-background-surface); }
+  .settings-theme-preview-nav { width: 28%; }
+  .settings-theme-preview-sheet { flex: 1; min-width: 0; }
+  .settings-theme-preview-line, .settings-theme-preview-title { display: block; height: var(--spacing-1); border-radius: var(--radius-full); background: var(--color-text-secondary); opacity: .45; }
+  .settings-theme-preview-line + .settings-theme-preview-line { width: 70%; }
+  .settings-theme-preview-title { width: 60%; background: var(--color-text-primary); opacity: 1; }
+  .settings-theme-preview-footer { margin-top: auto; }
+  .settings-theme-preview-action { display: block; width: calc(var(--spacing-8) - var(--spacing-0-5)); height: calc(var(--spacing-2) + var(--spacing-0-5)); border-radius: var(--radius-full); background: var(--color-accent); }
+  .settings-theme-preview-nav > .settings-theme-preview-action { width: 100%; }
+  .settings-theme-preview-dot { display: block; width: var(--spacing-2); height: var(--spacing-2); border-radius: var(--radius-full); background: var(--theme-highlight); }
+  /* 跟随系统：左右各半张纸白与夜墨，拼成一张。 */
+  .settings-theme-split > * { flex: 1; min-width: 0; }
+  .settings-theme-split > :first-child .settings-theme-preview { border-start-end-radius: 0; border-end-end-radius: 0; border-inline-end: 0; }
+  .settings-theme-split > :last-child .settings-theme-preview { border-start-start-radius: 0; border-end-start-radius: 0; }
+  .settings-theme-split .settings-theme-preview-nav { display: none; }
   .settings-panel { width: 100%; padding-block: 0 var(--spacing-8); }
   .settings-intro { color: var(--app-muted); }
   .local-api-example .settings-row-control { flex-basis: 100%; }

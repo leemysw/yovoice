@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#ffffff"/><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob: https://voices.workbench.local https://outputs.workbench.local; connect-src 'self' blob: ws://127.0.0.1:5173 https://voices.workbench.local https://outputs.workbench.local; object-src 'none'; base-uri 'self'; frame-src 'none'"/><title>yovoice</title>
 <style>
   /* 启动动画：在前端脚本加载前就显示，界面就绪后由 shared/lib/splash.ts 淡出移除。
-     此时设计令牌尚未加载，颜色取自 yovoice-paper 的页面底色与应用图标。 */
+     此时设计令牌尚未加载，颜色取自纸白主题的页面底色与应用图标；系统为深色时用夜墨的底色，与默认的“跟随系统”一致。 */
   #splash { position: fixed; inset: 0; z-index: 2147483647; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #F7F7F7; transition: opacity 400ms ease; }
   #splash[data-leaving="true"] { opacity: 0; pointer-events: none; }
   #splash .tile { width: 96px; height: 96px; border-radius: 22px; background: linear-gradient(160deg, #004B51, #003F43); box-shadow: 0 10px 28px rgba(0, 63, 67, .22); display: flex; align-items: center; justify-content: center; gap: 5px; animation: splash-in 420ms cubic-bezier(.2, .8, .2, 1) both; }
@@ -14,6 +14,7 @@
   #splash .name { font: 600 15px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .14em; color: #6B6B6B; animation: splash-in 420ms 120ms cubic-bezier(.2, .8, .2, 1) both; }
   @keyframes splash-wave { 0%, 100% { transform: scaleY(.55); } 50% { transform: scaleY(1); } }
   @keyframes splash-in { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: none; } }
+  @media (prefers-color-scheme: dark) { #splash { background: #0F0F11; } #splash .name { color: #A1A1A7; } }
   @media (prefers-reduced-motion: reduce) { #splash .tile, #splash .tile i, #splash .name { animation: none; } }
 </style>
 </head><body><div id="splash" aria-hidden="true"><div class="tile"><i></i><i></i><i></i><i></i><i></i></div><div class="name">yovoice</div></div><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>

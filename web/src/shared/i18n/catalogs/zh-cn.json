@@ -5047,5 +5047,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "音质或内容不完整"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "外观"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "主题"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "切换整个工作台的配色，立即生效；开场动画保持品牌色。"
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "跟随系统"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "浅色用纸白，深色用夜墨"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "浅色"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "深色"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "纸白"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "夜墨"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "青岸"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "宣纸"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "苔绿"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "深海"
   }
 }

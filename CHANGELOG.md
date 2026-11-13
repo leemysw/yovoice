@@ -7,10 +7,12 @@
 ### English
 
 - Share a song to the yovoice community from the player or version menu. Sign in through your browser, add a title, tags and a license, and the version is uploaded for review. Reference voices are never included. Settings lists what you have shared, with its review status, and lets you delete it.
+- Settings › General › Appearance offers six themes: Paper, Ink, Lagoon, Sand, Sage and Abyss, two of them dark. The default, Match system, uses Paper in light mode and Ink in dark mode. On macOS the title bar follows the theme too.
 
 ### 简体中文
 
 - 可以把歌曲分享到 yovoice 社区：在播放器或版本菜单里选择“分享到社区”，在浏览器里登录，填写标题、标签和使用许可后上传并提交审核；参考音色不会随歌曲上传。设置里可以查看自己分享的作品和审核状态，也可以删除。
+- 设置 › 常规 › 外观新增 6 套主题：纸白、夜墨、青岸、宣纸、苔绿、深海，其中夜墨和深海是深色。默认“跟随系统”，系统浅色时用纸白，深色时用夜墨；macOS 的标题栏也会跟着换色。
 
 ## [0.7.0] - 2026-11-11
 

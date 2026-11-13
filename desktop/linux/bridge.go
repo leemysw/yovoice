@@ -72,6 +72,9 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 		available := input.Available != nil && *input.Available
 		ui(func() { gtkWidgetSetVisible(a.inspectorButton, available) })
 		return true, nil
+	case "window.theme":
+		// macOS 的透明标题栏要跟着主题换底色；Linux 用系统标题栏，网页铺满客户区，无需处理。
+		return true, nil
 	case "window.immersive":
 		// macOS 播放页把网页铺进标题栏；Linux 保留系统标题栏，与 Windows 一致。
 		return true, nil

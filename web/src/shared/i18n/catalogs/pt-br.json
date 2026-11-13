@@ -5047,5 +5047,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Qualidade de áudio ruim ou conteúdo incompleto"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Aparência"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Tema"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Muda na hora as cores de todo o espaço de trabalho. A animação de abertura mantém as cores da marca."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Seguir o sistema"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Papel no claro, Tinta no escuro"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Claro"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Escuro"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Papel"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Tinta"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Laguna"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Areia"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Sálvia"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Abismo"
   }
 }

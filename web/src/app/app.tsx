@@ -8,8 +8,9 @@ import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './locale-shell
 import { useDraftSession } from './use-draft-session';
 import { WorkbenchChrome } from './workbench-chrome';
 import { readLocal } from '../shared/lib/local-store';
+import { setThemeChoice } from '../shared/theme/themes';
 
-// 应用入口：加载并订阅后端状态，恢复上次打开的作品；界面语言随偏好切换。
+// 应用入口：加载并订阅后端状态，恢复上次打开的作品；界面语言与主题随偏好切换。
 export function App() {
   const [state, setState] = useState<State>(emptyState); const [catalog, setCatalog] = useState<ModelPackage[]>([]); const [catalogRevision, setCatalogRevision] = useState(''); const [engine, setEngine] = useState<EngineInfo>({ version: '', minimum: '' });
   const [ready, setReady] = useState(false);
@@ -38,6 +39,9 @@ export function App() {
     }).catch(e => setError(noticeMessage(e)));
     return unsubscribe;
   }, [setDraft, setDraftPersisted]);
+  // 状态到达前的偏好是空白默认值，不能拿来覆盖上次缓存的主题。
+  const theme = state.preferences.theme;
+  useEffect(() => { if (ready) setThemeChoice(theme); }, [ready, theme]);
   return <LocaleShell preferencesLocale={state.preferences.uiLocale}>
     <WorkbenchChrome state={state} catalog={catalog} catalogRevision={catalogRevision} engine={engine} ready={ready} session={session} error={error} setError={setError} />
   </LocaleShell>;

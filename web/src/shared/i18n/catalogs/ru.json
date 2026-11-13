@@ -5047,5 +5047,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Плохое качество звука или неполное содержание"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Оформление"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Тема"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Сразу меняет цвета всего рабочего пространства. Заставка сохраняет фирменные цвета."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Как в системе"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Светлая — «Бумага», тёмная — «Чернила»"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Светлая"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Тёмная"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Бумага"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Чернила"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Лагуна"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Песок"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Шалфей"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Бездна"
   }
 }

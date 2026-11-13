@@ -47,7 +47,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         window.title = "yovoice"
         window.titlebarSeparatorStyle = .none
         window.titlebarAppearsTransparent = true
-        window.backgroundColor = NSColor(srgbRed: 247.0 / 255.0, green: 247.0 / 255.0, blue: 247.0 / 255.0, alpha: 1.0)
+        restoreWindowTheme()
         let accessory = NSTitlebarAccessoryViewController()
         accessory.layoutAttribute = .left
         let sidebarButton = NSButton(image: NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: HostL10n.t("sidebar.toggle"))!, target: self, action: #selector(toggleSidebar))
@@ -511,6 +511,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         }
     }
 
+    // 启动时沿用上次的主题底色；从没设置过时跟随系统外观（浅色纸白、深色夜墨）。
+    private func restoreWindowTheme() {
+        applyWindowTheme(UserDefaults.standard.dictionary(forKey: "window-theme") ?? ["system": true])
+    }
+
+    private func applyWindowTheme(_ saved: [String: Any]) {
+        let system = saved["system"] as? Bool == true
+        let color = Self.color(hex: saved["background"] as? String ?? "")
+        if system {
+            // 跟随系统时底色也随外观切换，系统换成深色时不必等网页重新上报。
+            window.appearance = nil
+            window.backgroundColor = NSColor(name: nil) { appearance in
+                appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? Self.color(hex: "#0F0F11")! : Self.color(hex: "#F7F7F7")!
+            }
+        } else {
+            window.appearance = NSAppearance(named: saved["dark"] as? Bool == true ? .darkAqua : .aqua)
+            window.backgroundColor = color ?? Self.color(hex: "#F7F7F7")!
+        }
+        web?.underPageBackgroundColor = window.backgroundColor
+    }
+
+    // 解析 #RRGGBB；其他格式返回 nil。
+    static func color(hex: String) -> NSColor? {
+        guard hex.count == 7, hex.hasPrefix("#"), let value = UInt32(hex.dropFirst(), radix: 16) else { return nil }
+        return NSColor(srgbRed: CGFloat((value >> 16) & 0xFF) / 255, green: CGFloat((value >> 8) & 0xFF) / 255, blue: CGFloat(value & 0xFF) / 255, alpha: 1)
+    }
+
     private func handle(_ message: [String: Any]) async throws -> [String: Any] {
         var message = message
         var data = message["data"] as? [String: Any] ?? [:]
@@ -518,6 +545,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         if method == "inspector.available" {
             inspectorVisible = data["available"] as? Bool == true
             layoutTitleButtons()
+            return ["id": message["id"]!, "result": true]
+        }
+        if method == "window.theme" {
+            // 界面主题的页面底色与深浅。标题栏透明，露出的是窗口底色，标题与按钮颜色跟随外观；
+            // 记下来，下次启动窗口一出现就是这个颜色。跟随系统时交给系统外观，不固定深浅。
+            guard let hex = data["background"] as? String, Self.color(hex: hex) != nil else { return ["id": message["id"]!, "result": false] }
+            let saved: [String: Any] = ["background": hex, "dark": data["dark"] as? Bool == true, "system": data["system"] as? Bool == true]
+            UserDefaults.standard.set(saved, forKey: "window-theme")
+            applyWindowTheme(saved)
             return ["id": message["id"]!, "result": true]
         }
         if method == "window.immersive" {

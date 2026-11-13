@@ -5047,5 +5047,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Qualità audio scarsa o contenuto incompleto"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Aspetto"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Tema"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Cambia subito i colori di tutto lo spazio di lavoro. L’animazione iniziale mantiene i colori del marchio."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Come il sistema"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Carta in chiaro, Inchiostro in scuro"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Chiaro"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Scuro"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Carta"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Inchiostro"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Laguna"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Sabbia"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Salvia"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Abisso"
   }
 }

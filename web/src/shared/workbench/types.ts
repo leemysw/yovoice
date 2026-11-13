@@ -112,10 +112,13 @@ export interface CleanupReport {
   cleanedCount: number;
   freedBytes: number;
 }
-export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; engine?: EngineSettings; transcribe?: TranscribeSettings }
+export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; theme?: AppTheme; engine?: EngineSettings; transcribe?: TranscribeSettings }
 // 可在设置中隐藏的功能入口：故事配音、音乐生成（含编曲与音效）与 Ocho 助手，默认全部显示。
 export const optionalFeatures = ['story', 'music', 'transcribe', 'assistant'] as const;
 export type Feature = typeof optionalFeatures[number];
+// 界面主题，与 Go 的 schema.Themes 一致；偏好里没有 theme 时跟随系统（浅色用纸白，深色用夜墨）。
+export const appThemes = ['paper', 'ink', 'lagoon', 'sand', 'sage', 'abyss'] as const;
+export type AppTheme = typeof appThemes[number];
 export interface State {
   runtimeOptions?: Record<string, string[]>;
   runtimeModes?: Record<string, string[]>;

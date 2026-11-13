@@ -5047,5 +5047,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "음질이 나쁘거나 내용이 완전하지 않습니다"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "화면 모양"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "테마"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "작업 공간 전체 색상을 바로 바꿉니다. 시작 애니메이션은 브랜드 색상을 유지합니다."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "시스템 설정 따르기"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "라이트는 페이퍼, 다크는 잉크"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "라이트"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "다크"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "페이퍼"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "잉크"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "라군"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "샌드"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "세이지"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "어비스"
   }
 }

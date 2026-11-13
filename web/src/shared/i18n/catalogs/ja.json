@@ -5047,5 +5047,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "音質が悪い、または内容が不完全です"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "外観"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "テーマ"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "ワークベンチ全体の配色をすぐに切り替えます。オープニングアニメーションはブランドカラーのままです。"
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "システムに合わせる"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "ライトはペーパー、ダークはインク"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "ライト"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "ダーク"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "ペーパー"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "インク"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "ラグーン"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "サンド"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "セージ"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "アビス"
   }
 }

@@ -40,6 +40,9 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 			return msg.Err(msg.ErrRequestInvalid, nil)
 		}
 	}
+	if p.Theme != "" && !slices.Contains(schema.Themes, p.Theme) {
+		return msg.Err(msg.ErrRequestInvalid, nil)
+	}
 	if p.Engine != nil {
 		if err := p.Engine.Validate(); err != nil {
 			return err
