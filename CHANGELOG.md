@@ -6,11 +6,11 @@
 
 ### English
 
-- Share a song to the yovoice community from the player or version menu. Sign in through your browser, add a title, tags and a license, and the version is uploaded for review. Reference voices are never included. Settings lists what you have shared, with its review status, and lets you delete it.
+- Share a song to the yovoice community from the player or version menu. Sign in through your browser, add a title, tags and a license, and the version is uploaded for review. Each shared song gets its own record cover on the community page, drawn from how loud the song is from start to finish. Reference voices are never included. Settings lists what you have shared, with its review status, and lets you delete it.
 
 ### 简体中文
 
-- 可以把歌曲分享到 yovoice 社区：在播放器或版本菜单里选择“分享到社区”，在浏览器里登录，填写标题、标签和使用许可后上传并提交审核；参考音色不会随歌曲上传。设置里可以查看自己分享的作品和审核状态，也可以删除。
+- 可以把歌曲分享到 yovoice 社区：在播放器或版本菜单里选择“分享到社区”，在浏览器里登录，填写标题、标签和使用许可后上传并提交审核；社区页会按这首歌从头到尾的响度起伏，为它画一张独有的唱片封面；参考音色不会随歌曲上传。设置里可以查看自己分享的作品和审核状态，也可以删除。
 
 ## [0.7.0] - 2026-11-11
 

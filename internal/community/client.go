@@ -69,6 +69,8 @@ type CreateInput struct {
 	PackSize     int64    `json:"pack_size"`
 	PreviewSize  int64    `json:"preview_size"`
 	Duration     float64  `json:"duration"`
+	// Gene 是歌曲的响度起伏（96 个十六进制字符），社区页用它画封面；算不出来时留空。
+	Gene string `json:"gene,omitempty"`
 }
 
 // Upload 是一个文件的直传地址和必须原样带上的请求头。
