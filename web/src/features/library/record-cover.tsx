@@ -1,5 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { HStack } from '@astryxdesign/core/Layout';
+import { coverArt } from '../music/cover-art';
+import { askGene } from '../music/song-cover';
 
 // 同一作品总得到同一张唱片：风格、配色和每一笔都由作品 ID 派生。
 export function random(seed: string) {
@@ -8,144 +10,34 @@ export function random(seed: string) {
   return () => (state = (Math.imul(state, 1664525) + 1013904223) >>> 0) / 4294967296;
 }
 
-// 配色参考印刷品与唱片封套：一个底色加几种油墨，彼此协调而不是一味高饱和。
-interface Palette { paper: string; inks: string[] }
-const palettes: Palette[] = [
-  { paper: '#F3EEE3', inks: ['#FF48B0', '#0078BF', '#FFE800'] }, // 孔版印刷：荧光粉、蓝、黄
-  { paper: '#EFE6D8', inks: ['#D9481C', '#1E3D8F', '#F2B134', '#2E2A27'] }, // 马蒂斯剪纸
-  { paper: '#14142B', inks: ['#693668', '#A74482', '#F84AA7', '#FFB86B'] }, // 黄昏
-  { paper: '#0F2027', inks: ['#2C5364', '#8FB8A8', '#EDE6D6', '#E07A5F'] }, // 北欧冬日
-  { paper: '#FAEDCD', inks: ['#1F2A24', '#3C6E47', '#D4A373', '#BC4749'] }, // 森林
-  { paper: '#F4F1EA', inks: ['#111111', '#E4572E', '#8A8A8A'] }, // 黑墨加一点朱红
-  { paper: '#03045E', inks: ['#0077B6', '#00B4D8', '#90E0EF', '#FFD6A5'] }, // 深海
-  { paper: '#FFF4E0', inks: ['#FB5607', '#FF006E', '#8338EC', '#3A86FF'] }, // 柑橘与电光
-  { paper: '#1A1A1A', inks: ['#E9D8A6', '#EE9B00', '#CA6702', '#9B2226'] }, // 爵士唱片
-  { paper: '#E8EDDF', inks: ['#242423', '#F5CB5C', '#CFDBD5', '#6A994E'] }, // 包豪斯
-];
+// 封套和唱片标签的图案：和播放页、yovoice 社区页同一套画法（见 music/cover-art.ts），
+// 按版本编号、时长和响度起伏画出来；同一首歌在作品列表、播放页和社区页上是同一张封面。
+export type CoverSource = { id: string; duration?: number; gene?: string };
 
-// 平滑的伪噪声场：几组随机方向和频率的正弦叠加，值域约 -1..1。
-function field(next: () => number, waves = 4) {
-  const terms = Array.from({ length: waves }, () => ({ a: (next() - .5) * 9, b: (next() - .5) * 9, p: next() * Math.PI * 2, w: .5 + next() }));
-  const total = terms.reduce((sum, t) => sum + t.w, 0);
-  return (x: number, y: number) => terms.reduce((sum, t) => sum + Math.sin(t.a * x + t.b * y + t.p) * t.w, 0) / total;
-}
-
-type Style = (c: CanvasRenderingContext2D, s: number, p: Palette, next: () => number) => void;
-
-const styles: Style[] = [
-  // 地形等高线：色带之间描细线，像一张彩色地形图。
-  (c, s, p, next) => {
-    const f = field(next, 5), bands = 6 + Math.floor(next() * 6), colors = [p.paper, ...p.inks].map(hexRGB);
-    const image = c.createImageData(s, s);
-    for (let py = 0; py < s; py++) for (let px = 0; px < s; px++) {
-      const v = (f(px / s, py / s) + 1) / 2 * bands, band = Math.floor(v), edge = v - band < .07;
-      const [r, g, b] = edge ? colors[colors.length - 1] : colors[band % (colors.length - 1)];
-      const i = (py * s + px) * 4; image.data[i] = r; image.data[i + 1] = g; image.data[i + 2] = b; image.data[i + 3] = 255;
-    }
-    c.putImageData(image, 0, 0);
-  },
-  // 流场：几百条细线顺着噪声场流动，像风或水的轨迹。
-  (c, s, p, next) => {
-    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
-    const f = field(next, 3), turn = 2 + next() * 3;
-    c.lineCap = 'round';
-    for (let i = 0; i < 420; i++) {
-      let x = next() * s, y = next() * s;
-      c.beginPath(); c.moveTo(x, y);
-      for (let step = 0; step < 36; step++) { const a = f(x / s, y / s) * Math.PI * turn; x += Math.cos(a) * s / 90; y += Math.sin(a) * s / 90; c.lineTo(x, y); }
-      c.strokeStyle = p.inks[i % p.inks.length]; c.globalAlpha = .35 + next() * .5; c.lineWidth = s / 260 + next() * s / 180; c.stroke();
-    }
-    c.globalAlpha = 1;
-  },
-  // 柔光渐变：几团纯色先叠好再整体模糊，颜色彼此晕开而不发灰，中间留一道细细的地平线。
-  (c, s, p, next) => {
-    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
-    c.filter = `blur(${Math.round(s / 7)}px)`;
-    for (const ink of p.inks.slice(0, 3)) {
-      c.beginPath(); c.ellipse(next() * s, next() * s, s * (.25 + next() * .3), s * (.2 + next() * .3), next() * Math.PI, 0, Math.PI * 2);
-      c.fillStyle = ink; c.fill();
-    }
-    c.filter = 'none';
-    c.globalAlpha = .6; c.fillStyle = p.paper; c.fillRect(0, Math.round(s * (.55 + next() * .3)), s, Math.max(1, s / 160)); c.globalAlpha = 1;
-  },
-  // 丝网半调：两种油墨的网点各自成形，叠印处变深，略微错版。
-  (c, s, p, next) => {
-    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
-    // 深色底上改用滤色叠印，网点才看得见。
-    c.globalCompositeOperation = luminance(p.paper) < .4 ? 'screen' : 'multiply';
-    for (let layer = 0; layer < 2; layer++) {
-      const cx = (.25 + next() * .5) * s, cy = (.25 + next() * .5) * s, radius = s * (.3 + next() * .35), angle = (layer ? 45 : 15) * Math.PI / 180, cell = s / 34;
-      const shift = (next() - .5) * s / 40;
-      c.fillStyle = p.inks[layer % p.inks.length];
-      c.save(); c.translate(s / 2, s / 2); c.rotate(angle);
-      for (let gx = -s; gx < s; gx += cell) for (let gy = -s; gy < s; gy += cell) {
-        // 网点坐标转回画布坐标，按到中心的距离决定网点大小。
-        const x = gx * Math.cos(angle) - gy * Math.sin(angle) + s / 2, y = gx * Math.sin(angle) + gy * Math.cos(angle) + s / 2;
-        const d = Math.hypot(x - cx, y - cy) / radius, size = Math.max(0, 1 - d) * cell * .62 + (layer ? 0 : (y / s) * cell * .18);
-        if (size > .3) { c.beginPath(); c.arc(gx + shift, gy + shift, size, 0, Math.PI * 2); c.fill(); }
-      }
-      c.restore();
-    }
-    c.globalCompositeOperation = 'source-over';
-  },
-  // 欧普波纹：两色条纹被正弦扭曲，像七十年代的唱片封套。
-  (c, s, p, next) => {
-    const [a, b] = [p.inks[0], next() > .5 ? p.paper : p.inks[1]], bands = 14 + Math.floor(next() * 12);
-    const amp = s * (.03 + next() * .08), freq = 1 + next() * 3, twist = next() * 4, vertical = next() > .5;
-    c.fillStyle = b; c.fillRect(0, 0, s, s); c.fillStyle = a;
-    c.save(); if (vertical) { c.translate(s, 0); c.rotate(Math.PI / 2); }
-    for (let i = -2; i < bands + 2; i += 2) {
-      const top = (y0: number) => (x: number) => y0 + Math.sin(x / s * Math.PI * 2 * freq + y0 / s * twist) * amp;
-      const t = top(i * s / bands), u = top((i + 1) * s / bands);
-      c.beginPath(); c.moveTo(0, t(0));
-      for (let x = 0; x <= s; x += 3) c.lineTo(x, t(x));
-      for (let x = s; x >= 0; x -= 3) c.lineTo(x, u(x));
-      c.closePath(); c.fill();
-    }
-    c.restore();
-  },
-  // 瑞士构成：网格上一枚大圆、一块色面、几条细线和一个小点。
-  (c, s, p, next) => {
-    c.fillStyle = p.paper; c.fillRect(0, 0, s, s);
-    const grid = s / 6, pick = () => Math.floor(next() * 6) * grid;
-    c.globalCompositeOperation = 'multiply';
-    c.fillStyle = p.inks[1 % p.inks.length]; c.fillRect(pick(), pick(), grid * (2 + Math.floor(next() * 3)), grid * (1 + Math.floor(next() * 4)));
-    c.beginPath(); c.arc(grid * (2 + next() * 2), grid * (2 + next() * 2), grid * (1.6 + next() * 1.2), 0, Math.PI * 2); c.fillStyle = p.inks[0]; c.fill();
-    c.globalCompositeOperation = 'source-over';
-    c.strokeStyle = p.inks[p.inks.length - 1]; c.lineWidth = Math.max(1, s / 200);
-    for (let i = 0; i < 3 + Math.floor(next() * 4); i++) { const y = pick() + grid / 2; c.beginPath(); c.moveTo(next() * grid, y); c.lineTo(s - next() * grid * 2, y); c.stroke(); }
-    c.beginPath(); c.arc(pick() + grid / 2, pick() + grid / 2, grid * .22, 0, Math.PI * 2); c.fillStyle = p.inks[2 % p.inks.length]; c.fill();
-  },
-];
-
-function hexRGB(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1, 7), 16);
-  return [n >> 16 & 255, n >> 8 & 255, n & 255];
-}
-
-function luminance(hex: string) {
-  const [r, g, b] = hexRGB(hex);
-  return (r * .299 + g * .587 + b * .114) / 255;
-}
-
-// 每个作品画一次，封套和唱片标签共用；纸张颗粒最后统一叠上。
-const arts = new Map<string, HTMLCanvasElement>();
-export function art(seed: string, size: number) {
-  const key = `${seed}:${size}`;
+// 每张图案解码一次，封套、标签和磁带标签共用；纸张颗粒最后统一叠上。
+const arts = new Map<string, Promise<HTMLCanvasElement>>();
+export function coverCanvas(source: CoverSource, size: number) {
+  const key = `${source.id}:${Math.round(source.duration ?? 0)}:${source.gene ?? ''}:${size}`;
   let canvas = arts.get(key);
   if (canvas) return canvas;
-  canvas = document.createElement('canvas'); canvas.width = canvas.height = size;
-  const c = canvas.getContext('2d')!, next = random(`${seed}:art`);
-  const palette = palettes[Math.floor(next() * palettes.length)];
-  styles[Math.floor(next() * styles.length)](c, size, { paper: palette.paper, inks: palette.inks.slice().sort(() => next() - .5) }, next);
-  const grain = random(`${seed}:grain`);
-  for (let i = 0; i < size * size / 3; i++) { c.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 9%)' : 'rgb(0 0 0 / 9%)'; c.fillRect(grain() * size, grain() * size, 1, 1); }
+  canvas = (async () => {
+    const image = new Image();
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(coverArt(source.id, source.duration ?? 0, source.gene).svg)}`;
+    await image.decode();
+    const result = document.createElement('canvas'); result.width = result.height = size;
+    const c = result.getContext('2d')!;
+    c.drawImage(image, 0, 0, size, size);
+    const grain = random(`${source.id}:grain`);
+    for (let i = 0; i < size * size / 3; i++) { c.fillStyle = grain() > .5 ? 'rgb(255 255 255 / 7%)' : 'rgb(0 0 0 / 7%)'; c.fillRect(grain() * size, grain() * size, 1, 1); }
+    return result;
+  })();
   if (arts.size > 200) arts.clear();
   arts.set(key, canvas);
   return canvas;
 }
 
-export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boolean) {
+export async function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boolean, cover: CoverSource = { id: seed }) {
+  const source = label ? await coverCanvas(cover, 320).catch(() => null) : null;
   const c = canvas.getContext('2d');
   if (!c) return;
   const { width } = canvas, x = width / 2, y = width / 2, r = width / 2 - 1;
@@ -179,81 +71,68 @@ export function drawRecord(canvas: HTMLCanvasElement, seed: string, label: boole
   }
   c.save(); c.beginPath(); c.arc(x, y, outer, 0, Math.PI * 2); c.arc(x, y, inner, 0, Math.PI * 2, true); c.clip('evenodd');
   c.globalCompositeOperation = 'screen'; c.fillStyle = sheen; c.fillRect(0, 0, width, width); c.restore();
-  if (!label) return;
-  // 标签取封套画面的中心部分，中心是轴孔。
-  const lr = r * .36, source = art(seed, 320);
+  if (!source) return;
+  // 标签印整张封面图案，图形的重心偏上，往下挪一点放到正中；中心是轴孔。
+  const lr = r * .36;
   c.save(); c.beginPath(); c.arc(x, y, lr, 0, Math.PI * 2); c.clip();
-  c.drawImage(source, source.width * .3, source.height * .3, source.width * .4, source.height * .4, x - lr, y - lr, lr * 2, lr * 2);
+  c.drawImage(source, x - lr * 1.1, y - lr * .95, lr * 2.2, lr * 2.2);
   c.restore();
   c.beginPath(); c.arc(x, y, lr, 0, Math.PI * 2); c.strokeStyle = 'rgb(0 0 0 / 35%)'; c.lineWidth = 1; c.stroke();
   c.beginPath(); c.arc(x, y, Math.max(2, r * .045), 0, Math.PI * 2); c.fillStyle = '#0B0B0C'; c.fill();
 }
 
-// 封套：在图案上叠印刷信息和使用痕迹，让它像一张真实的唱片封面而不只是一张图。
-function drawSleeve(canvas: HTMLCanvasElement, seed: string, title: string) {
+// 封套：和社区页的封套同一种版式——图案铺满，右上角印编号，左下角是标题和转速，
+// 字底下垫一层封面的底色，图案再花也看得清；最后压一道从右上方来的光。
+async function drawSleeve(canvas: HTMLCanvasElement, seed: string, title: string, cover: CoverSource) {
+  const source = await coverCanvas(cover, canvas.width).catch(() => null);
   const c = canvas.getContext('2d');
-  if (!c) return;
-  const s = canvas.width, next = random(`${seed}:sleeve`), m = s * .07;
-  c.drawImage(art(seed, s), 0, 0);
-  const font = getComputedStyle(canvas).fontFamily || 'system-ui, sans-serif';
-  // 印刷信息条：顶部或底部一条实色带，左侧粗体标题，下面一行厂牌编号和转速，像老唱片的版式。
-  const top = next() > .5, dark = next() > .5, band = s * .25;
-  const [paper, ink] = dark ? ['#141414', '#F4F1EA'] : ['#F4F1EA', '#141414'];
-  const y0 = top ? 0 : s - band;
-  c.fillStyle = paper; c.fillRect(0, y0, s, band);
-  const size = s * .1;
-  c.font = `700 ${size}px ${font}`; c.textBaseline = 'alphabetic'; c.fillStyle = ink;
+  if (!c || !source) return;
+  const s = canvas.width, m = s * .07, { paper, ink } = coverArt(cover.id, cover.duration ?? 0, cover.gene);
+  c.clearRect(0, 0, s, s);
+  c.drawImage(source, 0, 0);
+  const font = getComputedStyle(canvas).fontFamily || 'system-ui, sans-serif', mono = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+  const fade = c.createLinearGradient(0, s * .55, 0, s);
+  const tint = (alpha: number) => paper.replace(')', ` / ${alpha})`);
+  fade.addColorStop(0, tint(0)); fade.addColorStop(.55, tint(.8)); fade.addColorStop(1, paper);
+  c.fillStyle = fade; c.fillRect(0, s * .55, s, s * .45);
+  c.fillStyle = ink; c.textBaseline = 'alphabetic';
+  c.font = `500 ${s * .042}px ${mono}`; c.globalAlpha = .55;
+  const serial = `YV-${String(Math.floor(random(`${seed}:serial`)() * 0xfffff).toString(16).toUpperCase()).padStart(5, '0')}`;
+  c.fillText(serial, s - m - c.measureText(serial).width, m + s * .03);
+  c.fillText('33⅓ RPM', m, s - m);
+  c.globalAlpha = 1;
+  c.font = `700 ${s * .1}px ${font}`;
   let text = title.trim();
   if (c.measureText(text).width > s - m * 2) {
     while (text.length > 1 && c.measureText(`${text}…`).width > s - m * 2) text = text.slice(0, -1);
     text = `${text}…`;
   }
-  c.fillText(text, m, y0 + band * .52);
-  const small = s * .042;
-  c.font = `500 ${small}px ${font}`; c.globalAlpha = .65;
-  const speed = '33⅓ RPM';
-  c.fillText(`YV-${String(Math.floor(next() * 900) + 100)}`, m, y0 + band * .8);
-  c.fillText(speed, s - m - c.measureText(speed).width, y0 + band * .8);
-  c.globalAlpha = 1;
-  // 圆形磨痕：里面那张唱片长年压出的一圈浅色印子，只是若隐若现的一段弧。
-  c.save(); c.globalCompositeOperation = 'screen';
-  const start = next() * Math.PI * 2;
-  for (let i = 0; i < 260; i++) {
-    const a = start + next() * Math.PI * 1.3, rr = s * (.44 + (next() - .5) * .025);
-    c.fillStyle = `rgb(255 255 255 / ${4 + next() * 8}%)`; c.fillRect(s / 2 + Math.cos(a) * rr, s / 2 + Math.sin(a) * rr, 1.2, 1.2);
-  }
-  // 边角磨损：沿四边随机擦出浅色毛边。
-  for (let i = 0; i < 160; i++) {
-    const t = next() * s, d = next() ** 3 * s * .03, side = Math.floor(next() * 4);
-    const [x, y] = side === 0 ? [t, d] : side === 1 ? [s - d, t] : side === 2 ? [t, s - d] : [d, t];
-    c.fillStyle = `rgb(255 255 255 / ${8 + next() * 14}%)`; c.fillRect(x, y, 1 + next() * 1.5, 1 + next() * 1.5);
-  }
-  c.restore();
-  // 覆膜反光与封口阴影：左上一道斜向柔光，右侧开口处略暗。
-  const gloss = c.createLinearGradient(0, 0, s, s);
-  gloss.addColorStop(0, 'rgb(255 255 255 / 0%)'); gloss.addColorStop(.32, 'rgb(255 255 255 / 10%)'); gloss.addColorStop(.42, 'rgb(255 255 255 / 0%)');
-  c.fillStyle = gloss; c.fillRect(0, 0, s, s);
-  const edge = c.createLinearGradient(s * .9, 0, s, 0);
-  edge.addColorStop(0, 'rgb(0 0 0 / 0%)'); edge.addColorStop(1, 'rgb(0 0 0 / 22%)');
-  c.fillStyle = edge; c.fillRect(0, 0, s, s);
+  c.fillText(text, m, s - m - s * .075);
+  const light = c.createLinearGradient(s, 0, 0, s);
+  light.addColorStop(0, 'rgb(255 255 255 / 19%)'); light.addColorStop(.38, 'rgb(255 255 255 / 0%)'); light.addColorStop(.62, 'rgb(0 0 0 / 0%)'); light.addColorStop(1, 'rgb(0 0 0 / 28%)');
+  c.fillStyle = light; c.fillRect(0, 0, s, s);
 }
 
 // 作品封面：歌曲、编曲和故事是随机图案的封套，唱片从封套里探出一截，悬停时滑出并转动；
 // 故事在封套上叠出场角色的头像。传入 children 时不画封套，直接做成以 children 为标签的黑胶唱片，
 // 角色库用它把试听头像放在唱片中心，播放时唱片转动。
-export function RecordCover({ seed, title = '', cast, interactive = false, children }: { seed: string; title?: string; cast?: ReactNode; interactive?: boolean; children?: ReactNode }) {
+// cover 是画图案用的版本（编号、时长、响度起伏），作品列表传最近一版，这样和播放页的封面一致；不传时按 seed 画。
+export function RecordCover({ seed, title = '', cover, cast, interactive = false, children }: { seed: string; title?: string; cover?: CoverSource; cast?: ReactNode; interactive?: boolean; children?: ReactNode }) {
   const disc = useRef<HTMLCanvasElement>(null);
   const sleeve = useRef<HTMLCanvasElement>(null);
   const label = !children;
+  const art: CoverSource = cover ?? { id: seed };
+  const { id, duration, gene } = art, song = !!cover;
   useEffect(() => {
-    if (disc.current) drawRecord(disc.current, seed, label);
-    if (sleeve.current) drawSleeve(sleeve.current, seed, title);
-  }, [seed, label, title]);
-  // 与 drawSleeve 用同一个随机序列的第一位，角色头像避开标题信息条。
-  const bandTop = random(`${seed}:sleeve`)() > .5;
+    const source = { id, duration, gene };
+    // 传了版本进来就是一首真实的歌：还没算响度起伏时请后端算，算好后版本更新、封面重画。
+    if (song && duration !== undefined) askGene({ id, duration, gene });
+    if (disc.current) void drawRecord(disc.current, seed, label, source);
+    if (sleeve.current) void drawSleeve(sleeve.current, seed, title, source);
+  }, [seed, label, title, id, duration, gene, song]);
   return <HStack className="record-cover" gap={0} vAlign="center" aria-hidden={interactive ? undefined : true} data-sleeve={label}>
     <canvas ref={disc} className="record-disc" width={192} height={192} />
     {label ? <canvas ref={sleeve} className="record-sleeve" width={320} height={320} /> : <HStack className="record-label" gap={0} hAlign="center" vAlign="center">{children}</HStack>}
-    {label && cast ? <HStack className="record-cast" data-band={bandTop ? 'top' : 'bottom'} gap={0} vAlign="center">{cast}</HStack> : null}
+    {label && cast ? <HStack className="record-cast" data-band="bottom" gap={0} vAlign="center">{cast}</HStack> : null}
   </HStack>;
 }

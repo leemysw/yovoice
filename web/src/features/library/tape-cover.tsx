@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { HStack } from '@astryxdesign/core/Layout';
-import { art, random } from './record-cover';
+import { coverCanvas, random } from './record-cover';
 
 // 磁带外壳的几种常见塑料颜色；标签顶部那条色带取作品的随机图案。
 const shells = ['#1C1C1E', '#E9E4D8', '#2F4858', '#B9472F', '#D9C3A0', '#6F8F7F', '#3A3F7A'];
@@ -15,7 +15,9 @@ function shade(hex: string, amount: number) {
 }
 
 // 画布尺寸 360×240，与封面 3:2 的外框一致；两个卷轴中心在 (128,125) 和 (232,125)。
-function drawTape(canvas: HTMLCanvasElement, seed: string, title: string) {
+async function drawTape(canvas: HTMLCanvasElement, seed: string, title: string) {
+  // 标签顶部的色带取作品封面图案中间的一条，和唱片封套是同一套图案。
+  const source = await coverCanvas({ id: seed }, 320).catch(() => null);
   const c = canvas.getContext('2d');
   if (!c) return;
   const w = canvas.width, h = canvas.height, next = random(`${seed}:tape`);
@@ -29,8 +31,7 @@ function drawTape(canvas: HTMLCanvasElement, seed: string, title: string) {
   // 标签：顶部一条随机图案色带，下面是写标题的纸面和几条书写线。
   c.save(); roundRect(c, 18, 16, w - 36, 146, 6); c.clip();
   c.fillStyle = '#F4F1EA'; c.fillRect(18, 16, w - 36, 146);
-  const source = art(seed, 320);
-  c.drawImage(source, 0, source.height * .4, source.width, source.height * .14, 18, 16, w - 36, 34);
+  if (source) c.drawImage(source, 0, source.height * .4, source.width, source.height * .14, 18, 16, w - 36, 34);
   c.strokeStyle = 'rgb(20 20 20 / 12%)'; c.lineWidth = 1;
   for (const y of [86, 100]) { c.beginPath(); c.moveTo(30, y); c.lineTo(w - 30, y); c.stroke(); }
   const font = getComputedStyle(canvas).fontFamily || 'system-ui, sans-serif';
@@ -88,7 +89,7 @@ export function TapeCover({ seed, title }: { seed: string; title: string }) {
   const body = useRef<HTMLCanvasElement>(null);
   const hubs = useRef<(HTMLCanvasElement | null)[]>([]);
   useEffect(() => {
-    if (body.current) drawTape(body.current, seed, title);
+    if (body.current) void drawTape(body.current, seed, title);
     hubs.current.forEach(hub => { if (hub) drawHub(hub); });
   }, [seed, title]);
   return <HStack className="tape-cover" gap={0} aria-hidden="true">

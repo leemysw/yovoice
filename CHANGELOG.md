@@ -19,7 +19,7 @@
 - ⌘J puts the cursor in Ocho's box and closing it keeps your unsent draft. ⌘. stops the current page's recording, upload or generation before Ocho's reply, and also works with Ocho minimized. Esc closes the character editor.
 - In Now Playing, the A key asks before replacing lyric timing and only shows a hint when the aligner isn't installed. Now Playing can go full screen in the macOS and Windows apps.
 - On macOS, ⇧⌘Z redoes in text fields, and ⌘H, ⌥⌘H, ⌘W and ⌃⌘F work as in other apps. On Windows, F5, Ctrl+R, Ctrl+P and other browser keys no longer reload or print the interface. Hints and the onboarding tour show the keys you have set.
-- Song covers are now drawn from the song's own loudness, in the same style as the yovoice community page, so a shared song has the same cover in the app and on the page. Exported FLAC and M4A files carry the same cover.
+- Song covers are now drawn from the song's own loudness, in the same style as the yovoice community page, so a shared song has the same cover in the app and on the page. Exported FLAC and M4A files carry the same cover, and song, arrangement and story records in the library use the same artwork; a song's record shows its latest version's cover.
 - Share a song to the yovoice community from the player or version menu. Sign in through your browser, add a title, tags (prefilled with the song's short style tags) and a license, and the version is uploaded for review. Reference voices are never included. Aligned lyrics go with the song so the community page can scroll them; the dialog tells you when a version's lyrics aren't aligned yet. Settings › Community has your account and what you have shared, with its review status, and lets you delete it.
 - Settings › General › Appearance offers six themes: Paper, Ink, Lagoon, Sand, Sage and Abyss, two of them dark. The default, Match system, uses Paper in light mode and Ink in dark mode. On macOS the title bar follows the theme too.
 - Transcript editing: line playback can carry on to the next line (Continuous playback, on by default) and skips long silences. Ctrl+Z / ⌘Z undoes and Ctrl+Shift+Z, Ctrl+Y or ⇧⌘Z redoes. Delete at the end of a line joins the next one, and on macOS Ctrl+H / Ctrl+D also join lines.
@@ -42,7 +42,7 @@
 - ⌘J 打开 Ocho 时光标直接进输入框，收起后没发出的草稿仍在；⌘. 先停当前页面的录音、上传或生成，再停 Ocho 的回复，Ocho 收起时也能停；角色编辑器可以按 Esc 关闭。
 - 播放页按 A 一键对齐会先确认再覆盖已有的歌词时间，没装对齐模型时只提示；macOS 和 Windows 桌面端的播放页可以真正全屏。
 - macOS 上输入框可以用 ⇧⌘Z 重做，⌘H、⌥⌘H、⌘W、⌃⌘F 与其他应用一致；Windows 上按 F5、Ctrl+R、Ctrl+P 等浏览器按键不会再刷新或打印界面。按钮提示和新手引导显示的是你设置的按键。
-- 歌曲封面改为按这首歌自己的响度起伏来画，画法和 yovoice 社区页一样，分享出去的歌在应用里和社区页上是同一张封面；导出的 FLAC、M4A 也带这张封面。
+- 歌曲封面改为按这首歌自己的响度起伏来画，画法和 yovoice 社区页一样，分享出去的歌在应用里和社区页上是同一张封面；导出的 FLAC、M4A 也带这张封面；作品库里歌曲、编曲和故事的唱片封套也换成这套图案，歌曲显示最近一版的封面。
 - 可以把歌曲分享到 yovoice 社区：在播放器或版本菜单里选择“分享到社区”，在浏览器里登录，填写标题、标签（默认带上生成时的短风格标签）和使用许可后上传并提交审核；参考音色不会随歌曲上传。对齐过的歌词会一起分享，社区页按时间滚动显示；还没对齐时弹窗会提醒。设置 › 社区里是你的账号和分享过的作品，可以查看审核状态，也可以删除。
 - 设置 › 常规 › 外观新增 6 套主题：纸白、夜墨、青岸、宣纸、苔绿、深海，其中夜墨和深海是深色。默认“跟随系统”，系统浅色时用纸白，深色时用夜墨；macOS 的标题栏也会跟着换色。
 - 转写编辑：试听一行时可以接着播下一行（“连续播放”，默认打开），并跳过较长的静音；支持 Ctrl+Z / ⌘Z 撤销，Ctrl+Shift+Z、Ctrl+Y 或 ⇧⌘Z 重做；在行尾按 Delete 与下一行合并，macOS 上 Ctrl+H / Ctrl+D 同样可以合并。
