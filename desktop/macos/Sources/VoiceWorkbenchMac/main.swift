@@ -170,7 +170,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     private func setImmersive(_ active: Bool, chrome: Bool) {
         if active { window.styleMask.insert(.fullSizeContentView) } else { window.styleMask.remove(.fullSizeContentView) }
         window.titleVisibility = active ? .hidden : .visible
-        window.titlebarAccessoryViewControllers.forEach { $0.isHidden = active }
+        // 只设控制器的 isHidden 时，较新的 macOS 上左右两侧的附件仍会留在标题栏里（播放页左上角露出侧栏按钮），连同附件视图一起隐藏。
+        window.titlebarAccessoryViewControllers.forEach { $0.isHidden = active; $0.view.isHidden = active }
         for kind in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] { window.standardWindowButton(kind)?.isHidden = active && !chrome }
     }
     private func layoutTitleButtons() {
