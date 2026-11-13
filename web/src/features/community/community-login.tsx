@@ -8,7 +8,7 @@ import { call } from '../../shared/lib/client';
 import type { CommunityLogin as Login, CommunityState } from '../../shared/workbench';
 
 // 社区登录：点一下在浏览器里打开确认页，应用里只显示要核对的确认码，用户确认后状态里出现账号。
-export function CommunityLogin({ community, onError, size = 'md' }: { community?: CommunityState; onError: (error: unknown) => void; size?: 'sm' | 'md' }) {
+export function CommunityLogin({ community, onError, align = 'start' }: { community?: CommunityState; onError: (error: unknown) => void; align?: 'start' | 'center' }) {
   const t = useTranslator();
   const [starting, setStarting] = useState(false);
   const login = community?.login;
@@ -20,12 +20,12 @@ export function CommunityLogin({ community, onError, size = 'md' }: { community?
     } catch (e) { onError(e); } finally { setStarting(false); }
   };
   if (!login || login.expired) {
-    return <VStack gap={2} hAlign="start">
+    return <VStack gap={2} hAlign={align}>
       {login?.expired ? <Text type="supporting" color="secondary">{t('@yovoice.community.loginExpired')}</Text> : null}
-      <Button size={size} variant="primary" label={t('@yovoice.community.login')} icon={<ArrowUpRight size={15} />} isLoading={starting} onClick={() => void start()} />
+      <Button variant="primary" label={t('@yovoice.community.login')} icon={<ArrowUpRight size={15} />} isLoading={starting} onClick={() => void start()} />
     </VStack>;
   }
-  return <VStack gap={2} hAlign="start">
+  return <VStack gap={2} hAlign={align}>
     <Text type="supporting" color="secondary" role="status">{t('@yovoice.community.loginCode', { code: login.code })}</Text>
     <HStack gap={2}>
       <Button size="sm" label={t('@yovoice.community.loginReopen')} icon={<ArrowUpRight size={15} />} onClick={() => window.open(login.url, '_blank', 'noopener')} />

@@ -38,6 +38,8 @@
   .settings-theme-split > :last-child .settings-theme-preview { border-start-start-radius: 0; border-end-start-radius: 0; }
   .settings-theme-split .settings-theme-preview-nav { display: none; }
   .settings-panel { width: 100%; padding-block: 0 var(--spacing-8); }
+  /* 设置 › 社区的未登录空态：沿用作品列表空态的唱片和排版，说明文字限制行宽。 */
+  .community-empty p { max-width: calc(var(--spacing-10) * 9); margin: 0; }
   .settings-intro { color: var(--app-muted); }
   .local-api-example .settings-row-control { flex-basis: 100%; }
   .settings-directory .model-path { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--app-mono); font-size: var(--font-size-xs); }

@@ -399,10 +399,11 @@ public partial class MainWindow : Window
             await core.AddScriptToExecuteOnDocumentCreatedAsync("window.__workbenchMediaBase = '/media/'; const savedSidebar = " + JsonSerializer.Serialize(sidebar) + "; if (savedSidebar) localStorage.setItem('astryx-resizable:workbench-sidebar', savedSidebar);");
             core.NavigationStarting += (_, args) => { if (!Trusted(args.Uri)) args.Cancel = true; };
             // 页面不开新窗口；用户点击打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+            // 回环地址的 http 链接也放行：连本机的社区服务调试时，登录确认页在 localhost 上。
             core.NewWindowRequested += (_, args) =>
             {
                 args.Handled = true;
-                if (args.IsUserInitiated && Uri.TryCreate(args.Uri, UriKind.Absolute, out var link) && link.Scheme == Uri.UriSchemeHttps)
+                if (args.IsUserInitiated && Uri.TryCreate(args.Uri, UriKind.Absolute, out var link) && (link.Scheme == Uri.UriSchemeHttps || (link.Scheme == Uri.UriSchemeHttp && link.IsLoopback)))
                     Process.Start(new ProcessStartInfo(link.AbsoluteUri) { UseShellExecute = true });
             };
             core.PermissionRequested += (_, args) => args.State = Trusted(args.Uri) && args.PermissionKind == CoreWebView2PermissionKind.Microphone ? CoreWebView2PermissionState.Allow : CoreWebView2PermissionState.Deny;

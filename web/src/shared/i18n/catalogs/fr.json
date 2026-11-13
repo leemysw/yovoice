@@ -4908,13 +4908,13 @@
     "defaultMessage": "Partager avec la communauté"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "Le partage nécessite un compte leemysw. La connexion se fait dans le navigateur : l'application ne voit jamais votre mot de passe."
+    "defaultMessage": "Connectez-vous dans votre navigateur pour partager."
   },
   "@yovoice.community.login": {
     "defaultMessage": "Se connecter"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "Vérifiez que le navigateur affiche le code {code}, puis choisissez Autoriser."
+    "defaultMessage": "Vérifiez que votre navigateur affiche le code {code}."
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "Rouvrir le navigateur"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "Vous n'avez encore rien partagé."
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "Posez vos chansons sur l'étagère de la communauté"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "Connectez-vous pour partager des chansons et suivre leur validation ici."
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "Visiter la communauté"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "Incomplet"

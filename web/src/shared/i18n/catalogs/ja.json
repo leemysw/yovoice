@@ -4908,13 +4908,13 @@
     "defaultMessage": "コミュニティに共有"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "共有には leemysw アカウントが必要です。ログインはブラウザで行うため、アプリがパスワードを知ることはありません。"
+    "defaultMessage": "ブラウザーでサインインすると共有できます。"
   },
   "@yovoice.community.login": {
     "defaultMessage": "ログイン"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "ブラウザに確認コード {code} が表示されていることを確かめて、「許可」を選んでください。"
+    "defaultMessage": "ブラウザーで確認コード {code} を確かめてください。"
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "ブラウザをもう一度開く"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "まだ何も共有していません。"
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "あなたの曲をコミュニティの棚に"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "サインインすると曲を共有でき、審査の結果をここで確認できます。"
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "コミュニティを見る"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "未完了"

@@ -4908,13 +4908,13 @@
     "defaultMessage": "In der Community teilen"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "Zum Teilen brauchst du ein leemysw-Konto. Die Anmeldung erfolgt im Browser, die App sieht dein Passwort nie."
+    "defaultMessage": "Melde dich im Browser an, um zu teilen."
   },
   "@yovoice.community.login": {
     "defaultMessage": "Anmelden"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "Prüfe, ob dein Browser den Code {code} anzeigt, und wähle dann „Erlauben“."
+    "defaultMessage": "Prüfe, ob dein Browser den Code {code} anzeigt."
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "Browser erneut öffnen"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "Du hast noch nichts geteilt."
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "Stell deine Songs ins Regal der Community"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "Melde dich an, um Songs zu teilen und ihren Prüfstatus hier zu sehen."
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "Community besuchen"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "Unvollständig"

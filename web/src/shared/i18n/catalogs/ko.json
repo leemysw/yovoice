@@ -4908,13 +4908,13 @@
     "defaultMessage": "커뮤니티에 공유"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "공유하려면 leemysw 계정이 필요합니다. 로그인은 브라우저에서 이루어지므로 앱은 비밀번호를 알 수 없습니다."
+    "defaultMessage": "브라우저에서 로그인하면 공유할 수 있습니다."
   },
   "@yovoice.community.login": {
     "defaultMessage": "로그인"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "브라우저에 확인 코드 {code}가 표시되는지 확인한 뒤 '허용'을 선택하세요."
+    "defaultMessage": "브라우저에서 확인 코드 {code}를 확인하세요."
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "브라우저 다시 열기"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "아직 공유한 작품이 없습니다."
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "내 노래를 커뮤니티 선반에 올려 보세요"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "로그인하면 노래를 공유하고 심사 결과를 여기에서 볼 수 있습니다."
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "커뮤니티 둘러보기"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "미완료"

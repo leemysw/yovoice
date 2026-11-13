@@ -4908,13 +4908,13 @@
     "defaultMessage": "分享到社区"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "分享需要登录 leemysw 账号。登录在浏览器里完成，应用不会看到你的密码。"
+    "defaultMessage": "在浏览器里登录后即可分享。"
   },
   "@yovoice.community.login": {
     "defaultMessage": "登录"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "在浏览器里核对确认码 {code}，然后点“允许”。"
+    "defaultMessage": "在浏览器里核对确认码 {code}。"
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "重新打开浏览器"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "还没有分享过作品。"
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "把你的歌放上社区的唱片架"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "登录后可以分享歌曲，并在这里查看审核结果。"
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "逛逛社区"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "未完成"

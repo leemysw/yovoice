@@ -4908,13 +4908,13 @@
     "defaultMessage": "Share to community"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "Sharing needs a leemysw account. You sign in in your browser, so the app never sees your password."
+    "defaultMessage": "Sign in in your browser to share."
   },
   "@yovoice.community.login": {
     "defaultMessage": "Sign in"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "Check that your browser shows the code {code}, then choose Allow."
+    "defaultMessage": "Check that your browser shows the code {code}."
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "Open browser again"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "You haven't shared anything yet."
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "Put your songs on the community shelf"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "Sign in to share songs and see their review status here."
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "Visit the community"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "Incomplete"
