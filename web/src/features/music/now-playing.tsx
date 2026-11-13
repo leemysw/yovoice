@@ -69,7 +69,9 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   const [lyricStyle, chooseStyle] = useLyricStyle();
   // 校准和逐字编辑时总用滚动歌词，方便看到上下文。
   const staged = lyricStyle === 'stage' && !sync && !edit && lines.length > 0;
-  const { hue, accent } = coverPalette(item.id);
+  // 封面用版本记录里最新的一份：响度起伏算好后会出现在那里。
+  const cover = versions.find(entry => entry.id === item.id) ?? item;
+  const { hue, accent } = coverPalette(cover);
   const tags = splitTags(item.settings.text).slice(0, 4);
 
   const switchTo = (next: Generation) => {
@@ -139,10 +141,10 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
         <small className="grow">{formatNotice(t, notice)}</small>
         <Button className="now-playing-glass now-playing-round" size="sm" variant="ghost" isIconOnly icon={<X size={14} />} label={t('@yovoice.action.closeNotice')} onClick={() => setNotice('')} />
       </HStack> : null}
-      {staged ? <StageBackdrop seed={item.id} playing={playing} /> : null}
+      {staged ? <StageBackdrop cover={cover} /> : null}
       <HStack className={`now-playing-stage ${lines.length ? '' : 'now-playing-solo'}`.trim()} gap={0} vAlign="center">
         <VStack className="now-playing-side" gap={6}>
-          <VStack className="now-playing-art" gap={0}><SongCover seed={item.id} animated={playing} size={640} /></VStack>
+          <VStack className="now-playing-art" gap={0}><SongCover item={cover} size={640} /></VStack>
           <VStack className="now-playing-meta" gap={1}>
             <h2 className="now-playing-title">{title}</h2>
             <p className="now-playing-tags">{item.settings.instrumental ? t('@yovoice.music.instrumental') : tags.join(' · ')}</p>

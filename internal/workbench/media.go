@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+	"yovoice/internal/audio"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
@@ -70,6 +71,40 @@ func (w *Workbench) RenameMedia(kind, id, name string) error {
 				if s.History[i].ID == id {
 					s.History[i].Title = name
 				}
+			}
+		}
+	}, true)
+}
+
+// GenerationGene 返回这一版的响度起伏，没有时读音频算出来并随版本保存。封面和分享到社区都用它，
+// 所以同一首歌在应用里和社区页上是同一张封面。读不出音频时返回空。
+func (w *Workbench) GenerationGene(id string) (string, error) {
+	i := slices.IndexFunc(w.Store.Read().History, func(g schema.Generation) bool { return g.ID == id })
+	if i < 0 {
+		return "", msg.Err(msg.ErrAudioMissing, nil)
+	}
+	if gene := w.Store.Read().History[i].Gene; gene != "" {
+		return gene, nil
+	}
+	path, e := w.MediaFile("outputs", id)
+	if e != nil {
+		return "", e
+	}
+	// 解码可能要一会儿，不占着编辑锁。
+	mono, _, e := audio.ReadMono(path)
+	if e != nil {
+		return "", nil
+	}
+	gene := audio.LoudnessGene(mono)
+	if gene == "" {
+		return "", nil
+	}
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	return gene, w.Store.Update(func(s *schema.State) {
+		for i := range s.History {
+			if s.History[i].ID == id {
+				s.History[i].Gene = gene
 			}
 		}
 	}, true)

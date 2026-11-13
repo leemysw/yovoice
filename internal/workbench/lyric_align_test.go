@@ -154,3 +154,28 @@ func TestGroupLines(t *testing.T) {
 		t.Fatalf("%v", got)
 	}
 }
+
+// 封面用的响度起伏第一次要时从音频算出来并随版本保存，之后直接用保存的；静音的歌算不出来，留空。
+func TestGenerationGene(t *testing.T) {
+	wb, id := alignWorkbench(t, false)
+	if gene, e := wb.GenerationGene(id); e != nil || gene != "" {
+		t.Fatalf("静音不应有起伏: %q %v", gene, e)
+	}
+	tone := make([]float32, 3*44100)
+	for i := range tone {
+		tone[i] = float32(i) / float32(len(tone))
+	}
+	must(t, audio.WriteMono(filepath.Join(wb.Store.Root, "outputs", "song.wav"), tone, 44100))
+	gene, e := wb.GenerationGene(id)
+	if e != nil || len(gene) != audio.GeneLength || gene[len(gene)-1] != 'f' || wb.Store.Read().History[0].Gene != gene {
+		t.Fatalf("%q %v", gene, e)
+	}
+	must(t, os.Remove(filepath.Join(wb.Store.Root, "outputs", "song.wav")))
+	// 保存过的起伏直接返回，不再读音频。
+	if again, e := wb.GenerationGene(id); e != nil || again != gene {
+		t.Fatalf("%q %v", again, e)
+	}
+	if _, e := wb.GenerationGene("ffffffffffffffffffffffffffffffff"); !isCode(e, msg.ErrAudioMissing) {
+		t.Fatalf("%v", e)
+	}
+}

@@ -223,8 +223,8 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [midiImport?.id]);
   // FLAC / M4A 的标签：标题取版本标题、专辑取作品名；音乐另写歌词和与播放页相同的封面。
-  const exportTags = (item: Generation) => () => projectKind(item.settings) === 'music'
-    ? { title: item.title, album: draft.title, lyrics: item.settings.lyrics, cover: coverJpeg(item.id) }
+  const exportTags = (item: Generation) => async () => projectKind(item.settings) === 'music'
+    ? { title: item.title, album: draft.title, lyrics: item.settings.lyrics, cover: await coverJpeg(state.history.find(entry => entry.id === item.id) ?? item) }
     : { title: item.title, album: draft.title };
   const audition = (value: Track) => {
     if (page === 'create') setTrack({ ...value, playRequest: performance.now() });

@@ -226,6 +226,8 @@ type Generation struct {
 	Segment   *GenerationSegment `json:"segment,omitempty"`
 	// LyricTimes 是播放页校准的歌词时间：按顺序记录每一行（含器乐段落）的开始秒数。
 	LyricTimes []float64 `json:"lyricTimes,omitempty"`
+	// Gene 是整首歌从头到尾的响度起伏（96 个十六进制字符），封面照着它画；第一次显示封面时才算，算不出来时为空。
+	Gene string `json:"gene,omitempty"`
 	// LyricWords 是强制对齐得到的逐字时间，按歌词顺序排列；与 LyricTimes 只保留较新的一份。
 	LyricWords []LyricWord `json:"lyricWords,omitempty"`
 	// TextWords 是语音版本的正文对齐到音频上的逐字时间，用于导出字幕；歌曲、音效与编曲版本没有。

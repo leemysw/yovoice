@@ -63,7 +63,7 @@ export type LogLevel = 'INFO' | 'WARN' | 'ERROR';
 export interface LogEntry { time: string; level: LogLevel; event: string; fields?: Record<string, unknown> }
 export interface LogFilter { level?: string; module?: string; text?: string; since?: string; offset?: number; limit?: number }
 export interface LogPage { entries: LogEntry[]; total: number; modules: string[] }
-export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; lyricWords?: AlignedWord[]; textWords?: AlignedWord[]; check?: AudioCheck; seed?: number; stemOf?: string; stem?: StemName; patchOf?: string; patchBars?: number[] }
+export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; gene?: string; lyricWords?: AlignedWord[]; textWords?: AlignedWord[]; check?: AudioCheck; seed?: number; stemOf?: string; stem?: StemName; patchOf?: string; patchBars?: number[] }
 /** HTDemucs 6-stem 的分轨名；分轨结果是同一作品里 stemOf 指向原版本的版本。 */
 export type StemName = 'drums' | 'bass' | 'other' | 'vocals' | 'guitar' | 'piano';
 /** 生成后的测量体检：整体响度（LUFS）、真峰值（dBTP）与发现的问题。 */
