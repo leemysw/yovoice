@@ -3,14 +3,15 @@ $ErrorActionPreference = 'Stop'
 $settings = Get-Content -LiteralPath $Config -Raw | ConvertFrom-Json
 $target = [IO.Path]::GetFullPath($settings.TargetDirectory).TrimEnd('\')
 $package = [IO.Path]::GetFullPath($settings.PackagePath)
-$staging = Join-Path (Split-Path $target -Parent) ('.yovoice-update.' + [Guid]::NewGuid().ToString('N'))
-$backup = Join-Path $staging 'previous'
+# 旧版本备份放在本次更新自己的目录（数据目录下的 updates），不在安装目录旁边留下临时目录。
+$work = Split-Path ([IO.Path]::GetFullPath($Config)) -Parent
+$backup = Join-Path $work 'previous'
 $installationStarted = $false
 $committed = $false
 $packageRejected = $false
 # 差分安装器放在重建目录 delta-stage 里，补丁和 use-full 标记在上一级的版本目录。
 $delta = [IO.Path]::GetFileName($package) -eq 'delta-install.exe' -and (Split-Path (Split-Path $package -Parent) -Leaf) -eq 'delta-stage'
-$versionDirectory = Split-Path (Split-Path $package -Parent) -Parent
+$versionDirectory = if ($delta) { Split-Path (Split-Path $package -Parent) -Parent } else { Split-Path $package -Parent }
 
 function Confirm-Package {
     if ((Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash -ne $settings.ExpectedHash) {
@@ -57,12 +58,11 @@ try {
     if ("$($version.FileMajorPart).$($version.FileMinorPart).$($version.FileBuildPart)" -ne $settings.Version) { throw '安装后的应用版本不匹配。' }
     Start-Process -FilePath $executable -WorkingDirectory $target | Out-Null
     $committed = $true
-    Remove-Item -LiteralPath $backup -Recurse -Force
-    if ($delta) {
-        Remove-Item -LiteralPath (Split-Path $package -Parent) -Recurse -Force
-        Get-ChildItem -LiteralPath $versionDirectory -Filter '*.delta' -File | Remove-Item -Force
-    } else { Remove-Item -LiteralPath $package -Force }
     Add-Content -LiteralPath $settings.LogPath -Value "$(Get-Date -Format o) 更新完成。"
+    # 已装上的版本不再需要更新包、补丁和备份，整个版本缓存目录一起删除；删不掉的由新版本启动时再清理。
+    if (!$target.StartsWith($versionDirectory.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
+        Remove-Item -LiteralPath $versionDirectory -Recurse -Force -ErrorAction SilentlyContinue
+    }
 }
 catch {
     # 差分安装器校验不过或安装失败时，下次改用常规更新包；应用未退出等与补丁无关的中断不改。
@@ -73,7 +73,8 @@ catch {
     if (!$committed -and $installationStarted -and (Test-Path -LiteralPath $backup)) {
         try {
             Get-ChildItem -LiteralPath $target -Force | Where-Object { $_.Name -ne 'engine' } | Remove-Item -Recurse -Force
-            Get-ChildItem -LiteralPath $backup -Force | Move-Item -Destination $target
+            # 数据目录可能和安装目录不在同一个盘，复制回去而不是移动。
+            Get-ChildItem -LiteralPath $backup -Force | Copy-Item -Destination $target -Recurse -Force
             Remove-Item -LiteralPath $backup -Recurse -Force
             Start-Process -FilePath (Join-Path $target 'yovoice.exe') -WorkingDirectory $target | Out-Null
         }
@@ -82,8 +83,8 @@ catch {
     exit 1
 }
 finally {
-    # 恢复失败时保留备份，不能随临时文件清理。
-    if ((Test-Path -LiteralPath $staging) -and !(Test-Path -LiteralPath $backup)) {
-        Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
+    # 未装上时保留更新包与 use-full 标记供下次使用，只删本次的工作目录；恢复失败时保留备份。
+    if (!$committed -and (Test-Path -LiteralPath $work) -and !(Test-Path -LiteralPath $backup)) {
+        Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
     }
 }

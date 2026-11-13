@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -62,6 +62,7 @@ public sealed class AppUpdater : IDisposable
     {
         if (Environment.GetEnvironmentVariable("WORKBENCH_DATA") is not null) return;
         Publish(Snapshot with { Status = "idle", UpdatedFrom = RecordLaunchVersion() });
+        _ = Task.Run(RemoveInstalledUpdates);
         timer.Start();
         _ = CheckAsync();
     }
@@ -264,6 +265,27 @@ public sealed class AppUpdater : IDisposable
         }
         Publish(Snapshot with { Received = received, Total = Math.Max(total, received) });
         File.Move(partial, package, true);
+    }
+    // 当前及更早版本的更新缓存已用不上（安装助手删除失败时留下的包、补丁和备份），启动时清理，不依赖联网检查。
+    // 0.7.0 及更早的安装助手把备份放在安装目录旁边的 .yovoice-update.*，一并删除。
+    private void RemoveInstalledUpdates()
+    {
+        Version.TryParse(current, out var running);
+        string updates = Path.Combine(root, "updates");
+        var stale = new List<string>();
+        if (running is not null && Directory.Exists(updates))
+            stale.AddRange(Directory.GetDirectories(updates).Where(directory =>
+                Path.GetFileName(directory) is { } name && name.StartsWith('v') && Version.TryParse(name[1..], out var version) && version <= running));
+        if (Path.GetDirectoryName(target) is { } parent)
+        {
+            try { stale.AddRange(Directory.GetDirectories(parent, ".yovoice-update.*")); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        }
+        foreach (string directory in stale)
+        {
+            try { Directory.Delete(directory, true); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        }
     }
     private void RemoveStaleUpdates(string keep)
     {

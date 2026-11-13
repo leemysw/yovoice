@@ -37,17 +37,21 @@ exit $LASTEXITCODE
             New-Item -ItemType Directory -Path (Split-Path $path -Parent) -Force | Out-Null
             Set-Content -LiteralPath $path -Value 'old'
         }
-        $package = Join-Path $directory 'setup.exe'
+        # 与宿主一致：更新包在数据目录的 updates/v版本 下，助手和配置在其中的本次工作目录。
+        $cache = Join-Path $directory 'data/updates/v1.0.0'
+        $work = Join-Path $cache 'run'
+        New-Item -ItemType Directory $work | Out-Null
+        $package = Join-Path $cache 'setup.exe'
         Set-Content -LiteralPath $package -Value 'test installer'
-        $config = Join-Path $directory 'update.json'
-        $commit = Join-Path $directory 'commit'
+        $config = Join-Path $work 'update.json'
+        $commit = Join-Path $work 'commit'
         if ($mode -ne 'uncommitted') { Set-Content -LiteralPath $commit -Value 'install' }
         $hash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash
         if ($mode -eq 'bad-hash') { $hash = '0' * 64 }
         @{
             ParentId = 2147483647; PackagePath = $package; TargetDirectory = $target
             ExpectedHash = $hash; Version = "$($version.FileMajorPart).$($version.FileMinorPart).$($version.FileBuildPart)"
-            ReadyPath = (Join-Path $directory 'ready'); CommitPath = $commit; LogPath = (Join-Path $directory 'install.log')
+            ReadyPath = (Join-Path $work 'ready'); CommitPath = $commit; LogPath = (Join-Path $directory 'install.log')
         } | ConvertTo-Json | Set-Content -LiteralPath $config -Encoding UTF8
         & (Get-Process -Id $PID).Path -NoProfile -File $driver $helper $config $mode
         $result = $LASTEXITCODE
@@ -56,7 +60,10 @@ exit $LASTEXITCODE
         if (($result -eq 0) -ne ($mode -eq 'success')) { throw "$mode 退出码错误：$result" }
         if ((Get-Content -LiteralPath (Join-Path $target 'unins000.exe')).Trim() -ne 'old') { throw '卸载器未保留' }
         if ((Get-Content -LiteralPath (Join-Path $target 'engine/audiocpp_server.exe')).Trim() -ne 'old') { throw "$mode 未保留内核" }
-        if (Get-ChildItem -LiteralPath $directory -Filter '.yovoice-update.*') { throw "$mode 残留替换目录" }
+        if (Get-ChildItem -LiteralPath $directory -Filter '.yovoice-update.*') { throw "$mode 在安装目录旁留下临时目录" }
+        # 装上后整个版本缓存删除；未装上时保留更新包供下次使用，本次工作目录（含备份）删除。
+        if ($mode -eq 'success') { if (Test-Path -LiteralPath $cache) { throw '更新完成后残留更新缓存' } }
+        elseif ((Test-Path -LiteralPath $work) -or !(Test-Path -LiteralPath $package)) { throw "$mode 更新缓存状态错误" }
     }
     Write-Host 'Windows 更新成功、安装失败、重启失败、未确认退出、退出取消及校验失败检查通过。'
 }
