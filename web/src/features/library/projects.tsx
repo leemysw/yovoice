@@ -15,7 +15,7 @@ import { importAccept, readImport } from '../create/file-import';
 import { createMusicDraft } from '../music/music-draft';
 import { createScoreDraft, scoreDuration } from '../score/score-draft';
 import { createSfxDraft } from '../sfx/sfx-draft';
-import { RecordCover } from './record-cover';
+import { RecordCover, type CoverSource } from './record-cover';
 import { LibraryEmpty, LibraryPage, Ticket } from './library-layout';
 import { TapeCover } from './tape-cover';
 import { WaveRing } from './wave-ring';
@@ -101,7 +101,8 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
   </>;
 }
 
-export function Projects({ drafts, kind, title, controls, open, create, copy, save, remove, history, onError }: { onError: (error: string) => void;
+// coverOf 给出歌曲作品最近一版的封面来源，作品列表和播放页、社区页用同一张封面；没有版本时按作品编号画。
+export function Projects({ drafts, kind, title, controls, open, create, copy, save, remove, history, coverOf, onError }: { onError: (error: string) => void; coverOf?: (draft: Draft) => CoverSource | undefined;
   drafts: Draft[]; kind: 'text' | 'story' | 'music' | 'score' | 'sfx'; title?: string; controls?: ReactNode; open: (draft: Draft) => void; create: ReactNode;
   history: (draft: Draft) => void; copy: (draft: Draft) => void; save: (draft: Draft) => Promise<void>; remove: (draft: Draft) => void;
 }) {
@@ -140,7 +141,7 @@ export function Projects({ drafts, kind, title, controls, open, create, copy, sa
         const lead = draft.subtitles?.speakers ?? [];
         const avatarSeed = (id: string, characterId?: string) => characterId ?? `${draft.id}:${id}`;
         // 歌曲和编曲是唱片封套；音效是声波环；故事是封套上站着出场角色的有声唱片；语音是一盒写着标题的磁带。
-        const cover = kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} title={draft.title} />
+        const cover = kind === 'music' || kind === 'score' ? <RecordCover seed={draft.id} title={draft.title} cover={coverOf?.(draft)} />
           : kind === 'sfx' ? <WaveRing seed={draft.id} duration={Number(draft.modelOptions?.stable_audio?.duration_seconds ?? 5)}><AudioWaveform /></WaveRing>
           : kind === 'story' ? <RecordCover seed={draft.id} title={draft.title} cast={lead.slice(0, 3).map(s => <SpeakerAvatar key={s.id} seed={avatarSeed(s.id, s.characterId)} />)} />
           : <TapeCover seed={draft.id} title={draft.title} />;

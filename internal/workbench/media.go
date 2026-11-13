@@ -76,6 +76,9 @@ func (w *Workbench) RenameMedia(kind, id, name string) error {
 	}, true)
 }
 
+// geneTurn 让响度起伏一次只算一首：作品列表会同时为很多首歌要封面，一起解码会占满 CPU。
+var geneTurn = make(chan struct{}, 1)
+
 // GenerationGene 返回这一版的响度起伏，没有时读音频算出来并随版本保存。封面和分享到社区都用它，
 // 所以同一首歌在应用里和社区页上是同一张封面。读不出音频时返回空。
 func (w *Workbench) GenerationGene(id string) (string, error) {
@@ -90,7 +93,12 @@ func (w *Workbench) GenerationGene(id string) (string, error) {
 	if e != nil {
 		return "", e
 	}
-	// 解码可能要一会儿，不占着编辑锁。
+	// 解码可能要一会儿，不占着编辑锁；排队时别的请求可能已经算好了，轮到时再看一眼。
+	geneTurn <- struct{}{}
+	defer func() { <-geneTurn }()
+	if i := slices.IndexFunc(w.Store.Read().History, func(g schema.Generation) bool { return g.ID == id }); i >= 0 && w.Store.Read().History[i].Gene != "" {
+		return w.Store.Read().History[i].Gene, nil
+	}
 	mono, _, e := audio.ReadMono(path)
 	if e != nil {
 		return "", nil

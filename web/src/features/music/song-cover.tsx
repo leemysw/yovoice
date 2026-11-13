@@ -15,7 +15,7 @@ export function coverPalette(item: CoverSource) {
 // 响度起伏第一次要用时由后端算出来并随版本保存，算好后版本记录会带着它更新，封面跟着重画。
 // 同一个版本只请求一次；还没算出来时先按身份画一张。
 const asked = new Set<string>();
-function askGene(item: CoverSource) {
+export function askGene(item: CoverSource) {
   if (item.gene || asked.has(item.id)) return;
   asked.add(item.id);
   void call('generation.gene', { id: item.id }).catch(() => undefined);
