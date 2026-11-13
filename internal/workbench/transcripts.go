@@ -9,6 +9,7 @@ import (
 	"time"
 	"unicode"
 	"unicode/utf8"
+	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -17,9 +18,10 @@ import (
 // 一份转写最多保存的字幕行数与每行字数：1 小时的音频按句分行约一两千行，留足余量。
 const maxTranscriptCaptions, maxCaptionRunes = 20000, 1000
 
-// saveTranscript 保存字幕和实际送去转写的原始音轨，成功后接管音频文件。
+// saveTranscript 保存字幕和实际送去转写的原始音轨，成功后接管音频文件；record.AudioFile 是音轨保存的文件名。
+// record.VideoFile 不为空时把 video 一并移入 outputs 供预览；视频只是附带的，移动失败时去掉该字段照常保存。
 // 新记录在一次状态更新里加到最前面，与生成结果写入历史一样不需要编辑锁。
-func (w *Workbench) saveTranscript(record schema.Transcript, content schema.TranscriptContent, upload, ext string) error {
+func (w *Workbench) saveTranscript(record schema.Transcript, content schema.TranscriptContent, upload, video string) error {
 	data, e := json.Marshal(content)
 	if e != nil {
 		return e
@@ -33,19 +35,36 @@ func (w *Workbench) saveTranscript(record schema.Transcript, content schema.Tran
 	if e = platform.WriteFileAtomic(path, data, 0600); e != nil {
 		return e
 	}
-	record.AudioFile = record.ID + ext
+	saved := []string{path}
+	rollback := func() {
+		for _, p := range saved {
+			_ = os.Remove(p)
+		}
+	}
 	target, e := w.Store.MediaPath("outputs", record.AudioFile)
 	if e == nil {
 		e = os.Rename(upload, target)
 	}
 	if e != nil {
-		_ = os.Remove(path)
+		rollback()
 		return e
+	}
+	saved = append(saved, target)
+	if record.VideoFile != "" {
+		target, e := w.Store.MediaPath("outputs", record.VideoFile)
+		if e == nil {
+			e = os.Rename(video, target)
+		}
+		if e != nil {
+			diag.Log(w.Store.Root, "transcript.video_skipped", "error", diag.Error(e))
+			record.VideoFile = ""
+		} else {
+			saved = append(saved, target)
+		}
 	}
 	e = w.Store.Update(func(s *schema.State) { s.Transcripts = append([]schema.Transcript{record}, s.Transcripts...) }, true)
 	if e != nil {
-		_ = os.Remove(path)
-		_ = os.Remove(target)
+		rollback()
 	}
 	return e
 }
@@ -169,7 +188,7 @@ func (w *Workbench) RenameTranscript(id, name string) error {
 	}, true)
 }
 
-// DeleteTranscript 删除转写记录及其字幕文件和原音频。
+// DeleteTranscript 删除转写记录及其字幕文件、原音频和原视频。
 func (w *Workbench) DeleteTranscript(id string) error {
 	w.edit.Lock()
 	defer w.edit.Unlock()
@@ -182,7 +201,7 @@ func (w *Workbench) DeleteTranscript(id string) error {
 	}, true); e != nil {
 		return e
 	}
-	w.deleteUnreferenced("outputs", []string{record.FileName, record.AudioFile}, nil)
+	w.deleteUnreferenced("outputs", []string{record.FileName, record.AudioFile, record.VideoFile}, nil)
 	return nil
 }
 

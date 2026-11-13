@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Rückgängig"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Wiederholen"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Fortlaufend abspielen"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Videovorschau"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "Dieses Video kann hier nicht abgespielt werden, daher wird nur der Ton wiedergegeben"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Transkript löschen"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Suchen und ersetzen"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter teilt an der Cursorposition, Rücktaste am Zeilenanfang verbindet mit der Zeile darüber"
+    "defaultMessage": "Enter teilt an der Cursorposition; Rücktaste am Zeilenanfang verbindet mit der Zeile darüber; Entf am Zeilenende verbindet mit der Zeile darunter"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "Für die Transkription wird das Spracherkennungsmodell Qwen3 ASR benötigt. Lade es herunter, um Audio hochzuladen oder aufzunehmen."
@@ -5047,5 +5059,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Schlechte Tonqualität oder unvollständiger Inhalt"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Darstellung"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Design"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Ändert sofort die Farben der gesamten Arbeitsfläche. Die Startanimation behält die Markenfarben."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Wie System"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Papier bei hell, Tinte bei dunkel"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Hell"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Dunkel"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Papier"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Tinte"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Lagune"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Sand"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Salbei"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Tiefsee"
   }
 }

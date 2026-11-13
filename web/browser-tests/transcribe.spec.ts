@@ -143,6 +143,105 @@ test('录音后直接转写：停止录音即上传，新记录自动打开；�
   await expect(pageRoot.getByRole('button', { name: '周会', exact: true })).toBeVisible();
 });
 
+test('字幕行尾按 Delete 与下一行合并；Ctrl+Z 撤销、Ctrl+Shift+Z 与 Ctrl+Y 重做，查找框里不拦截', async ({ page }) => {
+  await openTranscribe(page, [recognizer]);
+  await upload(page);
+  const editor = page.getByTestId('transcript-editor');
+  const rows = editor.locator('.transcribe-line');
+  await expect(rows).toHaveCount(3);
+  const first = editor.getByRole('textbox', { name: '第 1 行字幕' });
+  await first.focus();
+  // 光标不在行尾时 Delete 只删字，不合并。
+  await first.evaluate((field: HTMLTextAreaElement) => field.setSelectionRange(0, 0));
+  await page.keyboard.press('Delete');
+  await expect(rows).toHaveCount(3);
+  await expect(first).toHaveValue('览器预览不运行识别模型');
+  await first.evaluate((field: HTMLTextAreaElement) => field.setSelectionRange(field.value.length, field.value.length));
+  await page.keyboard.press('Delete');
+  await expect(rows).toHaveCount(2);
+  await expect(first).toHaveValue('览器预览不运行识别模型这是模拟的转写文字');
+  await expect(first).toBeFocused();
+  expect(await first.evaluate((field: HTMLTextAreaElement) => field.selectionStart)).toBe(11);
+  // 撤销合并，再撤销删字；重做两种快捷键都能用。
+  await page.keyboard.press('Control+z');
+  await expect(rows).toHaveCount(3);
+  await page.keyboard.press('Control+z');
+  await expect(first).toHaveValue('浏览器预览不运行识别模型');
+  await expect(editor.getByRole('button', { name: '撤销', exact: true })).toBeDisabled();
+  await page.keyboard.press('Control+Shift+z');
+  await expect(first).toHaveValue('览器预览不运行识别模型');
+  await page.keyboard.press('Control+y');
+  await expect(rows).toHaveCount(2);
+  await expect(editor.getByRole('button', { name: '重做', exact: true })).toBeDisabled();
+  // 焦点不在输入框时快捷键也生效；查找框里的 Ctrl+Z 留给输入框自己。
+  await editor.getByRole('heading', { name: '采访录音', exact: true }).click();
+  await page.keyboard.press('Control+z');
+  await expect(rows).toHaveCount(3);
+  await editor.getByRole('button', { name: '查找替换', exact: true }).click();
+  const find = editor.getByRole('textbox', { name: '查找' });
+  await find.fill('转写');
+  await find.press('Control+z');
+  await expect(rows).toHaveCount(1);
+  await expect(editor.getByRole('button', { name: '撤销', exact: true })).toBeEnabled();
+});
+
+// 预先放好一份带原音频（及原视频）的转写记录：字幕与 WAV 存进预览后端的 IndexedDB。
+async function seedTranscript(page: Page, captions: { start: number; end: number; text: string }[], video?: string) {
+  const id = 'd'.repeat(32), seconds = 5;
+  await page.goto('/');
+  await page.evaluate(async ({ id, captions, seconds, video }) => {
+    const modulePath = '/src/shared/lib/sound.ts'; const { encodeWav } = await import(/* @vite-ignore */ modulePath);
+    const audio = new AudioBuffer({ length: 24000 * seconds, sampleRate: 24000, numberOfChannels: 1 }); audio.getChannelData(0).fill(0.1);
+    const files: [string, Blob][] = [[`${id}.wav`, encodeWav(audio)], [`${id}.json`, new Blob([JSON.stringify({ text: '', words: [], captions })], { type: 'application/json' })]];
+    if (video) files.push([video, new Blob(['not a video'], { type: 'video/mp4' })]);
+    await new Promise<void>((resolve, reject) => {
+      const req = indexedDB.open('voice-workbench-audio', 1); req.onupgradeneeded = () => req.result.createObjectStore('audio'); req.onerror = () => reject(req.error);
+      req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); for (const [name, blob] of files) tx.objectStore('audio').put(blob, name); tx.oncomplete = () => { db.close(); resolve(); }; };
+    });
+  }, { id, captions, seconds, video });
+  const state = emptyState();
+  state.models = [recognizer];
+  state.transcripts = [{ id, name: '访谈', duration: seconds, fileName: `${id}.json`, audioFile: `${id}.wav`, ...(video ? { videoFile: video } : {}), createdAt: new Date().toISOString() }];
+  await seedState(page, state);
+  await page.reload();
+  await page.getByTestId('nav-transcribe').click();
+  await page.getByTestId('transcribe-page').getByRole('button', { name: '访谈', exact: true }).click();
+  return page.getByTestId('transcript-editor');
+}
+
+test('试听一行：连续播放时播完接着播下一行并跳过长静音，关掉后只播这一行', async ({ page }) => {
+  const editor = await seedTranscript(page, [{ start: 0, end: .6, text: '第一行' }, { start: .6, end: 1.2, text: '第二行' }, { start: 3.6, end: 4.2, text: '第三行' }]);
+  const rows = editor.locator('.transcribe-line');
+  const playing = editor.locator('.transcribe-line[data-playing="true"]');
+  const toggle = editor.getByRole('button', { name: '连续播放', exact: true });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await rows.nth(0).getByRole('button', { name: '00:00.000', exact: true }).click();
+  await expect(playing).toHaveAttribute('data-line', '0');
+  await expect(playing).toHaveAttribute('data-line', '1');
+  // 第二行结束到第三行开头空了 2.4 秒，直接跳过去，不用干等。
+  await expect(playing).toHaveAttribute('data-line', '2', { timeout: 2000 });
+  await expect(playing).toHaveCount(0, { timeout: 3000 });
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await rows.nth(0).getByRole('button', { name: '00:00.000', exact: true }).click();
+  await expect(playing).toHaveAttribute('data-line', '0');
+  await expect(playing).toHaveCount(0, { timeout: 3000 });
+  expect(await editor.locator('audio').evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeLessThan(1);
+  // 开关记在本机，重新打开仍是关闭。
+  await page.reload();
+  await page.getByTestId('nav-transcribe').click();
+  await page.getByTestId('transcribe-page').getByRole('button', { name: '访谈', exact: true }).click();
+  await expect(editor.getByRole('button', { name: '连续播放', exact: true })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('原文件是视频时显示画面；视频放不了时提示并退回只播原音频', async ({ page }) => {
+  const editor = await seedTranscript(page, [{ start: 0, end: .6, text: '第一行' }], 'd'.repeat(32) + '.mp4');
+  await expect(editor.getByText('这个视频无法在这里播放，改为只播放声音')).toBeVisible();
+  await expect(editor.locator('video')).toHaveCount(0);
+  await editor.getByRole('button', { name: '00:00.000', exact: true }).click();
+  await expect(editor.locator('.transcribe-line[data-playing="true"]')).toHaveAttribute('data-line', '0');
+});
+
 test('语音版本导出字幕：先对齐正文时间，保存在版本上，再按句导出', async ({ page }, testInfo) => {
   const state = emptyState();
   const id = 'c'.repeat(32);

@@ -20,8 +20,9 @@
     --app-muted: var(--color-text-secondary);
     --app-surface: color-mix(in srgb, var(--color-background-surface) 45%, var(--color-background-muted));
     --app-line: color-mix(in srgb, var(--color-border) 72%, transparent);
-    --app-wave: var(--color-icon-orange);
-    --app-accent: var(--color-icon-orange);
+    /* 点缀色由主题给出（shared/theme），纸白下是橙色。 */
+    --app-wave: var(--theme-highlight);
+    --app-accent: var(--theme-highlight);
     --app-paper: var(--color-background-body);
     --app-mono: var(--font-family-code);
     --app-white: var(--color-background-surface);
@@ -67,7 +68,7 @@
   .native-selector:focus-visible { outline: calc(var(--border-width) * 2) solid var(--color-accent); outline-offset: var(--spacing-1); }
   .native-selector:disabled { color: var(--color-text-disabled); }
   .astryx-button { border-radius: var(--radius-element); font-size: var(--app-ui-font); font-weight: var(--font-weight-normal); }
-  .astryx-button[data-variant="primary"] { background: var(--app-ink); color: var(--app-white); font-weight: var(--font-weight-medium); }
+  .astryx-button[data-variant="primary"] { background: var(--color-accent); color: var(--color-on-accent); font-weight: var(--font-weight-medium); }
   .astryx-button[data-variant="ghost"], .astryx-button[data-variant="secondary"] { color: var(--app-ink); }
   .astryx-button[data-variant="secondary"] { background: var(--app-surface); border: var(--border-width) solid var(--app-line); }
   .astryx-button[data-size="sm"], .astryx-selector[data-size="sm"] { font-size: var(--app-small-font); }

@@ -50,6 +50,7 @@ MORE CLI:
 - 公共实现只保留一处，不再各写一份：Go 写文件用 `platform.WriteFileAtomic`；界面偏好读写用 `shared/lib/local-store`；音频解码与峰值用 `shared/lib/sound`，波形用 `features/media/waveform`；`mediaUrl` 的结果用 `releaseMediaUrl` 释放；任务计时用 `useElapsed`。
 - 不使用“闪光星星”（Sparkles、Sparkle、WandSparkles 等）图标，按功能选具体的图标；eslint 已禁止从 lucide-react 引入这些图标。
 - 状态库格式变化（建表、改字段、旧数据补齐）只在 `internal/store/migrate.go` 末尾追加升级步骤，已发布的步骤不改；读取代码和界面只认当前格式，不再各自兼容旧数据。外部输入（保存、作品包导入）统一经 `Draft.Normalize` 补齐。
+- AI 署名：AI 写的提交在提交信息末尾单独一行加 `Co-Authored-By: <工具或模型名> <邮箱>`，如 `Co-Authored-By: Claude <noreply@anthropic.com>`、`Co-Authored-By: Codex <noreply@openai.com>`；PR 描述末尾写一行「由 <工具> 生成」。几个 AI 接力或审核改写时，各自在自己的提交上署自己的名，不改别人的提交；人工写的提交不加。
 
 ## 版本记录
 

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -245,10 +246,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "无效路径", 400)
 			return
 		}
-		w.Header().Set("Content-Type", "audio/wav")
+		w.Header().Set("Content-Type", mediaType(parts[1]))
 		// 音频本就在本机磁盘上，禁止 WebView 再缓存一份；未压缩的 wav 会让 web-cache 不断膨胀。
 		w.Header().Set("Cache-Control", "no-store")
 		// 隐藏 io.ReaderFrom，避免 Windows sendfile 与连接后台读在 Go 1.26 中的数据竞争。
+		// ServeFile 支持 Range（206），WKWebView 播放与拖动视频都依赖它。
 		http.ServeFile(struct{ http.ResponseWriter }{w}, r, path)
 	case r.URL.Path == "/shutdown" && r.Method == "POST":
 		s.Close()
@@ -264,4 +266,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		http.FileServer(http.Dir(s.Assets)).ServeHTTP(w, r)
 	}
+}
+
+// mediaTypes 是 /media/ 下各类文件的 Content-Type；不用 mime.TypeByExtension，免得随系统的 MIME 表变化。
+var mediaTypes = map[string]string{".mp4": "video/mp4", ".m4v": "video/mp4", ".mov": "video/quicktime", ".webm": "video/webm"}
+
+// mediaType 按扩展名返回媒体文件的 Content-Type，其余文件都是 WAV 音频。
+func mediaType(name string) string {
+	if t, ok := mediaTypes[strings.ToLower(filepath.Ext(name))]; ok {
+		return t
+	}
+	return "audio/wav"
 }

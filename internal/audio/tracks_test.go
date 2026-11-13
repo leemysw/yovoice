@@ -90,3 +90,49 @@ func TestAudioTrackSelection(t *testing.T) {
 		t.Fatalf("探测未响应取消：%v", err)
 	}
 }
+
+// 带画面的视频算视频；m4a、flac 的封面图和纯音频都不算。
+func TestHasVideo(t *testing.T) {
+	ffmpeg, err := exec.LookPath("ffmpeg")
+	if err != nil {
+		t.Skip("需要 FFmpeg 创建样本")
+	}
+	probe := os.Getenv("YOVOICE_TEST_FFPROBE")
+	if probe == "" {
+		probe, err = exec.LookPath("ffprobe")
+		if err != nil {
+			t.Skip("需要 ffprobe 探测视频流")
+		}
+	}
+	ctx := context.Background()
+	dir := t.TempDir()
+	audioOnly := []string{"-map", "0:a"}
+	cover := []string{"-map", "0:a", "-map", "1:v", "-frames:v", "1", "-c:v", "png", "-disposition:v:0", "attached_pic"}
+	for _, tc := range []struct {
+		name  string
+		args  []string
+		video bool
+	}{
+		{"视频.mp4", []string{"-map", "0:a", "-map", "1:v", "-c:v", "mpeg4", "-c:a", "aac"}, true},
+		{"封面.m4a", append(cover, "-c:a", "aac"), false},
+		{"封面.flac", append(cover, "-c:a", "flac"), false},
+		{"音频.m4a", append(audioOnly, "-c:a", "aac"), false},
+	} {
+		path := filepath.Join(dir, tc.name)
+		args := append([]string{"-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000",
+			"-f", "lavfi", "-i", "color=size=64x64:rate=10", "-t", "1"}, tc.args...)
+		if output, err := exec.Command(ffmpeg, append(args, path)...).CombinedOutput(); err != nil {
+			t.Fatalf("%s: %s: %v", tc.name, output, err)
+		}
+		got, err := HasVideo(ctx, probe, path)
+		must(t, err)
+		if got != tc.video {
+			t.Errorf("%s：HasVideo = %v，应为 %v", tc.name, got, tc.video)
+		}
+	}
+	cancelled, cancel := context.WithCancel(ctx)
+	cancel()
+	if _, err := HasVideo(cancelled, probe, filepath.Join(dir, "视频.mp4")); !errors.Is(err, context.Canceled) {
+		t.Fatalf("探测未响应取消：%v", err)
+	}
+}

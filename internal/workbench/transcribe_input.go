@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"yovoice/internal/audio"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
@@ -26,7 +27,7 @@ func (w *Workbench) PrepareTranscribeSpeech(ctx context.Context, name string, r 
 	if err != nil {
 		return nil, err
 	}
-	tracks, converter, err := transcribeTracks(ctx, path)
+	tracks, converter, video, err := transcribeTracks(ctx, name, path)
 	if err == nil {
 		err = ctx.Err()
 	}
@@ -35,7 +36,7 @@ func (w *Workbench) PrepareTranscribeSpeech(ctx context.Context, name string, r 
 		return nil, err
 	}
 	if len(tracks) == 1 {
-		return nil, w.startTranscribeSpeech(name, path, converter, 1)
+		return nil, w.startTranscribeSpeech(name, path, converter, 1, video)
 	}
 	id := schema.NewID()
 	if err := os.Rename(path, w.transcribeUpload(id)); err != nil {
@@ -108,7 +109,7 @@ func (w *Workbench) receiveTranscribe(r io.Reader) (string, error) {
 }
 
 func (w *Workbench) transcribeUploadTrack(ctx context.Context, name, upload string, track int) error {
-	tracks, converter, err := transcribeTracks(ctx, upload)
+	tracks, converter, video, err := transcribeTracks(ctx, name, upload)
 	if err == nil {
 		err = ctx.Err()
 	}
@@ -119,24 +120,43 @@ func (w *Workbench) transcribeUploadTrack(ctx context.Context, name, upload stri
 		_ = os.Remove(upload)
 		return err
 	}
-	return w.startTranscribeSpeech(name, upload, converter, track)
+	return w.startTranscribeSpeech(name, upload, converter, track, video)
 }
 
-func transcribeTracks(ctx context.Context, upload string) ([]audio.Track, string, error) {
+// 界面（WKWebView、WebView2、WebKitGTK）都能直接播放的视频容器；mkv、avi 等只保留抽出的音轨。
+var playableVideo = map[string]bool{".mp4": true, ".m4v": true, ".mov": true, ".webm": true}
+
+// transcribeTracks 列出可选音轨与所需的转换器；原文件带视频画面且容器能在界面里播放时，
+// video 返回保存原视频用的扩展名（小写，取自原始文件名），否则为空。
+func transcribeTracks(ctx context.Context, name, upload string) (tracks []audio.Track, converter, video string, err error) {
 	if err := ctx.Err(); err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 	if _, err := audio.Duration(upload); err == nil {
-		return []audio.Track{{Number: 1}}, "", nil
+		return []audio.Track{{Number: 1}}, "", "", nil
 	}
-	converter, err := audio.Converter()
-	if err != nil {
-		return nil, "", err
+	if converter, err = audio.Converter(); err != nil {
+		return nil, "", "", err
 	}
 	prober, err := audio.Prober()
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
-	tracks, err := audio.AudioTracks(ctx, prober, upload)
-	return tracks, converter, err
+	if tracks, err = audio.AudioTracks(ctx, prober, upload); err != nil {
+		return nil, "", "", err
+	}
+	return tracks, converter, transcribeVideo(ctx, prober, name, upload), nil
+}
+
+// transcribeVideo 返回保存原视频用的扩展名：容器能在界面里播放且带视频画面（不算封面图）时才保留。
+// 视频预览只是附带的，探测失败时照常转写，只是不保留原视频。
+func transcribeVideo(ctx context.Context, prober, name, upload string) string {
+	ext := strings.ToLower(filepath.Ext(name))
+	if !playableVideo[ext] {
+		return ""
+	}
+	if ok, err := audio.HasVideo(ctx, prober, upload); err != nil || !ok {
+		return ""
+	}
+	return ext
 }

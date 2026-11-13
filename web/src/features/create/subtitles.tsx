@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, lazy, Suspense, useLayoutEffect, useRef, useState } from 'react';
+import { type KeyboardEvent, type ReactNode, useEffect, lazy, Suspense, useLayoutEffect, useRef, useState } from 'react';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
@@ -11,13 +11,15 @@ import { cueAudioStatus, cueGeneration, type Generation, type Character, type Dr
 import { SubtitleParser } from './subtitle-parser';
 import { fileTitle, readTextFile, subtitleAccept } from './file-import';
 import { noticeMessage } from '../../shared/lib/call-error';
+import { isMac } from '../../shared/lib/client';
 import { AudioCheckBadge } from '../media/audio-check';
 
 const SeededAvatar = lazy(() => import('../../shared/ui/seeded-avatar').then(module => ({ default: module.SeededAvatar })));
 
 // 一行字幕的文字：高度跟随内容和栏宽，避免滚动条打断阅读；回车在光标处拆分，空行按退格或删除移除这一行；
-// 给出 onJoin 时，在行首按退格与上一行合并。语音转写的字幕编辑也用它。
-export function CueText({ value, label, onChange, onRemove, onSplit, onJoin, maxLength = 12000 }: { onSplit: (start: number, end: number) => void; onRemove: (backward: boolean) => void; onJoin?: () => void; value: string; label: string; maxLength?: number; onChange: (value: string) => void }) {
+// 给出 onJoin / onJoinNext 时，在行首按退格与上一行合并、在行尾按删除与下一行合并。语音转写的字幕编辑也用它。
+// macOS 上 Ctrl+H、Ctrl+D 是系统的向前、向后删除，与退格、删除同样处理。
+export function CueText({ value, label, onChange, onRemove, onSplit, onJoin, onJoinNext, maxLength = 12000 }: { onSplit: (start: number, end: number) => void; onRemove: (backward: boolean) => void; onJoin?: () => void; onJoinNext?: () => void; value: string; label: string; maxLength?: number; onChange: (value: string) => void }) {
   const input = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => {
     const element = input.current!;
@@ -33,11 +35,20 @@ export function CueText({ value, label, onChange, onRemove, onSplit, onJoin, max
   return <textarea ref={input} className="subtitle-cue-text" aria-label={label} rows={1} maxLength={maxLength} value={value} onChange={e => onChange(e.target.value)} onKeyDown={event => {
     if (event.nativeEvent.isComposing || event.keyCode === 229) return;
     if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) { event.preventDefault(); onSplit(event.currentTarget.selectionStart, event.currentTarget.selectionEnd); return; }
-    const field = event.currentTarget;
-    if (onJoin && value.trim() && event.key === 'Backspace' && field.selectionStart === 0 && field.selectionEnd === 0) { event.preventDefault(); onJoin(); return; }
-    if (value.trim() || !['Backspace', 'Delete'].includes(event.key)) return;
-    event.preventDefault(); onRemove(event.key === 'Backspace');
+    const field = event.currentTarget, key = deleteKey(event);
+    if (onJoin && value.trim() && key === 'Backspace' && field.selectionStart === 0 && field.selectionEnd === 0) { event.preventDefault(); onJoin(); return; }
+    if (onJoinNext && value.trim() && key === 'Delete' && field.selectionStart === value.length && field.selectionEnd === value.length) { event.preventDefault(); onJoinNext(); return; }
+    if (value.trim() || !key) return;
+    event.preventDefault(); onRemove(key === 'Backspace');
   }} />;
+}
+
+// 按键对应的删除方向：退格向前、删除向后；macOS 上单按 Ctrl 加 H / D 同样算作退格 / 删除。其他按键为 null。
+function deleteKey(event: KeyboardEvent<HTMLTextAreaElement>): 'Backspace' | 'Delete' | null {
+  if (event.key === 'Backspace' || event.key === 'Delete') return event.key;
+  if (!isMac || !event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return null;
+  const key = event.key.toLowerCase();
+  return key === 'h' ? 'Backspace' : key === 'd' ? 'Delete' : null;
 }
 
 export function SpeakerAvatar({ seed }: { seed: string }) {

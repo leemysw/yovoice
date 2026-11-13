@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Undo"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Redo"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Continuous playback"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Video preview"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "This video can't be played here, so only its audio will play"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Delete transcript"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Find and replace"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter splits at the cursor; Backspace at the start joins the line above"
+    "defaultMessage": "Enter splits at the cursor; Backspace at the start joins the line above; Delete at the end joins the line below"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "Transcription needs the Qwen3 ASR speech recognition model. Download it to upload audio or record."
@@ -5047,5 +5059,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Poor audio quality or incomplete content"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Appearance"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Theme"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Changes the colors of the whole workbench right away. The intro animation keeps its brand colors."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Match system"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Paper when light, Ink when dark"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Light"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Dark"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Paper"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Ink"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Lagoon"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Sand"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Sage"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Abyss"
   }
 }

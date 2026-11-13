@@ -16,7 +16,8 @@ import (
 const transcribeChunk = 30.0
 
 // startTranscribeSpeech 接管上传文件；只有任务成功提交时才把所选音轨移入转写记录。
-func (w *Workbench) startTranscribeSpeech(original, upload, converter string, track int) (err error) {
+// video 不为空时（见 transcribeTracks）上传的原视频以该扩展名一并移入 outputs 供预览，失败或取消时照常删除。
+func (w *Workbench) startTranscribeSpeech(original, upload, converter string, track int, video string) (err error) {
 	defer func() {
 		if err != nil {
 			_ = os.Remove(upload)
@@ -128,6 +129,12 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 			words = []schema.LyricWord{}
 		}
 		record := schema.Transcript{ID: schema.NewID(), Name: transcriptName(original), Language: language, Duration: round3(duration), CreatedAt: time.Now().UTC()}
+		record.AudioFile = record.ID + ".wav"
+		source := ""
+		// 直接送去识别的 WAV 本身就是上传文件，不会带视频；只有转换过的上传才可能另存原视频。
+		if video != "" && wav != upload {
+			record.VideoFile, source = record.ID+video, upload
+		}
 		if settings.IsolateVocals {
 			// 双声道原音轨只供分离使用，试听保留未处理的原音轨，但统一转成 24 kHz 单声道。
 			playback := filepath.Join(dir, "playback.wav")
@@ -139,7 +146,7 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		return w.saveTranscript(record, schema.TranscriptContent{Text: text, Words: words}, wav, ".wav")
+		return w.saveTranscript(record, schema.TranscriptContent{Text: text, Words: words}, wav, source)
 	})
 	if err == nil {
 		w.tagActivity("transcribe")

@@ -444,6 +444,9 @@ public partial class MainWindow : Window
                     bool available = data.GetProperty("available").GetBoolean();
                     ToggleInspectorButton.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
                     ToggleInspectorMenu.IsEnabled = available; result = true; break;
+                case "window.theme":
+                    // macOS 的透明标题栏要跟着主题换底色；Windows 用系统标题栏，网页铺满客户区，无需处理。
+                    result = true; break;
                 case "window.immersive":
                     // macOS 播放页把网页铺进标题栏；Windows 的标题栏放着菜单，保持原样。
                     result = true; break;

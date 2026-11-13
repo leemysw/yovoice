@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Отменить"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Повторить"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Непрерывное воспроизведение"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Предпросмотр видео"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "Это видео нельзя воспроизвести здесь, поэтому будет звучать только аудио"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Удалить расшифровку"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Найти и заменить"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter делит строку у курсора, Backspace в начале строки объединяет с предыдущей"
+    "defaultMessage": "Enter разбивает строку у курсора; Backspace в начале строки объединяет её с предыдущей; Delete в конце — со следующей"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "Для расшифровки нужна модель распознавания речи Qwen3 ASR. Скачайте её, чтобы загружать аудио или записывать."
@@ -5047,5 +5059,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Плохое качество звука или неполное содержание"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Оформление"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Тема"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Сразу меняет цвета всего рабочего пространства. Заставка сохраняет фирменные цвета."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Как в системе"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Светлая — «Бумага», тёмная — «Чернила»"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Светлая"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Тёмная"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Бумага"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Чернила"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Лагуна"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Песок"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Шалфей"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Бездна"
   }
 }

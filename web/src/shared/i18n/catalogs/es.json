@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "Deshacer"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "Rehacer"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "Reproducción continua"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "Vista previa del vídeo"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "Este vídeo no se puede reproducir aquí, así que solo se reproducirá el audio"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "Eliminar transcripción"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "Buscar y reemplazar"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Intro divide en el cursor; Retroceso al inicio une con la línea anterior"
+    "defaultMessage": "Intro divide en el cursor; Retroceso al inicio une con la línea anterior; Supr al final une con la línea siguiente"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "La transcripción necesita el modelo de reconocimiento de voz Qwen3 ASR. Descárgalo para subir audio o grabar."
@@ -5047,5 +5059,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "Mala calidad de audio o contenido incompleto"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "Apariencia"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "Tema"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "Cambia al instante los colores de todo el espacio de trabajo. La animación de inicio mantiene los colores de la marca."
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "Según el sistema"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "Papel en modo claro, Tinta en modo oscuro"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "Claro"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "Oscuro"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "Papel"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "Tinta"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "Laguna"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "Arena"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "Salvia"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "Abismo"
   }
 }

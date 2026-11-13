@@ -3,10 +3,11 @@ package schema
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
-// 用反射给 State 中每个 FileName 字段填入不同的值，确认全部登记在 MediaRefs 中。
+// 用反射给 State 中每个 FileName 及以 File 结尾的字符串字段（如 AudioFile、VideoFile）填入不同的值，确认全部登记在 MediaRefs 中。
 // 历史版本的 Settings 是生成时的作品快照，只记录参数，不代表文件仍被使用。
 func TestMediaRefsCoverEveryFileName(t *testing.T) {
 	var names []string
@@ -28,7 +29,7 @@ func TestMediaRefsCoverEveryFileName(t *testing.T) {
 				if !f.IsExported() || (v.Type() == reflect.TypeFor[Generation]() && f.Name == "Settings") {
 					continue
 				}
-				if f.Name == "FileName" && f.Type.Kind() == reflect.String {
+				if (f.Name == "FileName" || strings.HasSuffix(f.Name, "File")) && f.Type.Kind() == reflect.String {
 					name := fmt.Sprintf("file-%d", len(names))
 					names = append(names, name)
 					v.Field(i).SetString(name)
@@ -43,7 +44,7 @@ func TestMediaRefsCoverEveryFileName(t *testing.T) {
 	refs := s.MediaRefs()
 	for _, name := range names {
 		if !refs["outputs"][name] && !refs["voices"][name] {
-			t.Errorf("%s 对应的 FileName 字段未登记在 MediaRefs 中", name)
+			t.Errorf("%s 对应的文件名字段未登记在 MediaRefs 中", name)
 		}
 	}
 	if len(names) < 5 {

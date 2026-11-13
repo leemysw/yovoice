@@ -4358,6 +4358,18 @@
   "@yovoice.transcribe.undo": {
     "defaultMessage": "元に戻す"
   },
+  "@yovoice.transcribe.redo": {
+    "defaultMessage": "やり直す"
+  },
+  "@yovoice.transcribe.autoPlay": {
+    "defaultMessage": "連続再生"
+  },
+  "@yovoice.transcribe.video": {
+    "defaultMessage": "動画プレビュー"
+  },
+  "@yovoice.transcribe.videoUnsupported": {
+    "defaultMessage": "この動画はここでは再生できないため、音声のみ再生します"
+  },
   "@yovoice.transcribe.delete": {
     "defaultMessage": "文字起こしを削除"
   },
@@ -4716,7 +4728,7 @@
     "defaultMessage": "検索と置換"
   },
   "@yovoice.transcribe.editHint": {
-    "defaultMessage": "Enter でカーソル位置で分割、行頭で Backspace を押すと前の行と結合"
+    "defaultMessage": "Enter でカーソル位置で分割、行頭で Backspace を押すと前の行と結合、行末で Delete を押すと次の行と結合"
   },
   "@yovoice.transcribe.needsModel": {
     "defaultMessage": "文字起こしには音声認識モデル Qwen3 ASR が必要です。ダウンロードすると音声のアップロードや録音ができます。"
@@ -5047,5 +5059,44 @@
   },
   "@yovoice.community.note.quality": {
     "defaultMessage": "音質が悪い、または内容が不完全です"
+  },
+  "@yovoice.settings.appearance": {
+    "defaultMessage": "外観"
+  },
+  "@yovoice.settings.theme": {
+    "defaultMessage": "テーマ"
+  },
+  "@yovoice.settings.themeHint": {
+    "defaultMessage": "ワークベンチ全体の配色をすぐに切り替えます。オープニングアニメーションはブランドカラーのままです。"
+  },
+  "@yovoice.settings.themeSystem": {
+    "defaultMessage": "システムに合わせる"
+  },
+  "@yovoice.settings.themeSystemHint": {
+    "defaultMessage": "ライトはペーパー、ダークはインク"
+  },
+  "@yovoice.settings.themeLight": {
+    "defaultMessage": "ライト"
+  },
+  "@yovoice.settings.themeDark": {
+    "defaultMessage": "ダーク"
+  },
+  "@yovoice.settings.theme.paper": {
+    "defaultMessage": "ペーパー"
+  },
+  "@yovoice.settings.theme.ink": {
+    "defaultMessage": "インク"
+  },
+  "@yovoice.settings.theme.lagoon": {
+    "defaultMessage": "ラグーン"
+  },
+  "@yovoice.settings.theme.sand": {
+    "defaultMessage": "サンド"
+  },
+  "@yovoice.settings.theme.sage": {
+    "defaultMessage": "セージ"
+  },
+  "@yovoice.settings.theme.abyss": {
+    "defaultMessage": "アビス"
   }
 }
