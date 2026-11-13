@@ -4908,13 +4908,13 @@
     "defaultMessage": "Поделиться в сообществе"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "Чтобы делиться, нужна учётная запись leemysw. Вход выполняется в браузере, поэтому приложение не видит ваш пароль."
+    "defaultMessage": "Войдите в браузере, чтобы поделиться."
   },
   "@yovoice.community.login": {
     "defaultMessage": "Войти"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "Убедитесь, что в браузере показан код {code}, и нажмите «Разрешить»."
+    "defaultMessage": "Проверьте, что в браузере показан код {code}."
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "Открыть браузер снова"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "Вы пока ничем не поделились."
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "Поставьте свои песни на полку сообщества"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "Войдите, чтобы делиться песнями и видеть здесь результаты проверки."
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "Открыть сообщество"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "Не завершено"

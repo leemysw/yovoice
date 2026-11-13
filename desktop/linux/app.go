@@ -71,7 +71,7 @@ var (
 	messageCallback = purego.NewCallback(func(manager, result, data uintptr) {
 		theApp.receive(takeString(jscValueToString(webkitJavascriptResultGetJSValue(result))))
 	})
-	// 只允许在本地服务的页面内导航；用户点击打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+	// 只允许在本地服务的页面内导航；用户点击打开的外部链接（如获取 AI 密钥）交给系统浏览器。
 	policyCallback = purego.NewCallback(func(view, decision uintptr, kind int32, data uintptr) bool {
 		if kind != 0 && kind != 1 { // NAVIGATION_ACTION、NEW_WINDOW_ACTION
 			return false
@@ -83,7 +83,7 @@ var (
 			return true
 		}
 		webkitPolicyDecisionIgnore(decision)
-		if kind == 1 && strings.HasPrefix(target, "https://") && webkitNavigationActionIsUserGesture(action) && theApp.trusted(webkitWebViewGetURI(view)) {
+		if kind == 1 && externalLink(target) && webkitNavigationActionIsUserGesture(action) && theApp.trusted(webkitWebViewGetURI(view)) {
 			_ = openPath(target)
 		}
 		return true
@@ -629,4 +629,18 @@ func (a *app) runSmoke() {
 		}
 		a.requestExit()
 	}()
+}
+
+// externalLink 判断链接能否交给系统浏览器：https，或回环地址的 http（连本机的社区服务调试时，登录确认页在 localhost 上）。
+func externalLink(target string) bool {
+	if strings.HasPrefix(target, "https://") {
+		return true
+	}
+	rest, ok := strings.CutPrefix(target, "http://")
+	if !ok {
+		return false
+	}
+	host, _, _ := strings.Cut(rest, "/")
+	host, _, _ = strings.Cut(host, ":")
+	return host == "localhost" || host == "127.0.0.1"
 }

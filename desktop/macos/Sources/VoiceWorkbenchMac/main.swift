@@ -369,8 +369,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         decisionHandler(trusted(navigationAction.request.url) ? .allow : .cancel)
     }
     // 页面不开新窗口；本地页面打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+    // 回环地址的 http 链接也放行：连本机的社区服务调试时，登录确认页在 localhost 上。
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if let url = navigationAction.request.url, url.scheme == "https", trusted(webView.url) { NSWorkspace.shared.open(url) }
+        if let url = navigationAction.request.url, url.scheme == "https" || (url.scheme == "http" && ["localhost", "127.0.0.1"].contains(url.host ?? "")), trusted(webView.url) { NSWorkspace.shared.open(url) }
         return nil
     }
     #if DEBUG

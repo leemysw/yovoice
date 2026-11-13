@@ -4908,13 +4908,13 @@
     "defaultMessage": "Chia sẻ lên cộng đồng"
   },
   "@yovoice.community.loginIntro": {
-    "defaultMessage": "Cần có tài khoản leemysw để chia sẻ. Bạn đăng nhập trong trình duyệt nên ứng dụng không bao giờ thấy mật khẩu của bạn."
+    "defaultMessage": "Đăng nhập trong trình duyệt để chia sẻ."
   },
   "@yovoice.community.login": {
     "defaultMessage": "Đăng nhập"
   },
   "@yovoice.community.loginCode": {
-    "defaultMessage": "Kiểm tra trình duyệt hiển thị mã {code}, rồi chọn Cho phép."
+    "defaultMessage": "Kiểm tra trình duyệt hiển thị mã {code}."
   },
   "@yovoice.community.loginReopen": {
     "defaultMessage": "Mở lại trình duyệt"
@@ -4987,6 +4987,15 @@
   },
   "@yovoice.community.mineEmpty": {
     "defaultMessage": "Bạn chưa chia sẻ gì."
+  },
+  "@yovoice.community.emptyTitle": {
+    "defaultMessage": "Đặt bài hát của bạn lên kệ cộng đồng"
+  },
+  "@yovoice.community.emptyBody": {
+    "defaultMessage": "Đăng nhập để chia sẻ bài hát và xem kết quả duyệt tại đây."
+  },
+  "@yovoice.community.browse": {
+    "defaultMessage": "Ghé thăm cộng đồng"
   },
   "@yovoice.community.statusDraft": {
     "defaultMessage": "Chưa hoàn tất"

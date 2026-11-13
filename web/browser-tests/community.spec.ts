@@ -37,6 +37,7 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
 
   // 设置里列出刚分享的作品和审核状态，可以删除，也可以退出登录。
   await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '社区' }).click();
   const row = page.locator('.settings-row', { hasText: '夜航' });
   await expect(row).toContainText('待审核');
   await page.screenshot({ path: testInfo.outputPath('settings.png') });
@@ -44,5 +45,8 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   await page.getByRole('dialog', { name: '从社区删除' }).getByRole('button', { name: '删除' }).click();
   await expect(page.locator('.settings-row', { hasText: '还没有分享过作品' })).toBeVisible();
   await page.getByRole('button', { name: '退出登录' }).click();
+  // 退出后回到空态：一张空唱片、一句说明和登录入口。
+  await expect(page.getByRole('heading', { name: '把你的歌放上社区的唱片架' })).toBeVisible();
   await expect(page.getByRole('button', { name: '登录', exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('empty.png') });
 });

@@ -69,6 +69,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
       <Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" />
       {aiServiceHidden(state.preferences) ? null : <Tab value="ai" label={t('@yovoice.settings.tabAI')} panelId="ai-panel" />}
       {featureHidden(state.preferences, 'assistant') ? null : <Tab value="assistant" label={t('@yovoice.assistant.title')} panelId="assistant-panel" />}
+      <Tab value="community" label={t('@yovoice.community.settings')} panelId="community-panel" />
       <Tab value="assets" label={t('@yovoice.nav.assets')} panelId="assets-panel" />
       <Tab value="logs" label={t('@yovoice.settings.tabLogs')} panelId="logs-panel" />
     </TabList>
@@ -99,7 +100,6 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
       <FeatureSettings state={state} run={run} />
       {featureHidden(state.preferences, 'transcribe') ? null : <TranscribeSettings state={state} run={run} />}
       <StorageSettings state={state} run={run} busy={busy || modelBusy} />
-      <CommunitySettings state={state} run={run} />
       <LocalAPISettings run={run} />
       <SettingsGroup title={t('@yovoice.settings.diagnosticsGroup')}>
         <SettingsRow label={t('@yovoice.settings.diagnostics')} hint={t('@yovoice.settings.diagnosticsHint')}>
@@ -124,7 +124,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
       <HStack className="settings-footnote" gap={3} vAlign="center" wrap="wrap"><small>{t('@yovoice.settings.licenseBlurb')}</small><Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></HStack>
     </VStack> : tab === 'soundfonts' ? <VStack className="settings-panel" gap={6} id="soundfonts-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabSoundfonts')}>
       <ModelGroups models={catalog.filter(model => model.family === 'soundfont')} state={state} draft={draft} run={run} focus={focus?.modelId} />
-    </VStack> : tab === 'ai' ? <AISettings state={state} run={run} focus={focus} /> : tab === 'assistant' ? <AssistantSettings state={state} run={run} /> : tab === 'assets'
+    </VStack> : tab === 'ai' ? <AISettings state={state} run={run} focus={focus} /> : tab === 'assistant' ? <AssistantSettings state={state} run={run} /> : tab === 'community' ? <CommunitySettings state={state} run={run} /> : tab === 'assets'
       ? <Suspense fallback={<p role="status">{t('@yovoice.app.loading')}</p>}><AssetsPage state={state} active={active} run={run} onError={onError} openProject={openProject} /></Suspense> : tab === 'logs' ? <LogViewer run={run} /> : <VStack className="settings-panel engine-settings" gap={6} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
       <SettingsGroup title={<>audio.cpp{runtimeVersion ? <small className="model-size">{runtimeVersion}</small> : null}</>}>
         <SettingsRow className="engine-setting-row" label={t('@yovoice.settings.computeDevice')}>
