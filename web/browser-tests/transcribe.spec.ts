@@ -180,8 +180,12 @@ test('字幕行尾按 Delete 与下一行合并；Ctrl+Z 撤销、Ctrl+Shift+Z �
   await editor.getByRole('button', { name: '查找替换', exact: true }).click();
   const find = editor.getByRole('textbox', { name: '查找' });
   await find.fill('转写');
-  await find.press('Control+z');
   await expect(rows).toHaveCount(1);
+  // 输入框使用平台原生撤销：查找词清空后显示全部行，字幕本身和应用撤销栈保持原状。
+  await find.press('ControlOrMeta+z');
+  await expect(find).toHaveValue('');
+  await expect(rows).toHaveCount(3);
+  await expect(first).toHaveValue('览器预览不运行识别模型');
   await expect(editor.getByRole('button', { name: '撤销', exact: true })).toBeEnabled();
 });
 
