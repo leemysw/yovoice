@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "Âm thanh, lời bài hát và thiết lập tạo của phiên bản này sẽ được tải lên, không kèm giọng tham chiếu. Bài hát được công khai sau khi duyệt."
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "Lời bài hát chưa được căn thời gian nên sẽ không hiện trên trang cộng đồng. Bạn có thể căn lời trên trang phát nhạc trước."
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "Tôi có quyền chia sẻ bài hát này và đồng ý với điều khoản cộng đồng"
   },

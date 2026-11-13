@@ -42,6 +42,8 @@ type CommunityShareRequest struct {
 	Tags         []string `json:"tags"`
 	License      string   `json:"license"`
 	AcceptTerms  bool     `json:"acceptTerms"`
+	// Lyrics 是界面按这个版本的对齐结果算好的逐行歌词时间；没对齐时为空。
+	Lyrics []community.LyricLine `json:"lyrics"`
 }
 
 func (w *Workbench) publishCommunity(change func(*schema.CommunityState)) {
@@ -309,7 +311,7 @@ func (w *Workbench) shareSong(ctx context.Context, client *community.Client, con
 		gene = audio.LoudnessGene(mono)
 	}
 	ticket, e := client.Create(ctx, community.CreateInput{
-		Gene: gene,
+		Gene: gene, Lyrics: r.Lyrics,
 		Kind: "song", Title: r.Title, Description: r.Description, Tags: r.Tags, Language: g.Settings.Language, Model: g.Settings.ModelID,
 		License: r.License, TermsVersion: limits.TermsVersion, AcceptTerms: r.AcceptTerms,
 		PackSize: packInfo.Size(), PreviewSize: previewInfo.Size(), Duration: g.Duration,

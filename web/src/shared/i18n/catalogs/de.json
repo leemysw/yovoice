@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "Hochgeladen werden Audio, Liedtext und Generierungseinstellungen dieser Version, aber keine Referenzstimmen. Nach der Prüfung wird der Song öffentlich."
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "Der Liedtext ist noch nicht synchronisiert und erscheint daher nicht auf der Community-Seite. Du kannst ihn zuerst auf der Wiedergabeseite synchronisieren."
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "Ich darf diesen Song teilen und stimme den Community-Bedingungen zu"
   },

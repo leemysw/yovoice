@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "会上传这一版的音频、歌词和生成设置，不包含参考音色。审核通过后公开。"
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "歌词还没对齐，社区页不会显示歌词。可以先在播放页对齐后再分享。"
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "我有权分享这首歌，并同意社区条款"
   },

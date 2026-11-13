@@ -71,6 +71,23 @@ type CreateInput struct {
 	Duration     float64  `json:"duration"`
 	// Gene 是歌曲的响度起伏（96 个十六进制字符），社区页用它画封面；算不出来时留空。
 	Gene string `json:"gene,omitempty"`
+	// Lyrics 是对齐过的歌词，社区页按它滚动显示；没对齐时不带。
+	Lyrics []LyricLine `json:"lyrics,omitempty"`
+}
+
+// LyricLine 是一行歌词在歌里的开始、结束秒数；用对齐模型对过的还带每个字的时间。
+type LyricLine struct {
+	Start float64     `json:"start"`
+	End   float64     `json:"end"`
+	Text  string      `json:"text"`
+	Words []LyricWord `json:"words,omitempty"`
+}
+
+// LyricWord 是一个字（拉丁文是一个词）和它的时间。
+type LyricWord struct {
+	Text  string  `json:"text"`
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
 }
 
 // Upload 是一个文件的直传地址和必须原样带上的请求头。

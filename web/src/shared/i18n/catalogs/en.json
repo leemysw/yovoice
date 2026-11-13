@@ -4949,6 +4949,9 @@
   "@yovoice.community.contents": {
     "defaultMessage": "This version's audio, lyrics and generation settings are uploaded. Reference voices are not. The song becomes public after review."
   },
+  "@yovoice.community.lyricsUnaligned": {
+    "defaultMessage": "The lyrics aren't aligned yet, so the community page won't show them. You can align them on the player page first."
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "I have the right to share this song and agree to the community terms"
   },
