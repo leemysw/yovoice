@@ -431,7 +431,8 @@ test('播放页对齐进行中：歌词工具换成停止按钮，不显示进�
   const stop = playing.getByRole('button', { name: '停止对齐', exact: true });
   await expect(stop).toBeVisible();
   await expect(playing.getByRole('button', { name: '歌词工具', exact: true })).toHaveCount(0);
-  await expect(playing.getByRole('status')).toHaveCount(0);
+  // 进度只在悬停提示里，顶栏上不显示文字。
+  await expect(playing.locator('.now-playing-bar').getByText('正在分离人声')).toBeHidden();
   await stop.click();
   await expect(stop).toHaveCount(0);
   await expect(playing.getByRole('button', { name: '歌词工具', exact: true })).toBeVisible();
