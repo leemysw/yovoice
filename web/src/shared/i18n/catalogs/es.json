@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "Reproducir desde esta línea"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "La sincronización de la letra se estima a partir de la duración de la canción"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Retroceder {n} segundos"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "Desplazamiento"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "La letra completa se desplaza y la línea actual se ilumina palabra por palabra"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "Foco"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "Una línea a la vez; cada palabra salta y brilla. Ideal para grabar la pantalla"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "Exportar letra por palabras"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "LRC mejorado con marca de tiempo por palabra, para reproductores con letras karaoke"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "Herramientas de letra"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "Ajustar tiempos de la letra"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "Durante la reproducción, haz clic en una línea para que empiece en la posición actual; mueve líneas enteras o ajusta palabras sueltas"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "Marca el inicio de cada línea mientras escuchas"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "Clic durante la reproducción: esta línea empieza aquí"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "Alineando"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "Separa la voz y alinea cada palabra de la letra con el canto; se guarda con esta versión"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "Descarga primero el alineador de letras opcional (unos 1,3 GB)"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "Letra alineada palabra por palabra con la voz; sincroniza para ajustar"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "Tiempos de la letra situados a partir de la voz; sincroniza para afinarlos"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "Letra sincronizada"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Pulsa ↓ o haz clic en Línea siguiente cuando empiece cada línea; Retroceso deshace la última línea"

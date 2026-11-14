@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "Riproduci da questa riga"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "I tempi del testo sono stimati in base alla durata del brano"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Indietro di {n} secondi"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "Scorrimento"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "Il testo scorre e la riga corrente si illumina parola per parola"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "Riflettore"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "Una riga alla volta, ogni parola salta fuori e brilla. Ideale per registrare lo schermo"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "Esporta testo parola per parola"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "LRC avanzato con un tempo per ogni parola, per i lettori che supportano il karaoke"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "Strumenti testo"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "Regola i tempi del testo"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "Durante la riproduzione, fai clic su una riga per farla iniziare alla posizione attuale; sposta righe intere o rifinisci le singole parole"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "Segna l’inizio di ogni riga mentre ascolti"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "Clic in riproduzione: la riga inizia qui"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "Allineamento"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "Separa la voce e allinea ogni parola del testo al canto; salvato con questa versione"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "Scarica prima l’allineatore di testi opzionale (circa 1,3 GB)"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "Testo allineato parola per parola alla voce; sincronizza per rifinire"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "Tempi del testo posizionati in base alla voce; sincronizza per perfezionarli"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "Tempi del testo sincronizzati"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Premi ↓ o fai clic su Riga successiva all’inizio di ogni riga; Backspace annulla l’ultima riga"

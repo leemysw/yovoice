@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "Play from this line"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "Lyric timing is estimated from the song length"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Back {n} seconds"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "Scrolling"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "Lights up word by word as the whole song scrolls"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "Spotlight"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "One line at a time, each word leaps in and glows — great for screen recording"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "Export word-timed lyrics"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "Enhanced LRC with a timestamp for every word, for players that support karaoke lyrics"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "Lyric tools"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "Adjust lyric timing"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "While playing, click a line to start it at the current position; nudge whole lines or fine-tune single words"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "Mark the start of each line while listening"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "Click while playing: this line starts here"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "Aligning"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "Separates the vocals and aligns every word of the lyrics to the singing; saved with this version"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "Download the optional lyric aligner first (about 1.3 GB)"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "Lyrics aligned word by word to the vocals; sync to refine"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "Lyric timing placed from the vocals; sync to refine"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "Lyric timing synced"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Press ↓ or click Next line when each line starts; Backspace undoes the last line"

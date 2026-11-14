@@ -7,6 +7,7 @@
 ### English
 
 - Songs now have a Share to community button right in the player, and when a song finishes generating Ocho offers to share it so more people can hear it. The button opens the share dialog directly.
+- The song player's top bar is lighter: plain buttons without the glass backgrounds, and on macOS they sit in the same row as the window buttons. The lyric tools and lyric style menus only list the actions and their keys, without the explanations. Notes in brackets in the lyrics — [ ], ( ), （ ）, 【 】, such as sound effects or singing directions — are no longer shown or aligned; a section that only has notes plays as an instrumental gap. Songs whose lyrics have such notes and were synced or aligned earlier need to be synced or aligned again.
 - Settings › Models brings voice models, music models, score sound fonts and speech recognition together in one tab, with sub-tabs to switch between them.
 - New speech recognition models: Qwen3 ASR 1.7B (the same 30 languages, more accurate), Confucius4-R2T2 (NetEase Youdao's fine-tune of Qwen3 ASR 1.7B, 30 languages; the bundled aligner adds word timing, needs engine v0.9.3) and Parakeet TDT 0.6B v3 (25 European languages, with its own word timing; needs engine v0.9.3). With more than one installed, choose which one Transcribe, Recognize text and the CLI use under Settings › Models › Speech recognition.
 - The bottom player is tidier: play and the time sit together on the left. In speech, song and sound-effect projects the buttons beside play switch to the previous or next version (playback carries on if it was playing); the go-to-start and go-to-end buttons and the zoom control are gone from the single-track player (Home and End still jump). The multitrack timeline keeps its zoom.
@@ -37,6 +38,7 @@
 ### 简体中文
 
 - 歌曲的播放栏上直接有“分享到社区”按钮；歌曲生成好后 Ocho 会提示分享，让更多人听到，点一下直接打开分享弹窗。
+- 歌曲播放页顶栏更轻：按钮去掉了玻璃底色，macOS 上和红绿灯在同一行。歌词工具和歌词样式菜单只列操作和按键，不再写说明。歌词里括号括起来的注释（[ ]、( )、（ ）、【 】，比如音效、唱法说明）不再显示，也不参与对齐；只有注释的段落当作器乐间隔。以前校准或对齐过、歌词里有这类注释的歌曲需要重新校准或对齐。
 - “设置 › 模型”把语音模型、音乐模型、编曲音色库和语音识别模型合到一个标签里，用子标签切换。
 - 新增语音识别模型：Qwen3 ASR 1.7B（同样 30 种语言，更准）、Confucius4-R2T2（网易有道基于 Qwen3 ASR 1.7B 微调，30 种语言，由包内的对齐模型补上逐词时间，需要 v0.9.3 内核）和 Parakeet TDT 0.6B v3（25 种欧洲语言，自带逐词时间，需要 v0.9.3 内核）。装了多个时，可在“设置 › 模型 › 语音识别模型”里选语音转写、识别文字和命令行使用哪一个。
 - 底部播放器更紧凑：播放键和时间靠左放在一起。语音、歌曲与音效作品里播放键两侧改为切换上一版、下一版，播放中切换会接着播放；单轨播放器去掉回到开头、结尾按钮和缩放（Home、End 键照常可用），多轨时间线保留缩放。

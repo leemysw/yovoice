@@ -41,20 +41,36 @@ const instrumentalWeight = 12, sectionGap = 2, leadIn = 6, tail = 6;
 
 type Item = { text: string; weight: number; instrumental?: boolean };
 
-// 按段落拆出带权重的条目：演唱行、器乐间隔和段落之间的停顿。
+// 歌词里括号括起来的是给模型的注释（音效、乐器、唱法说明），不唱也不显示：[]、()、（）、【】里的内容连同括号去掉。
+// 括号可以跨行，depth 是上一行结束时还没合上的层数；与后端对齐用的 sungLyrics 规则一致。
+const opening = '[(（【', closing = '])）】';
+function stripNotes(line: string, depth: number) {
+  let text = '';
+  for (const char of line) {
+    if (opening.includes(char)) depth++;
+    else if (closing.includes(char)) depth = Math.max(0, depth - 1);
+    else if (!depth) text += char;
+  }
+  return { text: text.replace(/\s+/g, ' ').trim(), depth };
+}
+
+// 按段落拆出带权重的条目：演唱行、器乐间隔和段落之间的停顿。只有注释的行不算演唱行。
 function lyricItems(lyrics: string) {
   const items: Item[] = [];
-  let sectionLines = 0, sectionOpen = false;
+  let sectionLines = 0, sectionOpen = false, depth = 0;
   const closeSection = () => { if (sectionOpen && sectionLines === 0) items.push({ text: '', weight: instrumentalWeight, instrumental: true }); sectionOpen = false; sectionLines = 0; };
   for (const raw of lyrics.split('\n')) {
-    const line = raw.trim();
-    if (!line) continue;
-    if (/^\[[^\]]*\]$/.test(line)) {
+    const trimmed = raw.trim();
+    if (!depth && /^\[[^\]]*\]$/.test(trimmed)) {
       closeSection();
       if (items.length) items.push({ text: '', weight: sectionGap });
       sectionOpen = true;
       continue;
     }
+    const stripped = stripNotes(trimmed, depth);
+    depth = stripped.depth;
+    const line = stripped.text;
+    if (!line) continue;
     sectionLines++;
     items.push({ text: line, weight: Math.max(3, syllables(line)) + 1.5 });
   }

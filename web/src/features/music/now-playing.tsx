@@ -134,7 +134,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
         }}
         onTimeUpdate={() => setTime(audio.current?.currentTime ?? 0)}
         onPlay={() => setPlaying(true)} onPause={() => { setPlaying(false); setIdle(false); }} onEnded={() => setPlaying(false)} />
-      <NowPlayingToolbar item={item} versions={versions} previous={previous} switchTo={switchTo} url={url} aligner={aligner} activity={activity} timing={timing}
+      <NowPlayingToolbar item={item} versions={versions} previous={previous} switchTo={switchTo} url={url} activity={activity} timing={timing}
         lyricStyle={lyricStyle} chooseStyle={chooseStyle} fullscreen={fullscreen} toggleFullscreen={toggleFullscreen} leave={leave} />
       {notice ? <HStack className="now-playing-notice" role="alert" gap={2} vAlign="center" data-testid="now-playing-notice">
         <CircleAlert size={14} aria-hidden />

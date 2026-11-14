@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "从这一句开始播放"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "歌词时间按歌曲时长估算"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "后退 {n} 秒"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "滚动歌词"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "整首歌词随播放滚动，当前句逐字点亮"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "浮光"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "一句一屏，字随演唱逐个跃出并发光，适合录屏"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "导出逐字歌词"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "增强 LRC，每个字都带时间，支持卡拉 OK 歌词的播放器可逐字显示"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "歌词工具"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "调整歌词时间"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "播放中点一句就从当前位置开始唱，可整句前后微调，也能逐字细调"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "边听边逐行标记每句的开始"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "播放中点击：这一句从当前位置开始"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "正在对齐"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "分离人声后把歌词逐字对到演唱上，结果随版本保存"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "需要先下载可选的歌词对齐模型（约 1.3 GB）"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "歌词已按演唱逐字对齐，可再手动校准"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "歌词时间按人声自动定位，可再校准"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "歌词时间已校准"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "每一行开始唱时按 ↓ 或点“下一行”，按退格撤销上一行"

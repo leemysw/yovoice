@@ -174,7 +174,8 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     const item = state.history.find(v => v.id === id);
     if (!item) throw new CallError('@yovoice.error.audioMissing');
     if (!state.models.some(m => m.id.startsWith('lyric-align-'))) throw new CallError('@yovoice.error.alignModelRequired');
-    const letters = item.settings.instrumental ? [] : (item.settings.lyrics ?? '').split('\n').filter(line => !/^\s*\[[^\]]*\]\s*$/.test(line)).join(' ').match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]|[\p{L}\p{N}']+/gu) ?? [];
+    // 和桌面端一样只对齐要唱的字：段落标记和括号里的注释去掉。
+    const letters = item.settings.instrumental ? [] : (item.settings.lyrics ?? '').replace(/[[(（【][^\])）】]*[\])）】]/g, ' ').match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]|[\p{L}\p{N}']+/gu) ?? [];
     if (!letters.length) throw new CallError('@yovoice.error.alignLyrics');
     const span = item.duration * .8 / letters.length;
     const lyricWords = letters.map((word, i) => ({ word, start: +(item.duration * .1 + i * span).toFixed(3), end: +(item.duration * .1 + (i + .8) * span).toFixed(3) }));

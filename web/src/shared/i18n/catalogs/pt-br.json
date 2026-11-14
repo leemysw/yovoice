@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "Tocar a partir desta linha"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "O tempo da letra é estimado pela duração da música"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Voltar {n} segundos"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "Rolagem"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "A letra rola com a música e a linha atual acende palavra por palavra"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "Holofote"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "Uma linha por vez, cada palavra salta e brilha. Ideal para gravar a tela"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "Exportar letra por palavra"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "LRC avançado com horário em cada palavra, para players com letras de karaokê"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "Ferramentas de letra"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "Ajustar tempo da letra"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "Durante a reprodução, clique em uma linha para ela começar na posição atual; mova linhas inteiras ou ajuste palavras individuais"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "Marque o início de cada linha enquanto ouve"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "Clique durante a reprodução: a linha começa aqui"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "Alinhando"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "Separa a voz e alinha cada palavra da letra ao canto; salvo com esta versão"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "Baixe primeiro o alinhador de letras opcional (cerca de 1,3 GB)"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "Letra alinhada palavra por palavra à voz; sincronize para ajustar"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "Tempo da letra posicionado pelos vocais; sincronize para refinar"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "Tempo da letra sincronizado"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Pressione ↓ ou clique em Próxima linha quando cada linha começar; Backspace desfaz a última linha"
