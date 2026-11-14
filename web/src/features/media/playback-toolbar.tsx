@@ -14,13 +14,14 @@ export function PlaybackToolbar({ time, duration, playing, disabled, loading, to
 }) {
   const t = useTranslator();
   const playLabel = t(playing ? '@yovoice.player.pause' : '@yovoice.player.play');
-  return <HStack className="transport" vAlign="center" gap={4} wrap="wrap">
-    <small className="transport-time">{formatTime(time)} <em>/ {formatTime(duration)}</em></small>
-    <HStack className="transport-controls" gap={2} vAlign="center">
+  // 播放组和时间靠左相邻，右侧整组放工具，中间不留空档。
+  return <HStack className="transport" vAlign="center" gap={3} wrap="wrap">
+    <HStack className="transport-controls" gap={1} vAlign="center">
       {beforePlay}
       <Button label={playLabel} tooltip={withHotkey(playLabel, keys, undefined)} aria-keyshortcuts={aria} isIconOnly icon={playing ? <Pause /> : <Play fill="currentColor" />} size="sm" variant="primary" className="play-main" isDisabled={disabled} isLoading={loading} onClick={toggle} />
       {afterPlay}
     </HStack>
+    <small className="transport-time">{formatTime(time)} <em>/ {formatTime(duration)}</em></small>
     <HStack className="transport-end" gap={3} vAlign="center" wrap="wrap">{children}</HStack>
   </HStack>;
 }

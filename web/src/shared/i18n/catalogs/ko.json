@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "재생"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "이전 버전"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "다음 버전"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "재생 진행률"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "위치 열기"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "끝으로 이동"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "처음으로 이동"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "오디오 파일이 없거나 읽을 수 없습니다"

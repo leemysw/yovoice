@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "Play"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "Previous version"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "Next version"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "Playback progress"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "Show in folder"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "Go to end"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "Go to start"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "Audio file is missing or unreadable"

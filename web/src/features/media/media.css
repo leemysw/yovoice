@@ -59,7 +59,7 @@
   .transport { flex-shrink: 0; position: relative; min-height: var(--spacing-9); width: 100%; padding-inline: var(--spacing-3); }
   .transport-time { font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; color: var(--app-ink); }
   .transport-time em { font-style: normal; color: var(--app-muted); margin-left: var(--spacing-2); }
-  .transport-controls { margin-left: auto; flex-shrink: 0; }
+  .transport-controls { flex-shrink: 0; }
   .transport .play-main { min-width: var(--spacing-8); min-height: var(--spacing-8); border-radius: var(--radius-full); color: var(--color-on-accent); }
   .transport-controls .astryx-button svg { width: calc(var(--spacing-4) - var(--spacing-0-5)); height: calc(var(--spacing-4) - var(--spacing-0-5)); }
   .transport-end { margin-left: auto; }

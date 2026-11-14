@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "播放"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "上一版本"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "下一版本"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "播放進度"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "開啟位置"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "跳到結尾"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "回到開頭"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "音訊檔案不存在或無法讀取"

@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "Reproduzir"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "Versão anterior"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "Próxima versão"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "Progresso da reprodução"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "Mostrar na pasta"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "Ir para o fim"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "Ir para o início"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "O arquivo de áudio está ausente ou ilegível"

@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "Phát"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "Phiên bản trước"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "Phiên bản sau"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "Tiến trình phát"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "Mở vị trí"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "Đến cuối"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "Về đầu"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "Tệp âm thanh bị thiếu hoặc không đọc được"
