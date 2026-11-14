@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "음성 인식: 받아쓰기, 자막 · 유럽 25개 언어, 단어별 타이밍 내장, 빠름"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "음성 인식: 받아쓰기와 자막 · NetEase Youdao가 Qwen3 ASR 1.7B를 미세 조정, 30개 언어, 시간은 포함된 정렬 모델이 제공 · NetEase Youdao 모델 사용 라이선스"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "사용할 인식 모델"
   },

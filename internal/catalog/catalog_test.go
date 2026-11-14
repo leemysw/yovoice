@@ -84,6 +84,20 @@ func TestRepoFileURL(t *testing.T) {
 	}
 }
 
+// 包内写明来源仓库的文件从该仓库下载，其余文件仍来自 audio.cpp 的模型仓库与 ModelScope 镜像。
+func TestPackageFileURL(t *testing.T) {
+	m, err := Lookup("confucius4-r2t2-q8")
+	if err != nil {
+		t.Fatal(err)
+	}
+	main, _ := m.URL("modelscope")
+	aligner, _ := m.PackageFileURL("modelscope", m.Files[len(m.Files)-1])
+	if main != "https://hf-mirror.com/davidxifeng/Confucius4-R2T2-gguf/resolve/a8e6b385d7df7eae9519363e07034a209004797a/r2t2-q8_0.gguf" ||
+		aligner != "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/"+ModelScopeRevision+"/Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf" {
+		t.Fatal(main, aligner)
+	}
+}
+
 // 旧版本按当时的提交下载：三个下载源都指向那次提交，文件大小与摘要取旧值，未知版本报错。
 func TestModelVersionAt(t *testing.T) {
 	m, err := Lookup("kokoro-82m-q8")

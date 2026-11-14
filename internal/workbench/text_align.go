@@ -49,7 +49,7 @@ func (w *Workbench) AlignText(id string) error {
 	if generation.Duration > maxTextAlignSeconds || schema.TextLen(text) > maxTextAlignRunes {
 		return msg.Err(msg.ErrAudioDuration, nil)
 	}
-	model, e := w.toolModel(s, "qwen3_asr", "lyric_align")
+	model, e := w.toolModel(s, "qwen3_asr", "confucius4_r2t2", "lyric_align")
 	if e != nil {
 		return e
 	}

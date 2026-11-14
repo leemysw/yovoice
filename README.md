@@ -87,7 +87,7 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 | Built-in voices | Kokoro-82M, Qwen3-TTS CustomVoice, Voxtral 4B TTS, Gradium Phonon |
 | Songs and instrumentals | ACE-Step 1.5 Turbo / XL Turbo, YuE2 3B |
 | Instrumentals and sound effects | Stable Audio 3 Small Music / Small SFX / Medium |
-| Speech recognition and subtitles | Qwen3 ASR 0.6B / 1.7B, Parakeet TDT 0.6B v3 |
+| Speech recognition and subtitles | Qwen3 ASR 0.6B / 1.7B, Confucius4-R2T2, Parakeet TDT 0.6B v3 |
 | Stems, MIDI and lyric alignment | HTDemucs 6-stem, BS-RoFormer, MuScriptor, Lyric Aligner, SheetSage2 |
 
 All models are downloaded inside the App or with the CLI. See [model selection](docs/models.md) for file sizes, hardware requirements, inputs and examples. OmniVoice, YuE2, Breeze TTS 2, Voxtral 4B TTS and MuScriptor weights are restricted to non-commercial use; XTTS v2 and Drama 3 use their own Coqui and Fish Audio licenses; Stable Audio 3 is free below USD 1M annual revenue under the Stability AI Community License.

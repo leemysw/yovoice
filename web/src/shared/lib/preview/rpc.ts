@@ -195,7 +195,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   if (method === 'generation.alignText') {
     const item = state.history.find(v => v.id === (data as { id: string }).id);
     if (!item) throw new CallError('@yovoice.error.audioMissing');
-    if (!state.models.some(m => m.id.startsWith('qwen3-asr-') || m.id.startsWith('lyric-align-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
+    if (!state.models.some(m => m.id.startsWith('qwen3-asr-') || m.id.startsWith('confucius4-r2t2-') || m.id.startsWith('lyric-align-'))) throw new CallError('@yovoice.error.recognizeModelRequired');
     const letters = ['music', 'sfx', 'score'].includes(item.settings.kind ?? '') ? [] : item.settings.text.replace(/\[[^[\]\n]{1,40}\]/g, '').match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]|[\p{L}\p{N}']+/gu) ?? [];
     if (!letters.length) throw new CallError('@yovoice.error.alignText');
     const span = item.duration / letters.length;

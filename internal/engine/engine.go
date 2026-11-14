@@ -608,13 +608,13 @@ type AlignedWord struct {
 const alignerRate = 16000
 
 // packageStage 在多文件工具包（歌词对齐包、语音识别包）里找出某一步的模型文件，并给出启动内核所需的家族与任务。
-// 两个包都带 Qwen3 Forced Aligner，装了哪个都能做逐字对齐。
+// 这些包都带 Qwen3 Forced Aligner，装了哪个都能做逐字对齐。
 func packageStage(m schema.InstalledModel, prefix, family, task string) (string, catalog.ModelPackage, error) {
 	definition, err := catalog.Lookup(m.ID)
 	if err != nil {
 		return "", definition, err
 	}
-	if definition.Family != "lyric_align" && definition.Family != "qwen3_asr" {
+	if definition.Family != "lyric_align" && definition.Family != "qwen3_asr" && definition.Family != "confucius4_r2t2" {
 		return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
 	}
 	for _, f := range definition.Files {
@@ -706,7 +706,8 @@ type Recognition struct {
 
 // Recognize 用语音识别模型把一段 16 kHz 单声道语音转成文字。timestamps 为真时给出逐词时间，整段一次识别不再切块，
 // 调用方要把音频切到 30 秒左右以内：Qwen3 ASR 由包内的 Qwen3 Forced Aligner 对齐（会话始终配置对齐模型，识别参考文本
-// 和转写共用同一个已启动的引擎）；Parakeet TDT 是单文件模型，逐词时间来自解码本身。
+// 和转写共用同一个已启动的引擎）；Parakeet TDT 是单文件模型，逐词时间来自解码本身。Confucius4-R2T2 不给时间，
+// Words 为空，调用方识别完全部片段后再用包内的对齐模型调 AlignWords（见 catalog.AlignsSeparately）。
 func (e *Engine) Recognize(ctx context.Context, executable string, m schema.InstalledModel, backend, wav string, timestamps bool, progress func(msg.Code, msg.Params)) (result Recognition, err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -719,7 +720,12 @@ func (e *Engine) Recognize(ctx context.Context, executable string, m schema.Inst
 	if definition, err = catalog.Lookup(m.ID); err != nil {
 		return result, err
 	}
-	if definition.Family != "parakeet_tdt" {
+	switch definition.Family {
+	case "confucius4_r2t2":
+		if path, definition, err = packageStage(m, definition.RemotePath, "confucius4_r2t2", "asr"); err != nil {
+			return result, err
+		}
+	case "qwen3_asr":
 		if path, definition, err = packageStage(m, "Qwen3-ASR", "qwen3_asr", "asr"); err != nil {
 			return result, err
 		}
@@ -737,7 +743,7 @@ func (e *Engine) Recognize(ctx context.Context, executable string, m schema.Inst
 	// 引擎就绪后报告“正在识别”；分段转写的调用方把它换成带段数的进度。
 	progress(msg.ActivityRecognize, nil)
 	request := map[string]any{"audio": wav, "text": ""}
-	if timestamps {
+	if timestamps && !catalog.AlignsSeparately(definition.Family) {
 		// 发布包不带引擎默认的 VAD 模型，切段由调用方按停顿完成，这里整段送入。Parakeet 的时间不会超出输入，没有对应的限制项。
 		options := map[string]string{"return_timestamps": "true", "audio_chunk_mode": "none"}
 		if definition.Family == "qwen3_asr" {

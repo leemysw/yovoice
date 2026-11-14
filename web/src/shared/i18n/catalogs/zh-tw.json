@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "語音辨識：轉寫音訊、產生字幕 · 25 種歐洲語言，內建逐詞時間，速度快"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "語音辨識：轉寫音訊、產生字幕 · 網易有道基於 Qwen3 ASR 1.7B 微調，30 種語言，由包內的對齊模型提供時間 · 遵循網易有道模型使用協議"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "使用的辨識模型"
   },

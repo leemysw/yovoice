@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "语音识别：转写音频、生成字幕 · 25 种欧洲语言，自带逐词时间，速度快"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "语音识别：转写音频、生成字幕 · 网易有道基于 Qwen3 ASR 1.7B 微调，30 种语言，由包内的对齐模型给出时间 · 遵循网易有道模型使用协议"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "使用的识别模型"
   },

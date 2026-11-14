@@ -72,6 +72,7 @@ YoVoice downloads and verifies the new package separately, then switches the reg
 | Qwen3 ASR 0.6B (optional) | 0.6B | Q8 · 2.28 GB (with its aligner) | Speech recognition in 30 languages plus Qwen3 Forced Aligner timing: the Transcribe page, “Recognize text” and subtitle export; requires engine v0.9.1 |
 | Qwen3 ASR 1.7B (optional) | 1.7B | Q8 · 3.60 GB (with its aligner) | Same 30 languages, more accurate than 0.6B and slower; requires engine v0.9.1 |
 | Parakeet TDT 0.6B v3 (optional) | 0.6B | Q8 · 916 MB | Speech recognition in 25 European languages with native word timing and punctuation; no Chinese, Japanese or Korean; requires engine v0.9.3 |
+| Confucius4-R2T2 (optional) | 1.7B | Q8 · 3.61 GB (with its aligner) | NetEase Youdao's fine-tune of Qwen3 ASR 1.7B, 30 languages; it gives no timing itself, so the bundled Qwen3 Forced Aligner adds word timing after recognition. NetEase Youdao Model Use License (the package includes LICENSE and NOTICE); requires engine v0.9.3 |
 | Lyric Aligner (optional) | 0.6B | Q8 · 1.30 GB | BS-RoFormer vocal separation plus Qwen3 Forced Aligner: aligns lyrics word by word to a generated song for the playback page and word LRC export; requires engine v0.9.1 |
 
 | Use Case | Recommended Hardware | Recommended Models |

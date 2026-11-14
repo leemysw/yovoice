@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "Speech recognition for transcripts and subtitles · 25 European languages, built-in word timing, fast"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "Speech recognition for transcripts and subtitles · NetEase Youdao fine-tune of Qwen3 ASR 1.7B, 30 languages, timing from the bundled aligner · NetEase Youdao Model Use License"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "Model in use"
   },

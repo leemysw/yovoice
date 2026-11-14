@@ -197,6 +197,34 @@ func TestTranscribeSpeechParakeet(t *testing.T) {
 	}
 }
 
+// Confucius4-R2T2 只给文字：每段末尾补静音后识别，全部识别完再用包里的对齐模型逐段对齐，字幕照常分行。
+// 只装了它时也能给语音版本对齐字幕。
+func TestTranscribeSpeechConfucius(t *testing.T) {
+	wb := recognizeWorkbench(t, true)
+	dir := filepath.Join(wb.Store.Root, "models", "Confucius4-R2T2-GGUF")
+	must(t, os.MkdirAll(filepath.Join(dir, "Qwen3-ForcedAligner-0.6B-GGUF"), 0700))
+	must(t, os.WriteFile(filepath.Join(dir, "r2t2-q8_0.gguf"), nil, 0600))
+	must(t, os.WriteFile(filepath.Join(dir, "Qwen3-ForcedAligner-0.6B-GGUF", "qwen3-forced-aligner-0.6b-q8_0.gguf"), nil, 0600))
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = []schema.InstalledModel{{ID: "confucius4-r2t2-q8", Path: dir}}
+	}, true))
+	wav := filepath.Join(t.TempDir(), "talk.wav")
+	must(t, audio.WriteMono(wav, tone(70, 24000, [2]int{25, 26}, [2]int{50, 51}), 24000))
+	b, e := os.ReadFile(wav)
+	must(t, e)
+	must(t, wb.TranscribeSpeech("访谈.wav", bytes.NewReader(b)))
+	<-wb.Done()
+	s := wb.Store.Read()
+	if s.Activity.Status != "completed" || len(s.Transcripts) != 1 || *s.Activity.ModelID != "confucius4-r2t2-q8" {
+		t.Fatalf("%+v", s.Activity)
+	}
+	c, e := wb.ReadTranscript(s.Transcripts[0].ID)
+	must(t, e)
+	if len(c.Words) != 36 || c.Words[3].Word != "气" || c.Words[12].Start < 25 || len(c.Captions) != 3 || c.Captions[1].Text != "今天天气真好，我们去散步吧" {
+		t.Fatalf("%+v", c)
+	}
+}
+
 // 模拟分离器在每段的 0.5～1 秒、2.5～3 秒返回信号。第二段裁去前两秒，试听仍来自完整原音轨。
 func TestTranscribeIsolatedPlaybackAndBoundaries(t *testing.T) {
 	converter := os.Getenv("YOVOICE_TEST_FFMPEG")

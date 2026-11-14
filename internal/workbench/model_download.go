@@ -81,7 +81,7 @@ func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, versio
 	files := model.PackageFiles()
 	urls := make([]string, len(files))
 	for i, file := range files {
-		if urls[i], err = model.FileURL(s.Preferences.DownloadSource, file.Path); err != nil {
+		if urls[i], err = model.PackageFileURL(s.Preferences.DownloadSource, file); err != nil {
 			return err
 		}
 	}

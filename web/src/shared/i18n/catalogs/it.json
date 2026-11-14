@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "Riconoscimento vocale per trascrizioni e sottotitoli · 25 lingue europee, tempi delle parole integrati, veloce"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "Riconoscimento vocale per trascrizioni e sottotitoli · versione affinata di Qwen3 ASR 1.7B di NetEase Youdao, 30 lingue, tempi dall’allineatore incluso · NetEase Youdao Model Use License"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "Modello in uso"
   },

@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "Распознавание речи: расшифровки и субтитры · 25 европейских языков, встроенный тайминг слов, быстро"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "Распознавание речи для расшифровок и субтитров · дообученная NetEase Youdao модель Qwen3 ASR 1.7B, 30 языков, тайминг от встроенного выравнивателя · NetEase Youdao Model Use License"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "Используемая модель"
   },
