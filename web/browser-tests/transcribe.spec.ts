@@ -30,8 +30,9 @@ test('没装识别模型时转写页说明原因并可去下载', async ({ page 
   await expect(page.getByRole('tab', { name: '语音识别模型', selected: true })).toBeVisible();
   const panel = page.getByRole('tabpanel', { name: '语音识别模型' });
   await expect(panel.getByText('Qwen3 ASR 0.6B')).toBeVisible();
-  await expect(panel.getByText('Qwen3 ASR 1.7B')).toBeVisible();
+  await expect(panel.getByText('Qwen3 ASR 1.7B', { exact: true })).toBeVisible();
   await expect(panel.getByText('Parakeet TDT 0.6B v3')).toBeVisible();
+  await expect(panel.getByText('Confucius4-R2T2', { exact: true })).toBeVisible();
 });
 
 test('装了多个识别模型时可以选用哪一个，选择存进偏好', async ({ page }) => {

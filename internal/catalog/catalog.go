@@ -70,9 +70,13 @@ type ModelVersion struct {
 
 // ModelFile 是多文件模型包中的一个文件。
 type ModelFile struct {
-	Path   string `json:"path"`
-	Size   int64  `json:"size"`
-	SHA256 string `json:"sha256"`
+	// Repo、Revision 不为空时该文件来自另一个 Hugging Face 仓库（ModelScope 源改用 hf-mirror），
+	// 用于把社区转换的模型和 audio.cpp 仓库里的对齐模型放进同一个包。
+	Repo     string `json:"repo,omitempty"`
+	Revision string `json:"revision,omitempty"`
+	Path     string `json:"path"`
+	Size     int64  `json:"size"`
+	SHA256   string `json:"sha256"`
 }
 
 // LegacyModelFiles 冻结本次目录更新前的主文件大小与摘要，不能改成读取运行时目录，
@@ -285,11 +289,15 @@ func IsTool(family string) bool {
 }
 
 // RecognizerFamilies 是语音识别模型家族，按默认优先顺序排列：Qwen3 ASR 覆盖中文等 30 种语言并带对齐模型，
-// Parakeet TDT 覆盖 25 种欧洲语言、自带逐词时间。界面的 recognizerFamilies 与此一致。
-var RecognizerFamilies = []string{"qwen3_asr", "parakeet_tdt"}
+// Parakeet TDT 覆盖 25 种欧洲语言、自带逐词时间，Confucius4-R2T2 是网易有道基于 Qwen3 ASR 1.7B 微调的 30 种语言模型，
+// 自身不给时间，由包内的对齐模型补上。界面的 recognizerFamilies 与此一致。
+var RecognizerFamilies = []string{"qwen3_asr", "parakeet_tdt", "confucius4_r2t2"}
 
 // IsRecognizer 判断模型家族是否为语音识别模型。
 func IsRecognizer(family string) bool { return slices.Contains(RecognizerFamilies, family) }
+
+// AlignsSeparately 判断识别模型是否自己不给逐词时间、要在识别后用包内的 Qwen3 Forced Aligner 另行对齐。
+func AlignsSeparately(family string) bool { return family == "confucius4_r2t2" }
 
 // PackageFiles 返回需要下载的文件；单文件模型只有主模型一项。
 func (m ModelPackage) PackageFiles() []ModelFile {
@@ -337,8 +345,18 @@ func Lookup(id string) (ModelPackage, error) {
 	}
 	return ModelPackage{}, msg.Err(msg.ErrModelUnsupported, nil)
 }
+
+// URL 返回主模型文件的下载地址。
 func (m ModelPackage) URL(source string) (string, error) {
-	return m.FileURL(source, m.RemotePath)
+	return m.PackageFileURL(source, m.MainFile())
+}
+
+// PackageFileURL 返回包内文件的下载地址；文件另写了来源仓库时按该仓库生成。
+func (m ModelPackage) PackageFileURL(source string, file ModelFile) (string, error) {
+	if file.Repo != "" {
+		m.Repo, m.Revision, m.ModelScope = file.Repo, file.Revision, ""
+	}
+	return m.FileURL(source, file.Path)
 }
 
 // FileURL 返回模型包内某个文件的下载地址。

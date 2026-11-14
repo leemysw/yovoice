@@ -52,7 +52,7 @@ func (w *Workbench) RecognizeVoice(id string) error {
 			return e
 		}
 		input := filepath.Join(dir, "speech.wav")
-		if e = audio.WriteMono(input, audio.Resample(samples, rate, recognizeRate), recognizeRate); e != nil {
+		if e = audio.WriteMono(input, recognizeInput(modelFamily(model.ID), audio.Resample(samples, rate, recognizeRate)), recognizeRate); e != nil {
 			return e
 		}
 		heard, e := w.engine.Recognize(ctx, *s.RuntimePath, model, s.Preferences.Backend, input, false, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) })
@@ -90,6 +90,21 @@ func (w *Workbench) recognizer(s schema.State) (schema.InstalledModel, error) {
 		return w.engineModel(s, id)
 	}
 	return w.toolModel(s, catalog.RecognizerFamilies...)
+}
+
+// modelFamily 返回目录里模型的家族，不在目录里时为空。
+func modelFamily(id string) string {
+	p, _ := catalog.Lookup(id)
+	return p.Family
+}
+
+// recognizeInput 是送去识别的音频。Confucius4-R2T2 在音频紧接着最后一个词结束时常把这个词漏掉，
+// 末尾补 300 毫秒静音；不改动 samples 底层的其余数据。
+func recognizeInput(family string, samples []float32) []float32 {
+	if family != "confucius4_r2t2" {
+		return samples
+	}
+	return append(slices.Clip(samples), make([]float32, recognizeRate*3/10)...)
 }
 
 // toolModel 返回已安装的某个工具模型（按优先顺序找 families 里的第一个），没有时提示下载语音识别模型。

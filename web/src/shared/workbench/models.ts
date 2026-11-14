@@ -22,7 +22,7 @@ export const musicStyleLimit = (id: string) => isYuE(id) ? 2000 : 512;
 // 设置 › 模型按用途分子页：语音、音乐（歌曲生成、扒谱、歌词对齐、分轨）、编曲音色库和语音识别。
 const musicFamilies = new Set(['ace_step', 'yue2', 'stable_audio', 'sheetsage2', 'lyric_align', 'htdemucs_6stems', 'bs_roformer', 'muscriptor']);
 /** 语音识别模型家族，与后端 catalog.IsRecognizer 一致。 */
-export const recognizerFamilies = new Set(['qwen3_asr', 'parakeet_tdt']);
+export const recognizerFamilies = new Set(['qwen3_asr', 'parakeet_tdt', 'confucius4_r2t2']);
 export type ModelKind = 'voice-models' | 'music-models' | 'soundfonts' | 'asr-models';
 export const modelTab = (family: string): ModelKind => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : recognizerFamilies.has(family) ? 'asr-models' : 'voice-models';
 export const modelTabs: string[] = ['voice-models', 'music-models', 'soundfonts', 'asr-models'];
@@ -33,7 +33,7 @@ export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 // 歌词对齐模型只用于给已生成的歌曲做逐字对齐，可选下载。
 export const isAligner = (id: string) => id.startsWith('lyric-align-');
 // 语音识别模型只用于把声音样本转成参考文本，可选下载。
-export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-') || id.startsWith('parakeet-');
+export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-') || id.startsWith('parakeet-') || id.startsWith('confucius4-r2t2-');
 // 分轨模型把一个版本分成六轨，转为 MIDI 模型把版本转成编曲作品，都是可选下载的工具。
 export const isStemModel = (id: string) => id.startsWith('htdemucs-');
 export const isMidiModel = (id: string) => id.startsWith('muscriptor-');

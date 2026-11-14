@@ -1418,6 +1418,53 @@
       ]
     },
     {
+      "id": "confucius4-r2t2-q8",
+      "name": "Confucius4-R2T2",
+      "family": "confucius4_r2t2",
+      "task": "asr",
+      "engineMinimum": "v0.9.3",
+      "version": "1",
+      "precision": "Q8",
+      "directory": "Confucius4-R2T2-GGUF",
+      "remotePath": "r2t2-q8_0.gguf",
+      "size": 3607503102,
+      "files": [
+        {
+          "repo": "davidxifeng/Confucius4-R2T2-gguf",
+          "revision": "a8e6b385d7df7eae9519363e07034a209004797a",
+          "path": "r2t2-q8_0.gguf",
+          "size": 2477512064,
+          "sha256": "19f5ccd624484bcb5d44301437de41560b0ecc40c430e8850dfeefefbe82ccf5"
+        },
+        {
+          "repo": "davidxifeng/Confucius4-R2T2-gguf",
+          "revision": "a8e6b385d7df7eae9519363e07034a209004797a",
+          "path": "LICENSE",
+          "size": 11071,
+          "sha256": "4d9321cdad58182faa878b015de7d60069881614ddd7571de70f751a9b8e3811"
+        },
+        {
+          "repo": "davidxifeng/Confucius4-R2T2-gguf",
+          "revision": "a8e6b385d7df7eae9519363e07034a209004797a",
+          "path": "LICENSE_zh",
+          "size": 7733,
+          "sha256": "18b438311ebb842c15a7c91d9dbb59034efdaf6fff0d105031ef7baf5eeed275"
+        },
+        {
+          "repo": "davidxifeng/Confucius4-R2T2-gguf",
+          "revision": "a8e6b385d7df7eae9519363e07034a209004797a",
+          "path": "NOTICE",
+          "size": 2378,
+          "sha256": "445e7e903547cfcd503cba61f258f4378209b4ba9989b1a5b0b6518a3eeb6157"
+        },
+        {
+          "path": "Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
+          "size": 1129969856,
+          "sha256": "bf4fec616f77a20d89a649cd1c97bda269644eeb3cf906d1f7488a52d71f7cb2"
+        }
+      ]
+    },
+    {
       "id": "parakeet-tdt-0.6b-v3-q8",
       "name": "Parakeet TDT 0.6B v3",
       "family": "parakeet_tdt",

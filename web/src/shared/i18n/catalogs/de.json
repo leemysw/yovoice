@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "Spracherkennung für Transkripte und Untertitel · 25 europäische Sprachen, eigenes Wort-Timing, schnell"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "Spracherkennung für Transkripte und Untertitel · Feinabstimmung von Qwen3 ASR 1.7B durch NetEase Youdao, 30 Sprachen, Zeitangaben vom mitgelieferten Aligner · NetEase Youdao Model Use License"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "Verwendetes Modell"
   },

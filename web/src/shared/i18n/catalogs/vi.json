@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "Nhận dạng giọng nói cho bản chép và phụ đề · 25 ngôn ngữ châu Âu, có sẵn thời gian từng từ, nhanh"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "Nhận dạng giọng nói để chép lời và tạo phụ đề · bản tinh chỉnh Qwen3 ASR 1.7B của NetEase Youdao, 30 ngôn ngữ, thời gian do mô hình căn chỉnh đi kèm · NetEase Youdao Model Use License"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "Mô hình đang dùng"
   },

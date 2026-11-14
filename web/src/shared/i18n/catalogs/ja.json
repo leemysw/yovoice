@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "音声認識：文字起こし、字幕 · 欧州 25 言語、単語タイミング内蔵、高速"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "音声認識：文字起こしと字幕 · NetEase Youdao による Qwen3 ASR 1.7B の微調整版、30 言語、タイミングは同梱のアライナーで付与 · NetEase Youdao モデル使用許諾"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "使用する認識モデル"
   },

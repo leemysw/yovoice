@@ -10,6 +10,7 @@
 - ocho（https://github.com/leemysw/ocho-release ）：Apache-2.0，源码不公开，以二进制形式的独立可执行程序随 yovoice 分发、作为子进程运行；许可随包位于 `tools/ocho/LICENSE.txt`（macOS App 为 `Contents/Resources/tools/ocho/`）。
 
 - VoxCPM2：https://github.com/OpenBMB/VoxCPM ，模型不随应用分发，使用 Apache-2.0 许可：https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE 。
+- [Confucius4-R2T2](https://github.com/netease-youdao/Confucius4-R2T2)：网易有道，[网易有道模型使用协议](https://github.com/netease-youdao/Confucius4-R2T2/blob/master/MODEL_LICENSE)：使用者或其关联方的产品上一个自然月月活超过 1 亿，或上一年营收超过 10 亿元人民币时，须另向网易有道申请许可。GGUF 转换版来自 [davidxifeng/Confucius4-R2T2-gguf](https://huggingface.co/davidxifeng/Confucius4-R2T2-gguf)，下载时随模型保存协议原文 LICENSE / LICENSE_zh 与 NOTICE，不随应用安装包分发。本衍生品中对原始模型所做的任何修改，均未获得原始模型权利人的认可、保证或担保，原始模型权利人对与本衍生品相关的所有责任予以免责。
 
 ## OmniVoice and Qwen3-TTS
 

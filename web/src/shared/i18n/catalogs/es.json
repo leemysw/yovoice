@@ -3158,6 +3158,9 @@
   "@yovoice.settings.modelDesc.parakeet": {
     "defaultMessage": "Reconocimiento de voz para transcripciones y subtítulos · 25 idiomas europeos, sincronización por palabra integrada, rápido"
   },
+  "@yovoice.settings.modelDesc.confucius": {
+    "defaultMessage": "Reconocimiento de voz para transcripciones y subtítulos · ajuste de NetEase Youdao sobre Qwen3 ASR 1.7B, 30 idiomas, tiempos del alineador incluido · NetEase Youdao Model Use License"
+  },
   "@yovoice.settings.recognizeModel": {
     "defaultMessage": "Modelo en uso"
   },
