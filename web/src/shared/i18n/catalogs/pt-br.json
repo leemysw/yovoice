@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "Prévia do vídeo"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "Redimensionar vídeo"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "Este vídeo não pode ser reproduzido aqui, então só o áudio será tocado"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "Tocar linha atual"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "Reproduzir / pausar"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "Linha anterior"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "Pressione de novo para parar"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "Reproduz a partir da posição atual; ao digitar em uma linha, o espaço continua sendo digitado"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "Com o cursor no início da linha"

@@ -218,7 +218,16 @@ async function seedTranscript(page: Page, captions: { start: number; end: number
     const modulePath = '/src/shared/lib/sound.ts'; const { encodeWav } = await import(/* @vite-ignore */ modulePath);
     const audio = new AudioBuffer({ length: 24000 * seconds, sampleRate: 24000, numberOfChannels: 1 }); audio.getChannelData(0).fill(0.1);
     const files: [string, Blob][] = [[`${id}.wav`, encodeWav(audio)], [`${id}.json`, new Blob([JSON.stringify({ text: '', words: [], captions })], { type: 'application/json' })]];
-    if (video) files.push([video, new Blob(['not a video'], { type: 'video/mp4' })]);
+    // .webm 用画布现录一秒能播的视频，其他扩展名放一个放不了的假文件。
+    if (video?.endsWith('.webm')) {
+      const canvas = Object.assign(document.createElement('canvas'), { width: 64, height: 36 });
+      const paint = canvas.getContext('2d')!; const timer = setInterval(() => { paint.fillStyle = `hsl(${Date.now() % 360} 60% 50%)`; paint.fillRect(0, 0, 64, 36); }, 40);
+      const recorder = new MediaRecorder(canvas.captureStream(25), { mimeType: 'video/webm' }); const chunks: Blob[] = [];
+      recorder.ondataavailable = event => chunks.push(event.data);
+      await new Promise<void>(resolve => { recorder.onstop = () => resolve(); recorder.start(); setTimeout(() => recorder.stop(), 1000); });
+      clearInterval(timer);
+      files.push([video, new Blob(chunks, { type: 'video/webm' })]);
+    } else if (video) files.push([video, new Blob(['not a video'], { type: 'video/mp4' })]);
     await new Promise<void>((resolve, reject) => {
       const req = indexedDB.open('voice-workbench-audio', 1); req.onupgradeneeded = () => req.result.createObjectStore('audio'); req.onerror = () => reject(req.error);
       req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); for (const [name, blob] of files) tx.objectStore('audio').put(blob, name); tx.oncomplete = () => { db.close(); resolve(); }; };
@@ -284,6 +293,35 @@ test('原文件是视频时显示画面；视频放不了时提示并退回只�
   await expect(editor.locator('video')).toHaveCount(0);
   await editor.getByRole('button', { name: '00:00.000', exact: true }).click();
   await expect(editor.locator('.transcribe-line[data-playing="true"]')).toHaveAttribute('data-line', '0');
+});
+
+test('视频在上、字幕在下：空格播放暂停，字幕里打字时空格照常输入；拖动分隔条调整画面高度，记在本机', async ({ page }) => {
+  const captions = Array.from({ length: 30 }, (_, i) => ({ start: i * .03, end: i * .03 + .03, text: `第 ${i + 1} 句` }));
+  const editor = await seedTranscript(page, captions, 'd'.repeat(32) + '.webm');
+  const video = editor.locator('video');
+  await expect(video).toHaveJSProperty('readyState', 4);
+  const paused = () => video.evaluate((element: HTMLVideoElement) => element.paused);
+  await page.keyboard.press('Space');
+  await expect.poll(paused).toBe(false);
+  await page.keyboard.press('Space');
+  await expect.poll(paused).toBe(true);
+  // 光标在字幕里时空格是文字，不播放。
+  const line = editor.getByRole('textbox', { name: '第 1 行字幕', exact: true });
+  await line.click(); await page.keyboard.press('End'); await page.keyboard.press('Space');
+  await expect(line).toHaveValue('第 1 句 ');
+  expect(await paused()).toBe(true);
+  // 分隔条可用键盘调整：画面变高，重新打开后保持。
+  const stage = editor.locator('.transcribe-video');
+  const before = (await stage.boundingBox())!.height;
+  const handle = editor.getByRole('separator', { name: '调整视频大小', exact: true });
+  await handle.focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowDown');
+  await expect.poll(async () => (await stage.boundingBox())!.height).toBeGreaterThan(before + 20);
+  const after = (await stage.boundingBox())!.height;
+  await page.reload();
+  await page.getByTestId('nav-transcribe').click();
+  await page.getByTestId('transcribe-page').getByRole('button', { name: '访谈', exact: true }).click();
+  await expect.poll(async () => Math.round((await editor.locator('.transcribe-video').boundingBox())?.height ?? 0)).toBe(Math.round(after));
 });
 
 test('语音版本导出字幕：先对齐正文时间，保存在版本上，再按句导出', async ({ page }, testInfo) => {

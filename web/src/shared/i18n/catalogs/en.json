@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "Video preview"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "Resize video"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "This video can't be played here, so only its audio will play"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "Play current line"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "Play / pause"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "Previous line"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "Press again to stop"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "Plays from the current position; typing in a line still types a space"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "With the cursor at the start of the line"

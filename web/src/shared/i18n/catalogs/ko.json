@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "동영상 미리보기"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "동영상 크기 조정"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "이 동영상은 여기서 재생할 수 없어 소리만 재생합니다"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "현재 줄 재생"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "재생 / 일시정지"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "이전 줄"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "다시 누르면 중지됩니다"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "현재 위치부터 재생합니다. 자막을 입력하는 중에는 스페이스가 그대로 입력됩니다"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "커서가 줄 맨 앞에 있을 때"

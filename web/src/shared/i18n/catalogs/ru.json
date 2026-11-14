@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "Предпросмотр видео"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "Изменить размер видео"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "Это видео нельзя воспроизвести здесь, поэтому будет звучать только аудио"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "Воспроизвести текущую строку"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "Воспроизведение / пауза"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "Предыдущая строка"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "Нажмите ещё раз, чтобы остановить"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "Воспроизводит с текущего места; при вводе в строке пробел печатается как обычно"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "Когда курсор в начале строки"

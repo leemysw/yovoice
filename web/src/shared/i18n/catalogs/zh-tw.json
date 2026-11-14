@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "影片預覽"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "調整影片大小"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "這部影片無法在這裡播放，改為只播放聲音"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "試聽目前這行"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "播放 / 暫停"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "上一行"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "再按一次停止"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "從目前位置播放，在字幕裡打字時空白鍵照常輸入"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "游標位於行首時"

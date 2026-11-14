@@ -114,6 +114,7 @@ export const hotkeyTree: HotkeyArea[] = [
     ] },
     { id: 'transcribe.edit', scope: 'transcribe.edit', subs: [
       { id: 'transcribe.edit.play', items: [
+        ['transcribe.playPause', 'space', hint],
         ['transcribe.playLine', 'mod+enter', hint],
         ['transcribe.prevLine', 'alt+up'],
         ['transcribe.nextLine', 'alt+down'],

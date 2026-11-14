@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "Videovorschau"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "Videogröße ändern"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "Dieses Video kann hier nicht abgespielt werden, daher wird nur der Ton wiedergegeben"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "Aktuelle Zeile abspielen"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "Wiedergabe / Pause"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "Vorherige Zeile"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "Erneut drücken zum Stoppen"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "Spielt ab der aktuellen Position; beim Tippen in einer Zeile bleibt die Leertaste ein Leerzeichen"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "Mit dem Cursor am Zeilenanfang"
