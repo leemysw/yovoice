@@ -4382,6 +4382,9 @@
   "@yovoice.transcribe.video": {
     "defaultMessage": "動画プレビュー"
   },
+  "@yovoice.transcribe.resizeVideo": {
+    "defaultMessage": "動画のサイズを変更"
+  },
   "@yovoice.transcribe.videoUnsupported": {
     "defaultMessage": "この動画はここでは再生できないため、音声のみ再生します"
   },
@@ -5444,6 +5447,9 @@
   "@yovoice.hotkeys.cmd.transcribe.playLine": {
     "defaultMessage": "現在の行を再生"
   },
+  "@yovoice.hotkeys.cmd.transcribe.playPause": {
+    "defaultMessage": "再生 / 一時停止"
+  },
   "@yovoice.hotkeys.cmd.transcribe.prevLine": {
     "defaultMessage": "前の行"
   },
@@ -5749,6 +5755,9 @@
   },
   "@yovoice.hotkeys.hint.transcribe.playLine": {
     "defaultMessage": "もう一度押すと停止します"
+  },
+  "@yovoice.hotkeys.hint.transcribe.playPause": {
+    "defaultMessage": "現在の位置から再生。字幕を入力中はスペースがそのまま入力されます"
   },
   "@yovoice.hotkeys.hint.transcribe.joinPrev": {
     "defaultMessage": "カーソルが行頭にあるとき"

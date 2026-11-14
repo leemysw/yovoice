@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState }
 import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { ResizeHandle, useResizable } from '@astryxdesign/core/Resizable';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { ArrowLeft, Copy, Download, ListVideo, Merge, Play, Redo2, Replace, Scissors, Search, Square, Trash2, Undo2 } from 'lucide-react';
@@ -32,7 +33,8 @@ const clock = (seconds: number) => srtTime(seconds).replace(/^00:/, '').replace(
 // 一份转写的字幕编辑，与故事的字幕编辑手感一致：每行是一段可直接改的文字，回车在光标处拆分，
 // 行首退格与上一行合并、行尾删除与下一行合并，空行退格删除；悬停一行显示拆分、合并和删除。
 // 改动自动保存，可用按钮或 Ctrl+Z / ⌘Z 撤销、Ctrl+Shift+Z / Ctrl+Y / ⇧⌘Z 重做。
-// 有原音频时点行首时间试听这一行，打开连续播放时播完接着播下一行；原文件是视频时旁边显示画面。
+// 有原音频时点行首时间试听这一行，打开连续播放时播完接着播下一行；空格从当前位置播放或暂停，播放时列表高亮并滚到当前这一行。
+// 原文件是视频时像剪辑软件一样上面是画面、下面是滚动的字幕，中间的分隔条拖动调整画面高度，高度记在本机。
 // 导出 SRT / WebVTT 用编辑后的字幕。
 // 还没编辑过的转写由本地服务按设置里的断句参数分好行。
 // 快捷键（可在设置里改）：试听当前行、上下移动当前行、连续播放、查找与查找下一个、删除行、导出、翻页、返回列表；
@@ -51,6 +53,7 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
   const [searching, setSearching] = useState(false);
   const [find, setFind] = useState('');
   const [replacement, setReplacement] = useState('');
+  const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const findBar = useRef<HTMLDivElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -240,6 +243,10 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
   const [loaded, setLoaded] = useState<{ file: string; url: string } | null>(null);
   const mediaSrc = loaded?.file === source ? loaded.url : '';
   const [playing, setPlaying] = useState<number | null>(null);
+  // 媒体当前时间与是否在播：不论是试听一行、空格播放还是用视频自带的控件，列表都跟着高亮和滚动。
+  const [time, setTime] = useState(0);
+  const [running, setRunning] = useState(false);
+  const stage = useResizable({ direction: 'vertical', defaultSize: '45%', minSize: 120, maxSize: '70%', containerRef: root, autoSaveId: 'transcribe-video-height' });
   const [autoPlay, setAutoPlay] = useState(() => readLocal(autoPlayKey) !== 'false');
   const stopAt = useRef(0);
   useEffect(() => {
@@ -249,6 +256,14 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
     return () => { cancelled = true; releaseMediaUrl(url); };
   }, [source]);
   function stop() { media.current?.pause(); }
+  // 空格：从当前位置播放或暂停整段，不限在某一行；播到结尾后从头开始。
+  function togglePlay() {
+    const element = media.current;
+    if (!element) return;
+    if (!element.paused) { element.pause(); return; }
+    if (element.ended) element.currentTime = 0;
+    void element.play().catch(() => setError(t('@yovoice.error.audioPlayFailed')));
+  }
   function playLine(element: HTMLMediaElement, index: number) {
     stopAt.current = captions[index].end;
     element.currentTime = captions[index].start;
@@ -272,13 +287,26 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
     if (!filter) setPage(Math.floor(next / pageSize) + 1);
   }
   const toggleAutoPlay = () => { setAutoPlay(!autoPlay); writeLocal(autoPlayKey, String(!autoPlay)); };
-  // 正在播放的行滚到看得见的位置，不移动输入光标。
+  // 播放中高亮的行：试听时是试听的那一行，否则是当前时间落在的那一行。
+  const at = useMemo(() => captions.findIndex(c => time >= c.start && time < c.end), [captions, time]);
+  const live = playing ?? (running && at >= 0 ? at : null);
+  // 播到新的一行时把它滚到列表中间，不在本页时先翻过去；只在换行时跟一次，播放中手动翻页不会被拉回。
+  // 正在某一行里打字时不翻页也不滚动，免得光标被带走。
+  const follow = useRef(false);
+  useEffect(() => { follow.current = live !== null; }, [live]);
   useEffect(() => {
-    if (playing !== null) list.current?.querySelector(`[data-line="${playing}"]`)?.scrollIntoView({ block: 'nearest' });
-  }, [playing, current]);
+    if (live === null || !follow.current) return;
+    if (document.activeElement instanceof HTMLTextAreaElement && list.current?.contains(document.activeElement)) { follow.current = false; return; }
+    if (!filter && Math.floor(live / pageSize) + 1 !== current) { setPage(Math.floor(live / pageSize) + 1); return; }
+    follow.current = false;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    list.current?.querySelector(`[data-line="${live}"]`)?.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+  }, [live, current, filter]);
   const mediaEvents = {
-    onTimeUpdate: (event: { currentTarget: HTMLMediaElement }) => tick(event.currentTarget),
-    onPause: () => setPlaying(null), onEnded: () => setPlaying(null),
+    onTimeUpdate: (event: { currentTarget: HTMLMediaElement }) => { setTime(event.currentTarget.currentTime); tick(event.currentTarget); },
+    onSeeked: (event: { currentTarget: HTMLMediaElement }) => setTime(event.currentTarget.currentTime),
+    onPlay: () => setRunning(true),
+    onPause: () => { setPlaying(null); setRunning(false); }, onEnded: () => { setPlaying(null); setRunning(false); },
   };
   // 试听当前行：正在播放时停止，否则播焦点所在的行，焦点不在行里时播本页第一行。带 ⌘ 的按键在输入框里也能用。
   function playCurrent() {
@@ -289,6 +317,8 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
 
   const back = () => { void flush(); onBack(); };
   useHotkey('global.back', back, { enabled: active });
+  useHotkey('transcribe.playPause', togglePlay, { enabled: active && !!mediaSrc });
+  useHotkey('global.playPause', togglePlay, { enabled: active && !!mediaSrc, inInput: true });
   useHotkey('transcribe.playLine', playCurrent, { enabled: active && !!mediaSrc && (playing !== null || rows.length > 0) });
   useHotkey('transcribe.prevLine', () => moveLine(-1), { enabled: active && shown.length > 0, repeat: true });
   useHotkey('transcribe.nextLine', () => moveLine(1), { enabled: active && shown.length > 0, repeat: true });
@@ -331,7 +361,7 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
   const message = error || notice || status;
   const empty = !content ? t('@yovoice.transcribe.loading') : filter ? t('@yovoice.transcribe.noMatch') : t('@yovoice.transcribe.noCaptions');
 
-  return <VStack gap={4} className="library-page transcribe-editor" data-testid="transcript-editor">
+  return <VStack ref={root} gap={4} className="library-page transcribe-editor" data-video={videoFile ? 'true' : undefined} data-testid="transcript-editor">
     {source && !videoFile ? <audio hidden ref={element => { media.current = element; }} src={mediaSrc || undefined} preload="metadata" {...mediaEvents} /> : null}
     <HStack className="library-heading transcribe-heading" hAlign="between" vAlign="center" gap={3}>
       <HStack className="grow transcribe-title" gap={2} vAlign="center">
@@ -370,14 +400,18 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
       <Button size="sm" variant="secondary" icon={<Replace />} label={t('@yovoice.transcribe.replaceAll')} isDisabled={!find} onClick={replace} />
       {find ? <small>{t('@yovoice.transcribe.matches', { count: matches.length })}</small> : null}
     </HStack> : null}
-    <HStack className="transcribe-body" gap={6} vAlign="start">
-      <VStack className="grow transcribe-main" gap={4}>
+    {videoFile ? <>
+      <TranscriptVideo src={mediaSrc} caption={at >= 0 ? captions[at].text.trim() : ''} height={stage.size} label={t('@yovoice.transcribe.video')} mediaRef={element => { media.current = element; }} {...mediaEvents}
+        onError={() => { setVideoFailed(true); setPlaying(null); setRunning(false); setNotice(t('@yovoice.transcribe.videoUnsupported')); }} />
+      <ResizeHandle label={t('@yovoice.transcribe.resizeVideo')} direction="vertical" pillPlacement="center" resizable={stage.props} />
+    </> : null}
+    <VStack className="grow transcribe-main" gap={4}>
         <VStack ref={list} className="transcribe-lines" gap={0}>
           {!rows.length ? <p className="transcribe-empty" role="status">{empty}</p> : null}
           {rows.map(index => {
             const c = captions[index];
             const range = `${srtTime(c.start)} → ${srtTime(c.end)}`;
-            return <HStack key={index} className="transcribe-line" data-line={index} data-playing={playing === index || undefined} gap={3} vAlign="start">
+            return <HStack key={index} className="transcribe-line" data-line={index} data-playing={live === index || undefined} gap={3} vAlign="start">
               {source
                 ? <Button size="sm" variant="ghost" className="transcribe-time" icon={playing === index ? <Square /> : <Play />} label={clock(c.start)} tooltip={withHotkey(range, keys.play)}
                   isDisabled={!mediaSrc} onClick={() => audition(index)} />
@@ -401,24 +435,18 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
           <small>{current} / {pages}</small>
           <Button size="sm" variant="ghost" label={t('@yovoice.subtitle.next')} isDisabled={current >= pages} tooltip={withHotkey(t('@yovoice.subtitle.next'), keys.nextPage)} aria-keyshortcuts={aria.nextPage} onClick={() => setPage(current + 1)} />
         </HStack> : null}
-      </VStack>
-      {videoFile ? <TranscriptVideo src={mediaSrc} captions={captions} label={t('@yovoice.transcribe.video')} mediaRef={element => { media.current = element; }} {...mediaEvents}
-        onError={() => { setVideoFailed(true); setPlaying(null); setNotice(t('@yovoice.transcribe.videoUnsupported')); }} /> : null}
-    </HStack>
+    </VStack>
   </VStack>;
 }
 
-// 视频预览：跟着页面滚动停在一侧，画面下部叠加当前时间的字幕，播放和拖动进度时更新。
-function TranscriptVideo({ src, captions, label, mediaRef, onTimeUpdate, onPause, onEnded, onError }: {
-  src: string; captions: TranscriptCaption[]; label: string; mediaRef: (element: HTMLVideoElement | null) => void;
-  onTimeUpdate: (event: { currentTarget: HTMLMediaElement }) => void; onPause: () => void; onEnded: () => void; onError: () => void;
+// 视频画面：高度由下方的分隔条决定，画面按比例放在其中，下部叠加当前时间的字幕。
+function TranscriptVideo({ src, caption, height, label, mediaRef, onError, ...events }: {
+  src: string; caption: string; height: number; label: string; mediaRef: (element: HTMLVideoElement | null) => void; onError: () => void;
+  onTimeUpdate: (event: { currentTarget: HTMLMediaElement }) => void; onSeeked: (event: { currentTarget: HTMLMediaElement }) => void;
+  onPlay: () => void; onPause: () => void; onEnded: () => void;
 }) {
-  const [time, setTime] = useState(0);
-  const caption = captions.find(c => time >= c.start && time < c.end)?.text.trim();
-  return <VStack className="transcribe-video" gap={0}>
-    <video ref={mediaRef} src={src || undefined} aria-label={label} controls playsInline preload="metadata"
-      onTimeUpdate={event => { setTime(event.currentTarget.currentTime); onTimeUpdate(event); }}
-      onSeeked={event => setTime(event.currentTarget.currentTime)} onPause={onPause} onEnded={onEnded} onError={src ? onError : undefined} />
+  return <VStack className="transcribe-video" gap={0} style={{ height }}>
+    <video ref={mediaRef} src={src || undefined} aria-label={label} controls playsInline preload="metadata" {...events} onError={src ? onError : undefined} />
     {caption ? <p className="transcribe-video-caption" aria-hidden="true">{caption}</p> : null}
   </VStack>;
 }
