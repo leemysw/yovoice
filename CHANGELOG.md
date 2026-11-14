@@ -6,6 +6,9 @@
 
 ### English
 
+- Songs now have a Share to community button right in the player, and when a song finishes generating Ocho offers to share it so more people can hear it. The button opens the share dialog directly.
+- Settings › Models brings voice models, music models, score sound fonts and speech recognition together in one tab, with sub-tabs to switch between them.
+- New speech recognition models: Qwen3 ASR 1.7B (the same 30 languages, more accurate) and Parakeet TDT 0.6B v3 (25 European languages, with its own word timing; needs engine v0.9.3). With more than one installed, choose which one Transcribe, Recognize text and the CLI use under Settings › Models › Speech recognition.
 - The bottom player is tidier: play and the time sit together on the left. In speech, song and sound-effect projects the buttons beside play switch to the previous or next version (playback carries on if it was playing); the go-to-start and go-to-end buttons and the zoom control are gone from the single-track player (Home and End still jump). The multitrack timeline keeps its zoom.
 - Keyboard shortcuts: a new Settings › Keyboard shortcuts tab lists every shortcut by area — Global, Speech generation, Transcribe, Story narration, Music generation, Sound library and Ocho. Click a shortcut and press new keys to change it; conflicts and keys reserved by the system are flagged, and you can restore defaults per shortcut or all at once. Turn all shortcuts or a single area off, and export or import your shortcuts as a file with a preview of every change. Press ⌘/ (Ctrl+/ on Windows and Linux) on any page to see the shortcuts available there.
 - Shortcuts no longer step on each other or on typing:
@@ -33,6 +36,9 @@
 
 ### 简体中文
 
+- 歌曲的播放栏上直接有“分享到社区”按钮；歌曲生成好后 Ocho 会提示分享，让更多人听到，点一下直接打开分享弹窗。
+- “设置 › 模型”把语音模型、音乐模型、编曲音色库和语音识别模型合到一个标签里，用子标签切换。
+- 新增语音识别模型：Qwen3 ASR 1.7B（同样 30 种语言，更准）和 Parakeet TDT 0.6B v3（25 种欧洲语言，自带逐词时间，需要 v0.9.3 内核）。装了多个时，可在“设置 › 模型 › 语音识别模型”里选语音转写、识别文字和命令行使用哪一个。
 - 底部播放器更紧凑：播放键和时间靠左放在一起。语音、歌曲与音效作品里播放键两侧改为切换上一版、下一版，播放中切换会接着播放；单轨播放器去掉回到开头、结尾按钮和缩放（Home、End 键照常可用），多轨时间线保留缩放。
 - 快捷键：设置里新增“快捷键”标签，按全局、语音生成、语音转写、故事配音、音乐生成、我的声音和 Ocho 分区列出全部快捷键。点按键后按下新的组合即可修改，遇到冲突或系统占用的按键会提示，可逐条或全部恢复默认；可以关闭全部快捷键或单个功能区，也可以把快捷键导出成文件，导入时先预览每一处变化。在任意页面按 ⌘/（Windows 和 Linux 上为 Ctrl+/）查看当前页面能用的快捷键。
 - 快捷键不再互相干扰，也不再妨碍打字：

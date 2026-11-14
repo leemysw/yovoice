@@ -1,4 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
+import { seedState } from './seed';
+import { emptyState } from '../src/shared/workbench';
+import { createMusicDraft } from '../src/features/music/music-draft';
 
 // Ocho 融入应用：选中内容随消息带上、写操作走确认卡片、偏好记忆在设置里可查看与删除、生成结束时主动提示。
 // 验收截图：设置 YOVOICE_SHOTS 目录时才保存，默认不落盘。
@@ -131,4 +134,28 @@ test('生成结束时 Ocho 主动提示：失败可一键诊断，关闭主动�
   await activity('failed');
   await page.waitForTimeout(500);
   await expect(nudge).toHaveCount(0);
+});
+
+test('歌曲生成好时 Ocho 邀请分享到社区，点按钮直接打开分享弹窗', async ({ page }) => {
+  const state = emptyState();
+  const draft = { ...createMusicDraft('zh-CN'), id: 'f'.repeat(32), title: '夏夜' };
+  state.drafts = [draft];
+  state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: 4, settings: draft }];
+  await page.goto('/');
+  await seedState(page, state); await page.reload();
+  await configureAI(page);
+  const activity = (status: string) => page.evaluate(([status, projectId]) => {
+    (window as unknown as { __previewActivity: (slot: string, value: unknown) => void }).__previewActivity('activity', {
+      kind: 'generate', code: '@yovoice.activity.generate', params: {}, status, received: 0, total: 0, projectId, startedAt: '2026-10-18T00:00:00Z',
+      errorCode: null, errorParams: {}, modelId: null,
+    });
+  }, [status, draft.id]);
+  await activity('running');
+  await activity('completed');
+  const nudge = page.getByTestId('assistant-nudge');
+  await expect(nudge).toContainText('分享到 yovoice 社区');
+  await nudge.getByRole('button', { name: '分享到社区' }).click();
+  await expect(page.getByRole('dialog', { name: '分享到社区' })).toBeVisible();
+  // 分享不经过对话，面板保持关闭。
+  await expect(page.getByTestId('assistant-panel')).toHaveCount(0);
 });

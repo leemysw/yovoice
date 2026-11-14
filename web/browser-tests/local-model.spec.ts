@@ -41,7 +41,7 @@ test('本地模型按所选精度请求原生文件框，取消不改变状态�
   }, { state, catalog });
   await page.goto('/');
   await page.getByTestId('nav-settings').click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const row = page.locator('[data-model-ids~="kokoro-82m-q8"]');
   await row.getByRole('radio', { name: 'BF16', exact: true }).click();
   // 导入说明收进按钮提示，不再占一段常驻文字。
@@ -91,7 +91,7 @@ test('扫描目录自动填入 IndexTTS 2.0 和 2.5，确认才批量登记', as
   }, { state, catalog });
   await page.goto('/');
   await page.getByTestId('nav-settings').click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   await page.getByRole('button', { name: '扫描本地模型目录' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('combobox', { name: '对应型号' }).nth(0)).toContainText('IndexTTS 2.0 · Q8');
@@ -127,7 +127,7 @@ test('扫描目录自动填入 IndexTTS 2.0 和 2.5，确认才批量登记', as
   // 本地服务端口每次启动会变，最近使用的工具由服务端记住，重新打开后恢复。
   await page.reload();
   await page.getByTestId('nav-settings').click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   await page.getByRole('button', { name: '扫描本地模型目录' }).click();
   await dialog.getByRole('button', { name: '转换 IndexTTS 检查点', exact: true }).click();
   await expect(python).toHaveValue('/TD1/tools/python3');

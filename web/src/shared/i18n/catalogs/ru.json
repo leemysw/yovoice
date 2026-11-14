@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Голосовые модели"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "Модели"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "Распознавание речи"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "Настройки"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "Не удалось сопоставить текст с вокалом; синхронизируйте вручную"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "Сначала скачайте распознаватель речи Qwen3 ASR в разделе «Голосовые модели» настроек"
+    "defaultMessage": "Сначала скачайте модель в разделе «Настройки › Модели › Распознавание речи»"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "Текст не распознан. Попробуйте образец с более чёткой речью"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "Модель не вернула партитуру. Повторите попытку или измените текст песни."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Для извлечения мелодии нужна модель SheetSage2. Загрузите её в «Настройки › Музыкальные модели»."
+    "defaultMessage": "Для извлечения мелодии нужна модель SheetSage2. Загрузите её в «Настройки › Модели › Музыкальные модели»."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "Для прослушивания мелодии нужен банк звуков. Скачайте его в «Настройки › Звуковые банки для партитур»."
+    "defaultMessage": "Для прослушивания мелодии нужен банк звуков. Скачайте его в «Настройки › Модели › Звуковые банки для партитур»."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Записывает мелодию и аккорды песни в ноты для каверов с YuE2."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "Распознавание речи: расшифровки, субтитры, опорный текст · 30 языков"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "Распознавание речи: расшифровки и субтитры · 25 европейских языков, встроенный тайминг слов, быстро"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "Используемая модель"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "Для расшифровок и опорного текста. Parakeet знает только европейские языки; для китайского, японского, корейского и других используйте Qwen3 ASR."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Создать по нотам"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "Глава озвучена. Проверить, какие реплики стоит перезаписать?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "Песня готова. Попробовать другой стиль или поправить текст?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "Песня готова! Поделиться ею в сообществе yovoice, чтобы её услышало больше людей?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "Аранжировка готова. Добавить ещё слоёв?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "Глава озвучена. Проверь персонажей без голоса, слишком длинные реплики и слова, которые могут прочитаться неверно."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "Песня готова. Подскажи, как улучшить стиль и текст."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "Аранжировка готова. Предложи партии или вариации, которые можно добавить."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "Загрузка субтитров…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Загрузите аудио или видео либо запишите прямо здесь. Модель распознавания речи Qwen3 ASR запишет текст с таймингом каждого слова. Расшифровки сохраняются: субтитры можно отредактировать и экспортировать в SRT или WebVTT. До 1 часа и 20 МБ."
+    "defaultMessage": "Загрузите аудио или видео либо запишите прямо здесь. Модель распознавания речи запишет текст с таймингом каждого слова. Расшифровки сохраняются: субтитры можно отредактировать и экспортировать в SRT или WebVTT. До 1 часа и 20 МБ."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Импорт локальной модели"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter разбивает строку у курсора; Backspace в начале строки объединяет её с предыдущей; Delete в конце — со следующей"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "Для расшифровки нужна модель распознавания речи Qwen3 ASR. Скачайте её, чтобы загружать аудио или записывать."
+    "defaultMessage": "Для расшифровки нужна модель распознавания речи. Скачайте её, чтобы загружать аудио или записывать."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "Поиск расшифровок"

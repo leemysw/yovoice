@@ -5,7 +5,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
-import { PanelLeft, PanelRight, Check, Disc3, FolderOpen, History, LoaderCircle, MoreHorizontal } from 'lucide-react';
+import { PanelLeft, PanelRight, Check, Disc3, FolderOpen, History, LoaderCircle, MoreHorizontal, Share2 } from 'lucide-react';
 import { NewProject, Projects, useNewProject } from '../features/library/projects';
 import { MediaLibrary } from '../features/library/media-library';
 import { CharacterEditor, CharacterLibrary } from '../features/library/characters';
@@ -95,7 +95,9 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item.id === draft.id ? draft : item); setDraftPersisted(true); setPage('create'); }); }
   const cues = useStoryCueEditing({ draft, setDraft, setDraftPersisted, page });
   const { playingCue, setPlayingCue, cueSelection, selectedCue, selectCue } = cues;
-  const { assistantOpen, setAssistantOpen, assistantExpanded, setAssistantExpanded, launcherHidden, showLauncher, assistantHidden, assistantPage, askAssistantPanel, assistantContext, nudge, dismissNudge, actOnNudge } = useAssistantBridge({ state, page, setPage, draft, setDraft, setDraftPersisted, saving, openSettings, selectDraft, cue: cues.focusCue, setError });
+  // 正在分享到社区的版本；播放栏按钮和 Ocho 的分享提示都会打开它。
+  const [shareTarget, setShareTarget] = useState<Generation | null>(null);
+  const { assistantOpen, setAssistantOpen, assistantExpanded, setAssistantExpanded, launcherHidden, showLauncher, assistantHidden, assistantPage, askAssistantPanel, assistantContext, nudge, dismissNudge, actOnNudge } = useAssistantBridge({ state, page, setPage, draft, setDraft, setDraftPersisted, saving, openSettings, selectDraft, cue: cues.focusCue, setError, share: projectId => setShareTarget(state.history.find(item => item.settings.id === projectId && !item.stemOf) ?? null) });
   useEffect(() => {
     if (!ready) return;
     const removed = previousVoices.current.filter(v => !state.voices.some(next => next.id === v.id));
@@ -129,7 +131,6 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   // 正在导出字幕的语音版本。
   const [captionTarget, setCaptionTarget] = useState<Generation | null>(null);
   const [exportTarget, setExportTarget] = useState<Generation | null>(null);
-  const [shareTarget, setShareTarget] = useState<Generation | null>(null);
   const pendingStems = useRef<{ sourceId: string; old: Set<string> } | null>(null);
   const [nowPlaying, setNowPlaying] = useState<Generation | null>(null);
   const libraryTabs = <TabList value={page === 'voices' ? 'voices' : 'characters'} onChange={setPage} role="tablist" hasDivider>
@@ -283,13 +284,14 @@ export function WorkbenchChrome({ state, catalog, catalogRevision, engine, ready
   const historyLabel = t(projectKind(draft) === 'text' ? '@yovoice.history.generations' : '@yovoice.history.versions');
   const playerActions = projectKind(draft) === 'story' ? undefined : <HStack gap={2} vAlign="center">
     {currentVersion ? <AudioCheckBadge check={currentVersion.check} /> : null}
+    {/* 歌曲版本的主操作：分享到社区放在播放栏最前面，用主色按钮。 */}
+    {currentVersion && music && !currentVersion.stemOf ? <Button className="player-share" label={t('@yovoice.community.share')} size="sm" variant="primary" icon={<Share2 />} onClick={() => setShareTarget(currentVersion)} /> : null}
     {currentVersion ? <Button className="player-tool" label={t('@yovoice.player.reveal')} tooltip={t('@yovoice.player.reveal')} size="sm" icon={<FolderOpen />} onClick={() => { void call('media.reveal', { kind: 'outputs', id: currentVersion.id }).catch(e => onError(noticeMessage(e))); }} /> : null}
     {currentVersion && music ? <Button className="player-tool" label={t('@yovoice.music.nowPlaying')} tooltip={withHotkey(t('@yovoice.music.nowPlaying'), songEditing ? nowPlayingKeys : '')} aria-keyshortcuts={songEditing ? nowPlayingAria : undefined} size="sm" variant="ghost" icon={<Disc3 />} onClick={() => setNowPlaying(currentVersion)} /> : null}
     {/* 历史入口始终保留：还没生成过时也能进入历史页查看其他作品的生成记录。 */}
     <Button className="player-tool" label={historyLabel} tooltip={withHotkey(historyLabel, versionHotkeys.on ? historyKeys : '')} aria-keyshortcuts={versionHotkeys.on ? historyAria : undefined} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} />
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
       { label: t('@yovoice.app.exportVersion'), endContent: versionHotkeys.on && exportKeys ? exportKeys : undefined, isDisabled: busy, onClick: () => exportVersion(currentVersion) },
-      ...(music && !currentVersion.stemOf ? [{ label: t('@yovoice.community.share'), onClick: () => setShareTarget(currentVersion) }] : []),
       ...(music && !currentVersion.stemOf && !state.history.some(item => item.stemOf === currentVersion.id) ? [{ label: t('@yovoice.stems.separate'), endContent: songEditing && stemsKeys ? stemsKeys : undefined, isDisabled: busy, onClick: () => separateStems(currentVersion) }] : []),
       ...(canResing(currentVersion) ? [{ label: t('@yovoice.resing.action'), isDisabled: busy, onClick: () => resing(currentVersion) }] : []),
       ...(music && (currentVersion.stemOf || state.history.some(item => item.stemOf === currentVersion.id)) ? [{ label: t('@yovoice.stems.open'), endContent: songEditing && stemsKeys ? stemsKeys : undefined, onClick: () => openStems(currentVersion) }] : []),

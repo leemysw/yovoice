@@ -33,7 +33,7 @@ func (w *Workbench) RecognizeVoice(id string) error {
 	if !slices.ContainsFunc(s.Voices, func(v schema.Voice) bool { return v.ID == id }) {
 		return msg.Err(msg.ErrAudioMissing, nil)
 	}
-	model, e := w.toolModel(s, "qwen3_asr")
+	model, e := w.recognizer(s)
 	if e != nil {
 		return e
 	}
@@ -82,6 +82,14 @@ func (w *Workbench) RecognizeVoice(id string) error {
 		w.tagActivity("recognize")
 	}
 	return e
+}
+
+// recognizer 返回转写和识别参考文本用的语音识别模型：优先用设置里选的；没选或已移除时按 catalog.RecognizerFamilies 的顺序取已安装的。
+func (w *Workbench) recognizer(s schema.State) (schema.InstalledModel, error) {
+	if id := s.Preferences.RecognizeModel; id != "" && slices.ContainsFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id }) {
+		return w.engineModel(s, id)
+	}
+	return w.toolModel(s, catalog.RecognizerFamilies...)
 }
 
 // toolModel 返回已安装的某个工具模型（按优先顺序找 families 里的第一个），没有时提示下载语音识别模型。

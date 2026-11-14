@@ -80,6 +80,7 @@ func RunFakeEngine() {
 		Port   int `json:"port"`
 		Models []struct {
 			Task    string         `json:"task"`
+			Family  string         `json:"family"`
 			Session map[string]any `json:"session_options"`
 		} `json:"models"`
 	}
@@ -134,8 +135,14 @@ func RunFakeEngine() {
 				http.Error(w, "识别输入应为 16 kHz WAV", http.StatusBadRequest)
 				return
 			}
-			// 会话里要配置包内的对齐模型；要求时间时整段送入，每个字 0.25 秒。
-			if aligner, _ := config.Models[0].Session["qwen3_asr.forced_aligner_path"].(string); !strings.Contains(aligner, "qwen3-forced-aligner") {
+			// Qwen3 ASR 的会话里要配置包内的对齐模型；要求时间时整段送入，每个字 0.25 秒。
+			// Parakeet TDT 不用对齐模型，也不接受时间限制项，逐词时间里把紧跟的标点并进前一个词。
+			parakeet := config.Models[0].Family == "parakeet_tdt"
+			if parakeet && (config.Models[0].Session != nil || p.Request.Options["clamp_timestamps_to_audio"] != nil) {
+				http.Error(w, "Parakeet 不接受对齐模型和时间限制项", http.StatusBadRequest)
+				return
+			}
+			if aligner, _ := config.Models[0].Session["qwen3_asr.forced_aligner_path"].(string); !parakeet && !strings.Contains(aligner, "qwen3-forced-aligner") {
 				http.Error(w, "识别会话缺少对齐模型", http.StatusBadRequest)
 				return
 			}
@@ -145,11 +152,13 @@ func RunFakeEngine() {
 					http.Error(w, "带时间的识别应整段送入", http.StatusBadRequest)
 					return
 				}
-				words := []any{}
+				words := []map[string]any{}
 				for _, r := range RecognizedText {
 					if unicode.IsLetter(r) {
 						n := len(words)
 						words = append(words, map[string]any{"word": string(r), "start_sample": n * 4000, "end_sample": n*4000 + 3000})
+					} else if parakeet && len(words) > 0 {
+						words[len(words)-1]["word"] = words[len(words)-1]["word"].(string) + string(r)
 					}
 				}
 				reply["words"] = words

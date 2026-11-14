@@ -12,7 +12,7 @@ for (const converted of [false, true]) test(`本地模型摘要不同也没有�
   await page.goto('/');
   await expect(page.getByTestId('model-update-notice')).toHaveCount(0);
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const model = page.locator(`[data-model-id="${id}"]`);
   await expect(model.getByText('/Volumes/Models/local.gguf', { exact: true })).toBeVisible();
   await expect(model.getByRole('button', { name: '更新', exact: true })).toHaveCount(0);
@@ -31,7 +31,7 @@ test('更新可以暂停和取消，取消后仍保留已安装模型', async ({
   await seedState(page, state);
   await page.goto('/');
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const model = page.locator(`[data-model-id="${id}"]`);
   const cancel = model.getByRole('button', { name: '取消下载', exact: true });
   await expect(cancel).toBeVisible();
@@ -40,7 +40,7 @@ test('更新可以暂停和取消，取消后仍保留已安装模型', async ({
   await expect(model.getByRole('button', { name: '继续下载', exact: true })).toBeVisible();
   await page.reload();
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   await cancel.click();
   await expect(cancel).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => {
@@ -79,7 +79,7 @@ test('切换模型目录后能看到校验进度并取消', async ({ page }) => 
   }, { state, catalog });
   await page.goto('/');
   await page.getByTestId('nav-settings').click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const changeDirectory = page.getByRole('button', { name: '更改位置', exact: true });
   await changeDirectory.click();
   const activity = page.getByRole('status').filter({ hasText: '正在校验模型' });

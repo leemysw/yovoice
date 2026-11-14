@@ -25,7 +25,7 @@ Use `yovoice models list --json` for model IDs, available precisions, file sizes
 
 ## Import existing local models
 
-In Settings → Voice models, Music models or Score sound fonts, choose the matching model/version and precision, then click **Import local model**. Select the audio.cpp GGUF file (or a supported catalog SF2); for a multi-file package select its main GGUF and keep the companion files in the package's original layout. Files remain at their existing location and the model download directory stays unchanged. Removing an imported model only unregisters it, preserving its files. Keep external drives connected while using their models.
+In Settings → Models, on the Voice models, Music models, Score sound fonts or Speech recognition sub-tab, choose the matching model/version and precision, then click **Import local model**. Select the audio.cpp GGUF file (or a supported catalog SF2); for a multi-file package select its main GGUF and keep the companion files in the package's original layout. Files remain at their existing location and the model download directory stays unchanged. Removing an imported model only unregisters it, preserving its files. Keep external drives connected while using their models.
 
 Choose **Scan for local models** to inspect a folder and up to three levels of subfolders. The app suggests a slot when it can identify a GGUF's family, variant and precision, or match a catalog checksum. Confirm the results before importing. For ambiguous files choose the slot yourself. IndexTTS files with a recognized version are checked against the chosen slot before the full checksum, and progress is shown while reading the files. Multi-file packages and SF2 must match their catalog checksums.
 
@@ -70,6 +70,8 @@ YoVoice downloads and verifies the new package separately, then switches the reg
 | BS-RoFormer (optional) | — | Q8 · 173 MB | High-quality vocal separation; with it installed, stem separation takes the vocals from BS-RoFormer and splits only the accompaniment with HTDemucs. The Lyric Aligner package already contains it. |
 | MuScriptor Small (optional) | — | F32 · 412 MB | Transcribes a song into multi-instrument MIDI that opens as a score project; requires engine v0.9.1 |
 | Qwen3 ASR 0.6B (optional) | 0.6B | Q8 · 2.28 GB (with its aligner) | Speech recognition in 30 languages plus Qwen3 Forced Aligner timing: the Transcribe page, “Recognize text” and subtitle export; requires engine v0.9.1 |
+| Qwen3 ASR 1.7B (optional) | 1.7B | Q8 · 3.60 GB (with its aligner) | Same 30 languages, more accurate than 0.6B and slower; requires engine v0.9.1 |
+| Parakeet TDT 0.6B v3 (optional) | 0.6B | Q8 · 916 MB | Speech recognition in 25 European languages with native word timing and punctuation; no Chinese, Japanese or Korean; requires engine v0.9.3 |
 | Lyric Aligner (optional) | 0.6B | Q8 · 1.30 GB | BS-RoFormer vocal separation plus Qwen3 Forced Aligner: aligns lyrics word by word to a generated song for the playback page and word LRC export; requires engine v0.9.1 |
 
 | Use Case | Recommended Hardware | Recommended Models |

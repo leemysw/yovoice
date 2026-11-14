@@ -14,8 +14,8 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   await page.goto('/');
   await seedState(page, state); await page.reload();
 
-  await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: '分享到社区' }).click();
+  // 分享是歌曲版本的主操作，直接放在播放栏上。
+  await page.locator('.player .transport').getByRole('button', { name: '分享到社区', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '分享到社区' });
   // 未登录时只有登录入口；开始后显示要核对的确认码，确认后进入表单。
   await dialog.getByRole('button', { name: '登录' }).click();
@@ -70,8 +70,8 @@ test('分享对齐过的歌曲时不再提醒对齐歌词', async ({ page }) => 
   await page.goto('/');
   await seedState(page, state); await page.reload();
 
-  await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: '分享到社区' }).click();
+  // 分享是歌曲版本的主操作，直接放在播放栏上。
+  await page.locator('.player .transport').getByRole('button', { name: '分享到社区', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '分享到社区' });
   await dialog.getByRole('button', { name: '登录' }).click();
   await expect(dialog.getByRole('textbox', { name: '标题' })).toHaveValue('晚风');

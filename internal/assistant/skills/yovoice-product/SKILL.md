@@ -19,7 +19,7 @@ yovoice runs every model locally through its inference engine. Models and the en
 | characters | 我的声音 Voice library | Saved characters: designed or cloned voices with a preview, reusable across works. |
 | voices | 参考音色 References | Uploaded reference recordings (≤ 20 MB, one clean speaker). Recordings longer than 60 s (up to 10 min) are trimmed automatically to the clearest 5–15 s; the crop dialog's Auto pick does the same for an existing reference. |
 | history | 历史 History | Every generated take; play, reuse settings, save as a voice. |
-| settings | 设置 Settings | Tabs: 常规 General (language, proxy, download source, storage location, 功能显示 Features: hide 故事配音 Story, 音乐生成 Music, 语音转写 Transcribe or Ocho), 语音模型 Voice models and 音乐模型 Music models (ACE-Step, YuE2, Stable Audio 3, SheetSage2, optional Lyric Aligner; download/remove), 推理引擎 Engine (install, compute device, 运行参数 Runtime: threads, GPU device, idle unload, model session options), 编曲音色库 SoundFonts, AI 服务 AI provider (also the model Ocho uses), 资源 Assets (files and cleanup), 日志 Logs (filter, export diagnostics), 本机接口 Local API (HTTP/MCP for other apps). |
+| settings | 设置 Settings | Tabs: 常规 General (language, proxy, download source, storage location, 功能显示 Features: hide 故事配音 Story, 音乐生成 Music, 语音转写 Transcribe or Ocho), 模型 Models (one tab with sub-tabs 语音模型 Voice models, 音乐模型 Music models (ACE-Step, YuE2, Stable Audio 3, SheetSage2, optional Lyric Aligner), 编曲音色库 SoundFonts and 语音识别模型 Speech recognition (Qwen3 ASR, Parakeet; pick which one is used when several are installed); download/remove), 推理引擎 Engine (install, compute device, 运行参数 Runtime: threads, GPU device, idle unload, model session options), AI 服务 AI provider (also the model Ocho uses), 资源 Assets (files and cleanup), 日志 Logs (filter, export diagnostics), 本机接口 Local API (HTTP/MCP for other apps). |
 
 The assistant opens with ⌘J / Ctrl+J, the launcher in the corner, or the title bar button.
 
@@ -36,7 +36,7 @@ The assistant opens with ⌘J / Ctrl+J, the launcher in the corner, or the title
 | Breeze TTS 2 (~3B) | Very natural Chinese/English design, cloning and voice direction; non-commercial licence; GPU recommended | Cloning needs 5–15 s clean audio and a word-for-word transcript |
 | Kokoro-82M | Fastest, tiny, CPU friendly; built-in voices only, no cloning or emotion. 1.1-zh has 100 Chinese voices. | Speaker |
 
-Qwen3 ASR 0.6B (optional speech recognizer, not a generation model): the 识别 Recognize button next to a reference transcript field, or in the voice editor, turns the selected voice sample into text. A sample with no transcript keeps the recognized text. The 语音转写 Transcribe page (sidebar) turns uploaded audio or video, or a recording made there (录音 Record), up to 1 hour and 4 GB by default (video works too; both limits and the subtitle line rules — max characters, max seconds per line, pause length — are adjustable in 设置 › 常规 › 语音转写 Settings › General › Transcribe), into text with word timing. Transcripts are saved in a list; opening one edits the subtitles (edit text, split at the cursor, merge with the next line, delete, find and replace, undo, play a line from the saved audio), saves automatically, and exports SRT / WebVTT or copies the text. 导出字幕 Export subtitles on a speech version aligns its known text to the audio (the ASR package or the lyric aligner package works) and saves SRT / WebVTT. Needs inference engine v0.9.1 or later.
+Speech recognizers (optional, not generation models; Settings › Models › Speech recognition): Qwen3 ASR 0.6B / 1.7B (30 languages incl. Chinese, Japanese, Korean) and Parakeet TDT 0.6B v3 (25 European languages, needs engine v0.9.3). With several installed, the user picks one there; otherwise the first installed is used. the 识别 Recognize button next to a reference transcript field, or in the voice editor, turns the selected voice sample into text. A sample with no transcript keeps the recognized text. The 语音转写 Transcribe page (sidebar) turns uploaded audio or video, or a recording made there (录音 Record), up to 1 hour and 4 GB by default (video works too; both limits and the subtitle line rules — max characters, max seconds per line, pause length — are adjustable in 设置 › 常规 › 语音转写 Settings › General › Transcribe), into text with word timing. Transcripts are saved in a list; opening one edits the subtitles (edit text, split at the cursor, merge with the next line, delete, find and replace, undo, play a line from the saved audio), saves automatically, and exports SRT / WebVTT or copies the text. 导出字幕 Export subtitles on a speech version aligns its known text to the audio (the ASR package or the lyric aligner package works) and saves SRT / WebVTT. Needs inference engine v0.9.1 or later.
 
 Hardware rule of thumb: Kokoro runs on any CPU; cloning models want 4–6 GB VRAM or 8 GB+ Apple Silicon; music models want 12 GB+ VRAM or 16 GB+ Apple Silicon. Q8 is the smallest precision with near-original quality; BF16/F16/ORIG are larger and slightly better.
 
@@ -59,7 +59,7 @@ Recommend in this order: what the user already has installed (list_models), then
 - Cloning sounds wrong: use one clear speaker, little noise, 5–15 s; transcripts must match word for word for OmniVoice and Breeze.
 - Audio check warnings (shown on a take, a story line or in `inspect_audio`): clipping / clicks / cutoff / silence / silent → regenerate that take or line; quiet → pick a target loudness when exporting (Audiobook −18, Podcast −16, Video −14 LUFS), no need to regenerate; dc → ignore.
 - Slow or out of memory: pick Q8 or a smaller model, close other GPU apps, or switch compute device in Settings › Engine.
-- Model missing or engine too old: the user installs it in Settings › Voice models, Settings › Music models (ACE-Step, YuE2, Stable Audio 3, SheetSage2) or Settings › Engine; you can propose it with propose_action.
+- Model missing or engine too old: the user installs it in Settings › Models (sub-tabs Voice models, Music models with ACE-Step, YuE2, Stable Audio 3, SheetSage2, SoundFonts, Speech recognition) or Settings › Engine; you can propose it with propose_action.
 - A model got worse after updating: models replaced by a catalog update have a 模型版本 Model version picker in their settings row. Choosing “… 更新前 Before … update” re-downloads the earlier file and stops the update prompt; “最新版 Latest” switches back.
 
 ## Error codes
@@ -179,10 +179,10 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.midiInvalid` 无法读取这个 MIDI 文件，请使用含音符的标准类型 0 或 1 MIDI。
 - `error.melodyInvalid` 旋律谱有误：{issue}
 - `error.melodyEmpty` 模型没有写出旋律谱，请重试或调整歌词。
-- `error.coverModelRequired` 从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 音乐模型”中下载。
-- `error.melodySoundFontRequired` 试听旋律谱需要一个音色库，请在“设置 › 编曲音色库”中下载。
+- `error.coverModelRequired` 从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 模型 › 音乐模型”中下载。
+- `error.melodySoundFontRequired` 试听旋律谱需要一个音色库，请在“设置 › 模型 › 编曲音色库”中下载。
 - `error.alignModelRequired` 请先在设置的音乐模型里下载歌词对齐模型
-- `error.recognizeModelRequired` 请先在设置的语音模型里下载语音识别模型 Qwen3 ASR
+- `error.recognizeModelRequired` 请先在“设置 › 模型 › 语音识别模型”里下载一个语音识别模型
 - `error.recognizeEmpty` 没有识别出文字，请换一段人声更清晰的样本
 - `error.transcribeVocalModel` 预先提取人声需要安装 BS-RoFormer 或歌词对齐模型。
 - `error.transcribeNoTrack` 这个文件没有音轨。

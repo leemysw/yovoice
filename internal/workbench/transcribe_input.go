@@ -99,7 +99,7 @@ func (w *Workbench) TranscribeSpeechTrack(ctx context.Context, name string, r io
 func (w *Workbench) receiveTranscribe(r io.Reader) (string, error) {
 	w.edit.Lock()
 	s := w.Store.Read()
-	_, err := w.toolModel(s, "qwen3_asr")
+	_, err := w.recognizer(s)
 	w.edit.Unlock()
 	if err != nil {
 		return "", err

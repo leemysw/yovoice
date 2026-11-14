@@ -29,6 +29,7 @@ function modelDescription(t: (key: string) => string, model: ModelPackage) {
   if (model.family === 'sheetsage2') return t('@yovoice.settings.modelDesc.sheetsage2');
   if (model.family === 'lyric_align') return t('@yovoice.settings.modelDesc.lyricAlign');
   if (model.family === 'qwen3_asr') return t('@yovoice.settings.modelDesc.recognize');
+  if (model.family === 'parakeet_tdt') return t('@yovoice.settings.modelDesc.parakeet');
   if (model.family === 'htdemucs_6stems') return t('@yovoice.settings.modelDesc.stems');
   if (model.family === 'bs_roformer') return t('@yovoice.settings.modelDesc.vocalSplit');
   if (model.family === 'muscriptor') return t('@yovoice.settings.modelDesc.muscriptor');

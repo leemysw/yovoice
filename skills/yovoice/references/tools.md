@@ -4,7 +4,7 @@
 
 | 命令 | 需要的模型 | 输入上限 |
 | --- | --- | --- |
-| `transcribe` | `qwen3-asr-0.6b-q8`（约 2.3 GB） | 默认 4 GB、60 分钟，可在 App“设置 › 常规 › 语音转写”调整 |
+| `transcribe` | `qwen3-asr-0.6b-q8`（约 2.3 GB）、`qwen3-asr-1.7b-q8`（约 3.6 GB）或 `parakeet-tdt-0.6b-v3-q8`（约 0.9 GB，只支持欧洲语言），装一个即可 | 默认 4 GB、60 分钟，可在 App“设置 › 常规 › 语音转写”调整 |
 | `separate` | `htdemucs-6stems-q8`（42 MB）；另装 `bs-roformer-q8`（173 MB）时人声更干净 | 10 分钟 |
 | `to-midi` | `muscriptor-small-f32`（412 MB） | 10 分钟 |
 
