@@ -86,7 +86,7 @@ yovoice 是一款适用于 macOS、Windows 和 Linux 的开源、本地优先（
 | 内置音色 | Kokoro-82M、Qwen3-TTS CustomVoice、Voxtral 4B TTS、Gradium Phonon |
 | 歌曲与纯音乐 | ACE-Step 1.5 Turbo / XL Turbo、YuE2 3B |
 | 纯音乐与音效 | Stable Audio 3 Small Music / Small SFX / Medium |
-| 语音识别与字幕 | Qwen3 ASR 0.6B |
+| 语音识别与字幕 | Qwen3 ASR 0.6B / 1.7B、Parakeet TDT 0.6B v3 |
 | 分轨、MIDI 与歌词对齐 | HTDemucs 6 轨、BS-RoFormer、MuScriptor、歌词对齐、SheetSage2 |
 
 所有模型都在 App 内或通过 CLI 下载。文件大小、硬件要求、输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice、YuE2、Breeze TTS 2、Voxtral 4B TTS 和 MuScriptor 的权重仅限非商业用途；XTTS v2 和 Drama 3 分别采用 Coqui 与 Fish Audio 的许可；Stable Audio 3 采用 Stability AI 社区许可，年收入低于 100 万美元可免费使用。

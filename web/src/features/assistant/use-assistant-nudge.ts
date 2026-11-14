@@ -4,9 +4,10 @@ import type { Activity, Draft, State } from '../../shared/workbench';
 
 // Ocho 的主动提示：生成完成或失败、模型或引擎下载结束时，在右下角入口上方冒出一个小气泡，
 // 给一句话和一个动作；点动作即打开面板并替用户发出对应的请求。面板开着、关闭了主动提示或助手不可用时不出现。
+// 歌曲生成好时改为邀请分享到社区：动作直接打开分享弹窗（share 是作品 id），不经过对话。
 // 这里只有判断与状态，不引入助手形象，外壳首屏可以直接使用；气泡本身在 assistant-nudge.tsx，随助手分块按需加载。
 
-export interface Nudge { id: string; tone: 'success' | 'danger'; text: string; action: string; prompt: string }
+export interface Nudge { id: string; tone: 'success' | 'danger'; text: string; action: string; prompt: string; share?: string }
 
 // 完成类提示的最小间隔：连续生成时不反复打扰；失败总是提示。
 const successInterval = 3 * 60 * 1000;
@@ -22,6 +23,7 @@ export function nudgeFor(t: TranslatorFn, activity: Activity, drafts: Draft[]): 
     if (activity.status !== 'completed') return null;
     const draft = drafts.find(item => item.id === activity.projectId);
     const kind = draft?.kind === 'music' || draft?.kind === 'score' || draft?.kind === 'sfx' ? draft.kind : draft?.subtitles ? 'story' : 'text';
+    if (kind === 'music' && draft) return { id, tone: 'success', text: t('@yovoice.assistant.nudge.share'), action: t('@yovoice.community.share'), prompt: '', share: draft.id };
     return { id, tone: 'success', text: t(`@yovoice.assistant.nudge.done.${kind}`), action: t('@yovoice.assistant.nudge.improve'), prompt: t(`@yovoice.assistant.nudge.donePrompt.${kind}`) };
   }
   if (activity.kind === 'download' || activity.kind === 'runtime') {

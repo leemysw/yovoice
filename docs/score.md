@@ -12,7 +12,7 @@ Good uses:
 
 ## Sound font
 
-Rendering needs the MuseScore General sound font (`musescore-general-sf2`, SF2, about 216 MB) with all 128 GM instruments and drum kits. Download it in Settings › Score sound fonts, or run:
+Rendering needs the MuseScore General sound font (`musescore-general-sf2`, SF2, about 216 MB) with all 128 GM instruments and drum kits. Download it in Settings › Models › Score sound fonts, or run:
 
 ```sh
 yovoice models download musescore-general-sf2

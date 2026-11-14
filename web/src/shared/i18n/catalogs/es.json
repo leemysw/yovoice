@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Modelos de voz"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "Modelos"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "Reconocimiento de voz"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "Ajustes"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "No se pudo hacer coincidir la letra con la voz; prueba a sincronizar a mano"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "Descarga primero el reconocedor de voz Qwen3 ASR en Modelos de voz de Ajustes"
+    "defaultMessage": "Descarga primero un modelo en Ajustes › Modelos › Reconocimiento de voz"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "No se reconoció texto. Prueba con una muestra de voz más clara"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "El modelo no devolvió ninguna partitura. Vuelve a intentarlo o ajusta la letra."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Para extraer una melodía se necesita el modelo SheetSage2. Descárgalo en Ajustes › Modelos de música."
+    "defaultMessage": "Para extraer una melodía se necesita el modelo SheetSage2. Descárgalo en Ajustes › Modelos › Modelos de música."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "Para escuchar la melodía se necesita un banco de sonidos. Descárgalo en «Ajustes › Bancos de sonidos de partitura»."
+    "defaultMessage": "Para escuchar la melodía se necesita un banco de sonidos. Descárgalo en «Ajustes › Modelos › Bancos de sonidos de partitura»."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcribe la melodía y los acordes de una canción a partitura, para versiones con YuE2."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "Reconocimiento de voz para transcripciones, subtítulos y texto de referencia · 30 idiomas"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "Reconocimiento de voz para transcripciones y subtítulos · 25 idiomas europeos, sincronización por palabra integrada, rápido"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "Modelo en uso"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "Se usa para transcripciones y texto de referencia. Parakeet solo reconoce idiomas europeos; para chino, japonés, coreano y otros usa Qwen3 ASR."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generar desde la partitura"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "El capítulo está doblado. ¿Reviso qué frases merecen otra toma?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "La canción está lista. ¿Probamos otro estilo o retocamos la letra?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "¡La canción está lista! ¿La compartes en la comunidad de yovoice para que más gente la escuche?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "El arreglo está listo. ¿Le añado más capas?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "El capítulo está doblado. Revisa si hay personajes sin voz, frases demasiado largas o palabras que podrían pronunciarse mal."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "La canción está lista. Sugiere cómo mejorar el estilo y la letra."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "El arreglo está listo. Sugiere voces o variaciones para añadir."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "Cargando subtítulos…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Sube audio o vídeo, o graba directamente. El reconocedor de voz Qwen3 ASR escribe el texto con la sincronización de cada palabra. Las transcripciones se guardan, así que puedes editar los subtítulos y exportarlos en SRT o WebVTT. Hasta 1 hora y 20 MB."
+    "defaultMessage": "Sube audio o vídeo, o graba directamente. El reconocedor de voz escribe el texto con la sincronización de cada palabra. Las transcripciones se guardan, así que puedes editar los subtítulos y exportarlos en SRT o WebVTT. Hasta 1 hora y 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Importar modelo local"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Intro divide en el cursor; Retroceso al inicio une con la línea anterior; Supr al final une con la línea siguiente"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "La transcripción necesita el modelo de reconocimiento de voz Qwen3 ASR. Descárgalo para subir audio o grabar."
+    "defaultMessage": "La transcripción necesita un modelo de reconocimiento de voz. Descarga uno para subir audio o grabar."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "Buscar transcripciones"

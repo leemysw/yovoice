@@ -9,7 +9,7 @@ import { call, transcribeSpeechFile, type TranscribeSelection } from '../../shar
 import { formatActivity, formatCallError, formatDateTime } from '../../shared/i18n/format';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 import { useElapsed } from '../../shared/lib/use-elapsed';
-import { formatTime, transcribeSettings, type State } from '../../shared/workbench';
+import { formatTime, isRecognizer, transcribeSettings, type State } from '../../shared/workbench';
 import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from '../library/library-layout';
 import { WaveRing } from '../library/wave-ring';
 import { micError, RecordingMeter, useRecorder } from '../media/recorder';
@@ -54,7 +54,7 @@ export function TranscribePage({ state, openSettings, active = false }: { state:
   const transcripts = state.transcripts ?? [];
   const fresh = known ? transcripts.find(item => !known.includes(item.id)) : undefined;
   const opened = transcripts.find(item => item.id === (fresh?.id ?? openId));
-  const needsModel = !state.models.some(m => m.id.startsWith('qwen3-asr-'));
+  const needsModel = !state.models.some(m => isRecognizer(m.id));
   const fallbackName = t('@yovoice.transcribe.defaultName');
   const elapsed = useElapsed(working, activity?.startedAt);
 

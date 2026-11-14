@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "음성 모델"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "모델"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "음성 인식 모델"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "설정"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "보컬에서 가사를 맞추지 못했습니다. 직접 보정해 보세요"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "먼저 설정의 음성 모델에서 음성 인식 모델 Qwen3 ASR을 다운로드하세요"
+    "defaultMessage": "먼저 설정 › 모델 › 음성 인식 모델에서 음성 인식 모델을 다운로드하세요"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "인식된 텍스트가 없습니다. 목소리가 더 또렷한 샘플을 사용해 보세요"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "모델이 멜로디 악보를 만들지 못했습니다. 다시 시도하거나 가사를 조정하세요."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "곡에서 멜로디를 추출하려면 SheetSage2 모델이 필요합니다. 설정 › 음악 모델에서 다운로드하세요."
+    "defaultMessage": "곡에서 멜로디를 추출하려면 SheetSage2 모델이 필요합니다. 설정 › 모델 › 음악 모델에서 다운로드하세요."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "멜로디 악보를 미리 들으려면 사운드폰트가 필요합니다. \"설정 › 악보 사운드 폰트\"에서 다운로드하세요."
+    "defaultMessage": "멜로디 악보를 미리 들으려면 사운드폰트가 필요합니다. \"설정 › 모델 › 악보 사운드 폰트\"에서 다운로드하세요."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "곡의 멜로디와 코드를 악보로 채보해 YuE2 커버에 사용합니다."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "음성 인식: 받아쓰기, 자막, 참조 텍스트 · 30개 언어"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "음성 인식: 받아쓰기, 자막 · 유럽 25개 언어, 단어별 타이밍 내장, 빠름"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "사용할 인식 모델"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "받아쓰기와 참조 텍스트 인식에 사용합니다. Parakeet은 유럽 언어만 지원하므로 한국어, 중국어, 일본어 등은 Qwen3 ASR을 사용하세요."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "멜로디 악보로 생성"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "이 장의 더빙이 끝났어요. 다시 녹음할 대사를 확인해 볼까요?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "노래가 완성됐어요. 스타일이나 가사를 바꿔 볼까요?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "노래가 완성됐어요! yovoice 커뮤니티에 공유해서 더 많은 사람에게 들려줄까요?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "편곡 렌더링이 끝났어요. 층을 더 쌓아 볼까요?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "이 장 더빙이 끝났어. 목소리가 없는 화자, 너무 긴 대사, 잘못 읽을 만한 단어가 있는지 확인해 줘."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "노래가 완성됐어. 스타일과 가사를 어떻게 더 좋게 할지 제안해 줘."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "편곡이 끝났어. 더할 만한 파트나 변화를 제안해 줘."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "자막을 불러오는 중…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "오디오나 동영상을 업로드하거나 바로 녹음하면 음성 인식 모델 Qwen3 ASR이 텍스트와 단어별 타이밍을 만들어 냅니다. 받아쓰기는 저장되며 자막을 편집한 뒤 SRT / WebVTT로 내보낼 수 있습니다. 최대 1시간, 20MB."
+    "defaultMessage": "오디오나 동영상을 업로드하거나 바로 녹음하면 음성 인식 모델이 텍스트와 단어별 타이밍을 만들어 냅니다. 받아쓰기는 저장되며 자막을 편집한 뒤 SRT / WebVTT로 내보낼 수 있습니다. 최대 1시간, 20MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "로컬 모델 가져오기"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter로 커서 위치에서 나누고, 줄 처음에서 Backspace로 윗줄과, 줄 끝에서 Delete로 아랫줄과 합칩니다"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "전사에는 음성 인식 모델 Qwen3 ASR이 필요합니다. 다운로드하면 오디오를 올리거나 녹음할 수 있습니다."
+    "defaultMessage": "전사에는 음성 인식 모델이 필요합니다. 다운로드하면 오디오를 올리거나 녹음할 수 있습니다."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "전사 검색"

@@ -353,6 +353,8 @@ type Preferences struct {
 	Engine *EngineSettings `json:"engine,omitempty"`
 	// Transcribe 是语音转写的限制与断句参数（设置 › 常规 › 语音转写），为空时全部沿用默认值。
 	Transcribe *TranscribeSettings `json:"transcribe,omitempty"`
+	// RecognizeModel 是转写和识别参考文本用的语音识别模型（设置 › 模型 › 语音识别模型），为空或已移除时按默认顺序取已安装的。
+	RecognizeModel string `json:"recognizeModel,omitempty"`
 	// Hotkeys 是改过的快捷键与快捷键开关（设置 › 快捷键），为空时全部沿用默认值。
 	Hotkeys *HotkeySettings `json:"hotkeys,omitempty"`
 }

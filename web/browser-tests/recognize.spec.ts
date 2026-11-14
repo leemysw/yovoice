@@ -20,7 +20,7 @@ async function openClone(page: Page, models: InstalledModel[]) {
 test('没装识别模型时在原文框下说明去哪下载', async ({ page }) => {
   await openClone(page, []);
   await page.getByRole('button', { name: '识别文字', exact: true }).click();
-  await expect(page.getByRole('alert').filter({ hasText: '语音识别模型 Qwen3 ASR' })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText: '模型 › 语音识别模型' })).toBeVisible();
 });
 
 test('识别出的文字填入参考原文，样本原来没有原文时一并保存', async ({ page }) => {

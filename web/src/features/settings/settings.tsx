@@ -10,7 +10,7 @@ import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { FolderOpen, FolderCog, ArrowUpRight } from 'lucide-react';
 import { call, isLinux, isMac } from '../../shared/lib/client';
-import { aiServiceHidden, featureHidden, runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale, modelTab, modelTabs } from '../../shared/workbench';
+import { aiServiceHidden, featureHidden, runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale, modelTab, modelTabs, recognizerFamilies, type ModelKind } from '../../shared/workbench';
 import { CallError } from '../../shared/lib/call-error';
 import { uiLocales } from '../../shared/i18n/locale';
 import { AISettings } from './ai-settings';
@@ -41,12 +41,23 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
   const [license, setLicense] = useState<string | null>(null);
   const [tab, setTab] = useState('general'); const busy = state.activity?.status === 'running'; const modelBusy = state.modelActivity?.status === 'running';
   const recoveringModels = busy && state.activity?.kind === 'import' && !state.activity.modelId;
-  useEffect(() => { if (focus) setTab(focus.tab); }, [focus]);
+  // 模型页上方是共用的下载设置，下面按用途分子页；从别处带着模型跳来时直接打开它所在的子页。
+  const [kind, setKind] = useState<ModelKind>('voice-models');
   useEffect(() => {
-    if (!focus || !modelTabs.includes(tab)) return;
+    if (!focus) return;
+    if (modelTabs.includes(focus.tab)) { setTab('models'); setKind(focus.tab as ModelKind); } else setTab(focus.tab);
+  }, [focus]);
+  const musicHidden = featureHidden(state.preferences, 'music');
+  const shownKind: ModelKind = musicHidden && (kind === 'music-models' || kind === 'soundfonts') ? 'voice-models' : kind;
+  const kindLabel: Record<ModelKind, string> = { 'voice-models': t('@yovoice.settings.tabModels'), 'music-models': t('@yovoice.settings.tabMusicModels'), soundfonts: t('@yovoice.settings.tabSoundfonts'), 'asr-models': t('@yovoice.settings.tabAsrModels') };
+  // 装了不止一个语音识别模型时选用哪个；没选或选的已移除时与后端一样按家族顺序取第一个已装的。
+  const recognizers = [...recognizerFamilies].flatMap(family => catalog.filter(model => model.family === family && state.models.some(item => item.id === model.id)));
+  const recognizer = recognizers.find(model => model.id === state.preferences.recognizeModel) ?? recognizers[0];
+  useEffect(() => {
+    if (!focus || tab !== 'models') return;
     const row = Array.from(document.querySelectorAll<HTMLElement>('[data-model-ids]')).find(row => row.dataset.modelIds?.split(' ').includes(focus.modelId));
     row?.scrollIntoView({ block: 'nearest' });
-  }, [focus, tab]);
+  }, [focus, tab, shownKind]);
   const preferences = state.preferences;
   const [proxyURL, setProxyURL] = useState(preferences.proxyURL ?? '');
   const [savingProxy, setSavingProxy] = useState(false);
@@ -65,9 +76,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
     <TabList value={tab} onChange={setTab} role="tablist" hasDivider>
       <Tab value="general" label={t('@yovoice.settings.tabGeneral')} panelId="general-panel" />
       <Tab value="hotkeys" label={t('@yovoice.hotkeys.title')} panelId="hotkeys-panel" />
-      <Tab value="models" label={t('@yovoice.settings.tabModels')} panelId="models-panel" />
-      {featureHidden(state.preferences, 'music') ? null : <Tab value="music-models" label={t('@yovoice.settings.tabMusicModels')} panelId="music-models-panel" />}
-      {featureHidden(state.preferences, 'music') ? null : <Tab value="soundfonts" label={t('@yovoice.settings.tabSoundfonts')} panelId="soundfonts-panel" />}
+      <Tab value="models" label={t('@yovoice.settings.tabModelLibrary')} panelId="models-panel" />
       <Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" />
       {aiServiceHidden(state.preferences) ? null : <Tab value="ai" label={t('@yovoice.settings.tabAI')} panelId="ai-panel" />}
       {featureHidden(state.preferences, 'assistant') ? null : <Tab value="assistant" label={t('@yovoice.assistant.title')} panelId="assistant-panel" />}
@@ -109,7 +118,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Button size="sm" label={t('@yovoice.settings.openLogs')} icon={<ArrowUpRight size={15} />} onClick={() => run(() => call('logs.open'))} />
         </SettingsRow>
       </SettingsGroup>
-    </VStack> : tab === 'models' || tab === 'music-models' ? <VStack className="settings-panel" gap={6} id={`${tab}-panel`} role="tabpanel" aria-label={t(tab === 'models' ? '@yovoice.settings.tabModels' : '@yovoice.settings.tabMusicModels')}>
+    </VStack> : tab === 'models' ? <VStack className="settings-panel" gap={6} id="models-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabModelLibrary')}>
       <SettingsGroup title={t('@yovoice.settings.downloads')}>
         <SettingsRow label={t('@yovoice.settings.downloadSource')}>
           <Selector size="sm" label={t('@yovoice.settings.downloadSource')} isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: t('@yovoice.settings.source.modelscope') }, { value: 'huggingface', label: t('@yovoice.settings.source.huggingface') }, { value: 'mirror', label: t('@yovoice.settings.source.mirror') }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 5)" className="download-source" />
@@ -122,10 +131,20 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <LocalModelSources catalog={catalog} busy={busy || modelBusy} />
         </SettingsRow>
       </SettingsGroup>
-      <ModelGroups key={tab} models={catalog.filter(model => modelTab(model.family) === tab)} state={state} draft={draft} run={run} focus={focus?.modelId} />
-      <HStack className="settings-footnote" gap={3} vAlign="center" wrap="wrap"><small>{t('@yovoice.settings.licenseBlurb')}</small><Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></HStack>
-    </VStack> : tab === 'soundfonts' ? <VStack className="settings-panel" gap={6} id="soundfonts-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabSoundfonts')}>
-      <ModelGroups models={catalog.filter(model => model.family === 'soundfont')} state={state} draft={draft} run={run} focus={focus?.modelId} />
+      <TabList className="model-kinds" size="sm" value={shownKind} onChange={value => setKind(value as ModelKind)} role="tablist">
+        {(['voice-models', 'music-models', 'soundfonts', 'asr-models'] as const).filter(value => !musicHidden || (value !== 'music-models' && value !== 'soundfonts'))
+          .map(value => <Tab key={value} value={value} label={kindLabel[value]} panelId={`${value}-panel`} />)}
+      </TabList>
+      <VStack gap={6} id={`${shownKind}-panel`} role="tabpanel" aria-label={kindLabel[shownKind]}>
+        {shownKind === 'asr-models' && recognizers.length > 1 ? <SettingsGroup>
+          <SettingsRow label={t('@yovoice.settings.recognizeModel')} hint={t('@yovoice.settings.recognizeModelHint')}>
+            <Selector size="sm" label={t('@yovoice.settings.recognizeModel')} isLabelHidden value={recognizer.id} options={recognizers.map(model => ({ value: model.id, label: `${model.name} · ${model.precision}` }))}
+              onChange={recognizeModel => run(() => call('preferences.save', { ...preferences, recognizeModel }))} width="calc(var(--spacing-10) * 6)" />
+          </SettingsRow>
+        </SettingsGroup> : null}
+        <ModelGroups key={shownKind} models={catalog.filter(model => modelTab(model.family) === shownKind)} state={state} draft={draft} run={run} focus={focus?.modelId} />
+      </VStack>
+      {shownKind === 'soundfonts' ? null : <HStack className="settings-footnote" gap={3} vAlign="center" wrap="wrap"><small>{t('@yovoice.settings.licenseBlurb')}</small><Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></HStack>}
     </VStack> : tab === 'hotkeys' ? <HotkeySettings state={state} run={run} active={active} /> : tab === 'ai' ? <AISettings state={state} run={run} focus={focus} /> : tab === 'assistant' ? <AssistantSettings state={state} run={run} /> : tab === 'community' ? <CommunitySettings state={state} run={run} /> : tab === 'assets'
       ? <Suspense fallback={<p role="status">{t('@yovoice.app.loading')}</p>}><AssetsPage state={state} active={active} run={run} onError={onError} openProject={openProject} /></Suspense> : tab === 'logs' ? <LogViewer run={run} /> : <VStack className="settings-panel engine-settings" gap={6} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
       <SettingsGroup title={<>audio.cpp{runtimeVersion ? <small className="model-size">{runtimeVersion}</small> : null}</>}>

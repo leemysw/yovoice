@@ -9,8 +9,10 @@ import { assistantUsable, featureHidden, projectKind, type AssistantContext, typ
 import type { DraftSession } from './use-draft-session';
 
 // 助手（Ocho）与工作台的衔接：面板开关与入口、快捷键、助手发起的界面跳转与作品更新、发给助手的上下文与主动提示。
-export function useAssistantBridge({ state, page, setPage, draft, setDraft, setDraftPersisted, saving, openSettings, selectDraft, cue, setError }: Pick<DraftSession, 'draft' | 'setDraft' | 'setDraftPersisted' | 'saving'> & {
+export function useAssistantBridge({ state, page, setPage, draft, setDraft, setDraftPersisted, saving, openSettings, selectDraft, cue, setError, share }: Pick<DraftSession, 'draft' | 'setDraft' | 'setDraftPersisted' | 'saving'> & {
   state: State; page: string; setPage: (page: string) => void; openSettings: (modelId?: string, requested?: string) => void; selectDraft: (item: Draft) => void; cue?: AssistantCue; setError: (message: string) => void;
+  /** 打开某个作品最新一版的分享弹窗，供“分享到社区”的主动提示使用。 */
+  share: (projectId: string) => void;
 }) {
   // 助手面板：开关与展开状态跨启动保留；⌘J/Ctrl+J、宿主标题栏按钮与编辑器 AI 写作栏都能打开。
   const [assistantOpen, setAssistantOpen] = useState(() => readLocal('yovoice-assistant-open') === 'true');
@@ -66,6 +68,7 @@ export function useAssistantBridge({ state, page, setPage, draft, setDraft, setD
   const [nudge, dismissNudge] = useAssistantNudge(state, assistantReady && !assistantHidden && !assistantOpen && !state.preferences.assistantQuiet);
   const actOnNudge = (next: Nudge) => {
     dismissNudge();
+    if (next.share) { share(next.share); return; }
     setAssistantOpen(true);
     void call('assistant.send', { text: next.prompt, context: { ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page, ...takeAssistantFocus() } }).catch(e => setError(noticeMessage(e)));
   };

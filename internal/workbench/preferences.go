@@ -51,6 +51,11 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 			p.Engine = nil
 		}
 	}
+	if p.RecognizeModel != "" {
+		if m, e := catalog.Lookup(p.RecognizeModel); e != nil || !catalog.IsRecognizer(m.Family) {
+			return msg.Err(msg.ErrRequestInvalid, nil)
+		}
+	}
 	if p.Transcribe != nil {
 		if err := p.Transcribe.Validate(); err != nil {
 			return err

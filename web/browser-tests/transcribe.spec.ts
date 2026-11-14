@@ -23,10 +23,30 @@ test('没装识别模型时转写页说明原因并可去下载', async ({ page 
   await openTranscribe(page, []);
   const root = page.getByTestId('transcribe-page');
   await expect(root.getByRole('heading', { name: '语音转写', exact: true })).toBeVisible();
-  await expect(root.getByText('转写需要语音识别模型 Qwen3 ASR')).toBeVisible();
+  await expect(root.getByText('转写需要一个语音识别模型')).toBeVisible();
   await expect(root.getByRole('button', { name: '上传音频', exact: true })).toHaveCount(0);
   await root.getByRole('button', { name: '去下载模型', exact: true }).click();
-  await expect(page.getByText('Qwen3 ASR 0.6B').first()).toBeVisible();
+  // 去下载时直接打开“模型 › 语音识别模型”子页，那里列出全部识别模型。
+  await expect(page.getByRole('tab', { name: '语音识别模型', selected: true })).toBeVisible();
+  const panel = page.getByRole('tabpanel', { name: '语音识别模型' });
+  await expect(panel.getByText('Qwen3 ASR 0.6B')).toBeVisible();
+  await expect(panel.getByText('Qwen3 ASR 1.7B')).toBeVisible();
+  await expect(panel.getByText('Parakeet TDT 0.6B v3')).toBeVisible();
+});
+
+test('装了多个识别模型时可以选用哪一个，选择存进偏好', async ({ page }) => {
+  await openTranscribe(page, [recognizer, { id: 'parakeet-tdt-0.6b-v3-q8', path: 'parakeet-tdt-0.6b-v3-q8_0.gguf', managed: true }]);
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  await page.getByRole('tab', { name: '语音识别模型', exact: true }).click();
+  const choice = page.getByRole('combobox', { name: '使用的识别模型' });
+  await expect(choice).toContainText('Qwen3 ASR 0.6B');
+  await choice.click();
+  await page.getByRole('option', { name: /Parakeet/ }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').preferences?.recognizeModel)).toBe('parakeet-tdt-0.6b-v3-q8');
+  // 只装一个时不显示选择。
+  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: '使用的识别模型' })).toHaveCount(0);
 });
 
 test('字幕编辑：合并相连文字、按逐词时间拆分、查找替换', () => {

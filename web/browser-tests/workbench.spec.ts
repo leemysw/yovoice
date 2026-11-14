@@ -50,7 +50,7 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
   // 语音模型与音乐模型分页显示，各自带下载设置。
-  await page.getByRole('tab', { name: '音乐模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '音乐模型', exact: true }).click();
   // 同一模型的多种量化合并为一行，用精度切换；含可选的歌词对齐、分轨、人声分离（BS-RoFormer）和转为 MIDI 模型。
   await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(11);
   const yue = page.locator('[data-model-id^="yue2-"]');
@@ -60,8 +60,8 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await expect(yue).toHaveAttribute('data-model-id', 'yue2-3b-bf16');
   await expect(yue.locator('.model-size')).toHaveText('7.01 GB');
   await expect(page.getByLabel('下载来源', { exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(19);
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(18);
   await expect(page.locator('[data-model-id^="ace-step-"]')).toHaveCount(0);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
@@ -169,7 +169,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(controls).toHaveAttribute('data-playing', 'false');
   await play.click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   await expect.poll(() => page.locator('audio').evaluateAll(elements => elements.every(el => (el as HTMLAudioElement).paused))).toBeTruthy();
   await page.getByTestId('nav-story').click();
   await expect(page.locator('footer.player')).toBeHidden();
@@ -463,7 +463,7 @@ test('已下载模型有新版本时显示轻提示，可关闭并重新下载�
   await page.reload();
   await expect(page.getByTestId('model-update-notice')).toHaveCount(0);
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const model = page.locator('[data-model-id="kokoro-82m-q8"]');
   await expect(model.getByText('有新版本', { exact: true })).toBeVisible();
   await model.getByRole('button', { name: '更新', exact: true }).click();
@@ -480,7 +480,7 @@ test('目录更新过的模型可以换回更新前的版本，换回旧版后�
   await seedState(page, state);
   await page.goto('/');
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   const model = page.locator('[data-model-id="kokoro-82m-q8"]');
   const version = model.getByRole('combobox', { name: '模型版本', exact: true });
   await expect(version).toContainText('最新版');

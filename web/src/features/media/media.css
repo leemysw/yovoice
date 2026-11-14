@@ -77,6 +77,7 @@
   .player { container-type: inline-size; }
   @container (max-width: 44rem) {
     .player .volume-control input { display: none; }
+    .player .player-share.astryx-button { font-size: 0; gap: 0; }
   }
   /* 再窄时“播放页”“历史”只留图标，悬停显示名称。 */
   @container (max-width: 60rem) {

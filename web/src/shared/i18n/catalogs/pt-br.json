@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Modelos de voz"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "Modelos"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "Reconhecimento de fala"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "Configurações"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "Não foi possível combinar a letra com a voz; tente sincronizar manualmente"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "Baixe primeiro o reconhecedor de voz Qwen3 ASR em Modelos de voz nas Configurações"
+    "defaultMessage": "Baixe primeiro um modelo em Configurações › Modelos › Reconhecimento de fala"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "Nenhum texto foi reconhecido. Tente uma amostra com a voz mais nítida"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "O modelo não retornou nenhuma partitura. Tente novamente ou ajuste a letra."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Extrair uma melodia requer o modelo SheetSage2. Baixe-o em Configurações › Modelos de música."
+    "defaultMessage": "Extrair uma melodia requer o modelo SheetSage2. Baixe-o em Configurações › Modelos › Modelos de música."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "Para ouvir a melodia é preciso um banco de sons. Baixe um em “Configurações › Bancos de sons para partitura”."
+    "defaultMessage": "Para ouvir a melodia é preciso um banco de sons. Baixe um em “Configurações › Modelos › Bancos de sons para partitura”."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcreve a melodia e os acordes de uma música em partitura, para covers com o YuE2."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "Reconhecimento de voz para transcrições, legendas e texto de referência · 30 idiomas"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "Reconhecimento de voz para transcrições e legendas · 25 idiomas europeus, tempo por palavra integrado, rápido"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "Modelo em uso"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "Usado em transcrições e texto de referência. O Parakeet só reconhece idiomas europeus; para chinês, japonês, coreano e outros, use o Qwen3 ASR."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Gerar pela partitura"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "O capítulo está dublado. Quer que eu veja quais falas refazer?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "A música está pronta. Quer outro estilo ou ajustar a letra?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "A música está pronta! Compartilhar na comunidade yovoice para mais gente ouvir?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "O arranjo foi renderizado. Quer que eu acrescente camadas?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "O capítulo está dublado. Verifique personagens sem voz, falas longas demais e palavras que podem ser mal pronunciadas."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "A música está pronta. Sugira como melhorar o estilo e a letra."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "O arranjo está pronto. Sugira partes ou variações para acrescentar."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "Carregando legendas…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Envie áudio ou vídeo, ou grave diretamente. O reconhecedor de fala Qwen3 ASR escreve o texto com o tempo de cada palavra. As transcrições ficam salvas, então você pode editar as legendas e exportar em SRT ou WebVTT. Até 1 hora e 20 MB."
+    "defaultMessage": "Envie áudio ou vídeo, ou grave diretamente. O reconhecedor de fala escreve o texto com o tempo de cada palavra. As transcrições ficam salvas, então você pode editar as legendas e exportar em SRT ou WebVTT. Até 1 hora e 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Importar modelo local"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter divide no cursor; Backspace no início junta com a linha anterior; Delete no fim junta com a linha seguinte"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "A transcrição precisa do modelo de reconhecimento de fala Qwen3 ASR. Baixe-o para enviar áudio ou gravar."
+    "defaultMessage": "A transcrição precisa de um modelo de reconhecimento de fala. Baixe um para enviar áudio ou gravar."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "Pesquisar transcrições"

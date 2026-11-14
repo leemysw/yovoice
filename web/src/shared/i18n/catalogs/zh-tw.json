@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "語音模型"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "模型"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "語音辨識模型"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "設定"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "沒能從人聲裡對上歌詞，可以手動校準"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "請先在設定的語音模型裡下載語音辨識模型 Qwen3 ASR"
+    "defaultMessage": "請先在「設定 › 模型 › 語音辨識模型」裡下載一個語音辨識模型"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "沒有辨識出文字，請換一段人聲更清楚的樣本"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "模型沒有寫出旋律譜，請重試或調整歌詞。"
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "從歌曲擷取旋律需要 SheetSage2 模型，請在「設定 › 音樂模型」中下載。"
+    "defaultMessage": "從歌曲擷取旋律需要 SheetSage2 模型，請在「設定 › 模型 › 音樂模型」中下載。"
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "試聽旋律譜需要一個音色庫，請在「設定 › 編曲音色庫」中下載。"
+    "defaultMessage": "試聽旋律譜需要一個音色庫，請在「設定 › 模型 › 編曲音色庫」中下載。"
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "把歌曲的旋律與和弦扒成譜，搭配 YuE2 做翻唱。"
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "語音辨識：轉寫音訊、產生字幕、辨識參考文字 · 30 種語言"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "語音辨識：轉寫音訊、產生字幕 · 25 種歐洲語言，內建逐詞時間，速度快"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "使用的辨識模型"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "轉寫和辨識參考文字都用它。Parakeet 只認歐洲語言，中文、日文、韓文等請用 Qwen3 ASR。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律譜生成"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "這一章配好了。要我檢查哪些句子值得重配嗎？"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "歌生成好了。想換個風格或改改歌詞嗎？"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "歌生成好了！分享到 yovoice 社群，讓更多人聽到吧？"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "編曲算繪好了。要我再豐富一下層次嗎？"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "這一章配好了，幫我檢查有沒有沒分配聲音的角色、過長的句子或可能讀錯的字。"
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "這首歌生成好了，幫我想想風格和歌詞還能怎麼改進。"
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "編曲算繪好了，幫我看看還能加哪些聲部或變化。"
@@ -4416,7 +4428,7 @@
     "defaultMessage": "正在讀取字幕…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "上傳音訊或影片，或直接錄音，語音辨識模型 Qwen3 ASR 會辨識出文字和逐詞時間。轉寫會儲存下來，可以編輯字幕後匯出 SRT / WebVTT。最長 1 小時、20 MB。"
+    "defaultMessage": "上傳音訊或影片，或直接錄音，語音辨識模型會辨識出文字和逐詞時間。轉寫會儲存下來，可以編輯字幕後匯出 SRT / WebVTT。最長 1 小時、20 MB。"
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "匯入本機模型"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter 在游標處拆分，行首退格與上一行合併，行尾 Delete 與下一行合併"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "轉寫需要語音辨識模型 Qwen3 ASR，下載後即可上傳音訊或錄音。"
+    "defaultMessage": "轉寫需要一個語音辨識模型，下載後即可上傳音訊或錄音。"
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "搜尋轉寫"

@@ -281,8 +281,15 @@ func IsMusic(family string) bool {
 // IsTool 判断模型家族是否只作辅助工具：扒谱（SheetSage2）、歌词对齐、语音识别、分轨（HTDemucs）和转为 MIDI（MuScriptor），
 // 不能作为作品的生成模型。
 func IsTool(family string) bool {
-	return family == "sheetsage2" || family == "lyric_align" || family == "qwen3_asr" || family == "htdemucs_6stems" || family == "bs_roformer" || family == "muscriptor"
+	return family == "sheetsage2" || family == "lyric_align" || IsRecognizer(family) || family == "htdemucs_6stems" || family == "bs_roformer" || family == "muscriptor"
 }
+
+// RecognizerFamilies 是语音识别模型家族，按默认优先顺序排列：Qwen3 ASR 覆盖中文等 30 种语言并带对齐模型，
+// Parakeet TDT 覆盖 25 种欧洲语言、自带逐词时间。界面的 recognizerFamilies 与此一致。
+var RecognizerFamilies = []string{"qwen3_asr", "parakeet_tdt"}
+
+// IsRecognizer 判断模型家族是否为语音识别模型。
+func IsRecognizer(family string) bool { return slices.Contains(RecognizerFamilies, family) }
 
 // PackageFiles 返回需要下载的文件；单文件模型只有主模型一项。
 func (m ModelPackage) PackageFiles() []ModelFile {

@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Voice models"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "Models"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "Speech recognition"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "Settings"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "Could not match the lyrics to the vocals; try syncing by hand"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "Download the Qwen3 ASR speech recognizer under Voice models in Settings first"
+    "defaultMessage": "Download a speech recognition model under Settings › Models › Speech recognition first"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "No speech was recognized. Try a sample with clearer speech"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "The model returned no melody score. Try again or adjust the lyrics."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Music models."
+    "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Models › Music models."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "Listening to a melody score needs a sound font. Download one in Settings › Arrangement sound fonts."
+    "defaultMessage": "Listening to a melody score needs a sound font. Download one in Settings › Models › Arrangement sound fonts."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcribes the melody and chords of a song into a score, used for covers with YuE2."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "Speech recognition for transcripts, subtitles and reference text · 30 languages"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "Speech recognition for transcripts and subtitles · 25 European languages, built-in word timing, fast"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "Model in use"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "Used for transcripts and voice reference text. Parakeet only knows European languages; use Qwen3 ASR for Chinese, Japanese, Korean and others."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generate from score"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "This chapter is dubbed. Want me to check which lines need another take?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "Your song is ready. Want to try another style or tweak the lyrics?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "Your song is ready! Share it with the yovoice community so more people can hear it?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "The arrangement is rendered. Want me to add more layers?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "The chapter is dubbed. Check for speakers without a voice, overly long lines and words that may be mispronounced."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "The song is done. Suggest how the style and lyrics could be better."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "The arrangement is rendered. Suggest parts or variations to add."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "Loading subtitles…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Upload audio or video, or record directly. The Qwen3 ASR speech recognizer writes out the text with word timing. Transcripts are saved, so you can edit the subtitles and export SRT or WebVTT. Up to 1 hour and 20 MB."
+    "defaultMessage": "Upload audio or video, or record directly. The speech recognizer writes out the text with word timing. Transcripts are saved, so you can edit the subtitles and export SRT or WebVTT. Up to 1 hour and 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Import local model"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter splits at the cursor; Backspace at the start joins the line above; Delete at the end joins the line below"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "Transcription needs the Qwen3 ASR speech recognition model. Download it to upload audio or record."
+    "defaultMessage": "Transcription needs a speech recognition model. Download one to upload audio or record."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "Search transcripts"

@@ -19,10 +19,13 @@ export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.sta
 export const isYuE = (id: string) => id.startsWith('yue2-');
 /** 风格描述上限：YuE2 接受成段的编配描述（乐器怎样进入、段落怎样起落），其余音乐模型保持 512 字。与后端 schema.MusicStyleLimit 一致。 */
 export const musicStyleLimit = (id: string) => isYuE(id) ? 2000 : 512;
-// 设置里模型按用途分页：语音模型、音乐模型（歌曲生成、扒谱与歌词对齐）和编曲音色库。
+// 设置 › 模型按用途分子页：语音、音乐（歌曲生成、扒谱、歌词对齐、分轨）、编曲音色库和语音识别。
 const musicFamilies = new Set(['ace_step', 'yue2', 'stable_audio', 'sheetsage2', 'lyric_align', 'htdemucs_6stems', 'bs_roformer', 'muscriptor']);
-export const modelTab = (family: string) => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : 'models';
-export const modelTabs = ['models', 'music-models', 'soundfonts'];
+/** 语音识别模型家族，与后端 catalog.IsRecognizer 一致。 */
+export const recognizerFamilies = new Set(['qwen3_asr', 'parakeet_tdt']);
+export type ModelKind = 'voice-models' | 'music-models' | 'soundfonts' | 'asr-models';
+export const modelTab = (family: string): ModelKind => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : recognizerFamilies.has(family) ? 'asr-models' : 'voice-models';
+export const modelTabs: string[] = ['voice-models', 'music-models', 'soundfonts', 'asr-models'];
 // 音色库只供编曲作品渲染使用。
 export const isSoundFont = (id: string) => id.endsWith('-sf2');
 // 扒谱模型只用于从歌曲提取旋律谱。
@@ -30,7 +33,7 @@ export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 // 歌词对齐模型只用于给已生成的歌曲做逐字对齐，可选下载。
 export const isAligner = (id: string) => id.startsWith('lyric-align-');
 // 语音识别模型只用于把声音样本转成参考文本，可选下载。
-export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-');
+export const isRecognizer = (id: string) => id.startsWith('qwen3-asr-') || id.startsWith('parakeet-');
 // 分轨模型把一个版本分成六轨，转为 MIDI 模型把版本转成编曲作品，都是可选下载的工具。
 export const isStemModel = (id: string) => id.startsWith('htdemucs-');
 export const isMidiModel = (id: string) => id.startsWith('muscriptor-');

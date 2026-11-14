@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Mô hình giọng nói"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "Mô hình"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "Nhận dạng giọng nói"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "Cài đặt"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "Không khớp được lời bài hát với giọng hát; hãy thử đồng bộ thủ công"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "Hãy tải mô hình nhận dạng giọng nói Qwen3 ASR trong mục Mô hình giọng nói ở Cài đặt trước"
+    "defaultMessage": "Hãy tải một mô hình trong Cài đặt › Mô hình › Nhận dạng giọng nói trước"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "Không nhận dạng được văn bản. Hãy thử mẫu có giọng nói rõ hơn"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "Mô hình không trả về bản nhạc nào. Hãy thử lại hoặc chỉnh lời bài hát."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Cần mô hình SheetSage2 để trích xuất giai điệu. Hãy tải trong Cài đặt › Mô hình âm nhạc."
+    "defaultMessage": "Cần mô hình SheetSage2 để trích xuất giai điệu. Hãy tải trong Cài đặt › Mô hình › Mô hình âm nhạc."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "Cần một bộ âm thanh (SoundFont) để nghe thử giai điệu. Hãy tải trong “Cài đặt › SoundFont cho bản nhạc”."
+    "defaultMessage": "Cần một bộ âm thanh (SoundFont) để nghe thử giai điệu. Hãy tải trong “Cài đặt › Mô hình › SoundFont cho bản nhạc”."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Chép giai điệu và hợp âm của bài hát thành bản nhạc, dùng để cover với YuE2."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "Nhận dạng giọng nói cho bản chép, phụ đề và văn bản tham chiếu · 30 ngôn ngữ"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "Nhận dạng giọng nói cho bản chép và phụ đề · 25 ngôn ngữ châu Âu, có sẵn thời gian từng từ, nhanh"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "Mô hình đang dùng"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "Dùng cho bản chép lời và văn bản tham chiếu. Parakeet chỉ nhận ngôn ngữ châu Âu; với tiếng Trung, Nhật, Hàn và các ngôn ngữ khác hãy dùng Qwen3 ASR."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Tạo theo bản nhạc"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "Chương này đã lồng tiếng xong. Để tôi xem câu nào nên làm lại nhé?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "Bài hát đã xong. Muốn thử phong cách khác hay sửa lời không?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "Bài hát đã xong! Chia sẻ lên cộng đồng yovoice để nhiều người nghe hơn nhé?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "Bản phối đã xuất xong. Để tôi thêm lớp âm thanh nhé?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "Chương này đã lồng tiếng xong. Hãy kiểm tra nhân vật chưa có giọng, câu quá dài và từ có thể đọc sai."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "Bài hát đã xong. Hãy gợi ý cách cải thiện phong cách và lời."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "Bản phối đã xong. Hãy gợi ý bè hoặc biến tấu có thể thêm."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "Đang tải phụ đề…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Tải lên âm thanh hoặc video, hoặc ghi âm trực tiếp. Mô hình nhận dạng giọng nói Qwen3 ASR sẽ viết ra văn bản kèm thời gian từng từ. Bản chép lời được lưu lại, bạn có thể sửa phụ đề rồi xuất SRT hoặc WebVTT. Tối đa 1 giờ và 20 MB."
+    "defaultMessage": "Tải lên âm thanh hoặc video, hoặc ghi âm trực tiếp. Mô hình nhận dạng giọng nói sẽ viết ra văn bản kèm thời gian từng từ. Bản chép lời được lưu lại, bạn có thể sửa phụ đề rồi xuất SRT hoặc WebVTT. Tối đa 1 giờ và 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Nhập mô hình cục bộ"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter tách tại con trỏ; Backspace ở đầu dòng nối với dòng trên; Delete ở cuối dòng nối với dòng dưới"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "Chép lời cần mô hình nhận dạng giọng nói Qwen3 ASR. Tải về để tải âm thanh lên hoặc ghi âm."
+    "defaultMessage": "Chép lời cần một mô hình nhận dạng giọng nói. Tải về để tải âm thanh lên hoặc ghi âm."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "Tìm bản chép lời"

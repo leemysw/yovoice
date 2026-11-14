@@ -164,6 +164,39 @@ func TestTranscribeSpeech(t *testing.T) {
 	}
 }
 
+// 设置里选了 Parakeet 时转写改用它：单文件模型不带对齐模型，逐词时间来自识别本身，词里并入的标点要去掉，断句结果与 Qwen3 一致。
+func TestTranscribeSpeechParakeet(t *testing.T) {
+	wb := recognizeWorkbench(t, true)
+	model := filepath.Join(wb.Store.Root, "models", "parakeet-tdt-0.6b-v3-q8_0.gguf")
+	must(t, os.WriteFile(model, nil, 0600))
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, schema.InstalledModel{ID: "parakeet-tdt-0.6b-v3-q8", Path: model})
+	}, true))
+	p := wb.Store.Read().Preferences
+	p.RecognizeModel = "parakeet-tdt-0.6b-v3-q8"
+	must(t, wb.SavePreferences(p))
+	wav := filepath.Join(t.TempDir(), "talk.wav")
+	must(t, audio.WriteMono(wav, tone(70, 24000, [2]int{25, 26}, [2]int{50, 51}), 24000))
+	b, e := os.ReadFile(wav)
+	must(t, e)
+	must(t, wb.TranscribeSpeech("访谈.wav", bytes.NewReader(b)))
+	<-wb.Done()
+	s := wb.Store.Read()
+	if s.Activity.Status != "completed" || len(s.Transcripts) != 1 || s.Activity.ModelID == nil || *s.Activity.ModelID != "parakeet-tdt-0.6b-v3-q8" {
+		t.Fatalf("%+v", s.Activity)
+	}
+	c, e := wb.ReadTranscript(s.Transcripts[0].ID)
+	must(t, e)
+	if len(c.Words) != 36 || c.Words[3].Word != "气" || c.Words[5].Word != "好" || len(c.Captions) != 3 || c.Captions[1].Text != "今天天气真好，我们去散步吧" {
+		t.Fatalf("%+v", c)
+	}
+	// 选的模型不是语音识别模型时拒绝保存。
+	p.RecognizeModel = "index-2.5-q8"
+	if e := wb.SavePreferences(p); !isCode(e, msg.ErrRequestInvalid) {
+		t.Fatalf("%v", e)
+	}
+}
+
 // 模拟分离器在每段的 0.5～1 秒、2.5～3 秒返回信号。第二段裁去前两秒，试听仍来自完整原音轨。
 func TestTranscribeIsolatedPlaybackAndBoundaries(t *testing.T) {
 	converter := os.Getenv("YOVOICE_TEST_FFMPEG")

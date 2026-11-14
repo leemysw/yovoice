@@ -26,7 +26,7 @@ func (w *Workbench) startTranscribeSpeech(original, upload, converter string, tr
 	w.edit.Lock()
 	defer w.edit.Unlock()
 	s := w.Store.Read()
-	model, err := w.toolModel(s, "qwen3_asr")
+	model, err := w.recognizer(s)
 	if err != nil {
 		return err
 	}

@@ -896,6 +896,12 @@
   "@yovoice.settings.tabModels": {
     "defaultMessage": "Sprachmodelle"
   },
+  "@yovoice.settings.tabModelLibrary": {
+    "defaultMessage": "Modelle"
+  },
+  "@yovoice.settings.tabAsrModels": {
+    "defaultMessage": "Spracherkennung"
+  },
   "@yovoice.settings.title": {
     "defaultMessage": "Einstellungen"
   },
@@ -3123,7 +3129,7 @@
     "defaultMessage": "Der Liedtext ließ sich nicht dem Gesang zuordnen; synchronisiere ihn von Hand"
   },
   "@yovoice.error.recognizeModelRequired": {
-    "defaultMessage": "Lade zuerst die Spracherkennung Qwen3 ASR unter Sprachmodelle in den Einstellungen herunter"
+    "defaultMessage": "Lade zuerst unter Einstellungen › Modelle › Spracherkennung ein Spracherkennungsmodell herunter"
   },
   "@yovoice.error.recognizeEmpty": {
     "defaultMessage": "Es wurde kein Text erkannt. Versuche eine Aufnahme mit deutlicherer Sprache"
@@ -3135,10 +3141,10 @@
     "defaultMessage": "Das Modell hat keine Melodienoten geliefert. Versuche es erneut oder passe den Text an."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Zum Extrahieren einer Melodie wird das Modell SheetSage2 benötigt. Lade es unter Einstellungen › Musikmodelle herunter."
+    "defaultMessage": "Zum Extrahieren einer Melodie wird das Modell SheetSage2 benötigt. Lade es unter Einstellungen › Modelle › Musikmodelle herunter."
   },
   "@yovoice.error.melodySoundFontRequired": {
-    "defaultMessage": "Zum Anhören der Melodie wird ein SoundFont benötigt. Lade einen unter „Einstellungen › SoundFonts für Partituren“ herunter."
+    "defaultMessage": "Zum Anhören der Melodie wird ein SoundFont benötigt. Lade einen unter „Einstellungen › Modelle › SoundFonts für Partituren“ herunter."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transkribiert Melodie und Akkorde eines Songs in Noten, für Coverversionen mit YuE2."
@@ -3148,6 +3154,15 @@
   },
   "@yovoice.settings.modelDesc.recognize": {
     "defaultMessage": "Spracherkennung für Transkripte, Untertitel und Referenztext · 30 Sprachen"
+  },
+  "@yovoice.settings.modelDesc.parakeet": {
+    "defaultMessage": "Spracherkennung für Transkripte und Untertitel · 25 europäische Sprachen, eigenes Wort-Timing, schnell"
+  },
+  "@yovoice.settings.recognizeModel": {
+    "defaultMessage": "Verwendetes Modell"
+  },
+  "@yovoice.settings.recognizeModelHint": {
+    "defaultMessage": "Für Transkripte und Referenztext. Parakeet kennt nur europäische Sprachen; für Chinesisch, Japanisch, Koreanisch und andere Qwen3 ASR verwenden."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Aus Melodienoten erzeugen"
@@ -3875,8 +3890,8 @@
   "@yovoice.assistant.nudge.done.story": {
     "defaultMessage": "Das Kapitel ist vertont. Soll ich prüfen, welche Zeilen neu sollten?"
   },
-  "@yovoice.assistant.nudge.done.music": {
-    "defaultMessage": "Der Song ist fertig. Anderer Stil oder Text überarbeiten?"
+  "@yovoice.assistant.nudge.share": {
+    "defaultMessage": "Der Song ist fertig! In der yovoice-Community teilen, damit ihn mehr Leute hören?"
   },
   "@yovoice.assistant.nudge.done.score": {
     "defaultMessage": "Das Arrangement ist gerendert. Soll ich mehr Ebenen hinzufügen?"
@@ -3886,9 +3901,6 @@
   },
   "@yovoice.assistant.nudge.donePrompt.story": {
     "defaultMessage": "Das Kapitel ist vertont. Prüfe auf Sprecher ohne Stimme, zu lange Zeilen und Wörter, die falsch ausgesprochen werden könnten."
-  },
-  "@yovoice.assistant.nudge.donePrompt.music": {
-    "defaultMessage": "Der Song ist fertig. Schlag vor, wie Stil und Text besser werden."
   },
   "@yovoice.assistant.nudge.donePrompt.score": {
     "defaultMessage": "Das Arrangement ist gerendert. Schlag Stimmen oder Variationen zum Ergänzen vor."
@@ -4416,7 +4428,7 @@
     "defaultMessage": "Untertitel werden geladen…"
   },
   "@yovoice.transcribe.emptyBody": {
-    "defaultMessage": "Laden Sie Audio oder Video hoch oder nehmen Sie direkt auf. Die Spracherkennung Qwen3 ASR erstellt den Text mit Wort-Timing. Transkripte werden gespeichert, sodass Sie die Untertitel bearbeiten und als SRT oder WebVTT exportieren können. Bis zu 1 Stunde und 20 MB."
+    "defaultMessage": "Laden Sie Audio oder Video hoch oder nehmen Sie direkt auf. Die Spracherkennung erstellt den Text mit Wort-Timing. Transkripte werden gespeichert, sodass Sie die Untertitel bearbeiten und als SRT oder WebVTT exportieren können. Bis zu 1 Stunde und 20 MB."
   },
   "@yovoice.settings.importLocalModel": {
     "defaultMessage": "Lokales Modell importieren"
@@ -4731,7 +4743,7 @@
     "defaultMessage": "Enter teilt an der Cursorposition; Rücktaste am Zeilenanfang verbindet mit der Zeile darüber; Entf am Zeilenende verbindet mit der Zeile darunter"
   },
   "@yovoice.transcribe.needsModel": {
-    "defaultMessage": "Für die Transkription wird das Spracherkennungsmodell Qwen3 ASR benötigt. Lade es herunter, um Audio hochzuladen oder aufzunehmen."
+    "defaultMessage": "Für die Transkription wird ein Spracherkennungsmodell benötigt. Lade eines herunter, um Audio hochzuladen oder aufzunehmen."
   },
   "@yovoice.transcribe.search": {
     "defaultMessage": "Transkripte durchsuchen"
