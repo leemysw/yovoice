@@ -469,6 +469,11 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   }
   if (method === 'community.mine') return [...communityItems] as T;
   if (method === 'community.delete') { const index = communityItems.findIndex(item => item.id === (data as { id: string }).id); if (index >= 0) communityItems.splice(index, 1); return true as T; }
+  // 预览没有真正运行的任务：取消只把进行中的活动标成已取消，演示停止按钮。
+  if (method === 'operation.cancel') {
+    if (state.activity?.status === 'running') { state.activity = { ...state.activity, status: 'cancelled' }; publish(); }
+    return true as T;
+  }
   if (method === 'ai.cancel') {
     if (state.aiTask?.status === 'running') { state.aiTask = { ...state.aiTask, status: 'cancelled', finishedAt: new Date().toISOString() }; publish(); }
     return true as T;

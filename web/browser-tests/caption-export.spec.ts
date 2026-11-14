@@ -58,16 +58,16 @@ test('LRC 跳过段落标记，器乐间隔清屏，校准时间优先', () => {
     .toBe('[00:01.00]<00:01.00>Hello <00:01.50>world<00:02.00>\n[00:03.00]第二句\n');
 });
 
-async function storeAudio(page: Page, name: string, seconds: number) {
-  await page.evaluate(async ({ name, seconds }) => {
+async function storeAudio(page: Page, name: string, seconds: number, level = 0.25) {
+  await page.evaluate(async ({ name, seconds, level }) => {
     const modulePath = '/src/shared/lib/sound.ts'; const { encodeWav } = await import(/* @vite-ignore */ modulePath);
-    const audio = new AudioBuffer({ length: 24000 * seconds, sampleRate: 24000, numberOfChannels: 1 }); audio.getChannelData(0).fill(0.25);
+    const audio = new AudioBuffer({ length: 24000 * seconds, sampleRate: 24000, numberOfChannels: 1 }); audio.getChannelData(0).fill(level);
     const blob = encodeWav(audio);
     await new Promise<void>((resolve, reject) => {
       const req = indexedDB.open('voice-workbench-audio', 1); req.onupgradeneeded = () => req.result.createObjectStore('audio'); req.onerror = () => reject(req.error);
       req.onsuccess = () => { const db = req.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(blob, name); tx.oncomplete = () => { db.close(); resolve(); }; };
     });
-  }, { name, seconds });
+  }, { name, seconds, level });
 }
 
 test('时间轴导出对话框按说话人导出 SRT 与带说话人的 VTT', async ({ page }, testInfo) => {
@@ -104,6 +104,45 @@ test('时间轴导出对话框按说话人导出 SRT 与带说话人的 VTT', as
   }
   expect(await exportCaptions('SRT 字幕', '小明', false, `${draft.title}.srt`)).toBe('1\n00:00:05,000 --> 00:00:06,500\n第二句\n');
   expect(await exportCaptions('WebVTT 字幕', '全部音轨', true, `${draft.title}.vtt`)).toBe('WEBVTT\n\n00:00:00.000 --> 00:00:03.000\n<v 旁白>第一句\n\n00:00:05.000 --> 00:00:06.500\n<v 小明>第二句\n');
+});
+
+test('导出音轨可统一各角色音量：只改导出的文件，选择会记住', async ({ page }, testInfo) => {
+  const state = emptyState(); const draft = state.drafts[0];
+  draft.kind = 'story'; draft.text = '第一句\n第二句';
+  draft.subtitles = { speakers, cues: [{ id: 'cue-g1', speakerId: 'a', start: 0, end: 1000, text: '第一句' }, { id: 'cue-g2', speakerId: 'b', start: 1000, end: 2000, text: '第二句' }] };
+  state.history = [{ ...segment('1'.repeat(32), '第一句', 'a', draft), fileName: 'loud.wav', duration: 1 }, { ...segment('2'.repeat(32), '第二句', 'b', draft), fileName: 'quiet.wav', duration: 1 }];
+  draft.timeline = { acceptedGenerations: state.history.map(g => g.id), tracks: [{ id: 'track', name: '对白', muted: false, clips: [
+    { id: 'c1', generationId: '1'.repeat(32), start: 0, offset: 0, duration: 1 },
+    { id: 'c2', generationId: '2'.repeat(32), start: 1, offset: 0, duration: 1 },
+  ] }] };
+  await page.goto('/');
+  await storeAudio(page, 'loud.wav', 1, 0.5); await storeAudio(page, 'quiet.wav', 1, 0.05);
+  await seedState(page, state); await page.reload();
+  await expect(page.locator('.multitrack-clip')).toHaveCount(2);
+  const { readFile } = await import('node:fs/promises');
+  // 前一秒是旁白、后一秒是小明，返回两段的平均电平（dBFS）。
+  async function exportLevels(balance: boolean, file: string) {
+    await page.getByRole('button', { name: '导出音轨', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    const box = dialog.getByLabel('统一各角色音量');
+    if (balance) await box.check(); else await box.uncheck();
+    await page.screenshot({ path: testInfo.outputPath(`${file}.png`) });
+    const download = page.waitForEvent('download');
+    await dialog.getByRole('button', { name: '导出 WAV', exact: true }).click();
+    await (await download).saveAs(testInfo.outputPath(file));
+    await expect(dialog).toHaveCount(0);
+    const wav = await readFile(testInfo.outputPath(file));
+    const data = wav.indexOf('data') + 8, rate = wav.readUInt32LE(24), channels = wav.readUInt16LE(22);
+    const level = (from: number) => { let sum = 0; for (let i = 0; i < rate / 2; i++) { const x = wav.readInt16LE(data + ((from + i) * channels) * 2) / 32768; sum += x * x; } return 10 * Math.log10(sum / (rate / 2)); };
+    return [level(Math.floor(rate / 4)), level(rate + Math.floor(rate / 4))];
+  }
+  const [loud, quiet] = await exportLevels(false, 'plain.wav');
+  expect(loud - quiet).toBeGreaterThan(15);
+  const [a, b] = await exportLevels(true, 'balanced.wav');
+  expect(Math.abs(a - b)).toBeLessThan(1);
+  // 重新打开对话框时仍是勾选状态。
+  await page.getByRole('button', { name: '导出音轨', exact: true }).click();
+  await expect(page.getByRole('dialog').getByLabel('统一各角色音量')).toBeChecked();
 });
 
 test('播放页导出 LRC 歌词使用校准时间', async ({ page }, testInfo) => {

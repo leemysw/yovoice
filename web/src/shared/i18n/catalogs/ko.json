@@ -1811,6 +1811,12 @@
   "@yovoice.timeline.preventClipping": {
     "defaultMessage": "클리핑 방지"
   },
+  "@yovoice.timeline.exportBalance": {
+    "defaultMessage": "역할별 음량 맞추기"
+  },
+  "@yovoice.timeline.exportBalanceHint": {
+    "defaultMessage": "역할마다 비슷한 음량으로 맞춥니다. 내보낸 파일만 바뀌고 타임라인은 그대로입니다."
+  },
   "@yovoice.timeline.peak": {
     "defaultMessage": "피크"
   },
@@ -2855,8 +2861,8 @@
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "자동 정렬"
   },
-  "@yovoice.music.aligningLyrics": {
-    "defaultMessage": "정렬 중"
+  "@yovoice.music.stopAlign": {
+    "defaultMessage": "정렬 중지"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "각 줄이 시작될 때 ↓를 누르거나 다음 줄을 클릭하세요. Backspace를 누르면 마지막 줄이 취소됩니다"

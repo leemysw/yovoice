@@ -7,7 +7,8 @@
 ### English
 
 - Songs now have a Share to community button right in the player, and when a song finishes generating Ocho offers to share it so more people can hear it. The button opens the share dialog directly.
-- The song player's top bar is lighter: plain buttons without the glass backgrounds, and on macOS they sit in the same row as the window buttons. The lyric tools and lyric style menus only list the actions and their keys, without the explanations. Notes in brackets in the lyrics — [ ], ( ), （ ）, 【 】, such as sound effects or singing directions — are no longer shown or aligned; a section that only has notes plays as an instrumental gap. Songs whose lyrics have such notes and were synced or aligned earlier need to be synced or aligned again.
+- The song player's top bar is lighter: plain buttons without the glass backgrounds, and on macOS they are centered on the window buttons. Lyric style is now an icon button. While lyrics are aligning, the lyric tools button becomes a spinning stop button (the progress is in its tooltip) instead of a line of progress text, so you can stop aligning. The lyric tools and lyric style menus only list the actions and their keys, without the explanations. Notes in brackets in the lyrics — [ ], ( ), （ ）, 【 】, such as sound effects or singing directions — are no longer shown or aligned; a section that only has notes plays as an instrumental gap. Songs whose lyrics have such notes and were synced or aligned earlier need to be synced or aligned again.
+- Story narration: Export track has an Even out role volumes option when the story has two or more roles. It brings every role to a similar level in the exported file, which helps when roles use different models or cloned voices. The timeline is not changed, and the choice is remembered. Balance role levels in the timeline menu now adds to each clip's own volume, so differences you set between lines of the same role are kept and running it again changes nothing.
 - Settings › Models opens on a new Defaults sub-tab that gathers which model is used where: the speech recognizer, and the vocal separation used for lyric alignment. Lyric alignment can now separate vocals with a downloaded HTDemucs 6-stem instead of BS-RoFormer: much faster, though songs with heavy backing may align less accurately. BS-RoFormer stays the default.
 - Settings › Models brings voice models, music models, score sound fonts and speech recognition together in one tab, with sub-tabs to switch between them.
 - New speech recognition models: Qwen3 ASR 1.7B (the same 30 languages, more accurate), Confucius4-R2T2 (NetEase Youdao's fine-tune of Qwen3 ASR 1.7B, 30 languages; the bundled aligner adds word timing, needs engine v0.9.3) and Parakeet TDT 0.6B v3 (25 European languages, with its own word timing; needs engine v0.9.3). With more than one installed, choose which one Transcribe, Recognize text and the CLI use under Settings › Models › Defaults.
@@ -39,7 +40,8 @@
 ### 简体中文
 
 - 歌曲的播放栏上直接有“分享到社区”按钮；歌曲生成好后 Ocho 会提示分享，让更多人听到，点一下直接打开分享弹窗。
-- 歌曲播放页顶栏更轻：按钮去掉了玻璃底色，macOS 上和红绿灯在同一行。歌词工具和歌词样式菜单只列操作和按键，不再写说明。歌词里括号括起来的注释（[ ]、( )、（ ）、【 】，比如音效、唱法说明）不再显示，也不参与对齐；只有注释的段落当作器乐间隔。以前校准或对齐过、歌词里有这类注释的歌曲需要重新校准或对齐。
+- 歌曲播放页顶栏更轻：按钮去掉了玻璃底色，macOS 上和红绿灯中线对齐。歌词样式改成图标按钮。对齐歌词时不再显示一行进度文字，歌词工具按钮变成转圈的停止按钮（进度在提示里），点一下就停止对齐。歌词工具和歌词样式菜单只列操作和按键，不再写说明。歌词里括号括起来的注释（[ ]、( )、（ ）、【 】，比如音效、唱法说明）不再显示，也不参与对齐；只有注释的段落当作器乐间隔。以前校准或对齐过、歌词里有这类注释的歌曲需要重新校准或对齐。
+- 故事配音：有两个以上角色时，“导出音轨”里多了“统一各角色音量”，导出的文件里各角色音量相近，不同模型或克隆音色混用时不再忽大忽小；时间线不变，选择会记住。时间线菜单里的“均衡角色音量”改为在片段原有音量上调整，同一角色几句之间手动调的差别保留，重复执行结果不变。
 - “设置 › 模型”首先打开新的“默认模型”子页，集中选各件事用哪个模型：语音识别，以及歌词对齐时的人声分离。歌词对齐可以改用已下载的 HTDemucs 6-stem 分离人声，比 BS-RoFormer 快很多，伴奏重的歌可能对得没那么准；默认仍是 BS-RoFormer。
 - “设置 › 模型”把语音模型、音乐模型、编曲音色库和语音识别模型合到一个标签里，用子标签切换。
 - 新增语音识别模型：Qwen3 ASR 1.7B（同样 30 种语言，更准）、Confucius4-R2T2（网易有道基于 Qwen3 ASR 1.7B 微调，30 种语言，由包内的对齐模型补上逐词时间，需要 v0.9.3 内核）和 Parakeet TDT 0.6B v3（25 种欧洲语言，自带逐词时间，需要 v0.9.3 内核）。装了多个时，可在“设置 › 模型 › 默认模型”里选语音转写、识别文字和命令行使用哪一个。

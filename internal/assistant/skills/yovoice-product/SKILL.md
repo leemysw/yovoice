@@ -58,6 +58,7 @@ Recommend in this order: what the user already has installed (list_models), then
 - Voice changes between chunks without a reference: design the voice on a short line, save it to the voice library, then clone from it.
 - Cloning sounds wrong: use one clear speaker, little noise, 5–15 s; transcripts must match word for word for OmniVoice and Breeze.
 - Audio check warnings (shown on a take, a story line or in `inspect_audio`): clipping / clicks / cutoff / silence / silent → regenerate that take or line; quiet → pick a target loudness when exporting (Audiobook −18, Podcast −16, Video −14 LUFS), no need to regenerate; dc → ignore.
+- Story roles at very different volumes (common when roles use different models or cloned voices): in Export track tick “Even out role volumes” (shown with two or more roles; only the exported file changes), or use “Balance role levels” in the timeline menu to change the clips themselves. No need to regenerate.
 - Slow or out of memory: pick Q8 or a smaller model, close other GPU apps, or switch compute device in Settings › Engine.
 - Model missing or engine too old: the user installs it in Settings › Models (sub-tabs Voice models, Music models with ACE-Step, YuE2, Stable Audio 3, SheetSage2, SoundFonts, Speech recognition) or Settings › Engine; you can propose it with propose_action.
 - A model got worse after updating: models replaced by a catalog update have a 模型版本 Model version picker in their settings row. Choosing “… 更新前 Before … update” re-downloads the earlier file and stops the update prompt; “最新版 Latest” switches back.

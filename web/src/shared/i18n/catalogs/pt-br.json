@@ -1811,6 +1811,12 @@
   "@yovoice.timeline.preventClipping": {
     "defaultMessage": "Evitar clipping"
   },
+  "@yovoice.timeline.exportBalance": {
+    "defaultMessage": "Igualar o volume dos papéis"
+  },
+  "@yovoice.timeline.exportBalanceHint": {
+    "defaultMessage": "Deixa cada papel com volume parecido. Só o arquivo exportado muda; a linha do tempo continua igual."
+  },
   "@yovoice.timeline.peak": {
     "defaultMessage": "Pico"
   },
@@ -2855,8 +2861,8 @@
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Alinhar automaticamente"
   },
-  "@yovoice.music.aligningLyrics": {
-    "defaultMessage": "Alinhando"
+  "@yovoice.music.stopAlign": {
+    "defaultMessage": "Parar alinhamento"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Pressione ↓ ou clique em Próxima linha quando cada linha começar; Backspace desfaz a última linha"

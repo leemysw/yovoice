@@ -1811,6 +1811,12 @@
   "@yovoice.timeline.preventClipping": {
     "defaultMessage": "Защита от перегрузки"
   },
+  "@yovoice.timeline.exportBalance": {
+    "defaultMessage": "Выровнять громкость ролей"
+  },
+  "@yovoice.timeline.exportBalanceHint": {
+    "defaultMessage": "Приводит все роли к похожей громкости. Меняется только экспортируемый файл, таймлайн остаётся прежним."
+  },
   "@yovoice.timeline.peak": {
     "defaultMessage": "Пик"
   },
@@ -2855,8 +2861,8 @@
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Автовыравнивание"
   },
-  "@yovoice.music.aligningLyrics": {
-    "defaultMessage": "Выравнивание"
+  "@yovoice.music.stopAlign": {
+    "defaultMessage": "Остановить выравнивание"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Нажимайте ↓ или «Следующая строка» в начале каждой строки; Backspace отменяет последнюю строку"

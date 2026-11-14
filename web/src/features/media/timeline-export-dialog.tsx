@@ -19,7 +19,7 @@ import { saveCaptions } from './caption-dialog';
 type ExportFormat = AudioExportFormat | 'srt' | 'vtt';
 const isAudio = (format: ExportFormat): format is AudioExportFormat => format === 'wav' || format === 'flac' || format === 'm4a';
 // 对话框关闭后仍保留的导出偏好。
-type ExportPrefs = { format: ExportFormat; captionSpeaker: boolean; preventClipping: boolean; loudness: string };
+type ExportPrefs = { format: ExportFormat; captionSpeaker: boolean; preventClipping: boolean; loudness: string; balance: boolean };
 
 type ExportDialogProps = {
   value: AudioTimeline; history: Generation[]; draft: Draft; range?: { start: number; end: number };
@@ -27,17 +27,19 @@ type ExportDialogProps = {
   exporting: boolean; setExporting: (exporting: boolean) => void; onClose: () => void;
 };
 
-// 导出对话框常驻挂载以记住偏好：格式、说话人、防削波与目标响度关闭后保留；名称、范围、错误与峰值随每次打开重置。
+// 导出对话框常驻挂载以记住偏好：格式、说话人、防削波、统一角色音量与目标响度关闭后保留；名称、范围、错误与峰值随每次打开重置。
 export function TimelineExportDialog({ open, ...props }: ExportDialogProps & { open: boolean }) {
   // 目标响度（LUFS）由本地服务整体调整，记住上次的选择；浏览器预览不调整。
-  const [prefs, setPrefs] = useState<ExportPrefs>(() => { const value = readLocal('yovoice.exportLoudness') ?? ''; return { format: 'wav', captionSpeaker: false, preventClipping: true, loudness: isDesktop && ['-18', '-16', '-14'].includes(value) ? value : '' }; });
+  const [prefs, setPrefs] = useState<ExportPrefs>(() => { const value = readLocal('yovoice.exportLoudness') ?? ''; return { format: 'wav', captionSpeaker: false, preventClipping: true, balance: readLocal('yovoice.exportBalance') === 'on', loudness: isDesktop && ['-18', '-16', '-14'].includes(value) ? value : '' }; });
   const update = (patch: Partial<ExportPrefs>) => setPrefs(current => ({ ...current, ...patch }));
   return open ? <ExportDialog {...props} prefs={prefs} update={update} /> : null;
 }
 
 function ExportDialog({ value, history, draft, range, context, load, exporting, setExporting, onClose, prefs, update }: ExportDialogProps & { prefs: ExportPrefs; update: (patch: Partial<ExportPrefs>) => void }) {
   const t = useTranslator();
-  const { format, captionSpeaker, preventClipping, loudness } = prefs;
+  const { format, captionSpeaker, preventClipping, loudness, balance } = prefs;
+  // 两个以上角色才需要统一音量；只调整这次导出的混音，不改时间线。
+  const roles = (draft.subtitles?.speakers.length ?? 0) > 1;
   const [scope, setScope] = useState('all');
   const [name, setName] = useState(draft.title);
   const [error, setError] = useState('');
@@ -45,7 +47,7 @@ function ExportDialog({ value, history, draft, range, context, load, exporting, 
   const run = async () => {
     setExporting(true); setError('');
     try {
-      const snapshot = Timeline.scoped(structuredClone(value), scope, history);
+      let snapshot = Timeline.scoped(structuredClone(value), scope, history);
       if (!isAudio(format)) {
         const captions = timelineCaptions(snapshot, history, draft.subtitles?.speakers, scope === 'range' ? range : undefined);
         if (!captions.length) { setError('@yovoice.timeline.noCaptions'); return; }
@@ -53,6 +55,11 @@ function ExportDialog({ value, history, draft, range, context, load, exporting, 
         return;
       }
       const audio = context.current ??= new AudioContext();
+      if (roles && balance) {
+        const buffers = new Map<string, AudioBuffer>();
+        for (const key of new Set(snapshot.tracks.flatMap(t => t.clips.map(c => Timeline.sourceKey(c))))) buffers.set(key, await load(key, audio));
+        snapshot = Timeline.balance(snapshot, history, buffers);
+      }
       const result = await Timeline.render(snapshot, id => load(id, audio), scope === 'range' ? range : undefined);
       const peak = Timeline.peak(result); setPeakDb(peak ? 20 * Math.log10(peak) : -Infinity);
       // 选了目标响度时先压到满幅以内再交给本地服务调整，避免 16 位编码时先削掉峰值。
@@ -68,6 +75,7 @@ function ExportDialog({ value, history, draft, range, context, load, exporting, 
     {isAudio(format) ? <>
       {isDesktop ? <Selector label={t('@yovoice.timeline.loudness')} value={loudness} onChange={value => { update({ loudness: value }); writeLocal('yovoice.exportLoudness', value); setError(''); setPeakDb(undefined); }} description={loudness ? t('@yovoice.timeline.loudnessHint') : undefined}
         options={[{ value: '', label: t('@yovoice.timeline.loudnessOff') }, { value: '-18', label: t('@yovoice.timeline.loudnessAudiobook') }, { value: '-16', label: t('@yovoice.timeline.loudnessPodcast') }, { value: '-14', label: t('@yovoice.timeline.loudnessVideo') }]} /> : null}
+      {roles ? <CheckboxInput label={t('@yovoice.timeline.exportBalance')} description={t('@yovoice.timeline.exportBalanceHint')} value={balance} onChange={checked => { update({ balance: checked }); writeLocal('yovoice.exportBalance', checked ? 'on' : ''); setPeakDb(undefined); }} /> : null}
       {loudness ? null : <CheckboxInput label={t('@yovoice.timeline.preventClipping')} value={preventClipping} onChange={checked => { update({ preventClipping: checked }); setPeakDb(undefined); }} />}
       {peakDb !== undefined ? <small>{t('@yovoice.timeline.peak')}: {Number.isFinite(peakDb) ? peakDb.toFixed(1) : '−∞'} dBFS</small> : null}
     </> : <>
