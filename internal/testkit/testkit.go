@@ -115,6 +115,13 @@ func RunFakeEngine() {
 		// 歌词对齐：分离任务返回人声分轨；对齐任务把每个非空白字符记作一个字，每字 0.25 秒（16 kHz 样本数）。
 		switch config.Models[0].Task {
 		case "sep":
+			// HTDemucs 一次给出六轨，这里只回人声和鼓两轨。
+			if config.Models[0].Family == "htdemucs_6stems" {
+				_ = json.NewEncoder(w).Encode(map[string]any{"named_audio_outputs": []any{
+					map[string]any{"id": "vocals", "audio": base64.StdEncoding.EncodeToString(VocalWAV())},
+					map[string]any{"id": "drums", "audio": base64.StdEncoding.EncodeToString(VocalWAV())}}})
+				return
+			}
 			if config.Models[0].Session["bs_roformer.num_overlap"] != "1" {
 				http.Error(w, "分离应单遍推理", http.StatusBadRequest)
 				return

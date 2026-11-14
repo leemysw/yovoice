@@ -23,9 +23,10 @@ export const musicStyleLimit = (id: string) => isYuE(id) ? 2000 : 512;
 const musicFamilies = new Set(['ace_step', 'yue2', 'stable_audio', 'sheetsage2', 'lyric_align', 'htdemucs_6stems', 'bs_roformer', 'muscriptor']);
 /** 语音识别模型家族，与后端 catalog.IsRecognizer 一致。 */
 export const recognizerFamilies = new Set(['qwen3_asr', 'parakeet_tdt', 'confucius4_r2t2']);
-export type ModelKind = 'voice-models' | 'music-models' | 'soundfonts' | 'asr-models';
+// default-models 是“默认模型”子页：只放各件事默认用哪个模型的选择，不列模型。
+export type ModelKind = 'default-models' | 'voice-models' | 'music-models' | 'soundfonts' | 'asr-models';
 export const modelTab = (family: string): ModelKind => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : recognizerFamilies.has(family) ? 'asr-models' : 'voice-models';
-export const modelTabs: string[] = ['voice-models', 'music-models', 'soundfonts', 'asr-models'];
+export const modelTabs: string[] = ['default-models', 'voice-models', 'music-models', 'soundfonts', 'asr-models'];
 // 音色库只供编曲作品渲染使用。
 export const isSoundFont = (id: string) => id.endsWith('-sf2');
 // 扒谱模型只用于从歌曲提取旋律谱。

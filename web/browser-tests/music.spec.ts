@@ -650,3 +650,31 @@ test('同一模型下载了多个精度时选择器只列一项，在下方切�
   await precision.getByRole('radio', { name: 'Q8' }).click();
   await expect(page.getByRole('radio', { name: 'Q8' })).toBeChecked();
 });
+
+test('默认模型：歌词对齐的人声分离可换成已下载的 HTDemucs，没装对齐模型时去音乐模型下载', async ({ page }) => {
+  const state = emptyState();
+  await seedState(page, state);
+  await page.goto('/');
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  const panel = page.getByRole('tabpanel', { name: '默认模型' });
+  // 没装对齐模型：这一行带去“音乐模型”子页下载。
+  await panel.locator('.settings-row').filter({ hasText: '歌词对齐的人声分离' }).getByRole('button', { name: '去下载', exact: true }).click();
+  await expect(page.getByRole('tab', { name: '音乐模型', exact: true })).toHaveAttribute('aria-selected', 'true');
+  // 只装了对齐模型：只能用包里的 BS-RoFormer，提示可以下载 HTDemucs。
+  await seedState(page, { ...state, models: [{ id: 'lyric-align-q8', path: 'Lyric-Align-GGUF', managed: true }] }); await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  const separator = panel.getByRole('combobox', { name: '歌词对齐的人声分离', exact: true });
+  await expect(separator).toContainText('BS-RoFormer');
+  await expect(separator).toBeDisabled();
+  await expect(panel).toContainText('下载 HTDemucs 6-stem 后可以换成它');
+  // 再装上 HTDemucs：可以换成它，选择存进偏好。
+  await seedState(page, { ...state, models: [{ id: 'lyric-align-q8', path: 'Lyric-Align-GGUF', managed: true }, { id: 'htdemucs-6stems-f16', path: 'HTDemucs-6stems-GGUF', managed: true }] }); await page.reload();
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  await separator.click();
+  await page.getByRole('option', { name: /HTDemucs/ }).click();
+  await expect(separator).toContainText('HTDemucs');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').preferences?.alignSeparator)).toBe('htdemucs');
+});

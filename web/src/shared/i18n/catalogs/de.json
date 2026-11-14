@@ -3129,7 +3129,7 @@
     "defaultMessage": "Spracherkennung für Transkripte und Untertitel · Feinabstimmung von Qwen3 ASR 1.7B durch NetEase Youdao, 30 Sprachen, Zeitangaben vom mitgelieferten Aligner · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Verwendetes Modell"
+    "defaultMessage": "Spracherkennung"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Für Transkripte und Referenztext. Parakeet kennt nur europäische Sprachen; für Chinesisch, Japanisch, Koreanisch und andere Qwen3 ASR verwenden."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Drücke den Assistenten-Knopf in der Titelleiste und sag einfach, was du möchtest, etwa „Erstelle eine Geschichte und gib jeder Figur eine Stimme“. Richte vorher in den Einstellungen einen KI-Dienst ein."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "Standard"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Gesangstrennung für die Liedtext-Ausrichtung"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "Vor der Ausrichtung wird der Gesang getrennt. BS-RoFormer liefert den saubersten Gesang, ist aber langsam; HTDemucs ist viel schneller, kann aber bei dichter Begleitung ungenauer ausrichten."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "Vor der Ausrichtung wird der Gesang getrennt, derzeit mit dem BS-RoFormer aus dem Ausrichtungspaket: sauberster Gesang, aber langsam. Lade HTDemucs 6-stem unter Musikmodelle herunter, um auf das viel schnellere Modell zu wechseln."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · sauberer Gesang"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · schneller"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "Noch kein Modell heruntergeladen"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Herunterladen"
   }
 }

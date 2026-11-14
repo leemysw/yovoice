@@ -56,6 +56,9 @@ func (w *Workbench) savePreferences(p schema.Preferences) error {
 			return msg.Err(msg.ErrRequestInvalid, nil)
 		}
 	}
+	if p.AlignSeparator != "" && p.AlignSeparator != AlignSeparatorHTDemucs {
+		return msg.Err(msg.ErrRequestInvalid, nil)
+	}
 	if p.Transcribe != nil {
 		if err := p.Transcribe.Validate(); err != nil {
 			return err

@@ -3129,7 +3129,7 @@
     "defaultMessage": "음성 인식: 받아쓰기와 자막 · NetEase Youdao가 Qwen3 ASR 1.7B를 미세 조정, 30개 언어, 시간은 포함된 정렬 모델이 제공 · NetEase Youdao 모델 사용 라이선스"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "사용할 인식 모델"
+    "defaultMessage": "음성 인식"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "받아쓰기와 참조 텍스트 인식에 사용합니다. Parakeet은 유럽 언어만 지원하므로 한국어, 중국어, 일본어 등은 Qwen3 ASR을 사용하세요."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "제목 표시줄의 어시스턴트 버튼을 눌러 원하는 작업을 말해 보세요. 예: “스토리 내레이션을 만들고 캐릭터마다 목소리를 정해 줘”. 먼저 설정에서 AI 서비스를 추가해야 합니다."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "기본 모델"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "가사 정렬용 보컬 분리"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "정렬 전에 보컬을 분리합니다. BS-RoFormer는 보컬이 가장 깨끗하지만 느리고, HTDemucs는 훨씬 빠르지만 반주가 큰 곡에서는 정확도가 떨어질 수 있습니다."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "정렬 전에 보컬을 분리합니다. 지금은 정렬 패키지의 BS-RoFormer를 쓰며, 보컬이 가장 깨끗하지만 느립니다. '음악 모델'에서 HTDemucs 6-stem을 내려받으면 훨씬 빠른 이 모델로 바꿀 수 있습니다."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · 더 깨끗한 보컬"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · 더 빠름"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "아직 내려받은 모델이 없습니다"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "내려받기"
   }
 }

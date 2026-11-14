@@ -105,6 +105,13 @@ func (w *Workbench) AlignLyrics(id string) error {
 	if e != nil {
 		return e
 	}
+	// 设置里选了 HTDemucs 且已下载时用它分人声，否则用对齐包里的 BS-RoFormer。
+	var splitter *schema.InstalledModel
+	if s.Preferences.AlignSeparator == AlignSeparatorHTDemucs {
+		if stems, e := w.toolModel(s, "htdemucs_6stems"); e == nil {
+			splitter = &stems
+		}
+	}
 	_, e = w.start("generate", msg.ActivitySeparateVocals, nil, &model.ID, func(ctx context.Context) error {
 		runtimeDir := filepath.Join(w.Store.Root, "runtime")
 		if e := os.MkdirAll(runtimeDir, 0700); e != nil {
@@ -116,7 +123,7 @@ func (w *Workbench) AlignLyrics(id string) error {
 		}
 		defer os.RemoveAll(dir)
 		began := time.Now()
-		voice, source, e := w.separatedVocals(ctx, s, model, id, path, dir)
+		voice, source, e := w.separatedVocals(ctx, s, model, splitter, id, path, dir)
 		if e != nil {
 			return e
 		}
@@ -408,17 +415,25 @@ func tidyWords(words []schema.LyricWord, voiced []bool) {
 // 分离出的人声缓存在 runtime 下（align-vocals-<版本>.wav），同一版本重新对齐时直接复用；只留最近对齐的 alignCacheKeep 个版本。
 const alignCacheKeep = 8
 
-// separatedVocals 返回这首歌 16 kHz 的人声和它的来源（cache、stems 或 separated）。这个版本分过轨时直接用分轨里的人声；
-// 否则用 BS-RoFormer 单遍分离，送入原曲的立体声（人声多在声像正中，双声道分得更干净）。分离最耗时，结果按版本缓存。
-func (w *Workbench) separatedVocals(ctx context.Context, s schema.State, model schema.InstalledModel, id, path, dir string) ([]float32, string, error) {
+// AlignSeparatorHTDemucs 是 Preferences.AlignSeparator 里表示用 HTDemucs 6-stem 分离人声的取值。
+const AlignSeparatorHTDemucs = "htdemucs"
+
+// separatedVocals 返回这首歌 16 kHz 的人声和它的来源（cache、stems、separated 或 htdemucs）。这个版本分过轨时直接用分轨里的人声；
+// 否则 splitter 为空时用 BS-RoFormer 单遍分离，送入原曲的立体声（人声多在声像正中，双声道分得更干净）；splitter 是 HTDemucs 时用它分。
+// 分离最耗时，结果按版本缓存，两种分离各存一份，换了设置不会拿到另一种的结果。
+func (w *Workbench) separatedVocals(ctx context.Context, s schema.State, model schema.InstalledModel, splitter *schema.InstalledModel, id, path, dir string) ([]float32, string, error) {
 	runtimeDir := filepath.Join(w.Store.Root, "runtime")
-	cache := filepath.Join(runtimeDir, "align-vocals-"+id+".wav")
+	name := "align-vocals-" + id + ".wav"
+	if splitter != nil {
+		name = "align-vocals-" + AlignSeparatorHTDemucs + "-" + id + ".wav"
+	}
+	cache := filepath.Join(runtimeDir, name)
 	if samples, rate, e := audio.ReadMono(cache); e == nil && rate == alignRate {
 		now := time.Now()
 		_ = os.Chtimes(cache, now, now)
 		return samples, "cache", nil
 	}
-	voice, source, e := w.extractVocals(ctx, s, model, id, path, dir)
+	voice, source, e := w.extractVocals(ctx, s, model, splitter, id, path, dir)
 	if e != nil {
 		return nil, "", e
 	}
@@ -431,8 +446,8 @@ func (w *Workbench) separatedVocals(ctx context.Context, s schema.State, model s
 	return voice, source, nil
 }
 
-// extractVocals 取得人声：优先用这个版本分轨得到的人声轨，没有时现分离。
-func (w *Workbench) extractVocals(ctx context.Context, s schema.State, model schema.InstalledModel, id, path, dir string) ([]float32, string, error) {
+// extractVocals 取得人声：优先用这个版本分轨得到的人声轨，没有时现分离（splitter 不为空时用 HTDemucs，否则用 BS-RoFormer）。
+func (w *Workbench) extractVocals(ctx context.Context, s schema.State, model schema.InstalledModel, splitter *schema.InstalledModel, id, path, dir string) ([]float32, string, error) {
 	if i := slices.IndexFunc(s.History, func(g schema.Generation) bool { return g.StemOf == id && g.Stem == "vocals" }); i >= 0 {
 		if stem, e := w.Store.MediaPath("outputs", s.History[i].FileName); e == nil {
 			if samples, rate, e := audio.ReadMono(stem); e == nil {
@@ -448,9 +463,29 @@ func (w *Workbench) extractVocals(ctx context.Context, s schema.State, model sch
 	for c := range channels {
 		channels[c] = audio.Resample(channels[c], rate, separateRate)
 	}
+	if splitter != nil && len(channels) == 1 {
+		// HTDemucs 只接受双声道。
+		channels = append(channels, channels[0])
+	}
 	mix, vocals := filepath.Join(dir, "mix.wav"), filepath.Join(dir, "vocals.wav")
 	if e = audio.Write(mix, channels, separateRate); e != nil {
 		return nil, "", e
+	}
+	if splitter != nil {
+		out := filepath.Join(dir, "stems")
+		if e = os.Mkdir(out, 0700); e != nil {
+			return nil, "", e
+		}
+		// 进度仍显示“分离人声”，不显示分轨。
+		vocalsOnly := func(msg.Code, msg.Params) { w.progress(msg.ActivitySeparateVocals, nil, 0, 1) }
+		if _, e = w.engine.SeparateStems(ctx, *s.RuntimePath, *splitter, s.Preferences.Backend, mix, out, vocalsOnly); e != nil {
+			return nil, "", e
+		}
+		samples, rate, e := audio.ReadMono(filepath.Join(out, "vocals.wav"))
+		if e != nil {
+			return nil, "", e
+		}
+		return audio.Resample(samples, rate, alignRate), AlignSeparatorHTDemucs, nil
 	}
 	if e = w.engine.SeparateVocals(ctx, *s.RuntimePath, model, s.Preferences.Backend, mix, vocals, progress); e != nil {
 		return nil, "", e

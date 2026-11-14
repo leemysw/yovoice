@@ -3129,7 +3129,7 @@
     "defaultMessage": "音声認識：文字起こしと字幕 · NetEase Youdao による Qwen3 ASR 1.7B の微調整版、30 言語、タイミングは同梱のアライナーで付与 · NetEase Youdao モデル使用許諾"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "使用する認識モデル"
+    "defaultMessage": "音声認識"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "文字起こしと参照テキストの認識に使います。Parakeet は欧州言語のみ対応です。日本語・中国語・韓国語などは Qwen3 ASR を使ってください。"
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "タイトルバーのアシスタントボタンをクリックして、やりたいことを話しかけてください。例：「物語の朗読を作って、各キャラクターに声を付けて」。先に設定で AI サービスを追加してください。"
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "デフォルト"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "歌詞アライメントのボーカル分離"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "アライメントの前にボーカルを分離します。BS-RoFormer はボーカルが最もクリーンですが遅く、HTDemucs はずっと速い反面、伴奏の厚い曲では精度が下がることがあります。"
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "アライメントの前にボーカルを分離します。現在はアライナーパッケージの BS-RoFormer を使用中で、ボーカルは最もクリーンですが遅めです。「音楽モデル」で HTDemucs 6-stem をダウンロードすると、より高速なこちらに切り替えられます。"
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · ボーカルがよりクリーン"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · より高速"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "使えるモデルがまだありません"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "ダウンロード"
   }
 }

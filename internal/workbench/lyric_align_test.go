@@ -72,6 +72,38 @@ func TestAlignLyrics(t *testing.T) {
 	}
 }
 
+// 设置里选了 HTDemucs 且已下载时用它分人声，缓存与 BS-RoFormer 的分开存；选了但没下载时照常用 BS-RoFormer。
+func TestAlignLyricsHTDemucs(t *testing.T) {
+	wb, id := alignWorkbench(t, true)
+	must(t, wb.Store.Update(func(s *schema.State) { s.Preferences.AlignSeparator = AlignSeparatorHTDemucs }, true))
+	must(t, wb.AlignLyrics(id))
+	<-wb.Done()
+	runtimeDir := filepath.Join(wb.Store.Root, "runtime")
+	if _, e := os.Stat(filepath.Join(runtimeDir, "align-vocals-"+id+".wav")); e != nil {
+		t.Fatalf("没装 HTDemucs 时应退回 BS-RoFormer：%v", e)
+	}
+	model := filepath.Join(wb.Store.Root, "models", "HTDemucs-6s")
+	must(t, os.MkdirAll(model, 0700))
+	must(t, os.WriteFile(filepath.Join(model, "htdemucs-6s-f16.gguf"), nil, 0600))
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, schema.InstalledModel{ID: "htdemucs-6stems-f16", Path: model})
+	}, true))
+	must(t, wb.AlignLyrics(id))
+	<-wb.Done()
+	s := wb.Store.Read()
+	if s.Activity.Status != "completed" || len(s.History[0].LyricWords) != 5 {
+		t.Fatalf("%+v %+v", s.Activity, s.History[0].LyricWords)
+	}
+	if _, e := os.Stat(filepath.Join(runtimeDir, "align-vocals-htdemucs-"+id+".wav")); e != nil {
+		t.Fatal(e)
+	}
+	p := s.Preferences
+	p.AlignSeparator = "spleeter"
+	if e := wb.SavePreferences(p); !isCode(e, msg.ErrRequestInvalid) {
+		t.Fatalf("%v", e)
+	}
+}
+
 func isCode(e error, code msg.Code) bool {
 	c, ok := e.(*msg.CallError)
 	return ok && c.Code == code

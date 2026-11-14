@@ -3129,7 +3129,7 @@
     "defaultMessage": "Speech recognition for transcripts and subtitles · NetEase Youdao fine-tune of Qwen3 ASR 1.7B, 30 languages, timing from the bundled aligner · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Model in use"
+    "defaultMessage": "Speech recognition"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Used for transcripts and voice reference text. Parakeet only knows European languages; use Qwen3 ASR for Chinese, Japanese, Korean and others."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Click the assistant button in the title bar and just say what you want, such as “Create a story narration and give each character a voice.” Set up an AI service in Settings first."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "Defaults"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Vocal separation for lyric alignment"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "Vocals are separated before alignment. BS-RoFormer gives the cleanest vocals but is slow; HTDemucs is much faster, but songs with heavy backing may align less accurately."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "Vocals are separated before alignment, currently with the BS-RoFormer in the aligner package: cleanest vocals, but slow. Download HTDemucs 6-stem under Music models to switch to it, which is much faster."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · cleaner vocals"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · faster"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "No model downloaded yet"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Download"
   }
 }

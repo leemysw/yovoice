@@ -3129,7 +3129,7 @@
     "defaultMessage": "Распознавание речи для расшифровок и субтитров · дообученная NetEase Youdao модель Qwen3 ASR 1.7B, 30 языков, тайминг от встроенного выравнивателя · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Используемая модель"
+    "defaultMessage": "Распознавание речи"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Для расшифровок и опорного текста. Parakeet знает только европейские языки; для китайского, японского, корейского и других используйте Qwen3 ASR."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Нажмите кнопку ассистента в заголовке окна и просто скажите, что нужно, например: «Создай чтение истории и подбери голос каждому персонажу». Сначала добавьте ИИ-сервис в настройках."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "По умолчанию"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Отделение вокала для выравнивания текста"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "Перед выравниванием выделяется вокал. BS-RoFormer даёт самый чистый вокал, но работает медленно; HTDemucs намного быстрее, но на песнях с плотным аккомпанементом выравнивание может быть менее точным."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "Перед выравниванием выделяется вокал, сейчас — с помощью BS-RoFormer из пакета выравнивания: самый чистый вокал, но медленно. Скачайте HTDemucs 6-stem в разделе «Музыкальные модели», чтобы перейти на гораздо более быструю модель."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · чище вокал"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · быстрее"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "Модель ещё не скачана"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Скачать"
   }
 }

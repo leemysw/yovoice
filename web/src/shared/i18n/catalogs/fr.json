@@ -3129,7 +3129,7 @@
     "defaultMessage": "Reconnaissance vocale pour transcriptions et sous-titres · version affinée de Qwen3 ASR 1.7B par NetEase Youdao, 30 langues, horodatage par l’aligneur inclus · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Modèle utilisé"
+    "defaultMessage": "Reconnaissance vocale"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Sert aux transcriptions et au texte de référence. Parakeet ne reconnaît que les langues européennes ; pour le chinois, le japonais, le coréen et d’autres, utilisez Qwen3 ASR."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Appuyez sur le bouton de l’assistant dans la barre de titre et dites ce que vous voulez, par exemple : « Crée une narration et donne une voix à chaque personnage ». Configurez d’abord un service d’IA dans les Paramètres."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "Par défaut"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Séparation de la voix pour l'alignement des paroles"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "La voix est séparée avant l'alignement. BS-RoFormer donne la voix la plus propre mais il est lent ; HTDemucs est bien plus rapide, mais l'alignement peut être moins précis sur les morceaux à l'accompagnement chargé."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "La voix est séparée avant l'alignement, pour l'instant avec le BS-RoFormer du paquet d'alignement : voix la plus propre, mais lent. Téléchargez HTDemucs 6-stem dans Modèles de musique pour passer à ce modèle bien plus rapide."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · voix plus propre"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · plus rapide"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "Aucun modèle téléchargé pour l'instant"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Télécharger"
   }
 }
