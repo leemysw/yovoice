@@ -3129,7 +3129,7 @@
     "defaultMessage": "Reconhecimento de fala para transcrições e legendas · ajuste da NetEase Youdao sobre o Qwen3 ASR 1.7B, 30 idiomas, tempos do alinhador incluído · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Modelo em uso"
+    "defaultMessage": "Reconhecimento de fala"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Usado em transcrições e texto de referência. O Parakeet só reconhece idiomas europeus; para chinês, japonês, coreano e outros, use o Qwen3 ASR."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Pressione o botão do assistente na barra de título e diga o que quer, por exemplo: “Crie uma narração e dê uma voz a cada personagem”. Antes, configure um serviço de IA nas Configurações."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "Padrões"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Separação de voz para alinhar letras"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "A voz é separada antes do alinhamento. O BS-RoFormer dá a voz mais limpa, mas é lento; o HTDemucs é bem mais rápido, mas em músicas com acompanhamento pesado o alinhamento pode ser menos preciso."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "A voz é separada antes do alinhamento, agora com o BS-RoFormer do pacote de alinhamento: voz mais limpa, porém lento. Baixe o HTDemucs 6-stem em Modelos de música para trocar por ele, que é bem mais rápido."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · voz mais limpa"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · mais rápido"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "Nenhum modelo baixado ainda"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Baixar"
   }
 }

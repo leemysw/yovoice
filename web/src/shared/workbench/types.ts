@@ -112,7 +112,7 @@ export interface CleanupReport {
   cleanedCount: number;
   freedBytes: number;
 }
-export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; theme?: AppTheme; engine?: EngineSettings; transcribe?: TranscribeSettings; recognizeModel?: string; hotkeys?: HotkeySettings }
+export interface Preferences { downloadSource: string; backend: string; performanceFirst?: boolean; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[]; theme?: AppTheme; engine?: EngineSettings; transcribe?: TranscribeSettings; recognizeModel?: string; alignSeparator?: 'htdemucs'; hotkeys?: HotkeySettings }
 /** 改过的快捷键与快捷键开关，与 Go 的 schema.HotkeySettings 一致：bindings 只记与默认不同的命令，空字符串表示清除；off 是停用的功能区。 */
 export interface HotkeySettings { disabled?: boolean; off?: string[]; bindings?: Record<string, string> }
 // 可在设置中隐藏的功能入口：故事配音、音乐生成（含编曲与音效）与 Ocho 助手，默认全部显示。

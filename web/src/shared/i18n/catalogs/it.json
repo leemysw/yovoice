@@ -3129,7 +3129,7 @@
     "defaultMessage": "Riconoscimento vocale per trascrizioni e sottotitoli · versione affinata di Qwen3 ASR 1.7B di NetEase Youdao, 30 lingue, tempi dall’allineatore incluso · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Modello in uso"
+    "defaultMessage": "Riconoscimento vocale"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Usato per trascrizioni e testo di riferimento. Parakeet riconosce solo lingue europee; per cinese, giapponese, coreano e altre usa Qwen3 ASR."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Premi il pulsante dell’assistente nella barra del titolo e di’ cosa vuoi, ad esempio: «Crea una narrazione e dai una voce a ogni personaggio». Prima configura un servizio IA nelle Impostazioni."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "Predefiniti"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Separazione della voce per l'allineamento dei testi"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "Prima dell'allineamento si separa la voce. BS-RoFormer dà la voce più pulita ma è lento; HTDemucs è molto più veloce, ma con accompagnamenti densi l'allineamento può essere meno preciso."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "Prima dell'allineamento si separa la voce, ora con il BS-RoFormer del pacchetto di allineamento: voce più pulita, ma lento. Scarica HTDemucs 6-stem in Modelli musicali per passare a questo modello molto più veloce."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · voce più pulita"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · più veloce"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "Nessun modello ancora scaricato"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Scarica"
   }
 }

@@ -3129,7 +3129,7 @@
     "defaultMessage": "语音识别：转写音频、生成字幕 · 网易有道基于 Qwen3 ASR 1.7B 微调，30 种语言，由包内的对齐模型给出时间 · 遵循网易有道模型使用协议"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "使用的识别模型"
+    "defaultMessage": "语音识别"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "转写和识别参考文本都用它。Parakeet 只认欧洲语言，中文、日文、韩文等请用 Qwen3 ASR。"
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "点标题栏的助手按钮，直接说要做什么，比如“新建一个故事配音，给每个角色配好声音”。使用前需要在设置里配置 AI 服务。"
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "默认模型"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "歌词对齐的人声分离"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "对齐前先分出人声。BS-RoFormer 人声最干净，但比较慢；HTDemucs 快很多，伴奏重的歌可能对得没那么准。"
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "对齐前先分出人声，现在用对齐包里的 BS-RoFormer，人声最干净但比较慢。在“音乐模型”里下载 HTDemucs 6-stem 后可以换成它，快很多。"
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · 人声更干净"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · 更快"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "还没下载可用的模型"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "去下载"
   }
 }

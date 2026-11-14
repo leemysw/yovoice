@@ -3129,7 +3129,7 @@
     "defaultMessage": "Nhận dạng giọng nói để chép lời và tạo phụ đề · bản tinh chỉnh Qwen3 ASR 1.7B của NetEase Youdao, 30 ngôn ngữ, thời gian do mô hình căn chỉnh đi kèm · NetEase Youdao Model Use License"
   },
   "@yovoice.settings.recognizeModel": {
-    "defaultMessage": "Mô hình đang dùng"
+    "defaultMessage": "Nhận dạng giọng nói"
   },
   "@yovoice.settings.recognizeModelHint": {
     "defaultMessage": "Dùng cho bản chép lời và văn bản tham chiếu. Parakeet chỉ nhận ngôn ngữ châu Âu; với tiếng Trung, Nhật, Hàn và các ngôn ngữ khác hãy dùng Qwen3 ASR."
@@ -5974,5 +5974,29 @@
   },
   "@yovoice.guide.assistantPlain": {
     "defaultMessage": "Nhấn nút trợ lý trên thanh tiêu đề rồi nói điều bạn muốn, ví dụ: “Tạo một dự án kể chuyện và chọn giọng cho từng nhân vật”. Trước tiên hãy thêm dịch vụ AI trong Cài đặt."
+  },
+  "@yovoice.settings.tabDefaultModels": {
+    "defaultMessage": "Mặc định"
+  },
+  "@yovoice.settings.alignSeparator": {
+    "defaultMessage": "Tách giọng hát để căn lời"
+  },
+  "@yovoice.settings.alignSeparatorHint": {
+    "defaultMessage": "Giọng hát được tách trước khi căn. BS-RoFormer cho giọng sạch nhất nhưng chậm; HTDemucs nhanh hơn nhiều, nhưng với bài có phần đệm dày việc căn có thể kém chính xác hơn."
+  },
+  "@yovoice.settings.alignSeparatorMore": {
+    "defaultMessage": "Giọng hát được tách trước khi căn, hiện dùng BS-RoFormer trong gói căn lời: giọng sạch nhất nhưng chậm. Tải HTDemucs 6-stem trong Mô hình âm nhạc để chuyển sang mô hình này, nhanh hơn nhiều."
+  },
+  "@yovoice.settings.alignSeparatorRoformer": {
+    "defaultMessage": "BS-RoFormer · giọng sạch hơn"
+  },
+  "@yovoice.settings.alignSeparatorHtdemucs": {
+    "defaultMessage": "HTDemucs 6-stem · nhanh hơn"
+  },
+  "@yovoice.settings.defaultModelMissing": {
+    "defaultMessage": "Chưa tải mô hình nào"
+  },
+  "@yovoice.settings.defaultModelGet": {
+    "defaultMessage": "Tải xuống"
   }
 }

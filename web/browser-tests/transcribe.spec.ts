@@ -38,16 +38,14 @@ test('没装识别模型时转写页说明原因并可去下载', async ({ page 
 test('装了多个识别模型时可以选用哪一个，选择存进偏好', async ({ page }) => {
   await openTranscribe(page, [recognizer, { id: 'parakeet-tdt-0.6b-v3-q8', path: 'parakeet-tdt-0.6b-v3-q8_0.gguf', managed: true }]);
   await page.getByTestId('nav-settings').click();
+  // 模型页先打开“默认模型”子页，各件事默认用哪个模型都在这里选。
   await page.getByRole('tab', { name: '模型', exact: true }).click();
-  await page.getByRole('tab', { name: '语音识别模型', exact: true }).click();
-  const choice = page.getByRole('combobox', { name: '使用的识别模型' });
+  await expect(page.getByRole('tab', { name: '默认模型', exact: true })).toHaveAttribute('aria-selected', 'true');
+  const choice = page.getByRole('combobox', { name: '语音识别', exact: true });
   await expect(choice).toContainText('Qwen3 ASR 0.6B');
   await choice.click();
   await page.getByRole('option', { name: /Parakeet/ }).click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').preferences?.recognizeModel)).toBe('parakeet-tdt-0.6b-v3-q8');
-  // 只装一个时不显示选择。
-  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: '使用的识别模型' })).toHaveCount(0);
 });
 
 test('字幕编辑：合并相连文字、按逐词时间拆分、查找替换', () => {
