@@ -268,6 +268,23 @@ test('试听一行：连续播放时播完接着播下一行并跳过长静音�
   await expect(editor.getByRole('button', { name: '连续播放', exact: true })).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('试听中途空格暂停再继续：接着按行试听，关掉连续播放时仍停在这一行结尾', async ({ page }) => {
+  const editor = await seedTranscript(page, [{ start: 0, end: 2, text: '第一行' }, { start: 2, end: 2.5, text: '第二行' }]);
+  await editor.getByRole('button', { name: '连续播放', exact: true }).click();
+  const playing = editor.locator('.transcribe-line[data-playing="true"]');
+  const audio = editor.locator('audio');
+  await editor.getByRole('button', { name: '00:00.000', exact: true }).click();
+  await expect(playing).toHaveAttribute('data-line', '0');
+  await page.keyboard.press('Space');
+  await expect(playing).toHaveCount(0);
+  expect(await audio.evaluate((element: HTMLAudioElement) => element.paused)).toBe(true);
+  await page.keyboard.press('Space');
+  await expect(playing).toHaveAttribute('data-line', '0');
+  // 继续的仍是这一行的试听：播到行尾停下，不接着播第二行。
+  await expect(playing).toHaveCount(0, { timeout: 4000 });
+  expect(await audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeLessThan(2.3);
+});
+
 test('翻页后上一行 / 下一行留在当前页：没有焦点行时从本页第一行开始，翻页快捷键把光标放到新页第一行', async ({ page }) => {
   const captions = Array.from({ length: 60 }, (_, i) => ({ start: i * .08, end: i * .08 + .07, text: `第 ${i + 1} 句` }));
   const editor = await seedTranscript(page, captions);
@@ -310,6 +327,14 @@ test('视频在上、字幕在下：空格播放暂停，字幕里打字时空�
   await line.click(); await page.keyboard.press('End'); await page.keyboard.press('Space');
   await expect(line).toHaveValue('第 1 句 ');
   expect(await paused()).toBe(true);
+  // 焦点在视频上时空格交给视频自己，只切换一次，不会刚播放就又停下。
+  await video.focus();
+  await page.keyboard.press('Space');
+  await expect.poll(paused).toBe(false);
+  await page.waitForTimeout(200);
+  expect(await paused()).toBe(false);
+  await page.keyboard.press('Space');
+  await expect.poll(paused).toBe(true);
   // 分隔条可用键盘调整：画面变高，重新打开后保持。
   const stage = editor.locator('.transcribe-video');
   const before = (await stage.boundingBox())!.height;

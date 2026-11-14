@@ -69,6 +69,8 @@ const editableSelector = 'textarea, select, [contenteditable]:not([contenteditab
 const sliderSelector = 'input[type="range"], [role="slider"]';
 // 空格、回车本身会按下的控件：按钮、链接、勾选、单选、开关、标签页与可展开的 <summary>。
 const controlSelector = 'button, a[href], summary, [role="button"], [role="switch"], [role="tab"], [role="radio"], [role="checkbox"], input[type="checkbox"], input[type="radio"], input[type="button"], input[type="submit"], input[type="reset"], input[type="file"], input[type="color"]';
+// 带自带控件的视频、音频：焦点在上面时空格由它自己播放暂停（浏览器的这个处理拦不住），快捷键再切一次会抵消。
+const mediaSelector = 'video[controls], audio[controls]';
 // 展开着菜单、下拉列表的触发按钮（对话框式弹层不算）：只在弹层打开时存在。
 const openMenuSelector = '[aria-haspopup]:not([aria-haspopup="false"], [aria-haspopup="dialog"])[aria-expanded="true"]';
 // Ocho 面板浮在页面之上：焦点在面板里时只响应面板自己的注册与全局命令，页面上的命令不抢它的按键。
@@ -105,6 +107,7 @@ function pick(event: KeyboardEvent): { best?: { entry: Entry; index?: number }; 
   const inMenu = !!target?.closest('[role="menu"], [role="menuitem"], [role="listbox"], [role="option"]') || !!document.querySelector(openMenuSelector);
   const control = target?.closest(controlSelector);
   const onControl = !!control && keyboardFocused(control);
+  const onMedia = !!target?.closest(mediaSelector);
   const inAssistant = !!target?.closest(assistantSelector);
   let dialogs: Element[] | undefined;
   let best: { entry: Entry; index?: number; depth: number } | undefined;
@@ -117,9 +120,10 @@ function pick(event: KeyboardEvent): { best?: { entry: Entry; index?: number }; 
     if (!match || (match.index !== undefined && match.index >= (command.range ?? 9))) continue;
     const { enabled = true, within, inInput = false, dialog = false, repeat = false, onControl: overControl = false } = entry.options;
     if (!enabled) continue;
-    // 打字的按键（不带修饰键，或 macOS 上只带 ⌥ 的字符）在输入框里交给输入框；方向键在滑块上归滑块；菜单里的移动、按钮上的空格与回车都交给原本的控件。
+    // 打字的按键（不带修饰键，或 macOS 上只带 ⌥ 的字符）在输入框里交给输入框；方向键在滑块上归滑块；菜单里的移动、按钮上的空格与回车、
+    // 视频音频控件上的空格都交给原本的控件。
     const plain = !hasCommandModifier(binding) || typesCharacter(binding, platform);
-    if (plain && ((editable && !inInput) || (slider && navigationKey(binding)) || inMenu || (onControl && !overControl && (binding === 'space' || binding === 'enter')))) continue;
+    if (plain && ((editable && !inInput) || (slider && navigationKey(binding)) || inMenu || (onControl && !overControl && (binding === 'space' || binding === 'enter')) || (onMedia && binding === 'space'))) continue;
     const area = within?.current;
     if (within && (!area || !target || !area.contains(target))) continue;
     if (inAssistant && !area && command.scope !== 'global') continue;

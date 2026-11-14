@@ -249,13 +249,17 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
   const stage = useResizable({ direction: 'vertical', defaultSize: '45%', minSize: 120, maxSize: '70%', containerRef: root, autoSaveId: 'transcribe-video-height' });
   const [autoPlay, setAutoPlay] = useState(() => readLocal(autoPlayKey) !== 'false');
   const stopAt = useRef(0);
+  // 试听中途暂停（空格或视频控件）后再播放时接着按行试听：resume 记下暂停时在试听的行；
+  // 播完一行、点停止或编辑打断的暂停记为 finished，之后再播放就是从当前位置整段播放。
+  const resume = useRef<number | null>(null);
+  const finished = useRef(false);
   useEffect(() => {
     if (!source) return;
     let url = '', cancelled = false;
     void mediaUrl('outputs', source).then(value => { url = value; if (cancelled) releaseMediaUrl(value); else setLoaded({ file: source, url: value }); }).catch(() => undefined);
     return () => { cancelled = true; releaseMediaUrl(url); };
   }, [source]);
-  function stop() { media.current?.pause(); }
+  function stop() { finished.current = true; media.current?.pause(); }
   // 空格：从当前位置播放或暂停整段，不限在某一行；播到结尾后从头开始。
   function togglePlay() {
     const element = media.current;
@@ -265,6 +269,7 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
     void element.play().catch(() => setError(t('@yovoice.error.audioPlayFailed')));
   }
   function playLine(element: HTMLMediaElement, index: number) {
+    resume.current = null;
     stopAt.current = captions[index].end;
     element.currentTime = captions[index].start;
     setPlaying(index);
@@ -273,13 +278,13 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
   function audition(index: number) {
     const element = media.current;
     if (!element) return;
-    if (playing === index) { element.pause(); return; }
+    if (playing === index) { stop(); return; }
     playLine(element, index);
   }
   function tick(element: HTMLMediaElement) {
     if (playing === null || element.currentTime < stopAt.current) return;
     const next = playing + 1;
-    if (!autoPlay || next >= captions.length) { element.pause(); return; }
+    if (!autoPlay || next >= captions.length) { stop(); return; }
     const c = captions[next];
     stopAt.current = c.end;
     if (c.start - element.currentTime > gapSkip) element.currentTime = c.start;
@@ -305,8 +310,21 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
   const mediaEvents = {
     onTimeUpdate: (event: { currentTarget: HTMLMediaElement }) => { setTime(event.currentTarget.currentTime); tick(event.currentTarget); },
     onSeeked: (event: { currentTarget: HTMLMediaElement }) => setTime(event.currentTarget.currentTime),
-    onPlay: () => setRunning(true),
-    onPause: () => { setPlaying(null); setRunning(false); }, onEnded: () => { setPlaying(null); setRunning(false); },
+    onPlay: (event: { currentTarget: HTMLMediaElement }) => {
+      setRunning(true);
+      const line = resume.current;
+      resume.current = null;
+      if (line === null) return;
+      // 暂停后可能拖过进度：按现在的位置找行，落在两行之间时沿用暂停时的那一行。
+      const now = event.currentTarget.currentTime;
+      const found = captions.findIndex(c => now >= c.start && now < c.end);
+      const index = found >= 0 ? found : line;
+      if (index >= captions.length) return;
+      stopAt.current = captions[index].end;
+      setPlaying(index);
+    },
+    onPause: () => { resume.current = finished.current ? null : playing; finished.current = false; setPlaying(null); setRunning(false); },
+    onEnded: () => { resume.current = null; setPlaying(null); setRunning(false); },
   };
   // 试听当前行：正在播放时停止，否则播焦点所在的行，焦点不在行里时播本页第一行。带 ⌘ 的按键在输入框里也能用。
   function playCurrent() {
@@ -443,7 +461,7 @@ export function TranscriptEditor({ transcript, active, onBack }: { transcript: T
 function TranscriptVideo({ src, caption, height, label, mediaRef, onError, ...events }: {
   src: string; caption: string; height: number; label: string; mediaRef: (element: HTMLVideoElement | null) => void; onError: () => void;
   onTimeUpdate: (event: { currentTarget: HTMLMediaElement }) => void; onSeeked: (event: { currentTarget: HTMLMediaElement }) => void;
-  onPlay: () => void; onPause: () => void; onEnded: () => void;
+  onPlay: (event: { currentTarget: HTMLMediaElement }) => void; onPause: () => void; onEnded: () => void;
 }) {
   return <VStack className="transcribe-video" gap={0} style={{ height }}>
     <video ref={mediaRef} src={src || undefined} aria-label={label} controls playsInline preload="metadata" {...events} onError={src ? onError : undefined} />
