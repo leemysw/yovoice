@@ -23,15 +23,27 @@ const alignChunkSeconds, maxAlignSeconds = 100.0, 1200.0
 // BS-RoFormer 只接受 44.1 kHz 输入；对齐模型使用 16 kHz。
 const separateRate, alignRate = 44100, 16000
 
-// sungLyrics 去掉段落标记行，返回要唱的歌词，每行一句。
+// sungLyrics 去掉括号里的段落标记和注释（[]、()、（）、【】，可以跨行），返回要唱的歌词，每行一句；
+// 与播放页 lyric-timing.ts 的 lyricItems 规则一致，行数对得上才能把逐字时间分回每一行。
 func sungLyrics(d schema.Draft) string {
 	if d.Instrumental {
 		return ""
 	}
 	var lines []string
+	depth := 0
 	for _, line := range strings.Split(d.Lyrics, "\n") {
-		line = strings.TrimSpace(line)
-		if line != "" && !(strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]")) {
+		var text strings.Builder
+		for _, r := range line {
+			switch {
+			case strings.ContainsRune("[(（【", r):
+				depth++
+			case strings.ContainsRune("])）】", r):
+				depth = max(0, depth-1)
+			case depth == 0:
+				text.WriteRune(r)
+			}
+		}
+		if line = strings.Join(strings.Fields(text.String()), " "); line != "" {
 			lines = append(lines, line)
 		}
 	}

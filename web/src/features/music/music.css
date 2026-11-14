@@ -139,9 +139,11 @@
     background: hsl(var(--now-playing-hue) 30% 4% / 18%); backdrop-filter: blur(var(--spacing-3)) saturate(1.8) brightness(1.16);
     box-shadow: inset 0 0 var(--spacing-0-5) var(--border-width) color-mix(in srgb, var(--now-playing-ink) 28%, transparent), inset 0 0 var(--spacing-3) var(--spacing-1) color-mix(in srgb, var(--now-playing-ink) 8%, transparent);
     transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), transform var(--duration-medium) cubic-bezier(.16, 1, .3, 1); }
-  /* 歌词样式按钮只写当前样式名，不配图标；高度与旁边的圆形按钮一致。 */
-  .now-playing .now-playing-style.now-playing-glass.astryx-button { border: var(--border-width) solid color-mix(in srgb, var(--now-playing-ink) 22%, transparent); background: var(--now-playing-glass); }
-  .now-playing .now-playing-style.astryx-button { height: var(--spacing-10); padding-inline: var(--spacing-4) var(--spacing-3); font-weight: var(--font-weight-medium); }
+  /* 顶栏工具按钮：像标题栏里的按钮，没有底色和描边，矮一档；悬停才显出浅底。 */
+  .now-playing .now-playing-tool.astryx-button { height: var(--spacing-7); min-width: var(--spacing-7); padding-inline: var(--spacing-2); border: 0; border-radius: var(--radius-element); background: transparent; box-shadow: none;
+    color: color-mix(in srgb, var(--now-playing-ink) 78%, transparent); font-size: var(--font-size-base); font-weight: var(--font-weight-medium); transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+  .now-playing .now-playing-tool.astryx-button svg { width: var(--spacing-5); height: var(--spacing-5); }
+  .now-playing .now-playing-tool.astryx-button:hover:not(:disabled), .now-playing .now-playing-tool.astryx-button[aria-expanded="true"] { color: var(--now-playing-ink); background: var(--color-overlay-hover); }
   .now-playing .now-playing-round.astryx-button { width: var(--spacing-10); height: var(--spacing-10); }
   .now-playing .now-playing-glass.astryx-button:hover:not(:disabled) { color: var(--now-playing-ink); transform: translateY(calc(var(--spacing-0-5) * -.5));
     background: linear-gradient(145deg, color-mix(in srgb, var(--now-playing-ink) 16%, transparent), color-mix(in srgb, var(--now-playing-ink) 5%, transparent) 44%, hsl(var(--now-playing-accent) 80% 60% / 7%)); }
@@ -154,7 +156,7 @@
   .now-playing .astryx-button:active:not(:disabled) { transform: scale(.94); }
   .now-playing .astryx-button:focus-visible { outline: var(--spacing-0-5) solid color-mix(in srgb, var(--now-playing-ink) 70%, transparent); outline-offset: var(--spacing-0-5); box-shadow: none; }
   .now-playing .astryx-button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
-  .now-playing-bar { position: absolute; inset: var(--spacing-5) var(--spacing-5) auto; z-index: 1; }
+  .now-playing-bar { position: absolute; inset: var(--spacing-4) var(--spacing-4) auto; z-index: 1; }
   .now-playing-chrome { transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard); }
   .now-playing[data-idle="true"] { cursor: none; }
   .now-playing[data-idle="true"] .now-playing-chrome { opacity: 0; pointer-events: none; }
@@ -260,8 +262,8 @@
   .now-playing[data-style="stage"] .now-playing-toggle.astryx-button svg { width: var(--spacing-6); height: var(--spacing-6); }
   /* 对齐进行中在顶栏右侧显示一行小字进度。 */
   .now-playing-status { color: var(--now-playing-muted); font-size: var(--font-size-xs); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  /* macOS 桌面端网页铺进了标题栏：顶栏让出红绿灯那一行。 */
-  .now-playing[data-host="macos"] .now-playing-bar { top: calc(var(--spacing-7) + var(--spacing-3)); }
+  /* macOS 桌面端网页铺进了标题栏：顶栏与红绿灯同一行（红绿灯中线离顶边约 12px，按钮中线对齐它），左边让出红绿灯。 */
+  .now-playing[data-host="macos"] .now-playing-bar { top: calc(var(--spacing-3) - var(--spacing-7) / 2); left: calc(var(--spacing-12) + var(--spacing-6)); right: var(--spacing-3); }
   .now-playing[data-host="macos"] .now-playing-lyrics { mask-image: linear-gradient(transparent, var(--app-ink) 26%, var(--app-ink) 78%, transparent); }
   /* 逐字编辑：底部一块磨砂面板，上面是这一句的工具，下面是时间轴；字块可拖动，两端是调整长短的把手，播放头随音频移动。 */
   .now-playing[data-editing] .now-playing-stage { padding-block-end: var(--spacing-4); }
@@ -312,7 +314,7 @@
   /* 页内错误提示：停在顶栏下方居中，与校准条同一玻璃质感；控件随静置隐藏时它仍然可见。 */
   .now-playing-notice {
     position: absolute;
-    top: calc(var(--spacing-12) + var(--spacing-4));
+    top: var(--spacing-12);
     left: 50%;
     z-index: 2;
     transform: translateX(-50%);

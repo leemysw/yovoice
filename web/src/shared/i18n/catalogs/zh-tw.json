@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "從這一句開始播放"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "歌詞時間依歌曲時長估算"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "倒退 {n} 秒"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "滾動歌詞"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "整首歌詞隨播放滾動，當前句逐字點亮"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "浮光"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "一句一屏，字隨演唱逐個躍出並發光，適合錄影"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "匯出逐字歌詞"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "增強 LRC，每個字都帶時間，支援卡拉 OK 歌詞的播放器可逐字顯示"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "歌詞工具"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "調整歌詞時間"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "播放中點一句就從目前位置開始唱，可整句前後微調，也能逐字細調"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "邊聽邊逐行標記每句的開始"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "播放中點擊：這一句從目前位置開始"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "正在對齊"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "分離人聲後把歌詞逐字對到演唱上，結果隨版本儲存"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "需要先下載可選的歌詞對齊模型（約 1.3 GB）"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "歌詞已按演唱逐字對齊，可再手動校準"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "歌詞時間已依人聲自動定位，可再校準"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "歌詞時間已校準"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "每一行開始唱時按 ↓ 或點「下一行」，按 Backspace 復原上一行"

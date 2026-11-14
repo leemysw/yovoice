@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "Ab dieser Zeile abspielen"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "Songtext-Timing anhand der Songlänge geschätzt"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "{n} Sekunden zurück"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "Scrollend"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "Der ganze Text scrollt mit, die aktuelle Zeile leuchtet Wort für Wort auf"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "Spotlight"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "Eine Zeile pro Bild, jedes Wort springt hervor und leuchtet. Ideal für Bildschirmaufnahmen"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "Liedtext mit Wortzeiten exportieren"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "Erweitertes LRC mit Zeitstempel pro Wort, für Player mit Karaoke-Liedtexten"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "Liedtext-Werkzeuge"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "Liedtext-Timing anpassen"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "Beim Abspielen eine Zeile anklicken, damit sie an der aktuellen Stelle beginnt; ganze Zeilen verschieben oder einzelne Wörter feinjustieren"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "Beim Zuhören den Beginn jeder Zeile markieren"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "Beim Abspielen klicken: Zeile beginnt hier"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "Wird ausgerichtet"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "Trennt den Gesang ab und richtet jedes Wort des Textes am Gesang aus; wird mit dieser Version gespeichert"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "Lade zuerst den optionalen Liedtext-Aligner herunter (ca. 1,3 GB)"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "Liedtext Wort für Wort am Gesang ausgerichtet; zum Feinjustieren synchronisieren"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "Songtext-Timing aus dem Gesang ermittelt; zum Verfeinern synchronisieren"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "Songtext-Timing synchronisiert"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Drücken Sie ↓ oder klicken Sie auf „Nächste Zeile“, wenn jede Zeile beginnt; Rücktaste macht die letzte Zeile rückgängig"

@@ -2750,9 +2750,6 @@
   "@yovoice.music.seekLyric": {
     "defaultMessage": "Lire à partir de cette ligne"
   },
-  "@yovoice.music.lyricsEstimated": {
-    "defaultMessage": "Le minutage des paroles est estimé d’après la durée de la chanson"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Reculer de {n} secondes"
   },
@@ -2777,32 +2774,17 @@
   "@yovoice.music.lyricStyleScroll": {
     "defaultMessage": "Défilement"
   },
-  "@yovoice.music.lyricStyleScrollHint": {
-    "defaultMessage": "Les paroles défilent et la ligne en cours s’illumine mot à mot"
-  },
   "@yovoice.music.lyricStyleStage": {
     "defaultMessage": "Projecteur"
   },
-  "@yovoice.music.lyricStyleStageHint": {
-    "defaultMessage": "Une ligne à la fois, chaque mot surgit et brille. Idéal pour l’enregistrement d’écran"
-  },
   "@yovoice.music.exportWordLrc": {
     "defaultMessage": "Exporter les paroles mot à mot"
-  },
-  "@yovoice.music.exportWordLrcHint": {
-    "defaultMessage": "LRC enrichi avec un horodatage par mot, pour les lecteurs compatibles karaoké"
   },
   "@yovoice.music.lyricTools": {
     "defaultMessage": "Outils des paroles"
   },
   "@yovoice.music.editWords": {
     "defaultMessage": "Ajuster le minutage des paroles"
-  },
-  "@yovoice.music.editWordsHint": {
-    "defaultMessage": "Pendant la lecture, cliquez sur une ligne pour la faire commencer à la position actuelle ; décalez des lignes entières ou affinez mot à mot"
-  },
-  "@yovoice.music.syncLyricsHint": {
-    "defaultMessage": "Marquez le début de chaque ligne en écoutant"
   },
   "@yovoice.music.editThisLine": {
     "defaultMessage": "Clic pendant la lecture : la ligne commence ici"
@@ -2875,21 +2857,6 @@
   },
   "@yovoice.music.aligningLyrics": {
     "defaultMessage": "Alignement…"
-  },
-  "@yovoice.music.alignLyricsHint": {
-    "defaultMessage": "Sépare la voix et aligne chaque mot des paroles sur le chant ; enregistré avec cette version"
-  },
-  "@yovoice.music.alignLyricsDownload": {
-    "defaultMessage": "Téléchargez d’abord l’aligneur de paroles facultatif (environ 1,3 Go)"
-  },
-  "@yovoice.music.lyricsAligned": {
-    "defaultMessage": "Paroles alignées mot à mot sur la voix ; synchronisez pour affiner"
-  },
-  "@yovoice.music.lyricsAnalyzed": {
-    "defaultMessage": "Minutage des paroles placé d’après le chant ; synchronisez pour l’affiner"
-  },
-  "@yovoice.music.lyricsSynced": {
-    "defaultMessage": "Minutage des paroles synchronisé"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Appuyez sur ↓ ou cliquez sur Ligne suivante au début de chaque ligne ; Retour arrière annule la dernière ligne"

@@ -143,3 +143,14 @@ func TestGenerationGene(t *testing.T) {
 		t.Fatalf("%v", e)
 	}
 }
+
+// 括号里的段落标记和注释（音效、乐器、唱法说明）不唱，不送去对齐；跨行的括号整段去掉，只剩注释的行整行去掉。
+func TestSungLyricsDropsNotes(t *testing.T) {
+	lyrics := "[Verse]\n(音效：雨声、远处的钟声)\n雾把煤气灯 泡软（轻声）在街角\n【弦乐渐入\n紧接着小提琴】\n铜门环叩响三声 [whisper] 影子先到"
+	var draft schema.Draft
+	draft.Lyrics = lyrics
+	got := sungLyrics(draft)
+	if want := "雾把煤气灯 泡软在街角\n铜门环叩响三声 影子先到"; got != want {
+		t.Fatalf("sungLyrics = %q, want %q", got, want)
+	}
+}
