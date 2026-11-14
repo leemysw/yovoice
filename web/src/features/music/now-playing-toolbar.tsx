@@ -3,12 +3,13 @@ import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, ListMusic, Maximize, Minimize, SlidersHorizontal, Timer } from 'lucide-react';
+import { ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, ListMusic, LoaderCircle, Maximize, Minimize, Presentation, ScrollText, SlidersHorizontal, Square, Timer } from 'lucide-react';
 import { formatActivity, formatDateTime } from '../../shared/i18n/format';
 import type { Activity, Generation } from '../../shared/workbench';
 import { readLocal, writeLocal } from '../../shared/lib/local-store';
 import { activeBinding, useHotkeyAria, useHotkeyText, withHotkey } from '../../shared/hotkeys/hotkeys';
 import { HotkeyKeys } from '../../shared/hotkeys/hotkey-keys';
+import { call } from '../../shared/lib/client';
 import type { LyricTiming } from './use-lyric-timing';
 
 // 歌词样式：scroll 是整首滚动、当前句逐字点亮；stage 是一句一屏，字随演唱逐个跃出并发光，适合录屏。选择记在本机。
@@ -21,8 +22,8 @@ export function useLyricStyle() {
   return [lyricStyle, chooseStyle] as const;
 }
 
-// 播放页顶部工具栏：关闭、版本切换与 A/B 来回切、对齐进度、歌词工具（对齐、逐字编辑、逐行校准、清除、导出 LRC）、歌词样式和全屏。
-// 按钮不带底色和描边，像标题栏里的工具按钮；macOS 上与红绿灯同一行。菜单只列操作名和按键，不写说明。随控件一起在静置时隐藏。timing 是 useLyricTiming 的歌词时间状态，歌词工具直接操作它；快捷键在 useNowPlayingKeys 里注册，这里只显示按键。
+// 播放页顶部工具栏：关闭、版本切换与 A/B 来回切、歌词工具（对齐、逐字编辑、逐行校准、清除、导出 LRC）、歌词样式和全屏。
+// 按钮不带底色和描边，像标题栏里的工具按钮；macOS 上与红绿灯同一行。对齐进行中歌词工具换成转圈的停止按钮，悬停变成方块，进度写在提示里。菜单只列操作名和按键，不写说明。随控件一起在静置时隐藏。timing 是 useLyricTiming 的歌词时间状态，歌词工具直接操作它；快捷键在 useNowPlayingKeys 里注册，这里只显示按键。
 export function NowPlayingToolbar({ item, versions, previous, switchTo, url, activity, timing, lyricStyle, chooseStyle, fullscreen, toggleFullscreen, leave }: {
   item: Generation; versions: Generation[]; previous: Generation | null; switchTo: (next: Generation) => void; url: string; activity?: Activity | null;
   timing: LyricTiming; lyricStyle: LyricStyle; chooseStyle: (value: LyricStyle) => void; fullscreen: boolean; toggleFullscreen: () => void; leave: () => void;
@@ -47,11 +48,11 @@ export function NowPlayingToolbar({ item, versions, previous, switchTo, url, act
       {previous && previous.id !== item.id ? <Button className="now-playing-tool" size="sm" variant="ghost" icon={<ArrowLeftRight />} label={t('@yovoice.music.switchBack', { n: versionNumber(previous) })} tooltip={withHotkey(t('@yovoice.music.switchBackHint'), switchKeys)} aria-keyshortcuts={switchAria} onClick={() => switchTo(previous)} /> : null}
     </HStack> : null}
     <HStack gap={2} vAlign="center">
-      {aligning ? <small className="now-playing-status" role="status">{formatActivity(t, activity)}</small> : null}
-      {rows.length && !sync && !edit ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content" hasChevron={false}
-        button={{ className: 'now-playing-tool', size: 'sm', variant: 'ghost', isIconOnly: true, icon: <ListMusic />, label: t('@yovoice.music.lyricTools'), tooltip: t('@yovoice.music.lyricTools'), isLoading: aligning }}
+      {aligning ? <Button className="now-playing-tool now-playing-stop" size="sm" variant="ghost" isIconOnly icon={<><LoaderCircle className="generation-spinner" /><Square /></>} label={t('@yovoice.music.stopAlign')} tooltip={`${formatActivity(t, activity)} · ${t('@yovoice.music.stopAlign')}`} onClick={() => void call('operation.cancel').catch(() => undefined)} />
+        : rows.length && !sync && !edit ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content" hasChevron={false}
+        button={{ className: 'now-playing-tool', size: 'sm', variant: 'ghost', isIconOnly: true, icon: <ListMusic />, label: t('@yovoice.music.lyricTools'), tooltip: t('@yovoice.music.lyricTools') }}
         items={[
-          { id: 'align', icon: <AudioLines />, label: t(aligning ? '@yovoice.music.aligningLyrics' : '@yovoice.music.alignLyrics'), isDisabled: !url || running, endContent: keys('nowPlaying.align'), onClick: alignNow },
+          { id: 'align', icon: <AudioLines />, label: t('@yovoice.music.alignLyrics'), isDisabled: !url || running, endContent: keys('nowPlaying.align'), onClick: alignNow },
           { id: 'words', icon: <SlidersHorizontal />, label: t('@yovoice.music.editWords'), isDisabled: !url || aligning || !timeline.length, endContent: keys('nowPlaying.words'), onClick: startEdit },
           { id: 'sync', icon: <Timer />, label: t(times || fromModel ? '@yovoice.music.resyncLyrics' : '@yovoice.music.syncLyrics'), isDisabled: !url || aligning, endContent: keys('nowPlaying.sync'), onClick: startSync },
           ...(times || fromModel ? [{ id: 'reset', icon: <Eraser />, label: t('@yovoice.music.syncReset'), isDisabled: aligning, onClick: () => save(undefined) }] : []),
@@ -59,9 +60,9 @@ export function NowPlayingToolbar({ item, versions, previous, switchTo, url, act
           { id: 'lrc', icon: <Download />, label: t('@yovoice.music.exportLrc'), isDisabled: !timeline.length, endContent: keys('nowPlaying.exportLrc'), onClick: () => exportLrc() },
           { id: 'word-lrc', icon: <Download />, label: t('@yovoice.music.exportWordLrc'), isDisabled: !timeline.length, onClick: () => exportLrc(true) },
         ]} /> : null}
-      {rows.length ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content"
-        button={{ className: 'now-playing-tool', variant: 'ghost', size: 'sm', label: t(lyricStyle === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'), tooltip: withHotkey(t('@yovoice.music.lyricStyle'), styleKeys), 'aria-keyshortcuts': styleAria }}
-        items={(['scroll', 'stage'] as const).map(value => ({ id: value, label: t(value === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'),
+      {rows.length ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content" hasChevron={false}
+        button={{ className: 'now-playing-tool', variant: 'ghost', size: 'sm', isIconOnly: true, icon: lyricStyle === 'stage' ? <Presentation /> : <ScrollText />, label: t(lyricStyle === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'), tooltip: withHotkey(t('@yovoice.music.lyricStyle'), styleKeys), 'aria-keyshortcuts': styleAria }}
+        items={(['scroll', 'stage'] as const).map(value => ({ id: value, icon: value === 'stage' ? <Presentation /> : <ScrollText />, label: t(value === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'),
           endContent: lyricStyle === value ? <Check size={14} /> : undefined, onClick: () => chooseStyle(value) }))} /> : null}
       {document.fullscreenEnabled ? <Button className="now-playing-tool" size="sm" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} tooltip={withHotkey(t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen'), fullscreenKeys)} aria-keyshortcuts={fullscreenAria} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}
     </HStack>

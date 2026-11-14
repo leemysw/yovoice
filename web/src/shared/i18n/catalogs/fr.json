@@ -1811,6 +1811,12 @@
   "@yovoice.timeline.preventClipping": {
     "defaultMessage": "Éviter l’écrêtage"
   },
+  "@yovoice.timeline.exportBalance": {
+    "defaultMessage": "Harmoniser le volume des rôles"
+  },
+  "@yovoice.timeline.exportBalanceHint": {
+    "defaultMessage": "Ramène chaque rôle à un volume proche. Seul le fichier exporté change ; la timeline reste telle quelle."
+  },
   "@yovoice.timeline.peak": {
     "defaultMessage": "Crête"
   },
@@ -2855,8 +2861,8 @@
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Aligner automatiquement"
   },
-  "@yovoice.music.aligningLyrics": {
-    "defaultMessage": "Alignement…"
+  "@yovoice.music.stopAlign": {
+    "defaultMessage": "Arrêter l'alignement"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "Appuyez sur ↓ ou cliquez sur Ligne suivante au début de chaque ligne ; Retour arrière annule la dernière ligne"

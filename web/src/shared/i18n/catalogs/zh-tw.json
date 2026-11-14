@@ -1811,6 +1811,12 @@
   "@yovoice.timeline.preventClipping": {
     "defaultMessage": "防止削波"
   },
+  "@yovoice.timeline.exportBalance": {
+    "defaultMessage": "統一各角色音量"
+  },
+  "@yovoice.timeline.exportBalanceHint": {
+    "defaultMessage": "按角色調到相近的音量，只影響匯出的檔案，不改時間軸。"
+  },
   "@yovoice.timeline.peak": {
     "defaultMessage": "峰值"
   },
@@ -2855,8 +2861,8 @@
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "智慧對齊"
   },
-  "@yovoice.music.aligningLyrics": {
-    "defaultMessage": "正在對齊"
+  "@yovoice.music.stopAlign": {
+    "defaultMessage": "停止對齊"
   },
   "@yovoice.music.syncHint": {
     "defaultMessage": "每一行開始唱時按 ↓ 或點「下一行」，按 Backspace 復原上一行"

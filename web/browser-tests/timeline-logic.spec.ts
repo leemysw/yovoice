@@ -163,3 +163,29 @@ test('背景压低在说话前让位、句间短停顿保持压低、说完后�
   // 压低轨自己的片段不算说话。
   expect(Timeline.ducking([tracks[1]])(5)).toBe(0);
 });
+
+test('均衡角色音量：各角色调到同一水平，保留同角色片段之间的手动差别，重复执行不再变化', () => {
+  const tone = (level: number) => ({ sampleRate: 100, numberOfChannels: 1, length: 100, getChannelData: () => new Float32Array(100).fill(level) }) as unknown as AudioBuffer;
+  const buffers = new Map([['loud', tone(0.5)], ['quiet', tone(0.05)], ['bgm', tone(0.3)]]);
+  const draft = emptyState().drafts[0];
+  const line = (id: string, speakerId: string) => ({ id, title: id, fileName: `${id}.wav`, createdAt: '2026-11-14T00:00:00Z', duration: 1, settings: draft, segment: { batchId: 'b', index: 0, cueId: id, speakerId, speakerName: speakerId } });
+  const history = [line('loud', 'a'), line('quiet', 'b')];
+  const value: AudioTimeline = { tracks: [
+    { id: 'voice', name: '对白', muted: false, clips: [
+      { id: 'a1', generationId: 'loud', start: 0, offset: 0, duration: 1 },
+      { id: 'a2', generationId: 'loud', start: 1, offset: 0, duration: 1, gainDb: -6 },
+      { id: 'b1', generationId: 'quiet', start: 2, offset: 0, duration: 1 },
+    ] },
+    { id: 'music', name: '配乐', muted: false, clips: [{ id: 'm', assetId: 'bgm', start: 0, offset: 0, duration: 3 }] },
+  ] };
+  const balanced = Timeline.balance(value, history, buffers);
+  const gain = (id: string) => balanced.tracks.flatMap(t => t.clips).find(c => c.id === id)!.gainDb ?? 0;
+  const level = (id: string, source: number) => 20 * Math.log10(source) + gain(id);
+  // 两个角色的音量拉到相近：原来差 20 dB，现在 1 dB 以内。
+  expect(Math.abs(level('b1', 0.05) - (level('a1', 0.5) + level('a2', 0.5)) / 2)).toBeLessThan(1);
+  // 同一角色里手动压低的那句仍比另一句低 6 dB；没有角色的素材不动。
+  expect(gain('a1') - gain('a2')).toBeCloseTo(6, 1);
+  expect(gain('m')).toBe(0);
+  const again = Timeline.balance(balanced, history, buffers).tracks.flatMap(t => t.clips).map(c => c.gainDb ?? 0);
+  balanced.tracks.flatMap(t => t.clips).forEach((c, i) => expect(again[i]).toBeCloseTo(c.gainDb ?? 0, 1));
+});

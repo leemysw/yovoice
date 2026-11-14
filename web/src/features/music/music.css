@@ -260,10 +260,11 @@
   .now-playing[data-style="stage"] .now-playing-skip.astryx-button { width: var(--spacing-10); height: var(--spacing-10); }
   .now-playing[data-style="stage"] .now-playing-toggle.astryx-button { width: var(--spacing-12); height: var(--spacing-12); }
   .now-playing[data-style="stage"] .now-playing-toggle.astryx-button svg { width: var(--spacing-6); height: var(--spacing-6); }
-  /* 对齐进行中在顶栏右侧显示一行小字进度。 */
-  .now-playing-status { color: var(--now-playing-muted); font-size: var(--font-size-xs); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  /* macOS 桌面端网页铺进了标题栏：顶栏与红绿灯同一行（红绿灯中线离顶边约 12px，按钮中线对齐它），左边让出红绿灯。 */
-  .now-playing[data-host="macos"] .now-playing-bar { top: calc(var(--spacing-3) - var(--spacing-7) / 2); left: calc(var(--spacing-12) + var(--spacing-6)); right: var(--spacing-3); }
+  /* 对齐中的停止按钮：平时转圈，悬停或聚焦时换成方块。 */
+  .now-playing-stop.astryx-button svg:last-child, .now-playing-stop.astryx-button:is(:hover, :focus-visible) .generation-spinner { display: none; }
+  .now-playing-stop.astryx-button:is(:hover, :focus-visible) svg:last-child { display: block; }
+  /* macOS 桌面端网页铺进了标题栏：顶栏与红绿灯同一行（标题栏高 28px，红绿灯中线离顶边 14px，按钮中线对齐它），左边让出红绿灯。 */
+  .now-playing[data-host="macos"] .now-playing-bar { top: calc(var(--spacing-3) + var(--spacing-0-5) - var(--spacing-7) / 2); left: calc(var(--spacing-12) + var(--spacing-6)); right: var(--spacing-3); }
   .now-playing[data-host="macos"] .now-playing-lyrics { mask-image: linear-gradient(transparent, var(--app-ink) 26%, var(--app-ink) 78%, transparent); }
   /* 逐字编辑：底部一块磨砂面板，上面是这一句的工具，下面是时间轴；字块可拖动，两端是调整长短的把手，播放头随音频移动。 */
   .now-playing[data-editing] .now-playing-stage { padding-block-end: var(--spacing-4); }

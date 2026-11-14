@@ -413,6 +413,31 @@ test('播放页逐行校准歌词：按键标记、撤销，校准结果随版�
   await expect(playing).toHaveCount(0);
 });
 
+test('播放页对齐进行中：歌词工具换成停止按钮，不显示进度文字，点了即停止', async ({ page }) => {
+  const draft = { ...createMusicDraft('zh-CN'), id: 'd'.repeat(32) };
+  const state = emptyState();
+  state.drafts = [draft];
+  state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: 6, settings: { ...draft, lyrics: '[verse]\n第一句\n第二句' } }];
+  await page.goto('/');
+  await seedTone(page, 'song.wav', 6);
+  await seedState(page, state); await page.reload();
+  await page.locator('.player .transport').getByRole('button', { name: '播放页', exact: true }).click();
+  const playing = page.getByRole('dialog', { name: `${draft.title} · 播放页` });
+  // 歌词样式是图标按钮，名称是当前样式。
+  await expect(playing.getByRole('button', { name: '滚动歌词', exact: true })).toHaveText('');
+  await page.evaluate(id => (window as unknown as { __previewActivity: (slot: string, value: unknown) => void }).__previewActivity('activity', {
+    kind: 'generate', task: 'align', projectId: id, code: '@yovoice.activity.separateVocals', params: {}, status: 'running', received: 0, total: 0, startedAt: '2026-10-18T00:00:00Z', errorCode: null, errorParams: {}, modelId: null,
+  }), draft.id);
+  const stop = playing.getByRole('button', { name: '停止对齐', exact: true });
+  await expect(stop).toBeVisible();
+  await expect(playing.getByRole('button', { name: '歌词工具', exact: true })).toHaveCount(0);
+  // 进度只在悬停提示里，顶栏上不显示文字。
+  await expect(playing.locator('.now-playing-bar').getByText('正在分离人声')).toBeHidden();
+  await stop.click();
+  await expect(stop).toHaveCount(0);
+  await expect(playing.getByRole('button', { name: '歌词工具', exact: true })).toBeVisible();
+});
+
 test('播放页校准歌词：保存失败时标记都还在、错误显示在页内，撤销一行重标后保存成功才退出校准', async ({ page }) => {
   const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32) };
   const state = emptyState();

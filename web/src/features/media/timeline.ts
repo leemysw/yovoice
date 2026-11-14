@@ -241,29 +241,29 @@ export class Timeline {
     return peak;
   }
 
+  // 按角色统一音量：把每个角色的非静音 RMS 调到同一水平，峰值不超过约 -1 dBFS。
+  // 测量计入音轨与片段现有增益，结果叠加在片段原增益上：同一角色片段之间的手动差别保留，重复执行结果不变。
   static balance(value: AudioTimeline, history: Generation[], buffers: Map<string, AudioBuffer>): AudioTimeline {
+    const roleOf = (clip: AudioClip) => history.find(g => g.id === clip.generationId)?.segment?.speakerId;
     const groups = new Map<string, { sum: number; count: number; peak: number }>();
     for (const track of value.tracks.filter(t => !t.locked && !t.duckDb)) for (const clip of track.clips) {
-      const role = history.find(g => g.id === clip.generationId)?.segment?.speakerId;
-      const buffer = buffers.get(Timeline.sourceKey(clip));
+      const role = roleOf(clip), buffer = buffers.get(Timeline.sourceKey(clip));
       if (!role || !buffer) continue;
       const group = groups.get(role) ?? { sum: 0, count: 0, peak: 0 };
-      const data = buffer.getChannelData(0);
-      // 按非静音采样的 RMS 均衡角色，保留动态，不标称为 LUFS 归一化。
+      const data = buffer.getChannelData(0), scale = 10 ** (((track.gainDb ?? 0) + (clip.gainDb ?? 0)) / 20);
       for (let i = Math.floor(clip.offset * buffer.sampleRate); i < Math.min(data.length, (clip.offset + clip.duration) * buffer.sampleRate); i++) {
-        const x = data[i] * 10 ** ((track.gainDb ?? 0) / 20);
+        const x = data[i] * scale;
         group.peak = Math.max(group.peak, Math.abs(x));
         if (Math.abs(x) > 0.001) { group.sum += x * x; group.count++; }
       }
       groups.set(role, group);
     }
+    const delta = new Map([...groups].filter(([, g]) => g.sum).map(([role, g]) => [role, 20 * Math.log10(Math.min(0.126 / Math.sqrt(g.sum / g.count), 0.89 / g.peak))]));
     return { ...value, tracks: value.tracks.map(t => t.locked || t.duckDb ? t : { ...t, clips: t.clips.map(c => {
-      const role = history.find(g => g.id === c.generationId)?.segment?.speakerId;
-      const g = role ? groups.get(role) : undefined;
-      return g?.sum ? { ...c, gainDb: Math.max(-60, Math.min(12, 20 * Math.log10(Math.min(0.126 / Math.sqrt(g.sum / g.count), 0.89 / g.peak)))) } : c;
+      const d = delta.get(roleOf(c) ?? '');
+      return d === undefined ? c : { ...c, gainDb: Math.round(Math.max(-60, Math.min(12, (c.gainDb ?? 0) + d)) * 100) / 100 };
     }) }) };
   }
-
 }
 
 interface TimelineSnapshot { value: AudioTimeline; selected: string }
