@@ -6,6 +6,7 @@
 
 ### English
 
+- The bottom player is tidier: play and the time sit together on the left. In speech, song and sound-effect projects the buttons beside play switch to the previous or next version (playback carries on if it was playing); the go-to-start and go-to-end buttons and the zoom control are gone from the single-track player (Home and End still jump). The multitrack timeline keeps its zoom.
 - Keyboard shortcuts: a new Settings › Keyboard shortcuts tab lists every shortcut by area — Global, Speech generation, Transcribe, Story narration, Music generation, Sound library and Ocho. Click a shortcut and press new keys to change it; conflicts and keys reserved by the system are flagged, and you can restore defaults per shortcut or all at once. Turn all shortcuts or a single area off, and export or import your shortcuts as a file with a preview of every change. Press ⌘/ (Ctrl+/ on Windows and Linux) on any page to see the shortcuts available there.
 - Shortcuts no longer step on each other or on typing:
   - ⌘↩ / Ctrl+Enter in the Ocho box only sends the message and no longer also starts a generation.
@@ -32,6 +33,7 @@
 
 ### 简体中文
 
+- 底部播放器更紧凑：播放键和时间靠左放在一起。语音、歌曲与音效作品里播放键两侧改为切换上一版、下一版，播放中切换会接着播放；单轨播放器去掉回到开头、结尾按钮和缩放（Home、End 键照常可用），多轨时间线保留缩放。
 - 快捷键：设置里新增“快捷键”标签，按全局、语音生成、语音转写、故事配音、音乐生成、我的声音和 Ocho 分区列出全部快捷键。点按键后按下新的组合即可修改，遇到冲突或系统占用的按键会提示，可逐条或全部恢复默认；可以关闭全部快捷键或单个功能区，也可以把快捷键导出成文件，导入时先预览每一处变化。在任意页面按 ⌘/（Windows 和 Linux 上为 Ctrl+/）查看当前页面能用的快捷键。
 - 快捷键不再互相干扰，也不再妨碍打字：
   - 在 Ocho 输入框里按 ⌘↩ / Ctrl+Enter 只发送消息，不会同时开始生成。

@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "Воспроизвести"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "Предыдущая версия"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "Следующая версия"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "Ход воспроизведения"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "Показать в папке"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "В конец"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "В начало"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "Аудиофайл отсутствует или не читается"

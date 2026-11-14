@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "Wiedergabe"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "Vorherige Version"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "Nächste Version"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "Wiedergabefortschritt"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "Im Ordner zeigen"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "Zum Ende"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "Zum Anfang"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "Audiodatei fehlt oder ist nicht lesbar"

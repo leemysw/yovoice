@@ -85,21 +85,11 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await page.getByRole('button', { name: '暂停', exact: true }).click();
   const progress = page.getByRole('slider', { name: '播放进度' });
   await expect(progress).toBeVisible();
-  const lane = page.locator('.timeline-lane');
-  const originalWidth = await page.locator('.waveform').evaluate(el => el.getBoundingClientRect().width);
-  await page.getByRole('button', { name: '放大音轨', exact: true }).click();
-  await expect(page.getByRole('button', { name: '适应完整音轨' })).toHaveText('200%');
-  await expect.poll(() => page.locator('.waveform').evaluate(el => el.getBoundingClientRect().width)).toBeGreaterThan(originalWidth * 1.9);
-  await lane.evaluate(el => { el.scrollLeft = el.scrollWidth; });
-  expect(await lane.evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
-  await progress.fill('1.5');
-  await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.currentTime)).toBeCloseTo(1.5, 1);
-  await page.getByRole('button', { name: '适应完整音轨' }).click();
-  await expect(page.getByRole('button', { name: '缩小音轨' })).toBeDisabled();
-  await expect.poll(() => lane.evaluate(el => el.scrollLeft)).toBe(0);
   await progress.fill('1');
   await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.currentTime)).toBeCloseTo(1, 1);
-  await page.getByRole('button', { name: '回到开头' }).click();
+  // 单轨播放器不再放回到开头的按钮，Home 键照常回到开头。
+  await page.locator('body').click({ position: { x: 1, y: 1 } });
+  await page.keyboard.press('Home');
   await expect(progress).toHaveValue('0');
   await page.getByRole('button', { name: '静音', exact: true }).click();
   await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.volume)).toBe(0);
@@ -602,10 +592,10 @@ test('长录音可试听并保存一分钟之后的选段，取消时不登记�
 });
 
 /** 语音作品带一版 4 秒的生成音频，底部是带波形的播放器。 */
-async function openWithVersion(page: Page) {
-  const state = emptyState();
+async function openWithVersion(page: Page, seeded?: ReturnType<typeof emptyState>) {
+  const state = seeded ?? emptyState();
   const draft = state.drafts[0];
-  state.history = [{ id: '1'.repeat(32), title: draft.title, fileName: 'tone.wav', createdAt: '2026-09-15T10:00:00Z', duration: 4, settings: { ...draft } }];
+  if (!seeded) state.history = [{ id: '1'.repeat(32), title: draft.title, fileName: 'tone.wav', createdAt: '2026-09-15T10:00:00Z', duration: 4, settings: { ...draft } }];
   await page.goto('/');
   await page.evaluate(async () => {
     const rate = 8000, seconds = 4, bytes = new Uint8Array(44 + rate * seconds * 2); const view = new DataView(bytes.buffer);
@@ -636,13 +626,32 @@ test('点过波形上的进度条（透明滑块）后，空格照常播放、M 
 
 test('鼠标点过的按钮留着焦点时，空格播放而不是再按一次那个按钮', async ({ page }) => {
   const player = await openWithVersion(page);
-  const zoom = player.getByRole('button', { name: '适应完整音轨' });
-  // 鼠标点的按钮在 Windows / Linux 上会留着焦点，但不是用键盘移到的：空格交给播放，不再放大一次。
-  await player.getByRole('button', { name: '放大音轨', exact: true }).click();
-  await expect(zoom).toHaveText('200%');
+  // 鼠标点的按钮在 Windows / Linux 上会留着焦点，但不是用键盘移到的：空格交给播放，不再按一次静音。
+  await player.getByRole('button', { name: '静音', exact: true }).click();
+  await expect(player.getByRole('button', { name: '取消静音', exact: true })).toBeVisible();
   await page.keyboard.press('Space');
   await expect(player.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
-  await expect(zoom).toHaveText('200%');
+  await expect(player.getByRole('button', { name: '取消静音', exact: true })).toBeVisible();
+});
+
+test('播放键两侧切换上一版、下一版，播放中切换会接着播放', async ({ page }) => {
+  const state = emptyState();
+  const draft = state.drafts[0];
+  state.history = [
+    { id: '2'.repeat(32), title: '第二版', fileName: 'tone.wav', createdAt: '2026-09-15T11:00:00Z', duration: 4, settings: { ...draft } },
+    { id: '1'.repeat(32), title: '第一版', fileName: 'tone.wav', createdAt: '2026-09-15T10:00:00Z', duration: 4, settings: { ...draft } },
+  ];
+  const player = await openWithVersion(page, state);
+  const previous = player.getByRole('button', { name: '上一版本' }), next = player.getByRole('button', { name: '下一版本' });
+  // 默认停在最新一版：没有更新的版本。
+  await expect(next).toBeDisabled();
+  await player.getByRole('button', { name: '播放', exact: true }).click();
+  await previous.click();
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeEnabled();
+  await expect(player.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
+  await next.click();
+  await expect(next).toBeDisabled();
 });
 
 test('鼠标点“生成语音”后按钮换成“取消生成”，再按空格或回车不会误取消', async ({ page }) => {

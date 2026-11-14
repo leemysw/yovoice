@@ -722,6 +722,12 @@
   "@yovoice.player.play": {
     "defaultMessage": "再生"
   },
+  "@yovoice.player.previousVersion": {
+    "defaultMessage": "前のバージョン"
+  },
+  "@yovoice.player.nextVersion": {
+    "defaultMessage": "次のバージョン"
+  },
   "@yovoice.player.progress": {
     "defaultMessage": "再生位置"
   },
@@ -730,12 +736,6 @@
   },
   "@yovoice.player.reveal": {
     "defaultMessage": "場所を開く"
-  },
-  "@yovoice.player.skipEnd": {
-    "defaultMessage": "末尾へ移動"
-  },
-  "@yovoice.player.skipStart": {
-    "defaultMessage": "先頭へ移動"
   },
   "@yovoice.player.unavailable": {
     "defaultMessage": "音声ファイルが見つからないか、読み込めません"
