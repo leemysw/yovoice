@@ -703,3 +703,20 @@ test('默认模型：歌词对齐的人声分离可换成已下载的 HTDemucs�
   await expect(separator).toContainText('HTDemucs');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').preferences?.alignSeparator)).toBe('htdemucs');
 });
+
+test('YuE2 歌曲展开里的长标签不撑出右侧检查器：按钮最宽到面板，文字换行', async ({ page }, testInfo) => {
+  const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32), modelId: 'yue2-3b-q8' };
+  const state = emptyState();
+  state.drafts = [draft];
+  state.models = [{ id: 'yue2-3b-q8', path: 'Yue2-3B-GGUF', managed: true }];
+  await page.addInitScript(value => { if (!localStorage.getItem('voice-workbench-v1')) localStorage.setItem('voice-workbench-v1', value); }, JSON.stringify(state));
+  await page.goto('/');
+  const panel = page.getByRole('group', { name: '歌曲展开' });
+  const tag = panel.getByRole('button', { name: 'intimate verses and a bright singable chorus', exact: true });
+  await tag.click();
+  await expect(tag).toHaveAttribute('aria-pressed', 'true');
+  await tag.scrollIntoViewIfNeeded();
+  const [box, frame] = await Promise.all([tag.boundingBox(), panel.boundingBox()]);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(frame!.x + frame!.width);
+  await panel.screenshot({ path: testInfo.outputPath('yue-arrangement-tags.png') });
+});

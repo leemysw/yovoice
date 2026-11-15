@@ -36,6 +36,10 @@
   .music-editor { flex: 1; min-height: 0; overflow-y: auto; padding-block: var(--spacing-4) var(--spacing-6); padding-inline-end: var(--spacing-4); }
   .music-editor h2 { font-size: var(--app-ui-font); }
   .music-tag.astryx-button { border-radius: var(--radius-full); }
+  /* 长标签（如“展开”里的整句描述）不撑出检查器：最宽到面板宽度，文字换行，药丸随之变高。 */
+  .music-tag.astryx-button { max-width: 100%; height: auto; min-height: var(--spacing-8); white-space: normal; }
+  /* Astryx 按钮文字层（第一个 span 里的文字）默认单行省略，这里改为换行。 */
+  .music-tag.astryx-button > span:first-child > span { white-space: normal; text-overflow: clip; overflow-wrap: anywhere; text-align: start; }
   .song-cover { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radius-container); background: var(--app-ink); }
   /* 旋律谱标题下的概要只占一行，放不下时省略，完整内容在悬停提示里（不换行写在后面的排版层里）。 */
   .melody-score .score-summary { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
