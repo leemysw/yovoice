@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "ダウンロード"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "音声をドラッグするか、クリックしてファイルを選択"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "参照音声の取得元"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "参照音声ライブラリ"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "生成履歴"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "生成した音声を検索"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "生成した音声はまだありません。生成後、ここで参照音声として選択できます。"
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "原文は選択範囲と一致する必要があります。範囲を変えたら再入力するか、後で文字起こししてください。"
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "内蔵音色で話者を選び、スタイル指示で話し方、感情、速度を調整します。説明から新しい音色を作る場合は VoiceDesign モデルを選択してください。"
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "有効"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "無効"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "生成設定"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "設定をエクスポート"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "生成日時"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "生成テキスト"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "保存されたパラメーター"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "生成時に保存された設定です。その後の作品やキャラクターの編集では変わりません。記録のないエンジンの既定値、ハードウェア、モデルファイルのバージョンを現在の設定から推測することはありません。"
   }
 }

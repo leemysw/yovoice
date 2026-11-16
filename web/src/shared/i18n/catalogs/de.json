@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Herunterladen"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Audio hier ablegen oder Datei auswählen"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Quelle des Referenzaudios"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Referenzbibliothek"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Erzeugte Sprache"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Erzeugte Sprache suchen"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "Noch keine erzeugte Sprache. Erzeugen Sie Sprache, um sie hier als Referenzaudio auszuwählen."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "Das Transkript muss zum Ausschnitt passen. Nach dem Zuschneiden erneut eingeben oder später transkribieren."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "Die integrierte Stimme legt den Sprecher fest; Stilanweisungen steuern Ausdruck, Emotion und Tempo. Für eine neue Stimme aus einer Beschreibung wählen Sie ein VoiceDesign-Modell."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Aktiviert"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Deaktiviert"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Generierungskonfiguration"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Konfiguration exportieren"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Erstellt am"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Generierungstext"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Gespeicherte Parameter"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "Diese Konfiguration wurde bei der Generierung gespeichert. Spätere Änderungen am Projekt oder Charakter ändern sie nicht. Nicht erfasste Engine-Standardwerte, Hardware und Modelldateiversionen werden nicht aus aktuellen Einstellungen abgeleitet."
   }
 }

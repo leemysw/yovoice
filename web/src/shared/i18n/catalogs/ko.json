@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "내려받기"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "오디오를 끌어 놓거나 클릭하여 파일 선택"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "참조 오디오 출처"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "참조 오디오 보관함"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "생성 기록"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "생성된 음성 검색"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "생성된 음성이 없습니다. 음성을 생성한 후 여기서 참조 오디오로 선택하세요."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "원문은 선택한 구간과 일치해야 합니다. 구간을 변경하면 다시 입력하거나 나중에 음성 인식을 사용하세요."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "내장 음색으로 화자를 선택하고 스타일 지시로 말투, 감정, 속도를 조절합니다. 설명으로 새 음색을 만들려면 VoiceDesign 모델을 선택하세요."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "켜짐"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "꺼짐"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "생성 설정"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "설정 내보내기"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "생성 시간"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "생성 텍스트"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "저장된 매개변수"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "생성 당시 저장된 설정입니다. 이후 작품이나 캐릭터를 수정해도 바뀌지 않습니다. 기록되지 않은 엔진 기본값, 하드웨어 및 모델 파일 버전은 현재 설정에서 추정하지 않습니다."
   }
 }

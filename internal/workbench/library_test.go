@@ -1,11 +1,14 @@
 package workbench
 
 import (
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
+	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
@@ -22,7 +25,7 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	must(t, w.Store.Update(func(s *schema.State) {
 		s.History = append(s.History, schema.Generation{ID: id, Title: "片段", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
-	v, err := w.VoiceFromGeneration(id, "旁白音色", "校正后的原文")
+	v, err := w.VoiceFromGeneration(id, "旁白音色", "校正后的原文", nil)
 	must(t, err)
 	if v.SourceGenerationID != id || v.ReferenceText != "校正后的原文" {
 		t.Fatal(v)
@@ -112,4 +115,45 @@ func TestCharacterAndVoiceLifecycle(t *testing.T) {
 	}
 	must(t, w.DeleteCharacter(copy.ID))
 	must(t, w.DeleteMedia("voices", v.ID))
+}
+
+func TestVoiceFromGenerationExcerpt(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	id := schema.NewID()
+	path := filepath.Join(w.Store.Root, "outputs", id+".wav")
+	// 原音频超过参考音频上限；节选必须按用户范围保存，不能重新自动选段。
+	must(t, audio.WriteMono(path, make([]float32, 16000*65), 16000))
+	must(t, w.Store.Update(func(s *schema.State) {
+		s.History = append(s.History, schema.Generation{ID: id, FileName: id + ".wav", Duration: 65})
+	}, true))
+	for _, span := range [][]float64{{}, {0}, {0, 61}, {-1, 2}, {64, 66}, {5, 4}, {0, .5}, {0, math.NaN()}, {0, math.Inf(1)}} {
+		if _, err := w.VoiceFromGeneration(id, "节选", "", span); err == nil {
+			t.Fatalf("接受了无效范围 %v", span)
+		}
+	}
+	if len(w.Store.Read().Voices) != 0 {
+		t.Fatal("失败的选段留下参考音频")
+	}
+	v, err := w.VoiceFromGeneration(id, "节选", "节选原文", []float64{60, 65})
+	must(t, err)
+	if v.Duration != 5 || v.Source != "generation" || v.SourceGenerationID != id || v.ReferenceText != "节选原文" {
+		t.Fatal(v)
+	}
+	must(t, w.DeleteMedia("outputs", id))
+	file, err := w.MediaFile("voices", v.ID)
+	must(t, err)
+	duration, err := audio.Duration(file)
+	must(t, err)
+	if duration != 5 {
+		t.Fatalf("删除来源后节选损坏: %v", duration)
+	}
+	entries, err := os.ReadDir(filepath.Join(w.Store.Root, "downloads"))
+	must(t, err)
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "audio-") {
+			t.Fatal("选段临时文件未清理", entry.Name())
+		}
+	}
 }

@@ -8,6 +8,7 @@ import { encodeError, previewExportLogs, previewLog, previewQueryLogs } from '..
 import { preview, publish } from './store';
 import { blobDelete, blobStore } from './blobs';
 import { previewImportVoice } from './media';
+import { decodeAudio, encodeWav } from '../sound';
 import { previewInspectMelody, previewTransformMelody } from './melody';
 import { assistantCancel, assistantDelete, assistantForget, assistantNew, assistantOpen, assistantProposal, assistantSend } from './assistant';
 
@@ -126,7 +127,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   if (method === 'character.delete') { state.characters = state.characters.filter(c => c.id !== (data as { id: string }).id); publish(); return true as T; }
   if (method === 'character.discardPreview') return true as T;
   if (method === 'voice.update' || method === 'voice.fromGeneration') {
-    const input = data as { id: string; name: string; referenceText: string };
+    const input = data as { id: string; name: string; referenceText: string; range?: [number, number] };
     if (!input.name.trim() || input.name.length > 100 || input.referenceText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
     if (method === 'voice.update') {
       const voice = state.voices.find(v => v.id === input.id);
@@ -138,7 +139,14 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (!generation) throw new CallError('@yovoice.error.audioMissing');
     const blob = await blobStore(generation.fileName);
     if (!blob) throw new CallError('@yovoice.error.audioBlobMissing');
-    const voice = await previewImportVoice(new File([blob], input.name.trim() + '.wav'));
+    let audio = blob;
+    if (input.range) {
+      const buffer = await decodeAudio(await blob.arrayBuffer(), 24000);
+      const [start, end] = input.range;
+      if (input.range.length !== 2 || !Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end > buffer.duration || end - start < 1 || end - start > 60) throw new CallError('@yovoice.error.audioDuration');
+      audio = encodeWav(buffer, start, end);
+    }
+    const voice = await previewImportVoice(new File([audio], input.name.trim() + '.wav'));
     Object.assign(voice, { referenceText: input.referenceText, source: 'generation', sourceGenerationId: input.id });
     publish(); return voice as T;
   }

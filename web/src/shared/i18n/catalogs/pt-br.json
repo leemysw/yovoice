@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Baixar"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Arraste um áudio aqui ou clique para escolher um arquivo"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Origem do áudio de referência"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Biblioteca de referências"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Vozes geradas"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Buscar vozes geradas"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "Nenhuma voz gerada ainda. Gere uma voz para selecioná-la aqui como referência."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "A transcrição deve corresponder ao trecho. Após recortar, digite novamente ou transcreva mais tarde."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "A voz integrada define o falante; as instruções de estilo controlam expressão, emoção e ritmo. Para criar uma nova voz por descrição, selecione um modelo VoiceDesign."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Ativado"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Desativado"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Configuração da geração"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Exportar configuração"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Data da geração"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Texto da geração"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Parâmetros salvos"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "Esta configuração foi salva com a geração. Alterações posteriores no projeto ou personagem não a modificam. Padrões do motor, hardware e versões dos arquivos do modelo não registrados não são deduzidos das configurações atuais."
   }
 }

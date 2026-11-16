@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Tải xuống"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Thả âm thanh vào đây hoặc nhấp để chọn tệp"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Nguồn âm thanh tham chiếu"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Thư viện tham chiếu"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Giọng nói đã tạo"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Tìm giọng nói đã tạo"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "Chưa có giọng nói đã tạo. Hãy tạo giọng nói để chọn làm âm thanh tham chiếu tại đây."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "Văn bản phải khớp với đoạn trích. Sau khi cắt, hãy nhập lại hoặc nhận dạng giọng nói sau."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "Giọng có sẵn xác định người nói; hướng dẫn phong cách điều chỉnh cách đọc, cảm xúc và tốc độ. Để tạo giọng mới từ mô tả, hãy chọn mô hình VoiceDesign."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Bật"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Tắt"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Cấu hình tạo âm thanh"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Xuất cấu hình"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Thời gian tạo"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Văn bản tạo âm thanh"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Tham số đã lưu"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "Đây là cấu hình được lưu khi tạo âm thanh. Các thay đổi sau đó của tác phẩm hoặc nhân vật không làm thay đổi cấu hình này. Giá trị mặc định của bộ máy, phần cứng và phiên bản tệp mô hình chưa được ghi lại sẽ không được suy ra từ thiết lập hiện tại."
   }
 }

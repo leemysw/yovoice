@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+### English
+
+- Reference audio supports drag and drop and selecting generated speech from history, with audition, excerpt selection and an editable transcript. Saved references retain their source and remain usable after the original generation is deleted.
+- Qwen3 CustomVoice now labels its optional delivery instructions as style guidance and explains how they work with the built-in speaker.
+- Generation history shows model tags and a read-only configuration view with the saved text, time, seed and parameters, plus JSON export. The same view is available while selecting historical speech as a reference.
+
+### 简体中文
+
+- 参考音频支持拖入文件，以及从生成历史选择语音、试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。
+- Qwen3 CustomVoice 将可选的演绎指令标为“风格指导”，说明其与内置音色的关系。
+- 生成历史新增模型标签和只读的生成配置详情，可查看保存的文字、时间、随机种子与参数并导出 JSON；选择历史语音作为参考时也可查看。
+
 ## [0.8.0] - 2026-11-15
 
 ### English

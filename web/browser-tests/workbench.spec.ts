@@ -135,7 +135,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(page.locator('footer.player')).toBeHidden();
   await page.getByRole('button', { name: '添加参考音频', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { name: '添加参考音频' })).toBeVisible();
-  await expect(page.getByRole('dialog').locator('.voice-list')).toHaveCount(0);
+  await expect(page.getByRole('dialog').locator('.voice-row')).toHaveCount(0);
   await page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '新增音色.wav', mimeType: 'audio/wav', buffer: wav });
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '新增音色', exact: true })).toBeVisible();

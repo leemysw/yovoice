@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Descargar"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Arrastra audio aquí o haz clic para elegir un archivo"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Origen del audio de referencia"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Biblioteca de referencias"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Voces generadas"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Buscar voces generadas"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "Aún no hay voces generadas. Genera una para seleccionarla aquí como referencia."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "La transcripción debe coincidir con el fragmento. Tras recortarlo, vuelve a introducirla o transcríbela más tarde."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "La voz integrada determina el hablante; las instrucciones de estilo controlan la interpretación, la emoción y el ritmo. Para diseñar una voz nueva mediante una descripción, elige un modelo VoiceDesign."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Activado"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Desactivado"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Configuración de generación"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Exportar configuración"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Fecha de generación"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Texto de generación"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Parámetros guardados"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "Esta configuración se guardó con la generación. Los cambios posteriores del proyecto o personaje no la modifican. No se deducen valores predeterminados del motor, hardware ni versiones de archivos del modelo que no se hayan registrado."
   }
 }
