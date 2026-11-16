@@ -118,8 +118,18 @@ func TestScoreRendersWithoutEngine(t *testing.T) {
 	}
 }
 
-// 语音生成作品只保留最近 10 个版本；时间线使用的版本保留且不占名额，其他作品不受影响。
-func TestTextGenerationKeepsLatestVersions(t *testing.T) {
+// 桌面与接口生成都只追加结果，不能按版本数量删除已有记录和原音频。
+func TestGenerationPreservesAllVersions(t *testing.T) {
+	for _, api := range []bool{false, true} {
+		name := "desktop"
+		if api {
+			name = "api"
+		}
+		t.Run(name, func(t *testing.T) { testGenerationPreservesAllVersions(t, api) })
+	}
+}
+
+func testGenerationPreservesAllVersions(t *testing.T, api bool) {
 	wb, err := New(t.TempDir())
 	must(t, err)
 	defer wb.Close()
@@ -136,15 +146,19 @@ func TestTextGenerationKeepsLatestVersions(t *testing.T) {
 	other := schema.DefaultDraft()
 	other.ID = schema.NewID()
 	var history []schema.Generation
-	for i := range 11 {
-		g := schema.Generation{ID: schema.NewID(), Title: "旧版本", FileName: schema.NewID() + ".wav", CreatedAt: time.Now().Add(-time.Duration(i+1) * time.Minute).UTC(), Duration: 1, Settings: d}
+	count := 11
+	if api {
+		count = 55
+	}
+	for i := range count {
+		g := schema.Generation{ID: schema.NewID(), Title: "旧版本", FileName: schema.NewID() + ".wav", CreatedAt: time.Now().Add(-48*time.Hour - time.Duration(i+1)*time.Minute).UTC(), Duration: 1, Settings: d}
 		must(t, os.WriteFile(filepath.Join(wb.Store.Root, "outputs", g.FileName), wav(), 0600))
 		history = append(history, g)
 	}
 	foreign := schema.Generation{ID: schema.NewID(), Title: "其他作品", FileName: schema.NewID() + ".wav", CreatedAt: time.Now().Add(-time.Hour).UTC(), Duration: 1, Settings: other}
 	must(t, os.WriteFile(filepath.Join(wb.Store.Root, "outputs", foreign.FileName), wav(), 0600))
 	// 最旧的一条放在时间线上，不能被删除。
-	used := history[10]
+	used := history[len(history)-1]
 	d.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "lane", Name: "旁白", Clips: []schema.AudioClip{{ID: "clip", GenerationID: used.ID, Duration: 1}}}}}
 	must(t, wb.Store.Update(func(s *schema.State) {
 		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
@@ -153,10 +167,18 @@ func TestTextGenerationKeepsLatestVersions(t *testing.T) {
 		s.RuntimeVersion = ptr(catalog.EngineVersion)
 		s.Preferences.Backend = "cpu"
 		s.Drafts = []schema.Draft{d, other}
+		if api {
+			s.Drafts = []schema.Draft{other}
+		}
 		s.History = append(history, foreign)
 	}, true))
-	must(t, wb.Generate(d))
-	<-wb.Done()
+	if api {
+		_, err = wb.Synthesize(context.Background(), d)
+		must(t, err)
+	} else {
+		must(t, wb.Generate(d))
+		<-wb.Done()
+	}
 	state := wb.Store.Read()
 	if state.Activity == nil || state.Activity.Status != "completed" {
 		t.Fatalf("%+v", state.Activity)
@@ -165,11 +187,16 @@ func TestTextGenerationKeepsLatestVersions(t *testing.T) {
 	for _, g := range state.History {
 		ids[g.ID] = true
 	}
-	// 新版本 + 9 个最新旧版本 + 时间线版本 + 其他作品 = 12；第 10、11 新的旧版本（history[9]）被删除。
-	if len(state.History) != 12 || ids[history[9].ID] || !ids[history[8].ID] || !ids[used.ID] || !ids[foreign.ID] {
-		t.Fatalf("history = %d", len(state.History))
+	// 新生成只能追加，旧版本即使超过十条也不能无确认消失。
+	if len(state.History) != count+2 || !ids[history[9].ID] || !ids[history[8].ID] || !ids[used.ID] || !ids[foreign.ID] {
+		t.Fatalf("history = %d，生成不应删除旧版本", len(state.History))
 	}
-	if _, err := os.Stat(filepath.Join(wb.Store.Root, "outputs", history[9].FileName)); !os.IsNotExist(err) {
-		t.Fatal("超出上限的旧版本音频应删除")
+	for _, g := range append(history, foreign) {
+		if !ids[g.ID] {
+			t.Fatal("新生成删除了旧记录", g.ID)
+		}
+		if _, err := os.Stat(filepath.Join(wb.Store.Root, "outputs", g.FileName)); err != nil {
+			t.Fatal("新生成删除了旧音频", g.ID, err)
+		}
 	}
 }

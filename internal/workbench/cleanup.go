@@ -214,8 +214,8 @@ type CleanupReport struct {
 	FreedBytes   int64 `json:"freedBytes"`
 }
 
-// orphanHistoryGrace 是孤儿历史的保留期：接口生成不建作品，远程客户端可能稍后才下载音频。
-const orphanHistoryGrace = 24 * time.Hour
+// residualGrace 是未登记的残留文件的保留期，避免误删正在写入的结果。
+const residualGrace = 24 * time.Hour
 
 // timelineGenerations 返回各作品时间线片段仍在使用的生成版本，skipDraft 对应的作品不计入。
 // 已采纳记录（AcceptedGenerations）只表示版本曾被放上时间线，不算使用。
@@ -236,22 +236,6 @@ func timelineGenerations(s schema.State, skipDraft string) map[string]bool {
 	return ids
 }
 
-// orphanGenerations 返回所属作品已不存在、且没有被任何时间线使用的历史版本，顺序与 History 一致（新到旧）。
-func orphanGenerations(s schema.State) []schema.Generation {
-	alive := map[string]bool{}
-	for _, d := range s.Drafts {
-		alive[d.ID] = true
-	}
-	used := timelineGenerations(s, "")
-	var orphans []schema.Generation
-	for _, g := range s.History {
-		if !alive[g.Settings.ID] && !used[g.ID] {
-			orphans = append(orphans, g)
-		}
-	}
-	return orphans
-}
-
 // deleteUnreferenced 物理删除 names 中已不被任何记录引用的 kind 目录文件，引用以 State.MediaRefs 为唯一依据。
 // 调用方需持有编辑锁，并且已提交移除记录的状态修改。
 func (w *Workbench) deleteUnreferenced(kind string, names []string, report *CleanupReport) {
@@ -269,26 +253,6 @@ func (w *Workbench) deleteUnreferenced(kind string, names []string, report *Clea
 			report.FreedBytes += info.Size()
 		}
 	}
-}
-
-// removeGenerations 删除指定历史版本，并物理删除不再被任何记录使用的音频；调用方需持有编辑锁。
-func (w *Workbench) removeGenerations(ids map[string]bool, report *CleanupReport) error {
-	if len(ids) == 0 {
-		return nil
-	}
-	var files []string
-	for _, g := range w.Store.Read().History {
-		if ids[g.ID] && g.FileName != "" {
-			files = append(files, g.FileName)
-		}
-	}
-	if err := w.Store.Update(func(state *schema.State) {
-		state.History = slices.DeleteFunc(state.History, func(g schema.Generation) bool { return ids[g.ID] })
-	}, true); err != nil {
-		return err
-	}
-	w.deleteUnreferenced("outputs", files, report)
-	return nil
 }
 
 // removeStaleFiles 删除目录中未被引用且超过保留期的普通文件。
@@ -313,74 +277,22 @@ func removeStaleFiles(dir string, cutoff time.Time, keep func(name string) bool,
 	}
 }
 
-// supersededTakes 返回故事作品中已采纳、但已不在任何时间线上的逐句版本；作品需在 cutoff 之前就没有再编辑。
-func supersededTakes(s schema.State, cutoff time.Time) []schema.Generation {
-	used := timelineGenerations(s, "")
-	idle := map[string]map[string]bool{}
-	for _, d := range s.Drafts {
-		if d.Timeline == nil || (d.UpdatedAt != nil && !d.UpdatedAt.Before(cutoff)) {
-			continue
-		}
-		accepted := map[string]bool{}
-		for _, id := range d.Timeline.AcceptedGenerations {
-			accepted[id] = true
-		}
-		idle[d.ID] = accepted
-	}
-	var takes []schema.Generation
-	for _, g := range s.History {
-		if g.Segment == nil || used[g.ID] || !g.CreatedAt.Before(cutoff) {
-			continue
-		}
-		if accepted, ok := idle[g.Settings.ID]; ok && accepted[g.ID] {
-			takes = append(takes, g)
-		}
-	}
-	return takes
-}
-
-// CleanupResiduals 回收超过 24 小时的孤儿历史版本与未引用的磁盘文件。
+// CleanupResiduals 只回收未被任何记录引用的残留；已完成的生成不因年龄、数量或作品归属被删除。
 func (w *Workbench) CleanupResiduals() (CleanupReport, error) {
 	w.edit.Lock()
 	defer w.edit.Unlock()
 
 	var report CleanupReport
-	cutoff := time.Now().Add(-orphanHistoryGrace)
+	cutoff := time.Now().Add(-residualGrace)
 
-	// 1. 孤儿历史：所属作品已删除且没有时间线使用；接口刚生成的结果保留 24 小时供客户端下载。
-	stale := map[string]bool{}
-	for _, g := range orphanGenerations(w.Store.Read()) {
-		if g.CreatedAt.Before(cutoff) {
-			stale[g.ID] = true
-		}
-	}
-	// 2. 故事作品中已被替换的旧句子版本：已放上时间线（已采纳）但现在没有任何片段使用。
-	// 历史列表不展示逐句版本，用户无法手动删除；只处理 24 小时内未编辑的作品，避免撤销操作找不回刚替换的版本。
-	for _, g := range supersededTakes(w.Store.Read(), cutoff) {
-		stale[g.ID] = true
-	}
-	if err := w.removeGenerations(stale, &report); err != nil {
-		return report, err
-	}
-	if len(stale) > 0 {
-		if err := w.Store.Update(func(state *schema.State) {
-			for i := range state.Drafts {
-				if t := state.Drafts[i].Timeline; t != nil {
-					t.AcceptedGenerations = slices.DeleteFunc(t.AcceptedGenerations, func(id string) bool { return stale[id] })
-				}
-			}
-		}, true); err != nil {
-			return report, err
-		}
-	}
-
-	// 3. 未被引用的磁盘文件：只清理超过 24 小时的，避免误删正在写入的结果。
+	// 历史记录本身就是持久引用，包括接口结果、已替换的逐句版本和没有所属作品的记录。
+	// 清理前不能先删记录来制造“无引用文件”，否则启动应用也会丢失用户的生成结果。
 	refs := w.Store.Read().MediaRefs()
 	for _, kind := range []string{"outputs", "voices"} {
 		removeStaleFiles(filepath.Join(w.Store.Root, kind), cutoff, func(name string) bool { return refs[kind][name] }, &report)
 	}
 
-	// 4. downloads/ 只存放临时文件与内核安装包缓存，超过 24 小时的全部回收（内核已解压到 runtime/）。
+	// downloads/ 只存放临时文件与内核安装包缓存，超过 24 小时的全部回收（内核已解压到 runtime/）。
 	//    续传片段只在没有后台操作时、持 mu 删除：此刻不可能有下载正要接着写它。
 	downloads := filepath.Join(w.Store.Root, "downloads")
 	removeStaleFiles(downloads, cutoff, func(name string) bool { return stagingTarget(name) != "" }, &report)
@@ -389,7 +301,7 @@ func (w *Workbench) CleanupResiduals() (CleanupReport, error) {
 		removeStaleFiles(downloads, cutoff, func(name string) bool { return stagingTarget(name) == "" }, &report)
 		w.removeStaleConversions(&report)
 	}
-	// 5. 模型目录里下载或更新中途留下的临时文件：仍属于已登记模型或最近一次下载的保留，其余超过 24 小时的回收。
+	// 模型目录里下载或更新中途留下的临时文件：仍属于已登记模型或最近一次下载的保留，其余超过 24 小时的回收。
 	//    有模型下载或目录恢复在进行时整体跳过，保护正在写入或校验的文件。
 	s := w.Store.Read()
 	if w.installCancel == nil && !scanningModelDirectory(s) {

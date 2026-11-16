@@ -49,8 +49,6 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 	state := w.Store.Read()
 	for _, g := range state.History {
 		if g.Settings.ID == d.ID {
-			// 自动修剪无所属作品的 API 历史记录，最多保留 50 条
-			w.pruneOrphanHistory(50)
 			return g, nil
 		}
 	}
@@ -59,46 +57,6 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 		return schema.Generation{}, msg.Err(*activity.ErrorCode, activity.ErrorParams)
 	}
 	return schema.Generation{}, msg.Err(msg.ErrGenerateFailed, nil)
-}
-
-// pruneOrphanHistory 只保留最新的 max 条孤儿历史（接口生成不建作品），时间线仍在使用的版本不计入也不删除。
-// 与 CleanupResiduals 一致，24 小时内的结果始终保留，远程客户端可能稍后才下载音频。
-func (w *Workbench) pruneOrphanHistory(max int) {
-	w.edit.Lock()
-	defer w.edit.Unlock()
-	orphans := orphanGenerations(w.Store.Read())
-	if len(orphans) <= max {
-		return
-	}
-	cutoff := time.Now().Add(-orphanHistoryGrace)
-	ids := map[string]bool{}
-	for _, g := range orphans[max:] {
-		if g.CreatedAt.Before(cutoff) {
-			ids[g.ID] = true
-		}
-	}
-	_ = w.removeGenerations(ids, nil)
-}
-
-// textVersionLimit 是语音生成作品保留的版本数：语音生成定位为快速合成，够反复抽卡挑选即可，不堆积历史。
-const textVersionLimit = 10
-
-// pruneTextVersions 删除语音作品中超出上限的旧版本及其音频；时间线仍在使用的版本保留且不占名额。
-func (w *Workbench) pruneTextVersions(draftID string, max int) {
-	w.edit.Lock()
-	defer w.edit.Unlock()
-	s := w.Store.Read()
-	used := timelineGenerations(s, "")
-	ids, kept := map[string]bool{}, 0
-	for _, g := range s.History {
-		if g.Settings.ID != draftID || g.Segment != nil || used[g.ID] {
-			continue
-		}
-		if kept++; kept > max {
-			ids[g.ID] = true
-		}
-	}
-	_ = w.removeGenerations(ids, nil)
 }
 
 func (w *Workbench) generateAudio(d schema.Draft, previewID, cueID, clipID string) error {
@@ -263,9 +221,6 @@ func (w *Workbench) generateTake(ctx context.Context, s schema.State, d schema.D
 		_ = w.offerMelody(d.ID, "plan", generatedScore, false)
 	}
 	diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
-	if d.Kind == "" || d.Kind == "text" {
-		w.pruneTextVersions(d.ID, textVersionLimit)
-	}
 	return nil
 }
 
