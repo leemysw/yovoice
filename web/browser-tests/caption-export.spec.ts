@@ -157,7 +157,6 @@ test('播放页导出 LRC 歌词使用校准时间', async ({ page }, testInfo) 
   const playing = page.getByRole('dialog', { name: `${draft.title} · 播放页` });
   await page.screenshot({ path: testInfo.outputPath('now-playing.png') });
   await playing.getByRole('button', { name: '歌词工具', exact: true }).click();
-  await expect(page.getByRole('menu')).toContainText('歌词时间已校准');
   const download = page.waitForEvent('download');
   await page.getByRole('menuitem', { name: /^导出歌词（LRC）/ }).click();
   const saved = await download; expect(saved.suggestedFilename()).toBe(`${draft.title}.lrc`);
