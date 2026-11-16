@@ -56,8 +56,10 @@ test('长历史音频先选段，修改范围后不沿用整段台词', async ({
   await dialog.getByRole('button', { name: '另存为新音色', exact: true }).click();
   await expect.poll(() => page.evaluate(() => {
     const voice = JSON.parse(localStorage.getItem('voice-workbench-v1')!).voices.at(-1);
-    return voice && { duration: voice.duration, text: voice.referenceText, source: voice.sourceGenerationId };
-  })).toEqual({ duration: 5, text: '节选中的台词。', source: 'a'.repeat(32) });
+    return voice && { text: voice.referenceText, source: voice.sourceGenerationId };
+  })).toEqual({ text: '节选中的台词。', source: 'a'.repeat(32) });
+  // 浏览器重采样可能相差一个采样点；仍严格核对选段到万分之一秒。
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).voices.at(-1)?.duration)).toBeCloseTo(5, 4);
 });
 
 test('拖入音频复用文件导入流程，错误后可继续导入', async ({ page }) => {
