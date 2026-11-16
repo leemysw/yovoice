@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Télécharger"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Déposez un fichier audio ici ou cliquez pour le choisir"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Source de la référence audio"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Bibliothèque de références"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Voix générées"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Rechercher une voix générée"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "Aucune voix générée. Générez une voix pour la sélectionner ici comme référence audio."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "La transcription doit correspondre à l’extrait. Après le découpage, saisissez-la à nouveau ou transcrivez-la plus tard."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "La voix intégrée définit le locuteur ; les consignes de style règlent l’expression, l’émotion et le débit. Pour créer une nouvelle voix à partir d’une description, choisissez un modèle VoiceDesign."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Activé"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Désactivé"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Configuration de génération"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Exporter la configuration"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Date de génération"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Texte de génération"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Paramètres enregistrés"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "Cette configuration a été enregistrée lors de la génération. Les modifications ultérieures du projet ou du personnage ne la changent pas. Les valeurs par défaut du moteur, le matériel et les versions de fichiers du modèle non enregistrés ne sont pas déduits des réglages actuels."
   }
 }

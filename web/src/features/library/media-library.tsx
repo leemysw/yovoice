@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { Token } from '@astryxdesign/core/Token';
+import { GenerationDetails, generationModelLabel } from '../media/generation-details';
 import { Button } from '@astryxdesign/core/Button';
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { Clock3, Disc3, ListChecks, Mic, Plus, Trash2, MoreHorizontal } from 'lucide-react';
+import { Clock3, Disc3, ListChecks, Mic, Plus, Trash2, MoreHorizontal, Info } from 'lucide-react';
 import { formatTime, projectKind, type Draft, type Generation, type State, type Track, type Voice } from '../../shared/workbench';
 import { MediaActions } from '../media/media-actions';
 import { call, CallError } from '../../shared/lib/client';
@@ -32,6 +34,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
 }) {
   const t = useTranslator();
   const locale = useLocale();
+  const [details, setDetails] = useState<Generation | null>(null);
   const voices = page === 'voices';
   // 语音生成是临时生成：历史生成列出所有语音作品的结果，不分版本；音乐与编曲的版本记录只属于当前作品，按版本编号。
   const kind = projectKind(project), quick = kind === 'text';
@@ -130,12 +133,13 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
           cover={quick ? <TapeCover seed={item.id} title={name} />
             : kind === 'sfx' ? <WaveRing seed={item.id} duration={item.duration}><Player compact avatar={{ seed: item.id, label: t('@yovoice.app.audition', { name }), select: listen }} suspended={suspended} track={selected ? track : null} onError={onError} /></WaveRing>
             : <RecordCover seed={item.id} interactive><Player compact avatar={{ seed: item.id, label: t('@yovoice.app.audition', { name }), select: listen }} suspended={suspended} track={selected ? track : null} onError={onError} /></RecordCover>}
-          eyebrow={<HStack className="history-meta" gap={2}>{quick ? null : <b>{version}</b>}<time dateTime={item.createdAt}>{date}</time></HStack>}
+          eyebrow={<HStack className="history-meta" gap={2} wrap="wrap">{quick ? null : <b>{version}</b>}<time dateTime={item.createdAt}>{date}</time><Token size="sm" label={generationModelLabel(item)} /></HStack>}
           title={<h3 onPointerEnter={overflowTitle} data-full-text={item.settings.text}>{name}</h3>} excerpt={excerpt}
           stub={<TicketStamp value={formatTime(item.duration)} unit={t('@yovoice.library.duration')} />}
           actions={<>
             {quick ? <Player inline={{ label: t('@yovoice.app.audition', { name }), select: listen }} suspended={suspended} track={selected ? track : null} onError={onError} onProgress={(_, playing) => setPlayingId(current => playing ? item.id : current === item.id ? null : current)} /> : null}
             {kind === 'music' ? <Button label={t('@yovoice.music.openNowPlaying', { name })} tooltip={t('@yovoice.music.nowPlaying')} size="sm" variant="ghost" isIconOnly icon={<Disc3 />} onClick={() => { stop(); play(item); }} /> : null}
+            <Button label={t('@yovoice.history.configuration')} size="sm" variant="ghost" isIconOnly icon={<Info />} onClick={() => setDetails(item)} />
             <DropdownMenu className="audio-actions-menu" presentation="popover" alignment="end" hasChevron={false} button={{ label: t('@yovoice.history.audioActions'), size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal /> }} items={[
               { label: t('@yovoice.app.exportVersion'), onClick: () => exportItem(item) },
               ...(kind === 'music' && !item.stemOf ? [{ label: t('@yovoice.community.share'), onClick: () => share(item) }] : []),
@@ -153,6 +157,7 @@ export function MediaLibrary({ page, state, query, onQueryChange, track, auditio
     {!voices && filteredHistory.length > shownCount ? <Button className="history-more" label={t('@yovoice.library.showEarlier', { n: Math.min(historyBatch, filteredHistory.length - shownCount) })} variant="secondary" size="sm"
       onClick={() => setShown({ key: listKey, count: shownCount + historyBatch })} /> : null}
 
+    {details ? <GenerationDetails item={details} close={() => setDetails(null)} /> : null}
     {confirming ? <ConfirmDelete title={t('@yovoice.library.deletePickedTitle', { n: visiblePicked.length })}
       description={t('@yovoice.library.deletePickedBody') + t('@yovoice.media.deleteVoiceExtra')}
       confirmLabel={t('@yovoice.library.deletePicked', { n: visiblePicked.length })} busy={deleting} error={batchError} onClose={() => setConfirming(false)} onConfirm={() => void deletePicked()} /> : null}

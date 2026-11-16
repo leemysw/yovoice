@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Scarica"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Trascina qui un audio o fai clic per scegliere un file"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Origine dell’audio di riferimento"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Libreria di riferimenti"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Voci generate"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Cerca voci generate"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "Nessuna voce generata. Genera una voce per selezionarla qui come riferimento."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "La trascrizione deve corrispondere all’estratto. Dopo il taglio, inseriscila di nuovo o trascrivila in seguito."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "La voce integrata determina il parlante; le istruzioni di stile controllano espressione, emozione e ritmo. Per creare una nuova voce da una descrizione, scegli un modello VoiceDesign."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Attivo"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Disattivo"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Configurazione di generazione"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Esporta configurazione"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Data di generazione"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Testo di generazione"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Parametri salvati"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "Questa configurazione è stata salvata con la generazione. Le modifiche successive al progetto o al personaggio non la cambiano. Valori predefiniti del motore, hardware e versioni dei file del modello non registrati non vengono dedotti dalle impostazioni attuali."
   }
 }

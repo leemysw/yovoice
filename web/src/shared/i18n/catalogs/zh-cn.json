@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "去下载"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "拖入音频，或点击选择文件"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "参考音频来源"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "参考音频库"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "生成历史"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "搜索生成的语音"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "尚无可用的生成语音。生成语音后可在这里选为参考音频。"
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "原文应与选段一致；调整选段后请重新填写或稍后识别。"
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "内置音色决定说话人；风格指导只控制语气、情绪和语速。若要用描述设计新音色，请选择 VoiceDesign 模型。"
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "开启"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "关闭"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "生成配置"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "导出生成配置"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "生成时间"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "生成文字"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "保存的参数"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "以下是生成时保存的配置快照，不会随当前作品或角色设置变化。未记录的引擎默认值、硬件和模型文件版本不会从当前设置补写。"
   }
 }
