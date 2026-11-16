@@ -449,7 +449,7 @@ func TestCleanupPreviousKeepsEveryOldRootAndUserFiles(t *testing.T) {
 	}
 }
 
-func TestOrphanHistoryKeepsTimelineClipsAndFreshResults(t *testing.T) {
+func TestCleanupPreservesAllRecordedGenerations(t *testing.T) {
 	root := t.TempDir()
 	w, err := New(root)
 	must(t, err)
@@ -461,7 +461,9 @@ func TestOrphanHistoryKeepsTimelineClipsAndFreshResults(t *testing.T) {
 	old := schema.Generation{ID: schema.NewID(), FileName: "old.wav", CreatedAt: time.Now().Add(-48 * time.Hour), Settings: gone}
 	fresh := schema.Generation{ID: schema.NewID(), FileName: "fresh.wav", CreatedAt: time.Now(), Settings: gone}
 	for _, g := range []schema.Generation{used, old, fresh} {
-		must(t, os.WriteFile(filepath.Join(root, "outputs", g.FileName), []byte("wav"), 0600))
+		path := filepath.Join(root, "outputs", g.FileName)
+		must(t, os.WriteFile(path, []byte("wav"), 0600))
+		must(t, os.Chtimes(path, g.CreatedAt, g.CreatedAt))
 	}
 	must(t, w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{fresh, old, used}, s.History...) }, true))
 	other := schema.DefaultDraft()
@@ -469,8 +471,6 @@ func TestOrphanHistoryKeepsTimelineClipsAndFreshResults(t *testing.T) {
 	other.Timeline = &schema.AudioTimeline{Tracks: []schema.AudioLane{{ID: "track", Name: "人声", Clips: []schema.AudioClip{{ID: "clip", GenerationID: used.ID, Duration: 1}}}}}
 	must(t, w.SaveDraft(other))
 
-	// 接口历史修剪：时间线使用的版本不计入限额，也不被删除。
-	w.pruneOrphanHistory(1)
 	has := func(id string) bool {
 		for _, g := range w.Store.Read().History {
 			if g.ID == id {
@@ -479,8 +479,8 @@ func TestOrphanHistoryKeepsTimelineClipsAndFreshResults(t *testing.T) {
 		}
 		return false
 	}
-	if !has(used.ID) || !has(fresh.ID) || has(old.ID) {
-		t.Fatal("修剪结果不正确：应保留时间线版本与最新版本，删除更旧的孤儿版本")
+	if !has(used.ID) || !has(fresh.ID) || !has(old.ID) {
+		t.Fatal("清理前记录应完整")
 	}
 	if _, err := os.Stat(filepath.Join(root, "outputs", "used.wav")); err != nil {
 		t.Fatal("时间线使用的音频被删除", err)
@@ -488,8 +488,21 @@ func TestOrphanHistoryKeepsTimelineClipsAndFreshResults(t *testing.T) {
 
 	_, err = w.CleanupResiduals()
 	must(t, err)
-	if !has(used.ID) || !has(fresh.ID) {
-		t.Fatal("清理残留不应删除时间线使用的版本或 24 小时内的接口结果")
+	if !has(used.ID) || !has(fresh.ID) || !has(old.ID) {
+		t.Fatal("清理残留不应删除任何已登记结果，即使接口结果超过 24 小时")
+	}
+	for _, g := range []schema.Generation{used, old, fresh} {
+		if _, err := os.Stat(filepath.Join(root, "outputs", g.FileName)); err != nil {
+			t.Fatal("清理删除了已登记音频", g.ID, err)
+		}
+	}
+	// 保留不会阻止用户明确删除不再需要的接口结果。
+	must(t, w.DeleteMedia("outputs", old.ID))
+	if has(old.ID) {
+		t.Fatal("主动删除未移除历史")
+	}
+	if _, err := os.Stat(filepath.Join(root, "outputs", old.FileName)); !os.IsNotExist(err) {
+		t.Fatal("主动删除未移除原音频")
 	}
 }
 
@@ -558,7 +571,7 @@ func TestReconcileRepairsDanglingTimelineReferences(t *testing.T) {
 	}
 }
 
-func TestCleanupRemovesSupersededStoryTakes(t *testing.T) {
+func TestCleanupPreservesSupersededStoryTakes(t *testing.T) {
 	root := t.TempDir()
 	w, err := New(root)
 	must(t, err)
@@ -597,14 +610,14 @@ func TestCleanupRemovesSupersededStoryTakes(t *testing.T) {
 	for _, g := range s.History {
 		ids[g.ID] = true
 	}
-	if ids[replaced.ID] || !ids[current.ID] || !ids[pending.ID] {
-		t.Fatal("应只删除已被替换的版本，保留时间线上的版本与待放置的新版本")
+	if !ids[replaced.ID] || !ids[current.ID] || !ids[pending.ID] {
+		t.Fatal("已完成的逐句版本不能因为被替换或超过 24 小时而删除")
 	}
-	if _, err := os.Stat(filepath.Join(root, "outputs", "replaced.wav")); !os.IsNotExist(err) {
-		t.Fatal("被替换版本的音频未删除")
+	if _, err := os.Stat(filepath.Join(root, "outputs", "replaced.wav")); err != nil {
+		t.Fatal("被替换版本的音频不应删除", err)
 	}
-	if slices.Contains(s.Drafts[0].Timeline.AcceptedGenerations, replaced.ID) {
-		t.Fatal("已采纳记录中残留已删除的版本")
+	if !slices.Contains(s.Drafts[0].Timeline.AcceptedGenerations, replaced.ID) {
+		t.Fatal("清理不应改写已采纳记录")
 	}
 	if err := w.SaveDraft(s.Drafts[0]); err != nil {
 		t.Fatal("清理后作品应仍可保存", err)

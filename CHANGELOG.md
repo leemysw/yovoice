@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### English
+
+- Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
+
+### 简体中文
+
+- 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
+
 ## [0.8.0] - 2026-11-15
 
 ### English
