@@ -2,10 +2,13 @@ package workbench
 
 import (
 	"context"
+	"math"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
+	"yovoice/internal/audio"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -190,7 +193,7 @@ func (w *Workbench) DiscardPreview(id string) error {
 }
 
 // VoiceFromGeneration 将生成结果保存为参考音色，并记录来源。
-func (w *Workbench) VoiceFromGeneration(id, name, referenceText string) (schema.Voice, error) {
+func (w *Workbench) VoiceFromGeneration(id, name, referenceText string, span []float64) (schema.Voice, error) {
 	if !schema.ValidID(id) {
 		return schema.Voice{}, msg.Err(msg.ErrCharacterInvalid, nil)
 	}
@@ -208,7 +211,36 @@ func (w *Workbench) VoiceFromGeneration(id, name, referenceText string) (schema.
 	if err != nil {
 		return schema.Voice{}, err
 	}
-	return w.importVoice(context.Background(), path, name, referenceText, id)
+	if span == nil {
+		return w.importVoice(context.Background(), path, name, referenceText, id)
+	}
+	if len(span) != 2 || math.IsNaN(span[0]) || math.IsNaN(span[1]) || math.IsInf(span[0], 0) || math.IsInf(span[1], 0) || span[0] < 0 || span[1]-span[0] < 1 || span[1]-span[0] > maxReference {
+		return schema.Voice{}, msg.Err(msg.ErrAudioDuration, nil)
+	}
+	mono, rate, err := audio.ReadMono(path)
+	if err != nil {
+		return schema.Voice{}, err
+	}
+	total := float64(len(mono)) / float64(rate)
+	// 浏览器按 24 kHz 解码时，末尾可能多出不足一帧的舍入误差。
+	if span[1] > total+1.0/24000 {
+		return schema.Voice{}, msg.Err(msg.ErrAudioDuration, nil)
+	}
+	start := int(math.Round(span[0] * float64(rate)))
+	end := min(len(mono), int(math.Round(span[1]*float64(rate))))
+	if end-start < rate || end-start > maxReference*rate {
+		return schema.Voice{}, msg.Err(msg.ErrAudioDuration, nil)
+	}
+	dir, err := os.MkdirTemp(filepath.Join(w.Store.Root, "downloads"), "audio-")
+	if err != nil {
+		return schema.Voice{}, err
+	}
+	defer os.RemoveAll(dir)
+	clip := filepath.Join(dir, "excerpt.wav")
+	if err = audio.WriteMono(clip, mono[start:end], rate); err != nil {
+		return schema.Voice{}, err
+	}
+	return w.importVoice(context.Background(), clip, name, referenceText, id)
 }
 
 func (w *Workbench) UpdateVoice(id, name, referenceText string) error {

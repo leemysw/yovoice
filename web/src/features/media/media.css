@@ -121,6 +121,7 @@
   .voice-list { max-height: calc(var(--spacing-10) * 6.5); overflow: auto; }
   .voice-list[data-editing="true"] { max-height: calc(var(--spacing-10) * 3); }
   .voice-row { border-bottom: var(--border-width) solid var(--app-line); min-height: var(--spacing-12); padding-block: var(--spacing-1); }
+  .voice-history-row { flex-shrink: 0; }
   .voice-row:last-child { border-bottom: 0; }
   .voice-choice-mark { width: var(--spacing-5); flex-shrink: 0; }
   .voice-row[data-selected="true"] { background: var(--app-surface); border-radius: var(--radius-element); }

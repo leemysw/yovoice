@@ -339,7 +339,8 @@ test('视频在上、字幕在下：空格播放暂停，字幕里打字时空�
   const handle = editor.getByRole('separator', { name: '调整视频大小', exact: true });
   await handle.focus();
   for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowDown');
-  await expect.poll(async () => (await stage.boundingBox())!.height).toBeGreaterThan(before + 20);
+  // 每次方向键调整 10；等待五次调整全部呈现，不能把中间高度当作最终保存值。
+  await expect.poll(async () => Math.round((await stage.boundingBox())!.height)).toBe(Math.round(before + 50));
   const after = (await stage.boundingBox())!.height;
   await page.reload();
   await page.getByTestId('nav-transcribe').click();

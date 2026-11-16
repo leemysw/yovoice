@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "去下載"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "拖入音訊，或點擊選擇檔案"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "參考音訊來源"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "參考音訊庫"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "生成歷史"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "搜尋生成的語音"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "尚無生成的語音。生成後可在這裡選為參考音訊。"
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "原文須與節選一致。調整範圍後請重新填寫，或稍後使用語音辨識。"
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "內建音色決定說話人；風格指導控制語氣、情緒和語速。如需依描述設計新音色，請選擇 VoiceDesign 模型。"
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "開啟"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "關閉"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "生成設定"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "匯出生成設定"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "生成時間"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "生成文字"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "儲存的參數"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "這是生成時儲存的設定快照，不隨目前作品或角色設定改變。未記錄的引擎預設值、硬體和模型檔案版本不會從目前設定補寫。"
   }
 }

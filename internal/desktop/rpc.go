@@ -46,6 +46,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		Path          string    `json:"path"`
 		Base64        string    `json:"base64"`
 		ReferenceText string    `json:"referenceText"`
+		Range         []float64 `json:"range"`
 		Model         string    `json:"model"`
 		Version       string    `json:"version"`
 		Times         []float64 `json:"times"`
@@ -133,7 +134,7 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "character.discardPreview":
 		return true, w.DiscardPreview(p.ID)
 	case "voice.fromGeneration":
-		return w.VoiceFromGeneration(p.ID, p.Name, p.ReferenceText)
+		return w.VoiceFromGeneration(p.ID, p.Name, p.ReferenceText, p.Range)
 	case "timeline.fromGeneration":
 		return w.ImportTimelineGeneration(ctx, p.ID)
 	case "voice.update":

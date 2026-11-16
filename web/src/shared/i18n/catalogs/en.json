@@ -6004,5 +6004,53 @@
   },
   "@yovoice.settings.defaultModelGet": {
     "defaultMessage": "Download"
+  },
+  "@yovoice.voice.dropAudio": {
+    "defaultMessage": "Drop audio here, or click to choose a file"
+  },
+  "@yovoice.voice.source": {
+    "defaultMessage": "Reference audio source"
+  },
+  "@yovoice.voice.library": {
+    "defaultMessage": "Reference library"
+  },
+  "@yovoice.voice.generated": {
+    "defaultMessage": "Generated speech"
+  },
+  "@yovoice.voice.searchGenerated": {
+    "defaultMessage": "Search generated speech"
+  },
+  "@yovoice.voice.noGenerated": {
+    "defaultMessage": "No generated speech yet. Generate speech to use it as reference audio here."
+  },
+  "@yovoice.voice.excerptTranscriptHelp": {
+    "defaultMessage": "The transcript must match the excerpt. After trimming, enter it again or transcribe it later."
+  },
+  "@yovoice.reference.customVoiceHelp": {
+    "defaultMessage": "The built-in voice sets the speaker; style guidance controls delivery, emotion and pace. To design a new voice from a description, select a VoiceDesign model."
+  },
+  "@yovoice.history.enabled": {
+    "defaultMessage": "Enabled"
+  },
+  "@yovoice.history.disabled": {
+    "defaultMessage": "Disabled"
+  },
+  "@yovoice.history.configuration": {
+    "defaultMessage": "Generation configuration"
+  },
+  "@yovoice.history.exportConfiguration": {
+    "defaultMessage": "Export configuration"
+  },
+  "@yovoice.history.generatedAt": {
+    "defaultMessage": "Generated at"
+  },
+  "@yovoice.history.generationText": {
+    "defaultMessage": "Generation text"
+  },
+  "@yovoice.history.savedParameters": {
+    "defaultMessage": "Saved parameters"
+  },
+  "@yovoice.history.snapshotHelp": {
+    "defaultMessage": "This is the configuration saved with this generation. Later project or character edits do not change it. Unrecorded engine defaults, hardware and model file versions are not inferred from current settings."
   }
 }
