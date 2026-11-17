@@ -19,6 +19,7 @@ Choose a model based on whether you have a reference recording or want a built-i
 | XTTS v2 | Voice cloning in 17 languages | 6–30 seconds of reference audio and an explicit language; Coqui Public Model License; requires engine v0.9.3 |
 | Gradium Phonon | Lightweight English speech | Default voice only; no reference audio or cloning; requires engine v0.9.3 |
 | Drama 3 / Drama3-small | Speaker/event tags, default voice and cloning | Cloning requires reference audio and its full transcript; Fish Audio Community License; requires engine v0.9.3 |
+| Audio8 TTS Realistic | Default voice and cloning in 11 languages | Cloning requires reference audio and its full transcript; Apache-2.0; requires engine v0.9.3 |
 | Kokoro | Lightweight built-in voices | Speaker ID; no reference audio |
 
 Use `yovoice models list --json` for model IDs, available precisions, file sizes, voices, and advanced parameter definitions. The app lists models in Settings. See the [CLI guide](cli.md) to download an engine and model.
@@ -57,6 +58,7 @@ YoVoice downloads and verifies the new package separately, then switches the reg
 | Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | Voice design from natural-language descriptions, no reference audio required |
 | Breeze TTS 2 | ~3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | Chinese and English voice design, cloning and voice direction; GPU recommended, requires the v0.9.1 engine |
 | Ming 3.0 TTS | 0.5B | Q8 · 1.74 GB<br>BF16 · 3.00 GB | Voice design and cloning in Chinese, English, Japanese, Korean, German, French and Spanish; 44.1 kHz output; requires engine v0.9.3 |
+| Audio8 TTS Realistic | 0.6B | Q8 · 1.43 GB<br>BF16 · 1.89 GB | Default voice and cloning with automatic language detection across Cantonese, Mandarin, English, Japanese, Korean, German, French, Spanish, Italian, Dutch and Polish; 44.1 kHz output; requires engine v0.9.3 |
 | Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 built-in voices, multilingual speech excluding Japanese |
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental |
 | ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
@@ -106,7 +108,7 @@ Reference duration guidance varies by implementation:
 | OmniVoice | Recommends 3–10 seconds; optional Python preprocessing may trim recordings longer than 20 seconds if no transcript is supplied. [Official implementation](https://github.com/k2-fsa/OmniVoice/blob/master/omnivoice/models/omnivoice.py) |
 | Breeze TTS 2 | YoVoice suggests 5–15 seconds of clean speech with its exact transcript. The official open-weight model card does not specify a fixed duration limit. [Model card](https://huggingface.co/BreezeBlue/Breeze-TTS-2) |
 | XTTS v2 | audio.cpp recommends 6–30 seconds; the Python configuration defaults to a 10-second decoder conditioning cap. [audio.cpp guide](https://github.com/0xShug0/audio.cpp/blob/main/docs/community_models/xtts_v2.md) · [Coqui config](https://github.com/idiap/coqui-ai-TTS/blob/dev/TTS/tts/configs/xtts_config.py) |
-| Ming 3.0, Plapre 3, Drama 3 | The linked upstream cloning examples do not specify a universal fixed duration limit. [Ming 3.0](https://github.com/inclusionAI/Ming-3.0-tts) · [Plapre](https://syv.ai/produkter/plapre) · [Drama 3](https://huggingface.co/fishaudio/drama-3) |
+| Ming 3.0, Plapre 3, Drama 3, Audio8 | The linked upstream cloning examples do not specify a universal fixed duration limit. [Ming 3.0](https://github.com/inclusionAI/Ming-3.0-tts) · [Plapre](https://syv.ai/produkter/plapre) · [Drama 3](https://huggingface.co/fishaudio/drama-3) · [Audio8](https://huggingface.co/Edge0/Audio8-TTS-Realistic-0.6b) |
 
 ## Voice design and built-in voices
 
@@ -201,6 +203,15 @@ Drama3-small IQ3_XXS (10.46 GB, default), Drama 3 Q2_K (17.05 GB), and Q4_K_S (2
 ```sh
 yovoice generate --model fish-drama3-small-iq3 --text "<|speaker:0|>Hello. [laughs]" --output drama.wav
 yovoice generate --model fish-drama3-small-iq3 --voice-mode clone --reference voice.wav --reference-text "The exact reference transcript." --text "<|speaker:0|>A cloned take." --output drama-clone.wav
+```
+
+### Audio8 TTS Realistic
+
+Q8 (1.43 GB) and BF16 (1.89 GB) of the 0.6B model, derived from Fish Audio S2. The default voice needs no reference; cloning requires audio and its full transcript. Language is detected from the text. Advanced options are `temperature`, `top_p`, `top_k`, `max_tokens` and `text_chunk_size`; lower the temperature for steadier delivery across sentences. Weights use Apache-2.0.
+
+```sh
+yovoice generate --model audio8-tts-0.6b-q8 --text "Welcome back." --output audio8.wav
+yovoice generate --model audio8-tts-0.6b-q8 --reference voice.wav --reference-text "The exact reference transcript." --text "A cloned take." --output audio8-clone.wav
 ```
 
 ## Kokoro

@@ -58,7 +58,7 @@ func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error)
 		return map[string]any{"model": "index", "request": map[string]any{"text": d.Text, "voice_id": d.KokoroSpeaker(m), "options": o}}, nil
 	}
 	switch m.Family {
-	case "ming3_tts", "voxtral_tts", "plapre", "xtts_v2", "gradium_phonon", "fish_drama3":
+	case "ming3_tts", "voxtral_tts", "plapre", "xtts_v2", "gradium_phonon", "fish_drama3", "audio8_tts":
 		return nativeTTSRequest(d, m, voice)
 	}
 	if m.Family == "omnivoice" || m.Family == "qwen3_tts" {

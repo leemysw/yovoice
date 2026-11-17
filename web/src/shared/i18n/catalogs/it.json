@@ -4208,6 +4208,9 @@
   "@yovoice.settings.modelDesc.drama": {
     "defaultMessage": "Tag di parlante ed evento · Voce predefinita e clonazione · 44.1 kHz"
   },
+  "@yovoice.settings.modelDesc.audio8": {
+    "defaultMessage": "11 lingue · Voce predefinita e clonazione · 44,1 kHz"
+  },
   "@yovoice.options.silence_duration_sec": {
     "defaultMessage": "Silenzio tra i segmenti (secondi)"
   },

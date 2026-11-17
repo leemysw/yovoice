@@ -45,6 +45,7 @@ function modelDescription(t: (key: string) => string, model: ModelPackage) {
   if (model.family === 'xtts_v2') return t('@yovoice.settings.modelDesc.xtts');
   if (model.family === 'gradium_phonon') return t('@yovoice.settings.modelDesc.gradium');
   if (model.family === 'fish_drama3') return t('@yovoice.settings.modelDesc.drama');
+  if (model.family === 'audio8_tts') return t('@yovoice.settings.modelDesc.audio8');
   return model.version === '2.5' ? t('@yovoice.settings.modelDesc.25') : t('@yovoice.settings.modelDesc.basic');
 }
 

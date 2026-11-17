@@ -46,6 +46,8 @@ test('参考音频需求随模型和模式变化', () => {
   expect(needs('gradium-phonon-31m-en-q8')).toBe(false);
   expect(needs('fish-drama3-small-iq3')).toBe(false);
   expect(needs('fish-drama3-small-iq3', { voiceMode: 'clone' })).toBe(true);
+  expect(needs('audio8-tts-0.6b-q8')).toBe(false);
+  expect(needs('audio8-tts-0.6b-q8', { voiceMode: 'clone' })).toBe(true);
   expect(needs('voxcpm2-q8')).toBe(false);
   expect(needs('voxcpm2-q8', { voxMode: 'clone' })).toBe(true);
   expect(needs('voxcpm2-q8', { voxMode: 'continuation' })).toBe(true);

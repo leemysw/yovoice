@@ -133,7 +133,8 @@ func Validate(d Draft) error {
 		}
 		return nil
 	}
-	if m.Family == "fish_drama3" {
+	// Drama 3 与 Audio8 TTS 都源自 Fish Audio S2：默认音色或克隆，克隆时引擎要求参考原文。
+	if m.Family == "fish_drama3" || m.Family == "audio8_tts" {
 		if d.VoiceMode != "" && d.VoiceMode != "design" && d.VoiceMode != "clone" {
 			return msg.Err(msg.ErrModeInvalid, nil)
 		}
@@ -370,7 +371,7 @@ func (d Draft) RequiresVoice() bool {
 	if err == nil && (m.Family == "kokoro_tts" || m.Family == "voxtral_tts" || m.Family == "gradium_phonon" || catalog.IsMusic(m.Family)) {
 		return false
 	}
-	if err == nil && (m.Family == "omnivoice" || m.Family == "breeze_tts" || m.Family == "ming3_tts" || m.Family == "plapre" || m.Family == "fish_drama3") {
+	if err == nil && (m.Family == "omnivoice" || m.Family == "breeze_tts" || m.Family == "ming3_tts" || m.Family == "plapre" || m.Family == "fish_drama3" || m.Family == "audio8_tts") {
 		return d.VoiceMode == "clone"
 	}
 	if err == nil && m.Family == "qwen3_tts" {

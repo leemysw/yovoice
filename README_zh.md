@@ -82,7 +82,7 @@ yovoice 是一款适用于 macOS、Windows 和 Linux 的开源、本地优先（
 | --- | --- |
 | 音色克隆与情绪控制 | IndexTTS 2.0 / 2.5、Qwen3-TTS Base |
 | 声音设计与克隆 | VoxCPM2、OmniVoice、Qwen3-TTS VoiceDesign、Breeze TTS 2、Ming 3.0 TTS |
-| 更多音色克隆 | XTTS v2（17 种语言）、Plapre 3（丹麦语）、Fish Audio Drama 3（说话人与事件标签） |
+| 更多音色克隆 | XTTS v2（17 种语言）、Plapre 3（丹麦语）、Fish Audio Drama 3（说话人与事件标签）、Audio8 TTS Realistic（11 种语言） |
 | 内置音色 | Kokoro-82M、Qwen3-TTS CustomVoice、Voxtral 4B TTS、Gradium Phonon |
 | 歌曲与纯音乐 | ACE-Step 1.5 Turbo / XL Turbo、YuE2 3B |
 | 纯音乐与音效 | Stable Audio 3 Small Music / Small SFX / Medium |

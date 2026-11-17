@@ -52,6 +52,7 @@ Breeze TTS 2：--voice-mode design|clone、--voice-description TEXT（克隆时�
   --reference-text TEXT（克隆必填），采样参数用 --option，如 --option 'guidance_scale=3'。
 Ming 3.0 TTS：--voice-mode design|clone、--voice-description TEXT（仅设计）、
   --reference-text TEXT（克隆可选），--language auto|zh|en|ja|ko|de|fr|es。
+Audio8 TTS：--voice-mode design|clone（design 为默认音色），克隆需 --reference-text TEXT，语言自动识别。
 Qwen3-TTS Base：需要参考音频，--reference-text TEXT 可选；不提供原文时仅克隆音色。
 Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；VoiceDesign：--voice-description TEXT。
 OmniVoice / Qwen3-TTS 支持 --language；OmniVoice 支持 --speed、--guidance-scale、--inference-steps。
@@ -273,7 +274,8 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			xtts := strings.HasPrefix(d.ModelID, "xtts-v2-")
 			gradium := strings.HasPrefix(d.ModelID, "gradium-phonon-")
 			drama := strings.HasPrefix(d.ModelID, "fish-drama3-")
-			native := vox || omni || qwen || kokoro || breeze || ming || voxtral || plapre || xtts || gradium || drama
+			audio8 := strings.HasPrefix(d.ModelID, "audio8-tts-")
+			native := vox || omni || qwen || kokoro || breeze || ming || voxtral || plapre || xtts || gradium || drama || audio8
 			var unsupported string
 			fs.Visit(func(f *flag.Flag) {
 				if f.Name == "lyrics" || f.Name == "lyrics-file" || f.Name == "instrumental" || f.Name == "abc-file" {
@@ -285,12 +287,12 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 						unsupported = f.Name
 					}
 				}
-				if (vox || kokoro || breeze || voxtral || plapre || drama) && f.Name == "language" || native && !omni && f.Name == "speed" || native && f.Name == "emotion-text" ||
+				if (vox || kokoro || breeze || voxtral || plapre || drama || audio8) && f.Name == "language" || native && !omni && f.Name == "speed" || native && f.Name == "emotion-text" ||
 					!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
 					!(strings.Contains(d.ModelID, "customvoice") || kokoro || voxtral || plapre) && f.Name == "speaker" ||
-					!(omni || breeze || ming || plapre || drama) && f.Name == "voice-mode" ||
+					!(omni || breeze || ming || plapre || drama || audio8) && f.Name == "voice-mode" ||
 					!(vox || omni || breeze || ming || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
-					!(vox || omni || qwen || breeze || ming || plapre || drama) && f.Name == "reference-text" {
+					!(vox || omni || qwen || breeze || ming || plapre || drama || audio8) && f.Name == "reference-text" {
 					unsupported = f.Name
 				}
 			})
@@ -332,7 +334,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 					d.VoxMode = "continuation"
 				}
 			}
-			if (omni || breeze || ming || plapre || drama) && d.VoiceMode == "" {
+			if (omni || breeze || ming || plapre || drama || audio8) && d.VoiceMode == "" {
 				d.VoiceMode = "design"
 				if reference != "" || voice != "" {
 					d.VoiceMode = "clone"
@@ -341,7 +343,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			if omni && ((d.VoiceMode == "design" && d.ReferenceText != "") || (d.VoiceMode == "clone" && d.VoiceDescription != "")) {
 				return fmt.Errorf("OmniVoice 声音设计使用 --voice-description；克隆使用参考音频和 --reference-text")
 			}
-			if (breeze || ming || plapre || drama) && d.VoiceMode == "design" && d.ReferenceText != "" {
+			if (breeze || ming || plapre || drama || audio8) && d.VoiceMode == "design" && d.ReferenceText != "" {
 				return fmt.Errorf("%s 的 --reference-text 需要 clone 模式", model.Name)
 			}
 			if reference != "" && voice != "" {
