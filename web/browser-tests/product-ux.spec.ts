@@ -6,7 +6,7 @@ test('新建五种作品、取消导入、卡片菜单与重命名独立保存',
   await page.goto('/');
   await page.getByTestId('nav-new').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByRole('menuitem')).toHaveCount(6);
+  await expect(page.getByRole('menuitem')).toHaveCount(7);
   await page.screenshot({ path: testInfo.outputPath('new-project-menu.png'), animations: 'disabled' });
   await page.keyboard.press('Escape');
   await expect(page.getByRole('menu')).toHaveCount(0);

@@ -6,6 +6,8 @@ import { SubtitleParser } from './subtitle-parser';
 // 导入配音的文件：纯文本与 Markdown 成为语音作品，字幕成为故事作品。
 export const subtitleAccept = '.srt,.vtt,.ass,.ssa';
 export const importAccept = `.txt,.md,.markdown,${subtitleAccept}`;
+// 整本文本（小说、有声书稿）导入：放在这里，新建菜单不必为一个扩展名列表加载书稿解析。
+export const manuscriptAccept = '.txt,.md,.markdown,.epub';
 // 与后端正文上限一致，按 UTF-16 计数。
 export const maxTextLength = 12000;
 

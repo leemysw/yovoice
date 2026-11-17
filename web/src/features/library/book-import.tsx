@@ -26,8 +26,11 @@ const unknownKey = '@unknown';
  * 导入小说 / 有声书：选章节 → 分角色与选角 → 每章生成一个故事作品。
  * 规则识别离线完成；配置了 AI 服务时可让 AI 补全说话人和角色特征，并按特征从我的声音选角。
  * active：故事列表页当前可见（页面常驻挂载、切走只隐藏），为 true 时导入书稿的快捷键才响应。
+ * file：在别处（新建作品菜单）选好的书稿；takeFile 认领它，返回 true 的那一处才打开。
+ * 作品列表空着时导入按钮会出现两处，开发模式下副作用也会跑两遍，靠认领保证只弹一个对话框。
  */
-export function BookImport({ state, modelId, configureAI, create, onError, active = false }: {
+export function BookImport({ state, modelId, configureAI, create, onError, active = false, file = null, takeFile }: {
+  file?: File | null; takeFile?: (file: File) => boolean;
   state: State; modelId?: string; configureAI: () => void; create: (drafts: Draft[], saved: Set<string>) => Promise<void>; onError: (error: string) => void; active?: boolean;
 }) {
   const t = useTranslator();
@@ -40,6 +43,8 @@ export function BookImport({ state, modelId, configureAI, create, onError, activ
     catch (error) { onError(formatCallError(t, error)); }
     finally { setLoading(false); }
   }
+  const openPending = useEffectEvent((next: File) => { if (takeFile?.(next)) void open(next); });
+  useEffect(() => { if (file) openPending(file); }, [file]);
   useHotkey('story.importBook', () => input.current?.click(), { enabled: active && !loading && !book });
   const keys = useHotkeyText('story.importBook'), aria = useHotkeyAria('story.importBook');
   return <>
