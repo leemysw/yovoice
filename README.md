@@ -83,7 +83,7 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 | --- | --- |
 | Voice cloning and emotion | IndexTTS 2.0 / 2.5, Qwen3-TTS Base |
 | Voice design and cloning | VoxCPM2, OmniVoice, Qwen3-TTS VoiceDesign, Breeze TTS 2, Ming 3.0 TTS |
-| More voice cloning | XTTS v2 (17 languages), Plapre 3 (Danish), Fish Audio Drama 3 (speaker and event tags) |
+| More voice cloning | XTTS v2 (17 languages), Plapre 3 (Danish), Fish Audio Drama 3 (speaker and event tags), Audio8 TTS Realistic (11 languages) |
 | Built-in voices | Kokoro-82M, Qwen3-TTS CustomVoice, Voxtral 4B TTS, Gradium Phonon |
 | Songs and instrumentals | ACE-Step 1.5 Turbo / XL Turbo, YuE2 3B |
 | Instrumentals and sound effects | Stable Audio 3 Small Music / Small SFX / Medium |

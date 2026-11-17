@@ -811,3 +811,43 @@ func TestDramaRequest(t *testing.T) {
 		t.Fatal(r)
 	}
 }
+
+func TestAudio8Request(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.ModelID = "audio8-tts-0.6b-q8"
+	d.Text = " 你好，欢迎收听。 "
+	d.ModelOptions = map[string]map[string]any{"audio8_tts": {"temperature": 0.7, "top_p": 0.9, "top_k": float64(20), "max_tokens": float64(800), "text_chunk_size": float64(120)}}
+	seed := 5
+	d.Seed = &seed
+	p, err := BuildRequest(d, "ignored.wav", "")
+	must(t, err)
+	r := p["request"].(map[string]any)
+	o := r["options"].(map[string]any)
+	if r["text"] != "你好，欢迎收听。" || r["voice_ref"] != nil || r["language"] != nil || o["temperature"] != 0.7 || o["top_p"] != 0.9 || o["top_k"] != float64(20) || o["max_tokens"] != float64(800) || o["text_chunk_size"] != float64(120) || o["seed"] != seed || d.RequiresVoice() {
+		t.Fatal(r)
+	}
+	must(t, schema.Validate(d))
+	d.VoiceMode = "clone"
+	d.ReferenceText = " 参考原文。 "
+	p, err = BuildRequest(d, "voice.wav", "")
+	must(t, err)
+	r = p["request"].(map[string]any)
+	o = r["options"].(map[string]any)
+	if r["voice_ref"] != "voice.wav" || o["reference_text"] != "参考原文。" || !d.RequiresVoice() {
+		t.Fatal(r)
+	}
+	// 引擎在克隆时要求参考原文，缺了在生成前就拒绝。
+	d.ReferenceText = ""
+	if schema.Validate(d) == nil {
+		t.Fatal("Audio8 克隆必须提供参考原文")
+	}
+	// 引擎的温度不含 0 和 2，top_p 不含 0。
+	for _, options := range []map[string]any{{"temperature": float64(0)}, {"temperature": float64(2)}, {"top_p": float64(0)}} {
+		invalid := schema.DefaultDraft()
+		invalid.ModelID = "audio8-tts-0.6b-bf16"
+		invalid.ModelOptions = map[string]map[string]any{"audio8_tts": options}
+		if _, err := BuildRequest(invalid, "", ""); err == nil {
+			t.Fatal("应拒绝超出引擎范围的参数", options)
+		}
+	}
+}

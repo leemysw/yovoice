@@ -693,6 +693,36 @@
       "sha256": "05af716baf78e7c20863b9ccebb3ebdeca9607dd3ea7d0b72c35079e675b212b"
     },
     {
+      "id": "audio8-tts-0.6b-q8",
+      "name": "Audio8 TTS Realistic",
+      "family": "audio8_tts",
+      "version": "0.6B",
+      "task": "tts",
+      "engineMinimum": "v0.9.3",
+      "repo": "audio-cpp/Audio8-TTS-Realistic-0.6b-GGUF",
+      "modelScope": "audio-cpp/Audio8-TTS-Realistic-0.6b-GGUF",
+      "revision": "b57015b9e916ede150f4b168b4b882be37ad723f",
+      "precision": "Q8",
+      "remotePath": "audio8-tts-realistic-0.6b-q8_0.gguf",
+      "size": 1429460800,
+      "sha256": "e8a2402b50341b12316f94e78afd8b69d38010c5d3ba3878d64ca8f9ea90a930"
+    },
+    {
+      "id": "audio8-tts-0.6b-bf16",
+      "name": "Audio8 TTS Realistic",
+      "family": "audio8_tts",
+      "version": "0.6B",
+      "task": "tts",
+      "engineMinimum": "v0.9.3",
+      "repo": "audio-cpp/Audio8-TTS-Realistic-0.6b-GGUF",
+      "modelScope": "audio-cpp/Audio8-TTS-Realistic-0.6b-GGUF",
+      "revision": "b57015b9e916ede150f4b168b4b882be37ad723f",
+      "precision": "BF16",
+      "remotePath": "audio8-tts-realistic-0.6b-bf16.gguf",
+      "size": 1890480128,
+      "sha256": "77b1025faec0ef371d2c332f25bf1df5fae9f5c51f3b342f99cdf197e71a1394"
+    },
+    {
       "id": "kokoro-82m-q8",
       "name": "Kokoro-82M 1.0 Official",
       "family": "kokoro_tts",

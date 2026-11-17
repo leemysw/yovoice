@@ -140,6 +140,7 @@ func (w *Workbench) generateSegments(ctx context.Context, state schema.State, pa
 			_ = os.Remove(path)
 			return err
 		}
+		w.levelSegment(path, id)
 		part.segment.BatchID = batch
 		if targetClipID != "" {
 			part.segment.TargetClipID = targetClipID
@@ -160,4 +161,21 @@ func (w *Workbench) generateSegments(ctx context.Context, state schema.State, pa
 		diag.Log(w.Store.Root, "segment.saved", "project_id", part.draft.ID, "batch_id", batch, "cue_id", part.segment.CueID, "generation_id", id, "duration", duration)
 	}
 	return nil
+}
+
+// storyLoudness 是故事配音每句的目标响度（LUFS），与导出的有声书档一致。
+const storyLoudness = -18.0
+
+// levelSegment 把刚生成的一句调到 storyLoudness：不同模型、不同参考音频生成的音量差别很大，
+// 逐句对齐后拼在一起才不会忽大忽小。只乘整体增益，峰值不超过 exportCeiling；
+// 太短测不出响度的句子保持原样。调整失败不影响生成结果，只记日志。
+func (w *Workbench) levelSegment(path, id string) {
+	result, err := audio.Normalize(path, storyLoudness, exportCeiling)
+	if err != nil {
+		diag.Log(w.Store.Root, "segment.level_failed", "generation_id", id, "error", diag.Error(err))
+		return
+	}
+	if result.Gain != 0 {
+		diag.Log(w.Store.Root, "segment.leveled", "generation_id", id, "before", result.Before, "after", result.After, "limited", result.Limited)
+	}
 }

@@ -4208,6 +4208,9 @@
   "@yovoice.settings.modelDesc.drama": {
     "defaultMessage": "說話者與事件標籤 · 預設音色與音色複製 · 44.1 kHz"
   },
+  "@yovoice.settings.modelDesc.audio8": {
+    "defaultMessage": "11 種語言 · 預設音色與音色複製 · 44.1 kHz"
+  },
   "@yovoice.options.silence_duration_sec": {
     "defaultMessage": "段落間靜音（秒）"
   },

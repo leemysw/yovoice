@@ -5,13 +5,13 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioWaveform, Copy, FileMusic, FileText, FolderInput, History, Mic, MoreHorizontal, Music, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AudioWaveform, BookOpen, Copy, FileMusic, FileText, FolderInput, History, Mic, MoreHorizontal, Music, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { createDraft, formatTime, projectKind, type Draft, type Feature, type UiLocale } from '../../shared/workbench';
 import { call, isDesktop } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { SpeakerAvatar } from '../create/subtitles';
-import { importAccept, readImport } from '../create/file-import';
+import { importAccept, manuscriptAccept, readImport } from '../create/file-import';
 import { createMusicDraft } from '../music/music-draft';
 import { createScoreDraft, scoreDuration } from '../score/score-draft';
 import { createSfxDraft } from '../sfx/sfx-draft';
@@ -28,13 +28,16 @@ interface NewProjectOptions {
   locale: UiLocale; modelId?: string;
   // 按作品类型给出默认模型（优先已下载的），不给时用各类型的内置默认。
   modelFor?: (kind: ProjectKind) => string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
+  // 导入小说：选好文件后交给故事页的分章节、分角色流程；不给时新建菜单里没有这一项。
+  importBook?: (file: File) => void;
 }
 
 // 新建作品与导入文本或字幕：新建按钮和快捷键（新建、导入文件）共用；input 是隐藏的文件选择框，由调用方放进界面。
-export function useNewProject({ locale, modelId, modelFor, create, onError }: NewProjectOptions) {
+export function useNewProject({ locale, modelId, modelFor, create, onError, importBook }: NewProjectOptions) {
   const t = useTranslator();
   const [busy, setBusy] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const bookInput = useRef<HTMLInputElement>(null);
   // 导入文本或字幕后直接进入对应作品，沿用当前默认模型配音。
   async function importFile(file: File) {
     setBusy(true);
@@ -56,13 +59,17 @@ export function useNewProject({ locale, modelId, modelFor, create, onError }: Ne
     finally { setBusy(false); }
   }
   const chooseFile = () => fileInput.current?.click();
+  const chooseBook = importBook ? () => bookInput.current?.click() : undefined;
   // 导入作品包（只有桌面端有），由宿主弹出文件选择框。
   const importPackage = () => { setBusy(true); void call<Draft | null>('project.import').then(d => d ? create(d) : undefined).catch(e => onError(noticeMessage(e))).finally(() => setBusy(false)); };
-  const input = <input ref={fileInput} hidden type="file" accept={importAccept} aria-label={t('@yovoice.import.file')} onChange={event => {
+  const input = <><input ref={fileInput} hidden type="file" accept={importAccept} aria-label={t('@yovoice.import.file')} onChange={event => {
     const file = event.target.files?.[0]; event.target.value = '';
     if (file) void importFile(file);
-  }} />;
-  return { busy, start, chooseFile, importPackage, input };
+  }} />{importBook ? <input ref={bookInput} hidden type="file" accept={manuscriptAccept} aria-label={t('@yovoice.book.file')} onChange={event => {
+    const file = event.target.files?.[0]; event.target.value = '';
+    if (file) importBook(file);
+  }} /> : null}</>;
+  return { busy, start, chooseFile, chooseBook, importPackage, input };
 }
 
 export function NewProject({ locale, modelId, modelFor, create, onError, button, kind, hidden = [], creator, hotkey = true }: NewProjectOptions & {
@@ -77,7 +84,7 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
 }) {
   const t = useTranslator();
   const own = useNewProject({ locale, modelId, modelFor, create, onError });
-  const { busy, start, chooseFile, importPackage } = creator ?? own;
+  const { busy, start, chooseFile, chooseBook, importPackage } = creator ?? own;
   // 新建快捷键随当前页面新建（由工作台注册），这里只在按钮提示里写出按键。
   const keys = useHotkeyText('global.new'), aria = useHotkeyAria('global.new');
   const label = t(kind ? `@yovoice.project.new.${kind}` : '@yovoice.project.new');
@@ -94,6 +101,7 @@ export function NewProject({ locale, modelId, modelFor, create, onError, button,
         { id: 'score', label: t('@yovoice.project.score'), icon: <FileMusic className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('score') },
         { id: 'sfx', label: t('@yovoice.project.sfx'), icon: <AudioWaveform className="project-menu-icon" strokeWidth={1.5} />, onClick: () => void start('sfx') },
       ]),
+      ...(chooseBook && !hidden.includes('story') ? [{ id: 'book', label: t('@yovoice.book.import'), icon: <BookOpen className="project-menu-icon" strokeWidth={1.5} />, onClick: chooseBook }] : []),
       { id: 'file', label: t('@yovoice.import.file'), icon: <FileText className="project-menu-icon" strokeWidth={1.5} />, onClick: chooseFile },
       ...(isDesktop ? [{ id: 'import', label: t('@yovoice.timeline.importProject'), icon: <FolderInput className="project-menu-icon" strokeWidth={1.5} />, onClick: importPackage }] : []),
     ]} />

@@ -9,12 +9,18 @@
 - Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
 - Reference audio supports drag and drop and selecting generated speech from history, with audition, excerpt selection and an editable transcript. Saved references retain their source and remain usable after the original generation is deleted.
 - Qwen3 CustomVoice now labels its optional delivery instructions as style guidance and explains how they work with the built-in speaker.
+- New speech model Audio8 TTS Realistic 0.6B (Q8 / BF16): default voice and voice cloning with automatic language detection across 11 languages, 44.1 kHz output; cloning requires the reference transcript.
+- Story narration evens out each line's loudness as it is generated, so lines no longer jump between quiet and loud. Lines generated earlier keep their level until regenerated.
+- Importing a book recognizes scripts written as “Name: line” and casts each name as a role; narrator lines and notes such as Scene or Time are not treated as roles. Import book is also in the New project menu.
 - Generation history shows model tags and a read-only configuration view with the saved text, time, seed and parameters, plus JSON export. The same view is available while selecting historical speech as a reference.
 
 ### 简体中文
 - 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
 - 参考音频支持拖入文件，以及从生成历史选择语音、试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。
 - Qwen3 CustomVoice 将可选的演绎指令标为“风格指导”，说明其与内置音色的关系。
+- 新增语音模型 Audio8 TTS Realistic 0.6B（Q8 / BF16）：默认音色与音色克隆，自动识别 11 种语言，44.1 kHz 输出；克隆需填写参考原文。
+- 故事配音逐句生成时统一响度，句与句之间不再忽大忽小；之前生成的句子重新生成后才会调整。
+- 导入小说可识别“角色：台词”格式的剧本，按名字分角色；“旁白”行和“场景”“时间”等说明行不算角色。“新建作品”菜单里也可以直接导入小说。
 - 生成历史新增模型标签和只读的生成配置详情，可查看保存的文字、时间、随机种子与参数并导出 JSON；选择历史语音作为参考时也可查看。
 
 ## [0.8.0] - 2026-11-15

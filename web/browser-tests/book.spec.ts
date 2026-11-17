@@ -47,6 +47,22 @@ test('规则分角色：拆开旁白与对白，识别说话人，第一人称�
   expect(roles.map(r => [r.name, r.lines])).toEqual([['狐狸', 4], ['小王子', 3], ['?', 1]]);
 });
 
+test('剧本格式按行首“名字：”分角色，旁白行和说明行不算角色', () => {
+  const play = '第一幕\n旁白：夜里，雨下个不停。\n张三：你回来了？\n李四：“嗯，路上堵车。”\n张三：快进来吧。\n注意：以下为回忆。\nAlice: Hello there.';
+  const [chapter] = scriptChapters(splitChapters(play, '剧本'), '?');
+  expect(chapter.lines).toEqual([
+    { text: '夜里，雨下个不停。', quote: false, speaker: '' },
+    { text: '你回来了？', quote: true, speaker: '张三' },
+    { text: '嗯，路上堵车。', quote: true, speaker: '李四' },
+    { text: '快进来吧。', quote: true, speaker: '张三' },
+    { text: '注意：以下为回忆。', quote: false, speaker: '' },
+    { text: 'Hello there.', quote: true, speaker: 'Alice' },
+  ]);
+  // 小说里零星的“某某说：”不触发剧本格式。
+  const [, , fox] = scriptChapters(splitChapters(novel, '书'), '?');
+  expect(fox.lines.filter(l => l.quote).map(l => l.speaker)).toEqual(['狐狸', '小王子', '狐狸', '狐狸', '小王子', '狐狸']);
+});
+
 test('英文对白按 said 识别说话人', () => {
   const [chapter] = scriptChapters([{ title: 'c', text: '"Hello," said Alice. "How are you?"\nBob replied, "Fine."\n"Good."\n"Thanks."' }], '?');
   expect(chapter.lines.filter(l => l.quote).map(l => l.speaker)).toEqual(['Alice', 'Alice', 'Bob', 'Alice', 'Bob']);
@@ -146,4 +162,16 @@ test('导入 EPUB：按阅读顺序取正文，跳过目录页', async ({ page }
   await expect(dialog.getByRole('checkbox', { name: '第二章 回家' })).toBeChecked();
   await dialog.getByRole('button', { name: '下一步：分角色' }).click();
   await expect(page.getByRole('combobox', { name: '妈妈 的声音' })).toBeVisible();
+});
+
+test('新建作品菜单可以直接导入小说，进入故事页接着分章节', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('nav-new').click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('menuitem', { name: '导入小说' }).click();
+  await (await chooser).setFiles({ name: '小王子.txt', mimeType: 'text/plain', buffer: Buffer.from(novel) });
+  const dialog = page.getByRole('dialog', { name: '导入小说' });
+  await expect(dialog.getByLabel('书名')).toHaveValue('小王子');
+  await expect(dialog.getByRole('checkbox', { name: '第一章 相遇' })).toBeChecked();
+  await expect(page.locator('#projects-story-panel')).toBeVisible();
 });

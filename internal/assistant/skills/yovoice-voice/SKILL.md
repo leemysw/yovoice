@@ -22,6 +22,7 @@ Fields, ranges, voice-source modes and `modelOptions` differ per model. Read onl
 | `xtts-v2-` | `xtts_v2` |
 | `gradium-phonon-` | `gradium_phonon` |
 | `fish-drama3-` | `fish_drama3` |
+| `audio8-tts-` | `audio8_tts` |
 | `kokoro-` | `kokoro` |
 
 When switching the work to another model, read that model's reference before setting its fields; fields the new model does not use are ignored.

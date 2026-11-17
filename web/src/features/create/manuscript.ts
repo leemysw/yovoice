@@ -2,10 +2,10 @@ import { CallError } from '../../shared/lib/call-error';
 import { fileExtension } from '../../shared/lib/file-name';
 import type { Character, Draft, SubtitleDocument, SubtitleSpeaker } from '../../shared/workbench';
 import { fileTitle, markdownText, readTextFile } from './file-import';
+export { manuscriptAccept } from './file-import';
 import { readEpub } from './epub';
 
 // 整本文本（小说、有声书稿）导入为按章节拆分、按角色分配声音的故事作品。
-export const manuscriptAccept = '.txt,.md,.markdown,.epub';
 // 单个故事作品的正文与句数上限与后端一致，留出余量给用户后续编辑。
 const partTextLimit = 11000;
 const partCueLimit = 1800;
@@ -143,20 +143,59 @@ function segments(paragraph: string): { text: string; quote: boolean }[] {
   return parts.map(p => ({ ...p, text: p.text.trim() })).filter(p => /[\p{L}\p{N}]/u.test(p.text));
 }
 
+// 剧本格式的一行：“名字：台词”。名字不含标点和引号，最长 16 个字符。
+const scriptLine = /^([\p{L}\p{N}·・_\- ]{1,16}?)\s*[：:]\s*(\S[\s\S]*)$/u;
+// 以说话动词结尾的是叙述（“小王子认真地说：”），不是剧本里的名字。
+const endsWithVerb = new RegExp(`(?:${speechVerb.source})$`);
+// 这些名字表示旁白或舞台说明，台词交给旁白读。
+const narratorName = /^(旁白|叙述|画外音|narrator|narration)$/i;
+// 剧本里常见的说明性标签，不算角色。
+const labelName = /^(注|注意|提示|备注|说明|时间|地点|场景|人物|背景|note|scene|time|place)$/i;
+
+/** 剧本行的说话人与台词；不是剧本行时返回 null。整行被引号包住时去掉引号。 */
+function scriptSpeaker(paragraph: string): { name: string; text: string } | null {
+  const match = scriptLine.exec(paragraph);
+  if (!match) return null;
+  const name = match[1].trim();
+  if (!name || endsWithVerb.test(name) || labelName.test(name) || /^\d+$/.test(name)) return null;
+  let text = match[2].trim();
+  const close = quotePairs[text[0]];
+  if (close && text.endsWith(close) && text.indexOf(close, 1) === text.length - 1) text = text.slice(1, -1).trim();
+  return /[\p{L}\p{N}]/u.test(text) ? { name: narratorName.test(name) ? '' : name, text } : null;
+}
+
+/**
+ * 全书按剧本格式识别：至少 3 行、2 个不同名字，并且占全书段落的四分之一以上。
+ * 只出现零星“名字：”的小说仍按引号规则处理，避免把叙述误认成台词。
+ */
+function isScript(paragraphs: string[]): boolean {
+  const lines = paragraphs.map(scriptSpeaker).filter(line => line !== null);
+  return lines.length >= 3 && new Set(lines.map(line => line.name).filter(Boolean)).size >= 2 && lines.length * 4 >= paragraphs.length;
+}
+
 /**
  * 规则分角色：引号内是对白，引号外是旁白；从“某某说：”“……”某某问道”这类叙述识别说话人。
+ * 剧本格式（每行“名字：台词”）的书稿直接按行首名字分角色，“旁白：”归旁白，其余行仍按小说规则处理。
  * 同一段里没有标注的对白沿用该段已识别的说话人；连续两段一来一回的对白按轮流推断。
  * 无法确定的对白 speaker 为 unknown，交给用户或 AI 补全。
  */
 export function scriptChapters(chapters: ManuscriptChapter[], unknown: string): ScriptChapter[] {
   const known = new Set<string>();
-  const parsed = chapters.map(chapter => chapter.text.split(/\n+/).map(p => p.trim()).filter(Boolean).map(segments));
+  const paragraphs = chapters.map(chapter => chapter.text.split(/\n+/).map(p => p.trim()).filter(Boolean));
+  const script = isScript(paragraphs.flat());
+  const parsed = paragraphs.map(list => list.map(paragraph => ({ line: script ? scriptSpeaker(paragraph) : null, parts: segments(paragraph) })));
   // 第一遍收集确定的名字，第二遍借助已知名字识别带状语的主语。
   for (const pass of [0, 1]) {
     const result = parsed.map((paragraphs, index) => {
       const lines: ScriptLine[] = [];
       const turns: { speaker: string; pure: boolean }[] = [];
-      for (const parts of paragraphs) {
+      for (const { line, parts } of paragraphs) {
+        if (line) {
+          if (line.name) { known.add(line.name); lines.push({ text: line.text, quote: true, speaker: line.name }); }
+          else for (const text of chunkNarration(line.text)) lines.push({ text, quote: false, speaker: '' });
+          turns.length = 0;
+          continue;
+        }
         const speakers = parts.map((part, j) => {
           if (!part.quote) return '';
           const before = parts[j - 1] && !parts[j - 1].quote ? parts[j - 1].text.split(/[。！？!?]/).pop()! : '';

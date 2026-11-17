@@ -38,6 +38,8 @@ yovoice models download index-2.5-q8
 | `voxcpm2-bf16` | 4.77 GB | 同上 |
 | `ming3-tts-0.5b-q8` | 1.74 GB | 中文、英语、日语、韩语、德语、法语、西班牙语，44.1 kHz 输出 |
 | `ming3-tts-0.5b-bf16` | 3.00 GB | 同上 |
+| `audio8-tts-0.6b-q8` | 1.43 GB | 粤语、普通话、英语、日语、韩语、德语、法语、西班牙语、意大利语、荷兰语、波兰语自动识别，44.1 kHz 输出 |
+| `audio8-tts-0.6b-bf16` | 1.89 GB | 同上 |
 
 默认使用 ModelScope；可指定下载来源：
 

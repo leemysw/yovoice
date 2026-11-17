@@ -134,6 +134,9 @@
     {"key": "gradium_phonon.mimi_stage2_chunk_frames", "type": "number", "default": 900, "min": 1, "max": 1048576, "step": 1},
     {"key": "gradium_phonon.use_full_mimi", "type": "boolean", "default": true}
   ],
+  "audio8_tts": [
+    {"key": "audio8_tts.mem_saver", "type": "boolean", "default": false}
+  ],
   "fish_drama3": [
     {"key": "fish_drama3.perf_mode", "type": "select", "default": "off", "values": ["off", "cuda_perf"]},
     {"key": "fish_drama3.fused_moe", "type": "boolean", "default": false},

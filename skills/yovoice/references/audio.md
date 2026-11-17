@@ -67,3 +67,7 @@ OmniVoice 权重为 [CC-BY-NC](https://huggingface.co/k2-fsa/OmniVoice#license)�
 ### Ming 3.0 TTS
 
 Ming 用 `--voice-mode design|clone` 选择设计或克隆，有参考音频时默认克隆。设计描述可选，留空使用普通 TTS；克隆必须提供参考音频，`--reference-text` 可选，填写准确原文可增加声学前缀，留空仅参考说话人音色。语言使用 `--language auto|zh|en|ja|ko|de|fr|es`，不要传 IndexTTS 的情绪、语速或采样参数。长文默认由上游自动分段，无需强制设置 `text_chunk_size`。
+
+### Audio8 TTS
+
+Audio8 用 `--voice-mode design|clone`，design 是模型的默认音色，有参考音频时默认克隆。克隆必须同时提供参考音频和逐字原文 `--reference-text`。语言按正文自动识别，不要传 `--language`、情绪或语速参数；换句时语调不稳可用 `--option temperature=0.6` 调低温度。
