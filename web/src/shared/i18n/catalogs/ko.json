@@ -4208,6 +4208,9 @@
   "@yovoice.settings.modelDesc.drama": {
     "defaultMessage": "화자 및 이벤트 태그 · 기본 음성 및 복제 · 44.1 kHz"
   },
+  "@yovoice.settings.modelDesc.audio8": {
+    "defaultMessage": "11개 언어 · 기본 음색과 음색 복제 · 44.1 kHz"
+  },
   "@yovoice.options.silence_duration_sec": {
     "defaultMessage": "청크 사이 무음(초)"
   },

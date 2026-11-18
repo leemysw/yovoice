@@ -19,6 +19,7 @@
 | XTTS v2 | 17 种语言的音色克隆 | 6–30 秒参考音频与明确语言；Coqui Public Model License；需要 v0.9.3 内核 |
 | Gradium Phonon | 轻量英文语音 | 仅默认音色，不支持参考音频或克隆；需要 v0.9.3 内核 |
 | Drama 3 / Drama3-small | 说话人与事件标签、默认音色与克隆 | 克隆需参考音频及完整原文；Fish Audio Community License；需要 v0.9.3 内核 |
+| Audio8 TTS Realistic | 11 种语言的默认音色与音色克隆 | 克隆需参考音频及完整原文；Apache-2.0；需要 v0.9.3 内核 |
 | Kokoro | 轻量内置音色 | 音色 ID，无需参考音频 |
 
 通过 `yovoice models list --json` 查询模型 ID、精度、文件大小、音色和高级参数定义。App 的设置中也可查看模型。引擎和模型下载见 [CLI 指南](cli_zh.md)。
@@ -57,6 +58,7 @@ YoVoice 在独立目录下载并校验新包，再切换登记，随后删除没
 | Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 自然语言描述设计音色，无需参考音频 |
 | Breeze TTS 2 | 约 3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | 中英自然语言设计音色、音色克隆与演绎指导；建议使用显卡，需要 v0.9.1 内核 |
 | Ming 3.0 TTS | 0.5B | Q8 · 1.74 GB<br>BF16 · 3.00 GB | 中英日韩德法西声音设计与音色克隆、44.1 kHz 输出；需要 v0.9.3 内核 |
+| Audio8 TTS Realistic | 0.6B | Q8 · 1.43 GB<br>BF16 · 1.89 GB | 粤语、普通话、英、日、韩、德、法、西、意、荷、波兰语自动识别，默认音色与音色克隆、44.1 kHz 输出；需要 v0.9.3 内核 |
 | Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 种内置音色、多语言生成，不含日语 |
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 种中文音色及 3 种英文音色；实验性 |
 | ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | 根据风格描述和歌词生成歌曲或纯音乐，支持 50 多种演唱语言；需要 v0.9.1 内核 |
@@ -106,7 +108,7 @@ VoxCPM2 省略 `--reference-text` 时使用普通克隆。Qwen3-TTS Base 添加�
 | OmniVoice | 官方推荐 3–10 秒。Python 实现未收到参考原文时，可对超过 20 秒的录音自动裁剪。[官方实现](https://github.com/k2-fsa/OmniVoice/blob/master/omnivoice/models/omnivoice.py) |
 | Breeze TTS 2 | YoVoice 建议 5–15 秒清晰人声，配逐字匹配的原文。官方开源权重说明未规定固定时长上限。[模型卡](https://huggingface.co/BreezeBlue/Breeze-TTS-2) |
 | XTTS v2 | audio.cpp 建议 6–30 秒。Coqui 的 Python 配置默认最多用 10 秒作为解码器条件。[audio.cpp 指南](https://github.com/0xShug0/audio.cpp/blob/main/docs/community_models/xtts_v2.md) · [Coqui 配置](https://github.com/idiap/coqui-ai-TTS/blob/dev/TTS/tts/configs/xtts_config.py) |
-| Ming 3.0、Plapre 3、Drama 3 | 这些官方克隆示例未规定统一的固定时长上限。[Ming 3.0](https://github.com/inclusionAI/Ming-3.0-tts) · [Plapre](https://syv.ai/produkter/plapre) · [Drama 3](https://huggingface.co/fishaudio/drama-3) |
+| Ming 3.0、Plapre 3、Drama 3、Audio8 | 这些官方克隆示例未规定统一的固定时长上限。[Ming 3.0](https://github.com/inclusionAI/Ming-3.0-tts) · [Plapre](https://syv.ai/produkter/plapre) · [Drama 3](https://huggingface.co/fishaudio/drama-3) · [Audio8](https://huggingface.co/Edge0/Audio8-TTS-Realistic-0.6b) |
 
 ## 声音设计与内置音色
 
@@ -201,6 +203,15 @@ Drama3-small IQ3_XXS（10.46 GB，默认）、Drama 3 Q2_K（17.05 GB）和 Q4_K
 ```sh
 yovoice generate --model fish-drama3-small-iq3 --text "<|speaker:0|>Hello. [laughs]" --output drama.wav
 yovoice generate --model fish-drama3-small-iq3 --voice-mode clone --reference voice.wav --reference-text "参考音频的逐字原文。" --text "<|speaker:0|>克隆的一段台词。" --output drama-clone.wav
+```
+
+### Audio8 TTS Realistic
+
+0.6B 模型的 Q8（1.43 GB）与 BF16（1.89 GB），源自 Fish Audio S2。默认音色无需参考；克隆必须提供音频及完整原文。语言按正文自动识别。高级参数为 `temperature`、`top_p`、`top_k`、`max_tokens`、`text_chunk_size`；想让句与句之间语调更稳，可调低温度。权重采用 Apache-2.0。
+
+```sh
+yovoice generate --model audio8-tts-0.6b-q8 --text "欢迎回来。" --output audio8.wav
+yovoice generate --model audio8-tts-0.6b-q8 --reference voice.wav --reference-text "参考音频的逐字原文。" --text "克隆的一段台词。" --output audio8-clone.wav
 ```
 
 ## Kokoro

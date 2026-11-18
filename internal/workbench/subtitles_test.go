@@ -2,10 +2,13 @@ package workbench
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
@@ -169,5 +172,44 @@ func TestSubtitleMappingAndGeneration(t *testing.T) {
 	cancel()
 	if err = w.generateSegments(ctx, state, parts, ""); err != context.Canceled {
 		t.Fatalf("取消未传播: %v", err)
+	}
+}
+
+// 不同音量生成的句子存盘前都调到同一响度，静音句保持原样。
+func TestLevelSegment(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	dir := t.TempDir()
+	var levels []float64
+	for i, scale := range []float32{.05, .3, .9} {
+		samples := tone(3, 24000)
+		for j := range samples {
+			samples[j] *= scale / .3
+		}
+		path := filepath.Join(dir, fmt.Sprintf("%d.wav", i))
+		must(t, audio.WriteMono(path, samples, 24000))
+		w.levelSegment(path, "g")
+		check, err := audio.Inspect(path, true)
+		must(t, err)
+		levels = append(levels, check.Loudness)
+		if check.Peak > exportCeiling+.1 {
+			t.Fatalf("峰值超过上限：%v", check.Peak)
+		}
+	}
+	for _, level := range levels {
+		if math.Abs(level-levels[0]) > .5 {
+			t.Fatalf("各句响度应一致：%v", levels)
+		}
+	}
+	silent := filepath.Join(dir, "silent.wav")
+	must(t, audio.WriteMono(silent, make([]float32, 24000), 24000))
+	before, err := os.ReadFile(silent)
+	must(t, err)
+	w.levelSegment(silent, "g")
+	after, err := os.ReadFile(silent)
+	must(t, err)
+	if string(before) != string(after) {
+		t.Fatal("静音句不应改动")
 	}
 }

@@ -57,3 +57,14 @@ test('Drama 3 克隆原文必填', async ({ page }) => {
   await transcript.fill('逐字参考原文。');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').drafts?.[0]?.referenceText)).toBe('逐字参考原文。');
 });
+
+test('Audio8 TTS 默认音色不带声音描述，克隆原文必填', async ({ page }) => {
+  await openModel(page, 'audio8-tts-0.6b-q8');
+  await expect(page.getByRole('radio', { name: '默认音色', exact: true })).toBeChecked();
+  await expect(page.getByRole('textbox', { name: '声音描述', exact: true })).toHaveCount(0);
+  await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
+  const transcript = page.getByRole('textbox', { name: '参考音频原文 必填', exact: true });
+  await expect(transcript).toHaveAttribute('aria-required', 'true');
+  await transcript.fill('逐字参考原文。');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').drafts?.[0]?.referenceText)).toBe('逐字参考原文。');
+});

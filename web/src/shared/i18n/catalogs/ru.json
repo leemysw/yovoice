@@ -4208,6 +4208,9 @@
   "@yovoice.settings.modelDesc.drama": {
     "defaultMessage": "Метки говорящего и событий · Голос по умолчанию и клонирование · 44,1 кГц"
   },
+  "@yovoice.settings.modelDesc.audio8": {
+    "defaultMessage": "11 языков · Голос по умолчанию и клонирование · 44,1 кГц"
+  },
   "@yovoice.options.silence_duration_sec": {
     "defaultMessage": "Пауза между фрагментами (секунды)"
   },

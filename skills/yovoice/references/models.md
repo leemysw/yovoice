@@ -19,6 +19,7 @@
 | XTTS v2 | 17 种语言、参考克隆、采样、重复惩罚、种子、长文分段 | 必须提供 6–30 秒参考音频并明确语言；Coqui Public Model License；需要 v0.9.3 内核 |
 | Gradium Phonon | 英文默认音色、流噪声温度、种子、按 Token 长文分段 | 仅英文和默认音色，不能克隆；需要 v0.9.3 内核 |
 | Drama 3 / Drama3-small | 默认音色、参考克隆、说话人及事件标签、采样、种子、长文分段、CUDA 性能优先 | 克隆必须提供完整原文；Fish Audio Community License；需要 v0.9.3 内核 |
+| Audio8 TTS Realistic 0.6B | 默认音色、参考克隆、11 种语言自动识别、采样（温度 / top_p / top_k）、种子、长文分段 | 克隆必须提供完整原文；Apache-2.0；需要 v0.9.3 内核 |
 | Kokoro-82M 1.0 / 1.1-zh | 内置音色、多语言、长文分段 | 只用内置音色（`--speaker`），不能克隆；1.0 有 49 个音色，支持中文、英语、西班牙语、法语、印地语、意大利语、巴西葡萄牙语，不含日语；1.1-zh 为 100 个中文和 3 个英文音色（实验性），音色 ID 与 1.0 不通用；首次下载会一并下载约 10 MB 发音库 |
 
 此处覆盖语音生成能力，并非 audio.cpp 的全部底层调优开关。图内存、运行时重量化、缓存槽位、调试用噪声文件等引擎参数继续使用默认值，不作为声音设置展示。训练、微调、ASR、对齐及批量训练数据处理不属于此 TTS 接入。
@@ -72,6 +73,7 @@ Windows/Linux 后端选择见 [引擎与模型下载](setup.md)。精度影响�
 | `gradium-phonon-31m-en-q8` | Gradium Phonon 多文件包 | Q8 | 85.5 MB |
 | `fish-drama3-small-iq3` | Drama3-small | IQ3_XXS | 10.46 GB |
 | `fish-drama3-q2` / `-q4` | Drama 3 | Q2_K / Q4_K_S | 17.05 / 24.60 GB |
+| `audio8-tts-0.6b-q8` / `-bf16` | Audio8 TTS Realistic 0.6B | Q8 / BF16 | 1.43 / 1.89 GB |
 | `kokoro-82m-q8` / `-bf16` | Kokoro-82M 1.0 | Q8 / BF16 | 190 / 212 MB |
 | `kokoro-1.1-zh-q8` | Kokoro-82M 1.1-zh | Q8 | 255 MB |
 | `yue2-3b-q8` / `-bf16` / `-q4` | YuE2 3B（音乐） | Q8 / BF16 / Q4 | 4.53 / 7.53 / 2.93 GB |
@@ -234,6 +236,10 @@ Ming 3.0 TTS 用 `--voice-mode design|clone` 选择方式（有参考音频时�
 
 `top_p` 0–1（0.9）、`temperature` 0–2（1）、`max_tokens` 1–16384（1024）、`text_chunk_size` 1–12000（128）。默认音色用 design；克隆用 `--voice-mode clone --reference FILE --reference-text TEXT`，原文必填。正文说话人标签为 `<|speaker:0|>` 至 `<|speaker:15|>`，事件标签包括 `[laughs]`、`[sighs]`。CUDA 性能优先自动注入 `fish_drama3.perf_mode=cuda_perf`，不默认开启 disk/CPU experts。
 
+### audio8_tts
+
+`temperature` 0.05–1.95（0.8）、`top_p` 0.01–1（0.8）、`top_k` 1–200（30）、`max_tokens` 1–4096（1024，每段语义步数上限）、`text_chunk_size` 1–12000（200）。默认音色用 design；克隆用 `--reference FILE --reference-text TEXT`，原文必填。语言按正文自动识别，不接受 `--language`。
+
 VoxCPM2 的 `stateless` 适合普通文本或参考克隆长文，跨段风格延续应保留默认 `continuation`。VoxCPM2 的 CFG 和步数继续用 `--guidance-scale`、`--inference-steps`，与 App 控件一致。
 
 ## 上游依据
@@ -249,4 +255,5 @@ VoxCPM2 的 `stateless` 适合普通文本或参考克隆长文，跨段风格�
 - [audio.cpp XTTS v2 文档（v0.9.3）](https://github.com/0xShug0/audio.cpp/blob/v0.9.3/docs/community_models/xtts_v2.md)
 - [audio.cpp Gradium Phonon 文档（v0.9.3）](https://github.com/0xShug0/audio.cpp/blob/v0.9.3/docs/models/gradium_phonon.md)
 - [audio.cpp Drama 3 文档（v0.9.3）](https://github.com/0xShug0/audio.cpp/blob/v0.9.3/docs/models/fish_drama3.md)
+- [audio.cpp Audio8 TTS 文档（v0.9.3）](https://github.com/0xShug0/audio.cpp/blob/v0.9.3/docs/models/audio8_tts.md)
 - [Qwen 官方模型与说话人](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice)

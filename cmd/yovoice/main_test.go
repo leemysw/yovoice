@@ -100,7 +100,7 @@ func TestStandalone(t *testing.T) {
 		s.RuntimeBackend = &b
 		v := catalog.EngineVersion
 		s.RuntimeVersion = &v
-		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}, {ID: "ming3-tts-0.5b-q8", Path: model}, {ID: "ace-step-1.5-turbo-q8", Path: model}, {ID: "yue2-3b-q8", Path: model}, {ID: "stable-audio-3-small-sfx-q8", Path: model}, {ID: "qwen3-asr-0.6b-q8", Path: asr}}
+		s.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}, {ID: "voxcpm2-q8", Path: model}, {ID: "omnivoice-q8", Path: model}, {ID: "qwen3-tts-base-q8", Path: model}, {ID: "qwen3-tts-customvoice-q8", Path: model}, {ID: "qwen3-tts-voicedesign-q8", Path: model}, {ID: "ming3-tts-0.5b-q8", Path: model}, {ID: "audio8-tts-0.6b-q8", Path: model}, {ID: "ace-step-1.5-turbo-q8", Path: model}, {ID: "yue2-3b-q8", Path: model}, {ID: "stable-audio-3-small-sfx-q8", Path: model}, {ID: "qwen3-asr-0.6b-q8", Path: asr}}
 	}, true)
 	if e != nil {
 		t.Fatal(e)
@@ -181,6 +181,8 @@ func TestStandalone(t *testing.T) {
 		{"qwen3-tts-voicedesign-q8", "qwen3_tts", []string{"--voice-description", "Warm narrator"}},
 		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--voice-description", "Warm narrator", "--language", "ja", "--option", "trim_silence=false"}},
 		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--voice-mode", "clone", "--reference", ref, "--reference-text", "原文"}},
+		{"audio8-tts-0.6b-q8", "audio8_tts", []string{"--option", "temperature=0.7"}},
+		{"audio8-tts-0.6b-q8", "audio8_tts", []string{"--reference", ref, "--reference-text", "原文"}},
 		{"ace-step-1.5-turbo-q8", "ace_step", []string{"--lyrics", "[verse]\n晚风吹过海岸线", "--language", "zh", "--option", "duration_seconds=30"}},
 		{"yue2-3b-q8", "yue2", []string{"--lyrics", "[Verse]\n晚风吹过海岸线", "--option", `cot="off"`, "--seed", "7"}},
 		{"stable-audio-3-small-sfx-q8", "stable_audio", []string{"--option", "duration_seconds=3"}},
