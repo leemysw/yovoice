@@ -4,26 +4,29 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-19
+
 ### English
 
-- Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
-- Reference audio supports drag and drop and selecting generated speech from history, with audition, excerpt selection and an editable transcript. Saved references retain their source and remain usable after the original generation is deleted.
-- Qwen3 CustomVoice now labels its optional delivery instructions as style guidance and explains how they work with the built-in speaker.
-- New speech model Audio8 TTS Realistic 0.6B (Q8 / BF16): default voice and voice cloning with automatic language detection across 11 languages, 44.1 kHz output; cloning requires the reference transcript.
-- Story narration evens out each line's loudness as it is generated, so lines no longer jump between quiet and loud. Lines generated earlier keep their level until regenerated.
-- Importing a book recognizes scripts written as “Name: line” and casts each name as a role; narrator lines and notes such as Scene or Time are not treated as roles. Import book is also in the New project menu.
-- Generation history shows model tags and a read-only configuration view with the saved text, time, seed and parameters, plus JSON export. The same view is available while selecting historical speech as a reference.
-- Ming 3.0 TTS adds control modes: built-in voices picked from a list (with emotion variants where available), emotion, dialect (Cantonese, Sichuan-Chongqing), speed / pitch / volume, and free-form instructions. Paralinguistic tags such as [Laughter] can be inserted into the text.
+- Fix data loss: generating speech no longer deletes older takes after ten versions. API history and finished story takes are also kept until you delete them.
+- New speech model Audio8 TTS Realistic 0.6B (Q8 / BF16): default voice and voice cloning in 11 languages with automatic language detection, 44.1 kHz output. Cloning needs the reference transcript.
+- Ming 3.0 TTS adds built-in voices (some with emotion variants), emotion, dialect (Cantonese, Sichuan-Chongqing), speed / pitch / volume and free-form instructions, plus tags such as [Laughter] in the text. Qwen3 CustomVoice labels its optional instructions as style guidance.
+- Reference audio: drag in a file or pick generated speech from history, then audition, choose an excerpt and edit the transcript. Saved references keep working after the original generation is deleted.
+- Generation history shows model tags and a read-only view of the saved text, time, seed and parameters, with JSON export.
+- Story narration evens out each line's loudness as it is generated (earlier lines change when regenerated). Importing a book recognizes “Name: line” scripts and casts each name as a role, and Import book is also in the New project menu.
 
 ### 简体中文
-- 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
-- 参考音频支持拖入文件，以及从生成历史选择语音、试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。
-- Qwen3 CustomVoice 将可选的演绎指令标为“风格指导”，说明其与内置音色的关系。
+
+- 修复音频丢失：语音生成不再在第十次后删除较早版本；接口历史和已完成的故事逐句版本也保留到你手动删除。
 - 新增语音模型 Audio8 TTS Realistic 0.6B（Q8 / BF16）：默认音色与音色克隆，自动识别 11 种语言，44.1 kHz 输出；克隆需填写参考原文。
-- 故事配音逐句生成时统一响度，句与句之间不再忽大忽小；之前生成的句子重新生成后才会调整。
-- 导入小说可识别“角色：台词”格式的剧本，按名字分角色；“旁白”行和“场景”“时间”等说明行不算角色。“新建作品”菜单里也可以直接导入小说。
-- 生成历史新增模型标签和只读的生成配置详情，可查看保存的文字、时间、随机种子与参数并导出 JSON；选择历史语音作为参考时也可查看。
-- Ming 3.0 TTS 新增控制方式：从列表选择内置音色（部分音色可选情感）、情感、方言（粤语、川渝话）、语速 / 音高 / 音量，以及自由指令；正文可插入 [Laughter] 等非语言声音标签。
+- Ming 3.0 TTS 新增内置音色（部分可选情感）、情感、方言（粤语、川渝话）、语速 / 音高 / 音量和自由指令，正文可插入 [Laughter] 等标签；Qwen3 CustomVoice 的可选指令标为“风格指导”。
+- 参考音频：可拖入文件，或从生成历史选择语音，试听、截取节选并编辑原文；删除原生成记录后，保存的样本仍可使用。
+- 生成历史显示模型标签，可只读查看保存的文字、时间、随机种子与参数，并导出 JSON。
+- 故事配音逐句生成时统一响度（之前的句子重新生成后才调整）；导入小说可识别“角色：台词”剧本并按名字分角色，“新建作品”菜单也能直接导入小说。
+
+### 贡献者 / Contributors
+
+@leemysw @david-bowiegxw
 
 ## [0.8.0] - 2026-11-15
 
