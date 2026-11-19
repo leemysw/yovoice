@@ -384,6 +384,12 @@
     }
   ],
   "ming3_tts": [
+    {"key": "template_name", "type": "select", "default": "voice_design", "values": ["voice_design", "ip", "emotion", "dialect", "basic", "freeform"]},
+    {"key": "emotion", "type": "select", "default": "happy", "values": ["happy", "sad", "angry", "fearful", "disgusted", "surprised", "neutral"]},
+    {"key": "dialect", "type": "select", "default": "cantonese", "values": ["cantonese", "chuanyu"]},
+    {"key": "speed", "type": "select", "default": "medium", "values": ["slow", "medium", "fast"]},
+    {"key": "pitch", "type": "select", "default": "medium", "values": ["low", "medium", "high"]},
+    {"key": "volume", "type": "select", "default": "medium", "values": ["low", "medium", "high"]},
     {"key": "stream_chunk_policy","type": "select","default": "grow","values": ["grow","fixed"],"requiresRuntime": true,"streamOnly": true},
     {"key": "stream_frames_per_event","type": "number","default": 4,"min": 1,"max": 64,"step": 1,"requiresRuntime": true,"streamOnly": true},
     {

@@ -6,9 +6,20 @@ Apply with `update_work` {"id","settings":{...}}; only given fields change. Requ
 - `design` (default): optional `voiceDescription` (max 500 chars) describes the voice. With a description, the request uses `template_name=voice_design` and `instruct`; without one, it uses ordinary TTS.
 - `clone`: needs `voiceId`. `referenceText` (max 2000 chars) is optional: supply the exact transcript for an acoustic reference prefix, or leave it empty for speaker conditioning only. The design description is not used for cloning.
 
+## Control mode (design only): `template_name` in `modelOptions` {"ming3_tts":{...}}
+Modes are mutually exclusive; each request uses one. Cloning ignores them.
+- `voice_design` (default): `voiceDescription` describes the voice as above.
+- `freeform`: `voiceDescription` is a natural-language delivery instruction (tone, pacing, emphasis), e.g. "用温柔、舒缓的声音讲述睡前故事". Required.
+- `ip`: built-in voice in `speaker`, e.g. `灵小安`, `灵小萌`, `灵楷`, `US_Emma`, `UK_George`. Voices with emotion variants must include one: `灵风信_高兴`, `灵惜梦_悲伤` (suffixes 中性/高兴/悲伤/生气/恐惧/厌恶/惊讶, only those the voice offers). The settings panel lists all voices.
+- `emotion`: `emotion` happy/sad/angry/fearful/disgusted/surprised/neutral (`happy`).
+- `dialect`: `dialect` cantonese/chuanyu (`cantonese`); the target language is ignored.
+- `basic`: `speed` slow/medium/fast, `pitch` low/medium/high, `volume` low/medium/high (all `medium`).
+
+Paralinguistic tags can go anywhere in Chinese or English text, case-sensitive with brackets: `[Breathing]`, `[Cough]`, `[Sigh]`, `[Laughter]`, `[Uhm]`, `[Surprise-ah]`, `[Surprise-oh]`, `[Dissatisfaction-hnn]`, `[Confirmation-en]`, `[Question-ei]`, `[Question-ah]`, `[Question-en]`, `[Question-oh]`, `[Question-huh]`.
+
 ## Language and plain parameters
 - `synthesisLanguage`: `auto` (default), `zh`, `en`, `ja`, `ko`, `de`, `fr`, `es`. Non-auto values are sent as the top-level language code.
-- `seed` 0-2147483647 (-1 = random). Generic `speed`, `temperature`, emotion fields are NOT used.
+- `seed` 0-2147483647 (-1 = random). The draft-level `speed`, `temperature` and emotion fields are NOT used; use the control modes above.
 
 ## Advanced (`modelOptions` {"ming3_tts":{...}})
 - `text_chunk_size` 0-12000 (0 = upstream automatic): 50 codepoints for predominantly CJK text, otherwise 300; automatically anchored multi-chunk output is capped at 120. Do not force a value unless tuning is needed.

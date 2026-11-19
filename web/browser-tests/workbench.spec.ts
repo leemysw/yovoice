@@ -359,7 +359,7 @@ test('Ming 3.0 TTS 在设计与克隆间切换并提供七种语言', async ({ p
   await page.getByRole('option', { name: /^Ming 3\.0 TTS/ }).click();
   await expect(page.getByRole('radio', { name: '声音设计', exact: true })).toBeChecked();
   await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toHaveCount(0);
-  await page.getByLabel('声音描述', { exact: true }).fill('温暖平静的女声');
+  await page.getByRole('textbox', { name: '声音描述', exact: true }).fill('温暖平静的女声');
   const language = page.getByRole('combobox', { name: '语言', exact: true });
   await language.click();
   await expect(page.getByRole('option')).toHaveText(['自动', '中文', '英语', '日语', '韩语', '德语', '法语', '西班牙语']);
@@ -367,13 +367,60 @@ test('Ming 3.0 TTS 在设计与克隆间切换并提供七种语言', async ({ p
   await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
   await expect(page.getByRole('button', { name: '添加参考音频', exact: true })).toBeVisible();
   await expect(page.getByLabel('参考音频原文（可选）', { exact: true })).toBeVisible();
-  await expect(page.getByLabel('声音描述', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: '声音描述', exact: true })).toHaveCount(0);
   await page.locator('summary').filter({ hasText: '高级设置' }).click();
   await expect(page.getByLabel('长文分段字数（0 为模型默认）')).toHaveValue('0');
   await expect(page.getByLabel('温度', { exact: true })).toHaveValue('0');
   await expect(page.getByLabel('裁剪静音', { exact: true })).toBeChecked();
 });
 
+
+test('Ming 3.0 TTS 控制方式：内置音色可选情感，方言不选语言，正文可插入副语言标签', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('combobox', { name: '模型', exact: true }).click();
+  await page.getByRole('option', { name: /^Ming 3\.0 TTS/ }).click();
+  const control = page.getByRole('combobox', { name: '控制方式', exact: true });
+  await expect(control).toContainText('声音描述');
+  await control.click();
+  await expect(page.getByRole('option')).toHaveText(['声音描述', '内置音色', '情感', '方言', '语速 / 音高 / 音量', '自由指令']);
+  await page.getByRole('option', { name: '内置音色', exact: true }).click();
+  const voice = page.getByRole('combobox', { name: '内置音色', exact: true });
+  await expect(voice).toContainText('灵小安');
+  await expect(page.getByRole('combobox', { name: '情感', exact: true })).toHaveCount(0);
+  // 带情感变体的音色只列出它有的情感。
+  await voice.click();
+  await page.getByRole('option', { name: /^灵风信/ }).click();
+  const emotion = page.getByRole('combobox', { name: '情感', exact: true });
+  await expect(emotion).toContainText('中性');
+  await emotion.click();
+  await expect(page.getByRole('option')).toHaveText(['中性', '高兴', '悲伤', '愤怒', '厌恶']);
+  await page.getByRole('option', { name: '愤怒', exact: true }).click();
+  await expect(emotion).toContainText('愤怒');
+  await expect(page.getByRole('textbox', { name: '声音描述', exact: true })).toHaveCount(0);
+
+  await control.click();
+  await page.getByRole('option', { name: '方言', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: '方言', exact: true })).toContainText('粤语');
+  await expect(page.getByRole('combobox', { name: '语言', exact: true })).toHaveCount(0);
+  await control.click();
+  await page.getByRole('option', { name: '语速 / 音高 / 音量', exact: true }).click();
+  for (const name of ['语速', '音高', '音量']) await expect(page.getByRole('combobox', { name, exact: true })).toContainText('中');
+  await expect(page.getByRole('combobox', { name: '语言', exact: true })).toBeVisible();
+  await control.click();
+  await page.getByRole('option', { name: '自由指令', exact: true }).click();
+  await page.getByRole('textbox', { name: '自由指令', exact: true }).fill('用温柔、舒缓的声音讲述睡前故事。');
+  // 控制方式的选项不在高级设置里重复出现。
+  await page.locator('summary').filter({ hasText: '高级设置' }).click();
+  await expect(page.getByRole('combobox', { name: '控制方式' })).toHaveCount(1);
+
+  await page.getByRole('combobox', { name: '非语言声音', exact: true }).click();
+  await page.getByRole('option', { name: '[Laughter]', exact: true }).click();
+  await expect(page.getByLabel('正文', { exact: true })).toHaveValue(/\[Laughter\]$/);
+  // 克隆时没有控制方式，标签仍可插入。
+  await page.getByRole('radio', { name: '音色克隆', exact: true }).click();
+  await expect(control).toHaveCount(0);
+  await expect(page.getByRole('combobox', { name: '非语言声音', exact: true })).toBeVisible();
+});
 
 test('作品音频读不到时播放器直接显示不可用，不主动弹出提示', async ({ page }) => {
   const state = emptyState();

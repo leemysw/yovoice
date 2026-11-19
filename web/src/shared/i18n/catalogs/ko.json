@@ -6055,5 +6055,107 @@
   },
   "@yovoice.history.snapshotHelp": {
     "defaultMessage": "생성 당시 저장된 설정입니다. 이후 작품이나 캐릭터를 수정해도 바뀌지 않습니다. 기록되지 않은 엔진 기본값, 하드웨어 및 모델 파일 버전은 현재 설정에서 추정하지 않습니다."
+  },
+  "@yovoice.ming.control": {
+    "defaultMessage": "제어 방식"
+  },
+  "@yovoice.ming.controlHelp": {
+    "defaultMessage": "한 번 생성할 때 제어 방식은 하나만 사용합니다."
+  },
+  "@yovoice.ming.control.voice_design": {
+    "defaultMessage": "음성 설명"
+  },
+  "@yovoice.ming.control.ip": {
+    "defaultMessage": "내장 음성"
+  },
+  "@yovoice.ming.control.emotion": {
+    "defaultMessage": "감정"
+  },
+  "@yovoice.ming.control.dialect": {
+    "defaultMessage": "방언"
+  },
+  "@yovoice.ming.control.basic": {
+    "defaultMessage": "속도 / 음높이 / 음량"
+  },
+  "@yovoice.ming.control.freeform": {
+    "defaultMessage": "자유 지시"
+  },
+  "@yovoice.ming.freeform": {
+    "defaultMessage": "자유 지시"
+  },
+  "@yovoice.ming.freeformHelp": {
+    "defaultMessage": "말투, 속도, 표현을 자유롭게 적어 주세요. 음색은 설명하지 않아도 됩니다."
+  },
+  "@yovoice.ming.freeformPlaceholder": {
+    "defaultMessage": "예: 아이를 다정하게 달래듯 부드럽고 차분한 목소리로 잠자리 동화를 들려주세요."
+  },
+  "@yovoice.ming.emotionVoices": {
+    "defaultMessage": "중국어(감정 선택)"
+  },
+  "@yovoice.ming.tagsHelp": {
+    "defaultMessage": "선택하면 본문 끝에 추가되고, 그 위치에서 해당 소리가 납니다."
+  },
+  "@yovoice.ming.emotion.happy": {
+    "defaultMessage": "기쁨"
+  },
+  "@yovoice.ming.emotion.sad": {
+    "defaultMessage": "슬픔"
+  },
+  "@yovoice.ming.emotion.angry": {
+    "defaultMessage": "분노"
+  },
+  "@yovoice.ming.emotion.fearful": {
+    "defaultMessage": "두려움"
+  },
+  "@yovoice.ming.emotion.disgusted": {
+    "defaultMessage": "혐오"
+  },
+  "@yovoice.ming.emotion.surprised": {
+    "defaultMessage": "놀람"
+  },
+  "@yovoice.ming.emotion.neutral": {
+    "defaultMessage": "중립"
+  },
+  "@yovoice.ming.dialect.cantonese": {
+    "defaultMessage": "광둥어"
+  },
+  "@yovoice.ming.dialect.chuanyu": {
+    "defaultMessage": "쓰촨 방언"
+  },
+  "@yovoice.ming.speed.slow": {
+    "defaultMessage": "느림"
+  },
+  "@yovoice.ming.speed.medium": {
+    "defaultMessage": "보통"
+  },
+  "@yovoice.ming.speed.fast": {
+    "defaultMessage": "빠름"
+  },
+  "@yovoice.ming.level.low": {
+    "defaultMessage": "낮음"
+  },
+  "@yovoice.ming.level.medium": {
+    "defaultMessage": "보통"
+  },
+  "@yovoice.ming.level.high": {
+    "defaultMessage": "높음"
+  },
+  "@yovoice.options.template_name": {
+    "defaultMessage": "제어 방식"
+  },
+  "@yovoice.options.emotion": {
+    "defaultMessage": "감정"
+  },
+  "@yovoice.options.dialect": {
+    "defaultMessage": "방언"
+  },
+  "@yovoice.options.speed": {
+    "defaultMessage": "속도"
+  },
+  "@yovoice.options.pitch": {
+    "defaultMessage": "음높이"
+  },
+  "@yovoice.options.volume": {
+    "defaultMessage": "음량"
   }
 }

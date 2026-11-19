@@ -227,6 +227,7 @@ func nativeTTSRequest(d schema.Draft, m catalog.ModelPackage, voice string) (map
 		if !auto {
 			r["language"] = d.SynthesisLanguage
 		}
+		mingControl(r, o, d)
 	case "xtts_v2":
 		// XTTS 必须显式指定语言；未选择或“自动”时按简体中文处理。
 		r["language"] = d.SynthesisLanguage
@@ -246,13 +247,77 @@ func nativeTTSRequest(d schema.Draft, m catalog.ModelPackage, voice string) (map
 		r["voice_id"] = cmp.Or(d.Speaker, "casual_male")
 	case "plapre":
 		r["voice_id"] = cmp.Or(d.Speaker, m.Voices[0])
-	case "ming3_tts":
-		if description := strings.TrimSpace(d.VoiceDescription); description != "" {
-			o["template_name"] = "voice_design"
-			o["instruct"] = description
-		}
 	}
 	return map[string]any{"model": "index", "request": r}, nil
+}
+
+// mingControlKeys 是 Ming 控制方式（上游的结构化模板）用到的选项，按所选模板改写后再发给引擎。
+var mingControlKeys = []string{"template_name", "emotion", "dialect", "speed", "pitch", "volume"}
+
+// mingValues 把界面上的取值换成上游原文；中速与中档在 speed 和 pitch/volume 里写法不同，单独处理。
+var mingValues = map[string]string{
+	"happy": "高兴", "sad": "悲伤", "angry": "愤怒", "fearful": "恐惧", "disgusted": "厌恶", "surprised": "惊讶", "neutral": "中性",
+	"cantonese": "cantonese", "chuanyu": "chuanyu dialect", "slow": "慢速", "fast": "快速", "low": "低", "high": "高",
+}
+
+// mingControl 按控制方式改写 Ming 请求：各模板互斥，只带该模板的控制项。
+// voice_design（默认）有声音描述时做音色设计，没有时用模型默认声音；freeform 用自由指令；
+// ip 用内置音色；emotion、dialect、basic 用对应的结构化控制。克隆只用参考音频，不带控制项。
+// 取值已由 Validate 校验，这里只做换算。
+func mingControl(r, o map[string]any, d schema.Draft) {
+	values := map[string]string{}
+	for _, key := range mingControlKeys {
+		values[key], _ = o[key].(string)
+		delete(o, key)
+	}
+	if d.VoiceMode == "clone" {
+		return
+	}
+	set := func(keys ...string) {
+		for _, key := range keys {
+			value := cmp.Or(values[key], mingDefault(key))
+			switch {
+			case value == "medium" && key == "speed":
+				o[key] = "中速"
+			case value == "medium":
+				o[key] = "中"
+			default:
+				o[key] = mingValues[value]
+			}
+		}
+	}
+	description := strings.TrimSpace(d.VoiceDescription)
+	switch template := cmp.Or(values["template_name"], "voice_design"); template {
+	case "voice_design", "freeform":
+		if description != "" {
+			o["template_name"] = template
+			o["instruct"] = description
+		}
+	case "ip":
+		o["template_name"] = "ip"
+		o["voice_id"] = d.Speaker
+	case "emotion":
+		o["template_name"] = "emotion"
+		set("emotion")
+	case "dialect":
+		// 方言模板不接受目标语言。
+		o["template_name"] = "dialect"
+		delete(r, "language")
+		set("dialect")
+	case "basic":
+		o["template_name"] = "basic"
+		set("speed", "pitch", "volume")
+	}
+}
+
+func mingDefault(key string) string {
+	for _, spec := range catalog.GenerationOptions["ming3_tts"] {
+		if spec.Key == key {
+			value, _ := spec.Default.(string)
+			return value
+		}
+	}
+	return ""
 }
 
 // attachReference 把克隆用的参考音频写入请求；withTranscript 时把非空原文写入 options。

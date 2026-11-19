@@ -471,6 +471,74 @@ func TestBreezeRequest(t *testing.T) {
 	}
 }
 
+// 控制方式：各模板只带自己的控制项，取值换成上游原文；克隆不带控制项。
+func TestMingControls(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.ModelID = "ming3-tts-0.5b-q8"
+	d.Text = "你好。"
+	d.SynthesisLanguage = "zh"
+	build := func(options map[string]any) (map[string]any, map[string]any) {
+		t.Helper()
+		d.ModelOptions = map[string]map[string]any{"ming3_tts": options}
+		must(t, schema.Validate(d))
+		p, err := BuildRequest(d, "", "")
+		must(t, err)
+		r := p["request"].(map[string]any)
+		return r, r["options"].(map[string]any)
+	}
+	equal := func(got map[string]any, want map[string]any) {
+		t.Helper()
+		if len(got) != len(want) {
+			t.Fatal(got, want)
+		}
+		for key, value := range want {
+			if got[key] != value {
+				t.Fatal(got, want)
+			}
+		}
+	}
+	d.Speaker = "灵风信_生气"
+	_, o := build(map[string]any{"template_name": "ip", "emotion": "sad"})
+	equal(o, map[string]any{"template_name": "ip", "voice_id": "灵风信_生气"})
+	_, o = build(map[string]any{"template_name": "emotion", "emotion": "angry"})
+	equal(o, map[string]any{"template_name": "emotion", "emotion": "愤怒"})
+	// 没选过的控制项用默认值。
+	_, o = build(map[string]any{"template_name": "basic", "speed": "fast"})
+	equal(o, map[string]any{"template_name": "basic", "speed": "快速", "pitch": "中", "volume": "中"})
+	r, o := build(map[string]any{"template_name": "dialect", "dialect": "chuanyu"})
+	equal(o, map[string]any{"template_name": "dialect", "dialect": "chuanyu dialect"})
+	if _, ok := r["language"]; ok {
+		t.Fatal("方言模板不带目标语言", r)
+	}
+	d.VoiceDescription = " 像在讲睡前故事 "
+	_, o = build(map[string]any{"template_name": "freeform"})
+	equal(o, map[string]any{"template_name": "freeform", "instruct": "像在讲睡前故事"})
+
+	d.VoiceMode = "clone"
+	p, err := BuildRequest(d, "voice.wav", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); len(o) != 0 {
+		t.Fatal("克隆不带控制项", o)
+	}
+	d.VoiceMode = "design"
+	for _, invalid := range []struct {
+		speaker, description string
+		options              map[string]any
+	}{
+		{"灵晓声", "", map[string]any{"template_name": "ip"}}, // 带情感变体的音色必须带情感
+		{"未收录", "", map[string]any{"template_name": "ip"}},
+		{"", " ", map[string]any{"template_name": "freeform"}},
+		{"", "", map[string]any{"template_name": "multilingual"}},
+		{"", "", map[string]any{"emotion": "高兴"}},
+	} {
+		d.Speaker, d.VoiceDescription = invalid.speaker, invalid.description
+		d.ModelOptions = map[string]map[string]any{"ming3_tts": invalid.options}
+		if schema.Validate(d) == nil {
+			t.Fatal("应拒绝", invalid)
+		}
+	}
+}
+
 func TestMingRequest(t *testing.T) {
 	d := schema.DefaultDraft()
 	d.ModelID = "ming3-tts-0.5b-q8"

@@ -200,6 +200,19 @@ func Validate(d Draft) error {
 		if d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647) {
 			return msg.Err(msg.ErrParamsOutOfRange, nil)
 		}
+		// 控制方式只在非克隆时生效：内置音色必须是收录的调用名称，自由指令必须写指令。
+		if d.VoiceMode != "clone" {
+			switch template, _ := d.ModelOptions["ming3_tts"]["template_name"].(string); template {
+			case "ip":
+				if !catalog.IsMingVoice(d.Speaker) {
+					return msg.Err(msg.ErrSpeakerInvalid, nil)
+				}
+			case "freeform":
+				if strings.TrimSpace(d.VoiceDescription) == "" {
+					return msg.Err(msg.ErrVoiceDescriptionRequired, nil)
+				}
+			}
+		}
 		return nil
 	}
 	if m.Family == "breeze_tts" {
