@@ -144,6 +144,8 @@ OmniVoice 支持 `--speed`、`--language`、`--guidance-scale`、`--inference-st
 
 Ming 3.0 TTS 支持 `--language auto|zh|en|ja|ko|de|fr|es`，高级设置可调整 `guidance_scale`、`temperature`、`trim_silence` 与长文分段。长文默认按中日韩 50 码点、其他语言 300 码点分段；无参考音色时后续段会锁定首段音色，YoVoice 不强制覆盖分段大小。
 
+声音设计时可在“控制方式”中选择一种：声音描述、内置音色（部分音色可选情感）、情感、方言（粤语、川渝话，不使用目标语言）、语速 / 音高 / 音量或自由指令，每次生成只用一种。命令行用 `--option 'template_name="ip"' --speaker 灵风信_高兴`。正文可插入 `[Laughter]`、`[Sigh]` 等非语言声音标签，工作台的“非语言声音”可直接添加。
+
 ### Breeze TTS 2 与拖音
 
 Breeze TTS 2 自然度高，但自回归生成在以下情况下容易拖音、重复或在句尾拖出长段静音，YoVoice 已按此调整默认值：

@@ -181,6 +181,7 @@ func TestStandalone(t *testing.T) {
 		{"qwen3-tts-voicedesign-q8", "qwen3_tts", []string{"--voice-description", "Warm narrator"}},
 		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--voice-description", "Warm narrator", "--language", "ja", "--option", "trim_silence=false"}},
 		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--voice-mode", "clone", "--reference", ref, "--reference-text", "原文"}},
+		{"ming3-tts-0.5b-q8", "ming3_tts", []string{"--speaker", "灵小安", "--option", `template_name="ip"`}},
 		{"audio8-tts-0.6b-q8", "audio8_tts", []string{"--option", "temperature=0.7"}},
 		{"audio8-tts-0.6b-q8", "audio8_tts", []string{"--reference", ref, "--reference-text", "原文"}},
 		{"ace-step-1.5-turbo-q8", "ace_step", []string{"--lyrics", "[verse]\n晚风吹过海岸线", "--language", "zh", "--option", "duration_seconds=30"}},

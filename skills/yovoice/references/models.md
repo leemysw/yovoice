@@ -208,6 +208,10 @@ Breeze TTS 2 用 `--voice-mode design|clone` 选择方式（有参考音频时�
 
 | 参数 | 含义 | 默认值 | 可用范围 |
 | --- | --- | --- | --- |
+| `template_name` | 控制方式（仅设计，互斥） | `"voice_design"` | voice_design, ip, emotion, dialect, basic, freeform |
+| `emotion` | 情感（emotion 方式） | `"happy"` | happy, sad, angry, fearful, disgusted, surprised, neutral |
+| `dialect` | 方言（dialect 方式，不使用语言） | `"cantonese"` | cantonese, chuanyu |
+| `speed` / `pitch` / `volume` | 语速 / 音高 / 音量（basic 方式） | `"medium"` | slow/medium/fast；low/medium/high |
 | `text_chunk_size` | 长文分段码点数（0 为上游自动） | `0` | 0–12000 |
 | `text_chunk_mode` | 分段方式 | `"tag_aware"` | default, tag_aware, japanese, endline |
 | `guidance_scale` | 流匹配引导强度 | `2` | 0–10 |
@@ -215,6 +219,8 @@ Breeze TTS 2 用 `--voice-mode design|clone` 选择方式（有参考音频时�
 | `trim_silence` | 裁剪每段尾部低能量音频并保留短尾音 | `true` | true / false |
 
 Ming 3.0 TTS 用 `--voice-mode design|clone` 选择方式（有参考音频时默认克隆），设计描述可选；克隆原文可选，省略时仅参考说话人音色。上游默认按中日韩 50 码点、其他语言 300 码点分段，无参考音色时后续段锁定首段音色，不要无目的强制分段大小。
+
+`template_name=ip` 时用 `--speaker` 选内置音色，如 `灵小安`、`US_Emma`；带情感的音色写成 `灵风信_高兴`（后缀 中性/高兴/悲伤/生气/恐惧/厌恶/惊讶，以该音色提供的为准）。`freeform` 用 `--voice-description` 写自由指令，必填。正文可插入 `[Laughter]`、`[Sigh]`、`[Breathing]` 等非语言声音标签（区分大小写）。
 
 ### voxtral_tts
 

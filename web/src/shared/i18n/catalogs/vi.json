@@ -6055,5 +6055,107 @@
   },
   "@yovoice.history.snapshotHelp": {
     "defaultMessage": "Đây là cấu hình được lưu khi tạo âm thanh. Các thay đổi sau đó của tác phẩm hoặc nhân vật không làm thay đổi cấu hình này. Giá trị mặc định của bộ máy, phần cứng và phiên bản tệp mô hình chưa được ghi lại sẽ không được suy ra từ thiết lập hiện tại."
+  },
+  "@yovoice.ming.control": {
+    "defaultMessage": "Cách điều khiển"
+  },
+  "@yovoice.ming.controlHelp": {
+    "defaultMessage": "Mỗi lần tạo chỉ dùng một cách điều khiển."
+  },
+  "@yovoice.ming.control.voice_design": {
+    "defaultMessage": "Mô tả giọng"
+  },
+  "@yovoice.ming.control.ip": {
+    "defaultMessage": "Giọng tích hợp"
+  },
+  "@yovoice.ming.control.emotion": {
+    "defaultMessage": "Cảm xúc"
+  },
+  "@yovoice.ming.control.dialect": {
+    "defaultMessage": "Phương ngữ"
+  },
+  "@yovoice.ming.control.basic": {
+    "defaultMessage": "Tốc độ / cao độ / âm lượng"
+  },
+  "@yovoice.ming.control.freeform": {
+    "defaultMessage": "Chỉ dẫn tự do"
+  },
+  "@yovoice.ming.freeform": {
+    "defaultMessage": "Chỉ dẫn tự do"
+  },
+  "@yovoice.ming.freeformHelp": {
+    "defaultMessage": "Mô tả giọng điệu, nhịp độ và cách diễn đạt bằng lời của bạn; không cần mô tả chất giọng."
+  },
+  "@yovoice.ming.freeformPlaceholder": {
+    "defaultMessage": "Ví dụ: kể chuyện trước giờ ngủ bằng giọng dịu dàng, êm ái như đang vỗ về một em bé."
+  },
+  "@yovoice.ming.emotionVoices": {
+    "defaultMessage": "Tiếng Trung (có cảm xúc)"
+  },
+  "@yovoice.ming.tagsHelp": {
+    "defaultMessage": "Chọn một thẻ để thêm vào cuối văn bản; giọng sẽ phát âm thanh tương ứng tại đó."
+  },
+  "@yovoice.ming.emotion.happy": {
+    "defaultMessage": "Vui"
+  },
+  "@yovoice.ming.emotion.sad": {
+    "defaultMessage": "Buồn"
+  },
+  "@yovoice.ming.emotion.angry": {
+    "defaultMessage": "Tức giận"
+  },
+  "@yovoice.ming.emotion.fearful": {
+    "defaultMessage": "Sợ hãi"
+  },
+  "@yovoice.ming.emotion.disgusted": {
+    "defaultMessage": "Ghê tởm"
+  },
+  "@yovoice.ming.emotion.surprised": {
+    "defaultMessage": "Ngạc nhiên"
+  },
+  "@yovoice.ming.emotion.neutral": {
+    "defaultMessage": "Trung tính"
+  },
+  "@yovoice.ming.dialect.cantonese": {
+    "defaultMessage": "Tiếng Quảng Đông"
+  },
+  "@yovoice.ming.dialect.chuanyu": {
+    "defaultMessage": "Phương ngữ Tứ Xuyên"
+  },
+  "@yovoice.ming.speed.slow": {
+    "defaultMessage": "Chậm"
+  },
+  "@yovoice.ming.speed.medium": {
+    "defaultMessage": "Vừa"
+  },
+  "@yovoice.ming.speed.fast": {
+    "defaultMessage": "Nhanh"
+  },
+  "@yovoice.ming.level.low": {
+    "defaultMessage": "Thấp"
+  },
+  "@yovoice.ming.level.medium": {
+    "defaultMessage": "Vừa"
+  },
+  "@yovoice.ming.level.high": {
+    "defaultMessage": "Cao"
+  },
+  "@yovoice.options.template_name": {
+    "defaultMessage": "Cách điều khiển"
+  },
+  "@yovoice.options.emotion": {
+    "defaultMessage": "Cảm xúc"
+  },
+  "@yovoice.options.dialect": {
+    "defaultMessage": "Phương ngữ"
+  },
+  "@yovoice.options.speed": {
+    "defaultMessage": "Tốc độ"
+  },
+  "@yovoice.options.pitch": {
+    "defaultMessage": "Cao độ"
+  },
+  "@yovoice.options.volume": {
+    "defaultMessage": "Âm lượng"
   }
 }

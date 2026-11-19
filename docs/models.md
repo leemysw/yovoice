@@ -144,6 +144,8 @@ OmniVoice supports `--speed`, `--language`, `--guidance-scale`, and `--inference
 
 Ming 3.0 TTS supports `--language auto|zh|en|ja|ko|de|fr|es`, with `guidance_scale`, `temperature`, `trim_silence` and long-text chunking under Advanced settings. By default, CJK text is chunked at 50 codepoints and other text at 300; later chunks without reference audio keep the first chunk's voice. YoVoice does not override the chunk size.
 
+For voice design, **Control mode** picks one of: voice description, built-in voice (some offer emotion variants), emotion, dialect (Cantonese, Sichuan-Chongqing; the target language is not used), speed / pitch / volume, or free-form instruction. Only one applies per generation. On the command line: `--option 'template_name="ip"' --speaker 灵风信_高兴`. Paralinguistic tags such as `[Laughter]` and `[Sigh]` can go anywhere in the text; the workbench can insert them for you.
+
 ### Breeze TTS 2 and dragging speech
 
 Breeze TTS 2 sounds very natural, but its autoregressive decoder tends to drag, repeat, or trail off into long silence in the cases below. YoVoice adjusts its defaults accordingly:

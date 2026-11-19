@@ -8,9 +8,11 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { isAudio8Model, isDramaModel, isMingModel, isPlapreModel, type Draft, type ModelPackage, type State, type Track } from '../../shared/workbench';
 import { overflowTitle } from '../../shared/ui/overflow-title';
+import { MingControls, MingTags, mingControlKeys, mingTemplate } from './ming-controls';
 
 // Breeze、Ming、Plapre、Drama 与 Audio8 共用模式切换；非克隆一侧和参考原文要求按模型区分。
 // Drama 与 Audio8 同源（Fish Audio S2）：默认音色或克隆，克隆必须填原文，没有声音描述。
+// Ming 非克隆时按控制方式（声音描述、内置音色、情感等）给出对应设置，两种模式都能插入副语言标签。
 export function DesignCloneControls({ draft, model, state, change, chooseVoice, play, advanced, setAdvanced }: {
   draft: Draft; model?: ModelPackage; state: State; change: (patch: Partial<Draft>) => void; chooseVoice: () => void;
   play: (track: Track) => void; advanced: boolean; setAdvanced: (value: boolean) => void;
@@ -38,10 +40,13 @@ export function DesignCloneControls({ draft, model, state, change, chooseVoice, 
       </RecognizeField>
     </> : null}
     {plapre && !cloning ? <Selector label={t('@yovoice.reference.speaker')} value={draft.speaker || model?.voices?.[0]} options={(model?.voices ?? []).map(value => ({ value, label: value }))} onChange={speaker => change({ speaker })} /> : null}
-    {!plapre && !fishLike && (!ming || !cloning) ? <TextArea label={cloning ? t('@yovoice.vox.styleGuidance') : t('@yovoice.vox.voiceDescription')} description={t(ming ? '@yovoice.reference.voiceDesignHelp' : '@yovoice.breeze.instructionHelp')} value={draft.voiceDescription ?? ''} onChange={voiceDescription => change({ voiceDescription: voiceDescription.slice(0, 500) })} placeholder={cloning ? t('@yovoice.vox.stylePlaceholder') : t('@yovoice.breeze.voiceDescriptionPlaceholder')} rows={3} /> : null}
-    {ming ? <Selector label={t('@yovoice.create.language')} value={draft.synthesisLanguage || 'auto'} options={['auto', 'zh', 'en', 'ja', 'ko', 'de', 'fr', 'es'].map(value => ({ value, label: value === 'auto' ? t('@yovoice.reference.auto') : t(`@yovoice.language.${value}`) }))} onChange={synthesisLanguage => change({ synthesisLanguage })} /> : null}
+    {ming && !cloning ? <MingControls draft={draft} change={change} /> : null}
+    {!plapre && !fishLike && !ming ? <TextArea label={cloning ? t('@yovoice.vox.styleGuidance') : t('@yovoice.vox.voiceDescription')} description={t('@yovoice.breeze.instructionHelp')} value={draft.voiceDescription ?? ''} onChange={voiceDescription => change({ voiceDescription: voiceDescription.slice(0, 500) })} placeholder={cloning ? t('@yovoice.vox.stylePlaceholder') : t('@yovoice.breeze.voiceDescriptionPlaceholder')} rows={3} /> : null}
+    {/* 方言模板不接受目标语言。 */}
+    {ming && (cloning || mingTemplate(draft) !== 'dialect') ? <Selector label={t('@yovoice.create.language')} value={draft.synthesisLanguage || 'auto'} options={['auto', 'zh', 'en', 'ja', 'ko', 'de', 'fr', 'es'].map(value => ({ value, label: value === 'auto' ? t('@yovoice.reference.auto') : t(`@yovoice.language.${value}`) }))} onChange={synthesisLanguage => change({ synthesisLanguage })} /> : null}
+    {ming ? <MingTags draft={draft} change={change} /> : null}
     <AdvancedSettings open={advanced} onOpenChange={setAdvanced}>
-      <ModelOptions draft={draft} family={ming ? 'ming3_tts' : plapre ? 'plapre' : audio8 ? 'audio8_tts' : fishLike ? 'fish_drama3' : 'breeze_tts'} change={change} />
+      <ModelOptions draft={draft} omit={ming ? mingControlKeys : []} family={ming ? 'ming3_tts' : plapre ? 'plapre' : audio8 ? 'audio8_tts' : fishLike ? 'fish_drama3' : 'breeze_tts'} change={change} />
       <SeedInput value={draft.seed} change={change} />
     </AdvancedSettings>
   </>;

@@ -52,6 +52,9 @@ Breeze TTS 2：--voice-mode design|clone、--voice-description TEXT（克隆时�
   --reference-text TEXT（克隆必填），采样参数用 --option，如 --option 'guidance_scale=3'。
 Ming 3.0 TTS：--voice-mode design|clone、--voice-description TEXT（仅设计）、
   --reference-text TEXT（克隆可选），--language auto|zh|en|ja|ko|de|fr|es。
+  控制方式用 --option 'template_name="ip|emotion|dialect|basic|freeform"'：ip 配 --speaker 灵小安（带情感的音色写成 灵风信_高兴），
+  emotion 配 --option 'emotion="happy"'，dialect 配 'dialect="cantonese|chuanyu"'，basic 配 speed / pitch / volume，
+  freeform 把 --voice-description 作为自由指令；正文里可插入 [Laughter] 等副语言标签。
 Audio8 TTS：--voice-mode design|clone（design 为默认音色），克隆需 --reference-text TEXT，语言自动识别。
 Qwen3-TTS Base：需要参考音频，--reference-text TEXT 可选；不提供原文时仅克隆音色。
 Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；VoiceDesign：--voice-description TEXT。
@@ -180,7 +183,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 			nativeOptions[key] = parsed
 			return nil
 		})
-		fs.StringVar(&d.Speaker, "speaker", "", "Qwen3 CustomVoice 或 Kokoro 内置音色 ID")
+		fs.StringVar(&d.Speaker, "speaker", "", "Qwen3 CustomVoice、Kokoro 或 Ming 3.0 TTS 内置音色 ID")
 		fs.StringVar(&d.Text, "text", "", "正文")
 		fs.StringVar(&textFile, "text-file", "", "UTF-8 文本文件")
 		fs.StringVar(&music.lyrics, "lyrics", "", "音乐模型：歌词，可带 [Verse] 等段落标记")
@@ -289,7 +292,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 				}
 				if (vox || kokoro || breeze || voxtral || plapre || drama || audio8) && f.Name == "language" || native && !omni && f.Name == "speed" || native && f.Name == "emotion-text" ||
 					!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
-					!(strings.Contains(d.ModelID, "customvoice") || kokoro || voxtral || plapre) && f.Name == "speaker" ||
+					!(strings.Contains(d.ModelID, "customvoice") || kokoro || voxtral || plapre || ming) && f.Name == "speaker" ||
 					!(omni || breeze || ming || plapre || drama || audio8) && f.Name == "voice-mode" ||
 					!(vox || omni || breeze || ming || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
 					!(vox || omni || qwen || breeze || ming || plapre || drama || audio8) && f.Name == "reference-text" {

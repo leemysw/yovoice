@@ -6055,5 +6055,107 @@
   },
   "@yovoice.history.snapshotHelp": {
     "defaultMessage": "生成時に保存された設定です。その後の作品やキャラクターの編集では変わりません。記録のないエンジンの既定値、ハードウェア、モデルファイルのバージョンを現在の設定から推測することはありません。"
+  },
+  "@yovoice.ming.control": {
+    "defaultMessage": "制御方法"
+  },
+  "@yovoice.ming.controlHelp": {
+    "defaultMessage": "1 回の生成で使える制御方法は 1 つです。"
+  },
+  "@yovoice.ming.control.voice_design": {
+    "defaultMessage": "声の説明"
+  },
+  "@yovoice.ming.control.ip": {
+    "defaultMessage": "内蔵ボイス"
+  },
+  "@yovoice.ming.control.emotion": {
+    "defaultMessage": "感情"
+  },
+  "@yovoice.ming.control.dialect": {
+    "defaultMessage": "方言"
+  },
+  "@yovoice.ming.control.basic": {
+    "defaultMessage": "話速 / 音高 / 音量"
+  },
+  "@yovoice.ming.control.freeform": {
+    "defaultMessage": "自由指示"
+  },
+  "@yovoice.ming.freeform": {
+    "defaultMessage": "自由指示"
+  },
+  "@yovoice.ming.freeformHelp": {
+    "defaultMessage": "口調、テンポ、表現を自由に書いてください。声質の説明は不要です。"
+  },
+  "@yovoice.ming.freeformPlaceholder": {
+    "defaultMessage": "例：子どもをそっと慰めるように、やさしく穏やかな声でおやすみ前のお話を読む。"
+  },
+  "@yovoice.ming.emotionVoices": {
+    "defaultMessage": "中国語（感情を選択）"
+  },
+  "@yovoice.ming.tagsHelp": {
+    "defaultMessage": "選ぶと本文の末尾に追加され、その位置で対応する音が入ります。"
+  },
+  "@yovoice.ming.emotion.happy": {
+    "defaultMessage": "喜び"
+  },
+  "@yovoice.ming.emotion.sad": {
+    "defaultMessage": "悲しみ"
+  },
+  "@yovoice.ming.emotion.angry": {
+    "defaultMessage": "怒り"
+  },
+  "@yovoice.ming.emotion.fearful": {
+    "defaultMessage": "恐れ"
+  },
+  "@yovoice.ming.emotion.disgusted": {
+    "defaultMessage": "嫌悪"
+  },
+  "@yovoice.ming.emotion.surprised": {
+    "defaultMessage": "驚き"
+  },
+  "@yovoice.ming.emotion.neutral": {
+    "defaultMessage": "ニュートラル"
+  },
+  "@yovoice.ming.dialect.cantonese": {
+    "defaultMessage": "広東語"
+  },
+  "@yovoice.ming.dialect.chuanyu": {
+    "defaultMessage": "四川方言"
+  },
+  "@yovoice.ming.speed.slow": {
+    "defaultMessage": "遅い"
+  },
+  "@yovoice.ming.speed.medium": {
+    "defaultMessage": "普通"
+  },
+  "@yovoice.ming.speed.fast": {
+    "defaultMessage": "速い"
+  },
+  "@yovoice.ming.level.low": {
+    "defaultMessage": "低い"
+  },
+  "@yovoice.ming.level.medium": {
+    "defaultMessage": "普通"
+  },
+  "@yovoice.ming.level.high": {
+    "defaultMessage": "高い"
+  },
+  "@yovoice.options.template_name": {
+    "defaultMessage": "制御方法"
+  },
+  "@yovoice.options.emotion": {
+    "defaultMessage": "感情"
+  },
+  "@yovoice.options.dialect": {
+    "defaultMessage": "方言"
+  },
+  "@yovoice.options.speed": {
+    "defaultMessage": "話速"
+  },
+  "@yovoice.options.pitch": {
+    "defaultMessage": "音高"
+  },
+  "@yovoice.options.volume": {
+    "defaultMessage": "音量"
   }
 }

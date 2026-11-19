@@ -6055,5 +6055,107 @@
   },
   "@yovoice.history.snapshotHelp": {
     "defaultMessage": "Esta configuração foi salva com a geração. Alterações posteriores no projeto ou personagem não a modificam. Padrões do motor, hardware e versões dos arquivos do modelo não registrados não são deduzidos das configurações atuais."
+  },
+  "@yovoice.ming.control": {
+    "defaultMessage": "Controle"
+  },
+  "@yovoice.ming.controlHelp": {
+    "defaultMessage": "Cada geração usa um único controle."
+  },
+  "@yovoice.ming.control.voice_design": {
+    "defaultMessage": "Descrição da voz"
+  },
+  "@yovoice.ming.control.ip": {
+    "defaultMessage": "Voz integrada"
+  },
+  "@yovoice.ming.control.emotion": {
+    "defaultMessage": "Emoção"
+  },
+  "@yovoice.ming.control.dialect": {
+    "defaultMessage": "Dialeto"
+  },
+  "@yovoice.ming.control.basic": {
+    "defaultMessage": "Velocidade / tom / volume"
+  },
+  "@yovoice.ming.control.freeform": {
+    "defaultMessage": "Instrução livre"
+  },
+  "@yovoice.ming.freeform": {
+    "defaultMessage": "Instrução livre"
+  },
+  "@yovoice.ming.freeformHelp": {
+    "defaultMessage": "Descreva o tom, o ritmo e a expressão com suas palavras; não é preciso descrever a voz."
+  },
+  "@yovoice.ming.freeformPlaceholder": {
+    "defaultMessage": "Por exemplo: conte uma história de ninar com voz suave e calma, como se consolasse uma criança."
+  },
+  "@yovoice.ming.emotionVoices": {
+    "defaultMessage": "Chinês (com emoções)"
+  },
+  "@yovoice.ming.tagsHelp": {
+    "defaultMessage": "Escolha um para adicioná-lo ao fim do texto; a voz fará esse som ali."
+  },
+  "@yovoice.ming.emotion.happy": {
+    "defaultMessage": "Alegre"
+  },
+  "@yovoice.ming.emotion.sad": {
+    "defaultMessage": "Triste"
+  },
+  "@yovoice.ming.emotion.angry": {
+    "defaultMessage": "Irritado"
+  },
+  "@yovoice.ming.emotion.fearful": {
+    "defaultMessage": "Com medo"
+  },
+  "@yovoice.ming.emotion.disgusted": {
+    "defaultMessage": "Enojado"
+  },
+  "@yovoice.ming.emotion.surprised": {
+    "defaultMessage": "Surpreso"
+  },
+  "@yovoice.ming.emotion.neutral": {
+    "defaultMessage": "Neutro"
+  },
+  "@yovoice.ming.dialect.cantonese": {
+    "defaultMessage": "Cantonês"
+  },
+  "@yovoice.ming.dialect.chuanyu": {
+    "defaultMessage": "Dialeto de Sichuan"
+  },
+  "@yovoice.ming.speed.slow": {
+    "defaultMessage": "Lenta"
+  },
+  "@yovoice.ming.speed.medium": {
+    "defaultMessage": "Média"
+  },
+  "@yovoice.ming.speed.fast": {
+    "defaultMessage": "Rápida"
+  },
+  "@yovoice.ming.level.low": {
+    "defaultMessage": "Grave"
+  },
+  "@yovoice.ming.level.medium": {
+    "defaultMessage": "Médio"
+  },
+  "@yovoice.ming.level.high": {
+    "defaultMessage": "Agudo"
+  },
+  "@yovoice.options.template_name": {
+    "defaultMessage": "Controle"
+  },
+  "@yovoice.options.emotion": {
+    "defaultMessage": "Emoção"
+  },
+  "@yovoice.options.dialect": {
+    "defaultMessage": "Dialeto"
+  },
+  "@yovoice.options.speed": {
+    "defaultMessage": "Velocidade"
+  },
+  "@yovoice.options.pitch": {
+    "defaultMessage": "Tom"
+  },
+  "@yovoice.options.volume": {
+    "defaultMessage": "Volume"
   }
 }
