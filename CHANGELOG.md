@@ -6,6 +6,7 @@
 
 ### English
 
+- Fix an error that could drop characters when typing quickly in a draft.
 - Fix a Linux desktop freeze when opening the Model menu or returning to the workbench from Settings on WebKitGTK 2.50.
 - Fix the first-run tour spotlight on Linux so its rounded highlight stays on the intended control without a large white wedge.
 - Windows: when GitHub rate-limits update checks, Check for updates now says so and when to try again, instead of reporting a network problem.
@@ -20,6 +21,7 @@
 - macOS: switching the interface language now relabels the whole native menu bar right away (Hide, Edit, Window and their items), without restarting the app.
 
 ### 简体中文
+- 修复快速输入作品正文时可能报错并丢字的问题。
 - 修复 Linux 桌面版在 WebKitGTK 2.50 上打开模型菜单或从设置返回工作台时卡死的问题。
 - 修复 Linux 首次使用引导的聚光遮罩，让圆角高亮准确覆盖目标控件，不再出现大片白色楔形。
 - Windows：GitHub 限制更新检查次数时，“检查更新”会说明原因和可重试的时间，不再误报为无法连接网络。
