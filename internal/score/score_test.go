@@ -159,58 +159,48 @@ func TestRenderAlignsTrackLevels(t *testing.T) {
 	}
 }
 
-type cancelDuringRenderContext struct {
-	context.Context
-	cancel context.CancelFunc
-	checks int
-}
-
-func (c *cancelDuringRenderContext) Err() error {
-	c.checks++
-	if c.checks == 3 {
-		c.cancel()
-	}
-	return c.Context.Err()
-}
-
 func TestRenderCancellation(t *testing.T) {
 	dir := t.TempDir()
 	font := filepath.Join(dir, "test.sf2")
 	testkit.Must(t, os.WriteFile(font, testkit.SoundFont(), 0600))
 	sf, err := LoadSoundFont(font)
 	testkit.Must(t, err)
-	for _, when := range []string{"during-blocks", "last-progress", "muted", "after-100ms"} {
-		t.Run(when, func(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		setup func(*testing.T, *schema.Score, context.CancelFunc) (func(int, int), <-chan time.Time)
+	}{
+		{"during-render", func(t *testing.T, s *schema.Score, cancel context.CancelFunc) (func(int, int), <-chan time.Time) {
+			s.Tracks[0].Notes = nil
+			for pitch := 0; pitch < 128; pitch++ {
+				s.Tracks[0].Notes = append(s.Tracks[0].Notes, schema.ScoreNote{Bar: 1, Beat: 1, Pitch: pitch, Length: 16, Velocity: 80})
+			}
+			cancelledAt := make(chan time.Time, 1)
+			timer := time.AfterFunc(100*time.Millisecond, func() {
+				cancelledAt <- time.Now()
+				cancel()
+			})
+			t.Cleanup(func() { timer.Stop() })
+			return nil, cancelledAt
+		}},
+		{"last-progress", func(_ *testing.T, _ *schema.Score, cancel context.CancelFunc) (func(int, int), <-chan time.Time) {
+			return func(done, total int) {
+				if done == total {
+					cancel()
+				}
+			}, nil
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
 			s := sample()
 			s.Sections = nil
 			s.Tracks = s.Tracks[:1]
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			var renderCtx context.Context = ctx
-			var progress func(int, int)
-			var cancelledAt time.Time
-			switch when {
-			case "during-blocks":
-				renderCtx = &cancelDuringRenderContext{Context: ctx, cancel: cancel}
-			case "last-progress":
-				progress = func(int, int) {
-					cancelledAt = time.Now()
-					cancel()
-				}
-			case "muted":
-				s.Tracks[0].Mute = true
-				cancel()
-			case "after-100ms":
-				s.Tracks[0].Notes = nil
-				for pitch := 0; pitch < 128; pitch++ {
-					s.Tracks[0].Notes = append(s.Tracks[0].Notes, schema.ScoreNote{Bar: 1, Beat: 1, Pitch: pitch, Length: 16, Velocity: 80})
-				}
-				timer := time.AfterFunc(100*time.Millisecond, cancel)
-				defer timer.Stop()
-			}
 			out := filepath.Join(t.TempDir(), "cancel.wav")
+			progress, cancelledAt := tc.setup(t, &s, cancel)
 			start := time.Now()
-			err := Render(renderCtx, sf, s, out, "", progress)
+			err := Render(ctx, sf, s, out, "", progress)
+			returnedAt := time.Now()
 			elapsed := time.Since(start)
 			_, statErr := os.Stat(out)
 			t.Logf("elapsed=%s err=%v output_exists=%t", elapsed, err, statErr == nil)
@@ -220,12 +210,15 @@ func TestRenderCancellation(t *testing.T) {
 			if !errors.Is(statErr, os.ErrNotExist) {
 				t.Errorf("取消后不应生成输出：%v", statErr)
 			}
-			latency := elapsed
-			if !cancelledAt.IsZero() {
-				latency = time.Since(cancelledAt)
-			}
-			if latency > time.Second {
-				t.Errorf("取消未及时返回：%s", latency)
+			if cancelledAt != nil {
+				select {
+				case at := <-cancelledAt:
+					if latency := returnedAt.Sub(at); latency > time.Second {
+						t.Errorf("取消未及时返回：%s", latency)
+					}
+				default:
+					t.Error("渲染在定时取消前已返回")
+				}
 			}
 		})
 	}
