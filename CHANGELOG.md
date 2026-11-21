@@ -6,6 +6,8 @@
 
 ### English
 
+- Fix the microphone staying active after rapidly starting a recording, cancelling microphone access, or leaving the page while access is pending.
+
 - Rapidly switching pages no longer reports an error when a visual transition is interrupted.
 - Fix an error that could drop characters when typing quickly in a draft.
 - Fix a Linux desktop freeze when opening the Model menu or returning to the workbench from Settings on WebKitGTK 2.50.
@@ -23,6 +25,7 @@
 - Settings > Assets: table columns now widen to fit their content, so headers, sort icons, type tags and status labels are no longer cut off in any language.
 
 ### 简体中文
+- 修复快速重复开始录音、取消麦克风授权或等待授权时离开页面后，麦克风仍保持开启的问题。
 - 快速切换页面时，切换动画被打断不再报错。
 - 修复快速输入作品正文时可能报错并丢字的问题。
 - 修复 Linux 桌面版在 WebKitGTK 2.50 上打开模型菜单或从设置返回工作台时卡死的问题。

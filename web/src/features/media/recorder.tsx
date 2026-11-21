@@ -8,39 +8,70 @@ import { formatTime } from '../../shared/workbench';
 // cancel 丢弃本次录音；到 limit 秒自动结束。组件卸载时释放麦克风。
 export function useRecorder(limit: number) {
   const recorder = useRef<MediaRecorder | null>(null);
+  const pending = useRef<symbol | null>(null);
+  const mounted = useRef(true);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [starting, setStarting] = useState(false);
   const release = () => {
     clearTimeout(timer.current);
     recorder.current?.stream.getTracks().forEach(t => t.stop());
+    recorder.current = null;
     setStream(null);
   };
   const cancel = () => {
+    pending.current = null;
+    setStarting(false);
     const current = recorder.current;
     if (current) { current.onstop = null; if (current.state === 'recording') current.stop(); }
     release();
   };
-  useEffect(() => () => {
-    clearTimeout(timer.current);
-    const current = recorder.current;
-    if (current?.state === 'recording') { current.onstop = null; current.stop(); }
-    current?.stream.getTracks().forEach(t => t.stop());
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      pending.current = null;
+      clearTimeout(timer.current);
+      const current = recorder.current;
+      if (current) { current.onstop = null; if (current.state === 'recording') current.stop(); }
+      current?.stream.getTracks().forEach(t => t.stop());
+      recorder.current = null;
+    };
   }, []);
   // 麦克风不可用时抛出原始错误，由 micError 转成提示。
   async function start(onStop: (audio: Blob) => void, options?: MediaRecorderOptions) {
-    const media = await navigator.mediaDevices.getUserMedia({ audio: true });
-    let instance: MediaRecorder;
-    try { instance = new MediaRecorder(media, options); } catch (e) { media.getTracks().forEach(t => t.stop()); throw e; }
-    recorder.current = instance;
-    const chunks: Blob[] = [];
-    instance.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
-    instance.onstop = () => { release(); onStop(new Blob(chunks, { type: instance.mimeType })); };
-    instance.start();
-    setStream(media);
-    timer.current = setTimeout(() => { if (instance.state === 'recording') instance.stop(); }, limit * 1000);
+    if (!mounted.current || pending.current || recorder.current) return;
+    const request = Symbol();
+    pending.current = request;
+    setStarting(true);
+    let media: MediaStream | undefined;
+    try {
+      media = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!mounted.current || pending.current !== request) { media.getTracks().forEach(t => t.stop()); return; }
+      const instance = new MediaRecorder(media, options);
+      const chunks: Blob[] = [];
+      instance.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+      instance.onstop = () => { release(); onStop(new Blob(chunks, { type: instance.mimeType })); };
+      instance.start();
+      recorder.current = instance;
+      setStream(media);
+      timer.current = setTimeout(() => { if (instance.state === 'recording') instance.stop(); }, limit * 1000);
+    } catch (e) {
+      media?.getTracks().forEach(t => t.stop());
+      throw e;
+    } finally {
+      if (pending.current === request) {
+        pending.current = null;
+        if (mounted.current) setStarting(false);
+      }
+    }
   }
-  const stop = () => { if (recorder.current?.state === 'recording') recorder.current.stop(); };
-  return { stream, recording: stream !== null, start, stop, cancel };
+  const stop = () => {
+    pending.current = null;
+    setStarting(false);
+    if (recorder.current?.state === 'recording') recorder.current.stop();
+  };
+  return { stream, starting, recording: stream !== null, start, stop, cancel };
 }
 
 // 打开麦克风失败时的提示：未授权、没有麦克风或其他原因。
