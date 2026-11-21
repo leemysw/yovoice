@@ -8,13 +8,13 @@ import { noticeMessage } from '../../shared/lib/call-error';
 import { type Character, type Draft } from '../../shared/workbench';
 
 // 应用声音必须明确作品和角色，不能改写隐藏的当前草稿。
-export function VoiceTarget({ voice, drafts, initial, speakerId, apply, close }: {
-  voice: Character; drafts: Draft[]; initial?: string; speakerId?: string;
+export function VoiceTarget({ voice, drafts, apply, close }: {
+  voice: Character; drafts: Draft[];
   apply: (voice: Character, draftId: string, speakerId: string) => Promise<void>; close: () => void;
 }) {
   const t = useTranslator();
-  const [target, setTarget] = useState(initial ?? 'new');
-  const [speaker, setSpeaker] = useState(speakerId ?? '');
+  const [target, setTarget] = useState('new');
+  const [speaker, setSpeaker] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const draft = drafts.find(d => d.id === target);
