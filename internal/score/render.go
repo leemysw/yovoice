@@ -96,6 +96,9 @@ func Render(ctx context.Context, sf *meltysynth.SoundFont, s schema.Score, outpu
 			}
 		}
 		if stems != "" {
+			if e = ctx.Err(); e != nil {
+				return e
+			}
 			if e = WriteWAV(filepath.Join(stems, stemName(i, t)), left, right); e != nil {
 				return e
 			}
@@ -109,6 +112,9 @@ func Render(ctx context.Context, sf *meltysynth.SoundFont, s schema.Score, outpu
 		}
 	}
 	limit(mixL, mixR)
+	if e := ctx.Err(); e != nil {
+		return e
+	}
 	return WriteWAV(output, mixL, mixR)
 }
 
@@ -144,10 +150,8 @@ func renderTrack(ctx context.Context, sf *meltysynth.SoundFont, s schema.Score, 
 	left, right := make([]float32, frames), make([]float32, frames)
 	next := 0
 	for start := 0; start < frames; start += block {
-		if start%(SampleRate*4) == 0 {
-			if e := ctx.Err(); e != nil {
-				return nil, nil, e
-			}
+		if e := ctx.Err(); e != nil {
+			return nil, nil, e
 		}
 		end := min(start+block, frames)
 		if len(t.Dynamics) > 0 {
