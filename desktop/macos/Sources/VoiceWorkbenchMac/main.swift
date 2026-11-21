@@ -197,14 +197,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
 
     private func makeMenu() {
-        let menu = NSMenu()
-        let appItem = NSMenuItem()
-        menu.addItem(appItem)
-        appItem.submenu = NSMenu()
-        let aboutItem = appItem.submenu?.addItem(withTitle: HostL10n.t("menu.about"), action: #selector(showAbout), keyEquivalent: "")
-        aboutItem?.target = self
         let updateItem = NSMenuItem(title: HostL10n.t("menu.checkUpdates"), action: nil, keyEquivalent: "")
-        appItem.submenu?.addItem(updateItem)
         updater = AppUpdater(menuItem: updateItem, root: root)
         updater?.onChange = { [weak self] snapshot in
             guard let self, self.web != nil else { return }
@@ -217,32 +210,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             web.evaluateJavaScript("window.dispatchEvent(new Event('workbench-show-update'))", completionHandler: nil)
             return true
         }
-        appItem.submenu?.addItem(.separator())
-        // 隐藏（⌘H）、隐藏其他（⌥⌘H）与全部显示，和系统里其他应用一致。
-        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.hide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
-        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.hideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h").keyEquivalentModifierMask = [.command, .option]
-        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.showAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
-        appItem.submenu?.addItem(.separator())
-        appItem.submenu?.addItem(withTitle: HostL10n.t("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        // 编辑菜单：WKWebView 里的撤销、重做与剪贴板快捷键都经菜单项转给网页的输入框；网页自己处理（preventDefault）的按键不会走到这里。
-        // 键位写大写 Z 即 ⇧⌘Z。
-        let edit = NSMenuItem()
-        menu.addItem(edit)
-        edit.submenu = NSMenu(title: HostL10n.t("menu.edit"))
-        for (title, action, key) in [(HostL10n.t("menu.undo"), "undo:", "z"), (HostL10n.t("menu.redo"), "redo:", "Z"), ("", "", ""), (HostL10n.t("menu.cut"), "cut:", "x"), (HostL10n.t("menu.copy"), "copy:", "c"), (HostL10n.t("menu.paste"), "paste:", "v"), (HostL10n.t("menu.selectAll"), "selectAll:", "a")] {
-            if action.isEmpty { edit.submenu?.addItem(.separator()); continue }
-            edit.submenu?.addItem(withTitle: title, action: Selector(action), keyEquivalent: key)
-        }
-        // 窗口菜单：没有单独的“文件”“显示”菜单，关闭窗口（⌘W）与全屏（⌃⌘F）也放在这里；关闭后点程序坞图标重新打开。
-        let windowItem = NSMenuItem()
-        menu.addItem(windowItem)
-        windowItem.submenu = NSMenu(title: HostL10n.t("menu.window"))
-        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.minimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
-        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.zoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
-        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.fullScreen"), action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f").keyEquivalentModifierMask = [.command, .control]
-        windowItem.submenu?.addItem(.separator())
-        windowItem.submenu?.addItem(withTitle: HostL10n.t("menu.close"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
-        NSApp.windowsMenu = windowItem.submenu
+        let menu = HostMenu.make(aboutTarget: self, aboutAction: #selector(showAbout), updateItem: updateItem)
+        NSApp.windowsMenu = menu.items.last?.submenu
         NSApp.mainMenu = menu
     }
 
@@ -903,12 +872,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         }
     }
     private func refreshHostMenus() {
-        guard let menu = NSApp.mainMenu else { return }
-        if let appMenu = menu.item(at: 0)?.submenu {
-            appMenu.item(at: 0)?.title = HostL10n.t("menu.about")
-            if appMenu.numberOfItems > 1 { appMenu.item(at: 1)?.title = HostL10n.t("menu.checkUpdates") }
-            appMenu.items.last?.title = HostL10n.t("menu.quit")
-        }
+        if let menu = NSApp.mainMenu { HostMenu.localize(menu) }
         updater?.applyLocaleTitles()
     }
     private func failure(_ message: String) -> NSError { NSError(domain: "VoiceWorkbench", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
