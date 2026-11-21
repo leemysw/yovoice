@@ -40,6 +40,10 @@ enum HostL10n {
         return String(format: template, locale: Locale(identifier: locale == .en ? "en_US" : "zh_CN"), arguments: args)
     }
 
+    nonisolated static func has(_ key: String) -> Bool {
+        table[.en]?[key] != nil
+    }
+
     nonisolated private static func readStoredUiLocale() -> HostUiLocale? {
         let root = DataRoot.resolve()
         // 服务把界面语言写在 host-preferences.json；尚未被新版服务打开过的数据目录仍读旧版 state.json。
