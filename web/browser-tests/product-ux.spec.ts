@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { seedState } from './seed';
 import { emptyState } from '../src/shared/workbench';
+import catalog from '../../internal/catalog/catalog.json' with { type: 'json' };
+
+declare global {
+  interface Window {
+    __localApiSaves: { enabled: boolean; port: number }[];
+    __localApiOverlapping: boolean;
+  }
+}
 
 test('新建五种作品、取消导入、卡片菜单与重命名独立保存', async ({ page }, testInfo) => {
   await page.goto('/');
@@ -55,6 +63,50 @@ test('新建五种作品、取消导入、卡片菜单与重命名独立保存',
   await expect(page.getByLabel('第 1 句台词')).toHaveValue('第一句。');
 });
 
+test('本机接口：编辑端口后单击开关即可启用', async ({ page }) => {
+  const state = emptyState();
+  state.preferences = { ...state.preferences, introSeen: true, tourSeen: true };
+  await page.addInitScript(({ state, catalog }) => {
+    let receive: (event: { data: unknown }) => void;
+    let status = { enabled: false, port: 8080, token: 'test-token', running: false };
+    let saving = false;
+    window.__localApiSaves = [];
+    window.__localApiOverlapping = false;
+    Object.defineProperty(window, 'chrome', { value: { webview: {
+      addEventListener: (_name: string, listener: typeof receive) => { receive = listener; },
+      postMessage: ({ id, method, data }: { id: string; method: string; data: { enabled: boolean; port: number } }) => {
+        if (method === 'localApi.save') {
+          window.__localApiSaves.push(data);
+          window.__localApiOverlapping ||= saving;
+          saving = true;
+        }
+        setTimeout(() => {
+          let result: unknown = true;
+          if (method === 'state.get') result = { state, catalog: catalog.models, engine: { version: '', minimum: '' }, assistant: { available: false } };
+          if (method === 'localApi.save') { status = { ...status, ...data, running: data.enabled }; saving = false; }
+          if (method.startsWith('localApi.')) result = status;
+          receive({ data: { id, result } });
+        }, method === 'localApi.save' ? 200 : 0);
+      },
+    } } });
+  }, { state, catalog });
+  await page.goto('/');
+  await page.getByTestId('nav-settings').click();
+  const port = page.getByRole('textbox', { name: '端口', exact: true });
+  await port.fill('18081');
+  await page.getByRole('switch', { name: '启用本机接口' }).click();
+  await expect(page.getByTestId('local-api-status')).toHaveText('运行中：http://127.0.0.1:18081');
+  await expect(port).toHaveValue('18081');
+  expect(await page.evaluate(() => window.__localApiSaves)).toEqual([
+    { enabled: false, port: 18081 }, { enabled: true, port: 18081 },
+  ]);
+  expect(await page.evaluate(() => window.__localApiOverlapping)).toBe(false);
+  await port.fill('18082');
+  await port.press('Enter');
+  await expect(page.getByTestId('local-api-status')).toHaveText('运行中：http://127.0.0.1:18082');
+  expect(await page.evaluate(() => window.__localApiSaves)).toHaveLength(3);
+});
+
 test('本机接口：开关、端口与令牌在设置 › 通用中管理', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByTestId('nav-settings').click();
@@ -66,6 +118,10 @@ test('本机接口：开关、端口与令牌在设置 › 通用中管理', asy
   await page.getByRole('textbox', { name: '端口' }).press('Enter');
   await expect(page.getByText('端口需在 1024–65535 之间。')).toBeVisible();
   await expect(page.getByRole('textbox', { name: '端口' })).toHaveValue('8080');
+  await page.getByRole('textbox', { name: '端口' }).fill('');
+  await page.getByRole('textbox', { name: '端口' }).press('Enter');
+  await expect(page.getByRole('textbox', { name: '端口' })).toHaveValue('8080');
+  await expect(status).toHaveText('运行中：http://127.0.0.1:8080');
   await page.getByRole('textbox', { name: '端口' }).fill('18080');
   await page.getByRole('textbox', { name: '端口' }).press('Enter');
   await expect(status).toHaveText('运行中：http://127.0.0.1:18080');

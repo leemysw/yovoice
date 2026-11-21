@@ -6,6 +6,7 @@
 
 ### English
 
+- Fix enabling the Local API immediately after editing its port: one click now starts the listener on the new port.
 - CLI model downloads now use the saved download source by default; failed downloads no longer change it, and explicit sources are saved only after success.
 - Score stem export now refuses existing stem files before writing any audio, instead of silently overwriting them.
 - Exporting large scores to MIDI is faster, with identical output.
@@ -72,6 +73,7 @@
 
 ### 简体中文
 
+- 修复修改本机接口端口后直接点击启用无效的问题，现在单击即可在新端口启动接口。
 - 加快大型乐谱导出 MIDI 的速度，导出内容保持不变。
 - 可以从播放器或版本菜单把歌曲分享到 yovoice 社区：在浏览器里登录，填写标题、标签和使用许可后连同对齐过的歌词提交审核，参考音色不会上传。歌曲生成好后 Ocho 会提示分享；设置 › 社区里可以查看分享过的作品和审核状态。
 - 歌曲封面按这首歌自己的响度起伏来画，和社区页一致；导出的 FLAC、M4A 和作品库唱片封套都用这张封面。
