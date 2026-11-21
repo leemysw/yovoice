@@ -59,12 +59,12 @@ export function SpeakerAvatar({ seed }: { seed: string }) {
   return <VStack className="subtitle-avatar" gap={0} aria-hidden="true"><Suspense fallback={null}><SeededAvatar seed={seed} /></Suspense></VStack>;
 }
 
-export function SubtitleImport({ onImport, onError, trigger }: { trigger?: (open: () => void, loading: boolean) => ReactNode; onImport: (name: string, document: SubtitleDocument) => Promise<void>; onError: (error: string) => void }) {
+export function SubtitleImport({ onImport, onError }: { onImport: (name: string, document: SubtitleDocument) => Promise<void>; onError: (error: string) => void }) {
   const t = useTranslator();
   const input = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   return <>
-    {trigger ? trigger(() => input.current?.click(), loading) : <Button size="sm" variant="secondary" label={t('@yovoice.subtitle.import')} isLoading={loading} onClick={() => input.current?.click()} />}
+    <Button size="sm" variant="secondary" label={t('@yovoice.subtitle.import')} isLoading={loading} onClick={() => input.current?.click()} />
     <input ref={input} hidden type="file" accept={subtitleAccept} aria-label={t('@yovoice.subtitle.file')} onChange={async event => {
       const file = event.target.files?.[0]; event.target.value = '';
       if (!file) return;
