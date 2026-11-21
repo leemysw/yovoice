@@ -215,17 +215,20 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "Longueur maximale de génération"
   },
-  "@yovoice.create.mode.reference": {
+  "@yovoice.create.referencePerformance": {
     "defaultMessage": "Interprétation de référence"
   },
+  "@yovoice.create.mode.reference": {
+    "defaultMessage": "Imiter"
+  },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Suivre la voix"
+    "defaultMessage": "Auto"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Guidage par texte"
+    "defaultMessage": "Texte"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Mélange d’émotions"
+    "defaultMessage": "Émotion"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Modèle"

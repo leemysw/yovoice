@@ -215,17 +215,20 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "Max. Generierungslänge"
   },
-  "@yovoice.create.mode.reference": {
+  "@yovoice.create.referencePerformance": {
     "defaultMessage": "Referenz-Darbietung"
   },
+  "@yovoice.create.mode.reference": {
+    "defaultMessage": "Imitieren"
+  },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Stimme folgen"
+    "defaultMessage": "Auto"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Textsteuerung"
+    "defaultMessage": "Text"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Emotionsmix"
+    "defaultMessage": "Emotion"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Modell"
@@ -1608,7 +1611,7 @@
     "defaultMessage": "Neues Projekt"
   },
   "@yovoice.project.text": {
-    "defaultMessage": "Sprachgenerierung"
+    "defaultMessage": "Sprachausgabe"
   },
   "@yovoice.project.story": {
     "defaultMessage": "Geschichte erzählen"

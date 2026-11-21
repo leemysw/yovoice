@@ -215,17 +215,20 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "Макс. длина генерации"
   },
-  "@yovoice.create.mode.reference": {
+  "@yovoice.create.referencePerformance": {
     "defaultMessage": "По референсу исполнения"
   },
+  "@yovoice.create.mode.reference": {
+    "defaultMessage": "Повтор"
+  },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Как в голосе"
+    "defaultMessage": "Авто"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Текстовое описание"
+    "defaultMessage": "Текст"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Смесь эмоций"
+    "defaultMessage": "Эмоция"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Модель"
