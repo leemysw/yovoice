@@ -110,7 +110,7 @@ public sealed class AppUpdater : IDisposable
                 if (showResult) AppDialog.Show(owner, HostL10n.T("暂无可用更新", "No Updates Available"), HostL10n.T("GitHub 上尚无可用的正式版本。", "There is no stable release on GitHub yet."));
                 return;
             }
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode) throw new IOException(UpdateRelease.ServiceError(response, DateTimeOffset.UtcNow));
             var release = JsonSerializer.Deserialize<UpdateRelease>(await response.Content.ReadAsStringAsync(stopped.Token), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new IOException(HostL10n.T("版本信息无效。", "The release information is invalid."));
             var asset = release.Package(current);
             // 版本号已校验，过时版本的安装包不再保留。
