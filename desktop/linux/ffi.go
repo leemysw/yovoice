@@ -105,6 +105,7 @@ var (
 	webkitSettingsSetEnableDeveloperExtras            func(settings uintptr, enable bool)
 	webkitSettingsSetEnableMediaStream                func(settings uintptr, enable bool)
 	webkitSettingsSetMediaPlaybackRequiresUserGesture func(settings uintptr, required bool)
+	disableBrokenAnchorPositioning                    func(settings uintptr)
 	webkitJavascriptResultGetJSValue                  func(result uintptr) uintptr
 	jscValueToString                                  func(value uintptr) uintptr
 	webkitNavigationPolicyDecisionGetNavigationAction func(decision uintptr) uintptr
@@ -282,6 +283,7 @@ func loadLibraries() error {
 	}); err != nil {
 		return err
 	}
+	disableBrokenAnchorPositioning = webKitAnchorWorkaround(webkit)
 	// 2.40 起以 evaluate_javascript 取代 run_javascript；两者至少有一个。
 	bind(webkit, &webkitWebViewEvaluateJavascript, "webkit_web_view_evaluate_javascript")
 	if webkitWebViewEvaluateJavascript == nil && !bind(webkit, &webkitWebViewRunJavascript, "webkit_web_view_run_javascript") {
@@ -293,6 +295,42 @@ func loadLibraries() error {
 	return bindAll(soup, []binding{
 		{&soupCookieNew, "soup_cookie_new"}, {&soupCookieSetHTTPOnly, "soup_cookie_set_http_only"}, {&soupCookieFree, "soup_cookie_free"},
 	})
+}
+
+func webKitAnchorWorkaround(library uintptr) func(uintptr) {
+	var major, minor func() uint32
+	// 2.50 的 position-try 在隐藏页面子树时可能无限重算；2.52 已修复（WebKit #299742）。
+	// 只在受影响的 WebKitGTK 系列禁用 CSS 锚点，让 Astryx 沿用已有的 Floating UI 定位。
+	if !bind(library, &major, "webkit_get_major_version") || !bind(library, &minor, "webkit_get_minor_version") || major() != 2 || minor() != 50 {
+		return nil
+	}
+	var getFeatures func() uintptr
+	var unrefFeatures func(uintptr)
+	var length func(uintptr) uintptr
+	var featureAt func(list, index uintptr) uintptr
+	var identifier func(uintptr) string
+	var setEnabled func(settings, feature uintptr, enabled bool)
+	if err := bindAll(library, []binding{
+		{&getFeatures, "webkit_settings_get_all_features"},
+		{&unrefFeatures, "webkit_feature_list_unref"},
+		{&length, "webkit_feature_list_get_length"},
+		{&featureAt, "webkit_feature_list_get"},
+		{&identifier, "webkit_feature_get_identifier"},
+		{&setEnabled, "webkit_settings_set_feature_enabled"},
+	}); err != nil {
+		return nil
+	}
+	return func(settings uintptr) {
+		list := getFeatures()
+		defer unrefFeatures(list)
+		for i, n := uintptr(0), length(list); i < n; i++ {
+			feature := featureAt(list, i)
+			if identifier(feature) == "CSSAnchorPositioning" {
+				setEnabled(settings, feature, false)
+				return
+			}
+		}
+	}
 }
 
 // goString 复制 C 字符串。
