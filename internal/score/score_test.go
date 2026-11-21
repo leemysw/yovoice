@@ -159,6 +159,39 @@ func TestRenderAlignsTrackLevels(t *testing.T) {
 	}
 }
 
+func TestRenderRefusesExistingStems(t *testing.T) {
+	for _, kind := range []string{"file", "directory", "dangling-symlink", "invalid-parent"} {
+		t.Run(kind, func(t *testing.T) {
+			dir := t.TempDir()
+			stem := filepath.Join(dir, "02-drums.wav")
+			switch kind {
+			case "file":
+				testkit.Must(t, os.WriteFile(stem, []byte("original"), 0600))
+			case "directory":
+				testkit.Must(t, os.Mkdir(stem, 0700))
+			case "dangling-symlink":
+				testkit.Must(t, os.Symlink(filepath.Join(dir, "missing"), stem))
+			case "invalid-parent":
+				parent := filepath.Join(dir, "not-a-directory")
+				testkit.Must(t, os.WriteFile(parent, nil, 0600))
+				dir = parent
+			}
+			out := filepath.Join(t.TempDir(), "mix.wav")
+			calls := 0
+			err := Render(context.Background(), nil, sample(), out, dir, func(int, int) { calls++ })
+			if err == nil || calls != 0 {
+				t.Fatalf("应在渲染前拒绝已有分轨或无效路径：err=%v calls=%d", err, calls)
+			}
+			if _, err := os.Lstat(out); !os.IsNotExist(err) {
+				t.Fatalf("不应生成混音：%v", err)
+			}
+			if _, err := os.Lstat(filepath.Join(dir, "01-lead.wav")); err == nil {
+				t.Fatal("不应生成较早声部的分轨")
+			}
+		})
+	}
+}
+
 func TestRenderCancellation(t *testing.T) {
 	dir := t.TempDir()
 	font := filepath.Join(dir, "test.sf2")
