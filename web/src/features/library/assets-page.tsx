@@ -125,7 +125,7 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
       <small className="asset-name" title={a.projectTitle ? `${a.name} · ${a.projectTitle}` : a.name}>{a.name}</small>
     </HStack> },
     { key: 'kind', header: t('@yovoice.assets.col.kind'), width: pixel(96), align: 'center', renderCell: ({ asset: a }) => <Token size="sm" color={a.kind === 'voice' ? 'teal' : a.kind === 'image' ? 'purple' : a.kind === 'material' ? 'orange' : 'default'} label={kindLabel(a.kind)} /> },
-    { key: 'duration', header: t('@yovoice.assets.col.duration'), width: pixel(64), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{a.duration ? formatTime(a.duration) : '—'}</small> },
+    { key: 'duration', header: t('@yovoice.assets.col.duration'), width: pixel(92), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{a.duration ? formatTime(a.duration) : '—'}</small> },
     { key: 'bytes', header: t('@yovoice.assets.col.size'), width: pixel(84), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{a.bytes < 0 ? '—' : formatBytes(a.bytes)}</small> },
     { key: 'createdAt', header: t('@yovoice.assets.col.created'), width: pixel(128), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{time(a.createdAt)}</small> },
     // 状态只写短词，引用它的角色或作品放进悬停提示，避免撑宽表格。
