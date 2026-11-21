@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { CodeBlock } from '@astryxdesign/core/CodeBlock';
 import { StatusDot } from '@astryxdesign/core/StatusDot';
@@ -21,6 +21,8 @@ export function LocalAPISettings({ run }: { run: (task: () => Promise<unknown>) 
   const [loadError, setLoadError] = useState<unknown>(null);
   const [port, setPort] = useState('');
   const [saving, setSaving] = useState(false);
+  const [toggling, setToggling] = useState(false);
+  const pending = useRef<Promise<void> | null>(null);
   const { copy, isCopied } = useClipboard({ announce: t('@yovoice.settings.localApiCopied') });
   const apply = (next: LocalAPIStatus) => { setStatus(next); setPort(String(next.port)); };
   const load = () => call<LocalAPIStatus>('localApi.get').then(next => { setStatus(next); setPort(String(next.port)); setLoadError(null); }).catch(setLoadError);
@@ -32,20 +34,32 @@ export function LocalAPISettings({ run }: { run: (task: () => Promise<unknown>) 
       </SettingsRow>
     </SettingsGroup> : null;
   }
-  const save = (method: string, data: unknown = {}) => run(async () => {
+  const save = (method: string, data: unknown = {}) => {
     setSaving(true);
-    try { apply(await call<LocalAPIStatus>(method, data)); }
-    catch (error) { setPort(String(status.port)); throw error; }
-    finally { setSaving(false); }
-  });
-  const savePort = () => { if (port.trim() !== String(status.port)) save('localApi.save', { enabled: status.enabled, port: Number(port.trim()) }); };
+    const task = (pending.current ?? Promise.resolve()).catch(() => {}).then(async () => {
+      try { apply(await call<LocalAPIStatus>(method, data)); }
+      catch (error) { setPort(String(status.port)); throw error; }
+    });
+    pending.current = task;
+    run(async () => {
+      try { await task; }
+      finally {
+        if (pending.current === task) {
+          pending.current = null;
+          setSaving(false);
+          setToggling(false);
+        }
+      }
+    });
+  };
+  const savePort = () => { if (!pending.current && port.trim() !== String(status.port)) save('localApi.save', { enabled: status.enabled, port: Number(port.trim()) }); };
   const address = `http://127.0.0.1:${status.port}`;
   const hint = status.error ? formatCallError(t, parseCallError(status.error))
     : status.running ? t('@yovoice.settings.localApiRunning', { url: status.url ?? address }) : t('@yovoice.settings.localApiOff');
   return <SettingsGroup title={t('@yovoice.settings.localApi')} description={t('@yovoice.settings.localApiIntro')}>
     <SettingsRow label={t('@yovoice.settings.localApiEnabled')} hint={<Text type="inherit" color="inherit" data-testid="local-api-status" data-running={String(status.running)}>{hint}</Text>}>
       {status.running ? <StatusDot variant="success" label={t('@yovoice.settings.localApiRunningShort')} /> : status.error ? <StatusDot variant="error" label={t('@yovoice.settings.localApiFailed')} /> : null}
-      <Switch label={t('@yovoice.settings.localApiEnabled')} isLabelHidden value={status.enabled} isLoading={saving} isDisabled={saving} onChange={enabled => save('localApi.save', { enabled, port: status.port })} />
+      <Switch label={t('@yovoice.settings.localApiEnabled')} isLabelHidden value={status.enabled} isLoading={toggling} isDisabled={toggling} onChange={enabled => { setToggling(true); save('localApi.save', { enabled, port: Number(port.trim()) }); }} />
     </SettingsRow>
     <SettingsRow label={t('@yovoice.settings.localApiPort')} hint={t('@yovoice.settings.localApiPortHint')}>
       <TextInput size="sm" label={t('@yovoice.settings.localApiPort')} isLabelHidden value={port} onChange={value => setPort(value.replace(/\D/g, '').slice(0, 5))}
