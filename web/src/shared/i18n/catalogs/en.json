@@ -6029,6 +6029,9 @@
   "@yovoice.voice.noGenerated": {
     "defaultMessage": "No generated speech yet. Generate speech to use it as reference audio here."
   },
+  "@yovoice.voice.noVoices": {
+    "defaultMessage": "No reference audio yet. Import or record audio to use it here."
+  },
   "@yovoice.voice.excerptTranscriptHelp": {
     "defaultMessage": "The transcript must match the excerpt. After trimming, enter it again or transcribe it later."
   },

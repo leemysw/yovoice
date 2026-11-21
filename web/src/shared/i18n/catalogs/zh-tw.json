@@ -6029,6 +6029,9 @@
   "@yovoice.voice.noGenerated": {
     "defaultMessage": "尚無生成的語音。生成後可在這裡選為參考音訊。"
   },
+  "@yovoice.voice.noVoices": {
+    "defaultMessage": "還沒有參考音訊。匯入或錄製音訊後可在這裡選用。"
+  },
   "@yovoice.voice.excerptTranscriptHelp": {
     "defaultMessage": "原文須與節選一致。調整範圍後請重新填寫，或稍後使用語音辨識。"
   },

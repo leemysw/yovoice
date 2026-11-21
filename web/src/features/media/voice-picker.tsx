@@ -37,6 +37,9 @@ export function VoicePicker({ voices, history, onClose, onSelect, adding = false
   const [source, setSource] = useState(adding ? 'history' : 'voices');
   const [referenceText, setReferenceText] = useState('');
   const generations = history.filter(item => ['text', 'story', 'subtitle'].includes(projectKind(item.settings)) && !item.stem && item.duration >= 1);
+  const search = query.trim().toLocaleLowerCase();
+  const matchingGenerations = generations.filter(item => `${item.title} ${item.settings.title} ${item.settings.text}`.toLocaleLowerCase().includes(search));
+  const matchingVoices = voices.filter(voice => voice.name.toLocaleLowerCase().includes(search));
   const [selected, setSelected] = useState<Voice | null>(null);
   const [recorded, setRecorded] = useState<Blob | null>(null);
   const [recordingURL, setRecordingURL] = useState('');
@@ -144,6 +147,7 @@ export function VoicePicker({ voices, history, onClose, onSelect, adding = false
       choose(voice);
     } catch (e) { setError(formatCallError(t, e)); } finally { setBusy(false); }
   }
+  const showLibrary = !adding && source === 'voices' && !showRecording && !crop;
   return <>
   <AppDialog dialogRef={dialog} title={t(adding ? '@yovoice.voice.addTitle' : '@yovoice.voice.pickTitle')}
     width={adding ? 400 : 560} busy={busy} error={error} onClose={() => { cancelRecording(); onClose(); }} closeLabel={t(adding ? '@yovoice.voice.closeAdd' : '@yovoice.voice.closePick')}
@@ -158,13 +162,13 @@ export function VoicePicker({ voices, history, onClose, onSelect, adding = false
         </SegmentedControl> : <h3>{t('@yovoice.voice.generated')}</h3>}
         {source === 'history' ? <>
           <TextInput label={t('@yovoice.voice.searchGenerated')} isLabelHidden placeholder={t('@yovoice.voice.searchGenerated')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear />
-          <VStack className="voice-list" gap={0}>{generations.filter(item => `${item.title} ${item.settings.title} ${item.settings.text}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(item => <HStack key={item.id} className="voice-row voice-history-row" gap={3} vAlign="center">
+          <VStack className="voice-list" gap={0}>{matchingGenerations.map(item => <HStack key={item.id} className="voice-row voice-history-row" gap={3} vAlign="center">
             <VStack className="grow" gap={1} hAlign="start"><Button label={item.title} variant="ghost" className="text-left" isDisabled={busy || recording} onClick={() => void fromHistory(item)} /><Token size="sm" label={generationModelLabel(item)} /></VStack>
             <small title={generationModelLabel(item)}>{formatTime(item.duration)} · {formatDateTime(item.createdAt, locale, 'brief')}</small>
             <Button label={t('@yovoice.history.configuration')} size="sm" variant="ghost" isIconOnly icon={<Info />} isDisabled={busy || recording} onClick={() => setDetails(item)} />
             <Player inline={{ label: t('@yovoice.voice.audition', { name: item.title }), select: () => setPreview({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: item.settings.text, playRequest: Date.now() }) }} track={preview?.id === item.id ? preview : null} suspended={recording || busy} onError={message => { setPreview(null); setError(formatCallError(t, new Error(message))); }} />
           </HStack>)}</VStack>
-          {!generations.length ? <p className="helper">{t('@yovoice.voice.noGenerated')}</p> : null}
+          {!matchingGenerations.length ? <HStack className="voice-list-empty" hAlign="center" vAlign="center"><p className="muted">{t(generations.length ? '@yovoice.library.noSearchResults' : '@yovoice.voice.noGenerated')}</p></HStack> : null}
         </> : null}
       </> : null}
       {showRecording ? <VStack className="recording-form" gap={4}>
@@ -180,13 +184,14 @@ export function VoicePicker({ voices, history, onClose, onSelect, adding = false
           }} /></HStack>
         </> : <Button label={recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord')} tooltip={withHotkey(recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord'), recordKeys)} aria-keyshortcuts={recordAria} icon={recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} />}
       </VStack> : null}
-      {!adding && source === 'voices' && !showRecording && !crop && voices.length ? <TextInput label={t('@yovoice.library.searchVoices')} isLabelHidden placeholder={t('@yovoice.library.searchVoices')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear /> : null}
-      {!adding && source === 'voices' && !showRecording && !crop ? <VStack className="voice-list" gap={0}>{voices.length ? voices.filter(v => v.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(voice => <HStack key={voice.id} className="voice-row" data-selected={selected?.id === voice.id} gap={3} vAlign="center">
+      {showLibrary && voices.length ? <TextInput label={t('@yovoice.library.searchVoices')} isLabelHidden placeholder={t('@yovoice.library.searchVoices')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear /> : null}
+      {showLibrary ? <VStack className="voice-list" gap={0}>{matchingVoices.map(voice => <HStack key={voice.id} className="voice-row" data-selected={selected?.id === voice.id} gap={3} vAlign="center">
         <HStack className="voice-choice-mark" gap={0}>{selected?.id === voice.id ? <Check size={18} /> : <AudioLines className="muted" size={18} strokeWidth={1.5} />}</HStack><Button label={voice.name} variant="ghost" className="grow text-left" isDisabled={busy || recording} aria-pressed={selected?.id === voice.id} onClick={() => setSelected(voice)} /><small>{formatTime(voice.duration)}</small>
         <Player inline={{ label: t('@yovoice.voice.audition', { name: voice.name }), select: () => audition(voice) }} track={preview?.id === voice.id ? preview : null} suspended={recording || busy}
           onError={message => { setPreview(null); setError(formatCallError(t, new Error(message))); }} />
         <Button label={t('@yovoice.voice.crop')} size="sm" variant="secondary" isDisabled={recording || busy} onClick={() => void editExcerpt(voice)} />
-      </HStack>) : null}</VStack> : null}
+      </HStack>)}</VStack> : null}
+      {showLibrary && !matchingVoices.length ? <HStack className="voice-list-empty" hAlign="center" vAlign="center"><p className="muted">{t(voices.length ? '@yovoice.library.noSearchResults' : '@yovoice.voice.noVoices')}</p></HStack> : null}
       {crop ? <VStack gap={3}>
         <h3>{t('@yovoice.voice.cropTitle', { name: crop.name })}</h3>
         <VoiceExcerptEditor buffer={crop.buffer} range={range} setRange={value => { setRange(value); if (crop.generation) setReferenceText(''); }} busy={busy}

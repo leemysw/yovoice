@@ -6029,6 +6029,9 @@
   "@yovoice.voice.noGenerated": {
     "defaultMessage": "尚无可用的生成语音。生成语音后可在这里选为参考音频。"
   },
+  "@yovoice.voice.noVoices": {
+    "defaultMessage": "还没有参考音频。导入或录制音频后可在这里选用。"
+  },
   "@yovoice.voice.excerptTranscriptHelp": {
     "defaultMessage": "原文应与选段一致；调整选段后请重新填写或稍后识别。"
   },

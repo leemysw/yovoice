@@ -26,6 +26,7 @@
 - Ming 3.0 TTS adds control modes: built-in voices picked from a list (with emotion variants where available), emotion, dialect (Cantonese, Sichuan-Chongqing), speed / pitch / volume, and free-form instructions. Paralinguistic tags such as [Laughter] can be inserted into the text.
 - macOS: switching the interface language now relabels the whole native menu bar right away (Hide, Edit, Window and their items), without restarting the app.
 - Settings > Assets: table columns now widen to fit their content, so headers, sort icons, type tags and status labels are no longer cut off in any language.
+- Choose reference audio now says when the reference library is empty or a search has no matches, instead of showing a blank list.
 
 ### 简体中文
 - 修复快速重复开始录音、取消麦克风授权或等待授权时离开页面后，麦克风仍保持开启的问题。
@@ -47,6 +48,7 @@
 - Ming 3.0 TTS 新增控制方式：从列表选择内置音色（部分音色可选情感）、情感、方言（粤语、川渝话）、语速 / 音高 / 音量，以及自由指令；正文可插入 [Laughter] 等非语言声音标签。
 - macOS：切换界面语言后整个原生菜单栏立即换成新语言（隐藏、编辑、窗口及其菜单项），无需重启应用。
 - 设置 > 资源：表格各列按内容自动加宽，所有语言下的表头、排序图标、类型标签和状态都不再被截断。
+- 选择参考音频时，参考音频库为空或搜索没有结果会显示提示，不再是一片空白。
 
 ## [0.8.0] - 2026-11-15
 
