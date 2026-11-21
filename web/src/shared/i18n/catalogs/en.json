@@ -216,16 +216,16 @@
     "defaultMessage": "Max generation length"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "Reference performance"
+    "defaultMessage": "Ref."
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Follow voice"
+    "defaultMessage": "Auto"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Text guidance"
+    "defaultMessage": "Text"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Emotion mix"
+    "defaultMessage": "Emotion"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Model"
@@ -1608,7 +1608,7 @@
     "defaultMessage": "New project"
   },
   "@yovoice.project.text": {
-    "defaultMessage": "Speech generation"
+    "defaultMessage": "Speech"
   },
   "@yovoice.project.story": {
     "defaultMessage": "Story narration"
