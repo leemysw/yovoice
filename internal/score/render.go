@@ -80,6 +80,13 @@ func Render(ctx context.Context, sf *meltysynth.SoundFont, s schema.Score, outpu
 	}
 	tracks := slices.DeleteFunc(slices.Clone(s.Tracks), func(t schema.ScoreTrack) bool { return t.Mute })
 	if stems != "" {
+		info, e := os.Stat(stems)
+		if e != nil {
+			return e
+		}
+		if !info.IsDir() {
+			return fmt.Errorf("分轨路径不是目录：%s", stems)
+		}
 		for i, t := range tracks {
 			path := filepath.Join(stems, stemName(i, t))
 			if _, e := os.Lstat(path); e == nil {
