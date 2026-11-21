@@ -56,6 +56,31 @@ func TestScoreCommands(t *testing.T) {
 	if _, err := run("score", "render", input, "--output", filepath.Join(dir, "mix.wav")); err == nil || !strings.Contains(err.Error(), "已存在") {
 		t.Fatalf("不应覆盖已有输出：%v", err)
 	}
+	stem := filepath.Join(dir, "stems", "02-kick.wav")
+	original, err := os.ReadFile(stem)
+	testkit.Must(t, err)
+	testkit.Must(t, os.Remove(filepath.Join(dir, "stems", "01-piano.wav")))
+	s.Tracks[1].Notes[0].Pitch = 38
+	raw, err = json.Marshal(s)
+	testkit.Must(t, err)
+	testkit.Must(t, os.WriteFile(input, raw, 0600))
+	if _, err := run("score", "render", input, "--output", filepath.Join(dir, "refused.wav"), "--stems", filepath.Join(dir, "stems")); err == nil || !strings.Contains(err.Error(), "已存在") {
+		t.Errorf("不应覆盖已有分轨：%v", err)
+	}
+	current, err := os.ReadFile(stem)
+	testkit.Must(t, err)
+	if !bytes.Equal(original, current) {
+		t.Error("已有分轨被修改")
+	}
+	for _, name := range []string{"refused.wav", "refused.wav.part", "stems/01-piano.wav"} {
+		if _, err := os.Lstat(filepath.Join(dir, name)); !os.IsNotExist(err) {
+			t.Errorf("拒绝渲染后不应留下 %s：%v", name, err)
+		}
+	}
+	s.Tracks[1].Notes[0].Pitch = 36
+	raw, err = json.Marshal(s)
+	testkit.Must(t, err)
+	testkit.Must(t, os.WriteFile(input, raw, 0600))
 	_, err = run("score", "midi", input, "--output", filepath.Join(dir, "song.mid"))
 	testkit.Must(t, err)
 	_, err = run("score", "from-midi", filepath.Join(dir, "song.mid"), "--output", filepath.Join(dir, "back.json"))
