@@ -7,6 +7,7 @@
 ### English
 
 - Fix an error that could drop characters when typing quickly in a draft.
+- Fix the first-run tour spotlight on Linux so its rounded highlight stays on the intended control without a large white wedge.
 - Windows: when GitHub rate-limits update checks, Check for updates now says so and when to try again, instead of reporting a network problem.
 - Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
 - Reference audio supports drag and drop and selecting generated speech from history, with audition, excerpt selection and an editable transcript. Saved references retain their source and remain usable after the original generation is deleted.
@@ -20,6 +21,7 @@
 
 ### 简体中文
 - 修复快速输入作品正文时可能报错并丢字的问题。
+- 修复 Linux 首次使用引导的聚光遮罩，让圆角高亮准确覆盖目标控件，不再出现大片白色楔形。
 - Windows：GitHub 限制更新检查次数时，“检查更新”会说明原因和可重试的时间，不再误报为无法连接网络。
 - 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
 - 参考音频支持拖入文件，以及从生成历史选择语音、试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。

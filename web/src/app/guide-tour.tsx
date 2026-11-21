@@ -19,7 +19,7 @@ const allSteps = [
 const pad = 6;
 const gap = 16;
 
-type Box = { top: number; left: number; width: number; height: number };
+type Box = { top: number; left: number; width: number; height: number; radius: number };
 
 /**
  * 功能引导：首次进入主界面时依次高亮侧栏的主要入口，说明各自用途。
@@ -32,6 +32,7 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const card = useRef<HTMLElement>(null);
+  const spotlight = useRef<HTMLElement>(null);
   const [geometry, setGeometry] = useState({ width: 0, height: 0, viewportWidth: 0, viewportHeight: 0 });
   const step = steps[index];
   const last = index === steps.length - 1;
@@ -46,8 +47,9 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
     const measure = () => {
       const el = target ? document.querySelector<HTMLElement>(`[data-testid="${target}"]`) : null;
       const r = el?.getBoundingClientRect();
-      const next = r && r.width > 0 && r.height > 0 ? { top: r.top - pad, left: r.left - pad, width: r.width + pad * 2, height: r.height + pad * 2 } : null;
-      setBox(prev => prev && next && prev.top === next.top && prev.left === next.left && prev.width === next.width && prev.height === next.height ? prev : next);
+      const radius = spotlight.current ? parseFloat(getComputedStyle(spotlight.current).borderTopLeftRadius) || 0 : 0;
+      const next = r && r.width > 0 && r.height > 0 ? { top: r.top - pad, left: r.left - pad, width: r.width + pad * 2, height: r.height + pad * 2, radius } : null;
+      setBox(prev => prev && next && prev.top === next.top && prev.left === next.left && prev.width === next.width && prev.height === next.height && prev.radius === next.radius ? prev : next);
       // 文案、字体和可用宽度都会改变卡片高度，不能按固定高度估算；窗口变化时也要重新夹紧位置。
       const rect = card.current?.getBoundingClientRect();
       if (rect) {
@@ -84,8 +86,17 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
       : { top: clampTop(box.top + box.height + gap), left: Math.max(gap, Math.min(box.left, viewportWidth - width - gap)) };
   })() : undefined;
 
+  const hole = box ? (() => {
+    const { left: x, top: y, width, height } = box;
+    const r = Math.min(box.radius, width / 2, height / 2);
+    return `M${x + r} ${y}H${x + width - r}A${r} ${r} 0 0 1 ${x + width} ${y + r}V${y + height - r}A${r} ${r} 0 0 1 ${x + width - r} ${y + height}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + height - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`;
+  })() : '';
+
   return <VStack as="section" className="guide-tour" role="dialog" aria-modal="true" aria-labelledby="guide-title" aria-describedby="guide-body" gap={0}>
-    <StackItem as="span" className={`guide-spotlight ${box ? '' : 'guide-spotlight-none'}`} aria-hidden style={box ? { top: box.top, left: box.left, width: box.width, height: box.height } : undefined} />
+    <svg className="guide-overlay" aria-hidden="true" focusable="false">
+      <path fillRule="evenodd" d={`M0 0H${geometry.viewportWidth}V${geometry.viewportHeight}H0Z${hole}`} />
+    </svg>
+    <StackItem ref={spotlight} as="span" className={`guide-spotlight ${box ? '' : 'guide-spotlight-none'}`} aria-hidden style={box ? { top: box.top, left: box.left, width: box.width, height: box.height } : undefined} />
     <VStack ref={card} className={`guide-card ${box ? '' : 'guide-card-center'}`} style={cardStyle} gap={3}>
       <small className="guide-count">{t('@yovoice.guide.count', { current: index + 1, total: steps.length })}</small>
       <h2 id="guide-title">{t(step.title)}</h2>
