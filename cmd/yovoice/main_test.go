@@ -22,6 +22,38 @@ import (
 	"yovoice/internal/store"
 )
 
+func TestFailedModelDownloadKeepsSource(t *testing.T) {
+	for _, source := range []string{"", "modelscope", "invalid-source"} {
+		t.Run("source="+source, func(t *testing.T) {
+			root := t.TempDir()
+			s, err := store.New(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = s.Update(func(s *schema.State) { s.Preferences.DownloadSource = "huggingface" }, true); err != nil {
+				t.Fatal(err)
+			}
+			s.Close()
+			args := []string{"models", "download", "invalid-model-scout", "--data-dir", root}
+			if source != "" {
+				args = append(args, "--source", source)
+			}
+			var out bytes.Buffer
+			if err = run(context.Background(), args, &out, &out); err == nil {
+				t.Fatal("无效模型下载必须失败")
+			}
+			s, err = store.New(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer s.Close()
+			if got := s.Read().Preferences.DownloadSource; got != "huggingface" {
+				t.Fatalf("download source = %q, want huggingface", got)
+			}
+		})
+	}
+}
+
 func wave() []byte {
 	b := make([]byte, 32044)
 	copy(b, "RIFF")
