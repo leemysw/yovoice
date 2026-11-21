@@ -105,7 +105,6 @@
   @container studio (max-width: 860px) {
     .inspector, .studio > .inspector-resize { display: none; }
     .inspector-toggle { display: inline-flex; }
-    .inspector-collapse { display: none; }
     .document-heading > .inspector-collapsed-action { display: flex; }
     .show-inspector .inspector-document-actions { display: flex; }
     .show-inspector .document-heading > .inspector-collapsed-action { display: none; }
