@@ -7,7 +7,6 @@
 ### English
 
 - Fix the microphone staying active after rapidly starting a recording, cancelling microphone access, or leaving the page while access is pending.
-
 - Rapidly switching pages no longer reports an error when a visual transition is interrupted.
 - Fix an error that could drop characters when typing quickly in a draft.
 - Fix a Linux desktop freeze when opening the Model menu or returning to the workbench from Settings on WebKitGTK 2.50.
