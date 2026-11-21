@@ -22,7 +22,7 @@ func MIDI(s schema.Score) ([]byte, error) {
 	tick := func(bar int, beat float64) int { return int(math.Round((float64(bar-1)*per + beat - 1) * ppq)) }
 	conductor := []midiEvent{{data: []byte{0xFF, 0x58, 4, byte(s.TimeSignature[0]), byte(bits(s.TimeSignature[1])), 24, 8}}}
 	tempo := 0.0
-	for bar := 1; bar <= s.Bars(); bar++ {
+	for bar, bars := 1, s.Bars(); bar <= bars; bar++ {
 		if t := s.BarTempo(bar); t != tempo {
 			tempo = t
 			us := int(math.Round(60_000_000 / t))

@@ -6,6 +6,7 @@
 
 ### English
 
+- Exporting large scores to MIDI is faster, with identical output.
 - Fix the microphone staying active after rapidly starting a recording, cancelling microphone access, or leaving the page while access is pending.
 - Cancelling score rendering now stops promptly without saving a completed WAV.
 - Shorten Expression options and Speech sidebar labels across all interface languages to avoid clipped text, while keeping reference performance field headings in full.
@@ -65,6 +66,7 @@
 
 ### 简体中文
 
+- 加快大型乐谱导出 MIDI 的速度，导出内容保持不变。
 - 可以从播放器或版本菜单把歌曲分享到 yovoice 社区：在浏览器里登录，填写标题、标签和使用许可后连同对齐过的歌词提交审核，参考音色不会上传。歌曲生成好后 Ocho 会提示分享；设置 › 社区里可以查看分享过的作品和审核状态。
 - 歌曲封面按这首歌自己的响度起伏来画，和社区页一致；导出的 FLAC、M4A 和作品库唱片封套都用这张封面。
 - 快捷键：设置新增“快捷键”标签，按功能区列出全部快捷键，可修改、提示冲突与系统占用、恢复默认、按功能区关闭，导入导出时先预览变化；任意页面按 ⌘/（Ctrl+/）查看当前页可用的快捷键。快捷键不再作用到弹窗背后、不再吞掉 ⌥ / AltGr 打的字符或妨碍打字，部分默认按键避开了系统和输入法。
