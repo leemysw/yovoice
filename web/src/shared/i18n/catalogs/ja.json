@@ -6026,6 +6026,9 @@
   "@yovoice.voice.noGenerated": {
     "defaultMessage": "生成した音声はまだありません。生成後、ここで参照音声として選択できます。"
   },
+  "@yovoice.voice.noVoices": {
+    "defaultMessage": "参照音声はまだありません。音声を読み込むか録音すると、ここで選択できます。"
+  },
   "@yovoice.voice.excerptTranscriptHelp": {
     "defaultMessage": "原文は選択範囲と一致する必要があります。範囲を変えたら再入力するか、後で文字起こししてください。"
   },

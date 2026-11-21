@@ -6026,6 +6026,9 @@
   "@yovoice.voice.noGenerated": {
     "defaultMessage": "Nenhuma voz gerada ainda. Gere uma voz para selecioná-la aqui como referência."
   },
+  "@yovoice.voice.noVoices": {
+    "defaultMessage": "Nenhum áudio de referência ainda. Importe ou grave um áudio para usá-lo aqui."
+  },
   "@yovoice.voice.excerptTranscriptHelp": {
     "defaultMessage": "A transcrição deve corresponder ao trecho. Após recortar, digite novamente ou transcreva mais tarde."
   },

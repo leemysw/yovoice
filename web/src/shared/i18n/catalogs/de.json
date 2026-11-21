@@ -6026,6 +6026,9 @@
   "@yovoice.voice.noGenerated": {
     "defaultMessage": "Noch keine erzeugte Sprache. Erzeugen Sie Sprache, um sie hier als Referenzaudio auszuwählen."
   },
+  "@yovoice.voice.noVoices": {
+    "defaultMessage": "Noch kein Referenzaudio. Importieren oder nehmen Sie Audio auf, um es hier zu verwenden."
+  },
   "@yovoice.voice.excerptTranscriptHelp": {
     "defaultMessage": "Das Transkript muss zum Ausschnitt passen. Nach dem Zuschneiden erneut eingeben oder später transkribieren."
   },
