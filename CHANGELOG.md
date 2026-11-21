@@ -7,6 +7,8 @@
 ### English
 
 - Rapidly switching pages no longer reports an error when a visual transition is interrupted.
+- Fix an error that could drop characters when typing quickly in a draft.
+- Fix a Linux desktop freeze when opening the Model menu or returning to the workbench from Settings on WebKitGTK 2.50.
 - Fix the first-run tour spotlight on Linux so its rounded highlight stays on the intended control without a large white wedge.
 - Windows: when GitHub rate-limits update checks, Check for updates now says so and when to try again, instead of reporting a network problem.
 - Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
@@ -18,9 +20,12 @@
 - Generation history shows model tags and a read-only configuration view with the saved text, time, seed and parameters, plus JSON export. The same view is available while selecting historical speech as a reference.
 - Ming 3.0 TTS adds control modes: built-in voices picked from a list (with emotion variants where available), emotion, dialect (Cantonese, Sichuan-Chongqing), speed / pitch / volume, and free-form instructions. Paralinguistic tags such as [Laughter] can be inserted into the text.
 - macOS: switching the interface language now relabels the whole native menu bar right away (Hide, Edit, Window and their items), without restarting the app.
+- Settings > Assets: table columns now widen to fit their content, so headers, sort icons, type tags and status labels are no longer cut off in any language.
 
 ### 简体中文
 - 快速切换页面时，切换动画被打断不再报错。
+- 修复快速输入作品正文时可能报错并丢字的问题。
+- 修复 Linux 桌面版在 WebKitGTK 2.50 上打开模型菜单或从设置返回工作台时卡死的问题。
 - 修复 Linux 首次使用引导的聚光遮罩，让圆角高亮准确覆盖目标控件，不再出现大片白色楔形。
 - Windows：GitHub 限制更新检查次数时，“检查更新”会说明原因和可重试的时间，不再误报为无法连接网络。
 - 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
@@ -32,6 +37,7 @@
 - 生成历史新增模型标签和只读的生成配置详情，可查看保存的文字、时间、随机种子与参数并导出 JSON；选择历史语音作为参考时也可查看。
 - Ming 3.0 TTS 新增控制方式：从列表选择内置音色（部分音色可选情感）、情感、方言（粤语、川渝话）、语速 / 音高 / 音量，以及自由指令；正文可插入 [Laughter] 等非语言声音标签。
 - macOS：切换界面语言后整个原生菜单栏立即换成新语言（隐藏、编辑、窗口及其菜单项），无需重启应用。
+- 设置 > 资源：表格各列按内容自动加宽，所有语言下的表头、排序图标、类型标签和状态都不再被截断。
 
 ## [0.8.0] - 2026-11-15
 

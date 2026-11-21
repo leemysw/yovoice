@@ -341,6 +341,9 @@ func (a *app) loadWeb() {
 	a.web = webkitWebViewNewWithUserContentManager(manager)
 	gObjectUnref(manager)
 	settings := webkitWebViewGetSettings(a.web)
+	if disableBrokenAnchorPositioning != nil {
+		disableBrokenAnchorPositioning(settings)
+	}
 	webkitSettingsSetEnableDeveloperExtras(settings, os.Getenv("WORKBENCH_DEBUG") == "1")
 	webkitSettingsSetEnableMediaStream(settings, true)
 	webkitSettingsSetMediaPlaybackRequiresUserGesture(settings, false)

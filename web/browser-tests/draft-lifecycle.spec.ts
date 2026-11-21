@@ -2,6 +2,28 @@ import { saveAsCharacter } from './project-actions';
 import { emptyState } from '../src/shared/workbench';
 import { test, expect } from '@playwright/test';
 
+test('连续输入新作品正文不会中断或丢字', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.getByTestId('nav-new').click();
+  await page.getByRole('menuitem', { name: '语音生成', exact: true }).click();
+  const script = page.getByRole('textbox', { name: '正文', exact: true });
+  await expect(script).toHaveValue('');
+  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
+  const text = 'Hello from the Windows desktop end-to-end test. This draft should survive navigation and restart.';
+  // 在同一次任务里逐字提交原生编辑事件，模拟密集输入时保存状态的更新来不及处理。
+  await script.evaluate((editor, value) => {
+    editor.focus();
+    for (const character of value) document.execCommand('insertText', false, character);
+  }, text);
+  expect(errors).toEqual([]);
+  await expect(script).toHaveValue(text);
+  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(script).toHaveValue(text);
+});
+
 // 删除正在编辑的作品后，离开编辑页的补存与自动保存都不能把它写回来。
 test('删除当前作品后不会被自动保存恢复', async ({ page }) => {
   const state = emptyState();

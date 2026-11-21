@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { call } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { createDraft, type Draft, type State } from '../shared/workbench';
@@ -24,6 +24,11 @@ export function useDraftSession(ready: boolean, state: State, onError: (message:
   const pendingSave = useRef<Promise<unknown>>(Promise.resolve());
   // 只有最后一次保存完成时才清除“保存中”。
   const saveSequence = useRef(0);
+  // 密集输入时，不要为同一个保存状态反复排入更新。
+  const markSaving = useEffectEvent(() => {
+    if (!saving) setSaving(true);
+    if (saveFailed) setSaveFailed(false);
+  });
 
   // window.__workbenchDraft 只在作品打开且存在未落盘的修改时有值：原生宿主退出或迁移前据此补存最后的输入，
   // 已保存或作品未打开时为空，避免在设置页等没有改动的场景下退出也去写作品（数据目录不可写时会挡住退出）。
@@ -31,7 +36,7 @@ export function useDraftSession(ready: boolean, state: State, onError: (message:
     if (!ready || deleting || !draftPersisted || !active) return;
     window.__workbenchDraft = draft;
     writeLocal('yovoice-active-project', draft.id);
-    setSaving(true); setSaveFailed(false); const sequence = ++saveSequence.current;
+    markSaving(); const sequence = ++saveSequence.current;
     const timer = saveTimer.current = setTimeout(() => {
       pendingSave.current = pendingSave.current.catch(() => {}).then(() => call('draft.save', draft));
       void pendingSave.current.then(() => { if (sequence === saveSequence.current) { setSaving(false); if (window.__workbenchDraft === draft) window.__workbenchDraft = undefined; } }).catch(e => { setSaveFailed(true); setSaving(false); onError(noticeMessage(e)); });
