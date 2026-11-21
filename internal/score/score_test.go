@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"testing"
+	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
@@ -155,6 +156,78 @@ func TestRenderAlignsTrackLevels(t *testing.T) {
 	cancel()
 	if err := Render(ctx, sf, s, filepath.Join(dir, "cancel.wav"), "", nil); !errors.Is(err, context.Canceled) {
 		t.Fatal(err)
+	}
+}
+
+type cancelDuringRenderContext struct {
+	context.Context
+	cancel context.CancelFunc
+	checks int
+}
+
+func (c *cancelDuringRenderContext) Err() error {
+	c.checks++
+	if c.checks == 3 {
+		c.cancel()
+	}
+	return c.Context.Err()
+}
+
+func TestRenderCancellation(t *testing.T) {
+	dir := t.TempDir()
+	font := filepath.Join(dir, "test.sf2")
+	testkit.Must(t, os.WriteFile(font, testkit.SoundFont(), 0600))
+	sf, err := LoadSoundFont(font)
+	testkit.Must(t, err)
+	for _, when := range []string{"during-blocks", "last-progress", "muted", "after-100ms"} {
+		t.Run(when, func(t *testing.T) {
+			s := sample()
+			s.Sections = nil
+			s.Tracks = s.Tracks[:1]
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			var renderCtx context.Context = ctx
+			var progress func(int, int)
+			var cancelledAt time.Time
+			switch when {
+			case "during-blocks":
+				renderCtx = &cancelDuringRenderContext{Context: ctx, cancel: cancel}
+			case "last-progress":
+				progress = func(int, int) {
+					cancelledAt = time.Now()
+					cancel()
+				}
+			case "muted":
+				s.Tracks[0].Mute = true
+				cancel()
+			case "after-100ms":
+				s.Tracks[0].Notes = nil
+				for pitch := 0; pitch < 128; pitch++ {
+					s.Tracks[0].Notes = append(s.Tracks[0].Notes, schema.ScoreNote{Bar: 1, Beat: 1, Pitch: pitch, Length: 16, Velocity: 80})
+				}
+				timer := time.AfterFunc(100*time.Millisecond, cancel)
+				defer timer.Stop()
+			}
+			out := filepath.Join(t.TempDir(), "cancel.wav")
+			start := time.Now()
+			err := Render(renderCtx, sf, s, out, "", progress)
+			elapsed := time.Since(start)
+			_, statErr := os.Stat(out)
+			t.Logf("elapsed=%s err=%v output_exists=%t", elapsed, err, statErr == nil)
+			if !errors.Is(err, context.Canceled) {
+				t.Errorf("应返回取消错误：%v", err)
+			}
+			if !errors.Is(statErr, os.ErrNotExist) {
+				t.Errorf("取消后不应生成输出：%v", statErr)
+			}
+			latency := elapsed
+			if !cancelledAt.IsZero() {
+				latency = time.Since(cancelledAt)
+			}
+			if latency > time.Second {
+				t.Errorf("取消未及时返回：%s", latency)
+			}
+		})
 	}
 }
 
