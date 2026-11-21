@@ -6,23 +6,24 @@ import { flushSync } from 'react-dom';
 // 不支持视图过渡的 WebView、减少动态效果或页面在后台时直接更新，界面结果完全一致。
 export type TransitionKind = 'page' | 'sidebar' | 'inspector' | 'open-project' | 'notice' | 'theme';
 
-type TransitionDocument = Document & { startViewTransition?: (update: () => void) => { finished: Promise<void> } };
-
 // 正在执行某次过渡的更新时，里面再发起的过渡（如打开作品时顺带换页）并入当前这次，不另起一次打断它。
 let updating = false;
 
 export function withViewTransition(update: () => void, kind: TransitionKind) {
-  const doc = document as TransitionDocument;
   const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (updating || !doc.startViewTransition || reduced || document.hidden) { update(); clearSources(); return; }
+  if (updating || !document.startViewTransition || reduced || document.hidden) { update(); clearSources(); return; }
   const root = document.documentElement;
   root.dataset.transition = kind;
   const done = () => { if (root.dataset.transition === kind) delete root.dataset.transition; clearSources(); };
   try {
-    doc.startViewTransition(() => {
+    const transition = document.startViewTransition(() => {
       updating = true;
       try { flushSync(update); } finally { updating = false; }
-    }).finished.then(done, done);
+    });
+    // 动画可能因下一次过渡而跳过；更新回调真的失败时只报告一次。
+    void transition.ready.catch(() => undefined);
+    void transition.updateCallbackDone.catch(error => window.reportError(error));
+    void transition.finished.then(done, done);
   } catch {
     done();
     update();
