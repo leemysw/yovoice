@@ -160,7 +160,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 		fs.StringVar(&backend, "backend", initial, "推理设备")
 	case "models download":
-		fs.StringVar(&source, "source", "modelscope", "下载来源")
+		fs.StringVar(&source, "source", "", "下载来源，默认使用已保存的偏好；下载成功后保存指定来源")
 	case "voices import":
 		fs.StringVar(&name, "name", "", "音色名称")
 	case "separate":
@@ -488,10 +488,11 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 		result = w.Store.Read().RuntimePath
 	case "models download":
-		p := w.Store.Read().Preferences
-		p.DownloadSource = source
-		if err = w.SavePreferences(p); err == nil {
-			err = waitModel(func() error { return w.DownloadModel(operand, "") })
+		err = waitModel(func() error { return w.DownloadModelFromSource(operand, "", source) })
+		if err == nil && source != "" {
+			p := w.Store.Read().Preferences
+			p.DownloadSource = source
+			err = w.SavePreferences(p)
 		}
 		result = w.Store.Read().Models
 	case "separate":

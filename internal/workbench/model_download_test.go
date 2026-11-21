@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -37,6 +38,55 @@ func useModelTestServer(t *testing.T, w *Workbench, server *httptest.Server) {
 
 func modelTestFile(path string, content []byte) catalog.ModelFile {
 	return catalog.ModelFile{Path: path, Size: int64(len(content)), SHA256: fmt.Sprintf("%x", sha256.Sum256(content))}
+}
+
+func TestModelDownloadSourceOverride(t *testing.T) {
+	for _, source := range []string{"", "modelscope", "invalid-source"} {
+		for _, fail := range []bool{false, true} {
+			t.Run(fmt.Sprintf("source=%s/fail=%t", source, fail), func(t *testing.T) {
+				w, err := New(t.TempDir())
+				must(t, err)
+				defer w.Close()
+				p := w.Store.Read().Preferences
+				p.DownloadSource = "huggingface"
+				must(t, w.SavePreferences(p))
+				content := []byte("test weights")
+				file := modelTestFile("voice.gguf", content)
+				model := catalog.ModelPackage{ID: "voice", RemotePath: file.Path, SHA256: file.SHA256, Size: file.Size}
+				selected := source
+				if selected == "" {
+					selected = "huggingface"
+				}
+				w.client.Transport = modelTestTransport(func(req *http.Request) (*http.Response, error) {
+					want, err := model.PackageFileURL(selected, model.PackageFiles()[0])
+					if err != nil || req.URL.String() != want {
+						t.Errorf("download URL = %s, want %s (%v)", req.URL, want, err)
+					}
+					body := content
+					if fail {
+						body = []byte("bad checksum")
+					}
+					return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(bytes.NewReader(body)), ContentLength: int64(len(body))}, nil
+				})
+				err = w.downloadCatalogModelFromSource(model, "", source)
+				if source == "invalid-source" {
+					if err == nil {
+						t.Fatal("无效来源必须失败")
+					}
+				} else {
+					must(t, err)
+					<-w.ModelDone()
+					activity := w.Store.Read().ModelActivity
+					if activity == nil || (activity.ErrorCode != nil) != fail {
+						t.Fatalf("下载结果不符: %+v", activity)
+					}
+				}
+				if got := w.Store.Read().Preferences.DownloadSource; got != "huggingface" {
+					t.Fatalf("download source = %q, want huggingface", got)
+				}
+			})
+		}
+	}
 }
 
 func TestModelDownloadsPauseResumeAndCancelIndependently(t *testing.T) {

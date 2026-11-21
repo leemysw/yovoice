@@ -39,14 +39,23 @@ func modelUpdateAvailable(installed schema.InstalledModel, definition catalog.Mo
 
 // DownloadModel 下载或续传目录里的模型包。暂停的任务保留原版本和目录，避免续传时切到另一个版本。
 func (w *Workbench) DownloadModel(id, version string) error {
+	return w.DownloadModelFromSource(id, version, "")
+}
+
+// DownloadModelFromSource 使用指定来源下载，空值沿用偏好，不修改已保存的来源。
+func (w *Workbench) DownloadModelFromSource(id, version, source string) error {
 	definition, err := catalog.Lookup(id)
 	if err != nil {
 		return err
 	}
-	return w.downloadCatalogModel(definition, version)
+	return w.downloadCatalogModelFromSource(definition, version, source)
 }
 
 func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, version string) error {
+	return w.downloadCatalogModelFromSource(definition, version, "")
+}
+
+func (w *Workbench) downloadCatalogModelFromSource(definition catalog.ModelPackage, version, source string) error {
 	id := definition.ID
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -54,6 +63,9 @@ func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, versio
 		return msg.Err(msg.ErrBusy, nil)
 	}
 	s := w.Store.Read()
+	if source == "" {
+		source = s.Preferences.DownloadSource
+	}
 	if w.cancel != nil && s.Activity != nil && (s.Activity.Kind == "relocate" || s.Activity.Kind == "import") {
 		return msg.Err(msg.ErrBusy, nil)
 	}
@@ -81,7 +93,7 @@ func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, versio
 	files := model.PackageFiles()
 	urls := make([]string, len(files))
 	for i, file := range files {
-		if urls[i], err = model.PackageFileURL(s.Preferences.DownloadSource, file); err != nil {
+		if urls[i], err = model.PackageFileURL(source, file); err != nil {
 			return err
 		}
 	}
@@ -96,7 +108,7 @@ func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, versio
 		job.Total += wheel.Size
 	}
 	_, err = w.startLocked("download", msg.ActivityDownload, msg.Params{"name": model.Name}, ptr(id), func(ctx context.Context) error {
-		return w.downloadModelFiles(ctx, model, job, installed, urls, wheels, s.Preferences.DownloadSource, definition.MainFile().SHA256)
+		return w.downloadModelFiles(ctx, model, job, installed, urls, wheels, source, definition.MainFile().SHA256)
 	}, func(s *schema.State) {
 		if s.ModelDownloads == nil {
 			s.ModelDownloads = make(map[string]schema.ModelDownload)
