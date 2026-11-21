@@ -98,7 +98,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
       <VStack gap={3}>
         <h3>{t('@yovoice.create.expression')}</h3>
         <SegmentedControl size="sm" label={t('@yovoice.create.expression')} value={draft.mode} onChange={mode => change({ mode: mode as Mode })} layout="fill">{modes.map(id => <SegmentedControlItem onPointerEnter={overflowTitle} key={id} value={id} label={t(`@yovoice.create.mode.${id}`)} />)}</SegmentedControl>
-        {draft.mode === 'reference' ? <ReferenceVoice voice={emotion} choose={chooseEmotion} play={play} label={t('@yovoice.create.mode.reference')} placeholder={t('@yovoice.create.addEmotionReference')} /> : null}
+        {draft.mode === 'reference' ? <ReferenceVoice voice={emotion} choose={chooseEmotion} play={play} label={t('@yovoice.create.referencePerformance')} placeholder={t('@yovoice.create.addEmotionReference')} /> : null}
         {draft.mode === 'text' ? <VStack gap={3}>
           <TextArea label={t('@yovoice.create.emotionDescription')} isLabelHidden value={draft.emotionText} onChange={value => change({ emotionText: value.slice(0, 500) })} placeholder={t('@yovoice.create.emotionPlaceholder')} rows={3} isDisabled={draft.inferEmotion} />
           <Switch label={t('@yovoice.create.inferEmotion')} size="sm" value={draft.inferEmotion} onChange={value => change({ inferEmotion: value })} labelPosition="start" labelSpacing="spread" />
