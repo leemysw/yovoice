@@ -15,7 +15,29 @@ const rpc = (method, data = {}) => new Promise((resolve, reject) => {
 });
 const initial = await rpc('state.get');
 if (!initial.desktop || !initial.state.runtimePath || initial.state.preferences.backend !== 'cpu') throw new Error('内置 CPU 内核未就绪');
-await wait(() => document.querySelector('textarea[aria-label="正文"]'));
+await rpc('preferences.save', {...initial.state.preferences, introSeen: true, tourSeen: true});
+const editorSelector = 'textarea[aria-label="正文"]';
+const visible = element => element?.getBoundingClientRect().width > 0;
+const workbenchReady = () => visible(document.querySelector(editorSelector)) && !document.querySelector('.intro-screen, .guide-tour');
+await wait(workbenchReady, '语音工作台');
+
+// WebKitGTK 2.50 曾在打开模型列表或隐藏设置页时卡死；等待实际渲染及关闭，而不是只检查点击事件。
+const model = document.querySelector('.model-selector [role="combobox"]');
+if (!visible(model)) throw new Error('模型选择器不可见');
+model.click();
+const modelList = () => document.getElementById(model.getAttribute('aria-controls'));
+await wait(() => visible(modelList()), '模型列表');
+const modelOptions = modelList().querySelectorAll('[role="option"]').length;
+const selectedModel = modelList().querySelector('[role="option"][aria-selected="true"]');
+if (!selectedModel || modelOptions < 2) throw new Error('模型列表缺少选项');
+selectedModel.click();
+await wait(() => model.getAttribute('aria-expanded') === 'false' && !visible(modelList()), '关闭模型列表');
+const settings = () => visible(document.querySelector('.settings-page'));
+document.querySelector('[data-testid="nav-settings"]').click();
+await wait(settings, '设置');
+document.querySelector('[data-testid="nav-text"]').click();
+await wait(() => workbenchReady() && !settings(), '从设置返回语音工作台');
+
 const bytes = new Uint8Array(44 + 64000);
 const view = new DataView(bytes.buffer);
 const str = (offset, value) => [...value].forEach((c, i) => bytes[offset + i] = c.charCodeAt(0));
@@ -40,7 +62,7 @@ if (!response.ok) throw new Error('音频读取失败');
 const context = new AudioContext(); const decoded = await context.decodeAudioData(await response.arrayBuffer()); await context.close();
 // WebKitGTK 解码时会重采样到音频设备的采样率，时长允许几毫秒误差。
 if (Math.abs(decoded.duration - 2) > 0.01) throw new Error('音频长度不正确：' + decoded.duration);
-const editor = document.querySelector('textarea[aria-label="正文"]');
+const editor = document.querySelector(editorSelector);
 Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(editor, '这是 Linux 原生窗口中的yovoice。');
 editor.dispatchEvent(new Event('input', {bubbles:true}));
 // __workbenchDraft 只在存在未保存修改时有值，自动保存完成后会清空，先取出快照再使用。
@@ -49,4 +71,4 @@ await wait(() => (edited = window.__workbenchDraft)?.text === '这是 Linux 原�
 await rpc('draft.save', {...edited, voiceId: voice.id});
 const final = await rpc('state.get');
 if (final.state.voices.length !== 1) throw new Error('音色持久化失败');
-return {desktop: initial.desktop, platform: window.__workbenchPlatform, backend: final.state.preferences.backend, audioSeconds: Math.round(decoded.duration * 100) / 100, playback: player.currentTime > 0, draft: final.state.drafts[0].text, pageTitle: document.title};
+return {desktop: initial.desktop, platform: window.__workbenchPlatform, backend: final.state.preferences.backend, modelOptions, settingsRoundTrip: true, audioSeconds: Math.round(decoded.duration * 100) / 100, playback: player.currentTime > 0, draft: final.state.drafts[0].text, pageTitle: document.title};

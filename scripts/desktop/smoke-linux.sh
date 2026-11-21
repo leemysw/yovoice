@@ -1,5 +1,5 @@
 #!/bin/bash
-# 在 Xvfb 中启动打包好的 Linux 应用，运行 smoke-linux.js 验证 WebKitGTK 桥接、音频、草稿保存与正常退出。
+# 在 Xvfb 中启动打包好的 Linux 应用，验证 WebKitGTK 界面、桥接、音频、草稿保存与正常退出。
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 # 没有图形会话时（CI）在 Xvfb 中重新执行自身。
@@ -23,6 +23,7 @@ result=json.loads((root/'smoke-result.json').read_text())
 db=sqlite3.connect(root/'yovoice.db')
 draft=json.loads(db.execute('SELECT data FROM drafts ORDER BY pos LIMIT 1').fetchone()[0])
 assert result['desktop'] and result['platform']=='linux' and result['backend']=='cpu' and result['audioSeconds']==2, result
+assert result['modelOptions'] >= 2 and result['settingsRoundTrip'], result
 assert draft['text']==result['draft']
-print('原生桥接、音频、草稿保存和退出通过：'+json.dumps(result, ensure_ascii=False))
+print('原生模型菜单、设置往返、桥接、音频、草稿保存和退出通过：'+json.dumps(result, ensure_ascii=False))
 PY
