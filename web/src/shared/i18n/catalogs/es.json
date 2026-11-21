@@ -219,16 +219,16 @@
     "defaultMessage": "Interpretación de referencia"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "Interpretación de referencia"
+    "defaultMessage": "Imitar"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Seguir la voz"
+    "defaultMessage": "Voz"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Guía por texto"
+    "defaultMessage": "Texto"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Mezcla de emociones"
+    "defaultMessage": "Emoción"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Modelo"

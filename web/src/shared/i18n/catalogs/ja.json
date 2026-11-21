@@ -219,16 +219,16 @@
     "defaultMessage": "参照の演技"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "参照の演技"
+    "defaultMessage": "模倣"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "声に合わせる"
+    "defaultMessage": "自動"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "テキストで指示"
+    "defaultMessage": "文章"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "感情ミックス"
+    "defaultMessage": "感情"
   },
   "@yovoice.create.model": {
     "defaultMessage": "モデル"

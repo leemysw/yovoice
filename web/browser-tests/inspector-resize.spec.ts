@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { seedState } from './seed';
 import { emptyState } from '../src/shared/workbench';
 
-// 右侧检查器可拖动左边缘调宽，宽度刷新后保留；选项文字被截断时悬停显示完整文字。
-test('检查器可拖动调整宽度，截断的选项悬停显示完整文字', async ({ page }) => {
+// 右侧检查器可拖动左边缘调宽，宽度刷新后保留；完整选项无需重复的悬停提示。
+test('检查器可拖动调整宽度，完整选项不显示悬停提示', async ({ page }) => {
   const state = emptyState();
   state.preferences.uiLocale = 'fr';
   state.preferences.introSeen = true;
@@ -15,10 +15,9 @@ test('检查器可拖动调整宽度，截断的选项悬停显示完整文字',
   await expect(inspector).toBeVisible();
   const before = (await inspector.boundingBox())!.width;
 
-  // 默认宽度下法语的参考演绎标签放不下，悬停时挂上完整文字。
-  const option = page.getByRole('radio', { name: 'Interprétation de référence' });
+  const option = page.getByRole('radio', { name: 'Imiter' });
   await option.hover();
-  await expect(option).toHaveAttribute('title', 'Interprétation de référence');
+  await expect(option).not.toHaveAttribute('title');
 
   const handle = page.getByRole('separator', { name: 'Redimensionner le panneau latéral' });
   const box = (await handle.boundingBox())!;

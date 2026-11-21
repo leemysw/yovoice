@@ -219,16 +219,16 @@
     "defaultMessage": "참조 연기"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "참조 연기"
+    "defaultMessage": "모방"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "음색 따르기"
+    "defaultMessage": "자동"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "텍스트 지시"
+    "defaultMessage": "텍스트"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "감정 조절"
+    "defaultMessage": "감정"
   },
   "@yovoice.create.model": {
     "defaultMessage": "모델"

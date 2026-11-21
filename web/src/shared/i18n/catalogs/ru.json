@@ -219,16 +219,16 @@
     "defaultMessage": "По референсу исполнения"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "По референсу исполнения"
+    "defaultMessage": "Повтор"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Как в голосе"
+    "defaultMessage": "Голос"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Текстовое описание"
+    "defaultMessage": "Текст"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Смесь эмоций"
+    "defaultMessage": "Эмоция"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Модель"

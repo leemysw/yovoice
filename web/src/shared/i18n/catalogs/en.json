@@ -219,7 +219,7 @@
     "defaultMessage": "Reference performance"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "Ref."
+    "defaultMessage": "Mimic"
   },
   "@yovoice.create.mode.speaker": {
     "defaultMessage": "Auto"

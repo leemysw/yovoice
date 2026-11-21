@@ -219,16 +219,16 @@
     "defaultMessage": "Referenz-Darbietung"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "Referenz-Darbietung"
+    "defaultMessage": "Imitieren"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Stimme folgen"
+    "defaultMessage": "Stimme"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Textsteuerung"
+    "defaultMessage": "Text"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Emotionsmix"
+    "defaultMessage": "Emotion"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Modell"
@@ -1611,7 +1611,7 @@
     "defaultMessage": "Neues Projekt"
   },
   "@yovoice.project.text": {
-    "defaultMessage": "Sprachgenerierung"
+    "defaultMessage": "Sprachausgabe"
   },
   "@yovoice.project.story": {
     "defaultMessage": "Geschichte erzählen"

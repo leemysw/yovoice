@@ -219,16 +219,16 @@
     "defaultMessage": "Theo âm thanh tham chiếu"
   },
   "@yovoice.create.mode.reference": {
-    "defaultMessage": "Theo âm thanh tham chiếu"
+    "defaultMessage": "Nhại"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Theo giọng"
+    "defaultMessage": "Tự động"
   },
   "@yovoice.create.mode.text": {
-    "defaultMessage": "Hướng dẫn bằng văn bản"
+    "defaultMessage": "Văn bản"
   },
   "@yovoice.create.mode.vector": {
-    "defaultMessage": "Pha trộn cảm xúc"
+    "defaultMessage": "Cảm xúc"
   },
   "@yovoice.create.model": {
     "defaultMessage": "Mô hình"
