@@ -222,7 +222,7 @@
     "defaultMessage": "Повтор"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Голос"
+    "defaultMessage": "Авто"
   },
   "@yovoice.create.mode.text": {
     "defaultMessage": "Текст"

@@ -222,7 +222,7 @@
     "defaultMessage": "Imitieren"
   },
   "@yovoice.create.mode.speaker": {
-    "defaultMessage": "Stimme"
+    "defaultMessage": "Auto"
   },
   "@yovoice.create.mode.text": {
     "defaultMessage": "Text"
