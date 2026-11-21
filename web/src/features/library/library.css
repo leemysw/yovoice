@@ -36,6 +36,9 @@
   }
   .empty-icon svg { width: var(--spacing-10); height: var(--spacing-10); stroke-width: 1; }
   .asset-table { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+  /* 列宽按内容撑开：pixel() 只当下限，名称列吃剩余宽度并保持截断，各语言的表头、类型和状态都不被截断。 */
+  .asset-table table { table-layout: auto; }
+  .asset-table :is(th, td):not(:has(.asset-name)) { max-width: none; }
   .asset-table thead th { position: sticky; top: 0; z-index: 1; background: var(--color-background-surface, var(--app-surface)); }
   .asset-muted { color: var(--app-muted); }
   .asset-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
