@@ -124,7 +124,7 @@ export function TranscribePage({ state, openSettings, active = false }: { state:
   const open = (id: string | null) => { setKnown(null); setOpenId(id); };
 
   // 正在录音或识别时不能再发起；其他任务占用推理时提示稍后。
-  const blocked = busy || recorder.recording || uploading || !!selection;
+  const blocked = busy || recorder.starting || recorder.recording || uploading || !!selection;
   const blockedTip = busy && !working ? t('@yovoice.transcribe.busy') : undefined;
   // 列表页的快捷键：上传、开始或停止录音、聚焦搜索框；取消在录音时停止录音（录下的照常转写），上传中中止上传。
   const listing = active && !opened;

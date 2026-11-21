@@ -21,7 +21,7 @@ export function GenerationDetails({ item, close }: { item: Generation; close: ()
     'runtime.streaming': '@yovoice.runtime.streaming',
     mode: '@yovoice.create.expression', inferEmotion: '@yovoice.create.inferEmotion', emotionStrength: '@yovoice.create.emotionStrength',
     randomEmotion: '@yovoice.create.randomEmotion', emotions: '@yovoice.create.mode.vector',
-    speaker: '@yovoice.reference.speaker', voiceId: '@yovoice.create.referenceVoice', emotionVoiceId: '@yovoice.create.mode.reference',
+    speaker: '@yovoice.reference.speaker', voiceId: '@yovoice.create.referenceVoice', emotionVoiceId: '@yovoice.create.referencePerformance',
     voiceDescription: item.settings.modelId.includes('customvoice') ? '@yovoice.vox.styleGuidance' : '@yovoice.vox.voiceDescription',
     referenceText: '@yovoice.vox.referenceText', synthesisLanguage: '@yovoice.create.language', language: '@yovoice.create.language',
     speed: '@yovoice.create.speed', temperature: '@yovoice.create.temperature', topP: '@yovoice.options.top_p', topK: '@yovoice.options.top_k',
@@ -36,7 +36,7 @@ export function GenerationDetails({ item, close }: { item: Generation; close: ()
     if (typeof value === 'object' && !Array.isArray(value)) return Object.entries(value).flatMap(([key, value]) => !path && excluded.has(key) ? [] : rows(value, path ? `${path}.${key}` : key));
     const key = path.split('.').at(-1)!;
     const label = path.startsWith('modelOptions.') ? `${path.split('.')[1]} · ${t(`@yovoice.options.${key}`)}` : labels[path] ? t(labels[path]) : path;
-    const display = path === 'mode' ? t(`@yovoice.create.mode.${value}`) : ['voiceMode', 'voxMode'].includes(path) ? t(`@yovoice.vox.${value}`) : String(value);
+    const display = path === 'mode' ? t(value === 'reference' ? '@yovoice.create.referencePerformance' : `@yovoice.create.mode.${value}`) : ['voiceMode', 'voxMode'].includes(path) ? t(`@yovoice.vox.${value}`) : String(value);
     return [{ key: path, label, value: typeof value === 'boolean' ? t(value ? '@yovoice.history.enabled' : '@yovoice.history.disabled') : Array.isArray(value) ? value.join(', ') : display }];
   };
   return <AppDialog title={t('@yovoice.history.configuration')} subtitle={item.title} width={640} onClose={close} actions={<Button label={t('@yovoice.history.exportConfiguration')} onClick={() => download(new Blob([JSON.stringify({ generationId: item.id, createdAt: item.createdAt, duration: item.duration, seed: item.seed, settings: item.settings }, null, 2)], { type: 'application/json' }), `${exportName(item.title)}.json`)} />}>
