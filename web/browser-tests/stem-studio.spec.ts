@@ -168,3 +168,53 @@ test('分轨由同一个混音器输出：连续出声，独奏切换即时生�
   await studio.getByRole('button', { name: '独奏 贝斯' }).click();
   await expect.poll(async () => Math.round((await listen()).hz), { timeout: 2000 }).toBeLessThan(65);
 });
+
+// 回归：工作台在音频地址还没取完时关闭，之后才拿到的 blob 地址没人释放，一直占着内存。
+// 用一个持续的读写事务占住 IndexedDB 的音频仓库，让取地址停在半路；关闭后再放开，统计这期间创建与释放的 blob 地址。
+test('分轨工作台在音频地址取到前关闭：之后创建的 blob 地址也会释放', async ({ page }) => {
+  await page.addInitScript(() => {
+    const live = new Set<string>();
+    const create = URL.createObjectURL.bind(URL), revoke = URL.revokeObjectURL.bind(URL);
+    const counts = { created: 0, revoked: 0, live, track: false };
+    URL.createObjectURL = (object: Blob | MediaSource) => { const url = create(object); if (counts.track) { counts.created++; live.add(url); } return url; };
+    URL.revokeObjectURL = (url: string) => { if (live.delete(url)) counts.revoked++; revoke(url); };
+    Object.assign(window, { __blobs: counts });
+  });
+  const draft = { ...createMusicDraft('zh-CN'), id: 'c'.repeat(32) };
+  const state = emptyState();
+  state.drafts = [draft];
+  const take = (id: string, extra: object = {}) => ({ id, title: draft.title, fileName: `${id}.wav`, createdAt: '2026-09-15T12:00:00Z', duration: 4, settings: draft, ...extra });
+  state.history = [take('song'), take('vocals', { stemOf: 'song', stem: 'vocals' }), take('drums', { stemOf: 'song', stem: 'drums' })];
+  await page.goto('/');
+  await seedAudio(page, { 'song.wav': 330, 'vocals.wav': 440, 'drums.wav': 110 });
+  await seedState(page, state); await page.reload();
+  await page.locator('.player .transport').getByRole('button', { name: '音频操作', exact: true }).click();
+
+  type Blobs = { __blobs: { created: number; revoked: number; track: boolean }; __release?: () => void };
+  // 读写事务不断续上请求就一直不结束，期间音频仓库上的只读读取都排队等它。
+  await page.evaluate(() => new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open('voice-workbench-audio', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result, store = db.transaction('audio', 'readwrite').objectStore('audio');
+      let held = true;
+      const spin = () => { if (held) store.count().onsuccess = spin; };
+      spin();
+      (window as unknown as Blobs).__release = () => { held = false; db.close(); };
+      (window as unknown as Blobs).__blobs.track = true;
+      resolve();
+    };
+  }));
+  await page.getByRole('menuitem', { name: '打开分轨' }).click();
+  const studio = page.getByRole('dialog', { name: `分轨 · ${draft.title}` });
+  await expect(studio).toBeVisible();
+  await studio.getByRole('button', { name: '关闭' }).click();
+  await expect(studio).toHaveCount(0);
+  await page.evaluate(() => (window as unknown as Blobs).__release!());
+
+  const counts = () => page.evaluate(() => { const { created, revoked } = (window as unknown as Blobs).__blobs; return { created, revoked }; });
+  await expect.poll(async () => (await counts()).created).toBeGreaterThan(0);
+  await page.waitForTimeout(500);
+  const final = await counts();
+  expect(final).toEqual({ created: final.created, revoked: final.created });
+});

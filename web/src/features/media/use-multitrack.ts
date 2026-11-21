@@ -132,7 +132,12 @@ export function useMultitrack(tracks: MixTrack[], mix: Record<string, TrackMix>,
     // 卸载时让在途读取作废（generation 是计数器，不是 DOM 引用）。
     const tickets = generation;
     void (async () => {
-      for (const track of tracks) got[track.id] = await mediaUrl('outputs', track.fileName);
+      for (const track of tracks) {
+        const url = await mediaUrl('outputs', track.fileName);
+        // 卸载后才取到的地址清理时已经收不到，这里直接释放。
+        if (cancelled) { releaseMediaUrl(url); return; }
+        got[track.id] = url;
+      }
       const opened = await Promise.all(tracks.map(track => openSource(track.id, got[track.id])));
       if (cancelled || !opened.length) return;
       // 输出采样率取第一轨的，多数分轨都相同，混音器里无需重采样。

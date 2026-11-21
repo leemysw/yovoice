@@ -7,6 +7,7 @@
 ### English
 
 - Rapidly switching pages no longer reports an error when a visual transition is interrupted.
+- Browser preview: closing Stem Studio before its tracks finish loading no longer keeps their audio in memory.
 - Fix an error that could drop characters when typing quickly in a draft.
 - Fix a Linux desktop freeze when opening the Model menu or returning to the workbench from Settings on WebKitGTK 2.50.
 - Fix the first-run tour spotlight on Linux so its rounded highlight stays on the intended control without a large white wedge.
@@ -24,6 +25,7 @@
 
 ### 简体中文
 - 快速切换页面时，切换动画被打断不再报错。
+- 浏览器预览：分轨工作台在音轨加载完之前关闭，不再把这些音频一直留在内存里。
 - 修复快速输入作品正文时可能报错并丢字的问题。
 - 修复 Linux 桌面版在 WebKitGTK 2.50 上打开模型菜单或从设置返回工作台时卡死的问题。
 - 修复 Linux 首次使用引导的聚光遮罩，让圆角高亮准确覆盖目标控件，不再出现大片白色楔形。
