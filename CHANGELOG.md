@@ -7,6 +7,7 @@
 ### English
 
 - Fix an error that could drop characters when typing quickly in a draft.
+- Windows: when GitHub rate-limits update checks, Check for updates now says so and when to try again, instead of reporting a network problem.
 - Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
 - Reference audio supports drag and drop and selecting generated speech from history, with audition, excerpt selection and an editable transcript. Saved references retain their source and remain usable after the original generation is deleted.
 - Qwen3 CustomVoice now labels its optional delivery instructions as style guidance and explains how they work with the built-in speaker.
@@ -18,6 +19,7 @@
 
 ### 简体中文
 - 修复快速输入作品正文时可能报错并丢字的问题。
+- Windows：GitHub 限制更新检查次数时，“检查更新”会说明原因和可重试的时间，不再误报为无法连接网络。
 - 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
 - 参考音频支持拖入文件，以及从生成历史选择语音、试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。
 - Qwen3 CustomVoice 将可选的演绎指令标为“风格指导”，说明其与内置音色的关系。

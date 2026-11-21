@@ -1,4 +1,6 @@
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -35,6 +37,26 @@ public sealed record UpdateRelease(
             asset.Url.AbsolutePath != $"/leemysw/yovoice/releases/download/{Tag}/{name}")
             throw new IOException(HostL10n.T("更新文件地址无效。", "The update download address is invalid."));
         return asset;
+    }
+    // 更新服务返回的错误响应：GitHub 未登录接口限流时返回 403 或 429，说明原因与可重试时间，不误报为网络问题。
+    public static string ServiceError(HttpResponseMessage response, DateTimeOffset now)
+    {
+        bool exhausted = response.Headers.TryGetValues("x-ratelimit-remaining", out var remaining) && remaining.FirstOrDefault() == "0";
+        bool limited = response.StatusCode == HttpStatusCode.TooManyRequests ||
+            response.StatusCode == HttpStatusCode.Forbidden && (exhausted || response.Headers.RetryAfter is not null);
+        if (!limited)
+            return HostL10n.T($"更新服务暂时不可用（HTTP {(int)response.StatusCode}），请稍后重试。", $"The update service is temporarily unavailable (HTTP {(int)response.StatusCode}). Try again later.");
+        DateTimeOffset? retry = response.Headers.RetryAfter switch
+        {
+            { Delta: { } delay } => now + delay,
+            { Date: { } date } => date,
+            _ when exhausted && response.Headers.TryGetValues("x-ratelimit-reset", out var reset) && long.TryParse(reset.FirstOrDefault(), out long seconds) => DateTimeOffset.FromUnixTimeSeconds(seconds),
+            _ => null,
+        };
+        if (retry is null)
+            return HostL10n.T("GitHub 暂时限制了更新检查次数，请稍后重试。", "GitHub is temporarily limiting update checks. Try again later.");
+        int minutes = Math.Max(1, (int)Math.Ceiling((retry.Value - now).TotalMinutes));
+        return HostL10n.T($"GitHub 暂时限制了更新检查次数，请约 {minutes} 分钟后重试。", $"GitHub is temporarily limiting update checks. Try again in about {minutes} min.");
     }
     public static string Checksum(string text, string name)
     {
