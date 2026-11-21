@@ -6,6 +6,7 @@
 
 ### English
 
+- Shorten Expression options and Speech sidebar labels across all interface languages to avoid clipped text, while keeping reference performance field headings in full.
 - Rapidly switching pages no longer reports an error when a visual transition is interrupted.
 - Browser preview: closing Stem Studio before its tracks finish loading no longer keeps their audio in memory.
 - Fix an error that could drop characters when typing quickly in a draft.
@@ -24,6 +25,7 @@
 - Settings > Assets: table columns now widen to fit their content, so headers, sort icons, type tags and status labels are no longer cut off in any language.
 
 ### 简体中文
+- 缩短各语言界面的演绎选项和语音侧栏标签，避免文字被截断；参考演绎字段标题保留完整文案。
 - 快速切换页面时，切换动画被打断不再报错。
 - 浏览器预览：分轨工作台在音轨加载完之前关闭，不再把这些音频一直留在内存里。
 - 修复快速输入作品正文时可能报错并丢字的问题。
