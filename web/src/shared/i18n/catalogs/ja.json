@@ -215,6 +215,9 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "最大生成長"
   },
+  "@yovoice.create.referencePerformance": {
+    "defaultMessage": "参照の演技"
+  },
   "@yovoice.create.mode.reference": {
     "defaultMessage": "参照の演技"
   },

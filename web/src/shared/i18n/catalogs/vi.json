@@ -215,6 +215,9 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "Độ dài tạo tối đa"
   },
+  "@yovoice.create.referencePerformance": {
+    "defaultMessage": "Theo âm thanh tham chiếu"
+  },
   "@yovoice.create.mode.reference": {
     "defaultMessage": "Theo âm thanh tham chiếu"
   },

@@ -215,6 +215,9 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "최대 생성 길이"
   },
+  "@yovoice.create.referencePerformance": {
+    "defaultMessage": "참조 연기"
+  },
   "@yovoice.create.mode.reference": {
     "defaultMessage": "참조 연기"
   },

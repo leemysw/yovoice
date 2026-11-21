@@ -215,6 +215,9 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "Макс. длина генерации"
   },
+  "@yovoice.create.referencePerformance": {
+    "defaultMessage": "По референсу исполнения"
+  },
   "@yovoice.create.mode.reference": {
     "defaultMessage": "По референсу исполнения"
   },

@@ -215,6 +215,9 @@
   "@yovoice.create.maxTokens": {
     "defaultMessage": "Comprimento máximo de geração"
   },
+  "@yovoice.create.referencePerformance": {
+    "defaultMessage": "Interpretação de referência"
+  },
   "@yovoice.create.mode.reference": {
     "defaultMessage": "Interpretação de referência"
   },
