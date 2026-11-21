@@ -4,6 +4,7 @@ package score
 import (
 	"context"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"math"
@@ -77,9 +78,19 @@ func Render(ctx context.Context, sf *meltysynth.SoundFont, s schema.Score, outpu
 	if e := schema.ValidateScore(&s); e != nil {
 		return e
 	}
+	tracks := slices.DeleteFunc(slices.Clone(s.Tracks), func(t schema.ScoreTrack) bool { return t.Mute })
+	if stems != "" {
+		for i, t := range tracks {
+			path := filepath.Join(stems, stemName(i, t))
+			if _, e := os.Lstat(path); e == nil {
+				return fmt.Errorf("输出文件已存在：%s", path)
+			} else if !errors.Is(e, os.ErrNotExist) {
+				return e
+			}
+		}
+	}
 	frames := int(math.Ceil((s.Duration() + tailSeconds) * SampleRate))
 	mixL, mixR := make([]float32, frames), make([]float32, frames)
-	tracks := slices.DeleteFunc(slices.Clone(s.Tracks), func(t schema.ScoreTrack) bool { return t.Mute })
 	for i, t := range tracks {
 		if e := ctx.Err(); e != nil {
 			return e
