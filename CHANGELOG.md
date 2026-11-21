@@ -6,6 +6,7 @@
 
 ### English
 
+- CLI model downloads now use the saved download source by default; failed downloads no longer change it, and explicit sources are saved only after success.
 - Score stem export now refuses existing stem files before writing any audio, instead of silently overwriting them.
 - Exporting large scores to MIDI is faster, with identical output.
 - Fix the microphone staying active after rapidly starting a recording, cancelling microphone access, or leaving the page while access is pending.
@@ -30,6 +31,7 @@
 - Choose reference audio now says when the reference library is empty or a search has no matches, instead of showing a blank list.
 
 ### 简体中文
+- CLI 模型下载默认沿用已保存的下载来源；下载失败不再改变来源，显式指定的来源仅在下载成功后保存。
 - 编曲分轨导出会在写入音频前检查并拒绝已有分轨文件，不再静默覆盖。
 - 修复快速重复开始录音、取消麦克风授权或等待授权时离开页面后，麦克风仍保持开启的问题。
 - 取消编曲渲染后及时停止，不再继续渲染并保存完整 WAV。
