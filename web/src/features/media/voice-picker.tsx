@@ -168,7 +168,7 @@ export function VoicePicker({ voices, history, onClose, onSelect, adding = false
             <Button label={t('@yovoice.history.configuration')} size="sm" variant="ghost" isIconOnly icon={<Info />} isDisabled={busy || recording} onClick={() => setDetails(item)} />
             <Player inline={{ label: t('@yovoice.voice.audition', { name: item.title }), select: () => setPreview({ id: item.id, name: item.title, fileName: item.fileName, kind: 'outputs', subtitle: item.settings.text, playRequest: Date.now() }) }} track={preview?.id === item.id ? preview : null} suspended={recording || busy} onError={message => { setPreview(null); setError(formatCallError(t, new Error(message))); }} />
           </HStack>)}</VStack>
-          {!matchingGenerations.length ? <p className="helper">{t(generations.length ? '@yovoice.library.noSearchResults' : '@yovoice.voice.noGenerated')}</p> : null}
+          {!matchingGenerations.length ? <HStack className="voice-list-empty" hAlign="center" vAlign="center"><p className="muted">{t(generations.length ? '@yovoice.library.noSearchResults' : '@yovoice.voice.noGenerated')}</p></HStack> : null}
         </> : null}
       </> : null}
       {showRecording ? <VStack className="recording-form" gap={4}>
@@ -191,7 +191,7 @@ export function VoicePicker({ voices, history, onClose, onSelect, adding = false
           onError={message => { setPreview(null); setError(formatCallError(t, new Error(message))); }} />
         <Button label={t('@yovoice.voice.crop')} size="sm" variant="secondary" isDisabled={recording || busy} onClick={() => void editExcerpt(voice)} />
       </HStack>)}</VStack> : null}
-      {showLibrary && !matchingVoices.length ? <p className="helper">{t(voices.length ? '@yovoice.library.noSearchResults' : '@yovoice.voice.noVoices')}</p> : null}
+      {showLibrary && !matchingVoices.length ? <HStack className="voice-list-empty" hAlign="center" vAlign="center"><p className="muted">{t(voices.length ? '@yovoice.library.noSearchResults' : '@yovoice.voice.noVoices')}</p></HStack> : null}
       {crop ? <VStack gap={3}>
         <h3>{t('@yovoice.voice.cropTitle', { name: crop.name })}</h3>
         <VoiceExcerptEditor buffer={crop.buffer} range={range} setRange={value => { setRange(value); if (crop.generation) setReferenceText(''); }} busy={busy}
