@@ -30,6 +30,7 @@
 - macOS: switching the interface language now relabels the whole native menu bar right away (Hide, Edit, Window and their items), without restarting the app.
 - Settings > Assets: table columns now widen to fit their content, so headers, sort icons, type tags and status labels are no longer cut off in any language.
 - Choose reference audio now says when the reference library is empty or a search has no matches, instead of showing a blank list.
+- Sharing a song to the community adds a Share without lyrics option, so unaligned lyrics no longer hold up sharing.
 
 ### 简体中文
 - CLI 模型下载默认沿用已保存的下载来源；下载失败不再改变来源，显式指定的来源仅在下载成功后保存。
@@ -54,6 +55,7 @@
 - macOS：切换界面语言后整个原生菜单栏立即换成新语言（隐藏、编辑、窗口及其菜单项），无需重启应用。
 - 设置 > 资源：表格各列按内容自动加宽，所有语言下的表头、排序图标、类型标签和状态都不再被截断。
 - 选择参考音频时，参考音频库为空或搜索没有结果会显示提示，不再是一片空白。
+- 分享歌曲到社区时新增“不带歌词分享”选项，歌词没对齐也可以直接跳过。
 
 ## [0.8.0] - 2026-11-15
 

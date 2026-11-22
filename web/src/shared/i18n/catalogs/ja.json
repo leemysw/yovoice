@@ -4949,6 +4949,9 @@
   "@yovoice.community.lyricsUnaligned": {
     "defaultMessage": "歌詞がまだ同期されていないため、コミュニティページには表示されません。先に再生ページで同期できます。"
   },
+  "@yovoice.community.skipLyrics": {
+    "defaultMessage": "歌詞なしで共有"
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "この曲を共有する権利があり、コミュニティ規約に同意します"
   },
