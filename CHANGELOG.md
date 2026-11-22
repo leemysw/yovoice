@@ -4,58 +4,39 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-22
+
 ### English
 
-- Fix enabling the Local API immediately after editing its port: one click now starts the listener on the new port.
-- CLI model downloads now use the saved download source by default; failed downloads no longer change it, and explicit sources are saved only after success.
-- Score stem export now refuses existing stem files before writing any audio, instead of silently overwriting them.
-- Exporting large scores to MIDI is faster, with identical output.
-- Fix the microphone staying active after rapidly starting a recording, cancelling microphone access, or leaving the page while access is pending.
-- Cancelling score rendering now stops promptly without saving a completed WAV.
-- Shorten Expression options and Speech sidebar labels across all interface languages to avoid clipped text, while keeping reference performance field headings in full.
-- Rapidly switching pages no longer reports an error when a visual transition is interrupted.
-- Browser preview: closing Stem Studio before its tracks finish loading no longer keeps their audio in memory.
-- Fix an error that could drop characters when typing quickly in a draft.
-- Fix a Linux desktop freeze when opening the Model menu or returning to the workbench from Settings on WebKitGTK 2.50.
-- Fix the first-run tour spotlight on Linux so its rounded highlight stays on the intended control without a large white wedge.
-- Windows: when GitHub rate-limits update checks, Check for updates now says so and when to try again, instead of reporting a network problem.
-- Fix data loss: generating speech no longer silently deletes older takes after ten versions. API history and completed story takes are also retained during generation, startup and residual cleanup until explicitly deleted.
-- Reference audio supports drag and drop and selecting generated speech from history, with audition, excerpt selection and an editable transcript. Saved references retain their source and remain usable after the original generation is deleted.
-- Qwen3 CustomVoice now labels its optional delivery instructions as style guidance and explains how they work with the built-in speaker.
-- New speech model Audio8 TTS Realistic 0.6B (Q8 / BF16): default voice and voice cloning with automatic language detection across 11 languages, 44.1 kHz output; cloning requires the reference transcript.
-- Story narration evens out each line's loudness as it is generated, so lines no longer jump between quiet and loud. Lines generated earlier keep their level until regenerated.
-- Importing a book recognizes scripts written as “Name: line” and casts each name as a role; narrator lines and notes such as Scene or Time are not treated as roles. Import book is also in the New project menu.
-- Generation history shows model tags and a read-only configuration view with the saved text, time, seed and parameters, plus JSON export. The same view is available while selecting historical speech as a reference.
-- Ming 3.0 TTS adds control modes: built-in voices picked from a list (with emotion variants where available), emotion, dialect (Cantonese, Sichuan-Chongqing), speed / pitch / volume, and free-form instructions. Paralinguistic tags such as [Laughter] can be inserted into the text.
-- macOS: switching the interface language now relabels the whole native menu bar right away (Hide, Edit, Window and their items), without restarting the app.
-- Settings > Assets: table columns now widen to fit their content, so headers, sort icons, type tags and status labels are no longer cut off in any language.
-- Choose reference audio now says when the reference library is empty or a search has no matches, instead of showing a blank list.
-- Sharing a song to the community adds a Share without lyrics option, so unaligned lyrics no longer hold up sharing.
+- Fix data loss: generating speech no longer deletes older takes after ten versions. API history and completed story takes are also kept until you delete them.
+- New speech model Audio8 TTS Realistic 0.6B (Q8 / BF16): default voice and voice cloning in 11 languages with automatic detection, 44.1 kHz output; cloning needs the reference transcript.
+- Ming 3.0 TTS adds control modes: built-in voices from a list (some with emotion variants), emotion, dialect (Cantonese, Sichuan-Chongqing), speed / pitch / volume and free-form instructions, plus tags such as [Laughter] in the text. Qwen3 CustomVoice labels its optional instructions as style guidance.
+- Reference audio: drag in a file or pick generated speech from history, audition it, select an excerpt and edit its transcript. Saved references keep their source and still work after the original generation is deleted. The picker says when the library is empty or a search finds nothing.
+- Generation history shows model tags and a read-only view of the saved text, time, seed and parameters, with JSON export.
+- Story narration evens out each line's loudness as it is generated. Importing a book recognizes “Name: line” scripts and casts each name as a role, and Import book is also in the New project menu.
+- Sharing a song to the community can skip lyrics, so unaligned lyrics no longer hold up sharing.
+- Scores: exporting large scores to MIDI is faster, stem export refuses to overwrite existing files, and cancelling rendering stops promptly without saving a WAV.
+- CLI model downloads use the saved download source; a failed download no longer changes it.
+- macOS: switching the interface language relabels the whole menu bar right away. Windows: when GitHub rate-limits update checks, the app says so and when to try again.
+- Fixes: Linux freezing on WebKitGTK 2.50 when opening the Model menu or leaving Settings, and the first-run tour spotlight on Linux; the microphone staying on after quickly cancelling a recording or leaving the page; dropped characters when typing fast in a draft; enabling the Local API right after changing its port; clipped labels in Expression options, the Speech sidebar and Settings › Assets tables; errors when switching pages quickly.
 
 ### 简体中文
-- CLI 模型下载默认沿用已保存的下载来源；下载失败不再改变来源，显式指定的来源仅在下载成功后保存。
-- 编曲分轨导出会在写入音频前检查并拒绝已有分轨文件，不再静默覆盖。
-- 修复快速重复开始录音、取消麦克风授权或等待授权时离开页面后，麦克风仍保持开启的问题。
-- 取消编曲渲染后及时停止，不再继续渲染并保存完整 WAV。
-- 缩短各语言界面的演绎选项和语音侧栏标签，避免文字被截断；参考演绎字段标题保留完整文案。
-- 快速切换页面时，切换动画被打断不再报错。
-- 浏览器预览：分轨工作台在音轨加载完之前关闭，不再把这些音频一直留在内存里。
-- 修复快速输入作品正文时可能报错并丢字的问题。
-- 修复 Linux 桌面版在 WebKitGTK 2.50 上打开模型菜单或从设置返回工作台时卡死的问题。
-- 修复 Linux 首次使用引导的聚光遮罩，让圆角高亮准确覆盖目标控件，不再出现大片白色楔形。
-- Windows：GitHub 限制更新检查次数时，“检查更新”会说明原因和可重试的时间，不再误报为无法连接网络。
-- 修复音频丢失：语音生成不再达到十次后自动删除较早版本及原音频；接口历史和已完成的故事逐句版本也不会在生成、启动或清理残留时自动删除，保留到用户明确删除。
-- 参考音频支持拖入文件，以及从生成历史选择语音、试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。
-- Qwen3 CustomVoice 将可选的演绎指令标为“风格指导”，说明其与内置音色的关系。
+
+- 修复音频丢失：语音生成不再在十个版本后删除较早的版本；接口历史和已完成的故事逐句版本也一直保留，直到你自己删除。
 - 新增语音模型 Audio8 TTS Realistic 0.6B（Q8 / BF16）：默认音色与音色克隆，自动识别 11 种语言，44.1 kHz 输出；克隆需填写参考原文。
-- 故事配音逐句生成时统一响度，句与句之间不再忽大忽小；之前生成的句子重新生成后才会调整。
-- 导入小说可识别“角色：台词”格式的剧本，按名字分角色；“旁白”行和“场景”“时间”等说明行不算角色。“新建作品”菜单里也可以直接导入小说。
-- 生成历史新增模型标签和只读的生成配置详情，可查看保存的文字、时间、随机种子与参数并导出 JSON；选择历史语音作为参考时也可查看。
-- Ming 3.0 TTS 新增控制方式：从列表选择内置音色（部分音色可选情感）、情感、方言（粤语、川渝话）、语速 / 音高 / 音量，以及自由指令；正文可插入 [Laughter] 等非语言声音标签。
-- macOS：切换界面语言后整个原生菜单栏立即换成新语言（隐藏、编辑、窗口及其菜单项），无需重启应用。
-- 设置 > 资源：表格各列按内容自动加宽，所有语言下的表头、排序图标、类型标签和状态都不再被截断。
-- 选择参考音频时，参考音频库为空或搜索没有结果会显示提示，不再是一片空白。
-- 分享歌曲到社区时新增“不带歌词分享”选项，歌词没对齐也可以直接跳过。
+- Ming 3.0 TTS 新增控制方式：从列表选内置音色（部分可选情感）、情感、方言（粤语、川渝话）、语速 / 音高 / 音量和自由指令，正文可插入 [Laughter] 等标签。Qwen3 CustomVoice 的可选指令改称“风格指导”。
+- 参考音频：可以拖入文件，或从生成历史里选语音，试听、截取节选并编辑原文；保存的样本保留来源，删除原生成记录后仍可使用。参考音频库为空或搜索没有结果时会提示。
+- 生成历史显示模型标签，可查看保存的文字、时间、随机种子与参数，并导出 JSON。
+- 故事配音逐句生成时统一响度；导入小说能识别“角色：台词”格式的剧本并按名字分角色，“新建作品”菜单里也能直接导入小说。
+- 分享歌曲到社区时可以不带歌词，歌词没对齐也能直接分享。
+- 编曲：大谱子导出 MIDI 更快，分轨导出不再覆盖已有文件，取消渲染后及时停止、不保存 WAV。
+- 命令行下载模型沿用已保存的下载来源，下载失败不再改动它。
+- macOS 切换界面语言后整个菜单栏立即换成新语言；Windows 上 GitHub 限制更新检查时，会说明原因和可重试的时间。
+- 修复：Linux 在 WebKitGTK 2.50 上打开模型菜单或离开设置时卡死，以及首次引导的聚光遮罩错位；快速取消录音或离开页面后麦克风仍开着；快速输入作品正文时丢字；改完本地接口端口后马上开启不生效；演绎选项、语音侧栏和“设置 › 资源”表格的文字被截断；快速切换页面时报错。
+
+### 贡献者 / Contributors
+
+@leemysw @david-bowiegxw
 
 ## [0.8.0] - 2026-11-15
 
