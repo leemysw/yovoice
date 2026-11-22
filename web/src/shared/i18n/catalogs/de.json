@@ -4949,6 +4949,9 @@
   "@yovoice.community.lyricsUnaligned": {
     "defaultMessage": "Der Liedtext ist noch nicht synchronisiert und erscheint daher nicht auf der Community-Seite. Du kannst ihn zuerst auf der Wiedergabeseite synchronisieren."
   },
+  "@yovoice.community.skipLyrics": {
+    "defaultMessage": "Ohne Liedtext teilen"
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "Ich darf diesen Song teilen und stimme den Community-Bedingungen zu"
   },

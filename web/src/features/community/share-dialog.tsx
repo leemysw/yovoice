@@ -45,17 +45,19 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
   const [tags, setTags] = useState(() => defaultShareTags(generation.settings.text));
   const [license, setLicense] = useState('noncommercial');
   const [accepted, setAccepted] = useState(false);
+  // 有歌词时可以选择不带歌词分享：没对齐、不想对齐或歌词不想公开都能跳过。
+  const [skipLyrics, setSkipLyrics] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const fail = (e: unknown) => setError(noticeMessage(e));
-  // 对齐过的歌词随歌曲分享，社区页按它滚动显示；没对齐时提醒先去对齐。
+  // 对齐过的歌词随歌曲分享，社区页按它滚动显示；没对齐时提醒先去对齐，也可以选择不带歌词。
   const lyrics = sharedLyrics(generation);
   const share: CommunityShare | undefined = community?.share?.generationId === generation.id ? community.share : undefined;
   const dismiss = () => call('community.share.close').catch(fail);
   const submit = async () => {
     setBusy(true); setError('');
     try {
-      await call('community.share', { generationId: generation.id, title: title.trim(), description: description.trim(), tags: tags.split(/[,，、]/).map(tag => tag.trim()).filter(Boolean), license, acceptTerms: accepted, lyrics: lyrics.state === 'aligned' ? lyrics.lines : [] });
+      await call('community.share', { generationId: generation.id, title: title.trim(), description: description.trim(), tags: tags.split(/[,，、]/).map(tag => tag.trim()).filter(Boolean), license, acceptTerms: accepted, lyrics: lyrics.state === 'aligned' && !skipLyrics ? lyrics.lines : [] });
     } catch (e) { fail(e); } finally { setBusy(false); }
   };
   const heading = t('@yovoice.community.share');
@@ -90,7 +92,8 @@ export function ShareDialog({ generation, name, community, onClose }: { generati
     <Selector label={t('@yovoice.community.license')} value={license} onChange={setLicense} description={license === 'open' ? t('@yovoice.community.licenseHint') : undefined}
       options={[{ value: 'noncommercial', label: t('@yovoice.community.licenseNoncommercial') }, { value: 'open', label: t('@yovoice.community.licenseOpen') }]} />
     <Text type="supporting" color="secondary">{t('@yovoice.community.contents')}</Text>
-    {lyrics.state === 'unaligned' ? <Text type="supporting" color="secondary" role="note">{t('@yovoice.community.lyricsUnaligned')}</Text> : null}
+    {lyrics.state === 'none' ? null : <CheckboxInput label={t('@yovoice.community.skipLyrics')} value={skipLyrics} onChange={setSkipLyrics} />}
+    {lyrics.state === 'unaligned' && !skipLyrics ? <Text type="supporting" color="secondary" role="note">{t('@yovoice.community.lyricsUnaligned')}</Text> : null}
     <HStack gap={3} vAlign="center">
       <CheckboxInput label={termsText} isLabelHidden value={accepted} onChange={setAccepted} />
       <Text color="secondary" onClick={() => setAccepted(value => !value)}>{termsBefore}<Link href={communityTermsUrl} isExternalLink onClick={event => event.stopPropagation()}>{termsLink}</Link>{termsAfter}</Text>

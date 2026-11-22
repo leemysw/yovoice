@@ -24,6 +24,12 @@ test('分享歌曲到社区：先登录，填写后上传，设置里能看到�
   await expect(dialog.getByRole('textbox', { name: '标题' })).toHaveValue('夜航');
   // 这一版的歌词还没对齐：提醒社区页不会显示歌词。
   await expect(dialog.getByRole('note')).toContainText('歌词还没对齐');
+  // 不想对齐可以直接跳过：勾上“不带歌词分享”，提醒随之消失；取消勾选又回来。
+  const skipLyrics = dialog.getByRole('checkbox', { name: '不带歌词分享' });
+  await skipLyrics.check();
+  await expect(dialog.getByRole('note')).toHaveCount(0);
+  await skipLyrics.uncheck();
+  await expect(dialog.getByRole('note')).toContainText('歌词还没对齐');
 
   // 没同意条款不能分享；默认许可是非商用。
   const submit = dialog.getByRole('button', { name: '分享', exact: true });
@@ -76,4 +82,6 @@ test('分享对齐过的歌曲时不再提醒对齐歌词', async ({ page }) => 
   await dialog.getByRole('button', { name: '登录' }).click();
   await expect(dialog.getByRole('textbox', { name: '标题' })).toHaveValue('晚风');
   await expect(dialog.getByRole('note')).toHaveCount(0);
+  // 对齐过的歌词默认随歌曲分享，也可以选择不带。
+  await expect(dialog.getByRole('checkbox', { name: '不带歌词分享' })).not.toBeChecked();
 });

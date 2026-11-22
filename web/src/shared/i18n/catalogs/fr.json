@@ -4949,6 +4949,9 @@
   "@yovoice.community.lyricsUnaligned": {
     "defaultMessage": "Les paroles ne sont pas encore synchronisées et n'apparaîtront pas sur la page communauté. Tu peux d'abord les synchroniser sur la page de lecture."
   },
+  "@yovoice.community.skipLyrics": {
+    "defaultMessage": "Partager sans les paroles"
+  },
   "@yovoice.community.terms": {
     "defaultMessage": "J'ai le droit de partager cette chanson et j'accepte les conditions de la communauté"
   },
