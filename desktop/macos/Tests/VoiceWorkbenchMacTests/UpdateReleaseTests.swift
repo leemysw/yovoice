@@ -62,4 +62,35 @@ final class UpdateReleaseTests: XCTestCase {
         XCTAssertThrowsError(try UpdateRelease.checksum("\(hash)  \(name)\n\(other)  \(name)", for: name))
         XCTAssertThrowsError(try UpdateRelease.checksum("invalid  \(name)", for: name))
     }
+
+    func testReleaseManifestDecodesLikeReleaseApi() throws {
+        // 与 scripts/release-manifest.py 生成的 latest.json 同形。
+        let json = #"{"tag_name":"v0.10.0","draft":false,"prerelease":false,"published_at":"2026-11-24T08:00:00Z","body":"## [0.10.0]","assets":[{"name":"SHA256SUMS.txt","browser_download_url":"https://github.com/leemysw/yovoice/releases/download/v0.10.0/SHA256SUMS.txt"},{"name":"yovoice-v0.10.0-macos-arm64.zip","browser_download_url":"https://github.com/leemysw/yovoice/releases/download/v0.10.0/yovoice-v0.10.0-macos-arm64.zip"}]}"#
+        let release = try JSONDecoder().decode(UpdateRelease.self, from: Data(json.utf8))
+        XCTAssertEqual(try release.package(newerThan: "0.9.0")?.name, "yovoice-v0.10.0-macos-arm64.zip")
+        XCTAssertEqual(try release.asset(named: "SHA256SUMS.txt").name, "SHA256SUMS.txt")
+        XCTAssertEqual(release.notes, "## [0.10.0]")
+    }
+
+    func testRateLimitedResponsesExplainWhenToRetry() {
+        let original = HostL10n.locale
+        defer { HostL10n.setLocale(original) }
+        HostL10n.setLocale(.en)
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        func response(_ status: Int, _ headers: [String: String] = [:]) -> HTTPURLResponse {
+            HTTPURLResponse(url: URL(string: "https://api.github.com/repos/leemysw/yovoice/releases/latest")!, statusCode: status, httpVersion: nil, headerFields: headers)!
+        }
+        XCTAssertEqual(UpdateRelease.serviceError(response(403, ["x-ratelimit-remaining": "0", "x-ratelimit-reset": "1800001450"]), now: now),
+                       "GitHub is temporarily limiting update checks. Try again in about 25 min.")
+        XCTAssertEqual(UpdateRelease.serviceError(response(403, ["Retry-After": "30"]), now: now),
+                       "GitHub is temporarily limiting update checks. Try again in about 1 min.")
+        // now 是 2027-01-15 08:00:00 GMT。
+        XCTAssertEqual(UpdateRelease.serviceError(response(429, ["Retry-After": "Fri, 15 Jan 2027 08:10:00 GMT"]), now: now),
+                       "GitHub is temporarily limiting update checks. Try again in about 10 min.")
+        XCTAssertEqual(UpdateRelease.serviceError(response(429), now: now), "GitHub is temporarily limiting update checks. Try again later.")
+        XCTAssertEqual(UpdateRelease.serviceError(response(403, ["x-ratelimit-remaining": "12"]), now: now),
+                       "The update service is temporarily unavailable (HTTP 403). Try again later.")
+        XCTAssertEqual(UpdateRelease.serviceError(response(502), now: now),
+                       "The update service is temporarily unavailable (HTTP 502). Try again later.")
+    }
 }
