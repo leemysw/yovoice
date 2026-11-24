@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Pagine del log"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Segnala un problema"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Segnala un problema"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Esporta diagnostica"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Esporta di nuovo"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Apri issue su GitHub"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "L’ultima volta yovoice non si è chiuso correttamente."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Il motore di inferenza si è arrestato inaspettatamente."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Esporta la diagnostica e salvala in un posto facile da trovare."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Apri la issue su GitHub. Versione, sistema, motore e codici di errore recenti sono già compilati."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Descrivi cosa stavi facendo, poi trascina il pacchetto nella descrizione."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Il pacchetto contiene i log, l’output di errore del motore e i rapporti di arresto anomalo del sistema. La cartella home è sostituita da ~; non include testi, liriche né chiavi. Puoi controllarlo prima di pubblicarlo."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copia"
   },

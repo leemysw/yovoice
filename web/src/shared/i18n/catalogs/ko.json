@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "로그 페이지"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "문제 신고"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "문제 신고"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "진단 패키지 내보내기"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "다시 내보내기"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "GitHub issue 열기"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice가 지난번에 정상적으로 종료되지 않았습니다."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "추론 엔진이 예기치 않게 종료되었습니다."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "진단 패키지를 내보내 찾기 쉬운 곳에 저장합니다."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "GitHub issue를 엽니다. 버전, 시스템, 엔진, 최근 오류 코드는 이미 채워져 있습니다."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "당시 하던 작업을 적고 패키지를 설명란으로 끌어 놓습니다."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "패키지에는 로그, 엔진 오류 출력, 시스템 충돌 보고서가 들어 있습니다. 홈 폴더는 ~로 바뀌며 본문, 가사, 키는 포함되지 않습니다. 올리기 전에 내용을 확인할 수 있습니다."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "복사"
   },

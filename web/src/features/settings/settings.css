@@ -6,6 +6,8 @@
   .model-row .precision { padding: 0 var(--spacing-1); border: var(--border-width) solid var(--color-border-emphasized); border-radius: var(--radius-inner); font-family: var(--app-mono); font-size: var(--font-size-xs); letter-spacing: .04em; }
   .model-row .model-size { font-family: var(--app-mono); font-size: var(--font-size-xs); }
   .log-event { font-family: var(--font-family-code); }
+  /* 反馈问题弹窗里的三步说明。 */
+  .feedback-steps { margin: 0; padding-inline-start: var(--spacing-5); display: grid; gap: var(--spacing-2); list-style: decimal; }
   .model-size { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .model-row > .model-summary > .astryx-button { min-width: calc(var(--spacing-10) * 2.5); }
   .compute-device { max-width: calc(var(--spacing-10) * 6); }

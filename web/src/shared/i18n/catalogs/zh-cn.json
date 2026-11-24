@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "日志分页"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "反馈问题"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "反馈问题"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "导出诊断包"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "重新导出"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "打开 GitHub issue"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice 上次没有正常退出。"
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "推理引擎意外退出了。"
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "导出诊断包，存到容易找到的位置。"
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "打开 GitHub issue，版本、系统、内核和最近的错误码已经填好。"
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "写下当时在做什么，再把诊断包拖进描述框。"
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "诊断包里是日志、推理引擎的错误输出和系统崩溃报告，用户主目录已替换为 ~，不含正文、歌词和密钥。发出前可以先打开看看。"
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "复制"
   },

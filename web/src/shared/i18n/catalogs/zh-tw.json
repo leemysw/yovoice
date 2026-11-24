@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "日誌分頁"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "回報問題"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "回報問題"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "匯出診斷包"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "重新匯出"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "開啟 GitHub issue"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice 上次沒有正常結束。"
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "推論引擎意外結束了。"
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "匯出診斷包，存到容易找到的位置。"
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "開啟 GitHub issue，版本、系統、核心和最近的錯誤碼已經填好。"
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "寫下當時在做什麼，再把診斷包拖進描述框。"
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "診斷包裡是日誌、推論引擎的錯誤輸出和系統當機報告，使用者主目錄已替換為 ~，不含正文、歌詞和金鑰。送出前可以先打開看看。"
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "複製"
   },

@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Log pages"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Report a problem"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Report a problem"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Export diagnostics"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Export again"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Open GitHub issue"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice did not close normally last time."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "The inference engine stopped unexpectedly."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Export the diagnostics package and save it somewhere easy to find."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Open the GitHub issue. Your version, system, engine and recent error codes are already filled in."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Describe what you were doing, then drag the package into the description box."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "The package holds logs, the engine’s error output and system crash reports. Your home folder is replaced with ~; no text, lyrics or keys are included. Look inside before posting if you like."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copy"
   },

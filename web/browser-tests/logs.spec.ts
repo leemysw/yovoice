@@ -65,3 +65,28 @@ test('日志页显示关键操作，筛选错误并查看详情与导出', async
   const lines = (await readFile(testInfo.outputPath('logs.jsonl'), 'utf8')).trim().split('\n').map(line => JSON.parse(line));
   expect(lines.map(line => line.msg)).toEqual(['preferences.save', 'character.save', 'client.export_saved']);
 });
+
+test('上次异常退出时提示一次，可导出诊断包并打开预填的 issue', async ({ page }, testInfo) => {
+  await page.addInitScript(() => { localStorage.setItem('yovoice-preview-crash', '2026-11-24T10:00:00Z'); });
+  await page.goto('/');
+  await seedState(page, emptyState()); await page.reload();
+  const notice = page.getByTestId('crash-notice');
+  await expect(notice).toContainText('推理引擎意外退出了');
+  await notice.getByRole('button', { name: '反馈问题', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '反馈问题' });
+  await expect(dialog).toContainText('把诊断包拖进描述框');
+  await expect(dialog.getByRole('link', { name: '打开 GitHub issue' })).toHaveAttribute('href', /github\.com\/leemysw\/yovoice\/issues\/new/);
+  await page.screenshot({ path: testInfo.outputPath('feedback.png') });
+  await dialog.getByRole('button', { name: '导出诊断包', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: '重新导出', exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: '关闭', exact: true }).first().click();
+  // 同一次异常只提示一次。
+  await page.reload();
+  await expect(page.getByRole('heading').first()).toBeVisible();
+  await expect(page.getByTestId('crash-notice')).toHaveCount(0);
+  // 设置 › 日志里随时可以反馈问题。
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '日志', exact: true }).click();
+  await page.getByRole('tabpanel', { name: '日志' }).getByRole('button', { name: '反馈问题', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '反馈问题' })).toBeVisible();
+});

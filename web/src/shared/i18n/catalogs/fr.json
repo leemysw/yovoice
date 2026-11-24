@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Pages du journal"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Signaler un problème"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Signaler un problème"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Exporter le diagnostic"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Exporter à nouveau"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Ouvrir une issue GitHub"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice ne s’est pas fermé normalement la dernière fois."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Le moteur d’inférence s’est arrêté de façon inattendue."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Exportez le diagnostic et enregistrez-le à un endroit facile à retrouver."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Ouvrez l’issue GitHub. La version, le système, le moteur et les codes d’erreur récents sont déjà remplis."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Décrivez ce que vous faisiez, puis glissez le paquet dans la zone de description."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Le paquet contient les journaux, la sortie d’erreur du moteur et les rapports de plantage du système. Votre dossier personnel est remplacé par ~ ; aucun texte, parole ni clé n’est inclus. Vous pouvez l’ouvrir avant de le publier."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copier"
   },

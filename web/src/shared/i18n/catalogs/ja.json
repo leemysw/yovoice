@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "ログのページ"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "問題を報告"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "問題を報告"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "診断パッケージを書き出す"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "もう一度書き出す"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "GitHub issue を開く"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice は前回正常に終了しませんでした。"
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "推論エンジンが予期せず終了しました。"
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "診断パッケージを書き出し、見つけやすい場所に保存します。"
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "GitHub issue を開きます。バージョン、システム、エンジン、最近のエラーコードは入力済みです。"
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "そのとき何をしていたかを書き、パッケージを説明欄にドラッグします。"
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "パッケージにはログ、エンジンのエラー出力、システムのクラッシュレポートが入っています。ホームフォルダは ~ に置き換え済みで、本文・歌詞・キーは含みません。投稿前に中身を確認できます。"
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "コピー"
   },

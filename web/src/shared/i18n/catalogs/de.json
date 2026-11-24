@@ -3410,6 +3410,39 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Protokollseiten"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Problem melden"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Problem melden"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Diagnose exportieren"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Erneut exportieren"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "GitHub-Issue öffnen"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice wurde beim letzten Mal nicht normal beendet."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Die Inferenz-Engine wurde unerwartet beendet."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Diagnose exportieren und an einem leicht auffindbaren Ort speichern."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "GitHub-Issue öffnen. Version, System, Engine und letzte Fehlercodes sind bereits ausgefüllt."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Beschreiben, was Sie gerade getan haben, und das Paket in das Beschreibungsfeld ziehen."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Das Paket enthält Protokolle, die Fehlerausgabe der Engine und Absturzberichte des Systems. Ihr Benutzerordner wird durch ~ ersetzt; Texte, Liedtexte und Schlüssel sind nicht enthalten. Sie können es vor dem Posten prüfen."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Kopieren"
   },
