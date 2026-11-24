@@ -71,6 +71,8 @@ jobs:
           shopt -s nullglob
           for delta in packages/*-to-"$TAG"-*.delta; do mv "$delta" release/; done
           (cd release && sha256sum ./* > SHA256SUMS.txt)
+          # 桌面应用从 releases/latest/download/latest.json 检查更新，不走有限流的 GitHub 接口。
+          python3 scripts/release-manifest.py "$TAG" release release_notes.md
       - name: Publish application release
         env:
           GH_TOKEN: ${{ github.token }}

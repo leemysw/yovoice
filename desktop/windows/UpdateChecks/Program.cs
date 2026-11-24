@@ -44,4 +44,7 @@ Require(UpdateRelease.ServiceError(Response(System.Net.HttpStatusCode.Forbidden,
 Require(UpdateRelease.ServiceError(Response(System.Net.HttpStatusCode.TooManyRequests), now) == "GitHub is temporarily limiting update checks. Try again later.");
 Require(UpdateRelease.ServiceError(Response(System.Net.HttpStatusCode.Forbidden, ("x-ratelimit-remaining", "12")), now) == "The update service is temporarily unavailable (HTTP 403). Try again later.");
 Require(UpdateRelease.ServiceError(Response(System.Net.HttpStatusCode.BadGateway), now) == "The update service is temporarily unavailable (HTTP 502). Try again later.");
-Console.WriteLine("版本比较、正式版筛选、Setup 选择、下载地址和校验文件、发布说明、限流提示检查通过。");
+// 版本附带的 latest.json（scripts/release-manifest.py 生成）与 Releases 接口同形，按同一规则选更新包。
+var manifest = System.Text.Json.JsonSerializer.Deserialize<UpdateRelease>($$"""{"tag_name":"v0.10.0","draft":false,"prerelease":false,"published_at":"2026-11-24T08:00:00Z","body":"## [0.10.0]","assets":[{"name":"SHA256SUMS.txt","browser_download_url":"https://github.com/leemysw/yovoice/releases/download/v0.10.0/SHA256SUMS.txt"},{"name":"{{name}}","browser_download_url":"https://github.com/leemysw/yovoice/releases/download/v0.10.0/{{name}}"}]}""", new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+Require(manifest.Package("0.9.0")?.Name == name && manifest.Asset("SHA256SUMS.txt").Name == "SHA256SUMS.txt" && manifest.Notes == "## [0.10.0]");
+Console.WriteLine("版本比较、正式版筛选、Setup 选择、下载地址和校验文件、发布说明、限流提示、更新清单检查通过。");

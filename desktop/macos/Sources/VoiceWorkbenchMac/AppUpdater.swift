@@ -28,6 +28,10 @@ final class AppUpdater {
     private let root: URL
     private let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
     private let releases = URL(string: "https://github.com/leemysw/yovoice/releases/latest")!
+    // 版本附带的更新清单走普通文件下载，不受 GitHub 未登录接口每个 IP 每小时 60 次的限制；
+    // 字段与 Releases 接口一致，没有清单的旧版本再查接口。
+    private static let manifest = URL(string: "https://github.com/leemysw/yovoice/releases/latest/download/latest.json")!
+    private static let releaseApi = URL(string: "https://api.github.com/repos/leemysw/yovoice/releases/latest")!
     private var operation: Task<Void, Never>?
     private var timer: Timer?
     private var ready: (app: URL, version: String)?
@@ -104,9 +108,7 @@ final class AppUpdater {
             snapshot.total = 0
             publish()
             do {
-                let url = URL(string: "https://api.github.com/repos/leemysw/yovoice/releases/latest")!
-                let (data, response) = try await URLSession.shared.data(for: request(url))
-                if (response as? HTTPURLResponse)?.statusCode == 404 {
+                guard let release = try await latestRelease() else {
                     menuItem.title = HostL10n.t("menu.checkUpdates")
                     snapshot.status = "latest"
                     snapshot.checkedAt = Self.now()
@@ -114,8 +116,6 @@ final class AppUpdater {
                     if showResult { inform(HostL10n.t("alert.noUpdate.title"), HostL10n.t("alert.noUpdate.body")) }
                     return
                 }
-                try Self.validate(response)
-                let release = try JSONDecoder().decode(UpdateRelease.self, from: data)
                 let asset = try release.package(newerThan: currentVersion)
                 // 版本号已校验，过时版本的安装包与解压副本不再保留。
                 Self.removeStaleUpdates(in: root, keeping: release.tag_name)
@@ -184,6 +184,20 @@ final class AppUpdater {
                 if showResult { showFailure(error) }
             }
         }
+    }
+
+    // 最新正式版的信息；GitHub 上还没有正式版时返回 nil。
+    private func latestRelease() async throws -> UpdateRelease? {
+        if let manifest = try? await URLSession.shared.data(for: request(Self.manifest)),
+           (manifest.1 as? HTTPURLResponse)?.statusCode == 200,
+           let release = try? JSONDecoder().decode(UpdateRelease.self, from: manifest.0) {
+            return release
+        }
+        try Task.checkCancellation()
+        let (data, response) = try await URLSession.shared.data(for: request(Self.releaseApi))
+        if (response as? HTTPURLResponse)?.statusCode == 404 { return nil }
+        try Self.validate(response)
+        return try JSONDecoder().decode(UpdateRelease.self, from: data)
     }
 
     private func prepareAsset(_ candidate: UpdateRelease.Asset, sums: String, directory: URL, version: String, team: String, deltaBase: (URL, String)?) async throws -> URL {
@@ -313,8 +327,11 @@ final class AppUpdater {
     }
 
     nonisolated private static func validate(_ response: URLResponse) throws {
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse else {
             throw UpdateRelease.failure(HostL10n.t("err.updateUnavailable"))
+        }
+        guard http.statusCode == 200 else {
+            throw UpdateRelease.failure(UpdateRelease.serviceError(http, now: Date()))
         }
     }
 
@@ -431,8 +448,12 @@ final class UpdateDownload: NSObject, URLSessionDownloadDelegate, @unchecked Sen
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         // 临时文件在回调返回后删除，必须在这里移走。
-        guard (downloadTask.response as? HTTPURLResponse)?.statusCode == 200 else {
+        guard let http = downloadTask.response as? HTTPURLResponse else {
             failure = UpdateRelease.failure(HostL10n.t("err.updateUnavailable"))
+            return
+        }
+        guard http.statusCode == 200 else {
+            failure = UpdateRelease.failure(UpdateRelease.serviceError(http, now: Date()))
             return
         }
         do {

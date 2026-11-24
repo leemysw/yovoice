@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### English
+
+- macOS and Windows check for updates through a small file published with each release instead of the GitHub API, so a shared network that has used up GitHub's hourly limit no longer makes updates fail. On macOS, when GitHub does limit checks, the app says so and when to try again; other update errors show their HTTP status.
+
+### 简体中文
+
+- macOS 和 Windows 改为从每个版本附带的小文件检查更新，不再依赖 GitHub 接口；多人共用的网络用光了 GitHub 每小时的查询次数时，不会再更新失败。macOS 上遇到 GitHub 限制检查次数时会说明原因和多久后可重试，其他更新错误会显示 HTTP 状态码。
+
 ## [0.9.0] - 2026-11-22
 
 ### English

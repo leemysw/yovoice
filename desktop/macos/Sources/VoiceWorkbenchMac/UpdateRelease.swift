@@ -57,6 +57,32 @@ struct UpdateRelease: Decodable {
         return hash
     }
 
+    // 更新服务返回错误状态时的说明：GitHub 未登录接口限流时返回 403 或 429，说明原因与可重试时间，
+    // 不笼统地报“暂时不可用”；其他状态带上状态码，便于排查。
+    static func serviceError(_ response: HTTPURLResponse, now: Date) -> String {
+        let exhausted = response.value(forHTTPHeaderField: "x-ratelimit-remaining") == "0"
+        let retryAfter = response.value(forHTTPHeaderField: "Retry-After")
+        let limited = response.statusCode == 429 || response.statusCode == 403 && (exhausted || retryAfter != nil)
+        guard limited else { return HostL10n.t("err.updateUnavailableStatus", response.statusCode) }
+        var retry: Date?
+        if let retryAfter {
+            if let seconds = TimeInterval(retryAfter.trimmingCharacters(in: .whitespaces)) {
+                retry = now.addingTimeInterval(seconds)
+            } else {
+                let formatter = DateFormatter()
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                formatter.timeZone = TimeZone(identifier: "GMT")
+                formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"
+                retry = formatter.date(from: retryAfter)
+            }
+        } else if exhausted, let reset = response.value(forHTTPHeaderField: "x-ratelimit-reset").flatMap(TimeInterval.init) {
+            retry = Date(timeIntervalSince1970: reset)
+        }
+        guard let retry else { return HostL10n.t("err.updateRateLimited") }
+        let minutes = max(1, Int((retry.timeIntervalSince(now) / 60).rounded(.up)))
+        return HostL10n.t("err.updateRateLimitedRetry", minutes)
+    }
+
     private static func parts(_ version: String) -> [Int]? {
         let parts = version.split(separator: ".", omittingEmptySubsequences: false)
         guard parts.count == 3, parts.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isASCII) && $0.allSatisfy(\.isNumber) && Int($0) != nil }) else { return nil }

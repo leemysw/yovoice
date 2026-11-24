@@ -96,6 +96,25 @@ public sealed class AppUpdater : IDisposable
     };
     // 界面主动检查：结果在界面展示，不弹原生对话框。
     public Task CheckFromAppAsync() => CheckAsync();
+    // 最新正式版的信息；GitHub 上还没有正式版时返回 null。
+    // 先读版本附带的 latest.json：普通文件下载，不受 GitHub 未登录接口每个 IP 每小时 60 次的限制；
+    // 字段与 Releases 接口一致，没有清单的旧版本或读取失败时再查接口。
+    private async Task<UpdateRelease?> LatestReleaseAsync()
+    {
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        try
+        {
+            using var manifest = await client.GetAsync("https://github.com/leemysw/yovoice/releases/latest/download/latest.json", stopped.Token);
+            if (manifest.IsSuccessStatusCode &&
+                JsonSerializer.Deserialize<UpdateRelease>(await manifest.Content.ReadAsStringAsync(stopped.Token), options) is { Tag: not null, Assets: not null } listed)
+                return listed;
+        }
+        catch (Exception error) when ((error is HttpRequestException or JsonException or TaskCanceledException) && !stopped.IsCancellationRequested) { }
+        using var response = await client.GetAsync("https://api.github.com/repos/leemysw/yovoice/releases/latest", stopped.Token);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        if (!response.IsSuccessStatusCode) throw new IOException(UpdateRelease.ServiceError(response, DateTimeOffset.UtcNow));
+        return JsonSerializer.Deserialize<UpdateRelease>(await response.Content.ReadAsStringAsync(stopped.Token), options) ?? throw new IOException(HostL10n.T("版本信息无效。", "The release information is invalid."));
+    }
     private async Task CheckAsync()
     {
         if (checking || ready is not null || disposed) return;
@@ -103,15 +122,13 @@ public sealed class AppUpdater : IDisposable
         Publish(Snapshot with { Status = "checking", Error = null, Received = 0, Total = 0 });
         try
         {
-            using var response = await client.GetAsync("https://api.github.com/repos/leemysw/yovoice/releases/latest", stopped.Token);
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            var release = await LatestReleaseAsync();
+            if (release is null)
             {
                 Publish(Snapshot with { Status = "latest", CheckedAt = DateTimeOffset.Now });
                 if (showResult) AppDialog.Show(owner, HostL10n.T("暂无可用更新", "No Updates Available"), HostL10n.T("GitHub 上尚无可用的正式版本。", "There is no stable release on GitHub yet."));
                 return;
             }
-            if (!response.IsSuccessStatusCode) throw new IOException(UpdateRelease.ServiceError(response, DateTimeOffset.UtcNow));
-            var release = JsonSerializer.Deserialize<UpdateRelease>(await response.Content.ReadAsStringAsync(stopped.Token), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new IOException(HostL10n.T("版本信息无效。", "The release information is invalid."));
             var asset = release.Package(current);
             // 版本号已校验，过时版本的安装包不再保留。
             RemoveStaleUpdates(release.Tag);
