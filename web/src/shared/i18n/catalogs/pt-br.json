@@ -3425,6 +3425,15 @@
   "@yovoice.feedback.openIssue": {
     "defaultMessage": "Abrir issue no GitHub"
   },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Salvar…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Abrir"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Descrever e anexar"
+  },
   "@yovoice.feedback.serviceCrashed": {
     "defaultMessage": "O yovoice não foi fechado normalmente da última vez."
   },
@@ -3432,16 +3441,16 @@
     "defaultMessage": "O mecanismo de inferência parou inesperadamente."
   },
   "@yovoice.feedback.stepExport": {
-    "defaultMessage": "Exporte o diagnóstico e salve em um local fácil de encontrar."
+    "defaultMessage": "Registros, erros do mecanismo e relatórios de falha. Salve em um lugar fácil de achar."
   },
   "@yovoice.feedback.stepIssue": {
-    "defaultMessage": "Abra a issue no GitHub. Versão, sistema, mecanismo e códigos de erro recentes já estão preenchidos."
+    "defaultMessage": "Versão, sistema, mecanismo e códigos de erro recentes já estão preenchidos."
   },
   "@yovoice.feedback.stepAttach": {
-    "defaultMessage": "Descreva o que estava fazendo e arraste o pacote para a caixa de descrição."
+    "defaultMessage": "Conte o que você estava fazendo e arraste o pacote para a caixa de descrição."
   },
   "@yovoice.feedback.privacy": {
-    "defaultMessage": "O pacote traz registros, a saída de erros do mecanismo e relatórios de falha do sistema. Sua pasta pessoal é trocada por ~; não inclui textos, letras nem chaves. Você pode conferir antes de publicar."
+    "defaultMessage": "Sua pasta pessoal é trocada por ~; não inclui textos, letras nem chaves. Você pode conferir antes de publicar."
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copiar"

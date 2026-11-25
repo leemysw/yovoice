@@ -3425,6 +3425,15 @@
   "@yovoice.feedback.openIssue": {
     "defaultMessage": "Открыть issue на GitHub"
   },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Сохранить…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Открыть"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Описать и приложить"
+  },
   "@yovoice.feedback.serviceCrashed": {
     "defaultMessage": "В прошлый раз yovoice завершился некорректно."
   },
@@ -3432,16 +3441,16 @@
     "defaultMessage": "Движок вывода неожиданно завершил работу."
   },
   "@yovoice.feedback.stepExport": {
-    "defaultMessage": "Экспортируйте диагностику и сохраните её в удобном месте."
+    "defaultMessage": "Журналы, ошибки движка и отчёты о сбоях. Сохраните туда, где легко найти."
   },
   "@yovoice.feedback.stepIssue": {
-    "defaultMessage": "Откройте issue на GitHub. Версия, система, движок и последние коды ошибок уже заполнены."
+    "defaultMessage": "Версия, система, движок и последние коды ошибок уже заполнены."
   },
   "@yovoice.feedback.stepAttach": {
     "defaultMessage": "Опишите, что вы делали, и перетащите пакет в поле описания."
   },
   "@yovoice.feedback.privacy": {
-    "defaultMessage": "В пакете журналы, вывод ошибок движка и системные отчёты о сбоях. Домашняя папка заменена на ~; тексты, слова песен и ключи не включаются. Перед отправкой его можно просмотреть."
+    "defaultMessage": "Домашняя папка заменена на ~; тексты, слова песен и ключи не включаются. Перед отправкой пакет можно просмотреть."
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Копировать"

@@ -3425,6 +3425,15 @@
   "@yovoice.feedback.openIssue": {
     "defaultMessage": "GitHub-Issue öffnen"
   },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Speichern…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Öffnen"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Beschreiben und anhängen"
+  },
   "@yovoice.feedback.serviceCrashed": {
     "defaultMessage": "yovoice wurde beim letzten Mal nicht normal beendet."
   },
@@ -3432,16 +3441,16 @@
     "defaultMessage": "Die Inferenz-Engine wurde unerwartet beendet."
   },
   "@yovoice.feedback.stepExport": {
-    "defaultMessage": "Diagnose exportieren und an einem leicht auffindbaren Ort speichern."
+    "defaultMessage": "Protokolle, Engine-Fehler und Absturzberichte. Speichere es an einem leicht auffindbaren Ort."
   },
   "@yovoice.feedback.stepIssue": {
-    "defaultMessage": "GitHub-Issue öffnen. Version, System, Engine und letzte Fehlercodes sind bereits ausgefüllt."
+    "defaultMessage": "Version, System, Engine und letzte Fehlercodes sind bereits ausgefüllt."
   },
   "@yovoice.feedback.stepAttach": {
-    "defaultMessage": "Beschreiben, was Sie gerade getan haben, und das Paket in das Beschreibungsfeld ziehen."
+    "defaultMessage": "Beschreibe, was du gerade gemacht hast, und ziehe das Paket ins Beschreibungsfeld."
   },
   "@yovoice.feedback.privacy": {
-    "defaultMessage": "Das Paket enthält Protokolle, die Fehlerausgabe der Engine und Absturzberichte des Systems. Ihr Benutzerordner wird durch ~ ersetzt; Texte, Liedtexte und Schlüssel sind nicht enthalten. Sie können es vor dem Posten prüfen."
+    "defaultMessage": "Ihr Benutzerordner wird durch ~ ersetzt; Texte, Liedtexte und Schlüssel sind nicht enthalten. Sie können das Paket vor dem Posten prüfen."
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Kopieren"

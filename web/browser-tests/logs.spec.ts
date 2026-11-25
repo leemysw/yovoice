@@ -75,9 +75,9 @@ test('上次异常退出时提示一次，可导出诊断包并打开预填的 i
   await notice.getByRole('button', { name: '反馈问题', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '反馈问题' });
   await expect(dialog).toContainText('把诊断包拖进描述框');
-  await expect(dialog.getByRole('link', { name: '打开 GitHub issue' })).toHaveAttribute('href', /github\.com\/leemysw\/yovoice\/issues\/new/);
+  await expect(dialog.getByRole('link', { name: '打开', exact: true })).toHaveAttribute('href', /github\.com\/leemysw\/yovoice\/issues\/new/);
   await page.screenshot({ path: testInfo.outputPath('feedback.png') });
-  await dialog.getByRole('button', { name: '导出诊断包', exact: true }).click();
+  await dialog.getByRole('button', { name: '保存…', exact: true }).click();
   await expect(dialog.getByRole('button', { name: '重新导出', exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: '关闭', exact: true }).first().click();
   // 同一次异常只提示一次。
