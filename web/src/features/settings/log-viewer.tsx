@@ -7,7 +7,7 @@ import { Pagination } from '@astryxdesign/core/Pagination';
 import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useLocale, useTranslator, type TranslatorFn } from '@astryxdesign/core/i18n';
-import { ChevronRight, Download, FolderOpen, RefreshCw } from 'lucide-react';
+import { Bug, ChevronRight, Download, FolderOpen, RefreshCw } from 'lucide-react';
 import { call, isDesktop } from '../../shared/lib/client';
 import { parseCallError } from '../../shared/lib/call-error';
 import { formatCallError, formatDateTime } from '../../shared/i18n/format';
@@ -15,6 +15,7 @@ import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
 import type { LogEntry, LogLevel, LogPage } from '../../shared/workbench';
 import { useAppUpdate } from '../update/app-update';
+import { FeedbackDialog } from './feedback-dialog';
 
 const pageSize = 50;
 const levelVariant: Record<LogLevel, 'neutral' | 'warning' | 'error'> = { INFO: 'neutral', WARN: 'warning', ERROR: 'error' };
@@ -31,7 +32,7 @@ function summary(t: TranslatorFn, entry: LogEntry) {
   return [message, text.length > 200 ? `${text.slice(0, 200)}…` : text].filter(Boolean).join(' — ');
 }
 
-// 设置 › 日志：按级别、模块、时间和关键词查看服务日志，点行尾箭头看完整字段；可导出诊断包用于反馈问题。
+// 设置 › 日志：按级别、模块、时间和关键词查看服务日志，点行尾箭头看完整字段；可导出诊断包，或经“反馈问题”导出后打开预填的 GitHub issue。
 // 日志只记录操作、ID、耗时和错误，不含正文、歌词和密钥。
 export function LogViewer({ run }: { run: (task: () => Promise<unknown>) => void }) {
   const t = useTranslator();
@@ -46,6 +47,7 @@ export function LogViewer({ run }: { run: (task: () => Promise<unknown>) => void
   const [result, setResult] = useState<LogPage>({ entries: [], total: 0, modules: [] });
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState<LogEntry | null>(null);
+  const [feedback, setFeedback] = useState(false);
   // 关键词输入停顿后再查询，避免每个按键都读一遍日志文件。
   useEffect(() => { const timer = setTimeout(() => { setQuery(text.trim()); setPage(1); }, 300); return () => clearTimeout(timer); }, [text]);
   const load = useCallback(() => run(async () => {
@@ -81,6 +83,7 @@ export function LogViewer({ run }: { run: (task: () => Promise<unknown>) => void
         <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.logs.refresh')} tooltip={t('@yovoice.logs.refresh')} icon={<RefreshCw size={15} />} isLoading={loading} onClick={load} />
         {isDesktop ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.openLogs')} tooltip={t('@yovoice.settings.openLogs')} icon={<FolderOpen size={15} />} onClick={() => run(() => call('logs.open'))} /> : null}
         <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.logs.export')} tooltip={t('@yovoice.logs.export')} icon={<Download size={15} />} onClick={() => run(() => call('logs.export', { version }))} />
+        <Button size="sm" variant="secondary" label={t('@yovoice.feedback.report')} icon={<Bug size={15} />} onClick={() => setFeedback(true)} />
       </HStack>
     </HStack>
     <VStack className="asset-table" gap={0}>
@@ -88,6 +91,7 @@ export function LogViewer({ run }: { run: (task: () => Promise<unknown>) => void
         emptyState={loading ? false : <EmptyState title={t('@yovoice.logs.empty')} />} />
     </VStack>
     {result.total > pageSize ? <Pagination size="sm" variant="count" page={page} pageSize={pageSize} totalItems={result.total} onChange={setPage} label={t('@yovoice.logs.pages')} /> : null}
+    {feedback ? <FeedbackDialog close={() => setFeedback(false)} /> : null}
     {detail ? <AppDialog title={detail.event} subtitle={`${time(detail.time)} · ${levelLabel(detail.level)}`} width={640} onClose={() => setDetail(null)}
       actions={<><Button label={t('@yovoice.logs.copy')} onClick={() => run(() => navigator.clipboard.writeText(JSON.stringify(detail, null, 2)))} /><Button label={t('@yovoice.action.close')} variant="primary" onClick={() => setDetail(null)} /></>}>
       {detail.fields?.error ? <p className="dialog-error">{formatCallError(t, parseCallError(detail.fields.error))}</p> : null}

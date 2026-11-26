@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Pagine del log"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Segnala un problema"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Segnala un problema"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Esporta diagnostica"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Esporta di nuovo"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Apri issue su GitHub"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Salva…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Apri"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Descrivi e allega"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "L’ultima volta yovoice non si è chiuso correttamente."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Il motore di inferenza si è arrestato inaspettatamente."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Log, errori del motore e report di arresto anomalo. Salvalo in un posto facile da trovare."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Versione, sistema, motore e codici di errore recenti sono già compilati."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Scrivi cosa stavi facendo, poi trascina il pacchetto nella casella di descrizione."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "La cartella home è sostituita da ~; non include testi, liriche né chiavi. Puoi controllarlo prima di pubblicarlo."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copia"
   },

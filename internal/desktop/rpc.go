@@ -497,6 +497,14 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
 		return diag.Query(w.Store.Root, filter)
+	case "diagnostics.report":
+		// 反馈问题用的摘要：最近的异常退出、错误码，以及预填了运行环境的 GitHub issue 地址。
+		s := w.Store.Read()
+		env := diag.Environment{Version: schema.Clip(p.Version, 40), Backend: s.Preferences.Backend}
+		if s.RuntimeVersion != nil {
+			env.Engine = *s.RuntimeVersion
+		}
+		return diag.Summarize(w.Store.Root, env, time.Now())
 	case "logs.export":
 		if p.Path == "" {
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)

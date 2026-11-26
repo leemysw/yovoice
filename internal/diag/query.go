@@ -147,7 +147,11 @@ func parse(line []byte) (Entry, bool) {
 // 诊断包里单个日志文件的上限，避免意外的大文件撑大压缩包。
 const bundleFileLimit = 20 << 20
 
-// Bundle 把日志目录里的服务、宿主与更新日志打包成 zip，附一份环境说明；推理进程的原始输出（engine.*）不收录。
+// engineLogTail 是诊断包里推理引擎错误输出的长度上限：引擎崩溃前的断言、内存分配失败都在最后一段。
+const engineLogTail = 256 << 10
+
+// Bundle 把日志目录里的服务、宿主、更新与崩溃日志打包成 zip，附一份环境说明。推理引擎的标准输出
+// （engine.log.out）不收录；错误输出 engine.log 只收最后 256 KB，并附上系统记录的本应用崩溃报告（见 crashReports）。
 func Bundle(root, path, version string) error {
 	var buffer bytes.Buffer
 	archive := zip.NewWriter(&buffer)
@@ -164,12 +168,19 @@ func Bundle(root, path, version string) error {
 	defer diagnosticMu.Unlock()
 	for _, item := range items {
 		name := item.Name()
-		if !item.Type().IsRegular() || strings.HasPrefix(name, "engine.") {
+		if !item.Type().IsRegular() || strings.HasPrefix(name, "engine.") || name == runningMarker {
 			continue
 		}
-		if e := addFile(archive, filepath.Join(root, "logs", name), "logs/"+name); e != nil {
+		if e := addFile(archive, filepath.Join(root, "logs", name), "logs/"+name, 0); e != nil {
 			return e
 		}
+	}
+	if e := addFile(archive, filepath.Join(root, "logs", "engine.log"), "logs/engine.log", engineLogTail); e != nil && !os.IsNotExist(e) {
+		return e
+	}
+	for name, path := range crashReports(time.Now()) {
+		// 系统崩溃报告可能被系统清理或无权读取，跳过读不到的。
+		_ = addFile(archive, path, "crash-reports/"+name, bundleFileLimit)
 	}
 	if err = archive.Close(); err != nil {
 		return err
@@ -178,12 +189,20 @@ func Bundle(root, path, version string) error {
 	return platform.WriteFileAtomic(path, buffer.Bytes(), 0600)
 }
 
-func addFile(archive *zip.Writer, source, name string) error {
+// addFile 把 source 写进压缩包；tail 大于 0 时只收文件最后 tail 字节。
+func addFile(archive *zip.Writer, source, name string, tail int64) error {
 	file, err := os.Open(source)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
+	if tail > 0 {
+		if info, e := file.Stat(); e == nil && info.Size() > tail {
+			if _, e = file.Seek(info.Size()-tail, io.SeekStart); e != nil {
+				return e
+			}
+		}
+	}
 	target, err := archive.Create(name)
 	if err != nil {
 		return err

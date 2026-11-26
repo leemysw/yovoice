@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Log pages"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Report a problem"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Report a problem"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Export diagnostics"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Export again"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Open GitHub issue"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Save…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Open"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Describe and attach"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice did not close normally last time."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "The inference engine stopped unexpectedly."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Logs, engine errors and crash reports. Save it somewhere easy to find."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Version, system, engine and recent error codes are already filled in."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Say what you were doing, then drag the package into the description box."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Your home folder is replaced with ~; no text, lyrics or keys are included. Look inside before posting if you like."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copy"
   },

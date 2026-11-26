@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "로그 페이지"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "문제 신고"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "문제 신고"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "진단 패키지 내보내기"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "다시 내보내기"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "GitHub issue 열기"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "저장…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "열기"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "상황 설명 후 진단 패키지 첨부"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice가 지난번에 정상적으로 종료되지 않았습니다."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "추론 엔진이 예기치 않게 종료되었습니다."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "로그, 추론 엔진 오류, 충돌 보고서입니다. 찾기 쉬운 곳에 저장하세요."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "버전, 시스템, 엔진, 최근 오류 코드가 미리 채워져 있습니다."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "무엇을 하고 있었는지 적고 진단 패키지를 설명란에 끌어다 놓으세요."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "홈 폴더는 ~로 바뀌며 본문, 가사, 키는 포함되지 않습니다. 올리기 전에 내용을 확인할 수 있습니다."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "복사"
   },

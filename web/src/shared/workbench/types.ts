@@ -63,6 +63,8 @@ export type LogLevel = 'INFO' | 'WARN' | 'ERROR';
 export interface LogEntry { time: string; level: LogLevel; event: string; fields?: Record<string, unknown> }
 export interface LogFilter { level?: string; module?: string; text?: string; since?: string; offset?: number; limit?: number }
 export interface LogPage { entries: LogEntry[]; total: number; modules: string[] }
+/** 反馈问题用的诊断摘要：最近一次异常退出（应用服务没有正常退出，或推理引擎意外退出）、最近的错误码与预填好的 issue 地址。 */
+export interface DiagnosticReport { crash?: { time: string; kind: 'service' | 'engine'; family?: string }; problems: { time: string; event: string; code?: string }[]; issueUrl: string }
 export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; gene?: string; lyricWords?: AlignedWord[]; textWords?: AlignedWord[]; check?: AudioCheck; seed?: number; stemOf?: string; stem?: StemName; patchOf?: string; patchBars?: number[] }
 /** HTDemucs 6-stem 的分轨名；分轨结果是同一作品里 stemOf 指向原版本的版本。 */
 export type StemName = 'drums' | 'bass' | 'other' | 'vocals' | 'guitar' | 'piano';

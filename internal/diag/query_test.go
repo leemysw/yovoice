@@ -87,7 +87,7 @@ func TestQueryFiltersAcrossRotationAndRedactsHome(t *testing.T) {
 	}
 }
 
-func TestBundleSkipsEngineOutput(t *testing.T) {
+func TestBundleSkipsEngineStdout(t *testing.T) {
 	root := t.TempDir()
 	if err := os.Mkdir(filepath.Join(root, "logs"), 0700); err != nil {
 		t.Fatal(err)
@@ -122,7 +122,7 @@ func TestBundleSkipsEngineOutput(t *testing.T) {
 			}
 		}
 	}
-	if strings.Join(names, ",") != "about.txt,logs/host-service.log,logs/service.log" {
+	if strings.Join(names, ",") != "about.txt,logs/host-service.log,logs/service.log,logs/engine.log" {
 		t.Fatalf("诊断包内容: %v", names)
 	}
 }

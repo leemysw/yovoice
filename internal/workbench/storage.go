@@ -264,8 +264,8 @@ func relocateSize(root string) int64 {
 // 待删除标记与未保存试听在重启时本就会被清理；WebView2 缓存被宿主占用无法复制，在新目录启动时自动重建。
 func skipRelocate(rel string, info os.FileInfo) bool {
 	name := info.Name()
-	switch rel {
-	case store.WebCacheDir, "service.lock", store.DatabaseFile, store.DatabaseFile + "-journal", "yovoice.backup.db", "state.json", "state.backup.json", "local-api.json", "secrets.json":
+	switch filepath.ToSlash(rel) {
+	case store.WebCacheDir, "service.lock", store.DatabaseFile, store.DatabaseFile + "-journal", "yovoice.backup.db", "state.json", "state.backup.json", "local-api.json", "secrets.json", "logs/service.running":
 		return true
 	}
 	if strings.HasSuffix(name, ".deleted") || strings.HasPrefix(name, ".yovoice-") || strings.HasPrefix(name, ".tmp-") {

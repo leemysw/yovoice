@@ -107,6 +107,11 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   // 预览默认带上助手运行时；测试可用 yovoice-preview-no-ocho 模拟安装包缺失的情形。
   const assistant = { available: !localStorage.getItem('yovoice-preview-no-ocho') };
   if (method === 'logs.export') return true as T;
+  // 预览没有本地服务日志；测试可用 yovoice-preview-crash 模拟上次异常退出。
+  if (method === 'diagnostics.report') {
+    const crashed = localStorage.getItem('yovoice-preview-crash');
+    return { problems: [], issueUrl: 'https://github.com/leemysw/yovoice/issues/new', ...(crashed ? { crash: { time: crashed, kind: 'engine', family: 'soulx_singer' } } : {}) } as T;
+  }
   // 预览不能运行本机程序：Codex 显示为未安装，登录需要桌面端。
   if (method === 'ai.codex.status') return {} as T;
   if (method === 'ai.codex.login') throw new CallError('@yovoice.error.previewDesktopOnly');

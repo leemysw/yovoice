@@ -7,10 +7,12 @@
 ### English
 
 - macOS and Windows check for updates through a small file published with each release instead of the GitHub API, so a shared network that has used up GitHub's hourly limit no longer makes updates fail. On macOS, when GitHub does limit checks, the app says so and when to try again; other update errors show their HTTP status.
+- Report a problem: after the app or the inference engine stops unexpectedly, yovoice offers to report it on next launch. Settings › Logs › Report a problem exports a diagnostics package — now with the engine's error output and the system's crash reports — and opens a GitHub issue with your version, system, engine and recent error codes filled in.
 
 ### 简体中文
 
 - macOS 和 Windows 改为从每个版本附带的小文件检查更新，不再依赖 GitHub 接口；多人共用的网络用光了 GitHub 每小时的查询次数时，不会再更新失败。macOS 上遇到 GitHub 限制检查次数时会说明原因和多久后可重试，其他更新错误会显示 HTTP 状态码。
+- 反馈问题：应用或推理引擎意外退出后，下次启动会提示反馈。“设置 › 日志 › 反馈问题”导出诊断包（新增推理引擎的错误输出和系统崩溃报告），并打开已填好版本、系统、内核和最近错误码的 GitHub issue。
 
 ## [0.9.0] - 2026-11-22
 

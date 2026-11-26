@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Trang nhật ký"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Báo lỗi"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Báo lỗi"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Xuất gói chẩn đoán"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Xuất lại"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Mở issue trên GitHub"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Lưu…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Mở"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Mô tả và đính kèm"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "Lần trước yovoice không thoát bình thường."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Bộ máy suy luận đã dừng bất ngờ."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Nhật ký, lỗi của bộ máy và báo cáo sự cố. Lưu vào nơi dễ tìm."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Phiên bản, hệ thống, bộ máy và mã lỗi gần đây đã được điền sẵn."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Ghi lại bạn đang làm gì, rồi kéo gói chẩn đoán vào ô mô tả."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Thư mục người dùng được thay bằng ~; không có văn bản, lời bài hát hay khóa. Bạn có thể mở xem trước khi gửi."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Sao chép"
   },

@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Страницы журнала"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Сообщить о проблеме"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Сообщить о проблеме"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Экспортировать диагностику"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Экспортировать снова"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Открыть issue на GitHub"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Сохранить…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Открыть"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Описать и приложить"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "В прошлый раз yovoice завершился некорректно."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Движок вывода неожиданно завершил работу."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Журналы, ошибки движка и отчёты о сбоях. Сохраните туда, где легко найти."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Версия, система, движок и последние коды ошибок уже заполнены."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Опишите, что вы делали, и перетащите пакет в поле описания."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Домашняя папка заменена на ~; тексты, слова песен и ключи не включаются. Перед отправкой пакет можно просмотреть."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Копировать"
   },

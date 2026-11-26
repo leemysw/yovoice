@@ -71,6 +71,10 @@ func run() error {
 		return fmt.Errorf("数据目录正被其他应用使用：%w", e)
 	}
 	defer lock.Close()
+	// 记录本次运行；上次没有正常退出时写一条 service.crashed，界面据此提示反馈问题。
+	// 只在 run 正常返回时清除标记，os.Exit 与崩溃都会把它留到下次启动。
+	running := diag.MarkRunning(root)
+	defer running()
 	wb, e := workbench.New(root)
 	if e != nil {
 		return e

@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Protokollseiten"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Problem melden"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Problem melden"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Diagnose exportieren"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Erneut exportieren"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "GitHub-Issue öffnen"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Speichern…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Öffnen"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Beschreiben und anhängen"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "yovoice wurde beim letzten Mal nicht normal beendet."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "Die Inferenz-Engine wurde unerwartet beendet."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Protokolle, Engine-Fehler und Absturzberichte. Speichere es an einem leicht auffindbaren Ort."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Version, System, Engine und letzte Fehlercodes sind bereits ausgefüllt."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Beschreibe, was du gerade gemacht hast, und ziehe das Paket ins Beschreibungsfeld."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Ihr Benutzerordner wird durch ~ ersetzt; Texte, Liedtexte und Schlüssel sind nicht enthalten. Sie können das Paket vor dem Posten prüfen."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Kopieren"
   },

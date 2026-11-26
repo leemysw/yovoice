@@ -3410,6 +3410,48 @@
   "@yovoice.logs.pages": {
     "defaultMessage": "Páginas do log"
   },
+  "@yovoice.feedback.title": {
+    "defaultMessage": "Relatar um problema"
+  },
+  "@yovoice.feedback.report": {
+    "defaultMessage": "Relatar um problema"
+  },
+  "@yovoice.feedback.export": {
+    "defaultMessage": "Exportar diagnóstico"
+  },
+  "@yovoice.feedback.exportAgain": {
+    "defaultMessage": "Exportar novamente"
+  },
+  "@yovoice.feedback.openIssue": {
+    "defaultMessage": "Abrir issue no GitHub"
+  },
+  "@yovoice.feedback.save": {
+    "defaultMessage": "Salvar…"
+  },
+  "@yovoice.feedback.open": {
+    "defaultMessage": "Abrir"
+  },
+  "@yovoice.feedback.attach": {
+    "defaultMessage": "Descrever e anexar"
+  },
+  "@yovoice.feedback.serviceCrashed": {
+    "defaultMessage": "O yovoice não foi fechado normalmente da última vez."
+  },
+  "@yovoice.feedback.engineCrashed": {
+    "defaultMessage": "O mecanismo de inferência parou inesperadamente."
+  },
+  "@yovoice.feedback.stepExport": {
+    "defaultMessage": "Registros, erros do mecanismo e relatórios de falha. Salve em um lugar fácil de achar."
+  },
+  "@yovoice.feedback.stepIssue": {
+    "defaultMessage": "Versão, sistema, mecanismo e códigos de erro recentes já estão preenchidos."
+  },
+  "@yovoice.feedback.stepAttach": {
+    "defaultMessage": "Conte o que você estava fazendo e arraste o pacote para a caixa de descrição."
+  },
+  "@yovoice.feedback.privacy": {
+    "defaultMessage": "Sua pasta pessoal é trocada por ~; não inclui textos, letras nem chaves. Você pode conferir antes de publicar."
+  },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copiar"
   },
