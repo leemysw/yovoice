@@ -203,7 +203,8 @@ type ModelDownload struct {
 	Token     string `json:"token"`
 	Received  int64  `json:"received"`
 	Total     int64  `json:"total"`
-	Status    string `json:"status"`
+	// Status 为 running、queued、paused 或 failed；queued 表示等前一个下载结束后自动开始。
+	Status string `json:"status"`
 }
 
 type InstalledModel struct {

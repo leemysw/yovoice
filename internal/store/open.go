@@ -30,7 +30,8 @@ func New(root string) (store *Store, err error) {
 	s.state.Activity = settleActivity(s.state.Activity)
 	s.state.ModelActivity = settleActivity(s.state.ModelActivity)
 	for id, job := range s.state.ModelDownloads {
-		if job.Status == "running" {
+		// 排队的任务只在本次会话里自动接续，重启后和进行中的任务一样改为暂停，由用户继续。
+		if job.Status == "running" || job.Status == "queued" {
 			job.Status = "paused"
 			s.state.ModelDownloads[id] = job
 		}

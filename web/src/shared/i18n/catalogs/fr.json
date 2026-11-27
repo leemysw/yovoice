@@ -791,6 +791,9 @@
   "@yovoice.settings.download.paused": {
     "defaultMessage": "En pause"
   },
+  "@yovoice.settings.download.queued": {
+    "defaultMessage": "En file d’attente"
+  },
   "@yovoice.settings.download.running": {
     "defaultMessage": "Téléchargement"
   },

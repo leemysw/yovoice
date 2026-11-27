@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -521,5 +522,72 @@ func TestCancelActiveModelDownloadStopsTransferAndKeepsInstallation(t *testing.T
 	must(t, err)
 	if string(data) != "old" {
 		t.Fatal(string(data))
+	}
+}
+
+// 已有模型在下载时，再点下载的模型加入队列，前一个结束后按先后自动开始；暂停排队中的任务就不再自动开始。
+func TestModelDownloadsQueueBehindActiveDownload(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	data := []byte("queued model weights")
+	file := modelTestFile("a.gguf", data)
+	package_ := func(id string) catalog.ModelPackage {
+		return catalog.ModelPackage{ID: id, RemotePath: id + ".gguf", SHA256: file.SHA256, Size: file.Size, Revision: "latest"}
+	}
+	first, second, third := package_("first"), package_("second"), package_("third")
+	release := make(chan struct{})
+	started := make(chan struct{})
+	var order []string
+	var mu sync.Mutex
+	server := httptest.NewServer(http.HandlerFunc(func(out http.ResponseWriter, req *http.Request) {
+		name := strings.TrimSuffix(filepath.Base(req.URL.Path), ".gguf")
+		mu.Lock()
+		order = append(order, name)
+		mu.Unlock()
+		if name == "first" {
+			close(started)
+			<-release
+		}
+		_, _ = out.Write(data)
+	}))
+	defer server.Close()
+	useModelTestServer(t, w, server)
+	must(t, w.downloadCatalogModel(first, ""))
+	<-started
+	must(t, w.downloadCatalogModel(second, ""))
+	must(t, w.downloadCatalogModel(third, ""))
+	// 同一个模型重复点下载不会重复排队，正在下载的模型仍然拒绝。
+	must(t, w.downloadCatalogModel(second, ""))
+	if err := w.downloadCatalogModel(first, ""); err == nil {
+		t.Fatal("正在下载的模型不应再次开始")
+	}
+	s := w.Store.Read()
+	if s.ModelDownloads["second"].Status != "queued" || s.ModelDownloads["third"].Status != "queued" {
+		t.Fatal(s.ModelDownloads)
+	}
+	must(t, w.PauseModelDownload("third"))
+	close(release)
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		if _, ok := installedModel(w.Store.Read(), "second"); ok {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	<-w.ModelDone()
+	s = w.Store.Read()
+	for _, id := range []string{"first", "second"} {
+		if _, ok := installedModel(s, id); !ok {
+			t.Fatal(id, s.ModelDownloads, s.ModelActivity)
+		}
+	}
+	if job := s.ModelDownloads["third"]; job.Status != "paused" {
+		t.Fatal(job)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if strings.Join(order, ",") != "first,second" {
+		t.Fatal(order)
 	}
 }

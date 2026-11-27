@@ -524,7 +524,15 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     // 预览只模拟更新或换版本：记下所选版本的主文件摘要，换到旧版本时不再提示更新。
     const { id, version } = data as { id: string; version?: string };
     const installed = state.models.find(model => model.id === id);
-    const definition = catalog.find(model => model.id === id) as Parameters<typeof modelMainFile>[0] | undefined;
+    const definition = catalog.find(model => model.id === id) as (Parameters<typeof modelMainFile>[0] & { size: number }) | undefined;
+    // 别的模型正在下载时，和桌面版一样把新请求加入队列，演示排队状态。
+    const active = state.modelActivity?.kind === 'download' && state.modelActivity.status === 'running' ? state.modelActivity.modelId : null;
+    if (definition && active && active !== id) {
+      const job = state.modelDownloads?.[id];
+      state.modelDownloads = { ...state.modelDownloads, [id]: { version: job?.version ?? modelMainFile(definition).sha256, received: job?.received ?? 0, total: job?.total ?? definition.size, status: 'queued' } };
+      publish();
+      return true as T;
+    }
     if (!installed || !definition) throw new CallError('@yovoice.error.previewDesktopOnly');
     if (!installed.managed) throw new CallError('@yovoice.error.localModelProtected');
     const latest = modelMainFile(definition).sha256;

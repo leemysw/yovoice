@@ -49,6 +49,26 @@ test('更新可以暂停和取消，取消后仍保留已安装模型', async ({
   })).toEqual({ models: [installed], jobs: [] });
 });
 
+test('已有模型在下载时，点下载的模型进入队列，可以取消', async ({ page }) => {
+  const state = emptyState();
+  state.modelDownloads = { [id]: { version: '1'.repeat(64), received: 120, total: 240, status: 'running' } };
+  state.modelActivity = {
+    modelId: id, kind: 'download', status: 'running', code: '@yovoice.activity.download', params: null,
+    received: 120, total: 240, errorCode: null, errorParams: null,
+  };
+  await seedState(page, state);
+  await page.goto('/');
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: '模型', exact: true }).click(); await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  const queued = page.locator('[data-model-ids~="qwen3-tts-base-q8"]');
+  await queued.getByRole('button', { name: '下载模型', exact: true }).click();
+  await expect(queued.getByText('排队中', { exact: true })).toBeVisible();
+  await expect(queued.getByRole('button', { name: '继续下载', exact: true })).toHaveCount(0);
+  await expect(page.locator(`[data-model-id="${id}"]`).getByRole('button', { name: '暂停', exact: true })).toBeVisible();
+  await queued.getByRole('button', { name: '取消下载', exact: true }).click();
+  await expect(queued.getByRole('button', { name: '下载模型', exact: true })).toBeVisible();
+});
+
 test('切换模型目录后能看到校验进度并取消', async ({ page }) => {
   const state = emptyState();
   state.preferences = { ...state.preferences, introSeen: true, tourSeen: true };

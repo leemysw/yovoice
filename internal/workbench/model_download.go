@@ -8,12 +8,19 @@ import (
 	"regexp"
 	"slices"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
+
+// queuedDownload 记住排队任务开始时要用的目录定义、版本和下载来源。
+type queuedDownload struct {
+	definition      catalog.ModelPackage
+	version, source string
+}
 
 var modelTransferDirectory = regexp.MustCompile(`^\.yovoice-model-[0-9a-f]{32}$`)
 
@@ -56,13 +63,30 @@ func (w *Workbench) downloadCatalogModel(definition catalog.ModelPackage, versio
 }
 
 func (w *Workbench) downloadCatalogModelFromSource(definition catalog.ModelPackage, version, source string) error {
-	id := definition.ID
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	if w.closed || w.installCancel != nil {
+	return w.downloadCatalogModelLocked(definition, version, source)
+}
+
+// downloadCatalogModelLocked 开始下载；已有别的模型在下载时加入队列，等它结束后自动开始。调用方须持有 mu。
+func (w *Workbench) downloadCatalogModelLocked(definition catalog.ModelPackage, version, source string) error {
+	id := definition.ID
+	if w.closed {
 		return msg.Err(msg.ErrBusy, nil)
 	}
 	s := w.Store.Read()
+	queue := false
+	if w.installCancel != nil {
+		// 只有别的模型在下载时才能排队；同一个模型正在下载，或模型槽被其他操作占用时仍然拒绝。
+		a := s.ModelActivity
+		if a == nil || a.Kind != "download" || a.ModelID == nil || *a.ModelID == id {
+			return msg.Err(msg.ErrBusy, nil)
+		}
+		if job, ok := s.ModelDownloads[id]; ok && job.Status == "queued" {
+			return nil
+		}
+		queue = true
+	}
 	if source == "" {
 		source = s.Preferences.DownloadSource
 	}
@@ -103,10 +127,24 @@ func (w *Workbench) downloadCatalogModelFromSource(definition catalog.ModelPacka
 			return err
 		}
 	}
-	job.Status, job.Total = "running", model.Size
+	job.Total = model.Size
 	for _, wheel := range wheels {
 		job.Total += wheel.Size
 	}
+	if queue {
+		job.Status = "queued"
+		if err := w.Store.Update(func(s *schema.State) {
+			if s.ModelDownloads == nil {
+				s.ModelDownloads = make(map[string]schema.ModelDownload)
+			}
+			s.ModelDownloads[id] = job
+		}, true); err != nil {
+			return err
+		}
+		w.downloadQueue = append(w.downloadQueue, queuedDownload{definition, version, source})
+		return nil
+	}
+	job.Status = "running"
 	_, err = w.startLocked("download", msg.ActivityDownload, msg.Params{"name": model.Name}, ptr(id), func(ctx context.Context) error {
 		return w.downloadModelFiles(ctx, model, job, installed, urls, wheels, source, definition.MainFile().SHA256)
 	}, func(s *schema.State) {
@@ -245,14 +283,45 @@ func (w *Workbench) publishModelDownload(ctx context.Context, model catalog.Mode
 	return w.retireModelFiles(state, previous, oldPath, path), nil
 }
 
-// PauseModelDownload 停止目标任务的网络传输，保留续传数据。
+// startQueuedDownloadLocked 按加入顺序开始排队的下一个下载；开始不了的停在暂停状态，不挡住后面的任务。调用方须持有 mu。
+func (w *Workbench) startQueuedDownloadLocked() {
+	for !w.closed && w.installCancel == nil && len(w.downloadQueue) > 0 {
+		next := w.downloadQueue[0]
+		w.downloadQueue = w.downloadQueue[1:]
+		id := next.definition.ID
+		// 排队期间被暂停或取消的任务已不在队列状态，跳过。
+		job, ok := w.Store.Read().ModelDownloads[id]
+		if !ok || job.Status != "queued" {
+			continue
+		}
+		// 先标成暂停再开始：开始失败时就停在暂停状态，由用户继续。
+		if err := w.Store.Update(func(s *schema.State) {
+			j := s.ModelDownloads[id]
+			j.Status = "paused"
+			s.ModelDownloads[id] = j
+		}, true); err != nil {
+			return
+		}
+		if err := w.downloadCatalogModelLocked(next.definition, next.version, next.source); err != nil {
+			diag.Log(w.Store.Root, "model.queue_start_failed", "model_id", id, "error", diag.Error(err))
+		}
+	}
+}
+
+// PauseModelDownload 停止目标任务的网络传输，保留续传数据。排队的任务改为暂停，不再自动开始。
 func (w *Workbench) PauseModelDownload(id string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if a := w.Store.Read().ModelActivity; w.installCancel != nil && a != nil && schema.Deref(a.ModelID) == id {
 		w.installCancel()
+		return nil
 	}
-	return nil
+	return w.Store.Update(func(s *schema.State) {
+		if job, ok := s.ModelDownloads[id]; ok && job.Status == "queued" {
+			job.Status = "paused"
+			s.ModelDownloads[id] = job
+		}
+	}, true)
 }
 
 // DiscardModelDownload 取消指定下载，只清除该任务的目录。已安装的模型和其他任务不受影响。

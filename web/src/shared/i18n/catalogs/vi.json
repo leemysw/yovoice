@@ -791,6 +791,9 @@
   "@yovoice.settings.download.paused": {
     "defaultMessage": "Đã tạm dừng"
   },
+  "@yovoice.settings.download.queued": {
+    "defaultMessage": "Đang chờ"
+  },
   "@yovoice.settings.download.running": {
     "defaultMessage": "Đang tải xuống"
   },

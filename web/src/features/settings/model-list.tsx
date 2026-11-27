@@ -17,6 +17,7 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 
 function downloadStatusLabel(t: (key: string) => string, downloading: boolean, received: number, size: number, status: string) {
   if (downloading) return received >= size ? t('@yovoice.settings.download.verifying') : t('@yovoice.settings.download.running');
+  if (status === 'queued') return t('@yovoice.settings.download.queued');
   if (status === 'failed') return t('@yovoice.settings.download.failed');
   return t('@yovoice.settings.download.paused');
 }
@@ -55,6 +56,8 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
   // 生成等主操作与模型下载、导入互不阻塞：下载按钮只看模型安装是否空闲。
   const busy = state.activity?.status === 'running';
   const modelBusy = state.modelActivity?.status === 'running';
+  // 别的模型在下载时可以继续点下载，加入队列，等前一个结束后自动开始；导入等其他模型操作进行中时仍不可点。
+  const queueBlocked = modelBusy && state.modelActivity?.kind !== 'download';
   const isInstalled = (model: ModelPackage) => state.models.some(m => m.id === model.id);
   const groups = groupModels(models);
   const installed = groups.filter(group => group.some(isInstalled));
@@ -113,16 +116,16 @@ export function ModelGroups({ models, state, draft, run, focus }: { models: Mode
           {!ready && !download && !legacy && !downloading ? <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.settings.importLocalModel')} tooltip={t('@yovoice.settings.localModelHint')} icon={<FolderOpen size={16} />} isDisabled={busy || modelBusy} onClick={() => run(() => call('model.import', { id: model.id }))} /> : null}
           {downloading || download || legacy ? <>
             {downloading ? <Button size="sm" label={t('@yovoice.action.pause')} icon={<Pause size={16} />} onClick={() => run(() => call('model.pause', { id: model.id }))} />
-              : download ? <Button size="sm" label={t('@yovoice.settings.resumeDownload')} icon={<Download size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
+              : download && download.status !== 'queued' ? <Button size="sm" label={t('@yovoice.settings.resumeDownload')} icon={<Download size={16} />} isDisabled={queueBlocked} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
             <Button size="sm" variant="secondary" label={t('@yovoice.settings.cancelDownload')} onClick={() => run(() => call('model.cancel', { id: model.id }))} />
           </> : ready ? <HStack gap={1} vAlign="center">
             {currentVersion ? <Selector size="sm" className="model-version" label={t('@yovoice.settings.modelVersion')} isLabelHidden value={currentVersion} options={versions} isDisabled={busy || modelBusy}
               onChange={version => { if (version !== currentVersion) run(() => call('model.download', { id: model.id, version })); }} width="calc(var(--spacing-10) * 4)" /> : null}
             {update ? <Button size="sm" variant="secondary" label={t('@yovoice.settings.updateModel')}
               tooltip={`${t('@yovoice.settings.modelVersionLatest')} · ${latest.slice(0, 12)} · ${formatBytes(model.size)}`}
-              icon={<RefreshCw size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
+              icon={<RefreshCw size={16} />} isDisabled={queueBlocked} onClick={() => run(() => call('model.download', { id: model.id }))} /> : null}
             <Button size="sm" variant="ghost" label={t('@yovoice.settings.removeModel')} icon={<Trash2 size={16} />} isDisabled={removeBlocked} tooltip={removeBlocked ? t('@yovoice.settings.removeBlocked') : t(managed ? '@yovoice.settings.removeManagedTooltip' : '@yovoice.settings.removeTooltip')} onClick={() => run(() => call('model.forget', { id: model.id }))} />
-          </HStack> : <Button size="sm" label={t('@yovoice.settings.downloadModel')} icon={<Download size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.download', { id: model.id }))} />}
+          </HStack> : <Button size="sm" label={t('@yovoice.settings.downloadModel')} icon={<Download size={16} />} isDisabled={queueBlocked} onClick={() => run(() => call('model.download', { id: model.id }))} />}
         </HStack>
       </HStack>
       {ready && (!managed || record?.converted) ? <small className="model-path" title={record?.path}>{record?.path}</small> : null}

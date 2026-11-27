@@ -36,6 +36,8 @@ type Workbench struct {
 	done          chan struct{}
 	installCancel context.CancelFunc
 	installDone   chan struct{}
+	// downloadQueue 是本次会话里排队的模型下载，按加入顺序在前一个下载结束后开始。
+	downloadQueue []queuedDownload
 	closed        bool
 	closeOnce     sync.Once
 	engine        *engine.Engine
@@ -238,6 +240,10 @@ func (w *Workbench) startLocked(kind string, code msg.Code, params msg.Params, m
 			}, false)
 		}
 		*slotCancel = nil
+		// 一个下载结束（完成、失败或暂停）后接着开始排队的下一个。
+		if kind == "download" {
+			w.startQueuedDownloadLocked()
+		}
 	}()
 	return done, nil
 }
