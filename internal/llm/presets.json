@@ -98,6 +98,15 @@
     "endpoint": "fixed"
   },
   {
+    "key": "aimlapi",
+    "name": "AI/ML API",
+    "format": "chat_completions",
+    "baseURL": "https://api.aimlapi.com/v1",
+    "modelsPath": "/models?type=openai/chat-completions",
+    "keyURL": "https://aimlapi.com/app/keys",
+    "endpoint": "fixed"
+  },
+  {
     "key": "kimi-code",
     "name": "Kimi Code",
     "format": "chat_completions",
