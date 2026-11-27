@@ -170,6 +170,24 @@ func TestTruncatedAndModels(t *testing.T) {
 	}
 }
 
+// 网关给模型标了可用接口时（如 OpenCode），只列出当前协议能调用的模型；没标的照常列出。
+func TestModelsFilterByAPI(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"data":[
+			{"id":"glm","api":{"chat-completions":{"base_url":"x"}}},
+			{"id":"claude","api":{"messages":{"base_url":"x"}}},
+			{"id":"gpt","api":{"responses":{"base_url":"x"}}},
+			{"id":"plain"}]}`))
+	}))
+	defer server.Close()
+	for format, want := range map[string]string{FormatChat: "glm,plain", FormatAnthropic: "claude,plain", FormatResponses: "gpt,plain"} {
+		models, err := Models(context.Background(), server.Client(), Config{Format: format, BaseURL: server.URL, ModelsPath: "/models"})
+		if err != nil || strings.Join(models, ",") != want {
+			t.Fatal(format, models, err)
+		}
+	}
+}
+
 func TestMaskAndExtract(t *testing.T) {
 	if Mask("sk-abcdefghijklmnop") != "sk-a••••••••mnop" || Mask("short") != "•••••" || Mask("") != "" {
 		t.Fatal(Mask("sk-abcdefghijklmnop"))

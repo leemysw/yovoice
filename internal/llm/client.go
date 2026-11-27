@@ -269,6 +269,9 @@ func parse(format string, body []byte) (Result, error) {
 	return Result{Text: text, Truncated: choice.FinishReason == "length"}, nil
 }
 
+// modelsAPIKey 是模型列表里 api 字段对应各协议的键。
+var modelsAPIKey = map[string]string{FormatChat: "chat-completions", FormatResponses: "responses", FormatAnthropic: "messages"}
+
 // Models 读取服务的模型列表（OpenAI 与 Anthropic 都返回 {data:[{id}]}）。
 func Models(ctx context.Context, client *http.Client, c Config) ([]string, error) {
 	if c.Format == FormatCodex {
@@ -281,23 +284,26 @@ func Models(ctx context.Context, client *http.Client, c Config) ([]string, error
 	if e != nil {
 		return nil, e
 	}
+	type entry struct {
+		ID    string `json:"id"`
+		Model string `json:"model"`
+		Name  string `json:"name"`
+		// API 是部分网关（如 OpenCode）给每个模型标出的可用接口，键为 chat-completions、responses、messages 等。
+		API map[string]json.RawMessage `json:"api"`
+	}
 	var v struct {
-		Data []struct {
-			ID    string `json:"id"`
-			Model string `json:"model"`
-			Name  string `json:"name"`
-		} `json:"data"`
-		Models []struct {
-			ID    string `json:"id"`
-			Model string `json:"model"`
-			Name  string `json:"name"`
-		} `json:"models"`
+		Data   []entry `json:"data"`
+		Models []entry `json:"models"`
 	}
 	if e = json.Unmarshal(body, &v); e != nil {
 		return nil, msg.Err(msg.ErrAIResponse, msg.Params{"status": 200, "detail": Sanitize(string(body), c.Key)})
 	}
 	var ids []string
 	for _, m := range append(v.Data, v.Models...) {
+		// 网关标了可用接口时，只列出当前协议能调用的模型，避免选了 Claude、Gemini 等走别的接口的模型后调用失败。
+		if key := modelsAPIKey[c.Format]; len(m.API) > 0 && key != "" && m.API[key] == nil {
+			continue
+		}
 		id := strings.TrimSpace(m.ID)
 		if id == "" {
 			id = strings.TrimSpace(m.Model)

@@ -98,6 +98,15 @@
     "endpoint": "fixed"
   },
   {
+    "key": "opencode",
+    "name": "OpenCode Zen",
+    "format": "chat_completions",
+    "baseURL": "https://opencode.ai/inference/openai/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://opencode.ai/console",
+    "endpoint": "fixed"
+  },
+  {
     "key": "kimi-code",
     "name": "Kimi Code",
     "format": "chat_completions",
@@ -151,6 +160,16 @@
     "endpoint": "fixed",
     "plan": "coding",
     "icon": "volcengine"
+  },
+  {
+    "key": "opencode-go",
+    "name": "OpenCode Go",
+    "format": "chat_completions",
+    "baseURL": "https://opencode.ai/inference/go/openai/v1",
+    "modelsPath": "/models",
+    "keyURL": "https://opencode.ai/console/go",
+    "endpoint": "fixed",
+    "plan": "coding"
   },
   {
     "key": "ollama",
